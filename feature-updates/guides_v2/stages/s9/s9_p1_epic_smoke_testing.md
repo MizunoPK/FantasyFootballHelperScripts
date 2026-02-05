@@ -10,7 +10,7 @@
 S5 (ALL features complete) →
 → [YOU ARE HERE: S9.P1 - Epic Smoke Testing] →
 → S9.P2 (Epic QC Rounds) → S9.P3 (User Testing) → S9.P4 (Epic Final Review) → S10
-```markdown
+```
 
 ---
 
@@ -104,7 +104,7 @@ Epic Smoke Testing is complete when ALL 4 parts of epic_smoke_test_plan.md pass,
    - Part 2: Epic-level entry point tests
    - Part 3: Epic end-to-end execution tests
    - Part 4: Cross-feature integration tests (EPIC-SPECIFIC)
-```markdown
+```
 
 **Universal rules (from pattern file):**
 - All parts mandatory
@@ -196,7 +196,7 @@ Part 4: Cross-Feature Integration Test (EPIC-SPECIFIC)
    ↓
    If PASS → Document, proceed to S6b
    If FAIL → Fix, RE-RUN ALL 4 PARTS
-```markdown
+```
 
 ---
 
@@ -215,7 +215,7 @@ Part 4: Cross-Feature Integration Test (EPIC-SPECIFIC)
 | feature_01 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | feature_02 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | feature_03 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-```markdown
+```
 
 **Verify:** EVERY feature shows ✅ in S8.P2 (Epic Testing Update) column.
 
@@ -257,7 +257,7 @@ python -c "from feature_02.HelperClass import HelperClass"
 python -c "from feature_03.ManagerClass import ManagerClass"
 
 # Verify no import conflicts or circular dependencies
-```python
+```
 
 **Pass:** All epic modules import successfully
 **Fail:** Any import errors → Fix, re-run Part 1
@@ -281,7 +281,7 @@ python run_script.py --help
 python run_script.py --mode feature_01_mode --help
 python run_script.py --mode feature_02_mode --help
 python run_script.py --mode feature_03_mode --help
-```markdown
+```
 
 **Pass:** All feature modes accessible, help complete
 **Fail:** Missing modes, crashes → Fix, re-run Parts 1 & 2
@@ -306,13 +306,13 @@ From epic_smoke_test_plan.md, execute each scenario:
 1. Fetch player data (Feature 01)
 2. Apply ratings (Feature 02)
 3. Generate recommendations (Feature 03)
-```markdown
+```
 
 **Execute:**
 ```bash
 # Step-by-step or combined workflow
 python run_script.py --complete-draft-workflow --data-folder ./data
-```markdown
+```
 
 ### Step 2: CRITICAL - Verify Epic Output DATA VALUES
 
@@ -349,7 +349,7 @@ assert data[0]['rating'] != 0.0, "Ratings are placeholder values"
 assert data[0]['draft_position'] > 0, "Positions are invalid"
 
 print("✅ Epic output integrates all features correctly")
-```markdown
+```
 
 **If validation fails:** Document issue, fix, RE-RUN ALL 4 PARTS
 
@@ -370,7 +370,7 @@ From `epic_smoke_test_plan.md`, identify cross-feature integration scenarios:
 - Feature 01 → Feature 02: Player data passed to rating system
 - Feature 02 → Feature 03: Ratings used in recommendations
 - Feature 03 → Feature 01: Recommendations update player rankings
-```markdown
+```
 
 ### Step 2: Execute Integration Scenarios
 
@@ -395,7 +395,7 @@ assert all(hasattr(p, 'rating') for p in rated_players), "Ratings not applied"
 assert rated_players[0].rating > 0, "Rating values invalid"
 
 print("✅ Feature 01 → Feature 02 integration works")
-```markdown
+```
 
 ### Step 3: Verify Error Propagation
 
@@ -410,7 +410,7 @@ try:
 except ValueError as e:
     assert "Invalid player data" in str(e), "Error message unclear"
     print("✅ Error propagation works correctly")
-```markdown
+```
 
 ### Step 4: Verify Interface Compatibility
 

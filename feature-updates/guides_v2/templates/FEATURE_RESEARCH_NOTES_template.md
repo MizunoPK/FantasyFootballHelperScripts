@@ -125,7 +125,7 @@
 **Data Flow:**
 ```json
 {Feature/Module A} --> {Data/Function} --> {Feature/Module B}
-```markdown
+```
 
 **Integration Requirements:**
 - {Requirement 1}

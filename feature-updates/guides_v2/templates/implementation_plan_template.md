@@ -37,7 +37,7 @@ This template is used during S5 (Implementation Planning) to accumulate findings
 **Line:** {line_number}
 
 **Change:**
-```python
+```
 # Current
 {current_code}
 

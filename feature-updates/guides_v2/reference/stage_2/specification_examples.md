@@ -92,7 +92,7 @@ This reference provides detailed examples for executing Specification Phase (S2.
    - **Source:** Derived requirement (new loader requires tests)
    - **Traceability:** Standard practice
    - **Purpose:** Test CSV loading, parsing, error handling
-```markdown
+```
 
 ---
 
@@ -160,11 +160,11 @@ This reference provides detailed examples for executing Specification Phase (S2.
 **Implementation:**
 - Modify PlayerManager.calculate_total_score() method
 - Current calculation:
-  ```python
+  ```
   total_score = base_score * injury_mult * matchup_mult * team_mult
   ```text
 - New calculation:
-  ```python
+  ```
   adp_mult = self._calculate_adp_multiplier(player)
   total_score = base_score * injury_mult * matchup_mult * team_mult * adp_mult
   ```markdown
@@ -205,7 +205,7 @@ This reference provides detailed examples for executing Specification Phase (S2.
 
 **Implementation:**
 - Add to data/league_config.json:
-  ```json
+  ```
   "adp_multipliers": {
     "ranges": [
       {"min": 1, "max": 50, "multiplier": 1.2},
@@ -237,7 +237,7 @@ This reference provides detailed examples for executing Specification Phase (S2.
 **Total Requirements:** 5 (all traced to sources)
 **User Requests:** 3 direct, 2 derived
 **Assumptions:** 0 (all TBD items moved to checklist as questions)
-```markdown
+```
 
 ---
 
@@ -452,7 +452,7 @@ C. **No logging** (silent default to 1.0 multiplier)
 ✅ Business logic not in epic (multiplier formula)
 ✅ Edge case handling (missing data behavior)
 ✅ External data formats (CSV column names from FantasyPros)
-```markdown
+```
 
 ---
 
@@ -570,7 +570,7 @@ C. **No logging** (silent default to 1.0 multiplier)
 **Ready for S2.P3:** ✅ YES
 
 **Next Action:** Present checklist to user (Gate 2) or proceed to S2.P3 Phase 3
-```markdown
+```
 
 ---
 
@@ -630,7 +630,7 @@ C. **No logging** (silent default to 1.0 multiplier)
 5. Do NOT proceed to S2.P3 until PASSED
 
 **Lesson:** Read "Out of Scope" section in Discovery Context. User explicitly said what NOT to include.
-```markdown
+```
 
 ---
 
@@ -682,7 +682,7 @@ C. **No logging** (silent default to 1.0 multiplier)
 5. Do NOT proceed to S2.P3 until PASSED
 
 **Lesson:** Read ALL explicit requests in Discovery Context. Missing even one means spec is incomplete.
-```markdown
+```
 
 ---
 
@@ -722,7 +722,7 @@ S2b (Specification Phase) is complete. I've created checklist.md with 6 question
 - Request clarification on any question
 
 **What format works best for you?**
-```markdown
+```
 
 ### Example: User Provides Answers
 
@@ -736,7 +736,7 @@ Q3: Config-based sounds good, let me tune it
 Q4: Normalization approach works
 Q5: Graceful degradation with warning
 Q6: Summary logging is fine
-```markdown
+```
 
 **Agent updates spec.md and checklist.md:**
 
@@ -755,7 +755,7 @@ Q6: Summary logging is fine
 - Update data structures section in spec.md
 
 **spec.md update:**
-```markdown
+```
 ### Data Structure: ADP CSV Format
 
 **Source:** User Answer to Checklist Q1
@@ -775,7 +775,7 @@ def load_adp_data(filepath: Path) -> Dict[str, int]:
     )
     # Map OverallRank to adp_value
     # ...
-```text
+```
 ```json
 
 {Continue for all 6 questions...}
@@ -784,7 +784,7 @@ def load_adp_data(filepath: Path) -> Dict[str, int]:
 
 **After all questions answered:**
 
-```markdown
+```
 ## User Approval Section
 
 **User Reviewed:** 2026-01-10 14:30

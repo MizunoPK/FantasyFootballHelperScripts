@@ -66,25 +66,25 @@
 ```markdown
 Issue: feature_02 and feature_05 both define PlayerData class
 Resolution: Create shared PlayerData in utils, both features use it
-```markdown
+```
 
 **Data structure conflicts:**
 ```markdown
 Issue: feature_03 expects player_id as string, feature_05 uses integer
 Resolution: Standardize on integer across all features
-```markdown
+```
 
 **Duplicate functionality:**
 ```markdown
 Issue: feature_04 has CSV export, now adding to feature_03
 Resolution: Extract CSV export to shared utility, both features use it
-```markdown
+```
 
 **Integration dependencies:**
 ```markdown
 Issue: feature_05 needs data from feature_02's projection API
 Resolution: Document integration point, add to both specs
-```markdown
+```
 
 ---
 
@@ -117,7 +117,7 @@ Resolution: Document integration point, add to both specs
    - feature_{YY}: {change needed}
 
    Approve this resolution? {User confirms}
-   ```markdown
+   ```
 
 ---
 
@@ -139,7 +139,7 @@ S3 cross-feature sanity check complete.
 **All features are now aligned and ready for implementation.**
 
 Proceed to S4 (Epic Testing Strategy update)? {User confirms}
-```markdown
+```
 
 ---
 
@@ -182,7 +182,7 @@ Proceed to S4 (Epic Testing Strategy update)? {User confirms}
 - Injury status field populated
 - Projection reduction applied correctly
 - Score calculation uses adjusted projection
-```markdown
+```
 
 ---
 
@@ -211,7 +211,7 @@ Proceed to S4 (Epic Testing Strategy update)? {User confirms}
 
 **Expected:** Recommendations account for both ADP and injury status
 **Success criteria:** Injured high-ADP player ranked lower than healthy equivalent
-```markdown
+```
 
 ---
 
@@ -232,7 +232,7 @@ Proceed to S4 (Epic Testing Strategy update)? {User confirms}
 **Shared Data:**
 - player_id (integer, standardized across all features)
 - PlayerData class (utils/FantasyPlayer.py)
-```markdown
+```
 
 ---
 
@@ -262,7 +262,7 @@ Proceed to S4 (Epic Testing Strategy update)? {User confirms}
 - feature_02_projection_system: Resuming S6 Phase 3
   - Resume from: {Exact step where paused}
   - Next action: {Continue implementation}
-```bash
+```
 
 ---
 
@@ -292,7 +292,7 @@ Before resuming implementation, should I:
 2. Continue with current implementation_plan.md (spec changes are minor/will handle during implementation)
 
 What would you like to do?
-```markdown
+```
 
 **If user says update implementation_plan.md:**
 - Re-run relevant parts of S5 for affected tasks
@@ -315,7 +315,7 @@ Stages completed:
 - S4: Epic test plan updated ✅
 
 feature_02's spec remains unchanged. Resuming implementation at S6 Phase 3.
-```bash
+```
 
 ---
 
@@ -331,7 +331,7 @@ When planning complete:
 1. Verify this feature's spec still valid after alignment ← DID THIS
 2. Resume at: S6 Phase 3 ← RESUME HERE
 3. Context: Implementing projection calculation logic ← CONTEXT
-```bash
+```
 
 **Update paused feature's README Agent Status:**
 
@@ -356,7 +356,7 @@ When planning complete:
 - Continuous verification against spec
 - Mini-QC checkpoints
 - 100% test pass required
-```markdown
+```
 
 **Continue where you left off**
 
@@ -379,7 +379,7 @@ Sequence:
 
 Current action: Complete feature_02 (S6 → S7 → S8)
 After feature_02: Implement feature_05 (S5 → S6 → S7 → S8)
-```markdown
+```
 
 **Example - High Priority:**
 ```bash

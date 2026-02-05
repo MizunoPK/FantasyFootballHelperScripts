@@ -40,7 +40,7 @@ touch feature_{XX}_{name}/README.md
 touch feature_{XX}_{name}/spec.md
 touch feature_{XX}_{name}/checklist.md
 touch feature_{XX}_{name}/lessons_learned.md
-```markdown
+```
 
 **Folder structure:**
 ```text
@@ -50,7 +50,7 @@ feature-updates/KAI-{N}-{epic_name}/feature_{XX}_{name}/
 ├── checklist.md         (create in this phase)
 ├── lessons_learned.md   (empty for now)
 └── research/            (create if needed)
-```markdown
+```
 
 ### Step 2: Create README.md
 
@@ -99,7 +99,7 @@ feature-updates/KAI-{N}-{epic_name}/feature_{XX}_{name}/
 ## Feature Overview
 
 {Will be filled during S2 deep dive}
-```markdown
+```
 
 ---
 
@@ -154,7 +154,7 @@ cat feature_{XX}_{name}/checklist.md
 
 # Read existing README
 cat feature_{XX}_{name}/README.md
-```markdown
+```
 
 **Understand:**
 - Current feature scope
@@ -184,7 +184,7 @@ cat feature_{XX}_{name}/README.md
 - Update spec.md with new requirements
 - Update checklist.md with new decisions
 - Maintain alignment with existing scope
-```markdown
+```
 
 ---
 
@@ -210,7 +210,7 @@ cat feature_{XX}_{name}/README.md
 
 ### Algorithms
 {Any new algorithms or business logic}
-```markdown
+```
 
 **2. Update existing sections affected:**
 ```markdown
@@ -221,7 +221,7 @@ cat feature_{XX}_{name}/README.md
 
 **New integration points:**
 - {integrations added by missed requirement}
-```markdown
+```
 
 **3. Update traceability matrix:**
 ```markdown
@@ -231,7 +231,7 @@ cat feature_{XX}_{name}/README.md
 |-------------|-------------|----------------|
 | {existing} | {existing} | {existing} |
 | {new from missed req} | {new requirement} | {planned implementation} |
-```markdown
+```
 
 **4. Document scope increase:**
 ```markdown
@@ -245,7 +245,7 @@ cat feature_{XX}_{name}/README.md
 - Implementation complexity: {increased/same}
 - Estimated time: {may increase}
 - Dependencies: {any new dependencies}
-```markdown
+```
 
 ---
 

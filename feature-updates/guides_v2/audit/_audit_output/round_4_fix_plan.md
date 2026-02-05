@@ -34,7 +34,7 @@
 
 **Current:**
 ```markdown
-```markdown
+```
 CLAUDE.md: "S5: Implementation Planning (22 iterations)"
 Guide: "S5: Implementation Planning (22 iterations across 3 rounds:
         Round 1 (7 iterations), Round 2 (9 iterations), Round 3 (12 iterations))"
@@ -44,7 +44,7 @@ CLAUDE.md simplified but accurate ✅
 
 **Target:**
 ```markdown
-```markdown
+```
 CLAUDE.md: "S5: Implementation Planning (22 iterations)"
 Guide: "S5: Implementation Planning (22 iterations across 3 rounds:
         Round 1 (7 iterations), Round 2 (6 iterations), Round 3 (9 iterations))"
@@ -68,12 +68,12 @@ CLAUDE.md simplified but accurate ✅
 **Current:**
 ```markdown
 - Iteration Completion: All 25 iterations complete
-```text
+```
 
 **Target:**
 ```markdown
 - Iteration Completion: All 22 iterations complete
-```markdown
+```
 
 **Change:**
 - "All 25 iterations complete" → "All 22 iterations complete"
@@ -89,7 +89,7 @@ CLAUDE.md simplified but accurate ✅
 **Read context first:**
 ```bash
 # Read lines 567-574 to see full context
-```text
+```
 
 **Use Edit tool:**
 ```markdown
@@ -102,7 +102,7 @@ NEW:
 CLAUDE.md: "S5: Implementation Planning (22 iterations)"
 Guide: "S5: Implementation Planning (22 iterations across 3 rounds:
         Round 1 (7 iterations), Round 2 (6 iterations), Round 3 (9 iterations))"
-```markdown
+```
 
 ---
 
@@ -117,7 +117,7 @@ OLD:
 
 NEW:
 - Iteration Completion: All 22 iterations complete
-```markdown
+```
 
 ---
 

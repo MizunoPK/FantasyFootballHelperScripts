@@ -39,7 +39,7 @@
 ```bash
 find . -name "*.md" -type f ! -path "./_audit_output/*" ! -name "S5_UPDATE_NOTES.md" \
   -exec sed -i 's/Iterations 8-13/Iterations 8-13/g; s/I8-I13/I8-I13/g' {} +
-```markdown
+```
 
 ### Sub-group 1b: I14-I22 → I14-I22
 
@@ -52,7 +52,7 @@ find . -name "*.md" -type f ! -path "./_audit_output/*" ! -name "S5_UPDATE_NOTES
 ```bash
 find . -name "*.md" -type f ! -path "./_audit_output/*" ! -name "S5_UPDATE_NOTES.md" \
   -exec sed -i 's/Iterations 14-22/Iterations 14-22/g; s/I14-I22/I14-I22/g' {} +
-```markdown
+```
 
 ### Sub-group 1c: "1-7 + Gate" → "1-7 (7 iterations, includes Gates"
 
@@ -63,7 +63,7 @@ find . -name "*.md" -type f ! -path "./_audit_output/*" ! -name "S5_UPDATE_NOTES
 ```diff
 - Round 1: Iterations 1-7 + Gate 4a + Gate 7a (9 iterations)
 + Round 1: Iterations 1-7 (7 iterations, includes Gates 4a, 7a)
-```markdown
+```
 
 ---
 
@@ -88,7 +88,7 @@ find . -name "*.md" -type f ! -path "./_audit_output/*" ! -name "S5_UPDATE_NOTES
 # Safer version (more specific):
 find . -name "*.md" -type f ! -path "./_audit_output/*" ! -name "S5_UPDATE_NOTES.md" \
   -exec sed -i 's/Round 2: 6 MANDATORY iteration/Round 2: 6 MANDATORY iteration/g' {} +
-```markdown
+```
 
 ### Sub-group 2b: "9 iterations" for Round 3
 
@@ -102,7 +102,7 @@ find . -name "*.md" -type f ! -path "./_audit_output/*" ! -name "S5_UPDATE_NOTES
 ```bash
 find . -name "*.md" -type f ! -path "./_audit_output/*" ! -name "S5_UPDATE_NOTES.md" \
   -exec sed -i 's/9 iterations/9 iterations/g' {} +
-```markdown
+```
 
 ### Sub-group 2c: "8 MANDATORY iterations" → "7 iterations"
 
@@ -112,7 +112,7 @@ find . -name "*.md" -type f ! -path "./_audit_output/*" ! -name "S5_UPDATE_NOTES
 ```bash
 find . -name "*.md" -type f ! -path "./_audit_output/*" ! -name "S5_UPDATE_NOTES.md" \
   -exec sed -i 's/Round 1: 7 MANDATORY iteration/Round 1: 7 MANDATORY iteration/g' {} +
-```markdown
+```
 
 ---
 
@@ -141,7 +141,7 @@ find . -name "*.md" -type f ! -path "./_audit_output/*" ! -name "S5_UPDATE_NOTES
 # Fix "Iteration 19:" (Integration Gap Check)
 find . -name "*.md" -type f ! -path "./_audit_output/*" ! -name "S5_UPDATE_NOTES.md" \
   -exec sed -i 's/Iteration 19:/Iteration 19:/g' {} +
-```markdown
+```
 
 ---
 
@@ -167,7 +167,7 @@ find . -name "*.md" -type f ! -path "./_audit_output/*" ! -name "S5_UPDATE_NOTES
 # Fix "(Iteration 22)" → "(Iteration 22)"
 find . -name "*.md" -type f ! -path "./_audit_output/*" ! -name "S5_UPDATE_NOTES.md" \
   -exec sed -i 's/(Iteration 22)/(Iteration 22)/g' {} +
-```markdown
+```
 
 ---
 
@@ -189,7 +189,7 @@ find . -name "*.md" -type f ! -path "./_audit_output/*" ! -name "S5_UPDATE_NOTES
 # Fix "(Iteration 21)" → "(Iteration 21)"
 find . -name "*.md" -type f ! -path "./_audit_output/*" ! -name "S5_UPDATE_NOTES.md" \
   -exec sed -i 's/(Iteration 21)/(Iteration 21)/g' {} +
-```markdown
+```
 
 ---
 
@@ -204,20 +204,20 @@ find . -name "*.md" -type f ! -path "./_audit_output/*" ! -name "S5_UPDATE_NOTES
 - Round 1: Iterations 1-7 + Gate 4a + Gate 7a (9 iterations)
 - Round 2: Iterations 8-13 (9 iterations)
 - Round 3: Iterations 14-22 (includes Gates 23a, 24, 25) (9 iterations)
-```text
+```
 
 **After automated fixes:**
 ```text
 - Round 1: Iterations 1-7 + Gate 4a + Gate 7a (7 iterations)  [STILL WRONG FORMAT]
 - Round 2: Iterations 8-13 (6 iterations)  [FIXED BY AUTOMATION]
 - Round 3: Iterations 14-22 (includes Gates 23a, 24, 25) (9 iterations)  [FIXED BY AUTOMATION]
-```text
+```
 
 **Manual edit needed for Line 683:**
 ```diff
 - Round 1: Iterations 1-7 + Gate 4a + Gate 7a (7 iterations)
 + Round 1: Iterations 1-7 (7 iterations, includes Gates 4a, 7a)
-```markdown
+```
 
 ### Issue M2: glossary.md Gate iteration mapping
 
@@ -227,7 +227,7 @@ find . -name "*.md" -type f ! -path "./_audit_output/*" ! -name "S5_UPDATE_NOTES
 ```diff
 - Gate 24 = Iteration 22
 + Gate 24 = Iteration 22
-```markdown
+```
 
 ### Issue M3: README.md gate descriptions
 
@@ -243,7 +243,7 @@ find . -name "*.md" -type f ! -path "./_audit_output/*" ! -name "S5_UPDATE_NOTES
 
 - Gate 25: Spec Validation Check (Round 3)
 + Gate 25: Spec Validation Check (Round 3, Iteration 21)
-```markdown
+```
 
 ---
 
@@ -293,7 +293,7 @@ find . -name "*.md" -type f ! -path "./_audit_output/*" ! -name "S5_UPDATE_NOTES
   -exec sed -i 's/Iteration 21/Iteration 21/g; s/iteration 25/iteration 21/g; s/(Iteration 21)/(Iteration 21)/g' {} +
 
 echo "✓ Automated fixes complete"
-```markdown
+```
 
 ### Step 2: Manual Fixes (Group 6)
 

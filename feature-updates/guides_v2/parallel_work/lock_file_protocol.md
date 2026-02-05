@@ -33,7 +33,7 @@ The lock file system provides **atomic file-based locking** to serialize access 
   "expires_at": "2026-01-15T14:35:00Z",
   "auto_release": true
 }
-```markdown
+```
 
 **Fields:**
 - `holder`: Human-readable agent identifier (Agent-Primary, Secondary-A, Secondary-B)
@@ -54,7 +54,7 @@ The lock file system provides **atomic file-based locking** to serialize access 
 if [ -f .epic_locks/epic_readme.lock ]; then
   echo "Lock exists, checking if expired..."
 fi
-```markdown
+```
 
 ### Step 2: Read Lock File (if exists)
 
@@ -76,7 +76,7 @@ else
   echo "Lock still valid, must wait"
   LOCK_EXPIRED=false
 fi
-```markdown
+```
 
 ### Step 3: Wait or Acquire
 
@@ -87,19 +87,19 @@ echo "Operation: $(echo $LOCK_CONTENT | jq -r '.operation')"
 echo "Waiting 5 seconds..."
 sleep 5
 # Retry from Step 1
-```markdown
+```
 
 **If lock expired:**
 ```bash
 echo "Lock expired, removing stale lock"
 rm .epic_locks/epic_readme.lock
 # Proceed to Step 4
-```markdown
+```
 
 **If lock doesn't exist:**
 ```bash
 # Proceed to Step 4
-```markdown
+```
 
 ### Step 4: Create Lock File
 
@@ -120,7 +120,7 @@ cat > .epic_locks/epic_readme.lock <<EOF
 EOF
 
 echo "Lock acquired successfully"
-```markdown
+```
 
 ### Step 5: Verify Acquisition
 
@@ -139,7 +139,7 @@ else
   echo "Lock acquired by another agent, retrying"
   # Retry from Step 1
 fi
-```markdown
+```
 
 ---
 
@@ -157,7 +157,7 @@ echo "Updating EPIC_README.md..."
 
 # Save changes
 echo "Changes saved"
-```markdown
+```
 
 **Operation Guidelines:**
 - **Keep locked time minimal** (under 30 seconds ideal)
@@ -176,7 +176,7 @@ echo "Changes saved"
 rm .epic_locks/epic_readme.lock
 
 echo "Lock released"
-```markdown
+```
 
 ### Step 2: Verify Release
 
@@ -188,7 +188,7 @@ else
   echo "ERROR: Lock file still exists!"
   # This shouldn't happen, investigate
 fi
-```markdown
+```
 
 ---
 
@@ -223,7 +223,7 @@ fi
 14:30:46 - Agent-Primary releases lock
 
 Lock never timed out because operation completed in 30s (well under 5 min)
-```markdown
+```
 
 **Timeout Scenario:**
 ```text
@@ -236,7 +236,7 @@ Lock never timed out because operation completed in 30s (well under 5 min)
 14:35:10 - Secondary-A releases lock
 
 Timeout allowed recovery from crashed agent
-```markdown
+```
 
 ---
 
@@ -303,7 +303,7 @@ acquire_lock() {
   echo "This indicates a stuck lock or heavy contention"
   return 1
 }
-```markdown
+```
 
 **Escalation:**
 - If unable to acquire lock after 5 minutes (60 retries), escalate to Primary
@@ -327,7 +327,7 @@ acquire_lock() {
 <!-- BEGIN SECONDARY-A PROGRESS -->
 ... Secondary-A's content ...
 <!-- END SECONDARY-A PROGRESS -->
-```bash
+```
 
 **Benefits:**
 - Agents edit different sections = less chance of actual conflict
@@ -348,7 +348,7 @@ Agent-Primary wants to update EPIC_README.md
   → Updates progress section (25 seconds)
   → Releases lock
   → Success
-```markdown
+```
 
 ### Scenario 2: Contention (Another Agent Holding Lock)
 
@@ -364,7 +364,7 @@ Secondary-A wants to update EPIC_README.md
   → Updates progress section (20 seconds)
   → Releases lock
   → Success (took 30 seconds due to wait)
-```markdown
+```
 
 ### Scenario 3: Expired Lock (Crashed Agent)
 
@@ -379,7 +379,7 @@ Secondary-B wants to update EPIC_README.md
   → Releases lock
   → Success
   → Reports to Primary: "Secondary-A may have crashed (stale lock detected)"
-```markdown
+```
 
 ### Scenario 4: Heavy Contention (All 3 Agents)
 
@@ -391,7 +391,7 @@ All agents complete S2.P1 simultaneously:
 
 Total time: 68 seconds (serialized updates)
 If no lock: Would have merge conflict or lost updates
-```markdown
+```
 
 ---
 
@@ -407,7 +407,7 @@ if [ -f .epic_locks/epic_readme.lock ]; then
 else
   echo "Lock available"
 fi
-```markdown
+```
 
 ### Check Lock Age
 
@@ -419,7 +419,7 @@ echo "Lock acquired at: $ACQUIRED"
 echo "Current time: $CURRENT"
 
 # Calculate duration (manual comparison)
-```markdown
+```
 
 ### Force Release Lock (DANGER)
 
@@ -433,7 +433,7 @@ echo "Current time: $CURRENT"
 echo "Force releasing lock held by $(cat .epic_locks/epic_readme.lock | jq -r '.holder')"
 rm .epic_locks/epic_readme.lock
 echo "Lock force-released"
-```markdown
+```
 
 ---
 
@@ -447,7 +447,7 @@ echo "Lock force-released"
 ### Step X: Update EPIC_README.md Progress
 
 1. **Acquire lock:**
-   ```bash
+   ```
    acquire_lock "epic_readme" "$AGENT_ID" "Updating S2.P1 progress"
    ```markdown
 
@@ -457,14 +457,14 @@ echo "Lock force-released"
    - Update status, next action, blockers
 
 3. **Release lock:**
-   ```bash
+   ```
    release_lock "epic_readme"
    ```markdown
 
 4. **Verify update:**
    - Re-read EPIC_README.md
    - Confirm your section updated correctly
-```markdown
+```
 
 ---
 
@@ -503,7 +503,7 @@ if ! jq '.' .epic_locks/epic_readme.lock >/dev/null 2>&1; then
   rm .epic_locks/epic_readme.lock
   # Retry acquisition
 fi
-```markdown
+```
 
 ### Error 2: Unable to Create Lock File
 
@@ -515,7 +515,7 @@ if ! cat > .epic_locks/epic_readme.lock <<EOF ...; then
   echo "Check permissions"
   exit 1
 fi
-```markdown
+```
 
 ### Error 3: Lock Held Too Long
 

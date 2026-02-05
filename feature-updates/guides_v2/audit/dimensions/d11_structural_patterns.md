@@ -110,7 +110,7 @@ Result: Starts reading steps before seeing prerequisites, misses context
 ## The 10 Stages
 
 ## Guide Index
-```text
+```
 
 **EPIC_WORKFLOW_USAGE.md:**
 ```markdown
@@ -124,7 +124,7 @@ Result: Starts reading steps before seeing prerequisites, misses context
   ### S1: Epic Planning
   ### S2: Feature Planning
   [S3-S10]
-```markdown
+```
 
 **Automated:** ⚠️ Partial (section presence automated, order manual)
 
@@ -149,7 +149,7 @@ Result: Starts reading steps before seeing prerequisites, misses context
 ## Exit Criteria (or Next Stage)
 
 ## See Also
-```text
+```
 
 **Validation:**
 ```bash
@@ -159,7 +159,7 @@ for file in stages/s*/*.md; do
   grep -q "## Exit Criteria\|## Next" "$file" || echo "MISSING Exit Criteria: $file"
   grep -q "## Overview" "$file" || echo "MISSING Overview: $file"
 done
-```markdown
+```
 
 **Automated:** ✅ Yes (CHECK 2 in pre_audit_checks.sh)
 
@@ -184,7 +184,7 @@ done
 - [Scenario 2] → Read [guide B]
 
 ## See Also
-```text
+```
 
 **Examples:**
 - `stages/s5/s5_p1_planning_round1.md` (router to I1, I2, I3)
@@ -198,7 +198,7 @@ for file in $(grep -l "router\|Router" stages/*/*.md); do
     echo "Router missing navigation: $file"
   fi
 done
-```markdown
+```
 
 **Automated:** ⚠️ Partial (pattern detection possible)
 
@@ -211,18 +211,18 @@ done
 s#_stage_name.md          (e.g., s1_epic_planning.md)
 s#_p#_phase_name.md       (e.g., s2_p1_research.md)
 s#_p#_i#_iteration_name.md (e.g., s5_p1_i1_requirements.md)
-```text
+```
 
 **Reference files:**
 ```text
 reference/category/description.md
 reference/stage_#/stage_reference_card.md
-```text
+```
 
 **Templates:**
 ```text
 templates/type_name_template.md
-```text
+```
 
 **Validation:**
 ```bash
@@ -233,7 +233,7 @@ find stages -name "*.md" | grep -v "s[0-9]_" | grep -v "README.md"
 # Check for hyphens instead of underscores
 find stages -name "*-*-*.md"
 # Should return no results (underscores preferred)
-```markdown
+```
 
 **Automated:** ✅ Yes (pattern matching with find)
 
@@ -248,7 +248,7 @@ find stages -name "*-*-*.md"
 ### Subsection (h3)
 
 #### Detail (h4 - rare, only if needed)
-```text
+```
 
 **Anti-Pattern:**
 ```markdown
@@ -257,7 +257,7 @@ find stages -name "*-*-*.md"
 ### Subsection (ERROR: skipped h2)
 
 #### Detail (ERROR: skipped from h1 to h4)
-```text
+```
 
 **Validation:**
 ```bash
@@ -268,7 +268,7 @@ grep -rn "^####" stages/ | wc -l
 # Find files with multiple h1
 grep -rn "^# " stages/*.md | awk -F: '{print $1}' | uniq -c | awk '$1 > 1'
 # Should return nothing (one h1 per file)
-```markdown
+```
 
 **Automated:** ✅ Yes (regex pattern matching)
 
@@ -284,7 +284,7 @@ grep -rn "^# " stages/*.md | awk -F: '{print $1}' | uniq -c | awk '$1 > 1'
 6. Critical Rules / Key Principles
 7. Exit Criteria / Next Stage
 8. See Also
-```text
+```
 
 **Anti-Pattern:**
 ```text
@@ -292,7 +292,7 @@ grep -rn "^# " stages/*.md | awk -F: '{print $1}' | uniq -c | awk '$1 > 1'
 2. Main Content (ERROR: jumped into content before prerequisites)
 3. Prerequisites (ERROR: too late)
 4. Overview (ERROR: should be at top)
-```markdown
+```
 
 **Validation:** Manual (order checking requires understanding section purpose)
 
@@ -313,7 +313,7 @@ cp s5_p1_i1_requirements.md s5_p1_i2_algorithms.md
 
 # Edit content but forget to update section order
 # Result: i2 has i1's structure even though content is different
-```text
+```
 
 **Why It Happens:**
 - Focus on content changes, not structure review
@@ -341,7 +341,7 @@ cp s5_p1_i1_requirements.md s5_p1_i2_algorithms.md
 ## Prerequisites
 ## Critical Rules (ERROR: between Prerequisites and Exit Criteria)
 ## Exit Criteria
-```markdown
+```
 
 **Result:** Sections in random order, not standard pattern
 
@@ -354,7 +354,7 @@ cp s5_p1_i1_requirements.md s5_p1_i2_algorithms.md
 ## Overview
 Purpose: ...
 Prerequisites: ...
-```text
+```
 
 **2026-01 Template Update:**
 ```markdown
@@ -363,7 +363,7 @@ Prerequisites: ...
 **Duration:** ... (NEW)
 **Prerequisites:** ...
 **Outputs:** ... (NEW)
-```markdown
+```
 
 **Problem:** Existing guides still use old format
 
@@ -376,7 +376,7 @@ Prerequisites: ...
 # Router File (intentional special structure)
 ## Navigation Table
 ## See Also
-```text
+```
 
 **File B (copied A, but shouldn't be router):**
 ```markdown
@@ -384,7 +384,7 @@ Prerequisites: ...
 ## Navigation Table (ERROR: not a router)
 ## See Also
 # Missing Prerequisites, Exit Criteria
-```markdown
+```
 
 ---
 
@@ -424,7 +424,7 @@ done
 
 echo "Missing Prerequisites: $MISSING_PREREQ"
 echo "Missing Exit Criteria: $MISSING_EXIT"
-```markdown
+```
 
 ### Script 2: Naming Convention Validation (SHOULD ADD)
 
@@ -457,7 +457,7 @@ if [ "$WRONG_TEMPLATES" -gt 0 ]; then
   echo "⚠️  Template files not ending with _template.md:"
   find templates -name "*.md" ! -name "*_template.md" ! -name "README.md"
 fi
-```markdown
+```
 
 ### Script 3: Header Hierarchy Validation (SHOULD ADD)
 
@@ -486,7 +486,7 @@ if [ "$DEEP_NESTING" -gt 0 ]; then
   echo "⚠️  Instances of h5 or deeper nesting: $DEEP_NESTING"
   echo "   (May indicate over-nesting, consider restructuring)"
 fi
-```markdown
+```
 
 ---
 
@@ -527,7 +527,7 @@ STEP 5: Document deviations
 - If structure differs, is it intentional? (router files)
 - If intentional, is it documented? (comment at top)
 - If unintentional, add to fix list
-```text
+```
 
 **For router files:**
 
@@ -547,7 +547,7 @@ STEP 3: Verify router doesn't have regular guide sections
 - Router should NOT have Prerequisites (sub-guides have those)
 - Router should NOT have Exit Criteria (sub-guides have those)
 - Router is navigation only
-```markdown
+```
 
 ---
 
@@ -560,21 +560,21 @@ STEP 3: Verify router doesn't have regular guide sections
 File: stages/s5/s5_p1_planning_round1.md
 Structure: Sub-Guide Table, Navigation (no Prerequisites)
 Verdict: ✅ ACCEPTABLE (router pattern)
-```text
+```
 
 **2. Reference Files (List Structure):**
 ```markdown
 File: reference/glossary.md
 Structure: Alphabetical term list (no Prerequisites/Exit Criteria)
 Verdict: ✅ ACCEPTABLE (reference material, not sequential guide)
-```text
+```
 
 **3. Templates (Example Structure):**
 ```markdown
 File: templates/feature_spec_template.md
 Structure: Template sections with placeholder text
 Verdict: ✅ ACCEPTABLE (template, not actual guide)
-```markdown
+```
 
 ### When Structural Deviations Are Errors
 
@@ -583,14 +583,14 @@ Verdict: ✅ ACCEPTABLE (template, not actual guide)
 File: stages/s7/s7_p2_qc_rounds.md (regular guide)
 Structure: Overview, Steps, See Also (MISSING Prerequisites and Exit Criteria)
 Verdict: ❌ ERROR (not a router, must have all required sections)
-```text
+```
 
 **2. File Name Doesn't Match Convention:**
 ```markdown
 File: stages/s5/planning-round-1.md (ERROR: hyphens instead of underscores)
 Should be: stages/s5/s5_p1_planning_round1.md
 Verdict: ❌ ERROR (violates naming convention)
-```text
+```
 
 **3. Multiple h1 Headers:**
 ```markdown
@@ -601,7 +601,7 @@ File: stages/s1/s1_epic_planning.md
 [content]
 
 # Discovery Phase (ERROR: second h1)
-```markdown
+```
 **Verdict:** ❌ ERROR (should be h2: ## Discovery Phase)
 
 ---
@@ -615,7 +615,7 @@ File: stages/s1/s1_epic_planning.md
 $ grep -l "## Prerequisites" stages/s7/s7_p2_qc_rounds.md
 
 [No results - section missing]
-```text
+```
 
 **Analysis:**
 - File is regular stage guide (not router)
@@ -637,7 +637,7 @@ $ grep -l "## Prerequisites" stages/s7/s7_p2_qc_rounds.md
 - Commit your latest changes
 - Clean working directory
 - Tests passing locally
-```markdown
+```
 
 ### Example 2: Wrong File Naming Convention
 
@@ -646,7 +646,7 @@ $ grep -l "## Prerequisites" stages/s7/s7_p2_qc_rounds.md
 $ find stages -name "*-*-*.md"
 stages/s5/planning-round-1.md
 stages/s5/planning-round-2.md
-```text
+```
 
 **Analysis:**
 - Files use hyphens instead of underscores
@@ -663,7 +663,7 @@ git mv stages/s5/planning-round-2.md stages/s5/s5_p2_planning_round2.md
 # Update all references
 sed -i 's|planning-round-1\.md|s5_p1_planning_round1.md|g' stages/**/*.md
 sed -i 's|planning-round-2\.md|s5_p2_planning_round2.md|g' stages/**/*.md
-```markdown
+```
 
 ### Example 3: Sections in Wrong Order
 
@@ -685,7 +685,7 @@ Purpose: ...
 
 ## Exit Criteria
 ...
-```text
+```
 
 **Analysis:**
 - Prerequisites section after Steps section
@@ -711,7 +711,7 @@ Purpose: ...
 
 ## Exit Criteria
 ...
-```markdown
+```
 
 ### Example 4: Router File Misidentified as Regular Guide
 
@@ -725,7 +725,7 @@ stages/s2/s2_feature_deep_dive.md
 
 $ grep "## Prerequisites" stages/s2/s2_feature_deep_dive.md
 [No results]
-```text
+```
 
 **Analysis:**
 - File is actually a router (has Sub-Guide Table)

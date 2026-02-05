@@ -63,7 +63,7 @@
 **Current:**
 ```markdown
 **Example - Acceptable:**
-```markdown
+```
 CLAUDE.md: "S5: Implementation Planning (22 iterations)"
 Guide: "S5: Implementation Planning (22 iterations across 3 rounds:
         Round 1 (7 iterations), Round 2 (9 iterations), Round 3 (12 iterations))"
@@ -74,7 +74,7 @@ CLAUDE.md simplified but accurate ✅
 **Should Be:**
 ```markdown
 **Example - Acceptable:**
-```markdown
+```
 CLAUDE.md: "S5: Implementation Planning (22 iterations)"
 Guide: "S5: Implementation Planning (22 iterations across 3 rounds:
         Round 1 (7 iterations), Round 2 (6 iterations), Round 3 (9 iterations))"
@@ -110,7 +110,7 @@ CLAUDE.md simplified but accurate ✅
 - Implementation Plan Verification: All requirements have tasks, specificity 100%
 - Iteration Completion: All 25 iterations complete
 - Mandatory Gates: Iterations 4a, 23a (ALL 4 PARTS), 25 all PASSED
-```text
+```
 
 **Should Be:**
 ```markdown

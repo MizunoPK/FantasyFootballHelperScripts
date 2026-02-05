@@ -89,7 +89,7 @@ Discovery Phase is complete when Validation Loop validation produces THREE CONSE
 6. Feature folders NOT created until Discovery approved
    - Discovery informs feature breakdown
    - Cannot know features until Discovery complete
-```markdown
+```
 
 ---
 
@@ -167,7 +167,7 @@ S1.P3.4: User Approval
     |
     v
 Proceed to S1 Step 4 (Feature Breakdown Proposal)
-```markdown
+```
 
 ---
 
@@ -197,7 +197,7 @@ simulations (win rate, accuracy), and data fetchers (player, scores,
 historical, schedule).
 
 **Original Request:** `improve_debugging_runs_notes.txt`
-```bash
+```
 
 ### Step 3: Conduct Initial Research
 
@@ -234,7 +234,7 @@ Based on initial research, identify questions that need user input:
 |---|----------|---------|-------|
 | 1 | What does "debugging version run" mean? | Term undefined in request | 2025-01-20 |
 | 2 | Should all scripts share the same debug approach? | 6 different scripts mentioned | 2025-01-20 |
-```bash
+```
 
 **Ask user questions before proceeding to Validation Loop**
 
@@ -257,7 +257,7 @@ Document in Discovery Log:
 | 2025-01-20 10:00 | Initialized Discovery | Epic size MEDIUM, time-box 2-3 hours |
 | 2025-01-20 10:30 | Initial research complete | Documented findings, identified 3 questions |
 | 2025-01-20 10:45 | User answered questions | Clarified approach, ready for validation |
-```markdown
+```
 
 ### Step 6: Update Agent Status
 
@@ -269,7 +269,7 @@ Document in Discovery Log:
 **Current Guide:** stages/s1/s1_p3_discovery_phase.md
 **Progress:** DISCOVERY.md drafted, entering Validation Loop validation
 **Next Action:** S1.P3.2 - Validation Loop Round 1
-```markdown
+```
 
 ---
 
@@ -315,7 +315,7 @@ C. Fix ALL Issues Immediately (zero tolerance for deferred issues)
        |
        v
 D. Check Exit (update clean round counter, check if counter >= 3)
-```markdown
+```
 
 ---
 
@@ -385,7 +385,7 @@ Each round, you MUST re-read the ENTIRE DISCOVERY.md document. Use different rea
 **Action Required:** Ask user if offline mode is required
 
 [Continue for all issues...]
-```markdown
+```
 
 ---
 
@@ -442,7 +442,7 @@ For EACH issue identified in Step B, you MUST fix it BEFORE continuing to Step D
 **Updated Section:** Resolved Questions #5
 
 [Continue for all fixes...]
-```markdown
+```
 
 ---
 
@@ -473,7 +473,7 @@ For EACH issue identified in Step B, you MUST fix it BEFORE continuing to Step D
 
    If any unchecked --> Reset counter to 0, continue loop
    If all checked --> Proceed to S1.P3.3 Synthesis
-   ```markdown
+   ```
 
 **Document round in DISCOVERY.md:**
 ```markdown
@@ -484,7 +484,7 @@ For EACH issue identified in Step B, you MUST fix it BEFORE continuing to Step D
 **Clean Round Counter:** {0, 1, 2, or 3}
 
 [Issues and fixes documented above...]
-```bash
+```
 
 **Why 3 consecutive clean rounds:**
 - Round 1 (clean): Might have missed subtle gaps
@@ -548,7 +548,7 @@ For each approach identified during research:
 **Effort Estimate:** MEDIUM
 
 **Fit Assessment:** Good - supports override requirement
-```markdown
+```
 
 ### Step 2: Create Comparison Summary
 
@@ -560,7 +560,7 @@ For each approach identified during research:
 | CLI Flags Per Script | MEDIUM | GOOD | YES (combined) |
 | Shared Debug Config | MEDIUM | GOOD | YES (combined) |
 | Separate Test Scripts | HIGH | POOR | NO |
-```markdown
+```
 
 ### Step 3: Document Recommended Approach
 
@@ -579,7 +579,7 @@ For each approach identified during research:
 - --debug flag on each script: Triggers debug mode
 - Shared config for defaults: debug_iterations=1, debug_verbose=True
 - Per-script override: Scripts can customize debug behavior
-```markdown
+```
 
 ### Step 4: Define Scope
 
@@ -599,7 +599,7 @@ For each approach identified during research:
 
 ### Deferred (Future Work)
 - Mock data option - nice-to-have, revisit after core debug works
-```markdown
+```
 
 ### Step 5: Draft Feature Breakdown
 
@@ -676,7 +676,7 @@ For each approach identified during research:
 - Based on User Answer: Same approach for all fetchers (Q5)
 
 **Estimated Size:** MEDIUM
-```markdown
+```
 
 ---
 
@@ -734,7 +734,7 @@ Based on Discovery research, I recommend {N} features:
 - Does the feature breakdown make sense?
 
 **Please approve to proceed to formal feature breakdown (S1 Step 4).**
-```markdown
+```
 
 ### Handle User Response
 
@@ -765,7 +765,7 @@ Based on Discovery research, I recommend {N} features:
 
 **Approval Notes:**
 User approved recommended approach. Confirmed 4-feature breakdown is correct.
-```markdown
+```
 
 ### Update Agent Status
 
@@ -777,7 +777,7 @@ User approved recommended approach. Confirmed 4-feature breakdown is correct.
 **Current Guide:** stages/s1/s1_epic_planning.md
 **Progress:** Discovery complete, proceeding to feature breakdown
 **Next Action:** S1 Step 4 - Feature Breakdown Proposal
-```markdown
+```
 
 ---
 
@@ -798,7 +798,7 @@ User approved recommended approach. Confirmed 4-feature breakdown is correct.
 [ ] User approved Discovery findings
 [ ] DISCOVERY.md marked as COMPLETE
 [ ] Agent Status updated for S1 Step 4
-```markdown
+```
 
 ---
 

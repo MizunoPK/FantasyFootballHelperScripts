@@ -30,7 +30,7 @@ agent_comms/
 ├── secondary_a_to_primary.md    # Outbox from Secondary-A (Secondary-A writes, Primary reads)
 ├── primary_to_secondary_b.md    # Inbox for Secondary-B (Primary writes, Secondary-B reads)
 └── secondary_b_to_primary.md    # Outbox from Secondary-B (Secondary-B writes, Primary reads)
-```markdown
+```
 
 **Key Principle:**
 - **One writer, one reader per file** → Zero conflicts
@@ -81,7 +81,7 @@ agent_comms/
 **Details:** Looking forward to coordinating with you!
 **Next:** Proceed with S2.P1, reach out if you need anything
 **Acknowledge:** Reply to confirm you're online
-```markdown
+```
 
 **Message Fields:**
 - **Message Number:** Sequential (Message 1, 2, 3, ...)
@@ -111,7 +111,7 @@ agent_comms/
 # Read existing messages
 CHANNEL_FILE="agent_comms/primary_to_secondary_a.md"
 CURRENT_CONTENT=$(cat "$CHANNEL_FILE")
-```markdown
+```
 
 ### Step 3: Determine Next Message Number
 
@@ -119,7 +119,7 @@ CURRENT_CONTENT=$(cat "$CHANNEL_FILE")
 # Count existing messages
 LAST_MSG_NUM=$(grep -c "^## Message" "$CHANNEL_FILE")
 NEXT_MSG_NUM=$((LAST_MSG_NUM + 1))
-```markdown
+```
 
 ### Step 4: Append New Message
 
@@ -142,7 +142,7 @@ HEADER="# Messages: Primary → Secondary-A\n\n"
 
 # Write new content
 echo -e "$HEADER$NEW_MESSAGE$CURRENT_CONTENT" > "$CHANNEL_FILE"
-```markdown
+```
 
 ### Step 5: Notify Recipient (Optional)
 
@@ -168,7 +168,7 @@ if [ $UNREAD_COUNT -gt 0 ]; then
 else
   echo "No unread messages"
 fi
-```markdown
+```
 
 ### Step 2: Read Messages
 
@@ -178,7 +178,7 @@ cat "$INBOX"
 
 # Identify unread messages (look for ⏳ UNREAD)
 # Read each message content
-```markdown
+```
 
 ### Step 3: Mark as Read
 
@@ -187,13 +187,13 @@ cat "$INBOX"
 ```bash
 # Replace ⏳ UNREAD with ✅ READ for Message 5
 sed -i 's/## Message 5 (.*) ⏳ UNREAD/## Message 5 \1 ✅ READ/' "$INBOX"
-```markdown
+```
 
 **Using Edit tool:**
 ```markdown
 old_string: "## Message 5 (2026-01-15 15:30) ⏳ UNREAD"
 new_string: "## Message 5 (2026-01-15 15:30) ✅ READ"
-```bash
+```
 
 ### Step 4: Take Action
 
@@ -214,7 +214,7 @@ OUTBOX="agent_comms/secondary_a_to_primary.md"
 
 # Append reply
 # (Use same protocol as "Message Sending" above)
-```markdown
+```
 
 ---
 
@@ -238,7 +238,7 @@ OUTBOX="agent_comms/secondary_a_to_primary.md"
 4. Take action on urgent messages
 5. Reply to messages requiring acknowledgment
 6. Resume work
-```markdown
+```
 
 ---
 
@@ -265,7 +265,7 @@ Attempted:
 Stuck For: 25 minutes
 **Next:** Awaiting your guidance or user clarification
 **Acknowledge:** Reply with decision or "escalating to user"
-```markdown
+```
 
 ### Type 2: Escalation Response (Primary → Secondary)
 
@@ -282,7 +282,7 @@ Stuck For: 25 minutes
 
 **Next:** Update your spec.md with this approach, proceed with S2.P2
 **Acknowledge:** Reply when spec.md updated and you've unblocked
-```markdown
+```
 
 ### Type 3: User Question Result (Primary → Secondary)
 
@@ -295,7 +295,7 @@ Stuck For: 25 minutes
 **Details:** User said: "Yes, apply penalty to all offensive players on team"
 **Next:** Update spec.md with this requirement, complete S2.P3
 **Acknowledge:** Reply when updated
-```bash
+```
 
 ### Type 4: Sync Status Update (Any → Any)
 
@@ -313,7 +313,7 @@ Stuck For: 25 minutes
 Blockers: None
 **Next:** Ready for S3 (Cross-Feature Sanity Check)
 **Acknowledge:** No action needed, proceed when all features ready
-```markdown
+```
 
 ### Type 5: Coordination Update (Primary → Secondary)
 
@@ -331,7 +331,7 @@ Blockers: None
 
 **Next:** Implementation remains sequential in this plan - I'll start Feature 01 S5
 **Acknowledge:** No action needed, you can idle or close session
-```markdown
+```
 
 ### Type 6: Blocker Notification (Secondary → Primary)
 
@@ -346,7 +346,7 @@ Blockers: None
          Will escalate if can't resolve in 15 minutes
 **Next:** Investigating, will update shortly
 **Acknowledge:** No action needed unless I escalate
-```markdown
+```
 
 ### Type 7: Blocker Resolved (Secondary → Primary)
 
@@ -360,7 +360,7 @@ Blockers: None
          Clear now how to integrate team penalty with roster
 **Next:** Resuming S2.P2 implementation
 **Acknowledge:** No action needed
-```markdown
+```
 
 ---
 
@@ -387,7 +387,7 @@ cat > agent_comms/primary_to_secondary_a.md <<EOF
 
 (No messages yet)
 EOF
-```markdown
+```
 
 **Benefits:**
 - Clean inbox for next wave or epic
@@ -446,7 +446,7 @@ EOF
 5. **Resume work:**
    - Continue S2 phase work
    - Set timer for next 15-minute check
-```markdown
+```
 
 ### Escalation Workflow Integration
 
@@ -473,7 +473,7 @@ EOF
    - Send acknowledgment reply
    - Update STATUS: `BLOCKERS: none`
    - Resume work
-```markdown
+```
 
 ---
 
@@ -494,7 +494,7 @@ if [ ! -f "$INBOX" ]; then
 (No messages yet)
 EOF
 fi
-```markdown
+```
 
 ### Error 2: Inbox File Corrupted
 
@@ -514,7 +514,7 @@ if [ ! -s "$INBOX" ]; then
 (Inbox was reinitialized due to corruption)
 EOF
 fi
-```markdown
+```
 
 ### Error 3: Message Number Conflict
 
@@ -525,7 +525,7 @@ fi
 
 # Example: Message 5 (2026-01-15 14:00) and Message 5 (2026-01-15 14:01)
 # Both exist → renumber second one to Message 6
-```markdown
+```
 
 ---
 

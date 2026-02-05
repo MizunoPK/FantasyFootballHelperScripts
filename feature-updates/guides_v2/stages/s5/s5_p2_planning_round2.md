@@ -104,7 +104,7 @@ Planning Round 2 is complete when all 7 iterations pass, test coverage exceeds 9
 6. ⚠️ Update feature README.md Agent Status after Planning Round 2 complete
    - Document confidence level
    - Document next action
-```markdown
+```
 
 ---
 
@@ -192,7 +192,7 @@ ROUND 2 CHECKPOINT
    ↓
 If confidence >= MEDIUM: Proceed to Planning Round 3 (S5.P3)
 If confidence < MEDIUM: Update questions file, wait for user
-```markdown
+```
 
 ---
 

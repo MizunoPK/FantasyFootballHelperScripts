@@ -81,7 +81,7 @@ User's goal: "Make better draft decisions by incorporating real-world draft patt
 Component 1: "PlayerManager" - Line 35
 Component 2: "injury penalty system" (as a pattern to follow) - Line 37
 Data source: "FantasyPros CSV" - Line 22
-```markdown
+```
 
 ### Example 2: Discovery Context Section in spec.md
 
@@ -160,7 +160,7 @@ Data source: "FantasyPros CSV" - Line 22
 ---
 
 {Rest of spec.md sections will be added in S2.P2}
-```markdown
+```
 
 ---
 
@@ -196,7 +196,7 @@ Based on Discovery Context section, I must research:
   - Action: Document the pattern (how to add new multiplier)
   - Action: Check if ConfigManager involved
   - Evidence required: Code showing multiplier application
-```bash
+```
 
 ### Example 2: Complete Research Findings Document
 
@@ -234,7 +234,7 @@ Based on Discovery Context section, I must research:
 - Relevant method: `calculate_total_score()` at line 125
 
 **Method signature (actual from source):**
-```python
+```
 def calculate_total_score(self, player: FantasyPlayer, config: ConfigManager) -> float:
     """Calculate total score including all multipliers.
 
@@ -279,7 +279,7 @@ def calculate_total_score(self, player: FantasyPlayer, config: ConfigManager) ->
 - Pattern used: Multiplier-based penalty
 
 **Code structure (actual):**
-```python
+```
 def _calculate_injury_multiplier(self, player: FantasyPlayer) -> float:
     """Calculate injury status multiplier.
 
@@ -332,7 +332,7 @@ def _calculate_injury_multiplier(self, player: FantasyPlayer) -> float:
 - Found: `data/players.csv`, `data/injury_report.csv`
 
 **Example CSV structure (from players.csv):**
-```csv
+```
 Name,Position,Team,ProjectedPoints
 Patrick Mahomes,QB,KC,450.5
 Christian McCaffrey,RB,CAR,380.2
@@ -353,7 +353,7 @@ Christian McCaffrey,RB,CAR,380.2
 - Uses pytest fixtures for sample players
 - Mocks ConfigManager
 - Tests each multiplier in isolation:
-  ```python
+  ```
   def test_injury_multiplier_healthy():
       player = FantasyPlayer(name="Test", injury_status="Healthy")
       manager = PlayerManager()
@@ -443,7 +443,7 @@ Christian McCaffrey,RB,CAR,380.2
 **Next Steps:**
 - Phase 1.5: Verify research completeness
 - S2.P2 Phase 2: Update spec.md with findings
-```markdown
+```
 
 ---
 
@@ -501,7 +501,7 @@ Christian McCaffrey,RB,CAR,380.2
 
 **My answer:** Yes, documented actual signatures:
 
-```python
+```
 # PlayerManager.calculate_total_score
 def calculate_total_score(self, player: FantasyPlayer, config: ConfigManager) -> float:
     # Source: PlayerManager.py:125
@@ -576,7 +576,7 @@ def read_csv_with_validation(filepath: Union[str, Path], required_columns: List[
 - **Range:** 0.0-1.0 for penalties (injury, bad matchup), 1.0+ for bonuses (good matchup)
 - **Default:** Returns 1.0 for neutral/missing data
 - **Integration:** All multipliers multiplied together in calculate_total_score():
-  ```python
+  ```
   total_score = base_score * mult1 * mult2 * mult3 * ... * multN
   ```markdown
 - **Config:** Some multipliers use ConfigManager for ranges (matchup uses config.get_matchup_multiplier())
@@ -649,7 +649,7 @@ For ADP CSV (need to confirm with user):
 
 **My answer:** Yes, verified FantasyPlayer class fields:
 
-```python
+```
 @dataclass
 class FantasyPlayer:
     name: str
@@ -780,7 +780,7 @@ All of these are agent assumptions → Added to checklist as questions
 
 ### Example 2: Audit with FAILURES (What NOT to do)
 
-```markdown
+```
 ## Research Completeness Audit (FAILED EXAMPLE)
 
 ### Category 1: Component Knowledge
@@ -836,7 +836,7 @@ All of these are agent assumptions → Added to checklist as questions
 ### Anti-Pattern 1: Generic Research
 
 ❌ **WRONG:**
-```markdown
+```
 ## Research Questions
 
 □ Understand how PlayerManager works
@@ -846,7 +846,7 @@ All of these are agent assumptions → Added to checklist as questions
 ```markdown
 
 ✅ **CORRECT:**
-```markdown
+```
 ## Research Questions (Grounded in Epic)
 
 Based on user request to "integrate ADP data into PlayerManager scoring using injury penalty pattern":
@@ -863,19 +863,19 @@ Based on user request to "integrate ADP data into PlayerManager scoring using in
 ### Anti-Pattern 2: Assuming Instead of Reading
 
 ❌ **WRONG:**
-```markdown
+```
 **PlayerManager probably has a calculate_score method that takes a player.**
 
 I'll assume it returns a float and we can add ADP as a parameter.
 ```markdown
 
 ✅ **CORRECT:**
-```markdown
+```
 **PlayerManager.calculate_total_score() actual signature:**
 
 ```python
 def calculate_total_score(self, player: FantasyPlayer, config: ConfigManager) -> float:
-```markdown
+```
 
 Source: league_helper/util/PlayerManager.py:125
 Read timestamp: 2026-01-02 10:30
@@ -891,14 +891,14 @@ Read timestamp: 2026-01-02 10:30
 ### Anti-Pattern 3: Skipping Phase 0
 
 ❌ **WRONG:**
-```markdown
+```
 I remember from S1 that user wants ADP integration. I'll start researching PlayerManager now.
 
 {Jumps straight to Phase 1 without re-reading epic}
 ```markdown
 
 ✅ **CORRECT:**
-```markdown
+```
 **Phase 0: Discovery Context Review**
 
 Even though I worked on S1, I'm re-reading epic notes now to ensure I understand user intent.

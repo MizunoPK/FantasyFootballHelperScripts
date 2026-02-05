@@ -46,7 +46,7 @@
 │ files because agents assumed "guides" = "stages/" only           │
 │                                                                  │
 └─────────────────────────────────────────────────────────────────┘
-```markdown
+```
 
 ---
 
@@ -145,7 +145,7 @@ STAGE 10: Epic Cleanup
    ├─ Commit epic changes
    ├─ Create PR
    └─ Move epic to done/ folder
-```markdown
+```
 
 ---
 
@@ -391,7 +391,7 @@ feature-updates/
     │
     ├── templates/                    ← File templates
     │   └── TEMPLATES_INDEX.md
-```markdown
+```
 
 ---
 
@@ -417,7 +417,7 @@ Initial Thoughts:
 Questions:
 - Should ADP be manually updated or auto-fetched?
 - How many weeks of history for performance tracking?
-```markdown
+```
 
 ### Step 2: User Starts Epic Planning
 
@@ -442,7 +442,7 @@ I'm reading `stages/s1/s1_epic_planning.md` to ensure I follow the complete epic
 ✅ Epic scope is clear from request
 
 **I'll now proceed with Phase 1...**
-```markdown
+```
 
 ### Step 4: Agent Follows Guide Step-by-Step
 
@@ -499,7 +499,7 @@ Agent continues through all 10 stages for the complete epic lifecycle.
 **Progress:** 12/22 iterations complete
 **Next Action:** Begin iteration 13 - Dependency Verification
 **Blockers:** None
-```markdown
+```
 
 **Purpose:**
 - Survives session compaction
@@ -540,7 +540,7 @@ Plan  Deep Dive  Check  Strategy  (per feature)   QC
 □ Acknowledge critical requirements
 □ Verify prerequisites
 □ Update this Quick Reference Card
-```markdown
+```
 
 **Purpose:**
 - Always visible (top of README)
@@ -565,7 +565,7 @@ Plan  Deep Dive  Check  Strategy  (per feature)   QC
 | feature_03_performance_tracker | ✅ | ✅ | ✅ | ✅ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ |
 
 **Legend:** ✅ = Complete | 🔄 = In Progress | ◻️ = Not Started
-```markdown
+```
 
 **Purpose:**
 - See entire epic status at a glance

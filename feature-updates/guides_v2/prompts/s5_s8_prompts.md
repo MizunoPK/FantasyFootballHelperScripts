@@ -72,7 +72,7 @@ I'm reading `stages/s5/s5_p1_planning_round1.md` to ensure I follow all 7 iterat
 - Next Action: Begin iteration 1 - Requirements Coverage Check
 
 Starting iteration 1...
-```markdown
+```
 
 ---
 
@@ -124,7 +124,7 @@ I'm reading `stages/s5/s5_p2_planning_round2.md` to ensure I follow all 6 iterat
 - Next Action: Begin iteration 8 - Test Strategy Development
 
 Starting iteration 8...
-```markdown
+```
 
 ---
 
@@ -186,7 +186,7 @@ I'm reading `stages/s5/s5_p3_planning_round3.md` to ensure I follow all 6 prepar
 - Next Action: Begin iteration 17 - Implementation Phasing
 
 Starting iteration 17...
-```markdown
+```
 
 ---
 
@@ -249,7 +249,7 @@ I'm reading `stages/s5/5.1.3.2_round3_part2a.md` (Part 2a) and `stages/s5/5.1.3.
 - Next Action: Begin iteration 23 - Integration Gap Check (Final)
 
 Starting iteration 23...
-```bash
+```
 
 ---
 
@@ -288,7 +288,7 @@ S5 (Implementation Planning) is complete. I've created implementation_plan.md v3
 **Say "approved" to proceed to S6 (Implementation), or request changes.**
 
 **Note:** This is your opportunity to adjust the implementation approach before code is written. Once approved, I'll create implementation_checklist.md and begin coding.
-```markdown
+```
 
 ---
 
@@ -335,7 +335,7 @@ I'm reading `stages/s6/s6_execution.md` to ensure I follow the implementation wo
 - Next Action: Create implementation_checklist.md from implementation_plan.md tasks
 
 Starting implementation...
-```markdown
+```
 
 ---
 
@@ -386,7 +386,7 @@ I'm reading `stages/s7/s7_p1_smoke_testing.md` to ensure I follow the 3-part smo
 - Next Action: Smoke Test Part 1 - Import test
 
 Running import test for {feature_name}...
-```bash
+```
 
 ---
 
@@ -436,7 +436,7 @@ I'm reading `stages/s7/s7_p2_qc_rounds.md` to ensure I follow the 3-round QC pro
 - Next Action: QC Round 1 - Basic Validation
 
 Starting QC Round 1 for {feature_name}...
-```bash
+```
 
 ---
 
@@ -488,7 +488,7 @@ I'm reading `stages/s7/s7_p3_final_review.md` to ensure I follow the final revie
 - Next Action: READ pr_review_protocol.md and begin Round 1 specialized reviews
 
 Starting PR Review Protocol for {feature_name}...
-```markdown
+```
 
 ---
 
@@ -542,7 +542,7 @@ I'm reading `stages/s8/s8_p1_cross_feature_alignment.md` to ensure I review all 
 - Next Action: Identify remaining features from Epic Progress Tracker
 
 Starting cross-feature alignment review...
-```markdown
+```
 
 ---
 

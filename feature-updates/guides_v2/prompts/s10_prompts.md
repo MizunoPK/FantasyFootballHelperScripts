@@ -72,7 +72,7 @@ I'm reading `stages/s10/s10_epic_cleanup.md` to ensure I properly finalize and a
 - Next Action: Run python tests/run_all_tests.py
 
 Running unit tests...
-```markdown
+```
 
 ---
 

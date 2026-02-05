@@ -79,7 +79,7 @@ I'm starting S2 (Feature Deep Dives) in PARALLEL MODE as Primary Agent.
 
 **Reading Guide:** parallel_work/s2_primary_agent_guide.md
 ═══════════════════════════════════════════════════════════
-```markdown
+```
 
 ---
 
@@ -150,7 +150,7 @@ Starting Stage: S2.P1 (Feature Deep Dive - Research Phase)
 
 **Reading Guide:** parallel_work/s2_secondary_agent_guide.md
 ═══════════════════════════════════════════════════════════
-```markdown
+```
 
 ---
 
@@ -193,7 +193,7 @@ Pausing Feature 01 work for coordination (< 10% time overhead)...
 - If checkpoint age > 60 min: Escalate to user (stale agent protocol)
 
 Coordination complete. Resuming Feature 01 work...
-```markdown
+```
 
 ---
 
@@ -228,7 +228,7 @@ Pausing feature work for coordination (< 10% time overhead)...
 - Wait for Primary response (SLA: 15 minutes)
 
 Coordination complete. Resuming feature work...
-```markdown
+```
 
 ---
 
@@ -285,7 +285,7 @@ Feature 01 S2 complete. Verifying sync point before S3...
 
 **Reading Guide:** stages/s3/s3_cross_feature_sanity_check.md (Sync Verification section)
 ═══════════════════════════════════════════════════════════
-```markdown
+```
 
 ---
 
@@ -335,7 +335,7 @@ Feature 01 S2 complete. Verifying sync point before S3...
 **User decision required to proceed.**
 
 **Guide:** parallel_work/stale_agent_protocol.md
-```markdown
+```
 
 ---
 
@@ -378,7 +378,7 @@ Feature 01 S2 complete. Verifying sync point before S3...
 **User decision required to proceed.**
 
 **Guide:** parallel_work/sync_timeout_protocol.md
-```markdown
+```
 
 ---
 

@@ -11,7 +11,7 @@ S5 (Implementation Planning) → S6 (Implementation Execution) →
 → [YOU ARE HERE: S7.P1 - Smoke Testing] →
 → S7.P2 (QC Rounds) → S7.P3 (Final Review) →
 → S8 (Post-Feature Alignment)
-```markdown
+```
 
 ---
 
@@ -93,7 +93,7 @@ Smoke Testing is complete when ALL 3 parts pass (including data value verificati
    - Update feature README.md Agent Status
    - Include smoke test results
    - List which parts passed and data samples inspected
-```markdown
+```
 
 **Universal rules (from pattern file):**
 - ALL 3 parts mandatory
@@ -161,7 +161,7 @@ Part 3: E2E Execution Test (CRITICAL)
    ↓
    If PASS → Document, proceed to S7.P2
    If FAIL → Fix, RE-RUN ALL 3 PARTS
-```python
+```
 
 ---
 
@@ -177,7 +177,7 @@ Check git history for list of NEW or MODIFIED files for THIS feature:
 
 ```bash
 git log --oneline --name-status origin/main..HEAD
-```markdown
+```
 
 This shows all files changed in this feature branch.
 
@@ -191,7 +191,7 @@ python -c "import league_helper.util.PlayerRatingManager"
 # Test modified modules still import
 python -c "from league_helper.LeagueHelper import LeagueHelper"
 python -c "import run_league_helper"
-```markdown
+```
 
 ### Step 3: Verify Results
 
@@ -222,14 +222,14 @@ python run_league_helper.py --mode rating_helper --help
 # If feature adds new flag
 python run_simulation.py --help
 # (verify --use-ratings appears in help text)
-```markdown
+```
 
 ### Step 3: Test Feature Initialization
 
 ```bash
 # Basic startup test (dry-run or help mode)
 python run_league_helper.py --mode rating_helper --dry-run
-```markdown
+```
 
 **Expected:**
 - Help text displays (if `--help`)
@@ -275,7 +275,7 @@ which python  # Should show venv path
 
 # Ensure clean state (optional)
 python -m pip install -e .  # If using editable install
-```markdown
+```
 
 **Verify:**
 - [ ] Python environment is correct
@@ -316,7 +316,7 @@ python -m pip install -e .  # If using editable install
 - All 6 position files updated
 - Multipliers in correct range (0.5-1.5)
 - No placeholder values (all 1.0)
-```markdown
+```
 
 ---
 
@@ -325,12 +325,12 @@ python -m pip install -e .  # If using editable install
 **Run feature with production data:**
 ```bash
 python run_league_helper.py --mode {feature_mode} --data-folder ./data
-```markdown
+```
 
 **Example:**
 ```bash
 python run_league_helper.py --mode rating_helper --data-folder ./data
-```markdown
+```
 
 **Monitor for:**
 - [ ] Script completes without crashes
@@ -367,7 +367,7 @@ for filename in expected_files:
     assert 'adp_multiplier' in first_item, f"{filename} missing adp_multiplier field"
 
 print("✅ Output structure validated")
-```markdown
+```
 
 **Verify:**
 - [ ] All expected output files exist
@@ -424,7 +424,7 @@ for pos in positions:
     assert len(non_default) > 0, f"{pos} all multipliers are default (1.0)"
 
 print("✅ All 6 positions have valid multiplier data")
-```markdown
+```
 
 **Key validation points:**
 1. ✅ Values are correct type (float not string)
@@ -464,7 +464,7 @@ logger.info(f"Draft helper mode activated for league: {league_name}")
 logger.debug(f"Processing {len(players)} players for recommendations")
 logger.info(f"Generated {len(recommendations)} recommendations")
 logger.error(f"Failed to load player data: {e}", exc_info=True)
-```markdown
+```
 
 ### Validation in Smoke Testing:
 - Part 3 Step 6: Check logs for feature-specific messages
@@ -481,7 +481,7 @@ logger.error(f"Failed to load player data: {e}", exc_info=True)
 grep "feature_name\|important_keyword" logs/application.log
 # Or check recent logs
 tail -100 logs/application.log | grep -i "feature"
-```markdown
+```
 
 **Required validations:**
 - [ ] Feature activation logged (from logging requirements above)
@@ -562,7 +562,7 @@ try:
 finally:
     _close_logger_handlers(logger)
     # Now temp directory can be cleaned up
-```markdown
+```
 
 **When this applies:**
 - Testing file logging on Windows
@@ -586,7 +586,7 @@ mock_api.get_adp.return_value = 170.0
 
 # But real API returns None for some players (not in database)
 # Feature crashed on None value
-```markdown
+```
 
 **Fix:** Update implementation to handle real-world edge cases (None, missing data, API errors)
 

@@ -82,7 +82,7 @@ Returns: total_score (float) with ADP contribution
    ↓
 **Output:**
 Updated player score used in draft recommendations
-```bash
+```
 
 ### Step 3: Verify No Gaps
 
@@ -122,7 +122,7 @@ Document how data changes:
 - [ ] All steps execute without error
 - [ ] Data flows through all 4 steps
 - [ ] Output score reflects ADP contribution
-```markdown
+```
 
 **Output:** Data flow diagram, E2E test task added to implementation_plan.md
 
@@ -147,7 +147,7 @@ After completing this iteration, check if you have questions or found answers:
 ```text
 Progress: Iteration 5/9 (Planning Round 1) complete
 Next Action: Iteration 5a - Downstream Consumption Tracing (CRITICAL)
-```markdown
+```
 
 ---
 
@@ -189,7 +189,7 @@ grep -r "player\.\w+\[" --include="*.py"
 
 # Find method calls on loaded objects
 grep -r "player\.\w+(" simulation/ --include="*.py"
-```bash
+```
 
 **Document findings:**
 ```markdown
@@ -206,7 +206,7 @@ grep -r "player\.\w+(" simulation/ --include="*.py"
 - Purpose: Get week 17 actual points for parallel MAE calculation
 
 [Document ALL consumption locations]
-```bash
+```
 
 ---
 
@@ -231,7 +231,7 @@ Document how data is currently accessed:
 - Code: `player.projected_points`
 - Type: Scalar float
 - Access: Direct attribute access
-```bash
+```
 
 ---
 
@@ -256,7 +256,7 @@ Document how data will be accessed after changes:
 - Code: `if len(player.actual_points) > week_num - 1: actual = player.actual_points[week_num - 1]`
 - Type: Safe array access
 - Access: Bounds check before indexing
-```markdown
+```
 
 ---
 
@@ -314,7 +314,7 @@ Document how data will be accessed after changes:
 **Breaking Change?** ⚠️ LOGIC CHANGE - Off-by-one errors possible
 **Impact:** Using `actual_points[week_num]` instead of `actual_points[week_num - 1]`
 **Consequence:** Wrong week data, array index out of bounds
-```markdown
+```
 
 ---
 
@@ -346,12 +346,12 @@ Document how data will be accessed after changes:
 **Requirement:** Update _evaluate_config_weekly() to use array-based access
 
 **Current Code (OLD):**
-```python
+```
 actual = getattr(player, f'week_{week_num}_points', None)
 ```markdown
 
 **Updated Code (NEW):**
-```python
+```
 if len(player.actual_points) > week_num - 1:
     actual = player.actual_points[week_num - 1]
 else:
@@ -376,7 +376,7 @@ else:
 - [ ] Bounds checking added
 - [ ] All tests pass
 - [ ] MAE calculation produces non-zero results (not all None)
-```markdown
+```
 
 ---
 
@@ -455,7 +455,7 @@ Are there API breaking changes? (from Step 4)
         └─ NO → ❌ STOP - Report to user (scope clarification needed)
     └─ NO → ✅ No consumption code to update, proceed to Iteration 6
 └─ NO → ✅ No breaking changes, proceed to Iteration 6
-```markdown
+```
 
 ---
 
@@ -487,7 +487,7 @@ After completing this iteration, check if you have questions or found answers:
 Progress: Iteration 5a/9 (Planning Round 1) complete - Downstream consumption traced
 Next Action: Iteration 6 - Error Handling Scenarios
 Critical Finding: [X consumption locations found, Y breaking changes, Z tasks added]
-```markdown
+```
 
 ---
 
@@ -575,7 +575,7 @@ If matching data from multiple sources (CSV vs JSON, API vs file, etc.):
 **Result:** Player not penalized for bad data
 
 **Test:** test_calculate_adp_multiplier_invalid_value()
-```markdown
+```
 
 ### Step 4: Verify Every Error Scenario Has
 
@@ -606,7 +606,7 @@ Required elements:
 - [ ] Downstream code handles empty list correctly
 
 **Test:** test_load_adp_data_file_not_found()
-```markdown
+```
 
 **Output:** Error handling catalog, error handling tasks added to implementation_plan.md
 
@@ -631,7 +631,7 @@ After completing this iteration, check if you have questions or found answers:
 ```text
 Progress: Iteration 6/9 (Planning Round 1) complete
 Next Action: Iteration 6a - External Dependency Final Verification
-```markdown
+```
 
 ---
 
@@ -681,20 +681,20 @@ External libraries this feature uses:
 - ESPN API (espn_api package) - fetch player data
 - pandas - CSV manipulation
 - requests - HTTP calls
-```markdown
+```
 
 **2. For EACH Library, Quick Test:**
 ```python
 # Test library with test environment
 # 10 minutes per library
-```bash
+```
 
 **3. Document Findings:**
 ```markdown
 Library: ESPN API
 Compatibility: ✅ Works with mocks
 Workaround: None needed
-```markdown
+```
 
 **4. Add Workaround Tasks (if needed):**
 - Update implementation_plan.md with test client tasks
@@ -735,7 +735,7 @@ Workaround: None needed
 Progress: Iteration 6a/9 (Planning Round 1) complete - External dependencies verified
 Next Action: Checkpoint - After Iterations 5-6a
 Critical Finding: [X libraries verified, Y workarounds in plan]
-```markdown
+```
 
 ---
 
@@ -860,7 +860,7 @@ AddToRosterModeManager.get_recommendations()
    → Uses: self.adp_multiplier ← NEW FIELD (set by Task 3)
 
 **Orphan Check:** ✅ NOT ORPHANED (field consumed)
-```markdown
+```
 
 ### Step 3: Verify Integration for ALL New Code
 
@@ -910,7 +910,7 @@ After completing this iteration, check if you have questions or found answers:
 ```text
 Progress: Iteration 7/9 (Planning Round 1) complete
 Next Action: Iteration 7a - Backward Compatibility Analysis
-```markdown
+```
 
 ---
 
@@ -962,7 +962,7 @@ grep -r "\.load\|\.from_json\|\.read_csv\|pickle\.load" affected_module/ --inclu
 
 # Find resume/checkpoint logic
 grep -r "resume\|checkpoint\|load_state" affected_module/ --include="*.py"
-```markdown
+```
 
 **2. Analyze Data Structures:**
 
@@ -986,7 +986,7 @@ grep -r "resume\|checkpoint\|load_state" affected_module/ --include="*.py"
 - No JSON export of player objects
 
 **Conclusion:** No backward compatibility issues (player objects not persisted)
-```bash
+```
 
 **3. Document Findings in questions.md:**
 
@@ -1009,7 +1009,7 @@ grep -r "resume\|checkpoint\|load_state" affected_module/ --include="*.py"
 - [ ] Option 4: No old files exist / not applicable
 
 **Rationale:** [Explain chosen strategy]
-```markdown
+```
 
 **4. Add Test Scenarios to implementation_plan.md:**
 
@@ -1053,7 +1053,7 @@ If validation needed:
 **Tests to add:**
 - test_load_old_best_configs_rejects_gracefully()
 - test_load_best_configs_with_ranking_metrics_succeeds()
-```markdown
+```
 
 ---
 
@@ -1091,7 +1091,7 @@ After completing this iteration, check if you have questions or found answers:
 ```text
 Progress: Planning Round 1 Iteration 7a complete (backward compatibility analyzed)
 Next Action: Planning Round 1 checkpoint - evaluate confidence
-```markdown
+```
 
 ---
 
@@ -1185,7 +1185,7 @@ C. {Option C}
 ---
 
 {Repeat for all questions}
-```markdown
+```
 
 **Update Agent Status:**
 ```bash

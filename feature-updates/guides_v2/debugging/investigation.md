@@ -34,14 +34,14 @@
 1. **Change issue status to 🟡 INVESTIGATING:**
    ```markdown
    | 1 | player_scoring_returns_null | 🟡 INVESTIGATING | Round 1 | ❌ NO | Smoke Part 3 | Starting investigation |
-   ```markdown
+   ```
 
 2. **Update "Current Focus" section:**
    ```markdown
    **Active Issue:** #1 (player_scoring_returns_null)
    **Current Phase:** Phase 2 (Investigation - Round 1)
    **Next Action:** Code tracing to identify suspicious areas
-   ```markdown
+   ```
 
 ---
 
@@ -85,7 +85,7 @@ Create `debugging/investigation_rounds.md`:
 **Total Investigations:** 1 active, 0 complete
 **Average Rounds per Issue:** N/A
 **Total Investigation Time:** {tracking}
-```markdown
+```
 
 **If investigation_rounds.md already exists:**
 Add new issue to "Active Investigations" table.
@@ -113,7 +113,7 @@ Player scoring calculation returns None instead of expected float value
 S7.P1 Smoke Testing Part 3 - E2E test execution
 
 **Reproduction:**
-```python
+```
 player = PlayerManager.load_player("Patrick Mahomes")
 score = player.calculate_score(week=1)
 # Expected: 24.5 (float)
@@ -124,7 +124,7 @@ score = player.calculate_score(week=1)
 Blocks feature functionality - cannot calculate player scores
 
 **Test Output:**
-```text
+```
 AssertionError: Expected float, got None
   File: simulation/accuracy/AccuracySimulationManager.py:89
 ```markdown
@@ -158,7 +158,7 @@ AssertionError: Expected float, got None
 ## Code Locations
 
 {Will be populated during investigation}
-```markdown
+```
 
 ---
 
@@ -220,7 +220,7 @@ AssertionError: Expected float, got None
 ### Round 1: Code Tracing & Root Cause Analysis ({YYYY-MM-DD HH:MM})
 
 **Execution Path Traced:**
-```text
+```
 AccuracySimulationManager.run()
   → PlayerManager.load_player("Patrick Mahomes")
     → Player.__init__()
@@ -254,7 +254,7 @@ AccuracySimulationManager.run()
 CSV not loading correctly, leaving self.stats empty
 
 **Next:** Round 2 - Form specific testable hypotheses
-```markdown
+```
 
 ---
 
@@ -266,7 +266,7 @@ CSV not loading correctly, leaving self.stats empty
 | Issue # | Issue Name | Current Round | Status |
 |---------|------------|---------------|--------|
 | 1 | player_scoring_returns_null | Round 1 Complete | Identified 3 suspicious areas |
-```markdown
+```
 
 ---
 
@@ -274,7 +274,7 @@ CSV not loading correctly, leaving self.stats empty
 
 ```markdown
 | 1 | player_scoring_returns_null | 🟡 INVESTIGATING | Round 1 → Round 2 | ❌ NO | Smoke Part 3 | 3 suspicious areas found |
-```markdown
+```
 
 ---
 
@@ -365,7 +365,7 @@ CSV not loading correctly, leaving self.stats empty
 - **Expected evidence:** Log shows FileNotFoundError or wrong path
 
 **Diagnostic Logging Plan:**
-```python
+```
 # Add to utils/FantasyPlayer.py:156 (_load_stats method)
 logger.info(f"Loading stats from: {csv_path}")
 logger.info(f"CSV columns: {df.columns.tolist()}")
@@ -383,7 +383,7 @@ logger.info(f"Parsed stats dict: {self.stats}")
 4. Inspect CSV manually to verify format
 
 **Next:** Round 3 - Add logging and test hypotheses
-```markdown
+```
 
 ---
 
@@ -395,11 +395,11 @@ logger.info(f"Parsed stats dict: {self.stats}")
 | Issue # | Issue Name | Current Round | Status |
 |---------|------------|---------------|--------|
 | 1 | player_scoring_returns_null | Round 2 Complete | 3 hypotheses formed |
-```text
+```
 
 ```markdown
 | 1 | player_scoring_returns_null | 🟡 INVESTIGATING | Round 2 → Round 3 | ❌ NO | Smoke Part 3 | 3 hypotheses ready to test |
-```markdown
+```
 
 ---
 
@@ -439,7 +439,7 @@ cp output.log debugging/diagnostic_logs/issue_01_round3.log
 
 # Or capture programmatically
 python run_simulation.py --mode accuracy 2>&1 | tee debugging/diagnostic_logs/issue_01_round3.log
-```markdown
+```
 
 ---
 
@@ -469,7 +469,7 @@ python run_simulation.py --mode accuracy 2>&1 | tee debugging/diagnostic_logs/is
 - Added diagnostic logging to utils/FantasyPlayer.py:156-162
 
 **Test Run Output:**
-```text
+```
 INFO: Loading stats from: data/player_stats_2024.csv
 INFO: CSV columns: ['Week', 'PlayerName', 'StatValue', 'Position']
 INFO: CSV shape: (544, 4)
@@ -515,7 +515,7 @@ INFO: Parsed stats dict: {}
 - Rounds: 3
 - Time: ~90 minutes
 - Root cause confirmed with concrete evidence
-```markdown
+```
 
 ---
 
@@ -523,7 +523,7 @@ INFO: Parsed stats dict: {}
 
 ```markdown
 | 1 | player_scoring_returns_null | 🟡 INVESTIGATING | Phase 2 → Phase 3 | ❌ NO | Smoke Part 3 | Root cause confirmed |
-```markdown
+```
 
 ---
 

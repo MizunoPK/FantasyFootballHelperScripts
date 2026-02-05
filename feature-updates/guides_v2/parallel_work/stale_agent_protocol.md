@@ -70,7 +70,7 @@ During parallel S2 work, agents may crash, hang, or become unresponsive. The **S
   "stage": "S2.P2",
   "status": "IN_PROGRESS"
 }
-```markdown
+```
 
 ### Step 2: Calculate Age
 
@@ -91,7 +91,7 @@ During parallel S2 work, agents may crash, hang, or become unresponsive. The **S
 Age < 30 minutes → ✅ ACTIVE (no action needed)
 30 ≤ Age < 60 minutes → ⚠️ WARNING (send status check)
 Age ≥ 60 minutes → ❌ STALE (escalate to user)
-```markdown
+```
 
 ### Step 4: Document Check
 
@@ -101,7 +101,7 @@ Age ≥ 60 minutes → ❌ STALE (escalate to user)
 | Check Time | Agent | Last Checkpoint | Status | Action Taken |
 |------------|-------|----------------|--------|--------------|
 | 2026-01-17 11:00 | Secondary-A | 2026-01-17 10:15 (45 min ago) | WARNING | Status check sent |
-```markdown
+```
 
 ---
 
@@ -134,7 +134,7 @@ Age ≥ 60 minutes → ❌ STALE (escalate to user)
 - I'll help resolve or escalate to user
 
 **Response deadline:** 2026-01-17 11:15 (15 min from now)
-```markdown
+```
 
 **Step A.2: Wait 15 Minutes**
 
@@ -181,7 +181,7 @@ Age ≥ 60 minutes → ❌ STALE (escalate to user)
 | Agent | Feature | Last Checkpoint | Age | Status | User Notified |
 |-------|---------|----------------|-----|--------|---------------|
 | Secondary-A | feature_02_{name} | 2026-01-17 10:15 | 75 min | STALE | YES (2026-01-17 11:30) |
-```markdown
+```
 
 **Step B.2: Escalate to User**
 
@@ -229,7 +229,7 @@ Age ≥ 60 minutes → ❌ STALE (escalate to user)
 - Recommended if: Cannot spawn new agent
 
 **What would you like me to do?**
-```markdown
+```
 
 **Step B.3: Wait for User Decision**
 
@@ -237,7 +237,7 @@ Age ≥ 60 minutes → ❌ STALE (escalate to user)
 ```markdown
 **Blockers:** Waiting for user decision on stale agent recovery (Secondary-A, Feature 02)
 **Next Action:** User to choose recovery option
-```markdown
+```
 
 **Pause Feature 02 work:** Cannot proceed until recovery decision made
 
@@ -274,7 +274,7 @@ Age ≥ 60 minutes → ❌ STALE (escalate to user)
   "files_modified": ["spec.md", "checklist.md"],
   "recovery_instructions": "Resume from S2.P2, 80% done. Complete Acceptance Criteria section."
 }
-```markdown
+```
 
 **Step C.3: Agent Resumes Work**
 
@@ -330,7 +330,7 @@ Starting Stage: S2.P2 (resuming from stale agent's checkpoint)
 6. Send message to Primary confirming takeover
 
 Begin now.
-```markdown
+```
 
 **Step D.2: New Agent Reads Stale Checkpoint**
 
@@ -361,7 +361,7 @@ Begin now.
   "previous_agent": "Secondary-A",
   "recovery_notes": "Took over from stale agent at S2.P2, resuming Acceptance Criteria section"
 }
-```markdown
+```
 
 **Step D.4: Update Coordination Channels**
 
@@ -372,7 +372,7 @@ Begin now.
 | Agent ID | Role | Assigned Feature | Status | Last Checkpoint |
 |----------|------|------------------|--------|----------------|
 | Secondary-A-New | Feature Owner | feature_02_{name} | IN_PROGRESS | 2026-01-17 12:00 |
-```markdown
+```
 
 **Communication files (rename):**
 - Old: `agent_comms/primary_to_secondary_a.md`
@@ -383,7 +383,7 @@ Begin now.
 ```text
 AGENT: Secondary-A-New
 AGENT_ID: xyz789
-```markdown
+```
 
 **Step D.5: New Agent Sends Confirmation**
 
@@ -406,7 +406,7 @@ AGENT_ID: xyz789
 - No blockers
 
 **Acknowledge:** Please confirm you received this takeover notification
-```markdown
+```
 
 **Step D.6: Primary Acknowledges**
 
@@ -431,7 +431,7 @@ AGENT_ID: xyz789
 **Next:** Complete S2.P2, signal when ready for S2.P3
 
 **Acknowledge:** No action needed
-```markdown
+```
 
 ---
 

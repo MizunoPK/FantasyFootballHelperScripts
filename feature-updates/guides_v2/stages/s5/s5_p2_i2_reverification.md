@@ -88,7 +88,7 @@ After completing this iteration, check if you have questions or found answers:
 ```text
 Progress: Iteration 11/16 (Planning Round 2) complete
 Next Action: Iteration 12 - End-to-End Data Flow (Re-verify)
-```markdown
+```
 
 ---
 
@@ -138,7 +138,7 @@ Returns: total_score (float) with ADP contribution
    ↓
 **Output:**
 Updated player score used in draft recommendations
-```markdown
+```
 
 4. **Verify no gaps in updated flow:**
    - Config validated before loading ✅

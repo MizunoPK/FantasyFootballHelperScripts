@@ -95,7 +95,7 @@ Guide: "S5: Implementation Planning (22 iterations across 3 rounds:
 # After (CORRECT):
 Guide: "S5: Implementation Planning (22 iterations across 3 rounds:
         Round 1 (7 iterations), Round 2 (6 iterations), Round 3 (9 iterations))"
-```markdown
+```
 
 ### Example 2: Gate Checklist
 ```markdown
@@ -104,7 +104,7 @@ Guide: "S5: Implementation Planning (22 iterations across 3 rounds:
 
 # After (CORRECT):
 - Iteration Completion: All 22 iterations complete
-```markdown
+```
 
 ---
 

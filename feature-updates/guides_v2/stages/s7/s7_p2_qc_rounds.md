@@ -10,7 +10,7 @@
 S7.P1 (Smoke Testing) →
 → [YOU ARE HERE: S7.P2 - QC Rounds] →
 → S7.P3 (Final Review) → S8 (Post-Feature Alignment)
-```markdown
+```
 
 ---
 
@@ -100,7 +100,7 @@ QC Rounds are complete when all 3 rounds pass (Round 3 with ZERO issues), no tec
    - ALL spec requirements implemented
    - ALL checklist items verified
    - NO "we'll add that later" items
-```markdown
+```
 
 **Universal rules (from pattern file):**
 - All 3 rounds mandatory
@@ -164,7 +164,7 @@ Round 3: Final Skeptical Review (10-20 min)
    ↓
    If PASS → QC complete, proceed to S7.P3
    If FAIL → Fix, RESTART from smoke testing
-```markdown
+```
 
 ---
 
@@ -208,7 +208,7 @@ Validation 1.2: Code Structure
 - Error handling: ✅ Present
 - File structure: ✅ Correct
 - Code conventions: ✅ Followed
-```markdown
+```
 
 ✅ **CORRECT APPROACH:**
 ```text
@@ -229,7 +229,7 @@ Line 45-52: load_adp_data() method
 
 File structure verified: All imports at top (lines 1-8), methods organized by feature
 Code conventions verified: Follows CODING_STANDARDS.md (type hints, error context, logging)
-```markdown
+```
 
 **Notice the difference:**
 - ❌ Wrong: Claims verification without evidence
@@ -291,7 +291,7 @@ Code conventions verified: Follows CODING_STANDARDS.md (type hints, error contex
 
 ```bash
 python tests/run_all_tests.py
-```markdown
+```
 
 **Verify:**
 - ✅ Exit code = 0 (all tests pass)
@@ -313,7 +313,7 @@ python tests/run_all_tests.py
 - [ ] implementation_plan.md (all tasks documented)
 - [ ] implementation_checklist.md (all requirements verified)
 - [ ] README.md (Agent Status updated)
-```markdown
+```
 
 **Check code organization:**
 - ✅ New modules in correct directories
@@ -339,7 +339,7 @@ for output_file in expected_outputs:
     assert Path(output_file).exists(), f"Missing output: {output_file}"
 
 print("✅ All output files exist")
-```markdown
+```
 
 **Verify output structure:**
 - ✅ Files have expected format (JSON, CSV, etc.)
@@ -366,7 +366,7 @@ assert isinstance(players, list), "get_players should return list"
 assert len(players) > 0, "get_players returned empty list"
 
 print("✅ PlayerManager interface verified")
-```markdown
+```
 
 **Check ALL dependencies identified in S5:**
 - ✅ Methods exist
@@ -455,7 +455,7 @@ new_players = set(new_output['player_name'])
 assert baseline_players.issubset(new_players), "Lost players in new output"
 
 print("✅ Baseline comparison passed")
-```markdown
+```
 
 **Skip if:** Feature is entirely new (no baseline to compare)
 
@@ -485,7 +485,7 @@ mean_points = df['projected_points'].mean()
 assert 100 < mean_points < 200, f"Mean {mean_points} outside expected range"
 
 print("✅ Data validation passed")
-```markdown
+```
 
 **Check for common data issues:**
 - ❌ All zeros (forgot to populate)
@@ -503,7 +503,7 @@ print("✅ Data validation passed")
 # Run tests for related modules (not just new tests)
 python -m pytest tests/league_helper/test_PlayerManager.py -v
 python -m pytest tests/league_helper/test_LeagueHelper.py -v
-```markdown
+```
 
 **Verify:**
 - ✅ All related tests pass
@@ -524,7 +524,7 @@ python -m pytest tests/league_helper/test_LeagueHelper.py -v
 3. Apply multiplier to base rating
 4. Clamp result between 0.5 and 1.5
 5. Return multiplier
-```markdown
+```
 
 **Verify code does EXACTLY this:**
 ```python
@@ -544,7 +544,7 @@ def calculate_player_rating(self, player):
 
     # Step 5: Return
     return rating  # ✅ Matches spec step 5
-```markdown
+```
 
 **Check EVERY algorithm in spec has matching code behavior**
 
@@ -576,7 +576,7 @@ except ValueError:
     pass  # Expected
 
 print("✅ Edge cases handled correctly")
-```markdown
+```
 
 ---
 
@@ -655,7 +655,7 @@ This prevents confirmation bias (seeing what you expect, not what's actually the
 | Look up ADP multiplier | ConfigManager.py:120 | ✅ |
 | Apply rating to recommendations | RecommendationEngine.py:89 | ✅ |
 | Clamp values 0.5-1.5 | PlayerRatingManager.py:52 | ✅ |
-```markdown
+```
 
 **Re-verify EACH entry:**
 - ✅ Algorithm from spec still exists
@@ -678,7 +678,7 @@ This prevents confirmation bias (seeing what you expect, not what's actually the
 | get_player_rating() | RecommendationEngine.generate() | ✅ |
 | apply_multiplier() | get_player_rating() | ✅ |
 | load_adp_config() | __init__() | ✅ |
-```markdown
+```
 
 **Verify:**
 - ✅ No orphan methods (methods never called)
@@ -740,7 +740,7 @@ This prevents confirmation bias (seeing what you expect, not what's actually the
 Spec requirement: "Update 6 position files (QB, RB, WR, TE, K, DST)"
 Implementation: Only updated 4 files (QB, RB, WR, TE)
 Agent thought: "80% is good enough, I'll finish the rest later"
-```markdown
+```
 
 **Fix:** This is INCOMPLETE. Either implement ALL 6 or get user approval to reduce scope.
 
@@ -758,7 +758,7 @@ for player in players:
 for player in players:
     rating = calculate_rating(player)  # Real calculation
     ratings.append({'name': player.name, 'rating': rating})
-```markdown
+```
 
 **Fix:** Verify algorithms ACTUALLY execute (not just create placeholders)
 

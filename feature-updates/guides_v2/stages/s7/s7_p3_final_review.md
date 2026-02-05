@@ -10,7 +10,7 @@
 S7.P1 (Smoke Testing) → S7.P2 (QC Rounds) →
 → [YOU ARE HERE: S7.P3 - Final Review] →
 → S8 (Post-Feature Alignment)
-```markdown
+```
 
 ---
 
@@ -105,7 +105,7 @@ Final Review is complete when PR review finds zero critical issues, lessons lear
    - Before declaring complete → re-read Completion Criteria
    - Verify ALL criteria met (not just most)
    - Update README Agent Status one final time
-```markdown
+```
 
 ---
 
@@ -177,7 +177,7 @@ Re-Reading Checkpoint
    ↓ Re-read Completion Criteria
    ↓ Update README Agent Status
    ↓ Ready for S8.P1 (Cross-Feature Alignment)
-```markdown
+```
 
 ---
 
@@ -265,7 +265,7 @@ if player.adp_rank < 50:  # Top 50 players
     apply_bonus()
 
 if player.adp_rank <= 50:  # Depends on requirement (inclusive vs exclusive)
-```bash
+```
 
 **Document findings:**
 ```markdown
@@ -274,7 +274,7 @@ if player.adp_rank <= 50:  # Depends on requirement (inclusive vs exclusive)
 - All loops verified for correct range
 - All comparisons checked against spec
 - Edge cases tested (empty list, single item, max size)
-```markdown
+```
 
 ---
 
@@ -310,7 +310,7 @@ def apply_multiplier(players, multiplier=1.5):
 def sort_by_value(players, descending=True):
     """Sort players by value."""
     return sorted(players, key=lambda p: p['value'], reverse=descending)
-```markdown
+```
 
 ---
 
@@ -343,7 +343,7 @@ for player in players:
 for player in players:
     if player.is_rostered:
         results.append(player)
-```markdown
+```
 
 ---
 
@@ -376,7 +376,7 @@ def get_injury_penalty(self, injury_status):
 
 # In DraftHelper & TradeSimulator:
 penalty = config.get_injury_penalty(player.injury_status)
-```markdown
+```
 
 ---
 
@@ -432,7 +432,7 @@ for player in all_players:
 rostered_names = {p.name for p in team_roster}
 for player in all_players:
     player.is_rostered = player.name in rostered_names  # O(1) lookup
-```markdown
+```
 
 ---
 
@@ -459,7 +459,7 @@ try:
 except FileNotFoundError as e:
     logger.error(f"Failed to load player data: {e}")
     raise DataProcessingError("Player data file not found", context=ctx)
-```markdown
+```
 
 ---
 
@@ -503,7 +503,7 @@ def calculate_score(player, config=None):
     if config is None:
         config = ConfigManager()
     ...
-```markdown
+```
 
 ---
 
@@ -528,7 +528,7 @@ Spec requirement: "Add ADP multiplier to draft recommendations"
 - Add caching layer for performance
 - Create configuration UI for ADP weights
 - Implement machine learning model for ADP prediction
-```markdown
+```
 
 ---
 
@@ -611,7 +611,7 @@ Action taken: Updated S7.P1 guide
 
 Files updated:
 - feature-updates/guides_v2/stages/s7/s7_p1_smoke_testing.md
-```markdown
+```
 
 **5. Update lessons_learned.md:**
 
@@ -655,7 +655,7 @@ Files updated:
 - Guide gaps cost: ~3 hours debugging + 2 hours rework
 - Following guides correctly would have saved: ~5 hours
 - QC restart added: ~2 hours (but prevented larger issues later)
-```markdown
+```
 
 ---
 
@@ -798,7 +798,7 @@ Files updated:
 - S7.P1 guide should emphasize data values more
 
 {End of feature work - guide never updated}
-```markdown
+```
 
 **Why wrong:** Next feature will hit same issue because guide wasn't fixed
 
@@ -859,7 +859,7 @@ Investigation: Most are "Opponent data missing for week {week}, using default"
 Root cause: Schedule data only loaded for weeks 1-17
 Code tries to access week 18 (doesn't exist in regular season)
 Should use INFO level, not WARNING (this is expected behavior)
-```markdown
+```
 
 **Developer's actions:**
 1. Fixed log level (WARNING → INFO)

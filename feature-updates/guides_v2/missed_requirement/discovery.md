@@ -47,7 +47,7 @@ Discovery: We forgot to include player injury status tracking
 - Projections should account for injury status
 - This was in original epic intent but not in any feature spec
 - Solution is clear: Need injury status field + API integration
-```markdown
+```
 
 ### Example 2: Discovered during QA
 ```text
@@ -57,7 +57,7 @@ Discovery: We forgot to add export functionality
 - Users need to export performance reports to CSV
 - This was in original epic but not in any feature
 - Solution is clear: Add CSV export utility
-```markdown
+```
 
 ### Example 3: Discovered during debugging
 ```text
@@ -67,7 +67,7 @@ Discovery: Root cause is missing validation layer
 - Players without position data should be validated earlier
 - This functionality was assumed to exist but doesn't
 - Solution is clear: Need input validation feature
-```markdown
+```
 
 ### Example 4: Discovered during epic testing
 ```text
@@ -77,7 +77,7 @@ Discovery: Missing integration between features
 - feature_02 and feature_04 need shared caching layer
 - This integration point wasn't planned in any feature
 - Solution is clear: Need caching infrastructure feature
-```bash
+```
 
 ---
 
@@ -137,7 +137,7 @@ What would you like to do?
 2. Update unstarted feature (Option 2) - which feature?
 3. Skip for now (document and address later)
 4. Other approach
-```markdown
+```
 
 **Wait for user response**
 
@@ -173,7 +173,7 @@ Where should the new feature go?
 - **At END** (low priority - implement last)
 
 What sequence position? {User input}
-```markdown
+```
 
 ### Priority & sequence decision matrix
 
@@ -196,7 +196,7 @@ Sequence update:
 5. feature_04 ◻️ NOT STARTED
 
 Action: After planning, implement feature_05 immediately, THEN resume feature_02
-```markdown
+```
 
 **Example - Medium Priority:**
 ```text
@@ -211,7 +211,7 @@ Sequence update:
 5. feature_04 ◻️ NOT STARTED
 
 Action: Resume feature_02 now, implement feature_05 after feature_02 completes
-```markdown
+```
 
 **Example - Low Priority:**
 ```text
@@ -226,7 +226,7 @@ Sequence update:
 5. feature_05 ← INSERT AT END (low priority, implement last)
 
 Action: Resume feature_02, implement features in order, feature_05 is last
-```markdown
+```
 
 ---
 
@@ -244,7 +244,7 @@ This will:
 - Feature still implemented in its current sequence position
 
 Proceed? {User confirms}
-```markdown
+```
 
 ### Updating unstarted feature impact
 
@@ -286,7 +286,7 @@ When planning complete:
 
 **Context at Pause:**
 {Document current state, progress, any important context}
-```bash
+```
 
 ---
 
@@ -300,7 +300,7 @@ When planning complete:
 | # | Requirement | Action | Priority | Status | Created | Notes |
 |---|-------------|--------|----------|--------|---------|-------|
 | 1 | Player injury tracking | New feature_05 | High | S2 | 2026-01-04 | Inserting after feature_02 |
-```markdown
+```
 
 ### Update Current Status section
 
@@ -320,7 +320,7 @@ When planning complete:
 - feature_02_projection_system: Paused at S6 Phase 3
   - Resume point: After planning complete, continue Phase 3
   - Agent Status saved: README.md in feature_02/ folder
-```markdown
+```
 
 ### Update Epic Progress Tracker (if creating new feature)
 

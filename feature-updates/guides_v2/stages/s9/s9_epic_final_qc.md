@@ -226,7 +226,7 @@ Start Epic Final QC
           │
           ▼
       S10
-```markdown
+```
 
 ---
 
@@ -295,7 +295,7 @@ Start Epic Final QC
    - Architectural inconsistencies → HIGH priority bug fix
    - Performance regressions >100% → HIGH priority bug fix
    - Cross-feature errors → HIGH priority bug fix
-```markdown
+```
 
 ---
 
@@ -317,7 +317,7 @@ I acknowledge:
 - If ANY part fails → fix and restart smoke testing from Part 1
 
 Ready to begin Step 1: Pre-QC Verification.
-```markdown
+```
 
 ---
 

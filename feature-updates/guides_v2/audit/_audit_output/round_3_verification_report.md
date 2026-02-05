@@ -33,7 +33,7 @@
 ```bash
 grep -rn "17-22\|17-24\|17-25" --include="*.md" . | grep -v "_audit_output" | grep -v "S5_UPDATE_NOTES"
 # Result: 0 matches ✅
-```text
+```
 
 **Pattern 2: New iteration range (14-19)**
 ```bash
@@ -42,7 +42,7 @@ grep -rn "14-19" --include="*.md" . | grep -v "_audit_output"
 # Found in: s5_p3_planning_round3.md, s5_p3_i1_preparation.md, s5_p3_i3_gates_part2.md,
 #           s5_p2_planning_round2.md, faq_troubleshooting.md, EPIC_WORKFLOW_USAGE.md,
 #           README.md, prompts files
-```text
+```
 
 **Pattern 3: Round counts**
 ```bash

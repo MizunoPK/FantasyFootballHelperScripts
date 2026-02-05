@@ -94,7 +94,7 @@ Validation Phase is complete when all spec claims are validated, maximum checkli
    - Update existing requirements with additional evidence
    - Remove or modify incorrect claims discovered during validation
    - Maintain requirement traceability (Source: Validation Research)
-```markdown
+```
 
 ---
 
@@ -173,7 +173,7 @@ Validation Phase is complete when all spec claims are validated, maximum checkli
 
 **Action Taken:**
 - {No change needed / Updated spec.md / Added new requirement}
-```markdown
+```
 
 **Example validation research:**
 
@@ -200,7 +200,7 @@ Validation Phase is complete when all spec claims are validated, maximum checkli
 **Action Taken:**
 - Added Question 5 to checklist about historicalAssignments structure
 - Updated requirement to note discrepancy between current code and S3 schema
-```markdown
+```
 
 **Research deeper than Phase 1:**
 - Read complete file contents (not just searched patterns)
@@ -252,7 +252,7 @@ Validation Phase is complete when all spec claims are validated, maximum checkli
 - Options documented: {List all viable approaches}
 - Recommendation updated: {Best option based on research}
 - Leave for user decision in STAGE_2c
-```markdown
+```
 
 **Example self-resolution:**
 
@@ -280,7 +280,7 @@ Validation Phase is complete when all spec claims are validated, maximum checkli
 **Answer:** Use String fields for all date/time values (ISO 8601 format)
 **Evidence:** AssignmentBatchResponseVO.java lines 15-16 show String beginDateTime/endDateTime
 **Action:** Mark [x] in checklist, add requirement to spec
-```markdown
+```
 
 ---
 
@@ -326,7 +326,7 @@ grep -r "@Valid\|@NotNull\|@NotEmpty" --include="*.java"
 
 # Check configuration patterns
 find . -name "application*.yml" -o -name "*.properties"
-```markdown
+```
 
 **Add new questions to checklist:**
 ```markdown
@@ -345,7 +345,7 @@ C. {Third option if applicable}
 **Recommendation:** {Best option based on research findings}
 
 **Why this is a question:** {Why user input is needed despite research}
-```bash
+```
 
 ---
 
@@ -374,7 +374,7 @@ C. {Third option if applicable}
 - File: {specific file and line numbers}
 - Pattern: {existing pattern found}
 - Similar implementation: {reference to similar code}
-```markdown
+```
 
 **Update existing requirements with additional evidence:**
 
@@ -394,7 +394,7 @@ C. {Third option if applicable}
 - CrewMemberSchedulePeriodBatchResponseVO has 29 fields (full structure documented)
 - QualificationBatchResponseVO structure verified (aircraftType, qualified, expirationDate)
 - Historical assignments mapping clarified through S3 schema comparison
-```markdown
+```
 
 **Mark resolved checklist questions:**
 
@@ -414,7 +414,7 @@ AssignmentBatchResponseVO already uses String for beginDateTime/endDateTime fiel
 - Use String fields for all date/time values in S3 VOs
 - Direct field mapping from existing VOs (no conversion logic needed)
 - Follow ISO 8601 format as shown in S3 schema examples
-```markdown
+```
 
 ---
 

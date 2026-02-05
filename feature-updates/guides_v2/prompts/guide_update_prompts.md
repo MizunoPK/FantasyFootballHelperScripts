@@ -65,7 +65,7 @@ I'm reading `stages/s10/s10_p1_guide_update_workflow.md` to apply lessons learne
 - Next Action: Read all lessons_learned.md files and identify guide gaps
 
 Analyzing lessons learned...
-```bash
+```
 
 ---
 
@@ -117,19 +117,19 @@ I've analyzed all lessons learned from this epic and created prioritized guide u
 **Affected Guide:** `{path/to/guide.md}` - Section: "{section}"
 
 **Current text (BEFORE):**
-```json
+```
 {Current guide text}
 ```bash
 
 **Proposed change (AFTER):**
-```bash
+```
 {Proposed new text - highlighting additions/changes}
 ```markdown
 
 **Why this helps:** {How this prevents future agents from same issue}
 
 **Your decision for Proposal P0-1:** Approve / Modify / Reject / Discuss?
-```bash
+```
 
 ---
 
@@ -165,7 +165,7 @@ I've analyzed all lessons learned from this epic and created prioritized guide u
 6. Proceed to S10 Step 7 (Final Commit & PR)
 
 Applying guide updates...
-```markdown
+```
 
 ---
 
@@ -203,7 +203,7 @@ Applying guide updates...
 I'll now proceed with creating the epic commit and pull request for your review.
 
 Following `stages/s10/s10_epic_cleanup.md` Step 7...
-```markdown
+```
 
 ---
 
@@ -229,7 +229,7 @@ Following `stages/s10/s10_epic_cleanup.md` Step 7...
 Applied modification ✅
 
 {Continue with next proposal if more exist}
-```markdown
+```
 
 ---
 
@@ -255,7 +255,7 @@ Applied modification ✅
 4. Continue discussion
 
 Please let me know your decision.
-```markdown
+```
 
 ---
 
@@ -277,7 +277,7 @@ Please let me know your decision.
 This helps avoid re-proposing the same change in future epics.
 
 {Continue with next proposal if more exist}
-```bash
+```
 
 ---
 

@@ -77,7 +77,7 @@ S5: Feature Implementation (implement each feature: S5→S6→S7→S8)
 S9: Epic-Level Final QC (validate epic as whole)
     ↓
 S10: Epic Cleanup (commit, archive, apply lessons)
-```markdown
+```
 
 ### Terminology
 
@@ -101,7 +101,7 @@ S10: Epic Cleanup (commit, archive, apply lessons)
 1. **Check for in-progress epics first:**
    ```bash
    ls feature-updates/
-   ```markdown
+   ```
    Look for any folders that aren't `done/` or `guides_v2/`
 
 2. **If in-progress epic found:**
@@ -123,7 +123,7 @@ S10: Epic Cleanup (commit, archive, apply lessons)
    ```bash
    ls feature-updates/
    # Look for folders like: improve_draft_helper/, bug_fix_player_data/
-   ```markdown
+   ```
 
 2. **Read EPIC_README.md Agent Status:**
    ```markdown
@@ -134,7 +134,7 @@ S10: Epic Cleanup (commit, archive, apply lessons)
    **Current Step:** Implementing Feature 2, component 3 of 5
    **Current Guide:** stages/s6/s6_execution.md
    **Next Action:** Complete PlayerManager.calculate_score() method
-   ```markdown
+   ```
 
 3. **Use the resumption prompt:**
    - From `prompts_reference_v2.md`: "Resuming In-Progress Epic"
@@ -165,7 +165,7 @@ project-root/
 │       ├── ... (16 stage guides total)
 │       └── stages/s10/s10_epic_cleanup.md
 └── [your project files]
-```markdown
+```
 
 ### Epic Folder Structure
 
@@ -192,7 +192,7 @@ feature-updates/KAI-{N}-{epic_name}/
     ├── implementation_plan.md        # Same as features (~400 lines, user-approved)
     ├── implementation_checklist.md   # Same as features (~50 lines, progress tracking)
     └── lessons_learned.md            # Same as features
-```markdown
+```
 
 ### Key Files Explained
 
@@ -535,7 +535,7 @@ feature-updates/KAI-{N}-{epic_name}/
 **Folder Structure:**
 ```text
 feature-updates/KAI-{N}-{epic_name}/bugfix_{priority}_{name}/
-```markdown
+```
 
 **Priority Levels:**
 - **high**: Breaks core functionality, produces incorrect results
@@ -581,7 +581,7 @@ Prerequisites I'm verifying:
 ✅ S4 (Epic Testing Strategy) complete
 
 I'll now proceed with Round 1 (iterations 1-7 + 4a)...
-```markdown
+```
 
 ### 2. Phase Transition Protocol
 
@@ -607,7 +607,7 @@ Prerequisites I'm verifying:
 - [List prerequisite checks]
 
 I'll now proceed with S1...
-```markdown
+```
 
 ### 3. Agent Status Update Protocol
 
@@ -641,7 +641,7 @@ I'll now proceed with S1...
 1. Keep spec.md VISIBLE at all times
 2. Run unit tests after EVERY component (100% pass required)
 3. Update implementation_checklist.md continuously
-```markdown
+```
 
 **Why this matters:** Session compaction can interrupt agents mid-workflow. Agent Status survives context limits and provides exact resumption point.
 
@@ -766,7 +766,7 @@ Prerequisites I'm verifying:
 ✅ S4 (Epic Testing Strategy) complete
 
 I'll now proceed with Round 1 (iterations 1-7 + 4a)...
-```markdown
+```
 
 **Step 4:** Execute Round 1 iterations
 
@@ -1006,7 +1006,7 @@ cp -r feature-updates/guides_v2/ /path/to/new-project/feature-updates/guides_v2/
 # Or create new folder structure
 mkdir -p /path/to/new-project/feature-updates/guides_v2/
 cp feature-updates/guides_v2/* /path/to/new-project/feature-updates/guides_v2/
-```markdown
+```
 
 **What you're copying:**
 - 16 stage guides
@@ -1019,7 +1019,7 @@ cp feature-updates/guides_v2/* /path/to/new-project/feature-updates/guides_v2/
 cd /path/to/new-project
 mkdir -p feature-updates
 mkdir -p feature-updates/done
-```markdown
+```
 
 **Folder structure:**
 ```markdown
@@ -1028,7 +1028,7 @@ new-project/
 │   ├── guides_v2/              # Copied from this project
 │   └── done/                   # Archive for completed epics
 └── [your project files]
-```markdown
+```
 
 ### Step 3: Create Project-Specific CLAUDE.md
 
@@ -1067,7 +1067,7 @@ This project uses the Epic-Driven Development Workflow v2 for managing features 
 4. Begin S1 workflow
 
 **See:** `feature-updates/guides_v2/EPIC_WORKFLOW_USAGE.md` for complete instructions
-```markdown
+```
 
 ### Step 4: Customize for Your Project
 
@@ -1096,7 +1096,7 @@ This project uses the Epic-Driven Development Workflow v2 for managing features 
 1. **Create test epic request:**
    ```bash
    echo "Test epic to verify workflow" > feature-updates/test_workflow.txt
-   ```markdown
+   ```
 
 2. **Run through S1:**
    - Use "Starting S1" prompt
@@ -1108,7 +1108,7 @@ This project uses the Epic-Driven Development Workflow v2 for managing features 
    ```bash
    ls feature-updates/test_workflow/
    # Should see: EPIC_README.md, epic_smoke_test_plan.md, epic_lessons_learned.md, feature_01_*/
-   ```markdown
+   ```
 
 4. **Complete test epic** (or cancel if just testing)
 
@@ -1140,7 +1140,7 @@ Create `feature-updates/guides_v2/PROJECT_SPECIFIC_STANDARDS.md`:
 - Apply these standards during S6 (Implementation)
 - Verify compliance during S7 (QC Rounds)
 - Include in PR Review checklist
-```markdown
+```
 
 ### Step 7: Train Your Team
 
@@ -1158,7 +1158,7 @@ Create `feature-updates/guides_v2/PROJECT_SPECIFIC_STANDARDS.md`:
    - New epic: User creates .txt file → Start S1
    - Stuck: Re-read current guide
    - Questions: Check prompts_reference_v2.md
-   ```markdown
+   ```
 
 4. **Review first epic:** After first epic completes, review lessons learned as team
 
@@ -1201,7 +1201,7 @@ Prerequisites I'm verifying:
 I'll now proceed with S1...
 
 [Begin S1 workflow]
-```markdown
+```
 
 ### Pattern 2: Resuming In-Progress Epic
 
@@ -1239,7 +1239,7 @@ Current status:
 I'll now continue with the implementation...
 
 [Continue from next action listed in Agent Status]
-```markdown
+```
 
 ### Pattern 3: Transitioning Between Stages
 
@@ -1279,7 +1279,7 @@ Prerequisites I'm verifying:
 I'll now proceed with S3...
 
 [Begin S3 workflow]
-```bash
+```
 
 ### Pattern 4: Handling QC Failures
 
@@ -1321,7 +1321,7 @@ Smoke testing passed. Moving to QC rounds...
 [Execute QC Round 3]
 
 All QC rounds passed. Proceeding to Final Review...
-```bash
+```
 
 ### Pattern 5: User Testing Finds Bugs (S10)
 
@@ -1382,7 +1382,7 @@ Bugs fixed:
 Please test the system again to verify the bugs are fixed and no new issues introduced.
 
 [Wait for user testing results]
-```markdown
+```
 
 ### Pattern 6: Session Compaction Mid-Epic
 
@@ -1423,7 +1423,7 @@ The guide requires:
 I'll now continue with iteration 11...
 
 [Resume work from iteration 11]
-```markdown
+```
 
 
 ### Pattern 7: S2 Parallel Work (3+ Features)
@@ -1456,7 +1456,7 @@ Time savings: ~{savings} hours (40-60% reduction)
 Decision: {N} >= 3, parallel work recommended.
 
 [Continue to S1 Step 5.9]
-```markdown
+```
 
 **At S1 Step 5.9 (Offer Parallel Work to User):**
 
@@ -1482,7 +1482,7 @@ Would you like to:
 1. ✅ Enable parallel work for S2 (I'll provide setup instructions)
 2. ❌ Continue sequential (I'll do all features one by one)
 3. ❓ Discuss parallelization approach
-```markdown
+```
 
 **If user chooses Option 1 (Enable parallel):**
 

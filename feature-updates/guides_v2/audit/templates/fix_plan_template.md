@@ -47,7 +47,7 @@ sed -i 's|OLD_PATTERN|NEW_PATTERN|g' \
   path/to/file1.md \
   path/to/file2.md \
   path/to/file3.md
-```text
+```
 
 **Verification Command:**
 ```bash
@@ -56,19 +56,19 @@ grep -n "NEW_PATTERN" path/to/file1.md path/to/file2.md path/to/file3.md
 
 # Verify old pattern gone (should return 0)
 grep -n "OLD_PATTERN" path/to/file1.md path/to/file2.md path/to/file3.md | wc -l
-```text
+```
 
 **Expected Before:**
 ```text
 file1.md:45:stages/s5/round1/planning.md
 file1.md:67:stages/s5/round1/algorithms.md
-```text
+```
 
 **Expected After:**
 ```text
 file1.md:45:stages/s5/s5_p1_planning_round1.md
 file1.md:67:stages/s5/s5_p1_i2_algorithms.md
-```markdown
+```
 
 ---
 
@@ -137,7 +137,7 @@ file1.md:67:stages/s5/s5_p1_i2_algorithms.md
    - new_string: [exact new content]
 4. Verify by reading changed section
 5. Document before/after
-```markdown
+```
 
 ---
 
@@ -177,7 +177,7 @@ PRIORITY 3 (Low) - Fix When Time Allows OR Defer
   └─> Group 10: [Description] (Manual OR Deferred)
       ↓
 VERIFY P3 fixes OR document deferral
-```markdown
+```
 
 **Critical Rule:** Fix → Verify → Document before moving to next group
 
@@ -312,7 +312,7 @@ git restore file1.md file2.md file3.md
 
 # Refine pattern/approach
 # Retry
-```text
+```
 
 **If multiple groups fail:**
 ```bash

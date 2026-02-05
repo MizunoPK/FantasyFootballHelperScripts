@@ -47,7 +47,7 @@ I'm reading `stages/s1/s1_epic_planning.md` to ensure I follow the complete epic
 - Next Action: Create git branch and epic folder structure
 
 Starting Step 1...
-```markdown
+```
 
 ---
 
@@ -92,7 +92,7 @@ I'm reading `stages/s1/s1_p3_discovery_phase.md` to ensure I follow the Discover
 - Next Action: Create DISCOVERY.md and extract initial questions
 
 Starting S1.P3.1...
-```markdown
+```
 
 ---
 
@@ -135,7 +135,7 @@ Starting S1.P3.1...
 ---
 
 Please answer so I can continue research.
-```markdown
+```
 
 ---
 
@@ -178,7 +178,7 @@ Please answer so I can continue research.
 - Does the feature breakdown make sense?
 
 **Please approve to proceed to feature breakdown (Step 4).**
-```markdown
+```
 
 ---
 

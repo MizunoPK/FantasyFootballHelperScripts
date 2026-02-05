@@ -38,12 +38,12 @@
 **Current:**
 ```markdown
 - **Round 1:** Iterations 1-7 + Gate 4a + Gate 7a (9 iterations)
-```text
+```
 
 **Target:**
 ```markdown
 - **Round 1:** Iterations 1-7 (7 iterations, includes Gates 4a, 7a)
-```markdown
+```
 
 **Changes:**
 - Remove "+ Gate 4a + Gate 7a" format
@@ -59,12 +59,12 @@
 **Current:**
 ```markdown
 - **Round 2:** Iterations 8-13 (9 iterations)
-```text
+```
 
 **Target:**
 ```markdown
 - **Round 2:** Iterations 8-13 (6 iterations)
-```markdown
+```
 
 **Changes:**
 - Change "(9 iterations)" → "(6 iterations)"
@@ -79,12 +79,12 @@
 **Current:**
 ```markdown
 - Round 1: Iterations 1-7 + Gate 4a (Initial TODO)
-```text
+```
 
 **Target:**
 ```markdown
 - Round 1: Iterations 1-7 (7 iterations, includes Gate 4a) - Initial TODO
-```text
+```
 
 **Changes:**
 - Remove "+ Gate 4a" format
@@ -101,12 +101,12 @@
 **Current:**
 ```markdown
 - Round 3: Iterations 17-24 (Preparation + Gates)
-```text
+```
 
 **Target:**
 ```markdown
 - Round 3: Iterations 14-22 (9 iterations, includes Gates 23a=I20, 25=I21, 24=I22) - Preparation + Gates
-```text
+```
 
 **Changes:**
 - Change range "17-24" → "14-22"
@@ -123,12 +123,12 @@
 **Current:**
 ```markdown
 - **Iteration:** Single verification step (Round 1 has Iterations 1-7 + Gate 4a)
-```text
+```
 
 **Target:**
 ```markdown
 - **Iteration:** Single verification step (Round 1 has 7 iterations: I1-I7, includes Gates 4a, 7a)
-```text
+```
 
 **Changes:**
 - Remove "+ Gate 4a" format
@@ -153,12 +153,12 @@
 **Current:**
 ```markdown
 | S5.P3.1: Preparation | `stages/s5/s5_p3_i1_preparation.md` | 14-19 | 45-60 min |
-```text
+```
 
 **Target:**
 ```markdown
 | S5.P3.1: Preparation | `stages/s5/s5_p3_i1_preparation.md` | 14-19 | 45-60 min |
-```markdown
+```
 
 **Changes:**
 - Change iterations "14-19" → "14-19"
@@ -174,12 +174,12 @@
 **Current:**
 ```markdown
 | S5.P3.2: Gates 1-2 | `stages/s5/s5_p3_i2_gates_part1.md` | 23, 23a + Gate 23a | 30-45 min |
-```text
+```
 
 **Target:**
 ```markdown
 | S5.P3.2: Gate 23a | `stages/s5/s5_p3_i2_gates_part1.md` | 20 (Gate 23a) | 30-45 min |
-```text
+```
 
 **Changes:**
 - Change part name "Gates 1-2" → "Gate 23a"
@@ -196,12 +196,12 @@
 **Current:**
 ```markdown
 | S5.P3.3: Gate 3 | `stages/s5/s5_p3_i3_gates_part2.md` | 24, 25 + Gates 24, 25 | 15-30 min |
-```text
+```
 
 **Target:**
 ```markdown
 | S5.P3.3: Gates 24, 25 | `stages/s5/s5_p3_i3_gates_part2.md` | 21, 22 (Gates 25, 24) | 15-30 min |
-```text
+```
 
 **Changes:**
 - Change part name "Gate 3" → "Gates 24, 25"
@@ -219,12 +219,12 @@
 **Current:**
 ```markdown
 #### Step 5.1.3.3: Part 2b (Iterations 24, 25 + Gates 24, 25)
-```text
+```
 
 **Target:**
 ```markdown
 #### Step 5.1.3.3: Part 2b (Iterations 21, 22: Gates 25, 24)
-```text
+```
 
 **Changes:**
 - Change "Iterations 24, 25" → "Iterations 21, 22"
@@ -257,7 +257,7 @@ NEW: - Round 1: Iterations 1-7 (7 iterations, includes Gate 4a) - Initial TODO
 # Issue R3-4 (Line 1077):
 OLD: - Round 3: Iterations 17-24 (Preparation + Gates)
 NEW: - Round 3: Iterations 14-22 (9 iterations, includes Gates 23a=I20, 25=I21, 24=I22) - Preparation + Gates
-```markdown
+```
 
 ---
 
@@ -271,7 +271,7 @@ Use Edit tool:
 # Issue R3-5 (Line 42):
 OLD: - **Iteration:** Single verification step (Round 1 has Iterations 1-7 + Gate 4a)
 NEW: - **Iteration:** Single verification step (Round 1 has 7 iterations: I1-I7, includes Gates 4a, 7a)
-```markdown
+```
 
 ---
 
@@ -288,7 +288,7 @@ NEW: - **Iteration:** Single verification step (Round 1 has 7 iterations: I1-I7,
 | S5.P3.1: Preparation | `stages/s5/s5_p3_i1_preparation.md` | 14-19 | 45-60 min |
 | S5.P3.2: Gates 1-2 | `stages/s5/s5_p3_i2_gates_part1.md` | 23, 23a + Gate 23a | 30-45 min |
 | S5.P3.3: Gate 3 | `stages/s5/s5_p3_i3_gates_part2.md` | 24, 25 + Gates 24, 25 | 15-30 min |
-```text
+```
 
 **Target Table:**
 ```markdown
@@ -297,7 +297,7 @@ NEW: - **Iteration:** Single verification step (Round 1 has 7 iterations: I1-I7,
 | S5.P3.1: Preparation | `stages/s5/s5_p3_i1_preparation.md` | 14-19 | 45-60 min |
 | S5.P3.2: Gate 23a | `stages/s5/s5_p3_i2_gates_part1.md` | 20 (Gate 23a) | 30-45 min |
 | S5.P3.3: Gates 24, 25 | `stages/s5/s5_p3_i3_gates_part2.md` | 21, 22 (Gates 25, 24) | 15-30 min |
-```markdown
+```
 
 ---
 
@@ -311,7 +311,7 @@ Use Edit tool:
 # Line 4:
 OLD: #### Step 5.1.3.3: Part 2b (Iterations 24, 25 + Gates 24, 25)
 NEW: #### Step 5.1.3.3: Part 2b (Iterations 21, 22: Gates 25, 24)
-```markdown
+```
 
 ---
 

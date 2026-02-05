@@ -26,7 +26,7 @@
 1. What makes debugging hard currently?
 2. What would "easier" look like?
 3. Which parts of the workflow are most painful?
-```markdown
+```
 
 ### S1.P3.2: Discovery Loop - Iteration 1
 
@@ -204,7 +204,7 @@ Add a debug mode to simulations with:
 2. Configurable player subset for fast runs
 3. Verbose error output with stack traces
 4. Debug logging in calculation paths
-```bash
+```
 
 ### S1.P3.4: Proposed Feature Breakdown
 
@@ -382,7 +382,7 @@ Problems discovered DURING implementation:
 - User wanted faster startup time, not faster data load
 - Caching strategy conflicted with existing cache
 - All 3 features were wrong approach
-```markdown
+```
 
 **With Discovery:**
 ```bash

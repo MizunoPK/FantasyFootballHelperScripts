@@ -161,7 +161,7 @@ Old Patterns (should be gone):
 - "Proceed to 5a"
 - "Restart 5b"
 - "Complete 5c"
-```text
+```
 
 **Template:**
 ```markdown
@@ -171,7 +171,7 @@ Old Patterns for [CHANGE TYPE]:
 3. [old string in sentence context]
 4. [old string in file names]
 5. [old string in headers]
-```markdown
+```
 
 ### STEP 3: Brainstorm Pattern Variations
 
@@ -182,20 +182,20 @@ Old Patterns for [CHANGE TYPE]:
 Base: "5a"
 - "5a:", "5a-", "5a.", "5a)", "(5a", "5a,"
 - " 5a ", "5a\n", "\n5a"
-```text
+```
 
 **Context Variations:**
 ```text
 - Action verbs: "back to 5a", "restart 5a", "proceed to 5a", "complete 5a"
 - Descriptive: "in 5a", "during 5a", "from 5a", "after 5a"
 - Comparisons: "5a vs 5b", "5a or 5b", "5a and 5b"
-```text
+```
 
 **Header Variations:**
 ```markdown
 - "## 5a:", "### Stage 5a", "#### 5a -"
 - "# Part 5a", "## Section 5a"
-```text
+```
 
 **File Name Variations:**
 ```text
@@ -203,13 +203,13 @@ Base: "5a"
 - "stage_5a_"
 - "part_5a"
 - "round_5a"
-```text
+```
 
 **Case Variations:**
 ```text
 - "Stage 5A" (uppercase)
 - "STAGE 5a" (mixed)
-```markdown
+```
 
 ### STEP 4: Create Search Commands
 
@@ -233,7 +233,7 @@ grep -rn "^## 5[a-e]\|^### Stage 5[a-e]" --include="*.md"
 
 # In file paths/names
 find . -name "*5a*" -o -name "*5b*" -o -name "*5c*"
-```text
+```
 
 **Command Template:**
 ```bash
@@ -246,7 +246,7 @@ grep -rn "[PATTERN]" [LOCATION] --include="*.md" [OPTIONS]
 # -E = extended regex
 # -A 2 = show 2 lines after
 # -B 2 = show 2 lines before
-```markdown
+```
 
 ---
 
@@ -275,7 +275,7 @@ grep -rn "PATTERN" prompts/ --include="*.md"
 # README and EPIC_WORKFLOW_USAGE (entry points)
 echo "=== Checking core docs ==="
 grep -rn "PATTERN" README.md EPIC_WORKFLOW_USAGE.md
-```markdown
+```
 
 **Why templates first?** Template errors multiply - every new epic created gets the error.
 
@@ -302,7 +302,7 @@ for folder in "${folders[@]}"; do
 
   echo ""
 done
-```text
+```
 
 **Folder Descriptions:**
 - `debugging/` - Debugging protocol guides
@@ -334,7 +334,7 @@ grep -rn "back to 5[a-e]\|restart 5[a-e]\|proceed to 5[a-e]" --include="*.md" -i
 grep -rn "^## 5[a-e]\|^### Stage 5[a-e]" --include="*.md"
 
 # Continue with ALL pattern variations from Step 4
-```text
+```
 
 **Document Results:**
 - Pattern used
@@ -369,7 +369,7 @@ find . -name "*.md" -type f | shuf -n 10 | while read file; do
   # - Broken formatting
   # - Issues grep wouldn't catch
 done
-```text
+```
 
 **What to look for in spot-checks:**
 - File size issues (very long files)
@@ -393,7 +393,7 @@ grep -rh "stages/s[0-9].*\.md" --include="*.md" | \
 while read path; do
   [ ! -f "$path" ] && echo "BROKEN: $path"
 done < /tmp/all_refs.txt
-```text
+```
 
 **Example: D10 File Size Assessment**
 ```bash
@@ -406,7 +406,7 @@ for file in $(find stages -name "*.md"); do
     echo "LARGE: $file ($lines lines)"
   fi
 done
-```markdown
+```
 
 ---
 
@@ -428,7 +428,7 @@ done
 `grep -rn "pattern" --include="*.md"`
 
 **Context (5 lines):**
-```json
+```
 [Line before]
 [Line before]
 → [Issue line - mark with arrow]
@@ -451,7 +451,7 @@ done
 - [ ] Requires user decision
 
 ---
-```markdown
+```
 
 ### Categorization by Dimension
 

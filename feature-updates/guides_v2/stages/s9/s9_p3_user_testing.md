@@ -10,7 +10,7 @@
 S9.P1 (Epic Smoke) → S9.P2 (QC Rounds) →
 → [YOU ARE HERE: S9.P3 - User Testing] →
 → S9.P4 (Epic Final Review) → S10
-```markdown
+```
 
 ---
 
@@ -106,7 +106,7 @@ User testing passes with ZERO bugs reported by user
    - Document what user tested
    - Document user's feedback
    - Track bug fixes (if any)
-```markdown
+```
 
 ---
 
@@ -131,7 +131,7 @@ STEP 6: User Testing & Bug Fix Protocol
 │
 └─> 6d: Document User Testing Completion
     └─ Update EPIC_README.md with results
-```markdown
+```
 
 ---
 
@@ -174,7 +174,7 @@ Epic QC rounds have completed successfully! Before finalizing this epic, I need 
 - OR: List of bugs/issues discovered (one per line with description)
 
 I'll wait for your testing results before proceeding to the final review.
-```markdown
+```
 
 **Customization:**
 - Replace `{feature_name}` and `{description}` with actual feature details
@@ -229,7 +229,7 @@ For EACH bug reported by user, create a bug fix folder:
 
 ```bash
 feature-updates/KAI-{N}-{epic_name}/bugfix_{priority}_{short_name}/
-```markdown
+```
 
 **Priority Determination:**
 - **high**: Prevents core functionality, data corruption, crashes
@@ -273,7 +273,7 @@ In each bugfix folder, create `notes.txt`:
 ## Related Features
 
 {Which features are affected}
-```markdown
+```
 
 **1c. User Verification**
 
@@ -286,7 +286,7 @@ I've documented the bugs you reported. Please verify these descriptions are accu
 - Bug 2: {bugfix_medium_wrong_calculation/notes.txt summary}
 
 Are these descriptions correct? Any clarifications needed?
-```markdown
+```
 
 **Wait for user confirmation before proceeding.**
 
@@ -323,7 +323,7 @@ Update EPIC_README.md:
 
 ### Bug Fix 2: {name}
 {Details...}
-```markdown
+```
 
 **Repeat for ALL bugs until every bug fix reaches S7 (Testing & Review).**
 
@@ -423,7 +423,7 @@ Update EPIC_README.md:
   - {Scenario 3}
 
 **Step 7 - Epic PR Review:** [ ] PENDING
-```markdown
+```
 
 **Document in epic_lessons_learned.md:**
 

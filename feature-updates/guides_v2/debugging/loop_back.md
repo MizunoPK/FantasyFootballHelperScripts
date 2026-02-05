@@ -37,7 +37,7 @@ ALL issues in ISSUES_CHECKLIST.md meet these criteria:
 - Total Issues: {count}
 - Fixed with User Confirmation: {count} ✅
 - Outstanding: 0 ✅
-```markdown
+```
 
 **If any issue is NOT 🟢 FIXED with ✅ YES:**
 - STOP - Cannot proceed to loop-back
@@ -63,7 +63,7 @@ grep -r "FIXME.*debug" .
 
 # Search for commented-out diagnostic code
 grep -r "#.*logger.info.*diagnostic" .
-```markdown
+```
 
 **Remove:**
 - [ ] Diagnostic logging (unless valuable for production)
@@ -82,7 +82,7 @@ grep -r "#.*logger.info.*diagnostic" .
 
 ```bash
 python tests/run_all_tests.py
-```markdown
+```
 
 **Requirements:**
 - Exit code: 0
@@ -117,7 +117,7 @@ python tests/run_all_tests.py
 ```bash
 # Check ISSUES_CHECKLIST.md "Root Cause?" column
 # Should show ✅ YES or ⏭️ SKIP for every 🟢 FIXED issue
-```markdown
+```
 
 **If any issue missing root cause analysis:**
 - STOP - Cannot proceed
@@ -231,7 +231,7 @@ Example: "Add to s5_p2_planning_round2.md Iteration 9 checklist: '[ ] Entity sta
    - Priority: {P0/P1/P2/P3}
 
 ---
-```markdown
+```
 
 **Critical Requirements:**
 
@@ -287,13 +287,13 @@ Example: "Add to s5_p2_planning_round2.md Iteration 9 checklist: '[ ] Entity sta
 
 ### Current State (BEFORE)
 
-```markdown
+```
 {Current text from guide, OR "Section doesn't exist"}
 ```bash
 
 ### Proposed Change (AFTER)
 
-```markdown
+```
 {Proposed new text with **BOLD** for additions/changes}
 ```markdown
 
@@ -314,7 +314,7 @@ Example: "Add to s5_p2_planning_round2.md Iteration 9 checklist: '[ ] Entity sta
 ---
 
 {Repeat for each pattern-based recommendation}
-```markdown
+```
 
 ---
 
@@ -461,13 +461,13 @@ This document captures technical lessons from debugging. For process improvement
 - {What technical issue was common across these bugs}
 
 **Common Code Pattern:**
-```python
+```
 # Example of problematic pattern
 {code snippet}
 ```markdown
 
 **Recommended Solution:**
-```python
+```
 # Example of fix pattern
 {code snippet}
 ```markdown
@@ -695,7 +695,7 @@ This document captures technical lessons from debugging. For process improvement
 ---
 
 *End of debugging/lessons_learned.md*
-```bash
+```
 
 ---
 
@@ -744,7 +744,7 @@ All issues in debugging/ISSUES_CHECKLIST.md are now 🟢 FIXED with user confirm
 - Next Action: Run Smoke Test Part 1 (Import Test)
 
 Looping back to smoke testing...
-```markdown
+```
 
 ---
 
@@ -803,7 +803,7 @@ All issues in epic_name/debugging/ISSUES_CHECKLIST.md are now 🟢 FIXED with us
 - Next Action: Run Epic Smoke Test Step 1
 
 Looping back to epic smoke testing...
-```markdown
+```
 
 ---
 
@@ -847,7 +847,7 @@ I've resolved all {count} bug(s) you reported during user testing.
 {List of issues with brief descriptions}
 
 Re-running epic testing now...
-```markdown
+```
 
 ---
 
@@ -967,13 +967,13 @@ Re-running epic testing now...
    - Repeat if new issues found
 
 **Update README Agent Status:**
-```markdown
+```
 **Current Phase:** DEBUGGING_PROTOCOL
 **Testing Stage Paused:** S7.P1 Smoke Part 3
 **Issues Found:** {count}
 **Next Action:** Begin debugging protocol (read debugging/discovery.md)
 ```text
-```markdown
+```
 
 ---
 
@@ -1001,7 +1001,7 @@ Re-running epic testing now...
    - Then re-run all QC rounds from Round 1
 
 **Critical:** QC restart protocol applies - always loop back to smoke testing after fixes
-```markdown
+```
 
 ---
 
@@ -1030,7 +1030,7 @@ Re-running epic testing now...
    - After all epic issues resolved
    - Re-run epic smoke testing from beginning
    - Repeat until zero issues
-```markdown
+```
 
 ---
 

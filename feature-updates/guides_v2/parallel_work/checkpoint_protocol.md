@@ -62,7 +62,7 @@ The checkpoint system provides **recoverable state** so work can resume without 
     "last_status_update": "2026-01-15T14:15:00Z"
   }
 }
-```markdown
+```
 
 **Fields:**
 - `agent_id`: Agent identifier (Agent-Primary, Secondary-A, Secondary-B)
@@ -117,7 +117,7 @@ The checkpoint system provides **recoverable state** so work can resume without 
 # Generate unique session ID
 SESSION_ID=$(uuidgen)  # Or use timestamp: $(date +%s)
 echo "Session ID: $SESSION_ID"
-```markdown
+```
 
 ### Step 2: Create Checkpoint File
 
@@ -162,7 +162,7 @@ cat > agent_checkpoints/secondary_a.json <<EOF
 EOF
 
 echo "Initial checkpoint created"
-```markdown
+```
 
 ---
 
@@ -176,7 +176,7 @@ echo "Initial checkpoint created"
 # Read existing checkpoint
 CHECKPOINT_FILE="agent_checkpoints/secondary_a.json"
 CURRENT_CHECKPOINT=$(cat "$CHECKPOINT_FILE")
-```markdown
+```
 
 ### Step 2: Update Fields
 
@@ -221,7 +221,7 @@ cat > "$CHECKPOINT_FILE" <<EOF
 EOF
 
 echo "Checkpoint updated"
-```markdown
+```
 
 ### Step 3: Verify Update
 
@@ -233,7 +233,7 @@ else
   echo "ERROR: Checkpoint corrupted during update"
   # Restore from backup if exists
 fi
-```markdown
+```
 
 ---
 
@@ -279,7 +279,7 @@ check_stale_agents() {
     fi
   done
 }
-```markdown
+```
 
 ### Warning Message (30 minutes)
 
@@ -293,7 +293,7 @@ check_stale_agents() {
          Are you still actively working?
 **Next:** Reply "Still working" and update checkpoint ASAP
 **Acknowledge:** Reply immediately
-```markdown
+```
 
 ### Failure Escalation (60 minutes)
 
@@ -318,7 +318,7 @@ check_stale_agents() {
    if [ -f "$CHECKPOINT" ]; then
      echo "Found existing checkpoint, resuming..."
    fi
-   ```markdown
+   ```
 3. **Agent reads checkpoint:**
    ```bash
    STAGE=$(jq -r '.stage' "$CHECKPOINT")
@@ -328,7 +328,7 @@ check_stale_agents() {
    echo "Resuming from: $STAGE"
    echo "Instructions: $RECOVERY_INSTRUCTIONS"
    echo "Modified files: $FILES_MODIFIED"
-   ```markdown
+   ```
 4. **Agent reads modified files:**
    ```bash
    # Read each modified file to understand current state
@@ -336,7 +336,7 @@ check_stale_agents() {
      echo "Reading $FILE..."
      # Use Read tool
    done
-   ```markdown
+   ```
 5. **Agent resumes work:**
    - Follow `recovery_instructions`
    - Continue from `current_step`
@@ -368,7 +368,7 @@ check_stale_agents() {
 3. Transition to S2.P3
 
 I'll continue where I left off...
-```markdown
+```
 
 ### Scenario 2: New Agent Takes Over (Reassignment)
 
@@ -385,7 +385,7 @@ I'll continue where I left off...
 
    Checkpoint File: agent_checkpoints/secondary_a.json
    Resume from: S2.P2 Specification Phase
-   ```markdown
+   ```
 3. **New agent reads checkpoint:**
    - Same as Scenario 1
    - Understands where previous agent left off
@@ -397,7 +397,7 @@ I'll continue where I left off...
 
    # Create new checkpoint for new agent
    # (Could be Secondary-C or reuse Secondary-A ID)
-   ```markdown
+   ```
 5. **New agent resumes work:**
    - Same feature, same stage
    - Fresh session_id
@@ -413,7 +413,7 @@ I'll continue where I left off...
    ```bash
    mv agent_checkpoints/secondary_a.json \
       agent_checkpoints/secondary_a_aborted_$(date +%s).json
-   ```markdown
+   ```
 3. **Primary generates fresh handoff package:**
    - Same as original
    - No checkpoint reference
@@ -447,7 +447,7 @@ backup_checkpoint() {
 # Usage:
 backup_checkpoint "agent_checkpoints/secondary_a.json"
 # Now safe to update checkpoint
-```markdown
+```
 
 **Recovery from Backup:**
 
@@ -469,7 +469,7 @@ restore_checkpoint() {
     return 1
   fi
 }
-```markdown
+```
 
 ---
 
@@ -496,14 +496,14 @@ restore_checkpoint() {
    - `recovery_instructions`: Update instructions for resuming
 
 3. **Verify checkpoint valid:**
-   ```bash
+   ```
    jq '.' agent_checkpoints/{your_agent_id}.json
    ```markdown
 
 4. **Backup checkpoint** (optional but recommended)
 
 5. **Reset 15-minute timer** for next checkpoint
-```markdown
+```
 
 ### At Phase Transitions
 
@@ -518,13 +518,13 @@ restore_checkpoint() {
    - Update `recovery_instructions`: "Resume from beginning of S2.P2"
 
 2. **Verify checkpoint saved:**
-   ```bash
+   ```
    jq '.stage' agent_checkpoints/{your_agent_id}.json
    # Should show: "S2.P2"
    ```markdown
 
 3. **Proceed to S2.P2**
-```markdown
+```
 
 ---
 
@@ -539,7 +539,7 @@ if [ ! -f "agent_checkpoints/secondary_a.json" ]; then
   echo "Creating fresh checkpoint from current state..."
   # Create checkpoint using current known state
 fi
-```markdown
+```
 
 ### Error 2: Checkpoint File Corrupted (Invalid JSON)
 
@@ -555,7 +555,7 @@ if ! jq '.' "agent_checkpoints/secondary_a.json" >/dev/null 2>&1; then
     # Create checkpoint from scratch
   fi
 fi
-```markdown
+```
 
 ### Error 3: Checkpoint Too Old (Stale Agent)
 

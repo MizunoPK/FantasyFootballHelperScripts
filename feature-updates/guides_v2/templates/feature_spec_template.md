@@ -117,7 +117,7 @@
 - {Edge case 2 and handling}
 
 **Example Calculation:**
-```text
+```
 Input: player_name="Patrick Mahomes", adp=5
 Process:
   1. Fetch ADP data: adp_value = 5
@@ -136,7 +136,7 @@ Output: (multiplier=1.45, adp_rank=5)
 **Purpose:** {What this data structure represents}
 
 **Fields:**
-```python
+```
 {
     "field1": {type},  # Description
     "field2": {type},  # Description
@@ -145,7 +145,7 @@ Output: (multiplier=1.45, adp_rank=5)
 ```markdown
 
 **Example:**
-```python
+```
 {
     "player_name": "Patrick Mahomes",
     "adp_rank": 5,
@@ -164,7 +164,7 @@ Output: (multiplier=1.45, adp_rank=5)
 **Consumer:** {Which modules/classes consume this}
 
 **Method Signature:**
-```python
+```
 def method_name(param1: Type1, param2: Type2) -> ReturnType:
     """Brief description"""
 ```markdown
@@ -181,7 +181,7 @@ def method_name(param1: Type1, param2: Type2) -> ReturnType:
 - `ErrorType2`: When {condition}
 
 **Example Usage:**
-```python
+```
 result = provider.method_name("value1", 123)
 # result: (1.45, 5)
 ```json
@@ -199,7 +199,7 @@ result = provider.method_name("value1", 123)
 **Interface:** {Reference to interface above}
 
 **Example Flow:**
-```text
+```
 Feature 01 (ADP Integration)
   ↓ provides adp_data: (multiplier, rank)
 Feature 02 (Matchup System)
@@ -221,7 +221,7 @@ Feature 03 (Performance Tracker)
 **Logged:** {What gets logged}
 
 **Example:**
-```python
+```
 try:
     adp_data = fetch_adp_data(player_name)
 except DataProcessingError as e:

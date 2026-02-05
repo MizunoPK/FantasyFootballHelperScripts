@@ -56,7 +56,7 @@ cd feature-updates/guides_v2
 # Global replacement across all markdown files (excluding S5_UPDATE_NOTES.md which is intentional)
 find . -name "*.md" -type f ! -name "S5_UPDATE_NOTES.md" \
   -exec sed -i 's/22 iteration/22 iteration/g' {} +
-```markdown
+```
 
 ### Verification Command
 
@@ -68,7 +68,7 @@ grep -rn "22 iteration" --include="*.md" . | grep -v "S5_UPDATE_NOTES.md" | wc -
 grep "iteration" README.md | grep -E "(22|24|28)"
 grep "iteration" EPIC_WORKFLOW_USAGE.md | grep -E "(22|24|28)"
 grep "iteration" prompts/s5_s8_prompts.md | head -10
-```markdown
+```
 
 ### Expected Changes
 
@@ -101,43 +101,43 @@ S5 now has 22 iterations across 3 rounds:
 ```diff
 - Round 2 complete (16/22 iterations done, confidence >= MEDIUM, test coverage >90%)
 + Round 2 complete (13/22 iterations done, confidence >= MEDIUM, test coverage >90%)
-```text
+```
 
 **Line 172:**
 ```diff
 - ✅ Round 2 complete (16/22 iterations)
 + ✅ Round 2 complete (13/22 iterations)
-```text
+```
 
 **Line 195:**
 ```diff
 - Round 3 Part 1 complete (22/22 iterations done)
 + Round 3 Part 1 complete (22/22 iterations done)
-```text
+```
 
 **Line 234:**
 ```diff
 - ✅ Round 3 Part 1 complete (22/22 iterations)
 + ✅ Round 3 Part 1 complete (22/22 iterations)
-```text
+```
 
 **Line 258:**
 ```diff
 - Agent detects S5 complete (22 iterations done)
 + Agent detects S5 complete (22 iterations done)
-```text
+```
 
 **Line 260:**
 ```diff
 - Prerequisite: S5 complete (22 iterations passed, implementation_plan.md v3.0 created)
 + Prerequisite: S5 complete (22 iterations passed, implementation_plan.md v3.0 created)
-```text
+```
 
 **Line 322:**
 ```diff
 - ✅ S5 complete (EPIC_README.md shows 22 iterations done)
 + ✅ S5 complete (EPIC_README.md shows 22 iterations done)
-```markdown
+```
 
 ### Also Check: README.md "24 iterations" conflict
 
@@ -157,7 +157,7 @@ S5 now has 22 iterations across 3 rounds:
 
 - Line 721: 1. Session compacts during S5 (iteration 12/24)
 + Line 721: 1. Session compacts during S5 (iteration 12/22)
-```markdown
+```
 
 **Line 536:** "Algorithm Traceability Matrix required (iterations 4, 11, 19)" - Keep as-is (specific iteration numbers, not a count)
 
@@ -167,7 +167,7 @@ S5 now has 22 iterations across 3 rounds:
 # Should return 0
 grep -rn "/28\|28/" prompts/s5_s8_prompts.md | wc -l
 grep -rn "24 iteration\|/24" README.md | wc -l
-```markdown
+```
 
 ---
 
@@ -188,7 +188,7 @@ grep -rn "24 iteration\|/24" README.md | wc -l
 ```diff
 - **Total Time:** 2-3 hours per feature (9 phases across 3 sub-stages)
 + **Total Time:** 2.25-4 hours per feature (2 phases: S2.P1 with 3 iterations, S2.P2 pairwise comparison)
-```text
+```
 
 **Line 12-21 (Current structure):**
 ```text
@@ -197,7 +197,7 @@ S2.P1: Research Phase (45-60 min)
 S2.P2: Specification Phase (30-45 min)
 ...
 S2.P3: Refinement Phase (45-60 min)
-```text
+```
 
 **Should Be:**
 ```text
@@ -209,13 +209,13 @@ S2.P1: Spec Creation and Refinement (2.25-3.5 hours)
 S2.P2: Cross-Feature Alignment (20-60 min)
   - Primary agent only
   - Pairwise comparison of all features in group
-```text
+```
 
 **Line 231:**
 ```diff
 - - [ ] All 9 phases executed (0 through 6)
 + - [ ] All phases executed (S2.P1 iterations 1-3, S2.P2 alignment)
-```markdown
+```
 
 ### Also Check: stages/s2/s2_feature_deep_dive.md
 
@@ -234,7 +234,7 @@ S2.P2: Cross-Feature Alignment (20-60 min)
 ```bash
 # Should return 0-1 (only line 99 with historical reference should remain)
 grep -rn "9 phase" reference/stage_2/ stages/s2/ --include="*.md" -i | wc -l
-```markdown
+```
 
 ---
 
@@ -263,7 +263,7 @@ File uses "15 iterations" and "22 iterations" as historical examples of CLAUDE.m
 + CLAUDE.md: "S5: Implementation Planning (22 iterations, 3 rounds)" (outdated as of 2026-02-04)
 + Reality: S5 has 22 iterations across 3 rounds (as of 2026-02-04)
 + Result: Agent thinks they need to do 22 iterations, expects iterations that don't exist
-```text
+```
 
 **Lines 269-272:**
 ```diff
@@ -275,7 +275,7 @@ File uses "15 iterations" and "22 iterations" as historical examples of CLAUDE.m
 + 3. Current epic uses updated 22-iteration process
 + 4. Forget to update CLAUDE.md (still says 22 iterations)
 + 5. Next epic starts, reads CLAUDE.md, thinks 22 iterations exist
-```text
+```
 
 **Lines 577-578:**
 ```diff
@@ -283,7 +283,7 @@ File uses "15 iterations" and "22 iterations" as historical examples of CLAUDE.m
 - Guide: "S5: Implementation Planning (22 iterations across 3 rounds:
 + CLAUDE.md: "S5: Implementation Planning (22 iterations)" (outdated)
 + Guide: "S5: Implementation Planning (22 iterations across 3 rounds)"
-```text
+```
 
 **Lines 631-632:**
 ```diff
@@ -291,7 +291,7 @@ File uses "15 iterations" and "22 iterations" as historical examples of CLAUDE.m
 - **Actual:** S5 has 22 iterations across 3 rounds
 + **Problem:** S5 changed from 28 to 22 iterations (testing moved to S4)
 + **Actual:** S5 has 22 iterations across 3 rounds
-```markdown
+```
 
 **Lines 186-188, 569-570:** Similar updates needed
 
@@ -303,7 +303,7 @@ grep -rn "22 iteration" audit/dimensions/d8_claude_md_sync.md | wc -l  # Should 
 
 # Check that historical context is preserved
 grep -rn "22 iteration.*outdated\|22 iteration.*(as of" audit/dimensions/d8_claude_md_sync.md | wc -l  # Should be >0
-```markdown
+```
 
 ---
 

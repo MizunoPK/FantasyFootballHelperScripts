@@ -145,7 +145,7 @@ Round 4: Repeat validation
 Round 5: Final sweep
 - Run tests: All pass
 - Check: 0 issues found → PASSED (count = 3 consecutive clean)
-```markdown
+```
 
 ---
 

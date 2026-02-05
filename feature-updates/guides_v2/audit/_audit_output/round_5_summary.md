@@ -98,7 +98,7 @@
 
 # After (CORRECT):
 **User says:** Agent detects Round 1 complete (7/7 iterations done, confidence >= MEDIUM)
-```markdown
+```
 
 ### Example 2: Progress Fraction (Line 111)
 ```markdown
@@ -107,7 +107,7 @@
 
 # After (CORRECT):
 ✅ Round 1 complete (7/7 iterations)
-```markdown
+```
 
 ---
 

@@ -62,12 +62,12 @@
 **Current:**
 ```markdown
 - **Round 1:** Iterations 1-7 + Gate 4a + Gate 7a (9 iterations)
-```text
+```
 
 **Should Be:**
 ```markdown
 - **Round 1:** Iterations 1-7 (7 iterations, includes Gates 4a, 7a)
-```markdown
+```
 
 **Severity:** High (wrong count 9→7, inconsistent format)
 **Dimension:** D14 (Content Accuracy)
@@ -77,12 +77,12 @@
 **Current:**
 ```markdown
 - **Round 2:** Iterations 8-13 (9 iterations)
-```text
+```
 
 **Should Be:**
 ```markdown
 - **Round 2:** Iterations 8-13 (6 iterations)
-```markdown
+```
 
 **Severity:** High (wrong count 9→6)
 **Dimension:** D14 (Content Accuracy)
@@ -92,12 +92,12 @@
 **Current:**
 ```markdown
 - Round 1: Iterations 1-7 + Gate 4a (Initial TODO)
-```text
+```
 
 **Should Be:**
 ```markdown
 - Round 1: Iterations 1-7 (7 iterations, includes Gate 4a) - Initial TODO
-```markdown
+```
 
 **Severity:** Medium (format inconsistency, count missing)
 **Dimension:** D14 (Content Accuracy)
@@ -107,12 +107,12 @@
 **Current:**
 ```markdown
 - Round 3: Iterations 17-24 (Preparation + Gates)
-```text
+```
 
 **Should Be:**
 ```markdown
 - Round 3: Iterations 14-22 (9 iterations, includes Gates 23a=I20, 25=I21, 24=I22) - Preparation + Gates
-```markdown
+```
 
 **Severity:** High (wrong range 17-24 → 14-22)
 **Dimension:** D14 (Content Accuracy)
@@ -122,12 +122,12 @@
 **Current:**
 ```markdown
 - **Iteration:** Single verification step (Round 1 has Iterations 1-7 + Gate 4a)
-```text
+```
 
 **Should Be:**
 ```markdown
 - **Iteration:** Single verification step (Round 1 has 7 iterations: I1-I7, includes Gates 4a, 7a)
-```markdown
+```
 
 **Severity:** Medium (format inconsistency, incomplete - missing Gate 7a)
 **Dimension:** D14 (Content Accuracy)
@@ -149,12 +149,12 @@
 **Current:**
 ```markdown
 | S5.P3.1: Preparation | `stages/s5/s5_p3_i1_preparation.md` | 14-19 | 45-60 min |
-```text
+```
 
 **Should Be:**
 ```markdown
 | S5.P3.1: Preparation | `stages/s5/s5_p3_i1_preparation.md` | 14-19 | 45-60 min |
-```markdown
+```
 
 **Severity:** High (wrong range 14-19 → 14-19)
 **Dimension:** D14 (Content Accuracy)
@@ -165,12 +165,12 @@
 **Current:**
 ```markdown
 | S5.P3.2: Gates 1-2 | `stages/s5/s5_p3_i2_gates_part1.md` | 23, 23a + Gate 23a | 30-45 min |
-```text
+```
 
 **Should Be:**
 ```markdown
 | S5.P3.2: Gate 23a | `stages/s5/s5_p3_i2_gates_part1.md` | 20 (Gate 23a) | 30-45 min |
-```markdown
+```
 
 **Severity:** High (wrong iteration 23 → 20)
 **Dimension:** D14 (Content Accuracy)
@@ -181,12 +181,12 @@
 **Current:**
 ```markdown
 | S5.P3.3: Gate 3 | `stages/s5/s5_p3_i3_gates_part2.md` | 24, 25 + Gates 24, 25 | 15-30 min |
-```text
+```
 
 **Should Be:**
 ```markdown
 | S5.P3.3: Gates 24, 25 | `stages/s5/s5_p3_i3_gates_part2.md` | 21, 22 (Gates 25, 24) | 15-30 min |
-```text
+```
 
 **Severity:** High (wrong iterations 24, 25 → 21, 22)
 **Dimension:** D14 (Content Accuracy)

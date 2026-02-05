@@ -43,7 +43,7 @@ STEP 6: Mark Complete (2 min + user approval time)
     ├─ 🚨 Gate 4.5: Present test plan to user (MANDATORY)
     ├─ Wait for user approval
     └─ Transition to S5
-```markdown
+```
 
 ---
 
@@ -78,7 +78,7 @@ STEP 6: Mark Complete (2 min + user approval time)
 ## Test 1: Run Draft Helper
 # Command TBD after S2 deep dives
 **Expected:** TBD
-```bash
+```
 
 ### S4 Version (Concrete)
 **Based on:** Actual feature specs (after S2/3)
@@ -95,7 +95,7 @@ STEP 6: Mark Complete (2 min + user approval time)
 - Final recommendations include all multipliers
 
 ## Test 1: End-to-End Integration
-```bash
+```
 python run_league_helper.py --mode draft
 ```markdown
 **Expected:** recommendations.csv with 3 new columns (adp_multiplier, injury_multiplier, schedule_strength)

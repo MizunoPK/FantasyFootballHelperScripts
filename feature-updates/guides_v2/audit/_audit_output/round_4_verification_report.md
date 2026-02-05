@@ -32,20 +32,20 @@
 ```bash
 grep -rn "\b9 iterations.*Round 2\|\b12 iterations.*Round 3" --include="*.md" . | grep -v "_audit_output" | grep -v "S5_UPDATE_NOTES"
 # Result: 0 matches ✅
-```text
+```
 
 **Pattern 2: Wrong total count (25)**
 ```bash
 grep -rn "\b25 iterations" --include="*.md" . | grep -v "_audit_output" | grep -v "S5_UPDATE_NOTES"
 # Result: 0 matches ✅ (initial run found 1, fixed during verification)
-```text
+```
 
 **Pattern 3: Correct total count (22)**
 ```bash
 grep -rn "All 22 iterations\|22 iterations complete" --include="*.md" . | grep -v "_audit_output"
 # Result: 5 matches ✅
 # Found in: mandatory_gates.md, implementation_plan_template.md
-```markdown
+```
 
 ---
 

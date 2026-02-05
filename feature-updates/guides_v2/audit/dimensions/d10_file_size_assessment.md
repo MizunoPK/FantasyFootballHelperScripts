@@ -116,7 +116,7 @@ if [ $CHARS -gt 40000 ]; then
   echo "POLICY VIOLATION: CLAUDE.md ($CHARS chars) exceeds 40,000 limit"
   echo "Overage: $((CHARS - 40000)) characters"
 fi
-```markdown
+```
 
 **Automated:** ✅ Yes (CHECK 1b in pre_audit_checks.sh)
 
@@ -133,7 +133,7 @@ fi
 find stages reference templates -name "*.md" -exec wc -l {} \; | \
   awk '$1 > 1000 {print $1, $2}' | \
   sort -rn
-```markdown
+```
 
 **Automated:** ✅ Yes (CHECK 1 in pre_audit_checks.sh)
 
@@ -150,7 +150,7 @@ find stages reference templates -name "*.md" -exec wc -l {} \; | \
 find stages reference templates -name "*.md" -exec wc -l {} \; | \
   awk '$1 > 800 && $1 <= 1000 {print $1, $2}' | \
   sort -rn
-```markdown
+```
 
 **Automated:** ⚠️ Partial (detection automated, evaluation manual)
 
@@ -167,7 +167,7 @@ find stages reference templates -name "*.md" -exec wc -l {} \; | \
 find stages reference templates -name "*.md" -exec wc -l {} \; | \
   awk '$1 > 600 && $1 <= 800 {print $1, $2}' | \
   sort -rn
-```markdown
+```
 
 **Automated:** ✅ Yes (CHECK 1 in pre_audit_checks.sh)
 
@@ -184,7 +184,7 @@ find stages reference templates -name "*.md" -exec wc -l {} \; | \
 find templates -name "*.md" -exec wc -l {} \; | \
   awk '$1 > 500 {print $1, $2}' | \
   sort -rn
-```markdown
+```
 
 **Automated:** ⚠️ Partial (no specific check, but caught by general file size check)
 
@@ -204,7 +204,7 @@ Epic 3: 520 lines (OK) - Added edge cases
 Epic 4: 580 lines (WARNING) - Added debugging section
 Epic 5: 650 lines (LARGE) - Added more iterations
 Epic 6: 720 lines (LARGE) - Added validation loop details
-```text
+```
 
 **Why It Happens:**
 - Each addition seems small (5-10% growth)
@@ -225,12 +225,12 @@ Epic 6: 720 lines (LARGE) - Added validation loop details
 s5_round1.md (400 lines)
 s5_round2.md (350 lines)
 s5_round3.md (450 lines)
-```text
+```
 
 **After (WRONG):**
 ```text
 s5_planning.md (1200 lines) ← Direct concatenation
-```text
+```
 
 **Better Approach:**
 ```text
@@ -238,7 +238,7 @@ s5_planning.md (200 lines) ← Router to sub-guides
 s5_p1_planning_round1.md (400 lines)
 s5_p2_planning_round2.md (350 lines)
 s5_p3_planning_round3.md (450 lines)
-```markdown
+```
 
 ### Root Cause 3: Detailed Examples Added Inline
 
@@ -248,7 +248,7 @@ s5_p3_planning_round3.md (450 lines)
 ```markdown
 ## Step 3: Create Spec
 Create spec.md using template.
-```text
+```
 
 **After:**
 ```markdown
@@ -266,7 +266,7 @@ Create spec.md using template.
 
 ### Common Mistakes
 [40 lines of anti-patterns]
-```text
+```
 
 **Result:** Section grows from 3 lines → 225 lines
 
@@ -276,7 +276,7 @@ Create spec.md using template.
 Create spec.md using template.
 
 **See:** `reference/stage_2/specification_examples.md` for detailed examples
-```markdown
+```
 
 ---
 
@@ -307,7 +307,7 @@ done
 
 echo "Files >1000 lines: $TOO_LARGE"
 echo "Files 600-1000 lines: $LARGE"
-```markdown
+```
 
 ### Script 2: CLAUDE.md Character Limit (IN pre_audit_checks.sh)
 
@@ -326,7 +326,7 @@ if [ -f "$claude_md" ]; then
         echo "✅ PASS: CLAUDE.md ($claude_size chars) within 40,000 limit"
     fi
 fi
-```markdown
+```
 
 ### Script 3: Size Trend Analysis (SHOULD ADD)
 
@@ -355,7 +355,7 @@ for file in $(find stages -name "*.md"); do
     fi
   fi
 done
-```markdown
+```
 
 ---
 
@@ -388,7 +388,7 @@ STEP 4: Decision
 - [ ] SPLIT: Extract to sub-guides (create file structure)
 - [ ] EXTRACT: Move examples/reference to separate files
 - [ ] CONSOLIDATE: Remove duplicate content
-```markdown
+```
 
 **See:** `../reference/file_size_reduction_guide.md` for complete reduction protocols
 
@@ -419,7 +419,7 @@ STEP 5: Execute reduction
 
 STEP 6: Validate reduction
 $ wc -c CLAUDE.md  # Should be ≤40,000
-```text
+```
 
 **For workflow guides >1000 lines:**
 
@@ -446,7 +446,7 @@ STEP 4: Execute reduction
 STEP 5: Validate reduction
 $ wc -l new_files.md  # All should be <600 lines
 $ grep -r "old_file_path" .  # No broken references
-```markdown
+```
 
 ---
 
@@ -459,21 +459,21 @@ $ grep -r "old_file_path" .  # No broken references
 File: reference/glossary.md (700 lines)
 Content: Alphabetical term definitions
 Verdict: ✅ ACCEPTABLE (reference material, not sequential reading)
-```text
+```
 
 **2. Pattern Libraries:**
 ```markdown
 File: reference/pattern_library.md (650 lines)
 Content: Search patterns organized by category
 Verdict: ✅ ACCEPTABLE (lookup reference, not read start-to-finish)
-```text
+```
 
 **3. Comprehensive Templates:**
 ```markdown
 File: templates/epic_readme_template.md (400 lines)
 Content: Complete template with all sections
 Verdict: ✅ ACCEPTABLE (copied then edited, not read repeatedly)
-```markdown
+```
 
 ### When Large Files Are Errors
 
@@ -483,7 +483,7 @@ File: stages/s5/s5_implementation_planning.md (1200 lines)
 Content: Step-by-step instructions for S5
 Verdict: ❌ ERROR (agents must read sequentially, too long)
 Fix: Split into s5_p1, s5_p2, s5_p3 (400 lines each)
-```text
+```
 
 **2. Root Entry Point Files:**
 ```markdown
@@ -491,7 +491,7 @@ File: CLAUDE.md (45,786 characters)
 Content: Project instructions
 Verdict: ❌ POLICY VIOLATION (exceeds 40,000 char limit)
 Fix: Extract to EPIC_WORKFLOW_USAGE.md, keep quick reference
-```text
+```
 
 **3. Guides with Multiple Purposes:**
 ```markdown
@@ -499,7 +499,7 @@ File: stages/s2/s2_feature_deep_dive.md (950 lines)
 Content: Research + Specification + Refinement (3 phases)
 Verdict: ⚠️ LARGE (should split into phase files)
 Fix: Create s2_p1_research.md, s2_p2_specification.md, s2_p3_refinement.md
-```markdown
+```
 
 ---
 
@@ -513,7 +513,7 @@ $ wc -c CLAUDE.md
 45786 CLAUDE.md
 
 POLICY VIOLATION: 5,786 characters over 40,000 limit
-```text
+```
 
 **Analysis:**
 - CLAUDE.md read at start of every task
@@ -532,7 +532,7 @@ $ wc -c CLAUDE.md
 27395 CLAUDE.md
 
 ✅ PASS: 40% reduction, 32.5% under limit
-```bash
+```
 
 **Impact:**
 - Faster agent task startup
@@ -547,7 +547,7 @@ $ wc -l stages/s1/s1_epic_planning.md
 1089 stages/s1/s1_epic_planning.md
 
 ❌ TOO LARGE: Must reduce or justify
-```text
+```
 
 **Analysis:**
 - File structure: 6 phases (P1-P6) with detailed steps
@@ -568,7 +568,7 @@ $ wc -l stages/s1/s1_p3_discovery_phase.md
 400 stages/s1/s1_p3_discovery_phase.md
 
 ✅ PASS: Both files <1000 lines, improved navigation
-```markdown
+```
 
 ### Example 3: Incremental Growth Not Noticed
 
@@ -585,7 +585,7 @@ $ wc -l stages/s5/s5_p1_planning_round1.md
 685 lines (current)
 
 Growth: +265 lines (+63%) over 6 months
-```text
+```
 
 **Analysis:**
 - No single commit added >50 lines
@@ -607,7 +607,7 @@ $ wc -l stages/s5/s5_p1_i*.md
 160 stages/s5/s5_p1_i3_integration.md
 
 ✅ PASS: All files <600 lines
-```markdown
+```
 
 ### Example 4: Template Appropriately Large
 
@@ -617,7 +617,7 @@ $ wc -l templates/epic_readme_template.md
 420 templates/epic_readme_template.md
 
 ⚠️  LARGE: Consider split?
-```text
+```
 
 **Analysis:**
 - File is a template (copied once, then edited)

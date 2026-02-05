@@ -13,12 +13,12 @@ This document describes the git branching workflow for epic development in the F
 **Step 1: Verify you're on main**
 ```bash
 git checkout main
-```markdown
+```
 
 **Step 2: Pull latest changes**
 ```bash
 git pull origin main
-```markdown
+```
 
 **Step 3: Assign KAI number**
 - Check `feature-updates/EPIC_TRACKER.md` for next available number
@@ -32,14 +32,14 @@ git pull origin main
 **Step 5: Create and checkout branch**
 ```bash
 git checkout -b {work_type}/KAI-{number}
-```markdown
+```
 
 **Examples:**
 ```bash
 git checkout -b epic/KAI-1  # Multi-feature epic
 git checkout -b feat/KAI-2  # Single feature work
 git checkout -b fix/KAI-3   # Bug fix work
-```markdown
+```
 
 ---
 
@@ -53,7 +53,7 @@ git checkout -b fix/KAI-3   # Bug fix work
 **Commit Format:**
 ```bash
 {commit_type}/KAI-{number}: {message}
-```markdown
+```
 
 **Important:** `commit_type` is either `feat` or `fix` (NOT `epic`)
 
@@ -66,7 +66,7 @@ git checkout -b fix/KAI-3   # Bug fix work
 git commit -m "feat/KAI-1: Add ADP integration to PlayerManager"
 git commit -m "feat/KAI-1: Implement draft helper recommendations"
 git commit -m "fix/KAI-1: Fix player name validation in draft mode"
-```markdown
+```
 
 **When to Commit:**
 - After S7 S10.P3 (Feature completed, reviewed, tested)
@@ -82,24 +82,24 @@ git commit -m "fix/KAI-1: Fix player name validation in draft mode"
 ```bash
 git add .
 git commit -m "feat/KAI-1: Complete improve_draft_helper epic"
-```markdown
+```
 
 **Step 2: Push branch to remote**
 ```bash
 git push origin {work_type}/KAI-{number}
-```markdown
+```
 
 **Example:**
 ```bash
 git push origin epic/KAI-1
-```markdown
+```
 
 **Step 3: Create Pull Request for user review**
 ```bash
 gh pr create --base main --head {work_type}/KAI-{number} \
   --title "{commit_type}/KAI-{number}: Complete {epic_name} epic" \
   --body "{Epic summary with features, tests, review instructions}"
-```markdown
+```
 
 **Example:**
 ```bash
@@ -125,7 +125,7 @@ gh pr create --base main --head epic/KAI-1 \
 4. Test draft helper: python run_league_helper.py (select Draft Helper mode)
 EOF
 )"
-```markdown
+```
 
 **Step 4: User reviews and merges PR**
 - User reviews PR in GitHub UI, VS Code extension, or CLI
@@ -147,13 +147,13 @@ git pull origin main
 git add feature-updates/EPIC_TRACKER.md
 git commit -m "docs: Update EPIC_TRACKER.md after KAI-1 completion"
 git push origin main
-```markdown
+```
 
 **Step 6: Delete branch (optional)**
 ```bash
 git branch -d {work_type}/KAI-{number}
 git push origin --delete {work_type}/KAI-{number}
-```markdown
+```
 
 ---
 
@@ -202,7 +202,7 @@ git push origin --delete {work_type}/KAI-{number}
 feat/KAI-1: Add ADP integration to PlayerManager
 feat/KAI-1: Implement confidence scoring algorithm
 fix/KAI-1: Fix null pointer in player validation
-```markdown
+```
 
 **Rules:**
 - Brief and descriptive (100 characters or less)
@@ -220,7 +220,7 @@ git commit -m "feat/KAI-1: Add ADP integration to PlayerManager" -m "
 - Update recommendation algorithm to use ADP
 - Add 15 unit tests for ADP functionality
 "
-```markdown
+```
 
 ---
 
@@ -267,7 +267,7 @@ git commit -m "feat/KAI-1: Complete feature 02 - confidence scoring"
 # Work on feature 03
 git commit -m "feat/KAI-1: Complete feature 03 - top 200 filtering"
 # S10: Create PR for entire epic
-```markdown
+```
 
 ---
 
@@ -295,7 +295,7 @@ gh pr create --base main --head fix/KAI-{new-number} ...
 # Return to epic work
 git checkout epic/KAI-{epic-number}
 git stash pop
-```markdown
+```
 
 ---
 
@@ -321,7 +321,7 @@ git rebase --continue
 
 # Force push (required after rebase)
 git push origin epic/KAI-{number} --force-with-lease
-```markdown
+```
 
 **⚠️ Warning:** Only force push if you haven't shared the branch with others.
 
@@ -389,7 +389,7 @@ git branch -a | grep KAI-{number}
 
 # If it exists, checkout instead of creating
 git checkout epic/KAI-{number}
-```markdown
+```
 
 ---
 
@@ -401,7 +401,7 @@ git checkout epic/KAI-{number}
 ```bash
 # Create branch from current state
 git checkout -b epic/KAI-{number}
-```markdown
+```
 
 ---
 

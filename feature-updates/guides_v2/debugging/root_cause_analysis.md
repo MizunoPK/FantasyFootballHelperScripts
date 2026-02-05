@@ -62,7 +62,7 @@ WHY #4: Why wasn't that edge case identified?
 
 WHY #5: Why didn't Iteration 9 catch it?
 → {Guide gap - e.g., "s5_p2_planning_round2.md doesn't mention checking player status fields"}
-```markdown
+```
 
 **Continue until you reach a PROCESS or GUIDE gap (not just technical cause).**
 
@@ -144,7 +144,7 @@ WHY #5: Why didn't Iteration 9 catch it?
 
 **Why it wasn't caught:**
 {Specific guide gap, unclear instruction, or missing checkpoint}
-```markdown
+```
 
 ---
 
@@ -163,12 +163,12 @@ WHY #5: Why didn't Iteration 9 catch it?
 **Lines:** {approximate line numbers if known}
 
 **Current State (PROBLEM):**
-```json
+```
 {Quote current text from guide, OR note "Section doesn't exist"}
 ```bash
 
 **Proposed Change (SOLUTION):**
-```json
+```
 {Write NEW text OR addition to guide}
 
 **Additions/changes in BOLD for clarity:**
@@ -184,7 +184,7 @@ This bug ({brief description}) occurred because {reason}. Adding this checkpoint
 - Future epics will likely encounter same bug with player status
 - Wasted debugging time (estimated {X} hours per epic)
 - User frustration
-```markdown
+```
 
 ---
 
@@ -221,7 +221,7 @@ This bug ({brief description}) occurred because {reason}. Adding this checkpoint
 ```markdown
 **Recommended Priority:** P1 (High)
 **Reasoning:** Bug reached smoke testing (got through S5 + S6), 3 hours debugging time
-```markdown
+```
 
 ---
 
@@ -269,12 +269,12 @@ I've analyzed why this bug existed and how we can prevent it in future epics.
 **Guide to Update:** `{path/to/guide.md}`
 
 **Current State (BEFORE):**
-```json
+```
 {current text or "Section doesn't exist"}
 ```bash
 
 **Proposed Addition/Change (AFTER):**
-```bash
+```
 {proposed new text with **BOLD** for changes}
 ```markdown
 
@@ -299,7 +299,7 @@ If you choose MODIFY or DISAGREE, please explain:
 - What's inaccurate about the analysis?
 - What would be a better root cause?
 - What guide improvement would you prefer?
-````markdown
+```
 
 **Wait for user response before proceeding.**
 
@@ -352,7 +352,7 @@ If you choose MODIFY or DISAGREE, please explain:
 **Technical Root Cause:** {keep the technical cause for reference}
 
 **No guide improvement proposed.**
-```markdown
+```
 
 ---
 
@@ -424,13 +424,13 @@ If you choose MODIFY or DISAGREE, please explain:
 
 ### Current State (BEFORE)
 
-```markdown
+```
 {Current text from guide, OR "Section doesn't exist"}
 ```bash
 
 ### Proposed Change (AFTER)
 
-```markdown
+```
 {Proposed new text with **BOLD** for additions/changes}
 ```markdown
 
@@ -448,7 +448,7 @@ If you choose MODIFY or DISAGREE, please explain:
 ---
 
 {Repeat for each issue}
-```markdown
+```
 
 ---
 
@@ -466,7 +466,7 @@ If you choose MODIFY or DISAGREE, please explain:
 **User Confirmed:** ✅ YES (Date: {YYYY-MM-DD HH:MM})
 
 {Rest of template filled from user-confirmed analysis}
-```markdown
+```
 
 ---
 
@@ -515,7 +515,7 @@ If you choose MODIFY or DISAGREE, please explain:
 
 **User Response:** AGREE
 **Additional Comments:** {any comments user provided}
-```markdown
+```
 
 ---
 
@@ -530,7 +530,7 @@ If you choose MODIFY or DISAGREE, please explain:
 ```markdown
 | # | Issue Name | Status | Current Phase | User Confirmed? | Root Cause? | Discovery | Notes |
 |---|------------|--------|---------------|-----------------|-------------|-----------|-------|
-```markdown
+```
 
 ---
 
@@ -540,7 +540,7 @@ If you choose MODIFY or DISAGREE, please explain:
 
 ```markdown
 | 1 | player_scoring_returns_null | 🟢 FIXED | Phase 4b | ✅ YES | ✅ YES | Smoke Part 3 | User confirmed fix + root cause |
-```markdown
+```
 
 **Key:**
 - Root Cause?: ✅ YES = Analysis complete, user confirmed

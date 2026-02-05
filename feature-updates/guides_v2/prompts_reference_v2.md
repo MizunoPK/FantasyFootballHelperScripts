@@ -111,7 +111,7 @@
 **STEP 1: Read the guide FIRST**
 ```text
 Use Read tool to load the ENTIRE guide for the stage you're starting
-```markdown
+```
 
 **STEP 2: Use the appropriate prompt from the file above**
 ```text
@@ -119,17 +119,17 @@ Navigate to the correct prompt file using the links above
 Read the prompt template for your situation
 Fill in {placeholders} with actual values
 Include ALL sections (requirements, prerequisites, status update)
-```markdown
+```
 
 **STEP 3: Actually DO what the prompt says**
 ```text
 Don't just say it - verify prerequisites, update status, proceed with workflow
-```markdown
+```
 
 **STEP 4: Update EPIC_README.md or feature README.md Agent Status**
 ```text
 Document guide read, critical rules, next action
-```markdown
+```
 
 ---
 
@@ -142,7 +142,7 @@ Document guide read, critical rules, next action
 ```text
 ❌ DON'T SAY THIS:
 "I'm familiar with S5, let me start the TODO creation..."
-```markdown
+```
 
 **Why wrong:** No proof you read the guide. Leads to guide abandonment.
 
@@ -150,7 +150,7 @@ Document guide read, critical rules, next action
 ```text
 I'm reading `stages/s5/s5_p1_planning_round1.md` to ensure I follow all 7 iterations in Round 1...
 {List critical requirements for Round 1}
-```markdown
+```
 
 ---
 
@@ -159,7 +159,7 @@ I'm reading `stages/s5/s5_p1_planning_round1.md` to ensure I follow all 7 iterat
 ```text
 ❌ DON'T SAY THIS:
 "I'll follow the guide for S7..."
-```markdown
+```
 
 **Why wrong:** No proof you read it. No accountability for specific requirements.
 
@@ -173,7 +173,7 @@ I'm reading `stages/s7/s7_p1_smoke_testing.md`...
 - Re-reading checkpoints after Parts 2 and 3
 - MANDATORY GATE before QC rounds
 {Continue with specific requirements}
-```markdown
+```
 
 ---
 
@@ -182,7 +182,7 @@ I'm reading `stages/s7/s7_p1_smoke_testing.md`...
 ```text
 ❌ DON'T SAY THIS:
 "Starting S6 implementation..."
-```markdown
+```
 
 **Why wrong:** Might not be ready. Could be missing prerequisites.
 
@@ -193,7 +193,7 @@ I'm reading `stages/s7/s7_p1_smoke_testing.md`...
 ✅ Iteration 22: Implementation Readiness = PASSED
 ✅ implementation_plan.md v3.0 exists and user-approved
 {Verify ALL prerequisites}
-```markdown
+```
 
 ---
 
@@ -202,7 +202,7 @@ I'm reading `stages/s7/s7_p1_smoke_testing.md`...
 ```text
 ❌ DON'T SAY THIS:
 {Just starts working without updating README}
-```markdown
+```
 
 **Why wrong:** Work is lost if session compacts. No resumability.
 

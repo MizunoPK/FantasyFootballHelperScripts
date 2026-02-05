@@ -91,7 +91,7 @@ S4 runs ONCE PER ROUND (not just once at end):
 
 8. ⚠️ Update epic EPIC_README.md Epic Completion Checklist
    - Mark S4 items complete
-```markdown
+```
 
 ---
 
@@ -154,7 +154,7 @@ Step 5: Update epic_smoke_test_plan.md
 Step 6: Mark S4 Complete
    ├─ Update epic EPIC_README.md
    └─ Transition to S5
-```markdown
+```
 
 ---
 
@@ -184,11 +184,11 @@ Read the file created in S1.
 ## Specific Commands/Scenarios (PLACEHOLDER)
 
 ### Test 1: Run Draft Helper
-```bash
+```
 # Command TBD after S2 deep dives
 ```markdown
 **Expected result:** TBD
-```markdown
+```
 
 ### Step 1.2: Identify What Needs Updating
 
@@ -232,7 +232,7 @@ Feature 4 (Recommendation Engine)
   ├─ Reads: FantasyPlayer fields from Features 1, 2, 3
   ├─ Calculates: total_score using ALL multipliers
   └─ Outputs: Updated recommendations
-```markdown
+```
 
 ### Step 2.2: Map Data Flows
 
@@ -277,7 +277,7 @@ Feature 4 (Recommendation Engine)
 - All files must exist for Feature 4 to work
 
 **Test Need:** Verify all data files created in correct locations
-```markdown
+```
 
 ---
 
@@ -290,7 +290,7 @@ Re-read original epic request (`{epic_name}_notes.txt`):
 **Example:**
 ```text
 Goal: Improve draft helper with more data sources to make better recommendations
-```markdown
+```
 
 ### Step 3.2: Review Approved Feature Plan
 
@@ -308,7 +308,7 @@ From S3:
 1. Draft helper uses new data sources (vague)
 2. Recommendations are more accurate (not measurable)
 3. No errors occur (too broad)
-```markdown
+```
 
 **AFTER (S4):**
 ```markdown
@@ -367,7 +367,7 @@ From S3:
 - Score differs from baseline (data sources had impact)
 
 **Verification:** `python tests/integration/test_draft_helper_integration.py` passes
-```markdown
+```
 
 ---
 
@@ -382,7 +382,7 @@ From S3:
 ### Category 1: Cross-Feature Integration
 **What to test:** {General idea of integration points}
 **Specific scenarios:** TBD in S4
-```markdown
+```
 
 **AFTER (S4):**
 ```markdown
@@ -409,7 +409,7 @@ From S3:
 ❌ File in wrong location → Feature not following spec
 
 **Command to verify:**
-```bash
+```
 test -f data/rankings/adp.csv && echo "Feature 1 OK" || echo "Feature 1 FAILED"
 test -f data/player_info/injury_reports.csv && echo "Feature 2 OK" || echo "Feature 2 FAILED"
 test -f data/rankings/schedule_strength.csv && echo "Feature 3 OK" || echo "Feature 3 FAILED"
@@ -438,7 +438,7 @@ test -f data/rankings/schedule_strength.csv && echo "Feature 3 OK" || echo "Feat
 ❌ Field exists but None → Feature didn't populate data
 
 **Command to verify:**
-```python
+```
 # In Python REPL
 from league_helper.util.PlayerManager import PlayerManager
 pm = PlayerManager(data_folder="data/")
@@ -475,7 +475,7 @@ print(f"Schedule: {p.schedule_strength}")
 ❌ total_score != 118.8 → Incorrect calculation
 
 **Command to verify:**
-```python
+```
 # Unit test
 def test_all_multipliers_applied():
     player = FantasyPlayer(...)
@@ -513,14 +513,14 @@ def test_all_multipliers_applied():
 ❌ Crash during execution → Runtime error in integration
 
 **Command to verify:**
-```bash
+```
 python run_league_helper.py --mode draft <<EOF
 QB
 exit
 EOF
 echo "Exit code: $?"  # Should be 0
 ```text
-```bash
+```
 
 ### Step 4.2: Add Integration-Specific Tests
 
@@ -573,7 +573,7 @@ Based on integration points from Step 2:
 **Failure Indicators:**
 ❌ new_score == baseline_score → Features not applied
 ❌ new_score < 0 → Calculation error
-```markdown
+```
 
 ---
 
@@ -597,7 +597,7 @@ Based on integration points from Step 2:
 - S1: Initial placeholder (assumptions only)
 - S4: **MAJOR UPDATE** - Added specific tests, integration points, measurable criteria
 - S8.P2 (Epic Testing Update): (Pending) Will update after each feature implementation
-```markdown
+```
 
 ### Step 5.2: Replace Epic Success Criteria
 
@@ -607,7 +607,7 @@ Replace vague criteria with measurable ones from Step 3:
 ## Epic Success Criteria
 
 {Paste measurable criteria from Step 3.3}
-```markdown
+```
 
 ### Step 5.3: Replace Specific Commands Section
 
@@ -629,7 +629,7 @@ Replace TBD placeholders with concrete tests from Step 4:
 {Paste Test Scenario 5 from Step 4.2}
 
 {Paste Test Scenario 6 from Step 4.2}
-```markdown
+```
 
 ### Step 5.4: Update High-Level Test Categories
 
@@ -669,7 +669,7 @@ Keep categories but add specific guidance:
 - Applying 3 additional multipliers
 
 **S8.P2 (Epic Testing Update) will add:** Performance benchmarks after implementation
-```markdown
+```
 
 ### Step 5.5: Update Update Log
 
@@ -694,7 +694,7 @@ Keep categories but add specific guidance:
 - S8.P2 (Epic Testing Update): (Pending) Will update after each feature implementation
 
 **Next update:** S8.P2 (Epic Testing Update) after each feature completes (will add implementation-specific tests)
-```markdown
+```
 
 ---
 
@@ -755,7 +755,7 @@ Create validation log in epic_smoke_test_plan.md Update Log:
 - [x] Integration points identified (6 integration points)
 - [x] Epic success criteria defined (5 measurable criteria)
 - [ ] 🚨 Gate 4.5: User approval of test plan (MANDATORY - must complete before S5)
-```markdown
+```
 
 **Agent Status:**
 
@@ -773,7 +773,7 @@ Create validation log in epic_smoke_test_plan.md Update Log:
 **Blockers:** None
 
 **Testing Strategy:** epic_smoke_test_plan.md updated with 6 test scenarios, 5 success criteria
-```markdown
+```
 
 ### Step 7.2: Present Test Plan to User (🚨 GATE 4.5 - MANDATORY)
 
@@ -821,7 +821,7 @@ I've updated the epic testing strategy in `epic_smoke_test_plan.md` based on the
 - Do the data quality checks verify the right values?
 
 **I cannot proceed to S5 (Implementation Planning) without your approval.**
-```bash
+```
 
 **Wait for user response.**
 
@@ -867,7 +867,7 @@ I've updated the epic testing strategy in `epic_smoke_test_plan.md` based on the
 Now that I know EXACTLY how to test this work (user-approved test plan), I'll transition to S5 to begin implementation planning for the first feature.
 
 Following `stages/s5/s5_p1_planning_round1.md` (Round 1) to create comprehensive implementation plan with 22 verification iterations across 3 rounds.
-```markdown
+```
 
 **Update EPIC_README.md Agent Status:**
 
@@ -885,7 +885,7 @@ Following `stages/s5/s5_p1_planning_round1.md` (Round 1) to create comprehensive
 **Blockers:** None
 
 **Testing Strategy:** epic_smoke_test_plan.md approved with 6 test scenarios, 5 success criteria
-```markdown
+```
 
 ---
 
@@ -953,7 +953,7 @@ Following `stages/s5/s5_p1_planning_round1.md` (Round 1) to create comprehensive
 
 ❌ "This test plan is final, won't change"
    ✅ STOP - Plan will update in S8.P2 (Epic Testing Update) after each feature
-```markdown
+```
 
 ---
 
@@ -968,7 +968,7 @@ Success Criteria:
 2. More data sources used (not measurable)
 
 Specific Tests: TBD
-```markdown
+```
 
 **S4 Plan (After deep dives):**
 ```text

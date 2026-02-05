@@ -90,7 +90,7 @@ S3 runs ONCE PER ROUND (not just once at end):
 8. ⚠️ Update epic EPIC_README.md Epic Completion Checklist
    - Mark S3 items complete
    - Document user sign-off date
-```markdown
+```
 
 ---
 
@@ -273,7 +273,7 @@ Create sync verification record in `epic/research/S3_SYNC_VERIFICATION_{DATE}.md
 **Next Action:** Proceed to S3 Step 1 (Prepare Comparison Matrix)
 
 **Timestamp:** {YYYY-MM-DD HH:MM}
-```markdown
+```
 
 **If sync verification fails:**
 - Document which verifications failed
@@ -303,7 +303,7 @@ Create sync verification record in `epic/research/S3_SYNC_VERIFICATION_{DATE}.md
      
      **Next:** After S3 completes, you'll receive notification to proceed to S4
      **Acknowledge:** No action needed, this is informational only
-     ```markdown
+     ```
 
 2. **Update coordination tracker:**
    - Document notification sent
@@ -371,7 +371,7 @@ Step 5: User Sign-Off
 Step 6: Mark S3 Complete
    ├─ Update epic EPIC_README.md
    └─ Transition to S4
-```markdown
+```
 
 ---
 
@@ -387,7 +387,7 @@ Features to compare:
 2. feature_02_injury_assessment
 3. feature_03_schedule_analysis
 4. feature_04_recommendation_updates
-```markdown
+```
 
 ### Step 1.2: Create Comparison Template
 
@@ -469,7 +469,7 @@ Create `epic/research/SANITY_CHECK_{DATE}.md`:
 ## Resolutions Applied
 
 {Will populate during Step 3}
-```markdown
+```
 
 ---
 
@@ -487,7 +487,7 @@ Data Added:
 
 Field Names: adp_value, adp_multiplier
 Data Types: Optional[int], float
-```markdown
+```
 
 **Feature 2 (Injury Assessment):**
 ```text
@@ -497,7 +497,7 @@ Data Added:
 
 Field Names: injury_status, injury_multiplier
 Data Types: str, float
-```markdown
+```
 
 **Fill comparison matrix:**
 
@@ -528,7 +528,7 @@ Calls Methods:
 Return Types Expected:
 - load_players() returns List[FantasyPlayer]
 - get_adp_multiplier() returns Tuple[float, int]
-```markdown
+```
 
 **Feature 2:**
 ```bash
@@ -539,7 +539,7 @@ Calls Methods:
 Return Types Expected:
 - load_players() returns List[FantasyPlayer]
 - calculate_total_score() returns float
-```markdown
+```
 
 **Fill comparison matrix and check:**
 
@@ -569,7 +569,7 @@ But also calls it AFTER Features 1, 2, 3 add multipliers
 - Feature 4: Integrates all multipliers but unclear ORDER
 
 **Current Algorithm (Feature 4 spec):**
-```text
+```
 total_score = base_score * adp_multiplier * injury_multiplier
 ```markdown
 
@@ -578,7 +578,7 @@ total_score = base_score * adp_multiplier * injury_multiplier
 **Impact:** Feature 3's contribution will be ignored
 
 **Resolution Needed:** Update Feature 4 spec to include ALL multipliers
-```markdown
+```
 
 ### Step 2.3: Compare File Locations
 
@@ -614,7 +614,7 @@ Feature 2: `data/injury_reports.csv`
 **Resolution:** Move Feature 2 file to subdirectory
 - Update Feature 2 spec: `data/player_info/injury_reports.csv`
 - Reasoning: Group related data types (rankings/ vs player_info/)
-```markdown
+```
 
 ### Step 2.4: Compare Configuration Keys
 
@@ -655,7 +655,7 @@ All add `*_threshold` keys. Are they the same type of threshold?
 2. Match player to ADP ranking
 3. Calculate multiplier based on ADP value
 4. Apply: score *= adp_multiplier
-```markdown
+```
 
 **Feature 2 Algorithm:**
 ```text
@@ -663,7 +663,7 @@ All add `*_threshold` keys. Are they the same type of threshold?
 2. Assess injury severity
 3. Calculate penalty multiplier
 4. Apply: score *= injury_multiplier
-```markdown
+```
 
 **Feature 4 Algorithm (Integration):**
 ```text
@@ -671,7 +671,7 @@ All add `*_threshold` keys. Are they the same type of threshold?
 2. Apply ADP multiplier
 3. Apply injury multiplier
 4. Return total score
-```markdown
+```
 
 **CONFLICT (already identified):** Feature 4 missing schedule_strength multiplier
 
@@ -699,7 +699,7 @@ After systematic comparison, compile full conflict list:
 - Interfaces & Dependencies (method signatures match)
 - Configuration Keys (no duplicates or conflicts)
 - Testing Assumptions
-```markdown
+```
 
 ---
 
@@ -721,7 +721,7 @@ After systematic comparison, compile full conflict list:
 
 **Includes multipliers from ALL features:**
 
-```python
+```
 def calculate_total_score(player: FantasyPlayer) -> float:
     # Base score from projected points
     base_score = player.projected_points
@@ -740,7 +740,7 @@ def calculate_total_score(player: FantasyPlayer) -> float:
 ```markdown
 
 **Updated:** Feature 4 spec.md now includes all three new multipliers
-```markdown
+```
 
 **For Conflict 2: File Location Inconsistency**
 
@@ -757,7 +757,7 @@ def calculate_total_score(player: FantasyPlayer) -> float:
 - Source: Manual CSV file (`data/player_info/injury_reports.csv`)
 - Updated from: `data/injury_reports.csv` (root) → CHANGED to subdirectory for consistency
 - Format: Name,Position,InjuryStatus,Severity
-```markdown
+```
 
 ### Step 3.2: Verify Resolutions Don't Create New Conflicts (Iterative Validation Loop)
 
@@ -823,7 +823,7 @@ A "clean loop" means ZERO issues found of ANY severity level:
 - feature_02_injury_assessment/spec.md (Data Sources section, lines 23-28)
 
 **Verification:** ✅ All features now use subdirectory structure
-```markdown
+```
 
 ### Step 3.3: Update epic/research/SANITY_CHECK_{DATE}.md
 
@@ -839,7 +839,7 @@ Mark conflicts as resolved:
 ✅ **All features aligned and conflict-free**
 
 **Ready for user sign-off**
-```markdown
+```
 
 ---
 
@@ -906,7 +906,7 @@ Create presentation for user in epic EPIC_README.md or separate document:
 
 ## Dependencies Diagram
 
-```text
+```
 Feature 1 (ADP) ──────┐
                       ├──> Feature 4 (Integration)
 Feature 2 (Injury) ───┤
@@ -960,7 +960,7 @@ Feature 3 (Schedule) ─┘
 4. **S10:** Epic cleanup and completion
 
 **Estimated total timeline:** {X} features × {Y} hours = {Z} hours
-```markdown
+```
 
 ---
 
@@ -985,7 +985,7 @@ For EACH feature, verify:
 If ANY feature missing acceptance criteria or user approval:
 ❌ STOP - Return to S2 Phase 6 for that feature
 ❌ Do NOT present plan without ALL acceptance criteria approved
-```markdown
+```
 
 **Why This Matters:** Prevents presenting implementation plan with wrong scope. User must approve WHAT will be built (acceptance criteria) before approving HOW to build it (implementation plan).
 
@@ -1031,7 +1031,7 @@ I've completed a systematic comparison of all {N} features and created a compreh
 3. Are you ready to proceed to S4 (Epic Testing Strategy)?
 
 ⚠️ **Waiting for your approval before proceeding to S4.**
-```markdown
+```
 
 ### Step 5.3: WAIT for User Response
 
@@ -1052,7 +1052,7 @@ I've completed a systematic comparison of all {N} features and created a compreh
 **Progress:** Sanity check complete, plan presented
 **Next Action:** Wait for user approval
 **Blockers:** Waiting for user sign-off on implementation plan
-```markdown
+```
 
 ### Step 5.3: Handle User Response
 
@@ -1061,7 +1061,7 @@ I've completed a systematic comparison of all {N} features and created a compreh
 **User approved plan on {date}**
 
 Proceeding to S4 (Epic Testing Strategy).
-```markdown
+```
 
 **If user requests changes:**
 1. Document changes requested
@@ -1080,7 +1080,7 @@ Actions:
 3. Re-run sanity check (verify Feature 4 dependencies updated)
 4. Update implementation plan
 5. Present updated plan for approval
-```markdown
+```
 
 ---
 
@@ -1095,7 +1095,7 @@ Actions:
 - [x] All specs compared systematically
 - [x] Conflicts resolved (2 found, 2 resolved)
 - [x] User sign-off obtained ({date})
-```markdown
+```
 
 **Agent Status:**
 
@@ -1113,7 +1113,7 @@ Actions:
 **Blockers:** None
 
 **User Sign-Off:** Obtained on {YYYY-MM-DD}
-```markdown
+```
 
 ### Step 6.2: Announce Transition
 
@@ -1135,7 +1135,7 @@ Actions:
 I'll now transition to S4 to update the epic testing strategy based on our detailed plan.
 
 Following `stages/s4/s4_epic_testing_strategy.md` to update epic_smoke_test_plan.md with specific test scenarios and integration points.
-```markdown
+```
 
 ---
 

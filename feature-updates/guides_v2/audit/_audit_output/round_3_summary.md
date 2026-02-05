@@ -101,7 +101,7 @@
 # After (CORRECT):
 - **Round 1:** Iterations 1-7 (7 iterations, includes Gates 4a, 7a)
 - **Round 2:** Iterations 8-13 (6 iterations)
-```markdown
+```
 
 ### Example 2: Preparation Iteration Range
 ```markdown
@@ -112,7 +112,7 @@
 # After (CORRECT):
 - Round 3: Iterations 14-22 (9 iterations, includes Gates 23a=I20, 25=I21, 24=I22) - Preparation + Gates
 | S5.P3.1: Preparation | ... | 14-19 | 45-60 min |
-```markdown
+```
 
 ### Example 3: Table Gate Iterations
 ```markdown
@@ -123,7 +123,7 @@
 # After (CORRECT):
 | S5.P3.2: Gate 23a | ... | 20 (Gate 23a) | 30-45 min |
 | S5.P3.3: Gates 24, 25 | ... | 21, 22 (Gates 25, 24) | 15-30 min |
-```markdown
+```
 
 ---
 

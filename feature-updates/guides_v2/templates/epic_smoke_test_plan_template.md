@@ -76,7 +76,7 @@
 **Purpose:** Verify all epic modules can be imported together
 
 **Scenario 1: Import All Epic Modules**
-```python
+```
 python -c "from feature_01.{module} import {Class1}; from feature_02.{module} import {Class2}; from feature_03.{module} import {Class3}"
 ```python
 
@@ -92,7 +92,7 @@ python -c "from feature_01.{module} import {Class1}; from feature_02.{module} im
 **Purpose:** Verify epic-level entry points start correctly
 
 **Scenario 2: Epic Entry Point Help**
-```bash
+```
 python run_{epic_main}.py --help
 ```markdown
 
@@ -102,7 +102,7 @@ python run_{epic_main}.py --help
 - No crashes or errors
 
 **Scenario 3: Epic Entry Point Validation**
-```bash
+```
 python run_{epic_main}.py --mode {mode1} --option {value}
 ```markdown
 
@@ -118,7 +118,7 @@ python run_{epic_main}.py --mode {mode1} --option {value}
 **Purpose:** Execute complete epic workflows with REAL data
 
 **Scenario 4: Complete Epic Workflow ({workflow_name})**
-```bash
+```
 python run_{epic_main}.py --mode {mode} --week {N} --iterations {N}
 ```markdown
 
@@ -131,7 +131,7 @@ python run_{epic_main}.py --mode {mode} --week {N} --iterations {N}
   - File 3: {specific data check - e.g., "df['final_score'].notna().all()"}
 
 **Scenario 5: Epic Workflow with Edge Case ({edge_case_name})**
-```bash
+```
 python run_{epic_main}.py --mode {mode} --{edge_case_flag}
 ```markdown
 

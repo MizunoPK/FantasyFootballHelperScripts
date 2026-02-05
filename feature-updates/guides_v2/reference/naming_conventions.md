@@ -170,7 +170,7 @@ feature-updates/guides_v2/
 │   └── s10/
 │       ├── s10_epic_cleanup.md                     (Level 1: Stage)
 │       └── s10_p1_guide_update_workflow.md         (Level 2: Phase)
-```markdown
+```
 
 ### Directory Naming Rules
 
@@ -220,7 +220,7 @@ feature-updates/guides_v2/
 **Next Guide:** `{path/to/next/guide.md}`
 
 ---
-```markdown
+```
 
 **Examples:**
 
@@ -235,7 +235,7 @@ feature-updates/guides_v2/
 **Next Guide:** `stages/s2/s2_feature_deep_dive.md`
 
 ---
-```markdown
+```
 
 **Level 2 (Phase) Header:**
 ```markdown
@@ -249,7 +249,7 @@ feature-updates/guides_v2/
 **Next Guide:** `stages/s5/s5_p2_planning_round2.md`
 
 ---
-```markdown
+```
 
 **Level 3 (Iteration) Header:**
 ```markdown
@@ -264,7 +264,7 @@ feature-updates/guides_v2/
 **Next Guide:** `stages/s5/s5_p1_i3_integration.md`
 
 ---
-```markdown
+```
 
 ### Header Rules
 
@@ -293,19 +293,19 @@ feature-updates/guides_v2/
 **Format 1: Notation only** (when context is clear)
 ```markdown
 After completing S5.P1, proceed to S5.P2.
-```markdown
+```
 
 **Format 2: Notation + file link** (when directing to specific guide)
 ```markdown
 See `stages/s6/s6_execution.md` for execution details.
-```markdown
+```
 
 **Format 3: Full descriptive link** (in navigation tables)
 ```markdown
 | Current Phase | Guide to Read | Time |
 |---------------|---------------|------|
 | S5.P1 | `stages/s5/s5_p1_planning_round1.md` | 90 min |
-```markdown
+```
 
 ### Reference Rules
 
@@ -383,7 +383,7 @@ S1 is the initial planning section where you:
 1. Assign KAI number from EPIC_TRACKER.md
 2. Analyze epic request and propose feature breakdown
 ...
-```markdown
+```
 
 ### Example 2: Phase File (Level 2)
 
@@ -408,7 +408,7 @@ S5.P1 is split into 3 iteration groups:
 - **S5.P1.I2:** Algorithms (Iterations 4-6 + Gate 4a)
 - **S5.P1.I3:** Integration (Iteration 7 + Gate 7a)
 ...
-```markdown
+```
 
 ### Example 3: Iteration File (Level 3)
 
@@ -430,7 +430,7 @@ S5.P1 is split into 3 iteration groups:
 ## Iteration 4: Algorithm Design
 
 **Purpose:** Design core algorithms and data structures...
-```markdown
+```
 
 ---
 
@@ -442,13 +442,13 @@ S5.P1 is split into 3 iteration groups:
 ```markdown
 After completing S5, proceed to S6.
 See `stages/s5/phase_5.1_implementation_planning.md` for details.
-```markdown
+```
 
 **Correct:**
 ```markdown
 After completing S5.P1, proceed to S5.P2.
 See `stages/s5/s5_p1_planning_round1.md` for details.
-```markdown
+```
 
 **Why:** Old notation (S5, S5.P1) is deprecated.
 
@@ -460,13 +460,13 @@ See `stages/s5/s5_p1_planning_round1.md` for details.
 ```markdown
 # S5: Feature Implementation
 ## Phase 1: Planning Round 1  (missing S5)
-```markdown
+```
 
 **Correct:**
 ```markdown
 # S5: Feature Implementation
 ## S5.P1: Planning Round 1
-```markdown
+```
 
 **Why:** S#.P#.I# notation requires prefixes for self-documentation.
 
@@ -479,12 +479,12 @@ See `stages/s5/s5_p1_planning_round1.md` for details.
 stage_5_planning_round1.md       (old format)
 s5_planning.md                   (missing p1)
 s5-p1-planning.md                (hyphens instead of underscores)
-```markdown
+```
 
 **Correct:**
 ```markdown
 s5_p1_planning_round1.md
-```markdown
+```
 
 **Why:** Must follow s{N}_p{M}_{name}.md pattern.
 
@@ -496,12 +496,12 @@ s5_p1_planning_round1.md
 ```markdown
 See `C:\Users\...\feature-updates\guides_v2\stages\s5\s5_p1_planning_round1.md`
 See `feature-updates/guides_v2/stages/s5/s5_p1_planning_round1.md`
-```markdown
+```
 
 **Correct:**
 ```markdown
 See `stages/s5/s5_p1_planning_round1.md`
-```markdown
+```
 
 **Why:** Paths are relative to `guides_v2/` directory.
 
@@ -513,13 +513,13 @@ See `stages/s5/s5_p1_planning_round1.md`
 ```markdown
 "At this point in the process, we organize the work..."
 "The repeated approach means..."
-```markdown
+```
 
 **Correct:**
 ```markdown
 "At this point in the process, we organize the work..."
 "The repeated approach means..."
-```markdown
+```
 
 **Why:** Stage/Phase/Iteration reserved for S#.P#.I# hierarchy only.
 
@@ -531,14 +531,14 @@ See `stages/s5/s5_p1_planning_round1.md`
 ```markdown
 # S5: Feature Implementation
 ### S5.P1.I2: Algorithms  (skipped Level 2)
-```markdown
+```
 
 **Correct:**
 ```markdown
 # S5: Feature Implementation
 ## S5.P1: Planning Round 1
 ### S5.P1.I2: Algorithms
-```markdown
+```
 
 **Why:** Must show full hierarchy for context.
 

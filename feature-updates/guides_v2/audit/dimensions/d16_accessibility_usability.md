@@ -128,7 +128,7 @@ prompts_reference_v2.md - Prompt lookup
    - [Subsection 2a](#subsection-2a)
    - [Subsection 2b](#subsection-2b)
 3. [Section 3](#section-3)
-```text
+```
 
 **Search Command:**
 ```bash
@@ -141,7 +141,7 @@ for file in $(find stages reference -name "*.md"); do
     fi
   fi
 done
-```markdown
+```
 
 **Automated:** ✅ Yes (CHECK 5 in pre_audit_checks.sh)
 
@@ -152,17 +152,17 @@ done
 **Format:**
 ```markdown
 # WRONG (no language tag)
-```text
+```
 command here
 ```text
 
 # CORRECT (with language tag)
-```bash
+```
 command here
 ```text
 
 # Common Language Tags
-```bash, ```markdown, ```python, ```json, ```yaml
+```
 ```bash
 
 **Why This Matters:**
@@ -171,7 +171,7 @@ command here
 - Clear visual differentiation between code types
 
 **Search Command:**
-```bash
+```
 # Find code blocks without language tags
 grep -rn "^\`\`\`$" stages templates prompts reference
 
@@ -196,7 +196,7 @@ grep -rn "^\`\`\`$" stages templates prompts reference
 **Examples:**
 
 **Sub-Guide:**
-```markdown
+```
 # S5.P1.I1: Requirements Analysis
 
 **Parent:** [S5.P1: Planning Round 1](s5_p1_planning_round1.md)
@@ -225,7 +225,7 @@ Continue to [S5.P1.I2: Algorithm Design](s5_p1_i2_algorithms.md)
 - Use of callout boxes for warnings
 
 **Good Example:**
-```markdown
+```
 **CRITICAL:** Do not skip Gate 23a validation.
 
 **Required Steps:**
@@ -237,7 +237,7 @@ Continue to [S5.P1.I2: Algorithm Design](s5_p1_i2_algorithms.md)
 ```text
 
 **Poor Example:**
-```markdown
+```
 Make sure you don't skip Gate 23a validation. It's really important.
 You need to complete spec analysis, verify checklist resolution, and
 pass the 5-part audit. If you skip this, you'll probably have problems
@@ -254,7 +254,7 @@ during implementation.
 - Commands show actual syntax (not pseudocode)
 
 **Good Example:**
-```markdown
+```
 ## Creating Feature Spec
 
 **Quick Reference:**
@@ -266,14 +266,14 @@ cp templates/feature_spec_template.md feature_01_name/spec.md
 
 # 3. Verify completeness
 grep -n "TODO\|\[placeholder\]" spec.md  # Should return nothing
-```text
+```
 
 **Example spec.md section:**
 ```markdown
 ## Purpose
 Enable users to fetch player data from ESPN API with configurable
 date ranges and data types (stats, projections, rankings).
-```text
+```
 ```markdown
 
 **Automated:** ❌ No (requires content review)
@@ -287,7 +287,7 @@ date ranges and data types (stats, projections, rankings).
 **Scenario:** File starts small, grows over time, TOC never added
 
 **Evolution:**
-```text
+```
 Version 1 (2025-10): 250 lines, no TOC needed
 Version 2 (2025-11): 400 lines, still manageable
 Version 3 (2026-01): 650 lines, should have TOC but not added
@@ -308,7 +308,7 @@ Version 4 (2026-02): 850 lines, definitely needs TOC
 **Scenario:** Adding examples by copying code snippets
 
 **What Happens:**
-```markdown
+```
 User requests: "Add example command"
 
 Agent copies from terminal:
@@ -333,7 +333,7 @@ Result: No language tag (just ```)
 **Scenario:** Guide created standalone, not integrated into workflow
 
 **What Happens:**
-```markdown
+```
 # Guide Content
 
 [Extensive content about S5.P1.I1]
@@ -359,7 +359,7 @@ Result: No language tag (just ```)
 **Scenario:** Content written as wall of text
 
 **What Happens:**
-```markdown
+```
 The implementation planning stage requires you to read the spec
 carefully and then identify all the requirements and then check
 the checklist and make sure everything is addressed and then create
@@ -368,7 +368,7 @@ any assumptions and get user approval before proceeding to execution.
 ```text
 
 **Better:**
-```markdown
+```
 **Implementation Planning Requirements:**
 
 1. **Read Spec:** Review spec.md thoroughly
@@ -391,7 +391,7 @@ any assumptions and get user approval before proceeding to execution.
 
 ### Script 1: TOC Requirement (IN pre_audit_checks.sh)
 
-```bash
+```
 # CHECK 5: Accessibility - TOC for Long Files (D16)
 # ============================================================================
 
@@ -415,7 +415,7 @@ echo "Large files missing TOC: $MISSING_TOC"
 
 ### Script 2: Code Block Language Tags (IN pre_audit_checks.sh)
 
-```bash
+```
 # CHECK 7: Code Block Language Tags (D16)
 # ============================================================================
 
@@ -434,7 +434,7 @@ fi
 
 ### Script 3: Navigation Links Check (SHOULD ADD)
 
-```bash
+```
 # CHECK 5b: Navigation Links (D16)
 # ============================================================================
 
@@ -459,7 +459,7 @@ done
 
 **For each guide:**
 
-```markdown
+```
 STEP 1: Quick Navigation Test
 - Open file
 - Can you find TOC within 5 seconds? (if file >500 lines)
@@ -497,13 +497,13 @@ STEP 5: Document Issues
 ### When TOCs Are Not Required
 
 **1. Short Files (<500 lines):**
-```markdown
+```
 File: stages/s8/s8_p1_cross_feature_alignment.md (300 lines)
 Verdict: ✅ TOC Optional (file short enough to scan)
 ```text
 
 **2. Single-Topic Files:**
-```markdown
+```
 File: reference/naming_conventions.md (200 lines, one topic)
 Verdict: ✅ TOC Optional (straightforward navigation)
 ```markdown
@@ -511,13 +511,13 @@ Verdict: ✅ TOC Optional (straightforward navigation)
 ### When TOCs Are Required
 
 **1. Long Files (>500 lines):**
-```markdown
+```
 File: stages/s5/s5_p1_planning_round1.md (850 lines)
 Verdict: ❌ TOC REQUIRED (too long to scan)
 ```text
 
 **2. Multi-Section Guides:**
-```markdown
+```
 File: EPIC_WORKFLOW_USAGE.md (600 lines, 10 stage sections)
 Verdict: ❌ TOC REQUIRED (multiple distinct sections)
 ```markdown
@@ -525,7 +525,7 @@ Verdict: ❌ TOC REQUIRED (multiple distinct sections)
 ### When Untagged Code Blocks Are Acceptable
 
 **1. Intentional Generic Blocks:**
-```markdown
+```
 ```json
 [Placeholder for user's custom content]
 ```
@@ -533,7 +533,7 @@ Verdict: ❌ TOC REQUIRED (multiple distinct sections)
 **Verdict:** ✅ ACCEPTABLE (generic placeholder)
 
 **2. Visual Diagrams:**
-```markdown
+```
 ```text
 ┌─────────┐
 │  Box 1  │
@@ -545,7 +545,7 @@ Verdict: ❌ TOC REQUIRED (multiple distinct sections)
 ### When Untagged Code Blocks Are Errors
 
 **1. Bash Commands:**
-```markdown
+```
 ```bash
 git commit -m "message"
 ```
@@ -553,7 +553,7 @@ git commit -m "message"
 **Verdict:** ❌ ERROR (should be ```bash)
 
 **2. Markdown Examples:**
-```markdown
+```
 ```markdown
 ## Example Header
 ```
@@ -567,7 +567,7 @@ git commit -m "message"
 ### Example 1: Long File Missing TOC
 
 **Issue Found:**
-```bash
+```
 $ wc -l stages/s5/s5_p1_planning_round1.md
 685 stages/s5/s5_p1_planning_round1.md
 
@@ -583,7 +583,7 @@ $ grep -i "table of contents" stages/s5/s5_p1_planning_round1.md
 **Impact:** ⚠️ MEDIUM - Time wasted finding specific sections
 
 **Fix:**
-```markdown
+```
 # S5.P1: Planning Round 1
 
 **Router:** Navigate to iteration guides
@@ -603,7 +603,7 @@ $ grep -i "table of contents" stages/s5/s5_p1_planning_round1.md
 ### Example 2: Untagged Code Blocks
 
 **Issue Found:**
-```bash
+```
 $ grep -n "^\`\`\`$" stages/s5/s5_p1_i1_requirements.md
 234:```text
 237:```
@@ -619,7 +619,7 @@ $ grep -n "^\`\`\`$" stages/s5/s5_p1_i1_requirements.md
 **Impact:** ⚠️ LOW - Reduces readability
 
 **Fix:**
-```markdown
+```
 # Before
 ```bash
 grep -rn "TODO" feature_*/spec.md
@@ -628,13 +628,13 @@ grep -rn "TODO" feature_*/spec.md
 # After
 ```bash
 grep -rn "TODO" feature_*/spec.md
-```text
+```
 ```markdown
 
 ### Example 3: Missing Next Navigation
 
 **Issue Found:**
-```markdown
+```
 File: stages/s5/s5_p1_i1_requirements.md
 
 [Extensive content about iteration I1]
@@ -654,7 +654,7 @@ File: stages/s5/s5_p1_i1_requirements.md
 **Impact:** ⚠️ MEDIUM - Workflow clarity
 
 **Fix:**
-```markdown
+```
 ## Next
 
 **After completing I1:**
@@ -668,7 +668,7 @@ File: stages/s5/s5_p1_i1_requirements.md
 ### Example 4: Wall of Text Needs Formatting
 
 **Issue Found:**
-```markdown
+```
 ## Critical Rules
 
 You must complete all 22 iterations in S5 before proceeding to S6
@@ -686,7 +686,7 @@ round to ensure no new issues were introduced.
 **Impact:** ⚠️ MEDIUM - Important information not scannable
 
 **Fix:**
-```markdown
+```
 ## Critical Rules
 
 **🚨 MANDATORY Requirements:**

@@ -110,7 +110,7 @@ For EACH algorithm, verify:
   6. Return multiplier
 
 **Traceability:** Algorithm #3 in spec.md → Task 3 → PlayerManager._calculate_adp_multiplier()
-```markdown
+```
 
 ### Step 5: Verify Matrix is Complete
 
@@ -142,7 +142,7 @@ After completing this iteration, check if you have questions or found answers:
 ```text
 Progress: Iteration 4/9 (Planning Round 1) complete
 Next Action: Iteration 4a - TODO Specification Audit (MANDATORY GATE)
-```markdown
+```
 
 ---
 
@@ -174,7 +174,7 @@ Required elements:
 ## Task 5: Implement ADP feature
 
 Do the ADP stuff.
-```markdown
+```
 
 **Why BAD:**
 - No requirement reference
@@ -209,7 +209,7 @@ Do the ADP stuff.
 - Unit test: test_calculate_total_score_with_adp()
 - Unit test: test_calculate_total_score_adp_none()
 - Integration test: test_scoring_includes_all_multipliers()
-```markdown
+```
 
 **Why GOOD:**
 - ✅ Clear requirement reference
@@ -255,7 +255,7 @@ Do the ADP stuff.
 **No vague tasks found. Ready to proceed.**
 
 ---
-```markdown
+```
 
 **Output:** Verified implementation_plan.md with acceptance criteria for EVERY task
 

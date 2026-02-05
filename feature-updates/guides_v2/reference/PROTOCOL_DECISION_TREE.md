@@ -35,7 +35,7 @@ Issue/Gap Discovered
 │        Example: "Should we handle this edge case?"
 │        → Add to questions.md
 │        → Wait for user answer
-```markdown
+```
 
 ---
 

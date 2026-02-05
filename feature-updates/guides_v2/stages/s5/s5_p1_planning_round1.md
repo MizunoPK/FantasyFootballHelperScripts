@@ -98,7 +98,7 @@ Planning Round 1 is complete when all 7 iterations pass (including Gate 4a manda
 9. ⚠️ Update feature README.md Agent Status after Planning Round 1 complete
    - Document confidence level
    - Document next action
-```markdown
+```
 
 ---
 
@@ -144,7 +144,7 @@ ROUND 1 CHECKPOINT
    ↓
 If confidence >= MEDIUM: Proceed to Planning Round 2
 If confidence < MEDIUM: Create questions file, wait for user
-```markdown
+```
 
 ---
 

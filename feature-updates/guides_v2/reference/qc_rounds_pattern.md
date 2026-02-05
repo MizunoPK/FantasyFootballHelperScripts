@@ -49,7 +49,7 @@ Round 3: [Scope-Specific Focus]
    ↓
    If PASS → Complete, proceed to next stage
    If FAIL → Fix issues, RESTART from smoke testing
-```markdown
+```
 
 ---
 
@@ -77,7 +77,7 @@ WHY complete restart?
 - Fixes can introduce new issues in earlier parts
 - Clean validation state required
 - Ensures ALL validation passes consistently
-```bash
+```
 
 **Restart Triggers:**
 - **Round 1:** Fails acceptance criteria (scope-specific)
@@ -123,7 +123,7 @@ assert 'player_name' in df.columns  # Just checks column exists
 assert df['player_name'].notna().all()  # Verify values not null
 assert (df['player_name'] != "").all()  # Verify values not empty
 assert df['player_name'].str.len().min() > 2  # Verify reasonable values
-```markdown
+```
 
 **Examples:**
 - Don't just check "column exists", verify values make sense
@@ -155,7 +155,7 @@ assert df['player_name'].str.len().min() > 2  # Verify reasonable values
 # Spec says: "Sort players by projected_points DESC"
 # Implementation must use: df.sort_values('projected_points', ascending=False)
 # NOT acceptable: Sorting by rank ASC (even if equivalent)
-```markdown
+```
 
 ### 8. 100% Requirement Completion
 
@@ -243,7 +243,7 @@ assert df['player_name'].str.len().min() > 2  # Verify reasonable values
 5. Data values in expected range? ✓
 6. Data values not placeholder/zero/null? ✓
 7. Data values match spec requirements? ✓
-```markdown
+```
 
 ### Pattern 2: Algorithm Verification
 
@@ -256,7 +256,7 @@ assert df['player_name'].str.len().min() > 2  # Verify reasonable values
 4. Verify each step matches spec
 5. Test with sample data
 6. Verify output matches expected result from spec
-```markdown
+```
 
 ### Pattern 3: Edge Case Validation
 
@@ -269,7 +269,7 @@ assert df['player_name'].str.len().min() > 2  # Verify reasonable values
 - Maximum expected input
 - Invalid input (if applicable)
 - Boundary values (0, 1, MAX, MIN)
-```markdown
+```
 
 ### Pattern 4: Integration Point Validation
 
@@ -283,7 +283,7 @@ assert df['player_name'].str.len().min() > 2  # Verify reasonable values
 4. Verify return value format is correct
 5. Verify caller handles return value correctly
 6. Verify error handling at boundary
-```markdown
+```
 
 ---
 
@@ -297,7 +297,7 @@ assert df['player_name'].str.len().min() > 2  # Verify reasonable values
 
 # CORRECT - Complete ALL 3 rounds in order
 Round 1 → Round 2 → Round 3
-```markdown
+```
 
 ### ❌ Mistake 2: Partial Re-run After Failure
 
@@ -307,7 +307,7 @@ Round 1 → Round 2 → Round 3
 
 # CORRECT - Fix issues, RESTART from smoke testing
 Smoke Testing → Round 1 → Round 2 → Round 3
-```markdown
+```
 
 ### ❌ Mistake 3: Accepting "90% Done"
 
@@ -318,7 +318,7 @@ Smoke Testing → Round 1 → Round 2 → Round 3
 # CORRECT - Complete 100% or mark INCOMPLETE and restart
 100% complete = PASS
 < 100% complete = INCOMPLETE = RESTART
-```markdown
+```
 
 ### ❌ Mistake 4: Confirming Spec Without Re-Reading
 
@@ -328,7 +328,7 @@ Smoke Testing → Round 1 → Round 2 → Round 3
 
 # CORRECT - Close spec, re-read with fresh eyes in Round 3
 Close spec → Wait 1 minute → Re-read independently
-```markdown
+```
 
 ### ❌ Mistake 5: Structure-Only Validation
 
@@ -341,7 +341,7 @@ assert 'projected_points' in df.columns  # Structure
 assert df['projected_points'].notna().all()  # Values not null
 assert df['projected_points'].sum() > 0  # Values not zero
 assert df['projected_points'].between(0, 500).all()  # Values in range
-```markdown
+```
 
 ---
 

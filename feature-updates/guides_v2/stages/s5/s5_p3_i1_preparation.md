@@ -100,7 +100,7 @@ Iterations 17-18 prepare for safe, incremental implementation:
 2. All phase tests must pass before proceeding
 3. If phase fails → Fix issues → Re-run phase tests → Proceed
 4. No "skipping ahead" to later phases
-```markdown
+```
 
 **2. Define phase boundaries and checkpoints:**
 
@@ -121,7 +121,7 @@ Add phasing section to implementation_plan.md:
 [Paste phasing plan from step 1]
 
 ---
-```markdown
+```
 
 ### Iteration 17 Output
 
@@ -149,7 +149,7 @@ After completing this iteration, check if you have questions or found answers:
 ```markdown
 Progress: Iteration 17/24 (Planning Round 3 Part 1) complete
 Next Action: Iteration 18 - Rollback Strategy
-```markdown
+```
 
 ---
 
@@ -225,7 +225,7 @@ Next Action: Iteration 18 - Rollback Strategy
   - Verify: Old scoring behavior restored
 
 ---
-```markdown
+```
 
 **3. Add rollback test task if needed:**
 
@@ -242,7 +242,7 @@ Next Action: Iteration 18 - Rollback Strategy
 - [ ] Verify: Old behavior restored (no ADP multiplier applied)
 - [ ] Verify: No errors or warnings
 - [ ] Verify: No residual ADP data in output
-```markdown
+```
 
 ### Iteration 18 Output
 
@@ -270,7 +270,7 @@ After completing this iteration, check if you have questions or found answers:
 ```markdown
 Progress: Iteration 18/24 (Planning Round 3 Part 1) complete
 Next Action: Iteration 19 - Algorithm Traceability Matrix (Final)
-```markdown
+```
 
 ---
 
@@ -393,7 +393,7 @@ Iterations 19-20 finalize algorithm coverage and optimize performance:
 | ... (5 more error scenarios) ... | ... | ... | ... |
 
 **✅ FINAL VERIFICATION: ALL ALGORITHMS TRACED (47/47 = 100%)**
-```markdown
+```
 
 **4. If any algorithms missing from implementation_plan.md:**
    - Add tasks for missing algorithms to "Implementation Tasks" section
@@ -427,7 +427,7 @@ After completing this iteration, check if you have questions or found answers:
 Progress: Iteration 19/24 (Planning Round 3 Part 1) complete
 Final Algorithm Traceability: 47 algorithms traced (100% coverage)
 Next Action: Iteration 20 - Performance Considerations
-```markdown
+```
 
 ---
 
@@ -469,7 +469,7 @@ Next Action: Iteration 20 - Performance Considerations
 **Bottleneck Identified:** Player matching to ADP data
 
 **Current Algorithm (O(n²)):**
-```python
+```
 # O(n²) - slow for 500 players
 for player in players:  # 500 iterations
     for (name, pos, adp) in adp_data:  # 500 iterations each
@@ -490,7 +490,7 @@ for player in players:  # 500 iterations
 **Solution:** Use dict for O(1) lookup → O(n) total complexity
 
 **Optimized Algorithm (O(n)):**
-```python
+```
 # O(n) - fast for 500 players
 # Create dict once: O(n)
 adp_dict = {(name, pos): adp_value for (name, pos, adp_value) in adp_data}
@@ -533,7 +533,7 @@ for player in players:  # 500 iterations
 - Assert: Dict used (not list)
 
 ---
-```markdown
+```
 
 **4. Add optimization tasks to implementation_plan.md "Implementation Tasks" section if needed:**
    - If regression >20% → Add optimization tasks
@@ -566,7 +566,7 @@ After completing this iteration, check if you have questions or found answers:
 Progress: Iteration 20/24 (Planning Round 3 Part 1) complete
 Performance Impact: +0.2s after optimization (6% acceptable)
 Next Action: Iteration 21 - Mock Audit & Integration Test Plan
-```markdown
+```
 
 ---
 
@@ -633,7 +633,7 @@ Review test files and identify every mocked class/function.
 **Used in tests:** test_calculate_adp_multiplier_valid()
 
 **Mock definition:**
-```python
+```
 # In test file
 mock_config.get_adp_multiplier.return_value = (1.2, 95)
 ```markdown
@@ -641,14 +641,14 @@ mock_config.get_adp_multiplier.return_value = (1.2, 95)
 **Real interface verification:**
 
 Step 1: Read actual source code
-```bash
+```
 # Read real implementation
 Read league_helper/util/ConfigManager.py
 # Found at line 234
 ```text
 
 Step 2: Verify real signature
-```python
+```
 # Real interface from ConfigManager.py:234
 def get_adp_multiplier(self, adp: int) -> Tuple[float, int]:
     """Returns (multiplier, rank) based on ADP value.
@@ -674,7 +674,7 @@ Step 3: Compare mock to real
 **Issue Found:** Mock doesn't validate parameter type
 
 **Fix:** Update mock to validate parameters
-```python
+```
 def mock_get_adp_multiplier(adp: int):
     assert isinstance(adp, int), "adp must be int"
     assert adp > 0, "adp must be positive"
@@ -694,20 +694,20 @@ mock_config.get_adp_multiplier = mock_get_adp_multiplier
 **Used in tests:** test_load_adp_data_success()
 
 **Mock definition:**
-```python
+```
 mock_read_csv.return_value = pd.DataFrame([...])
 ```markdown
 
 **Real interface verification:**
 
 Step 1: Read actual source
-```bash
+```
 Read utils/csv_utils.py
 # Found at line 45
 ```text
 
 Step 2: Verify real signature
-```python
+```
 # Real interface from csv_utils.py:45
 def read_csv_with_validation(
     filepath: Union[str, Path],
@@ -745,7 +745,7 @@ Step 3: Compare mock to real
 **✅ All mock issues fixed, audit PASSED**
 
 ---
-```markdown
+```
 
 **3. Plan integration tests with REAL objects (no mocks):**
 
@@ -840,7 +840,7 @@ Step 3: Compare mock to real
 **Expected Duration:** ~500ms (acceptable for E2E test)
 
 ---
-```markdown
+```
 
 **4. Add integration test tasks to implementation_plan.md "Implementation Tasks" section:**
 
@@ -886,7 +886,7 @@ Step 3: Compare mock to real
 - [ ] Test proves feature works in real environment
 
 ---
-```markdown
+```
 
 ### Iteration 21 Output
 
@@ -919,7 +919,7 @@ Progress: Iteration 21/24 (Planning Round 3 Part 1) complete
 Mock Audit: 5 mocks audited, 1 issue fixed
 Integration Tests: 3 real-object tests planned
 Next Action: Iteration 22 - Output Consumer Validation
-```markdown
+```
 
 ---
 
@@ -959,7 +959,7 @@ Next Action: Iteration 22 - Output Consumer Validation
    - Impact: Should use ADP-adjusted scores for trade value
 
 ---
-```markdown
+```
 
 **2. Plan roundtrip validation tests:**
 
@@ -1030,7 +1030,7 @@ Next Action: Iteration 22 - Output Consumer Validation
 - [ ] No AttributeError or KeyError
 
 ---
-```markdown
+```
 
 **3. Add consumer validation tasks to implementation_plan.md "Implementation Tasks" section:**
 
@@ -1079,7 +1079,7 @@ Next Action: Iteration 22 - Output Consumer Validation
 - [ ] No errors in consumer code
 
 ---
-```markdown
+```
 
 ### Iteration 22 Output
 

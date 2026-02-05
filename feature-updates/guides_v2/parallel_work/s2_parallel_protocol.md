@@ -43,7 +43,7 @@ Parallel S2:
 Total: 2 hours
 
 SAVINGS: 4 hours (67% reduction in S2 time)
-```markdown
+```
 
 **Epic-level impact:**
 ```text
@@ -51,7 +51,7 @@ Sequential Epic: S1(2h) + S2(6h) + S3(1h) + S4(1h) + S5-S8(15h) + S9(2h) + S10(1
 Parallel S2 Epic: S1(2h) + S2(2h) + S3(1h) + S4(1h) + S5-S8(15h) + S9(2h) + S10(1h) = 24h
 
 SAVINGS: 4 hours (14% epic-level reduction)
-```markdown
+```
 
 ### Why S2 Only?
 
@@ -118,7 +118,7 @@ All agents work simultaneously on S2:
 - Secondary-B: S2 for Feature 03
 
 After S2 complete → Sync → Primary runs S3 alone
-```markdown
+```
 
 ### Directory Structure
 
@@ -157,7 +157,7 @@ feature-updates/KAI-N-epic_name/
 └── feature_03_scoring_update/     # Secondary-B's feature
     ├── STATUS                     # NEW
     └── [same structure]
-```markdown
+```
 
 ### Coordination Infrastructure
 
@@ -222,7 +222,7 @@ feature-updates/KAI-N-epic_name/
 Sequential: (Feature count) × (2 hours per feature)
 Parallel: 2 hours (max of all features)
 Savings: Sequential - Parallel
-```markdown
+```
 
 #### Step 2: Present Offering to User
 
@@ -253,7 +253,7 @@ Would you like to:
 1. ✅ Enable parallel work for S2
 2. ❌ Continue sequential
 3. ❓ Discuss parallelization approach
-```markdown
+```
 
 #### Step 3: Handle Response
 
@@ -273,7 +273,7 @@ Would you like to:
 mkdir -p .epic_locks
 mkdir -p agent_comms
 mkdir -p agent_checkpoints
-```markdown
+```
 
 #### Step 2: Assign Features to Agents
 
@@ -283,7 +283,7 @@ Secondary-A: Feature 02
 Secondary-B: Feature 03
 Secondary-C: Feature 04 (if exists)
 etc.
-```markdown
+```
 
 #### Step 3: Generate Handoff Packages
 
@@ -298,7 +298,7 @@ generate_s2_handoff_package \
   "{FEATURE_FOLDER}" \
   "{PRIMARY_AGENT_ID}" \
   "{SECONDARY_AGENT_ID}"
-```markdown
+```
 
 **Output:** Copy-paste ready handoff package
 
@@ -328,7 +328,7 @@ For each new session:
 ---
 
 Ready to start? Please paste the handoff packages.
-```markdown
+```
 
 #### Step 5: Wait for Startup
 
@@ -364,7 +364,7 @@ Ready to start? Please paste the handoff packages.
 45 min: Deep work on Feature 01
 15 min: Coordination (inbox, status, escalations)
 Repeat
-```markdown
+```
 
 #### Secondary Responsibilities
 
@@ -393,12 +393,12 @@ Repeat
      "completed_steps": ["step1", "step2"],
      "files_modified": ["spec.md"]
    }
-   ```markdown
+   ```
 
 2. **Check inbox:**
    ```bash
    grep "⏳ UNREAD" agent_comms/{inbox_file}
-   ```markdown
+   ```
 
 3. **Read and process messages:**
    - Mark as READ
@@ -411,7 +411,7 @@ Repeat
    STATUS: IN_PROGRESS
    BLOCKERS: none
    READY_FOR_SYNC: false
-   ```markdown
+   ```
 
 5. **Update EPIC_README.md (if progress changed):**
    - Acquire lock
@@ -430,7 +430,7 @@ Repeat
 Subject: ESCALATION - Spec Ambiguity
 Issue: Unclear if feature should use CSV or API
 Blocked For: 30 minutes
-```markdown
+```
 
 #### Step 2: Determine Action
 
@@ -451,7 +451,7 @@ B) Approach 2
 C) Approach 3
 
 Which approach?
-```markdown
+```
 
 #### Step 4: Send Response
 
@@ -463,7 +463,7 @@ Which approach?
 **Details:** User confirmed [explanation]
 **Next:** Update spec.md, proceed with S2.P2
 **Acknowledge:** Reply when updated
-```markdown
+```
 
 #### Step 5: Wait for Acknowledgment
 
@@ -472,7 +472,7 @@ Which approach?
 Subject: Re: ESCALATION response
 Action: Spec updated
 Next: Continuing S2.P2
-```markdown
+```
 
 **Mark as READ and continue**
 
@@ -492,7 +492,7 @@ for STATUS in feature_*/STATUS; do
 done
 
 # All should show: true
-```markdown
+```
 
 #### Step 2: Update Sync Status
 
@@ -510,7 +510,7 @@ done
 | feature_03 | Sec-B | ✅ | 14:30 |
 
 All features complete! Proceeding to S3.
-```markdown
+```
 
 #### Step 3: Notify User
 
@@ -521,7 +521,7 @@ All features complete! Proceeding to S3.
 **Time Saved:** 3.5 hours (vs 6 hours sequential)
 
 🔄 Now running S3 (Cross-Feature Sanity Check)
-```markdown
+```
 
 #### Step 4: Notify Secondaries
 
@@ -531,7 +531,7 @@ All features complete! Proceeding to S3.
 **Status:** All features done
 **Next:** I'm running S3 alone
 **Your Action:** WAIT - no action needed
-```markdown
+```
 
 ---
 
@@ -582,7 +582,7 @@ Thank you for parallel work during S2!
 - Saved: 3.5 hours (58%)
 - Issues: None
 - Overhead: 20%
-```markdown
+```
 
 **Secondaries can now:**
 - Close sessions (S2 work done)
@@ -613,7 +613,7 @@ edit_file "EPIC_README.md"
 
 # Release lock
 release_lock "epic_readme"
-```markdown
+```
 
 **Timeout:** 5 minutes (auto-release if holder crashes)
 
@@ -636,7 +636,7 @@ release_lock "epic_readme"
 **Details:** Context
 **Next:** Next steps
 **Acknowledge:** How to respond
-```markdown
+```
 
 **Read receipts:**
 - ⏳ UNREAD → ✅ READ
@@ -661,7 +661,7 @@ release_lock "epic_readme"
   "recovery_instructions": "Resume from S2.P2, 80% done",
   "files_modified": ["spec.md", "checklist.md"]
 }
-```markdown
+```
 
 **Update frequency:** Every 15 minutes
 
@@ -689,7 +689,7 @@ UPDATED: 2026-01-15T14:30:00Z
 STATUS: IN_PROGRESS
 BLOCKERS: none
 READY_FOR_SYNC: false
-```markdown
+```
 
 **Benefits:**
 - One file per feature (no conflicts)
@@ -785,7 +785,7 @@ READY_FOR_SYNC: false
 ```bash
 # All STATUS files must show:
 READY_FOR_SYNC: true
-```markdown
+```
 
 **Actions:**
 1. Primary verifies all complete
@@ -875,7 +875,7 @@ Would you like to:
 1. ✅ Enable
 2. ❌ Continue sequential
 3. ❓ Discuss
-```markdown
+```
 
 **Step 2: User Accepts**
 
@@ -894,7 +894,7 @@ Open 2 new Claude Code sessions and paste these packages:
 
 🚀 SECONDARY AGENT B - HANDOFF PACKAGE
 [Copy-paste block]
-```markdown
+```
 
 **Step 4: User Opens New Sessions**
 
@@ -920,7 +920,7 @@ Time: 2.5 hours
 Saved: 3.5 hours
 
 Now running S3...
-```markdown
+```
 
 **Step 7: Secondaries Idle**
 

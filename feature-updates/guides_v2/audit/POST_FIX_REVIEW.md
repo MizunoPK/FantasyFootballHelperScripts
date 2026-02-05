@@ -28,7 +28,7 @@
 - **Verification:**
   ```markdown
   **Input:** Pre-audit check results OR lessons learned from Round N-1
-  ```markdown
+  ```
 - **Consistent with:** Stages 2-5 format ✅
 
 ### ✅ I3: Fresh Eyes Operational Guide (VERIFIED)
@@ -69,7 +69,7 @@
   # Script header
   Coverage: 6 of 16 dimensions (D1, D8, D10, D11, D13, D14, D16)
   Estimated: 40-50% of typical issues
-  ```markdown
+  ```
   - README.md matches ✅
   - No more "60-70%" claims ✅
 
@@ -92,22 +92,22 @@ Three different formats used for marking non-existent files:
 **Format 1: Just emoji (in tables)**
 ```markdown
 | **D3: Workflow Integration** | `dimensions/d3_workflow_integration.md` ⏳ |
-```text
+```
 
 **Format 2: Emoji + text (in section headers)**
 ```markdown
 ### Pattern Library ⏳ COMING SOON
-```text
+```
 
 **Format 3: Emoji + workaround (in references)**
 ```markdown
 See `reference/confidence_calibration.md` ⏳ (coming soon - use self-assessment)
-```text
+```
 
 **Format 4: Emoji + TODO (in AUDIT_CREATION_STATUS.md - not updated)**
 ```markdown
 │   ├── pattern_library.md            ⏳ TODO
-```text
+```
 
 **Impact:**
 - 🟢 Minimal - all convey same message
@@ -141,7 +141,7 @@ See `reference/confidence_calibration.md` ⏳ (coming soon - use self-assessment
 In README.md → Scenario 1 (After S10.P1 Guide Updates):
 ```markdown
 **Estimated Duration:** 3-4 hours (2-3 rounds)
-```text
+```
 
 But minimum is 3 rounds, so "2-3 rounds" contradicts baseline.
 
@@ -153,7 +153,7 @@ But minimum is 3 rounds, so "2-3 rounds" contradicts baseline.
 **Fix:**
 ```markdown
 **Estimated Duration:** 3-4 hours (3-4 rounds)
-```markdown
+```
 
 ---
 
@@ -166,27 +166,27 @@ But minimum is 3 rounds, so "2-3 rounds" contradicts baseline.
 In README.md → Scenario 3 (After Terminology Changes):
 ```markdown
 **Estimated Duration:** 3-5 hours (3-4 rounds)
-```text
+```
 
 Wait, this one is actually CORRECT! Let me re-check Scenario 1.
 
 Actually, looking at Scenario 1 again:
 ```markdown
 **Estimated Duration:** 3-4 hours (2-3 rounds)
-```text
+```
 
 This says "2-3 rounds" which violates minimum 3.
 
 **Scenario 2:**
 ```markdown
 **Estimated Duration:** 4-6 hours (3-4 rounds minimum)
-```text
+```
 This is correct.
 
 **Scenario 3:**
 ```markdown
 **Estimated Duration:** 3-5 hours (3-4 rounds)
-```text
+```
 This is correct.
 
 So only Scenario 1 is wrong.
@@ -202,13 +202,13 @@ So only Scenario 1 is wrong.
 In audit_overview.md, the box diagram still says:
 ```text
 │                    MINIMUM 3 ROUNDS REQUIRED                     │
-```text
+```
 
 But README.md was updated to:
 ```text
 │          MINIMUM 3 ROUNDS BASELINE (typically 3-5 rounds)        │
 │        EXIT TRIGGER: Round N finds ZERO issues + 8 criteria      │
-```text
+```
 
 **Impact:**
 - 🟡 Inconsistent messaging between README and audit_overview
@@ -223,7 +223,7 @@ Update audit_overview.md box to match README.md:
 │          MINIMUM 3 ROUNDS BASELINE (typically 3-5 rounds)        │
 │        EXIT TRIGGER: Round N finds ZERO issues + 8 criteria      │
 └─────────────────────────────────────────────────────────────────┘
-```markdown
+```
 
 ---
 

@@ -80,7 +80,7 @@ Gate 5: User Approval of implementation_plan.md (MANDATORY)
    ↓
 If ALL gates pass + user approval: Proceed to S6
 If ANY gate fails: Fix issues, re-run
-```markdown
+```
 
 ---
 
@@ -127,7 +127,7 @@ If ANY gate fails: Fix issues, re-run
 8. ⚠️ Update feature README.md Agent Status after each iteration
    - Document gate results (PASSED/FAILED)
    - Document next action
-```markdown
+```
 
 ---
 

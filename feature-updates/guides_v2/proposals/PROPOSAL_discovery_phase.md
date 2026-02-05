@@ -40,7 +40,7 @@ I want to be able to have a debugging version run of:
 - Accuracy Sim
 - Historical Data fetcher
 - Schedule Data Fetcher
-```markdown
+```
 
 **Problems with current approach:**
 - "Make it easier" is vague - no clear solution approach
@@ -123,7 +123,7 @@ S1 Epic Planning (Revised):
     - Create epic-level files
 
   Step 6: Transition to S2
-```markdown
+```
 
 ### Time-Box by Epic Size
 
@@ -169,7 +169,7 @@ Create `DISCOVERY.md` in epic folder with initial structure:
 
 ## Discovery Log
 {Chronological log of iterations}
-```markdown
+```
 
 #### S1.P3.2: Discovery Loop (Iterative)
 
@@ -204,7 +204,7 @@ Create `DISCOVERY.md` in epic folder with initial structure:
 │         └───────────────────────────────┘
 │                    Loop back
 └─────────────────────────────────────────┘
-```markdown
+```
 
 **Research Activities:**
 - Read components/scripts/modules mentioned in epic
@@ -274,7 +274,7 @@ spec.md (feature-specific, references Discovery)
        │
        ▼ Implementation details added in S5
 implementation_plan.md (how to build)
-```bash
+```
 
 ---
 
@@ -317,7 +317,7 @@ implementation_plan.md (how to build)
 
 ## Edge Cases
 ...
-```markdown
+```
 
 #### S1 Step 5: Seed Specs with Discovery Context
 
@@ -346,7 +346,7 @@ When creating feature folders, each spec.md starts with Discovery Context alread
 
 ## Acceptance Criteria
 {To be completed in S2}
-```markdown
+```
 
 ---
 
@@ -398,7 +398,7 @@ feature-updates/KAI-{N}-{epic_name}/
 │   ├── spec.md                      # References DISCOVERY.md
 │   └── ...
 └── ...
-```markdown
+```
 
 ### DISCOVERY.md Lifecycle
 
@@ -430,7 +430,7 @@ and data fetchers.
 - What does "easier" mean?
 - What is a "debugging version run"?
 - What are current pain points?
-```markdown
+```
 
 ### S1.P3.2: Discovery Loop
 
@@ -451,14 +451,14 @@ Q1: What does "debugging version run" mean to you?
 
 Q2: For league helper's 4 modes, do all need debug support
 or just specific ones?
-```text
+```
 
 *User Answers:*
 ```text
 A1: Fewer iterations and more verbose output. Mock data would
     be nice but not required for first version.
 A2: All 4 modes should have it.
-```markdown
+```
 
 **Iteration 2:**
 
@@ -478,13 +478,13 @@ Q4: For "fewer iterations" - what's a good debug number?
 - 1 iteration (fastest)
 - 9 iterations (some statistical validity)
 - User-configurable
-```text
+```
 
 *User Answers:*
 ```text
 A3: CLI flag preferred, but config file override would be nice too
 A4: 1 iteration for speed, but configurable would be ideal
-```markdown
+```
 
 **Iteration 3:**
 
@@ -497,12 +497,12 @@ A4: 1 iteration for speed, but configurable would be ideal
 ```text
 Q5: Should all scripts share the same debug config, or each
     have independent settings?
-```text
+```
 
 *User Answer:*
 ```text
 A5: Shared config with ability to override per-script if needed
-```markdown
+```
 
 **Exit Check:** No more questions - scope clear, approach determined.
 
@@ -548,7 +548,7 @@ Debug mode for win rate and accuracy simulations
 
 ### Feature 4: fetcher_debug
 Debug mode for player, scores, historical, and schedule fetchers
-```bash
+```
 
 ### S1.P3.4: User Approval
 

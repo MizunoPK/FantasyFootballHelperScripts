@@ -35,7 +35,7 @@ Unit tests are failing. Following the guide requirements, I need to fix these be
 **I'll fix these issues and re-run the test suite. Will not proceed until exit code = 0 (100% pass rate).**
 
 Fixing test failures...
-```markdown
+```
 
 ---
 
@@ -68,7 +68,7 @@ I've encountered a blocker that prevents me from continuing. Following guide req
 Which option should I take, or do you have another approach?
 
 Waiting for your guidance...
-```markdown
+```
 
 ---
 
@@ -100,7 +100,7 @@ My confidence level has dropped below Medium. Following S5.P1 requirements, I'm 
 **I'm creating/updating questions.md to track this question. Will wait for your answer before proceeding with iteration {N}.**
 
 Creating question in questions.md...
-```markdown
+```
 
 ---
 
@@ -144,7 +144,7 @@ I need your decision on {topic}. Here are the options I've identified...
 Which option would you like to proceed with?
 
 Waiting for your decision...
-```markdown
+```
 
 ---
 

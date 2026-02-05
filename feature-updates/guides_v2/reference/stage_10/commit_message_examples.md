@@ -47,7 +47,7 @@ Testing:
 - Epic QC rounds passed (3/3)
 EOF
 )"
-```markdown
+```
 
 **Why this works:**
 - Clear epic name in subject line
@@ -80,7 +80,7 @@ Testing:
 - Epic QC rounds passed (3/3)
 EOF
 )"
-```markdown
+```
 
 **Why this works:**
 - Single feature clearly described
@@ -115,7 +115,7 @@ Testing:
 - User testing passed with ZERO bugs
 EOF
 )"
-```markdown
+```
 
 **Why this works:**
 - Uses fix/ prefix for bug fix epic
@@ -154,7 +154,7 @@ Testing:
 - User testing passed after bug fixes
 EOF
 )"
-```markdown
+```
 
 **Why this works:**
 - Clearly separates features from bug fixes
@@ -187,7 +187,7 @@ git commit -m "Complete epic"  # No mention of test status
 # Wrong format (not using KAI numbering)
 git commit -m "feat: Complete epic"  # Missing KAI-{number}
 git commit -m "epic/KAI-1: Complete epic"  # Wrong prefix (should be feat or fix)
-```markdown
+```
 
 **✅ DO THIS INSTEAD:**
 
@@ -208,7 +208,7 @@ Testing:
 - Epic smoke testing passed (4/4 parts)
 EOF
 )"
-```markdown
+```
 
 ---
 

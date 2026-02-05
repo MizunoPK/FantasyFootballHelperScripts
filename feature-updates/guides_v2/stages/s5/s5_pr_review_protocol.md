@@ -82,7 +82,7 @@ Review the following code changes for code quality issues:
 - Issue: {description}
 - Severity: High/Medium/Low
 - Fix: {suggested fix}
-```markdown
+```
 
 **Agent deliverable:** List of code quality issues (or "No issues found")
 
@@ -107,7 +107,7 @@ Review the following code changes for test coverage issues:
 {Provide test file paths}
 
 **Report ALL issues found** in the same format as Round 1a.
-```markdown
+```
 
 **Agent deliverable:** List of test coverage issues (or "No issues found")
 
@@ -135,7 +135,7 @@ Review the following code changes for security issues:
 **Report ALL issues found** in the same format as Round 1a.
 
 **IMPORTANT:** If ANY security issues found, mark as severity: High
-```markdown
+```
 
 **Agent deliverable:** List of security issues (or "No issues found")
 
@@ -159,7 +159,7 @@ Review the following code changes for documentation issues:
 {Provide git diff or file paths}
 
 **Report ALL issues found** in the same format as Round 1a.
-```markdown
+```
 
 **Agent deliverable:** List of documentation issues (or "No issues found")
 
@@ -258,7 +258,7 @@ Perform a comprehensive PR review of the following code changes:
 - Fix: {suggested fix}
 
 **CRITICAL:** Be thorough. If you find ANYTHING that could be improved, report it.
-```markdown
+```
 
 **Agent deliverable:** List of issues (or "No issues found")
 

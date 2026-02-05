@@ -10,7 +10,7 @@
 S5 (Implementation Planning) → S6 (Implementation Execution) → S7 (Testing & Review) →
 → [YOU ARE HERE: S8.P1 - Cross-Feature Alignment] →
 → S8.P2 (Testing Plan Update) → Next Feature's S5 (or S9 if all features done)
-```markdown
+```
 
 ---
 
@@ -125,7 +125,7 @@ Post-Feature Alignment is complete when all remaining feature specs are updated 
     - If any feature needs to return to S2 or 1 → ask user
     - Present: What changed, why rework needed, proposed approach
     - Don't proceed with major changes without user sign-off
-```markdown
+```
 
 ---
 

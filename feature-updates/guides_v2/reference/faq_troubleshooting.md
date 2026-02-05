@@ -92,7 +92,7 @@ I need you to create feature-updates/{epic_name}.txt with your initial notes abo
 - Any specific requirements or constraints?
 
 Once you've created this file, I can start S1.
-```bash
+```
 
 **Q: User's epic notes are vague - how detailed do they need to be?**
 
@@ -422,7 +422,7 @@ Issues found during testing
          - debugging/missed_requirement_workflow.md
          - Update spec.md
          - Add to implementation_plan.md (if ≤3 tasks) OR return to S5 (if >3 tasks)
-```markdown
+```
 
 ### Decision Tree 2: "Choosing Between Workflows"
 
@@ -453,7 +453,7 @@ Need to fix something
     [Use S10 Bug Fix Protocol]
          → Fix ALL bugs
          → RESTART S9
-```markdown
+```
 
 ### Decision Tree 3: "GO vs NO-GO Decision (Iteration 22)"
 
@@ -481,7 +481,7 @@ Iteration 22: GO/NO-GO Decision
     └─ ALL criteria met
          ↓
     GO → Proceed to S6
-```markdown
+```
 
 ### Decision Tree 4: "Session Compaction - Where Do I Resume?"
 
@@ -505,7 +505,7 @@ Context window limit reached → Session compacted
     [Read current guide listed in Agent Status]
          ↓
     [Continue from "Next Action" listed]
-```markdown
+```
 
 ---
 
@@ -693,7 +693,7 @@ Issue found
     ↓
 ├─ YES → Use Missed Requirement Workflow
 └─ NO → Use Debugging Protocol (even though missed req)
-```markdown
+```
 
 ---
 

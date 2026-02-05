@@ -58,7 +58,7 @@ STOP - Return to S1 Step 5.8-5.9 before proceeding with S2.
 - Next Action: Begin targeted research for {feature_name}
 
 Starting Phase 1...
-```bash
+```
 
 ---
 
@@ -111,7 +111,7 @@ Phase 2.5 (Spec-to-Epic Alignment Check) has passed. I've created checklist.md w
 - Option C: Ask me to clarify any questions first, then provide answers
 
 Please let me know how you'd like to proceed.
-```markdown
+```
 
 **After user provides answers:**
 

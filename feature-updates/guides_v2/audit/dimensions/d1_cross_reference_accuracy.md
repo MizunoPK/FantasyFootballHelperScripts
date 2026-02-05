@@ -109,7 +109,7 @@ for file in README.md EPIC_WORKFLOW_USAGE.md prompts_reference_v2.md; do
   echo "=== Checking $file ==="
   grep -n "stages/s[0-9].*\.md\|templates/.*\.md\|reference/.*\.md\|parallel_work/.*\.md\|debugging/.*\.md" "$file" || echo "No paths found"
 done
-```text
+```
 
 **Validation:**
 ```bash
@@ -121,7 +121,7 @@ grep -h "stages/s[0-9].*\.md\|templates/.*\.md\|reference/.*\.md" \
   while read path; do
     [ ! -f "$path" ] && echo "BROKEN in root file: $path"
   done
-```text
+```
 
 **Historical Issue:**
 - Root-level files were NOT checked in original audit implementation
@@ -135,7 +135,7 @@ grep -h "stages/s[0-9].*\.md\|templates/.*\.md\|reference/.*\.md" \
 stages/sN/file_name.md
 templates/template_name.md
 reference/reference_name.md
-```text
+```
 
 **Search Command:**
 ```bash
@@ -144,7 +144,7 @@ grep -rh "stages/s[0-9].*\.md\|templates/.*\.md\|reference/.*\.md" \
   --include="*.md" | \
   grep -o "stages/s[0-9][^)]*\.md\|templates/[^)]*\.md\|reference/[^)]*\.md" | \
   sort -u
-```text
+```
 
 **Validation:**
 ```bash
@@ -152,7 +152,7 @@ grep -rh "stages/s[0-9].*\.md\|templates/.*\.md\|reference/.*\.md" \
 while read path; do
   [ ! -f "$path" ] && echo "BROKEN: $path"
 done < paths.txt
-```markdown
+```
 
 ### Type 2: Stage References
 
@@ -160,7 +160,7 @@ done < paths.txt
 ```text
 S#, S#.P#, S#.P#.I# (S1, S5.P2, S5.P2.I3)
 Stage N, Stage N.P#
-```text
+```
 
 **Search Command:**
 ```bash
@@ -170,7 +170,7 @@ grep -rn "\bS[0-9]\{1,2\}\(\.[A-Z][0-9]\{1,2\}\(\.[A-Z][0-9]\{1,2\}\)\?\)\?\b" \
 
 # Find old notation
 grep -rn "Stage [0-9][a-z]\|S[0-9][a-z]" --include="*.md"
-```text
+```
 
 **Validation:**
 - Verify stage numbers are 1-10 (current workflow)
@@ -184,7 +184,7 @@ grep -rn "Stage [0-9][a-z]\|S[0-9][a-z]" --include="*.md"
 [Link text](path/to/file.md)
 [Link text](../relative/path.md)
 [Link text](#internal-anchor)
-```text
+```
 
 **Search Command:**
 ```bash
@@ -193,13 +193,13 @@ grep -rh "\[.*\](.*\.md)" --include="*.md" | \
   grep -o "](.*)" | \
   sed 's/^](//; s/)$//' | \
   sort -u
-```text
+```
 
 **Validation:**
 ```bash
 # Check each link target exists
 # (requires resolving relative paths from source file location)
-```markdown
+```
 
 ### Type 4: Stage Transition References
 
@@ -209,14 +209,14 @@ grep -rh "\[.*\](.*\.md)" --include="*.md" | \
 "After S# complete"
 "Before starting S#"
 "Proceed to S#"
-```text
+```
 
 **Search Command:**
 ```bash
 # Find transition references
 grep -rn "Next.*S[0-9]\|After S[0-9]\|Before.*S[0-9]\|Proceed to S[0-9]" \
   --include="*.md" -i
-```markdown
+```
 
 **Validation:**
 - Verify stage order correct (S5 next is S6, not S7)
@@ -236,7 +236,7 @@ Stage 5a → S5
 Stage 5b → S6
 Stage 5c → S7
 Stage 5d → S8
-```text
+```
 
 **What Happens:**
 ```bash
@@ -248,7 +248,7 @@ sed -i 's/Stage 5a/S5/g' *.md
 # - "back to 5a" (in sentence)
 # - "stages/s5/5a_file.md" (in path)
 # - "STAGE_5a" (all caps)
-```markdown
+```
 
 **Result:** 70% fixed, 30% remain (stragglers)
 
@@ -260,7 +260,7 @@ sed -i 's/Stage 5a/S5/g' *.md
 ```text
 stages/s9/s9_epic_final_qc.md:45: "stages/s7/epic_cleanup.md"
 stages/s9/s9_p4_epic_final_review.md:67: "stages/s7/epic_cleanup.md"
-```markdown
+```
 
 **What Happens:** File renamed, but references still use old name
 
@@ -276,7 +276,7 @@ Every reference to "S6" needs → "S9"
 Every reference to "S7" needs → "S10"
 Every reference to "stages/s6/" needs → "stages/s9/"
 Every reference to "stages/s7/" needs → "stages/s10/"
-```markdown
+```
 
 **What Happens:** Some references missed in different files
 
@@ -289,12 +289,12 @@ Every reference to "stages/s7/" needs → "stages/s10/"
 **Templates Still Show:**
 ```text
 Workflow: S1 → S2 → S3 → S4 → S5 → S6 → S7
-```text
+```
 
 **Should Show:**
 ```text
 Workflow: S1 → S2 → S3 → S4 → S5 → S6 → S7 → S8 → S9 → S10
-```markdown
+```
 
 **Result:** All new epics created use outdated workflow diagram
 
@@ -339,7 +339,7 @@ else
   echo "❌ Found broken paths"
   exit 1
 fi
-```bash
+```
 
 ### Script 2: Find References to Non-Existent Files
 
@@ -369,7 +369,7 @@ fi
     fi
   done
 done
-```markdown
+```
 
 ### Script 3: Validate Stage Number References
 
@@ -392,7 +392,7 @@ grep -rn "\bS[0-9][a-z]\b\|Stage [0-9][a-z]" --include="*.md" guides_v2/ | \
   while read line; do
     echo "⚠️  OLD NOTATION: $line"
   done
-```markdown
+```
 
 ---
 
@@ -429,7 +429,7 @@ for file in README.md EPIC_WORKFLOW_USAGE.md prompts_reference_v2.md; do
   echo "Checking $file for broken references..."
   # Manual review - these files are entry points referenced in CLAUDE.md
 done
-```text
+```
 
 ```markdown
 **For each reference found:**
@@ -445,7 +445,7 @@ STEP 3: For errors, determine correct reference
 STEP 4: Verify replacement is correct
   ↓
 STEP 5: Document fix
-```markdown
+```
 
 ---
 
@@ -458,15 +458,15 @@ STEP 5: Document fix
 **1. Historical Examples:**
 ```markdown
 **Before restructuring:**
-```text
+```
 Old workflow: S5a → S5b → S5c
 ```text
 
 **After restructuring:**
-```text
+```
 New workflow: S5.P1 → S5.P2 → S5.P3
 ```text
-```text
+```
 **Verdict:** ✅ ACCEPTABLE (clearly marked as historical)
 
 **2. Comparison/Migration Guides:**
@@ -474,13 +474,13 @@ New workflow: S5.P1 → S5.P2 → S5.P3
 If you see references to "Stage 5a" in old epics:
 - Old: Stage 5a
 - New: S5.P1
-```text
+```
 **Verdict:** ✅ ACCEPTABLE (teaching migration)
 
 **3. Quoted Error Messages:**
 ```markdown
 User reported: "Cannot find stages/s5/round1/file.md"
-```markdown
+```
 **Verdict:** ✅ ACCEPTABLE (quoting user input)
 
 ### Always Errors
@@ -490,19 +490,19 @@ User reported: "Cannot find stages/s5/round1/file.md"
 **1. Current Workflow Instructions:**
 ```markdown
 Next, read stages/s5/round1/planning.md
-```text
+```
 **Verdict:** ❌ ERROR (should be stages/s5/s5_p1_planning_round1.md)
 
 **2. Prerequisites:**
 ```markdown
 Before starting S5a, ensure S4 is complete
-```text
+```
 **Verdict:** ❌ ERROR (should be S5.P1 or S5)
 
 **3. Navigation:**
 ```markdown
 After completing this stage, proceed to S6a
-```markdown
+```
 **Verdict:** ❌ ERROR (should be S6.P1 or S9 depending on context)
 
 ---
@@ -516,7 +516,7 @@ After completing this stage, proceed to S6a
 File: stages/s8/s8_p2_epic_testing_update.md
 Line: 830
 Content: "Read stages/s6/epic_smoke_testing.md"
-```text
+```
 
 **Analysis:**
 - Context: Current workflow instruction (not historical)
@@ -528,7 +528,7 @@ Content: "Read stages/s6/epic_smoke_testing.md"
 ```bash
 sed -i 's|stages/s6/epic_smoke_testing\.md|stages/s9/s9_p1_epic_smoke_testing.md|g' \
   stages/s8/s8_p2_epic_testing_update.md
-```text
+```
 
 **Verification:**
 ```bash
@@ -537,7 +537,7 @@ grep -n "s9_p1_epic_smoke_testing" stages/s8/s8_p2_epic_testing_update.md
 
 # Check file exists
 ls stages/s9/s9_p1_epic_smoke_testing.md
-```markdown
+```
 
 ### Example 2: Missing s#_ Prefix
 
@@ -546,7 +546,7 @@ ls stages/s9/s9_p1_epic_smoke_testing.md
 File: stages/s10/s10_p1_guide_update_workflow.md
 Line: 45
 Content: "stages/s10/epic_cleanup.md"
-```text
+```
 
 **Analysis:**
 - File exists at: stages/s10/s10_epic_cleanup.md (with s10_ prefix)
@@ -556,7 +556,7 @@ Content: "stages/s10/epic_cleanup.md"
 ```bash
 sed -i 's|stages/s10/epic_cleanup\.md|stages/s10/s10_epic_cleanup.md|g' \
   stages/s10/s10_p1_guide_update_workflow.md
-```markdown
+```
 
 ### Example 3: Old Round Path Structure
 
@@ -565,7 +565,7 @@ sed -i 's|stages/s10/epic_cleanup\.md|stages/s10/s10_epic_cleanup.md|g' \
 File: stages/s5/s5_p1_planning_round1.md
 Line: 155
 Content: "READ: stages/s5/round1/iterations_1_3_requirements.md"
-```text
+```
 
 **Analysis:**
 - Old structure: stages/s5/round1/
@@ -576,7 +576,7 @@ Content: "READ: stages/s5/round1/iterations_1_3_requirements.md"
 ```bash
 sed -i 's|stages/s5/round1/iterations_1_3_requirements\.md|stages/s5/s5_p1_i1_requirements.md|g' \
   stages/s5/s5_p1_planning_round1.md
-```markdown
+```
 
 ### Example 4: Root-Level File Reference (High Priority)
 
@@ -585,7 +585,7 @@ sed -i 's|stages/s5/round1/iterations_1_3_requirements\.md|stages/s5/s5_p1_i1_re
 File: feature-updates/guides_v2/README.md
 Line: 39
 Content: "audit/README.md (modular audit system entry point)"
-```text
+```
 
 **Historical Context (Feb 2026):**
 - The monolithic GUIDES_V2_FORMAL_AUDIT_GUIDE.md (30,568 tokens) was replaced by modular audit/ system

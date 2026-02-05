@@ -45,7 +45,7 @@ I'm reading `stages/s4/s4_epic_testing_strategy.md` to ensure I create a compreh
 - Next Action: Review current epic_smoke_test_plan.md and identify updates needed
 
 Starting test plan update...
-```markdown
+```
 
 ---
 
@@ -89,7 +89,7 @@ I've updated the epic testing strategy in `epic_smoke_test_plan.md` based on the
 - Do the data quality checks verify the right values?
 
 **I cannot proceed to S5 (Implementation Planning) without your approval.**
-```markdown
+```
 
 **After user approves:**
 

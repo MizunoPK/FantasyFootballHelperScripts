@@ -147,7 +147,7 @@ grep -oE 'feature-updates/guides_v2/[^)]+\.md' CLAUDE.md | while read ref; do
     echo "BROKEN REFERENCE in CLAUDE.md: $ref"
   fi
 done
-```text
+```
 
 **Red Flags:**
 - README.md references "stages/s4/s4_testing.md" but file is "s4_feature_testing_strategy.md"
@@ -185,7 +185,7 @@ S8 → Updated specs (remaining features)
 S9 → Epic testing report
      ↓
 S10 → PR, updated EPIC_TRACKER.md
-```text
+```
 
 **Validation Commands:**
 
@@ -230,7 +230,7 @@ fi
 if [ ! -f "$feature_dir/lessons_learned.md" ]; then
   echo "ERROR: S7 did not create lessons_learned.md"
 fi
-```text
+```
 
 **Red Flags:**
 - File expected but not created by previous stage
@@ -255,7 +255,7 @@ When one document references another document's sections, those sections must ex
 
 From epic discovery (see DISCOVERY.md Section 3: Technical Constraints),
 we identified that...
-```markdown
+```
 
 **Validation:**
 - [ ] DISCOVERY.md has "Section 3: Technical Constraints"
@@ -266,7 +266,7 @@ we identified that...
 ## Implementation Approach
 
 Per spec.md Section 5: Acceptance Criteria, we must implement...
-```markdown
+```
 
 **Validation:**
 - [ ] spec.md has "Section 5: Acceptance Criteria"
@@ -283,7 +283,7 @@ grep -oE "Section [0-9]+:?[^,)]*" feature_*/spec.md
 
 # For each reference, validate section exists in target document
 # (Manual validation required)
-```text
+```
 
 **Red Flags:**
 - spec.md says "see DISCOVERY.md Section 4" but DISCOVERY.md only has 3 sections
@@ -306,7 +306,7 @@ templates/feature_spec_template.md
 templates/checklist_template.md
 templates/implementation_plan_template.md
 templates/discovery_template.md
-```text
+```
 
 **Validation Process:**
 
@@ -320,7 +320,7 @@ for ref in $(grep -oE '\`[^`]+\.md\`' templates/*.md | tr -d '`'); do
     echo "BROKEN REFERENCE in template: $ref"
   fi
 done
-```text
+```
 
 **Common Template Errors:**
 
@@ -333,7 +333,7 @@ See DISCOVERY.md for full context.
 ## Technical Approach
 
 Refer to implementation_checklist.md for build steps.
-```text
+```
 
 **Problems:**
 - ✅ DISCOVERY.md reference is VALID (exists when spec.md created)
@@ -345,7 +345,7 @@ Refer to implementation_checklist.md for build steps.
 
 -Refer to implementation_checklist.md for build steps.
 +Refer to implementation_plan.md (created in S5) for build steps.
-```text
+```
 
 **Red Flags:**
 - Template references file created AFTER template is instantiated
@@ -372,7 +372,7 @@ For detailed iteration guides, see:
 - Round 1: `stages/s5/s5_p1_planning_round1.md`
 - Round 2: `stages/s5/s5_p2_planning_round2.md`
 - Round 3: `stages/s5/s5_p3_planning_round3.md`
-```markdown
+```
 
 **Validation:**
 - [ ] All 3 files exist at specified paths
@@ -391,7 +391,7 @@ for file in $(grep -oE '\`stages/[^`]+\.md\`' stages/**/*.md | tr -d '`'); do
     echo "BROKEN INCLUDE: $file"
   fi
 done
-```text
+```
 
 **Red Flags:**
 - Guide says "see detailed_guide.md" but file doesn't exist
@@ -419,7 +419,7 @@ Q1: What framework should we use?
 # spec.md
 ## Section 4: Framework
 See checklist.md Q1 for framework requirements
-```text
+```
 
 **Problem:** Each file says "see the other file first" → deadlock
 
@@ -432,7 +432,7 @@ Prerequisites:
 # S6 guide
 Prerequisites:
 - [ ] Completed S5
-```text
+```
 
 **Problem:** Impossible to complete either stage
 
@@ -453,7 +453,7 @@ done > /tmp/dependency_graph.txt
 
 # Manually review for circular references
 # Look for: File A requires File B, File B requires File A
-```text
+```
 
 **Validation Process:**
 
@@ -491,7 +491,7 @@ comm -23 /tmp/created_files.txt /tmp/used_files.txt > /tmp/orphaned_files.txt
 
 echo "Orphaned files (created but never used):"
 cat /tmp/orphaned_files.txt
-```text
+```
 
 **Common Orphaned Files:**
 
@@ -637,7 +637,7 @@ for stage in "${!stage_outputs[@]}"; do
     fi
   done
 done
-```text
+```
 
 **CHECK 10: Cross-Reference Validation** *(planned, not yet implemented)*
 ```bash
@@ -657,7 +657,7 @@ for ref in $refs; do
     echo "WARNING: Reference to $ref found but file doesn't exist"
   fi
 done
-```text
+```
 
 **CHECK 11: Circular Dependency Detection** *(planned, not yet implemented)*
 ```bash
@@ -676,7 +676,7 @@ for file in stages/**/*.md; do
     fi
   done
 done
-```text
+```
 
 **Automation Coverage: ~30%**
 - ✅ File existence validation
@@ -716,7 +716,7 @@ for stage_dir in stages/s{1..10}/; do
   grep -A 5 "^## Outputs" $stage_dir/*.md | grep "\.md"
   echo ""
 done
-```text
+```
 
 **Step 2: Trace Critical File Paths (15 min)**
 
@@ -771,7 +771,7 @@ for template in templates/*.md; do
     echo "   Does $ref exist at that point? Manual check needed."
   done
 done
-```text
+```
 
 **Step 4: Check for Orphaned Files (5 min)**
 
@@ -789,7 +789,7 @@ echo "$used"
 echo ""
 echo "Potentially orphaned (created but not explicitly used):"
 comm -23 <(echo "$created" | sort) <(echo "$used" | sort)
-```text
+```
 
 **Step 5: Validate Cross-Document Section References (10 min)**
 
@@ -805,7 +805,7 @@ grep -rn "Section [0-9]\|see.*Section" feature-updates/guides_v2/templates/
 # 5. Verify section content matches what reference expects
 
 # (Manual validation - requires reading both files)
-```markdown
+```
 
 ---
 
@@ -836,7 +836,7 @@ grep -rn "Section [0-9]\|see.*Section" feature-updates/guides_v2/templates/
 ## Background
 
 [User: Provide background from DISCOVERY.md Section 2]
-```text
+```
 
 **This is NOT a broken reference:**
 - [User: ...] indicates placeholder
@@ -847,7 +847,7 @@ grep -rn "Section [0-9]\|see.*Section" feature-updates/guides_v2/templates/
 ```bash
 # Look for [User: ...] or [Agent: ...] markers
 grep -rn "\[User:\|\[Agent:" templates/
-```markdown
+```
 
 **Validation:** Placeholder markers in templates → VALID (not broken reference)
 
@@ -900,7 +900,7 @@ grep -rn "\[User:\|\[Agent:" templates/
 ```text
 Agent: "S5.P1.I1 requires test_strategy.md from S4. File not found.
 Should I proceed without test strategy or create minimal test strategy now?"
-```text
+```
 
 **Problem:**
 - Workflow dependency not flexible for simple features
@@ -915,7 +915,7 @@ S5.P1.I1 guide:
 -Merge test_strategy.md into implementation_plan.md (mandatory)
 +If test_strategy.md exists (from S4), merge into implementation_plan.md
 +If test_strategy.md doesn't exist, create minimal testing section in implementation_plan.md
-```text
+```
 
 **Option 2: Always require S4 (no skipping)**
 ```markdown
@@ -925,7 +925,7 @@ S4 guide:
 
 NO. Even simple features require testing strategy.
 If feature is simple, S4.I1 will produce minimal test_strategy.md (5-10 min).
-```text
+```
 
 **Root Cause:** Optional stage created mandatory dependency
 
@@ -946,7 +946,7 @@ If feature is simple, S4.I1 will produce minimal test_strategy.md (5-10 min).
 ## Background
 
 From epic discovery, see DISCOVERY.md Section 3: Technical Constraints.
-```text
+```
 
 **Actual DISCOVERY.md Structure:**
 ```markdown
@@ -956,7 +956,7 @@ From epic discovery, see DISCOVERY.md Section 3: Technical Constraints.
 ## 2. Existing Codebase Analysis
 ## 3. Feature Breakdown
 ## 4. Technical Considerations
-```text
+```
 
 **Problem:**
 - Template references "Section 3: Technical Constraints"
@@ -971,7 +971,7 @@ From epic discovery, see DISCOVERY.md Section 3: Technical Constraints.
 
 -From epic discovery, see DISCOVERY.md Section 3: Technical Constraints.
 +From epic discovery, see DISCOVERY.md "Technical Considerations" section.
-```text
+```
 
 **Root Cause:** Template created before DISCOVERY.md structure finalized, not updated when structure changed
 
@@ -992,14 +992,14 @@ From epic discovery, see DISCOVERY.md Section 3: Technical Constraints.
 
 Q1: What authentication method should we use?
    → See spec.md Section 4: Authentication for decision rationale
-```text
+```
 
 **spec.md:**
 ```markdown
 ## Section 4: Authentication
 
 Authentication method: [TBD - see checklist.md Q1 for requirements]
-```text
+```
 
 **Problem:**
 - checklist.md says "see spec.md"
@@ -1015,7 +1015,7 @@ Authentication method: [TBD - see checklist.md Q1 for requirements]
 -Authentication method: [TBD - see checklist.md Q1 for requirements]
 +Authentication method: JWT tokens
 +Rationale: Per checklist.md Q1 requirements (mobile app needs stateless auth)
-```text
+```
 
 **Workflow:**
 1. checklist.md asks question
@@ -1055,7 +1055,7 @@ grep "feature_requirements.md" stages/**/*.md
 # Template creates it
 grep "feature_requirements.md" templates/feature_spec_template.md
 # Output: Found (creates unused file)
-```text
+```
 
 **Problem:**
 - Template created file that workflow never used
@@ -1069,7 +1069,7 @@ grep "feature_requirements.md" templates/feature_spec_template.md
 -[requirements content]
 
 # Use spec.md instead (already in workflow)
-```text
+```
 
 **Root Cause:** Template not updated after workflow file naming change
 
@@ -1088,7 +1088,7 @@ grep "feature_requirements.md" templates/feature_spec_template.md
 ## Implementation Notes
 
 For build steps, refer to implementation_checklist.md.
-```text
+```
 
 **Problem:**
 - spec.md created in S2

@@ -38,7 +38,7 @@ START: Analyze Epic Request
 └─ Is this >100 items with complex integrations?
    └─ YES → Consider 6+ features
             Split by major subsystems, then integration layers
-```markdown
+```
 
 ---
 
@@ -67,7 +67,7 @@ Feature 4: Data Consumption
 - Integrate into existing features
 - Update UI/reports
 - End-to-end testing
-```markdown
+```
 
 **Dependencies:**
 ```text
@@ -78,7 +78,7 @@ Feature 2 (transformation) ← depends on Feature 1
 Feature 3 (storage) ← depends on Feature 2
     ↓
 Feature 4 (consumption) ← depends on Feature 3
-```markdown
+```
 
 **Example:**
 ```text
@@ -88,7 +88,7 @@ Feature 1: Injury Data Ingestion (fetch from injury API)
 Feature 2: Injury Data Normalization (clean/categorize)
 Feature 3: Injury Data Storage (add to player records)
 Feature 4: Injury Risk Integration (use in recommendations)
-```markdown
+```
 
 ---
 
@@ -117,7 +117,7 @@ Feature 4: Production Integration
 - Replace old algorithm
 - Migration path
 - Fallback mechanism
-```markdown
+```
 
 **Dependencies:**
 ```text
@@ -128,7 +128,7 @@ Feature 2 (configuration) ← depends on Feature 1
 Feature 3 (validation) ← depends on Features 1, 2
     ↓
 Feature 4 (integration) ← depends on Features 1, 2, 3
-```markdown
+```
 
 **Example:**
 ```text
@@ -138,7 +138,7 @@ Feature 1: New Projection Algorithm (core math)
 Feature 2: Projection Parameters (tuning options)
 Feature 3: Accuracy Benchmarking (validation)
 Feature 4: Replace Old Projections (integration)
-```markdown
+```
 
 ---
 
@@ -167,14 +167,14 @@ Feature 4: Unified Consumption Layer
 - Aggregate all sources
 - Resolve conflicts
 - Integration tests
-```markdown
+```
 
 **Dependencies:**
 ```text
 Feature 1, 2, 3 (parallel - independent sources)
     ↓
 Feature 4 (aggregation) ← depends on Features 1, 2, 3
-```markdown
+```
 
 **Example:**
 ```text
@@ -184,7 +184,7 @@ Feature 1: ADP Integration (average draft position)
 Feature 2: Expert Rankings Integration (consensus rankings)
 Feature 3: Injury Risk Integration (injury data)
 Feature 4: Combined Recommendation Engine (aggregate all)
-```markdown
+```
 
 ---
 
@@ -213,7 +213,7 @@ Feature 4: Integration Layer
 - Connect A and B via shared infrastructure
 - End-to-end workflows
 - Integration tests
-```markdown
+```
 
 **Dependencies:**
 ```text
@@ -222,7 +222,7 @@ Feature 1, 2 (parallel - independent systems)
 Feature 3 (shared infrastructure) ← depends on Features 1, 2
     ↓
 Feature 4 (integration) ← depends on Features 1, 2, 3
-```markdown
+```
 
 **Example:**
 ```text
@@ -232,7 +232,7 @@ Feature 1: Draft Helper Updates (expose draft data)
 Feature 2: Trade Analyzer Updates (expose trade logic)
 Feature 3: Shared Player Evaluation (common utilities)
 Feature 4: Draft-Trade Integration (connect both systems)
-```markdown
+```
 
 ---
 
@@ -261,7 +261,7 @@ Feature 4: User Preferences
 - Settings/configuration
 - Persistence
 - User customization
-```markdown
+```
 
 **Dependencies:**
 ```text
@@ -272,7 +272,7 @@ Feature 2 (UI components) ← depends on Feature 1
 Feature 3 (workflow integration) ← depends on Features 1, 2
     ↓
 Feature 4 (preferences) ← depends on Features 1, 2, 3
-```markdown
+```
 
 **Example:**
 ```text
@@ -282,7 +282,7 @@ Feature 1: Draft State API (backend data/logic)
 Feature 2: Draft Board UI (visual components)
 Feature 3: Mode Integration (add to draft helper)
 Feature 4: Draft Preferences (user settings)
-```markdown
+```
 
 ---
 
@@ -311,7 +311,7 @@ Feature 4: Remove Technical Debt
 - Delete dead code
 - Fix TODO items
 - Update documentation
-```markdown
+```
 
 **Dependencies:**
 ```text
@@ -322,7 +322,7 @@ Feature 2 (consolidate) ← depends on Feature 1
 Feature 3 (abstractions) ← depends on Features 1, 2
     ↓
 Feature 4 (cleanup) ← depends on Features 1, 2, 3
-```markdown
+```
 
 **Example:**
 ```text
@@ -332,7 +332,7 @@ Feature 1: Common CSV Utilities (shared readers)
 Feature 2: Consolidate Parsers (merge duplicate logic)
 Feature 3: Data Loader Interface (new abstraction)
 Feature 4: Remove Legacy Code (cleanup)
-```markdown
+```
 
 ---
 
@@ -345,7 +345,7 @@ Feature 4: Remove Legacy Code (cleanup)
 Feature 1: Create JSON serializer (5 items)
 Feature 2: Add file writer (3 items)
 Feature 3: Add export command (4 items)
-```markdown
+```
 
 **WHY BAD:** Each feature is too small, high overhead for minimal scope
 
@@ -355,7 +355,7 @@ Feature 1: JSON Export Capability (12 items)
 - JSON serialization
 - File writing
 - Export command
-```markdown
+```
 
 ---
 
@@ -368,7 +368,7 @@ Feature 1: Complete Draft Enhancement (150 items)
 - Expert rankings
 - Injury risk
 - Recommendation updates
-```markdown
+```
 
 **WHY BAD:** Feature is too large, unclear boundaries, hard to test
 
@@ -378,7 +378,7 @@ Feature 1: ADP Integration (25 items)
 Feature 2: Expert Rankings (20 items)
 Feature 3: Injury Risk (15 items)
 Feature 4: Recommendation Engine (30 items)
-```markdown
+```
 
 ---
 
@@ -389,7 +389,7 @@ Feature 4: Recommendation Engine (30 items)
 Feature 1: Data Stuff
 Feature 2: Calculations
 Feature 3: Miscellaneous
-```markdown
+```
 
 **WHY BAD:** No clear boundaries, "miscellaneous" is dumping ground
 
@@ -398,7 +398,7 @@ Feature 3: Miscellaneous
 Feature 1: Data Ingestion (clear scope: fetch/load)
 Feature 2: Data Transformation (clear scope: normalize/clean)
 Feature 3: Recommendation Updates (clear scope: integrate data)
-```markdown
+```
 
 ---
 
@@ -408,7 +408,7 @@ Feature 3: Recommendation Updates (clear scope: integrate data)
 ```text
 Feature 1: Recommendation Engine (needs ADP data)
 Feature 2: ADP Integration (provides ADP data)
-```markdown
+```
 
 **WHY BAD:** Wrong order, Feature 1 can't work without Feature 2
 
@@ -416,7 +416,7 @@ Feature 2: ADP Integration (provides ADP data)
 ```text
 Feature 1: ADP Integration (foundation - no dependencies)
 Feature 2: Recommendation Engine (depends on Feature 1)
-```markdown
+```
 
 ---
 
@@ -426,7 +426,7 @@ Feature 2: Recommendation Engine (depends on Feature 1)
 ```text
 Feature 1: Player Manager Updates (depends on Feature 2)
 Feature 2: Draft Helper Updates (depends on Feature 1)
-```markdown
+```
 
 **WHY BAD:** Cannot determine implementation order
 
@@ -435,7 +435,7 @@ Feature 2: Draft Helper Updates (depends on Feature 1)
 Feature 1: Shared Player Utilities (foundation - no dependencies)
 Feature 2: Player Manager Updates (depends on Feature 1)
 Feature 3: Draft Helper Updates (depends on Features 1, 2)
-```markdown
+```
 
 ---
 
@@ -458,7 +458,7 @@ SPLIT (GOOD):
 - Feature 1: ADP Integration
 - Feature 2: Expert Rankings Integration
 - Feature 3: Injury Risk Integration
-```markdown
+```
 
 ---
 
@@ -478,7 +478,7 @@ SPLIT (BAD):
 - Feature 2: File Writer (2 items)
 
 COMBINED (GOOD): "JSON Export" (5 items)
-```markdown
+```
 
 ---
 
@@ -491,7 +491,7 @@ COMBINED (GOOD): "JSON Export" (5 items)
 feature_01_adp_integration
 feature_02_injury_risk_assessment
 feature_03_recommendation_engine_updates
-```markdown
+```
 
 **BAD Names:**
 ```text
@@ -499,7 +499,7 @@ feature_1_data (not zero-padded, too vague)
 feature_02_improvements (too vague)
 feature_03_misc (not descriptive)
 feature_04_FeatureStuff (not snake_case)
-```markdown
+```
 
 ---
 
@@ -525,7 +525,7 @@ Epic: improve_draft_helper
 - feature_1_data
 - feature_02_stuff
 - feature_03_DraftHelperImprovements
-```markdown
+```
 
 ---
 
@@ -535,7 +535,7 @@ Epic: improve_draft_helper
 
 ```text
 Feature 1 → Feature 2 → Feature 3 → Feature 4
-```markdown
+```
 
 **Use when:** Each feature builds on previous
 **Example:** Data pipeline (ingest → transform → store → consume)
@@ -548,7 +548,7 @@ Feature 1 → Feature 2 → Feature 3 → Feature 4
 Feature 1 ─┐
 Feature 2 ─┼→ Feature 4
 Feature 3 ─┘
-```markdown
+```
 
 **Use when:** Multiple independent sources + integration layer
 **Example:** Multi-source data epic (ADP, rankings, injuries → combined engine)
@@ -561,7 +561,7 @@ Feature 3 ─┘
         Feature 1 (foundation)
            ↓        ↓
     Feature 2    Feature 3
-```markdown
+```
 
 **Use when:** Multiple features depend on common infrastructure
 **Example:** Shared utilities → subsystem A, subsystem B
@@ -576,7 +576,7 @@ Feature 3 ─┘
 Feature 2    Feature 3
       ↓         ↓
        Feature 4
-```markdown
+```
 
 **Use when:** Two parallel tracks converge to integration
 **Example:** Backend updates + UI updates → workflow integration
@@ -602,7 +602,7 @@ Feature: CSV Export Utility
 - Error handling (2 items)
 - Unit tests (8 items)
 Total: ~20 items
-```markdown
+```
 
 ---
 
@@ -625,7 +625,7 @@ Feature: ADP Integration
 - Unit tests (12 items)
 - Integration tests (5 items)
 Total: ~40 items
-```markdown
+```
 
 ---
 
@@ -649,7 +649,7 @@ Feature: Recommendation Engine Overhaul
 - Unit tests (20 items)
 - Integration tests (10 items)
 Total: ~75 items
-```markdown
+```
 
 ---
 
@@ -677,7 +677,7 @@ Order:
 2. Data ingestion
 3. Data transformation
 4. Consumer features
-```markdown
+```
 
 **Use when:** Multiple features depend on common infrastructure
 
@@ -693,7 +693,7 @@ Order:
 2. Enhancement feature A
 3. Enhancement feature B
 4. Optimization features
-```markdown
+```
 
 **Use when:** Want working end-to-end functionality early
 
@@ -708,7 +708,7 @@ Order:
 1. HIGH RISK feature (unknown complexity)
 2. MEDIUM RISK features
 3. LOW RISK features
-```markdown
+```
 
 **Use when:** Want to validate feasibility early
 

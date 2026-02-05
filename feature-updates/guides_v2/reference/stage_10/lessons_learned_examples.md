@@ -117,7 +117,7 @@ S10.P1 (Guide Update from Lessons Learned) requires finding ALL lessons learned 
 4. **Use acceptance criteria:** Prevents entire features from targeting wrong scope
 
 ---
-```markdown
+```
 
 **Key Sections to Look For:**
 - "Guide Improvements Needed" appears in EVERY stage section
@@ -198,7 +198,7 @@ S10.P1 (Guide Update from Lessons Learned) requires finding ALL lessons learned 
 - None from this section
 
 ---
-```bash
+```
 
 **Key Differences from Epic Lessons:**
 - Feature lessons are specific to one feature's implementation
@@ -264,7 +264,7 @@ S10.P1 (Guide Update from Lessons Learned) requires finding ALL lessons learned 
 - None from this section
 
 ---
-```markdown
+```
 
 **Key Differences from Feature Lessons:**
 - Bug fix lessons focus on investigation and verification
@@ -281,7 +281,7 @@ Use bash to systematically find all files:
 
 ```bash
 find feature-updates/done/{epic_name} -name "lessons_learned.md" -type f
-```markdown
+```
 
 **Expected Results:**
 ```text
@@ -290,7 +290,7 @@ feature-updates/done/improve_draft_helper/feature_01_adp_integration/lessons_lea
 feature-updates/done/improve_draft_helper/feature_02_matchup_system/lessons_learned.md
 feature-updates/done/improve_draft_helper/feature_03_performance_tracker/lessons_learned.md
 feature-updates/done/improve_draft_helper/bugfix_high_point_calculation/lessons_learned.md
-```markdown
+```
 
 **Total: 5 files** (1 epic + 3 features + 1 bugfix)
 
@@ -322,7 +322,7 @@ For EACH file found, read it completely and extract "Guide Improvements Needed" 
    - Update: Show example of tracing nested algorithms
 
 **Total Lessons from This File:** 3
-```markdown
+```
 
 ---
 
@@ -368,7 +368,7 @@ Combine ALL lessons from ALL files:
   - Guide: stages/s5/s5_bugfix_workflow.md
   - Section: S2
   - Update: Add common bug pattern example
-```markdown
+```
 
 ---
 
@@ -381,7 +381,7 @@ For each lesson in master checklist:
 1. **Read current guide:**
    ```bash
    Read feature-updates/guides_v2/stages/s5/s5_p1_planning_round1.md
-   ```bash
+   ```
 
 2. **Locate section:**
    - Find "Iteration 4: Algorithm Traceability Matrix"
@@ -395,12 +395,12 @@ For each lesson in master checklist:
    ```text
    Old: [Current examples section]
    New: [Current examples + nested algorithm example]
-   ```markdown
+   ```
 
 5. **Mark as applied:**
    ```markdown
    [x] Lesson 3: Nested algorithm example in S5
-   ```markdown
+   ```
 
 ---
 
@@ -424,7 +424,7 @@ For each lesson in master checklist:
 - Lessons applied: {L}
 - Lessons skipped: 0 ✅
 - Application rate: 100% ✅
-```markdown
+```
 
 **If application rate < 100%:**
 - ❌ STOP - Apply remaining lessons
@@ -441,7 +441,7 @@ For each lesson in master checklist:
 Read epic_lessons_learned.md only
 Apply 3 lessons
 Mark Step 4 complete
-```bash
+```
 
 **Why wrong:** Feature and bugfix lessons are missed
 
@@ -451,7 +451,7 @@ Find ALL lessons_learned.md files using find command
 Read epic + all features + all bugfixes
 Apply ALL lessons (epic: 3, features: 3, bugfixes: 1 = 7 total)
 Verify 100% application rate
-```markdown
+```
 
 ---
 
@@ -460,7 +460,7 @@ Verify 100% application rate
 **Wrong reasoning:**
 ```text
 Lesson 4 is just about CSV documentation... seems minor, skip it
-```markdown
+```
 
 **Why wrong:** Small improvements accumulate, minor issues become major over time
 
@@ -469,7 +469,7 @@ Lesson 4 is just about CSV documentation... seems minor, skip it
 ALL lessons are valuable
 Apply EVERY lesson regardless of perceived importance
 100% application rate required
-```markdown
+```
 
 ---
 
@@ -480,7 +480,7 @@ Apply EVERY lesson regardless of perceived importance
 Read epic lessons: 3 found
 Apply 3 lessons
 Done!
-```bash
+```
 
 **Missing:** Feature lessons (2) and bugfix lessons (1) = 3 lessons missed!
 

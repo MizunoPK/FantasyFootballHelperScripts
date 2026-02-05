@@ -37,7 +37,7 @@ Feature 4: Recommendation Engine Updates
 - Scope: Update PlayerManager, add new multipliers, integration tests
 - Dependencies: Features 1, 2, 3 (consumes their outputs)
 - Estimate: ~30 items, HIGH risk (integration complexity)
-```bash
+```
 
 **Why GOOD:**
 - Each feature delivers independent value
@@ -71,7 +71,7 @@ Feature 3: Miscellaneous
 - Scope: Whatever's left
 - Dependencies: Features 1, 2
 - Estimate: Unknown
-```markdown
+```
 
 **Why BAD:**
 - Vague purposes ("data stuff", "calculations")
@@ -91,7 +91,7 @@ Feature 3: Miscellaneous
 Feature 1: JSON Serialization
 Feature 2: File Writing
 Feature 3: Export Command
-```markdown
+```
 
 **RIGHT (single feature, not epic):**
 ```text
@@ -99,7 +99,7 @@ This is a single feature, not an epic requiring multiple features.
 
 Create: feature-updates/json_export_feature/
 Not: feature-updates/json_export_epic/feature_01_serialization/
-```markdown
+```
 
 **Why:** JSON export is small, tightly coupled, <20 items. Breaking into multiple features adds unnecessary overhead.
 
@@ -113,7 +113,7 @@ Not: feature-updates/json_export_epic/feature_01_serialization/
 ```text
 "I'll just continue creating features"
 (Skips re-reading guide, doesn't check Agent Status)
-```markdown
+```
 
 **RIGHT Approach:**
 ```text
@@ -132,7 +132,7 @@ Not: feature-updates/json_export_epic/feature_01_serialization/
 4. Correct action: Continue waiting
    - Update Agent Status: "Guide Last Read: {new timestamp} (RE-READ after compaction)"
    - Do NOT proceed without approval
-```markdown
+```
 
 ---
 
@@ -171,7 +171,7 @@ Replace CSV-based player data loading with JSON format for both win rate and acc
 ❌ "attribute not found" errors during execution (old API still used)
 ❌ Mean or standard deviation = 0 (all same value - calculation error)
 ❌ Only 1-2 players have non-zero values out of 2500 total
-```markdown
+```
 
 **Why this would have caught Feature 02 bug:**
 - "All 18 weeks" makes clear it's not just week 17-18
@@ -246,7 +246,7 @@ Users cannot predict playoff outcomes or evaluate playoff scenarios during the s
 ❌ [Symptom of failure 1]
 ❌ [Symptom of failure 2]
 ❌ [Symptom of failure 3]
-```markdown
+```
 
 **Guidelines for writing epic ticket:**
 
@@ -341,7 +341,7 @@ I've analyzed the epic request and propose breaking this into 4 features:
 - Should any features be combined or split?
 - Are the dependencies correct?
 - Should we add or remove any features?
-```markdown
+```
 
 ---
 
@@ -355,7 +355,7 @@ Feature 1: Data Ingestion (fetch/load)
 Feature 2: Data Transformation (normalize/clean)
 Feature 3: Data Storage (persist)
 Feature 4: Data Consumption (integrate into existing features)
-```markdown
+```
 
 **When to use:** Epic involves new external data source being added to system
 
@@ -369,7 +369,7 @@ Feature 1: Backend API Updates (new endpoints/data)
 Feature 2: UI Components (new interactive elements)
 Feature 3: Workflow Integration (connect to existing modes)
 Feature 4: User Preferences (settings/configuration)
-```markdown
+```
 
 **When to use:** Epic adds new user-facing capabilities to existing modes
 
@@ -383,7 +383,7 @@ Feature 1: Algorithm Core Logic (new calculation method)
 Feature 2: Parameter Tuning (configuration/optimization)
 Feature 3: Validation Framework (testing/benchmarking)
 Feature 4: Production Integration (replace old algorithm)
-```markdown
+```
 
 **When to use:** Epic improves existing calculations or introduces new mathematical approach
 
@@ -397,7 +397,7 @@ Feature 1: Module A Changes (updates to first system)
 Feature 2: Module B Changes (updates to second system)
 Feature 3: Shared Infrastructure (common utilities/interfaces)
 Feature 4: Integration Layer (connects A and B via shared infrastructure)
-```markdown
+```
 
 **When to use:** Epic requires changes across multiple independent subsystems
 
@@ -416,7 +416,7 @@ Feature 1: CSV Export Utility
 
 Total estimate: ~15 items
 Time: 1-2 days
-```bash
+```
 
 **Why SMALL:** Single, focused capability with minimal cross-system impact
 
@@ -433,7 +433,7 @@ Feature 4: Recommendation Engine Updates (~30 items)
 
 Total estimate: ~90 items
 Time: 1-2 weeks
-```markdown
+```
 
 **Why MEDIUM:** Multiple independent data sources requiring integration
 

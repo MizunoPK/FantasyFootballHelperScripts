@@ -69,7 +69,7 @@ Before starting S2.5:
 ```bash
 # Physically close the file in your editor
 # Work ONLY from epic notes during Steps 2-4
-```markdown
+```
 
 ---
 
@@ -97,7 +97,7 @@ Before starting S2.5:
 - Evidence needed: [What would verify this]
 
 [Repeat for each requirement]
-```markdown
+```
 
 ---
 
@@ -124,7 +124,7 @@ Code Investigation:
 - Finding: "actuals for weeks 1 to N-1, 0.0 for N to 17"
 - Interpretation: Week_N folder has 0.0 for week N actuals
 - Implication: Must use week_N+1 to get week N actuals
-```markdown
+```
 
 #### 3B: Data Investigation (MANDATORY)
 
@@ -147,7 +147,7 @@ print(f"Week 1 actuals in week_02: {week_02[0]['actual_points'][0]}")
 # Compare multiple weeks to understand pattern
 week_03 = json.load(open('simulation/sim_data/2021/weeks/week_03/qb_data.json'))
 print(f"Week 2 actuals in week_03: {week_03[0]['actual_points'][1]}")
-```bash
+```
 
 **Document Findings:**
 ```markdown
@@ -161,7 +161,7 @@ File: simulation/sim_data/2021/weeks/week_02/qb_data.json
 
 Pattern: Week_N folder has 0.0 for week N, week_N+1 has real value
 Conclusion: Must load week_N+1 for week N actuals
-```markdown
+```
 
 #### 3C: Pattern Recognition
 
@@ -182,7 +182,7 @@ Pattern Test:
 - Week 17: week_17 (projected), week_18 (actual) ✓ Pattern holds
 
 Conclusion: This is a GENERAL PATTERN, not week 17 special case
-```markdown
+```
 
 ---
 
@@ -199,7 +199,7 @@ Conclusion: This is a GENERAL PATTERN, not week 17 special case
 | Week_N+1 folder has week N actuals | Manual data inspection | week_02[0]['actual_points'][0] = 33.6 | ✅ TRUE |
 | Pattern applies to all weeks | Tested weeks 1,2,17 | All follow same pattern | ✅ TRUE |
 | PlayerManager handles conversion | Code inspection | PlayerManager.py line 327 hardcodes path | ❌ Partial |
-```markdown
+```
 
 **Rules:**
 - Every assumption must have "Verified How" entry
@@ -225,7 +225,7 @@ Conclusion: This is a GENERAL PATTERN, not week 17 special case
 - Discrepancy: [Describe if NO]
 
 [Repeat for each claim]
-```markdown
+```
 
 ---
 
@@ -258,7 +258,7 @@ Conclusion: This is a GENERAL PATTERN, not week 17 special case
 ---
 
 [Repeat for each discrepancy]
-```markdown
+```
 
 ---
 
@@ -321,7 +321,7 @@ These discrepancies suggest spec.md may be fundamentally incorrect.
 **Reason:** [Specific reason based on severity of discrepancies]
 
 Please advise how you'd like to proceed.
-```markdown
+```
 
 #### 7C: Wait for User Decision
 
@@ -391,7 +391,7 @@ Pattern Analysis:
 - [ ] Did I test general patterns with multiple examples?
 - [ ] Did I distinguish example from special case?
 - [ ] Did I verify patterns hold across all cases?
-```markdown
+```
 
 All questions must be YES to pass.
 
@@ -426,48 +426,48 @@ S2.5 is complete when:
 **Wrong:**
 ```text
 Read spec.md → Re-read epic → "Yep, matches"
-```markdown
+```
 
 **Right:**
 ```text
 Close spec.md → Re-read epic → Investigate independently → Compare
-```markdown
+```
 
 ### ❌ Pitfall 2: Trusting Assumptions
 
 **Wrong:**
 ```text
 "Week_N folder should have week N actuals" → [Don't verify]
-```markdown
+```
 
 **Right:**
 ```text
 "Week_N folder should have week N actuals" → [Load file, print value, verify]
-```markdown
+```
 
 ### ❌ Pitfall 3: Ignoring Minor Discrepancies
 
 **Wrong:**
 ```text
 "Small difference in wording, same meaning" → [Ignore]
-```markdown
+```
 
 **Right:**
 ```text
 "Small difference in wording" → [Document, get user confirmation]
-```markdown
+```
 
 ### ❌ Pitfall 4: Silently Fixing Errors
 
 **Wrong:**
 ```bash
 Find discrepancy → Fix spec.md → Continue
-```markdown
+```
 
 **Right:**
 ```bash
 Find discrepancy → Report to user → Wait for decision → Execute choice
-```bash
+```
 
 ---
 

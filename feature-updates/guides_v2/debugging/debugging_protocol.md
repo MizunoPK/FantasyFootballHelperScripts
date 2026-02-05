@@ -42,7 +42,7 @@
 **Current Phase:** IN DEBUGGING PROTOCOL
 **Current Guide:** debugging/debugging_protocol.md
 **Next Action:** {current investigation step}
-```bash
+```
 
 **Why this is mandatory:**
 - Future agents rely on EPIC_README.md to determine state
@@ -151,7 +151,7 @@ Debugging Protocol complete when ALL issues in ISSUES_CHECKLIST.md are marked �
    - Cannot skip issues ("we'll fix it later" is not acceptable)
    - Cannot proceed to next stage with open issues
    - Loop back to testing until ZERO issues remain
-```markdown
+```
 
 ---
 
@@ -315,7 +315,7 @@ feature_01_player_integration/
 │       ├── issue_01_round2.log
 │       └── issue_02_round1.log
 └── implementation_checklist.md
-```markdown
+```
 
 ### Epic-Level Debugging
 
@@ -334,7 +334,7 @@ epic_name/
     ├── guide_update_recommendations.md (Guide improvements - Phase 4b per-issue + Phase 5 patterns)
     ├── lessons_learned.md
     └── diagnostic_logs/
-```markdown
+```
 
 ---
 

@@ -118,7 +118,7 @@ grep -n "S[0-9][a-z]\|Stage [0-9][a-z]" CLAUDE.md | head -10
 # Check for correct notation
 grep -n "S[0-9]\\.P[0-9]" CLAUDE.md | head -10
 # Should find: Multiple matches ✓
-```text
+```
 
 **README.md - Terminology Consistency:**
 ```bash
@@ -128,7 +128,7 @@ grep -ion "epic\|project\|initiative\|feature set" \
   cut -d: -f2 | sort | uniq -c
 
 # Should show consistent use of "epic" (not mixed terms)
-```text
+```
 
 **EPIC_WORKFLOW_USAGE.md - Section Structure Consistency:**
 ```bash
@@ -140,7 +140,7 @@ for stage in S{1..10}; do
 done
 
 # All should have: Duration, Phases, Key Outputs, Gates
-```bash
+```
 
 **Red Flags:**
 - CLAUDE.md uses "S5.P1" in top section, "S5a" later
@@ -167,7 +167,7 @@ Complete iterations I1-I7...
 ## S5a: Planning Round 1  ← ERROR: Mixed notation
 
 For backward compatibility, S5a refers to... ← If NOT explaining old notation, this is an error
-```text
+```
 
 **Search Commands:**
 ```bash
@@ -183,7 +183,7 @@ for file in stages/**/*.md; do
     echo "MIXED NOTATION: $file (old: $old, new: $new)"
   fi
 done
-```markdown
+```
 
 **Validation Checklist:**
 
@@ -202,7 +202,7 @@ INCONSISTENT:
 CONSISTENT:
 - "S5.P1" throughout entire file
 - "Stage 5" explained once as "(S5)", then "S5" used throughout
-```text
+```
 
 **Red Flags:**
 - Header uses "S5.P1.I1" but text uses "Iteration 1"
@@ -229,7 +229,7 @@ ALWAYS run tests before committing. Never commit untested code.
 ## Section 8: Git Workflow
 
 If you're in a hurry, you can commit first and run tests later.  ← CONTRADICTION
-```text
+```
 
 **Pattern B: MUST vs OPTIONAL**
 ```markdown
@@ -240,7 +240,7 @@ If you're in a hurry, you can commit first and run tests later.  ← CONTRADICTI
 ## When to Proceed
 
 You can proceed without user approval if changes are minor.  ← CONTRADICTION
-```text
+```
 
 **Pattern C: DO vs DON'T**
 ```markdown
@@ -251,7 +251,7 @@ DO update Agent Status after every phase.
 ## Workflow
 
 Agent Status updates are optional for minor phases.  ← CONTRADICTION
-```text
+```
 
 **Search Commands:**
 ```bash
@@ -262,7 +262,7 @@ grep -n "MUST\|ALWAYS\|REQUIRED\|NEVER" stages/s5/*.md > /tmp/mandatory.txt
 grep -n "optional\|can skip\|if needed\|may" stages/s5/*.md > /tmp/optional.txt
 
 # Manually review for contradictions (requires reading context)
-```text
+```
 
 **Validation Process:**
 
@@ -300,7 +300,7 @@ Your project should include...  ← INCONSISTENT (epic or project?)
 ## Section 7
 
 The initiative requires...  ← INCONSISTENT (epic, project, or initiative?)
-```text
+```
 
 **Feature vs Component vs Module:**
 ```markdown
@@ -315,7 +315,7 @@ Complete all components...  ← Are "components" same as "features"?
 ## Testing
 
 Test each module independently...  ← Are "modules" same as "features" or "components"?
-```text
+```
 
 **Search Commands:**
 ```bash
@@ -330,7 +330,7 @@ grep -oi "feature\|component\|module\|piece" "$file" | sort | uniq -c
 
 echo "=== Stage terms ==="
 grep -oi "stage\|phase\|step\|iteration" "$file" | sort | uniq -c
-```markdown
+```
 
 **Validation Checklist:**
 
@@ -347,7 +347,7 @@ For each concept category:
 This guide covers **epic planning** (also called "project planning" in some organizations)...
 
 [Rest of file uses "epic" consistently]
-```text
+```
 
 This is VALID if variation is explained once then consistent term used throughout.
 
@@ -380,7 +380,7 @@ If file has repeated structures (like multiple examples or sections), they shoul
 ## Section 3: Third Topic  ← INCONSISTENT (missing Duration, Prerequisites, Outputs)
 
 This section covers...
-```text
+```
 
 **Common Pattern: Multiple Examples**
 ```markdown
@@ -397,7 +397,7 @@ This section covers...
 **Problem:**...
 **Solution:**...
 [No Result section]  ← INCONSISTENT
-```text
+```
 
 **Search Commands:**
 ```bash
@@ -418,7 +418,7 @@ for section in $sections; do
   grep -A 10 "^## $section" "$file" | grep -q "Prerequisites:"
   [ $? -eq 0 ] && echo "  Has Prerequisites" || echo "  MISSING Prerequisites"
 done
-```markdown
+```
 
 **Validation Checklist:**
 
@@ -460,7 +460,7 @@ References within file (e.g., "see Section 5") should point to sections that exi
 For detailed configuration, see Section 7.
 
 [File only has 5 sections]  ← ERROR: Section 7 doesn't exist
-```text
+```
 
 **"Above" and "Below" References:**
 ```markdown
@@ -469,7 +469,7 @@ For detailed configuration, see Section 7.
 As mentioned above in the Prerequisites section...
 
 [No Prerequisites section exists above Section 2]  ← ERROR
-```text
+```
 
 **Search Commands:**
 ```bash
@@ -479,7 +479,7 @@ grep -n "see Section [0-9]\|Section [0-9] for\|described in Section [0-9]" \
 
 # For each reference, verify section exists
 # (Manual validation - requires parsing file structure)
-```markdown
+```
 
 **Validation Process:**
 
@@ -496,14 +496,14 @@ Original: Section 7: Advanced Topics
 After reorg: Section 5: Advanced Topics
 
 [References still say "see Section 7"]  ← BROKEN (now Section 5)
-```text
+```
 
 **After Section Deletion:**
 ```markdown
 File had Sections 1-8
 Section 4 deleted
 References still mention Section 4  ← BROKEN
-```bash
+```
 
 **Red Flags:**
 - "See Section N" where N > total sections
@@ -535,7 +535,7 @@ The agent must complete all iterations.  ← Third person "the agent"
 ## Conclusion
 
 We recommend following best practices.  ← First person "we"
-```text
+```
 
 **Formality Shifts:**
 ```markdown
@@ -546,7 +546,7 @@ This guide provides comprehensive instructions for implementation planning.  ←
 ## Tips
 
 Yo, don't forget to run tests!  ← Informal  ← INCONSISTENT
-```text
+```
 
 **Imperative vs Declarative:**
 ```markdown
@@ -559,7 +559,7 @@ Yo, don't forget to run tests!  ← Informal  ← INCONSISTENT
 ## Next Section
 
 The agent will read the prerequisites.  ← INCONSISTENT (declarative, not imperative)
-```text
+```
 
 **Detection (Manual):**
 
@@ -594,7 +594,7 @@ All functions should include complete type hints for parameters and return value
 
 def calculate_total(items):  ← ERROR: No type hints in example
     return sum(items)
-```text
+```
 
 **Another Pattern:**
 ```markdown
@@ -605,7 +605,7 @@ Always use the S#.P# notation format (e.g., S5.P1, not S5a).
 ### Example
 
 For Stage 5a Phase 2...  ← ERROR: Example violates the rule it demonstrates
-```bash
+```
 
 **Validation Process:**
 
@@ -716,7 +716,7 @@ for file in stages/**/*.md reference/*.md; do
     echo "MIXED NOTATION in $file (old: $old, new: $new)"
   fi
 done
-```text
+```
 
 **CHECK 17: Terminology Variation Detection** *(planned, not yet implemented)*
 ```bash
@@ -742,7 +742,7 @@ for file in stages/**/*.md; do
     echo "WARNING: Mixed 'feature' ($feature_count) and 'component' ($component_count)"
   fi
 done
-```text
+```
 
 **CHECK 18: Internal Reference Validation** *(planned, not yet implemented)*
 ```bash
@@ -762,7 +762,7 @@ for file in stages/**/*.md; do
     fi
   done
 done
-```text
+```
 
 **Automation Coverage: ~80%**
 - ✅ Notation mixing
@@ -797,7 +797,7 @@ for file in stages/**/*.md; do
   # - Mixed "Stage 5" and "S5"
   # - Inconsistent iteration notation
 done
-```text
+```
 
 **Manual Review Questions:**
 - Does file use ONE notation system consistently?
@@ -818,7 +818,7 @@ grep -oi "feature\|component\|module" "$file" | sort | uniq -c
 
 echo "Process terms:"
 grep -oi "stage\|phase\|step\|iteration" "$file" | sort | uniq -c
-```text
+```
 
 **Manual Review Questions:**
 - Does file use ONE term for each concept?
@@ -837,7 +837,7 @@ grep "^## \|^### " "$file"
 # For sections that should be parallel (e.g., all iteration sections):
 # - Check if they have same subsections
 # - Check if formatting is consistent
-```text
+```
 
 **Manual Review Process:**
 1. Identify repeated structures (e.g., multiple examples, multiple iteration sections)
@@ -855,7 +855,7 @@ grep -n "MUST\|ALWAYS\|NEVER\|REQUIRED" "$file" > /tmp/mandatory.txt
 grep -n "optional\|can skip\|may\|if needed" "$file" > /tmp/permissive.txt
 
 # Manually review both files for contradictions
-```text
+```
 
 **Manual Review Process:**
 1. Read all mandatory statements
@@ -873,7 +873,7 @@ grep -n "see Section\|Section [0-9]\|above\|below" "$file"
 # 1. Note what it claims to reference
 # 2. Verify referenced content exists
 # 3. Verify content is in claimed location (above/below)
-```text
+```
 
 **Manual Review Questions:**
 - Do all "see Section N" references point to existing sections?
@@ -899,7 +899,7 @@ Always use S#.P# notation (e.g., S5.P1).
 
 ❌ WRONG: "For Stage 5a..."  ← This is showing what NOT to do
 ✅ CORRECT: "For S5.P1..."
-```markdown
+```
 
 **Validation:** If example explicitly labeled as anti-pattern/wrong → VALID (not inconsistency)
 
@@ -918,7 +918,7 @@ Use S#.P# format (S5.P1, S5.P2, S5.P3).
 ## Historical Note
 
 The old workflow used S5a/S5b/S5c notation. This was changed in 2025 to improve clarity.
-```markdown
+```
 
 **Validation:** Old notation in historical context → VALID (not inconsistency)
 
@@ -937,7 +937,7 @@ This guide covers **epic planning** (also called "project planning" or "initiati
 ## Rest of File
 
 [Uses "epic" exclusively, no "project" or "initiative"]
-```markdown
+```
 
 **Validation:** Multiple terms defined once then one used consistently → VALID
 
@@ -956,7 +956,7 @@ You should review the implementation plan before approving.
 ## For Agents
 
 The agent must wait for user approval before proceeding.
-```markdown
+```
 
 **Validation:** Perspective shift with clear audience markers → VALID
 
@@ -983,7 +983,7 @@ Complete S5a iterations first...  ← ERROR: Mixed "S5a" with "S5.P1"
 ## Iteration I1: Requirements
 
 Refer to S5.P1 guide for details...  ← Consistent notation
-```text
+```
 
 **Problem:**
 - File header uses "S5.P1"
@@ -997,7 +997,7 @@ Refer to S5.P1 guide for details...  ← Consistent notation
 
 -Complete S5a iterations first...
 +Complete S5.P1 iterations first...
-```text
+```
 
 **Root Cause:** Content copy-pasted from old guide during update, old notation not replaced
 
@@ -1022,7 +1022,7 @@ ALWAYS create a dedicated issue file for each problem found.
 ## Section 5: Minor Issues
 
 For minor issues, you can document them in the main checklist without creating separate files.  ← CONTRADICTION
-```text
+```
 
 **Problem:**
 - Section 2: ALWAYS create file
@@ -1040,7 +1040,7 @@ For minor issues, you can document them in the main checklist without creating s
 
 For minor issues (typos, formatting), you can document them in the main checklist without creating separate files.
 +This is the ONLY exception to the issue file requirement.
-```bash
+```
 
 **Root Cause:** Rule made absolute, exception added later without updating original rule
 
@@ -1071,7 +1071,7 @@ The project aims to...  ← INCONSISTENT (epic or project?)
 ## Initiative Goals
 
 The initiative will deliver...  ← INCONSISTENT (epic, project, or initiative?)
-```text
+```
 
 **Problem:**
 - Uses "epic," "project," and "initiative" interchangeably
@@ -1098,7 +1098,7 @@ The initiative will deliver...  ← INCONSISTENT (epic, project, or initiative?)
 
 -The initiative will deliver...
 +The epic will deliver...
-```text
+```
 
 **Root Cause:** Template created from multiple sources, each using different terminology
 
@@ -1129,7 +1129,7 @@ The initiative will deliver...  ← INCONSISTENT (epic, project, or initiative?)
 **Problem:** Off-by-one error in loop
 **Fix:** Update loop condition  ← INCONSISTENT (should be "Solution")
 [No Result section]  ← INCONSISTENT (missing)
-```text
+```
 
 **Problem:**
 - Example 1: Uses Scenario/Problem/Solution/Result
@@ -1145,7 +1145,7 @@ The initiative will deliver...  ← INCONSISTENT (epic, project, or initiative?)
 -**Fix:** Update loop condition
 +**Solution:** Update loop condition
 +**Result:** Calculation produces correct result
-```text
+```
 
 **Root Cause:** Examples written at different times, structure evolved, old examples not updated
 
@@ -1168,7 +1168,7 @@ The initiative will deliver...  ← INCONSISTENT (epic, project, or initiative?)
 For detailed testing patterns, see Section 7: Advanced Testing Techniques.
 
 [File only has 5 sections - Section 7 doesn't exist]
-```text
+```
 
 **What Happened:**
 - Original file had 8 sections
@@ -1181,7 +1181,7 @@ For detailed testing patterns, see Section 7: Advanced Testing Techniques.
 
 -For detailed testing patterns, see Section 7: Advanced Testing Techniques.
 +For detailed testing patterns, see `stages/s4/s4_feature_testing_strategy.md`.
-```text
+```
 
 **Fix Option 2 (Remove Reference if No Longer Relevant):**
 ```diff

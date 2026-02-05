@@ -45,7 +45,7 @@ sed -i 's/OLD10/NEW10/g' *.md
 # Problem: If fix #3 broke something, you don't know until the end
 # Problem: Hard to isolate which fix caused the issue
 # Problem: No checkpoints to rollback to
-```text
+```
 
 **With incremental verification:**
 ```bash
@@ -60,7 +60,7 @@ grep -n "NEW2" file3.md
 grep -n "OLD2" file3.md
 
 # Continue...
-```bash
+```
 
 **Benefits:**
 - Catch errors immediately (not at the end)
@@ -100,7 +100,7 @@ git status
 git stash  # if you want to save changes
 # OR
 git reset --hard  # if you want to discard (DANGEROUS)
-```markdown
+```
 
 ---
 
@@ -122,19 +122,19 @@ STEP 4: Spot-read actual file contents
 STEP 5: Document before/after
   ↓
 STEP 6: Move to next group
-```markdown
+```
 
 ### Why This Order Matters
 
 **Priority Order:**
 ```text
 P0 (Critical) → P1 (High) → P2 (Medium) → P3 (Low)
-```text
+```
 
 **Within Priority:**
 ```text
 Automated fixes → Manual fixes
-```text
+```
 
 **Rationale:**
 - Critical issues fixed first (biggest impact)
@@ -160,13 +160,13 @@ sed -i 's|OLD_PATTERN|NEW_PATTERN|g' file1.md file2.md file3.md
 
 # Example:
 sed -i 's|stages/s5/round1/|stages/s5/s5_p1_|g' stages/s5/*.md
-```text
+```
 
 **For manual fixes:**
 ```bash
 # Use Edit tool with precise old_string → new_string
 # Document each manual edit
-```markdown
+```
 
 #### STEP 2: Verify New Pattern Exists
 
@@ -183,7 +183,7 @@ grep -n "NEW_PATTERN" file1.md file2.md file3.md
 
 # Count matches (should equal expected count from fix plan)
 grep -c "NEW_PATTERN" file1.md file2.md file3.md
-```text
+```
 
 **Red flags:**
 - No matches found (sed didn't work)
@@ -206,7 +206,7 @@ grep -n "OLD_PATTERN" file1.md file2.md file3.md
 # Example: Expected 0, found 5
 # file1.md:123:old_pattern (in historical example)
 # → Intentional, document as acceptable
-```bash
+```
 
 **Expected result:** Zero matches OR only intentional cases
 
@@ -225,7 +225,7 @@ sed -n '60,70p' file2.md  # Lines around second change
 # - Change looks correct in context
 # - Formatting preserved
 # - No unintended side effects
-```text
+```
 
 **What to look for:**
 - Broken markdown formatting
@@ -245,19 +245,19 @@ sed -n '60,70p' file2.md  # Lines around second change
 **Instances Fixed:** N instances
 
 ### Before
-```bash
+```
 $ grep -n "OLD" file1.md
 45:stages/s5/round1/planning.md
 ```markdown
 
 ### After
-```bash
+```
 $ grep -n "NEW" file1.md
 45:stages/s5/s5_p1_planning_round1.md
 ```markdown
 
 ### Verification
-```bash
+```
 $ grep -n "OLD" file1.md
 # No matches (or only intentional cases)
 ```text
@@ -295,21 +295,21 @@ after=$(grep -rc "NEW_PATTERN" affected_files | paste -sd+ | bc)
 
 echo "Expected: $before"
 echo "Found: $after"
-```text
+```
 
 **Level 2: File Content Grep**
 ```bash
 # Medium check: Do files show correct pattern?
 grep -n "NEW_PATTERN" file1.md file2.md
 grep -n "OLD_PATTERN" file1.md file2.md  # Should be 0 or intentional
-```text
+```
 
 **Level 3: Visual Inspection**
 ```bash
 # Deep check: Read actual content
 sed -n 'LINE_NUMp' file.md  # Read specific lines
 git diff file.md  # See exactly what changed
-```markdown
+```
 
 **All three must pass before moving to next group.**
 
@@ -326,7 +326,7 @@ git restore file1.md file2.md file3.md
 # - Context-sensitive issue?
 
 # Refine and retry
-```markdown
+```
 
 ---
 
@@ -372,12 +372,12 @@ git restore file1.md file2.md file3.md
 
 ### Action Taken
 **Before:**
-```json
+```
 [Old content]
 ```text
 
 **After:**
-```json
+```
 [New content]
 ```markdown
 
@@ -386,7 +386,7 @@ git restore file1.md file2.md file3.md
 - [ ] Formatting consistent with file
 - [ ] No typos or errors
 - [ ] Cross-references updated if needed
-```markdown
+```
 
 ---
 
@@ -421,7 +421,7 @@ git restore file1.md file2.md file3.md
 ❌ POLICY VIOLATION: CLAUDE.md (45786 chars) exceeds 40,000
 ❌ TOO LARGE: stages/s5/s5_p1_planning_round1.md (1200 lines)
 ⚠️  LARGE: stages/s1/s1_epic_planning.md (650 lines)
-```text
+```
 
 **Priority order:**
 1. **P1:** CLAUDE.md if exceeds 40,000 chars (CRITICAL - policy violation)
@@ -488,7 +488,7 @@ for file in $(find stages -name "*.md"); do
   fi
 done
 # Should return zero results
-```markdown
+```
 
 #### Cross-Reference Accuracy
 - [ ] All links to extracted content valid (no broken links)
@@ -506,13 +506,13 @@ done
 #### Re-Run Pre-Audit Script
 ```bash
 bash feature-updates/guides_v2/audit/scripts/pre_audit_checks.sh
-```text
+```
 
 **Expected output:**
 ```text
 ✅ PASS: CLAUDE.md (39,500 chars) within 40,000 character limit
 ✅ All files within size limits
-```text
+```
 
 **If ANY failures:**
 - Address immediately
@@ -543,7 +543,7 @@ bash feature-updates/guides_v2/audit/scripts/pre_audit_checks.sh
 - [x] No information lost
 - [x] Cross-references valid
 - [x] Agent usability maintained
-```python
+```
 
 ### Critical Rules
 
@@ -599,7 +599,7 @@ git diff
 
 # If satisfied, ready for Stage 4
 # (Don't commit yet - wait until after Stage 4 verification)
-```markdown
+```
 
 ---
 
@@ -665,7 +665,7 @@ Group 1: Old Notation S5a/S6a/S7a → S5/S6/S7
 Pattern: \bS[5-9]a\b
 Count: 60+ instances across 30+ files
 Priority: P1 (High)
-```text
+```
 
 **Execution:**
 

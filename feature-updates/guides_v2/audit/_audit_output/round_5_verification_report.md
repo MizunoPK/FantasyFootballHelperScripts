@@ -31,13 +31,13 @@
 ```bash
 grep -n "8/8 iterations" prompts/s5_s8_prompts.md
 # Result: 0 matches ✅
-```text
+```
 
 **Pattern 2: Correct progress fractions**
 ```bash
 grep -n "7/7 iterations" prompts/s5_s8_prompts.md
 # Result: 2 matches (lines 81, 111) ✅
-```text
+```
 
 **Pattern 3: Any remaining wrong Round 1 fractions**
 ```bash

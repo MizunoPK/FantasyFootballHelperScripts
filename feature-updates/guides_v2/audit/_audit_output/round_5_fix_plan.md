@@ -34,12 +34,12 @@
 **Current:**
 ```markdown
 **User says:** Agent detects Round 1 complete (8/8 iterations done, confidence >= MEDIUM)
-```text
+```
 
 **Target:**
 ```markdown
 **User says:** Agent detects Round 1 complete (7/7 iterations done, confidence >= MEDIUM)
-```markdown
+```
 
 **Change:**
 - "8/8 iterations done" → "7/7 iterations done"
@@ -54,12 +54,12 @@
 **Current:**
 ```markdown
 ✅ Round 1 complete (8/8 iterations)
-```text
+```
 
 **Target:**
 ```markdown
 ✅ Round 1 complete (7/7 iterations)
-```markdown
+```
 
 **Change:**
 - "8/8 iterations" → "7/7 iterations"
@@ -112,13 +112,13 @@
 ```markdown
 OLD: **User says:** Agent detects Round 1 complete (8/8 iterations done, confidence >= MEDIUM)
 NEW: **User says:** Agent detects Round 1 complete (7/7 iterations done, confidence >= MEDIUM)
-```text
+```
 
 **Use Edit tool (Issue R5-2):**
 ```markdown
 OLD: ✅ Round 1 complete (8/8 iterations)
 NEW: ✅ Round 1 complete (7/7 iterations)
-```markdown
+```
 
 ---
 
@@ -152,7 +152,7 @@ if [ -f "$claude_md" ]; then
 else
     echo "${YELLOW}⚠️  WARNING:${NC} CLAUDE.md not found at expected location"
 fi
-```markdown
+```
 
 ---
 
@@ -176,7 +176,7 @@ grep -rn "[89]/[89] iterations" --include="*.md" . | grep -v "_audit_output" | g
 wc -c ../../CLAUDE.md
 # Current: 45786 (EXCEEDS 40000 by 5786)
 # Target: ≤40000 (separate task to address)
-```markdown
+```
 
 ---
 

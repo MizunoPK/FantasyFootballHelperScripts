@@ -53,7 +53,7 @@ This reference provides all templates needed during S9.P3 (Epic Final Review):
 **pr_review_issues.md file:** `KAI-{N}-{epic_name}/pr_review_issues.md`
 
 **Epic is ready for Step 8 (Final Verification)**
-```markdown
+```
 
 ### Example (Completed Review)
 
@@ -79,7 +79,7 @@ This reference provides all templates needed during S9.P3 (Epic Final Review):
 **pr_review_issues.md file:** `KAI-3-integrate_new_player_data_into_simulation/pr_review_issues.md`
 
 **Epic is ready for Step 8 (Final Verification)**
-```markdown
+```
 
 ---
 
@@ -113,7 +113,7 @@ This reference provides all templates needed during S9.P3 (Epic Final Review):
 - **Priority:** {high/medium/low}
 
 [Repeat for all issues found]
-```markdown
+```
 
 ### Example (Multiple Issues)
 
@@ -145,7 +145,7 @@ This reference provides all templates needed during S9.P3 (Epic Final Review):
 - **Root Cause:** Different error message templates
 - **Fix Required:** Standardize error messages to "Player '{name}' not found in {feature} data"
 - **Priority:** medium
-```markdown
+```
 
 ---
 
@@ -169,7 +169,7 @@ This reference provides all templates needed during S9.P3 (Epic Final Review):
 
 **LOW priority (document only, no bug fix):**
 - Issue {N}: {Brief description} (documented for future improvement)
-```markdown
+```
 
 ### Priority Guidelines
 
@@ -207,7 +207,7 @@ This reference provides all templates needed during S9.P3 (Epic Final Review):
 
 **LOW priority (document only, no bug fix):**
 - None identified
-```markdown
+```
 
 ---
 
@@ -239,7 +239,7 @@ I found {number} issues during S9.P3 Epic PR Review that require bug fixes:
 After fixing these issues, I'll need to RESTART S9 from the beginning (S9.P1 smoke testing) to ensure the fixes didn't introduce new issues.
 
 Should I proceed with creating these bug fixes?
-```markdown
+```
 
 ### Example
 
@@ -261,7 +261,7 @@ I found 2 issues during S9.P3 Epic PR Review that require bug fixes:
 After fixing these issues, I'll need to RESTART S9 from the beginning (S9.P1 smoke testing) to ensure the fixes didn't introduce new issues.
 
 Should I proceed with creating these bug fixes?
-```markdown
+```
 
 **Wait for user approval before proceeding to Step 7.4.**
 
@@ -283,7 +283,7 @@ bugfix_{priority}_{name}/
 ├── checklist.md                 (Open questions)
 ├── implementation_plan.md       (Implementation approach)
 └── lessons_learned.md           (Bug fix retrospective)
-```markdown
+```
 
 ### notes.txt Template
 
@@ -303,7 +303,7 @@ bugfix_{priority}_{name}/
 - {Requirement 1}
 - {Requirement 2}
 - {Requirement 3}
-```markdown
+```
 
 ### notes.txt Example
 
@@ -324,7 +324,7 @@ bugfix_{priority}_{name}/
 - Move standalone functions to class methods
 - Update imports in consuming code
 - Update tests
-```markdown
+```
 
 ---
 
@@ -356,7 +356,7 @@ bugfix_{priority}_{name}/
 - ✅ All unit tests passing ({pass_rate}% - {N} tests)
 
 **Result:** S9 {complete/incomplete} after restart ({no new issues found / N new issues found})
-```markdown
+```
 
 ### Example
 
@@ -379,7 +379,7 @@ bugfix_{priority}_{name}/
 - ✅ All unit tests passing (100% - 2247 tests)
 
 **Result:** S9 complete after restart (no new issues found)
-```markdown
+```
 
 ---
 
@@ -406,7 +406,7 @@ bugfix_{priority}_{name}/
 - ✅/❌ ALL tests passing ({N}/{total} tests, {percentage}% pass rate)
 
 **Result:** S9 verification {PASSED/FAILED} - {Ready/Not ready} to mark complete
-```markdown
+```
 
 ### Verification Commands
 
@@ -426,7 +426,7 @@ python tests/run_all_tests.py
 
 # 4. Verify bug fix folders (if any) completed S7
 # bugfix_high_*/README.md should show "S7: COMPLETE"
-```markdown
+```
 
 ### Example
 
@@ -445,7 +445,7 @@ python tests/run_all_tests.py
 - ✅ ALL tests passing (2247/2247 tests, 100% pass rate)
 
 **Result:** S9 verification PASSED - Ready to mark complete
-```markdown
+```
 
 ---
 
@@ -482,7 +482,7 @@ python tests/run_all_tests.py
 - Date completed: {YYYY-MM-DD}
 
 **S10 - Epic Cleanup:** [ ] PENDING
-```markdown
+```
 
 ### Example
 
@@ -510,7 +510,7 @@ python tests/run_all_tests.py
 - Date completed: 2025-01-02
 
 **S10 - Epic Cleanup:** [ ] PENDING
-```markdown
+```
 
 ---
 
@@ -563,7 +563,7 @@ python tests/run_all_tests.py
 - Total S9 time: {X hours} (including restarts)
 
 **Key Takeaway:** {One-sentence summary of most important lesson}
-```markdown
+```
 
 ### Example
 
@@ -613,7 +613,7 @@ python tests/run_all_tests.py
 - Total S9 time: 8.5 hours (including restarts)
 
 **Key Takeaway:** Epic-level PR review is CRITICAL for catching architectural inconsistencies that feature-level reviews miss. The 11-category checklist provides comprehensive coverage.
-```markdown
+```
 
 ---
 
@@ -645,7 +645,7 @@ python tests/run_all_tests.py
 
 **Next Stage:** stages/s10/s10_epic_cleanup.md
 **Next Action:** Read stages/s10/s10_epic_cleanup.md to begin final epic cleanup
-```markdown
+```
 
 ### Example
 

@@ -42,12 +42,12 @@
 **Current State (BEFORE):**
 ```markdown
 {Current text from guide - exact quote with line numbers}
-```bash
+```
 
 **Proposed Change (AFTER):**
 ```markdown
 {Proposed new text - show complete replacement or addition}
-```markdown
+```
 
 **Rationale:**
 {How this specific change prevents future agents from encountering the same issue}
@@ -62,7 +62,7 @@
 **User Feedback/Modifications:**
 ```json
 {User writes alternative approach, questions, or modifications here}
-```markdown
+```
 
 ---
 
@@ -90,12 +90,12 @@
 **Current State (BEFORE):**
 ```markdown
 {Current text from guide}
-```bash
+```
 
 **Proposed Change (AFTER):**
 ```markdown
 {Proposed new text}
-```markdown
+```
 
 **Rationale:**
 {How this change prevents future issues}
@@ -110,7 +110,7 @@
 **User Feedback/Modifications:**
 ```json
 {User writes response here}
-```markdown
+```
 
 ---
 
@@ -138,12 +138,12 @@
 **Current State (BEFORE):**
 ```markdown
 {Current text from guide}
-```bash
+```
 
 **Proposed Change (AFTER):**
 ```markdown
 {Proposed new text}
-```markdown
+```
 
 **Rationale:**
 {How this change improves clarity or efficiency}
@@ -158,7 +158,7 @@
 **User Feedback/Modifications:**
 ```json
 {User writes response here}
-```markdown
+```
 
 ---
 
@@ -186,12 +186,12 @@
 **Current State (BEFORE):**
 ```markdown
 {Current text from guide}
-```bash
+```
 
 **Proposed Change (AFTER):**
 ```markdown
 {Proposed new text}
-```markdown
+```
 
 **Rationale:**
 {How this minor change improves guide quality}

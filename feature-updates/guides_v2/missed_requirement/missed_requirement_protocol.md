@@ -135,7 +135,7 @@ Missed requirement handling is complete when the new/updated feature has been pl
    - Full S4 test plan update
    - When implemented: Full S5 (S5 → S6 → S7 → S8)
    - No shortcuts
-```bash
+```
 
 ---
 
@@ -238,7 +238,7 @@ epic_name/
 ├── feature_03_performance_tracker/    ← May be updated with missed req
 ├── feature_04_matchup_analysis/
 └── feature_05_injury_tracking/        ← New feature from missed req
-```bash
+```
 
 **No separate requirement_{priority}_{name}/ folders:**
 - Missed requirements are real features

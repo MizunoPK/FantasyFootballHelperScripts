@@ -100,7 +100,7 @@ Iterations 21-22: Mock Audit & Output Validation
 PART 1 COMPLETE
    ↓
 Transition to Part 2 (Read stages/s5/s5_p3_i3_gates_part2.md)
-```markdown
+```
 
 ---
 
@@ -142,7 +142,7 @@ Transition to Part 2 (Read stages/s5/s5_p3_i3_gates_part2.md)
 7. ⚠️ Do NOT proceed to Part 2 without completing ALL 6 iterations
    - Part 2 requires these preparation outputs
    - Missing preparation causes gate failures
-```markdown
+```
 
 ---
 
@@ -301,7 +301,7 @@ Transition to Part 2 (Read stages/s5/s5_p3_i3_gates_part2.md)
 ```text
 BAD: Assume mock is correct
 GOOD: Read utils/csv_utils.py:45, verify signature matches mock
-```markdown
+```
 
 ---
 

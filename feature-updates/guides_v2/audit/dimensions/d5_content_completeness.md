@@ -145,7 +145,7 @@ done
 for stage in {1..10}; do
   grep -q "Starting S$stage" prompts_reference_v2.md || echo "Missing S$stage prompt"
 done
-```markdown
+```
 
 **Automated:** ⚠️ Partial (section presence automated, content depth manual)
 
@@ -164,7 +164,7 @@ TBD
 ## Critical Rules
 
 [To be added]
-```text
+```
 
 **What Makes Section "Empty":**
 - Section header exists
@@ -179,7 +179,7 @@ grep -A 3 "^## " stages/**/*.md | grep -B 1 "TBD\|TODO\|Coming Soon\|\[None\]\|\
 
 # Find very short sections (may indicate stub)
 # (Requires manual script - check section length)
-```markdown
+```
 
 **Automated:** ✅ Yes (placeholder detection), ⚠️ Partial (short section detection)
 
@@ -194,7 +194,7 @@ For detailed steps, see below.
 
 ## Next Stage
 [No "detailed steps" section exists]
-```text
+```
 
 **"See examples" with no examples:**
 ```markdown
@@ -202,14 +202,14 @@ For detailed steps, see below.
 Follow template structure. See examples in Appendix A.
 
 [No Appendix A in file]
-```text
+```
 
 **Forward reference to missing section:**
 ```markdown
 We'll cover prerequisites in the Prerequisites section.
 
 [No Prerequisites section in file]
-```text
+```
 
 **Search Commands:**
 ```bash
@@ -217,7 +217,7 @@ We'll cover prerequisites in the Prerequisites section.
 grep -in "see below\|see section\|see.*examples\|see appendix" stages/**/*.md
 
 # Manually verify referenced content exists
-```bash
+```
 
 **Automated:** ⚠️ Partial (can find promises, manual to verify delivery)
 
@@ -240,7 +240,7 @@ grep -in "see below\|see section\|see.*examples\|see appendix" stages/**/*.md
 
 [MISSING: Examples section]
 [MISSING: Next Steps section]
-```text
+```
 
 **Search Commands:**
 ```bash
@@ -249,7 +249,7 @@ grep -A 50 "## Table of Contents" file.md | grep -o "\](#[^)]*)" | sed 's/](#//;
 
 # For each TOC link, verify section exists
 # (Requires script to parse and validate)
-```markdown
+```
 
 **Automated:** ✅ Yes (can extract TOC and check section existence)
 
@@ -268,7 +268,7 @@ grep -A 50 "## Table of Contents" file.md | grep -o "\](#[^)]*)" | sed 's/](#//;
 ## Prerequisites
 - [Prerequisite 1]
 - [Prerequisite 2]
-```text
+```
 
 **Why This is Wrong:**
 - File is published guide (not template)
@@ -281,7 +281,7 @@ grep -A 50 "## Table of Contents" file.md | grep -o "\](#[^)]*)" | sed 's/](#//;
 grep -rn "\[Describe\|<fill in\|\[Prerequisite\|\[Step\|\[Example" stages/ | grep -v "_template.md"
 
 # Should return minimal results (only in intentional examples)
-```markdown
+```
 
 **Automated:** ✅ Yes (pattern matching)
 
@@ -297,7 +297,7 @@ grep -rn "\[Describe\|<fill in\|\[Prerequisite\|\[Step\|\[Example" stages/ | gre
 - [ ] Edge cases covered
 
 [No explanation of HOW to verify each item]
-```text
+```
 
 **What's Missing:**
 - Checklist items listed
@@ -316,7 +316,7 @@ grep -rn "\[Describe\|<fill in\|\[Prerequisite\|\[Step\|\[Example" stages/ | gre
 - Pass criteria: Every spec requirement has 1+ corresponding step
 
 [Repeat for each checklist item]
-```markdown
+```
 
 **Automated:** ❌ No (requires content understanding)
 
@@ -344,7 +344,7 @@ Coming soon
 [Original file forgotten]
 
 # Day 11: Audit finds incomplete sections
-```text
+```
 
 **Why It Happens:**
 - Focus on creating files, not completing them
@@ -366,7 +366,7 @@ Coming soon
 
 ## Examples
 [10 detailed examples]
-```text
+```
 
 **After refactoring:**
 ```markdown
@@ -377,7 +377,7 @@ See examples below.
 
 [Examples extracted to reference/stage_5/examples.md]
 [Reference not updated to point to new location]
-```markdown
+```
 
 **Result:** "See examples below" but examples not present
 
@@ -401,7 +401,7 @@ See examples below.
 [content]
 
 [Missing: Advanced Topics, Troubleshooting]
-```text
+```
 
 **Why It Happens:**
 - TOC created as roadmap, not all sections implemented
@@ -419,7 +419,7 @@ cp templates/feature_spec_template.md feature_01_name/spec.md
 
 # Edit title, but forget to fill in [placeholder] fields
 # Result: Published file has template placeholders
-```text
+```
 
 **Why It Happens:**
 - Quick copy-paste workflow
@@ -461,7 +461,7 @@ if [ "$COMING_SOON" -gt 0 ]; then
   echo "⚠️  'Coming Soon' markers found: $COMING_SOON instances"
   grep -rn "Coming Soon\|⏳" stages/ 2>/dev/null | head -5
 fi
-```markdown
+```
 
 ### Script 2: TOC vs Section Validation (SHOULD ADD)
 
@@ -489,7 +489,7 @@ for file in $(grep -l "## Table of Contents" stages/**/*.md); do
     echo "  ⚠️  $file: TOC has $toc_entries entries but file has $sections sections"
   fi
 done
-```markdown
+```
 
 ### Script 3: Empty Section Detection (SHOULD ADD)
 
@@ -512,7 +512,7 @@ fi
 
 # Find very short sections (< 3 lines of content)
 # (Requires more sophisticated parsing)
-```markdown
+```
 
 ### Script 4: Root File Completeness Check (SHOULD ADD)
 
@@ -542,7 +542,7 @@ for section in "Quick Start" "The 10 Stages" "Guide Index"; do
     echo "⚠️  README.md missing section: $section"
   fi
 done
-```markdown
+```
 
 ---
 
@@ -570,7 +570,7 @@ For prompts_reference_v2.md:
 - [ ] All 10 stage prompts present
 - [ ] All special workflow prompts present (debugging, missed requirement)
 - [ ] Each prompt has: full text, when to use, expected outcome
-```markdown
+```
 
 ### Manual Validation Process
 
@@ -607,7 +607,7 @@ STEP 6: Document incomplete content
 - Note missing promised content
 - Identify template placeholders in published files
 - Add to discovery report with severity
-```text
+```
 
 **For templates:**
 
@@ -626,7 +626,7 @@ STEP 3: Validate against actual usage
 - Compare template to actual files created from it
 - Verify template has all sections users need
 - Check template isn't missing sections users had to add
-```markdown
+```
 
 ---
 
@@ -639,7 +639,7 @@ STEP 3: Validate against actual usage
 ## Prerequisites
 
 None - this is the first stage.
-```text
+```
 **Verdict:** ✅ ACCEPTABLE (brief but complete answer)
 
 **2. Forward References to Separate Files:**
@@ -647,7 +647,7 @@ None - this is the first stage.
 ## Examples
 
 See `reference/stage_5/specification_examples.md` for detailed examples.
-```text
+```
 **Verdict:** ✅ ACCEPTABLE (content exists in referenced file)
 
 **3. Work in Progress Clearly Marked:**
@@ -656,7 +656,7 @@ File: _internal/DRAFT_new_dimension.md (clearly marked as draft)
 
 ## Section 3
 Coming Soon
-```markdown
+```
 **Verdict:** ✅ ACCEPTABLE (draft file, not published)
 
 ### When Incomplete Content is Error
@@ -667,7 +667,7 @@ File: stages/s5/s5_p3_i2_gates_part1.md (published guide)
 
 ## Gate 23a Checklist
 Coming Soon
-```text
+```
 **Verdict:** ❌ ERROR (published guide, critical section incomplete)
 
 **2. Template Placeholders in Actual Files:**
@@ -676,7 +676,7 @@ File: feature_01_name/spec.md (actual feature spec, not template)
 
 ## Purpose
 [Describe the purpose of this feature]
-```text
+```
 **Verdict:** ❌ ERROR (should be filled in, not placeholder)
 
 **3. TOC Entries Without Sections:**
@@ -691,7 +691,7 @@ File: stages/s1/s1_epic_planning.md
 [content]
 
 [Missing: Discovery Phase section]
-```text
+```
 **Verdict:** ❌ ERROR (TOC promises section that doesn't exist)
 
 **4. Broken Forward References:**
@@ -701,7 +701,7 @@ Follow template. See examples below.
 
 ## Next Steps
 [No examples section]
-```markdown
+```
 **Verdict:** ❌ ERROR (promised "examples below" but not delivered)
 
 ---
@@ -724,7 +724,7 @@ File: stages/s5/s5_p1_planning_round1.md
 6. [Troubleshooting](#troubleshooting)  ← Missing in file
 
 [File has sections 1-5 but no Troubleshooting section]
-```text
+```
 
 **Analysis:**
 - TOC lists 6 sections
@@ -744,7 +744,7 @@ File: stages/s5/s5_p1_planning_round1.md
 
 # Option 2: Remove from TOC if not needed
 [Delete Troubleshooting TOC entry]
-```markdown
+```
 
 ### Example 2: Stub Section in Critical Location
 
@@ -761,7 +761,7 @@ Coming Soon - will add after testing this gate in practice
 
 ## Next
 Continue to [Gate 24](s5_p3_i3_gates_part2.md)
-```text
+```
 
 **Analysis:**
 - Gate 23a is critical validation point
@@ -786,7 +786,7 @@ Continue to [Gate 24](s5_p3_i3_gates_part2.md)
 
 **Part 2: Algorithm Detail**
 [Complete 5-part checklist]
-```markdown
+```
 
 ### Example 3: Template Placeholder in Published File
 
@@ -794,7 +794,7 @@ Continue to [Gate 24](s5_p3_i3_gates_part2.md)
 ```bash
 $ grep -rn "\[Describe the purpose" feature_01_player_fetcher/spec.md
 feature_01_player_fetcher/spec.md:8:[Describe the purpose of this feature]
-```text
+```
 
 **Analysis:**
 - File is actual feature spec (not template)
@@ -814,7 +814,7 @@ feature_01_player_fetcher/spec.md:8:[Describe the purpose of this feature]
 ## Purpose
 Enable users to fetch player data from ESPN API with configurable
 date ranges and data types (stats, projections, rankings).
-```markdown
+```
 
 ### Example 4: Forward Reference Without Content
 
@@ -833,7 +833,7 @@ see the Examples appendix at the end of this guide.
 - [S2.P2 Specification](s2_p2_specification.md)
 
 [No Examples appendix in file]
-```bash
+```
 
 **Analysis:**
 - Guide promises "Examples appendix at the end of this guide"
@@ -856,7 +856,7 @@ see `reference/stage_2/specification_examples.md`.
 
 # Option 3: Remove the promise if examples not ready
 Follow the template structure.
-```markdown
+```
 
 ### Example 5: Root File Missing Stage Details
 
@@ -867,7 +867,7 @@ $ grep "### S9:" EPIC_WORKFLOW_USAGE.md
 
 $ grep "### S10:" EPIC_WORKFLOW_USAGE.md
 [No results]
-```text
+```
 
 **Analysis:**
 - EPIC_WORKFLOW_USAGE.md advertises "Stage-by-Stage Detailed Workflows"

@@ -31,19 +31,19 @@
 ```bash
 grep -rn "8-16\|17-25" --include="*.md" . | grep -v "_audit_output" | grep -v "S5_UPDATE_NOTES"
 # Result: 0 matches ✅
-```text
+```
 
 **Pattern 2: Old gate iterations**
 ```bash
 grep -rn "Iteration 23a\|Iteration 24\|Iteration 25" --include="*.md" . | grep -v "_audit_output" | grep -v "S5_UPDATE_NOTES"
 # Result: 0 matches ✅
-```text
+```
 
 **Pattern 3: Wrong round counts**
 ```bash
 grep -rn "9 iteration.*Round 2\|10 iteration.*Round 3\|8.*iteration.*Round 1" --include="*.md" -i . | grep -v "_audit_output"
 # Result: 0 matches ✅
-```markdown
+```
 
 ---
 

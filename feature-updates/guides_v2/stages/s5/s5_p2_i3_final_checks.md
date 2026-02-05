@@ -66,7 +66,7 @@ Iteration 13-16: Final Checks (Dependencies, Gaps, Coverage, Boundary)
 - **Required:** Python 3.4+
 - **Current:** Python 3.11
 - **Compatibility:** ✅ Compatible
-```markdown
+```
 
 3. **Verify compatibility:**
    - All dependencies available ✅
@@ -96,7 +96,7 @@ After completing this iteration, check if you have questions or found answers:
 ```text
 Progress: Iteration 13/16 (Planning Round 2) complete
 Next Action: Iteration 14 - Integration Gap Check (Re-verify)
-```markdown
+```
 
 ---
 
@@ -130,7 +130,7 @@ run_league_helper.py
    → ConfigManager._validate_adp_config() ← NEW METHOD
 
 **Orphan Check:** ✅ NOT ORPHANED
-```markdown
+```
 
 3. **Verify all methods have callers:**
 
@@ -171,7 +171,7 @@ After completing this iteration, check if you have questions or found answers:
 ```text
 Progress: Iteration 14/16 (Planning Round 2) complete
 Next Action: Iteration 15 - Test Coverage Depth Check
-```markdown
+```
 
 ---
 
@@ -219,7 +219,7 @@ Next Action: Iteration 15 - Test Coverage Depth Check
 **Coverage Score:** 3/4 paths = 75% ⚠️
 
 **Action:** Add test_match_player_case_sensitivity() to TODO
-```markdown
+```
 
 3. **Calculate overall coverage:**
 
@@ -245,7 +245,7 @@ Next Action: Iteration 15 - Test Coverage Depth Check
 - test_calculate_adp_multiplier_extreme_values() (Task 22 - NEW)
 
 **Overall: ✅ PASS (>90% coverage)**
-```markdown
+```
 
 4. **Add missing test tasks to implementation_plan.md "Implementation Tasks" section:**
 
@@ -264,7 +264,7 @@ Next Action: Iteration 15 - Test Coverage Depth Check
 - [ ] Test written
 - [ ] Test passes
 - [ ] Case-insensitive matching verified
-```markdown
+```
 
 5. **Resume/Persistence Testing (if applicable):**
 
@@ -296,7 +296,7 @@ Next Action: Iteration 15 - Test Coverage Depth Check
 - [ ] Load with new code
 - [ ] Verify old data doesn't corrupt new results
 - [ ] Verify appropriate handling (migrate/ignore/error)
-```markdown
+```
 
 **Coverage Target:** If resume possible → 100% of load paths tested with old data
 
@@ -325,7 +325,7 @@ After completing this iteration, check if you have questions or found answers:
 ```text
 Progress: Iteration 15/16 (Planning Round 2) complete
 Next Action: Iteration 16 - Documentation Requirements
-```markdown
+```
 
 ---
 
@@ -375,7 +375,7 @@ Next Action: Iteration 16 - Documentation Requirements
    - Returns: None (updates self.config)
    - Raises: None
    - Example: Internal usage only
-```markdown
+```
 
 3. **Identify documentation files needing updates:**
 
@@ -395,7 +395,7 @@ Next Action: Iteration 16 - Documentation Requirements
 
 **CLAUDE.md:**
 - ❌ No updates needed (no workflow changes)
-```markdown
+```
 
 4. **Add documentation tasks to implementation_plan.md "Implementation Tasks" section:**
 
@@ -449,7 +449,7 @@ Next Action: Iteration 16 - Documentation Requirements
 - [ ] All sections complete
 - [ ] Examples provided
 - [ ] Consistent with other scoring docs
-```markdown
+```
 
 **Output:** Documentation plan, documentation tasks added to implementation_plan.md
 

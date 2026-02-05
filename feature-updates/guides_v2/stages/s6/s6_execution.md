@@ -118,7 +118,7 @@ S6 is complete when all implementation tasks from implementation_plan.md are imp
    - Must be created BEFORE writing ANY code
    - Track progress in real-time as you implement
    - Historical case: Agent skipped checklist creation, caught in QC Round 1
-```markdown
+```
 
 ---
 
@@ -181,7 +181,7 @@ Step 4: Final Verification
 
 Mark S6 Complete
    └─ Update feature README.md
-```markdown
+```
 
 ---
 
@@ -203,7 +203,7 @@ External Dependencies to Verify:
 2. csv_utils.read_csv_with_validation(filepath, required_columns)
 3. FantasyPlayer class (will add fields)
 4. PlayerManager.load_players() (will modify)
-```markdown
+```
 
 2. **For EACH dependency, READ actual source code:**
 
@@ -212,7 +212,7 @@ External Dependencies to Verify:
 ```bash
 # Example: Verify ConfigManager.get_adp_multiplier
 code league_helper/util/ConfigManager.py:234
-```markdown
+```
 
 3. **Copy-paste EXACT signature:**
 
@@ -232,7 +232,7 @@ def get_adp_multiplier(self, adp: int) -> Tuple[float, int]:
     """
     # ... implementation
     return (multiplier, rating)
-```markdown
+```
 
 4. **Document in interface contract table:**
 
@@ -252,7 +252,7 @@ Create `feature_{N}_{name}_interface_contracts.md`:
 **Source:** league_helper/util/ConfigManager.py:234
 
 **Signature:**
-```python
+```
 def get_adp_multiplier(self, adp: int) -> Tuple[float, int]
 ```markdown
 
@@ -270,7 +270,7 @@ def get_adp_multiplier(self, adp: int) -> Tuple[float, int]
 - None documented (handles invalid input internally)
 
 **Example Usage Found:**
-```python
+```
 # league_helper/util/PlayerManager.py:456
 multiplier, rating = self.config.get_adp_multiplier(player_adp)
 ```markdown
@@ -282,7 +282,7 @@ multiplier, rating = self.config.get_adp_multiplier(player_adp)
 ## Interface 2: csv_utils.read_csv_with_validation
 
 {Repeat for each interface}
-```markdown
+```
 
 5. **Verify assumptions match reality:**
 
@@ -389,7 +389,7 @@ Read spec.md sections:
 **Remaining:** {Count of [ ] items}
 
 **Last Updated:** {YYYY-MM-DD HH:MM}
-```markdown
+```
 
 **Output:** implementation_checklist.md created, ready for real-time updates
 
@@ -449,7 +449,7 @@ Read spec.md sections:
 - [ ] Handles FileNotFoundError gracefully
 - [ ] Validates CSV has required columns: Name, Position, ADP
 - [ ] Logs number of rows loaded
-```markdown
+```
 
 **Implement:**
 
@@ -498,7 +498,7 @@ def load_adp_data(self) -> List[Tuple[str, str, int]]:
         # Unexpected error
         self.logger.error(f"Error loading ADP data: {e}", exc_info=True)
         return []
-```markdown
+```
 
 **Verify against spec:**
 - ✅ Loads from data/rankings/adp.csv (spec requirement)
@@ -513,7 +513,7 @@ def load_adp_data(self) -> List[Tuple[str, str, int]]:
 - [x] **REQ-1:** Load ADP data from data/rankings/adp.csv
   - Implemented: PlayerManager.load_adp_data()
   - Verified: 2025-12-30 15:45 (matches spec exactly)
-```markdown
+```
 
 3. **Continue for all tasks in phase**
 
@@ -527,7 +527,7 @@ def load_adp_data(self) -> List[Tuple[str, str, int]]:
 # Run tests for Phase 1 (Data Loading)
 python -m pytest tests/league_helper/util/test_PlayerManager_adp.py::test_load_adp_data_success -v
 python -m pytest tests/league_helper/util/test_PlayerManager_adp.py::test_load_adp_data_file_not_found -v
-```markdown
+```
 
 2. **Verify 100% pass rate:**
 
@@ -536,7 +536,7 @@ tests/league_helper/util/test_PlayerManager_adp.py::test_load_adp_data_success P
 tests/league_helper/util/test_PlayerManager_adp.py::test_load_adp_data_file_not_found PASSED
 
 ========================= 2 passed in 0.15s =========================
-```bash
+```
 
 **✅ All tests passed - proceed to mini-QC**
 
@@ -557,7 +557,7 @@ Add to feature README.md:
 - Tests passed: 2
 - Pass rate: 100%
 - Status: ✅ PASSED
-```markdown
+```
 
 #### 3.4: Mini-QC Checkpoint
 
@@ -581,7 +581,7 @@ adp_data = pm.load_adp_data()
 print(f"Loaded {len(adp_data)} ADP rankings")
 print(f"First entry: {adp_data[0]}")
 # Expected: Loaded 200+ rankings, First entry valid tuple
-```bash
+```
 
 **If mini-QC passes:**
 - ✅ Proceed to next phase
@@ -624,7 +624,7 @@ Each phase:
 **Backward Compatibility:**
 - If key missing in old config: Use default value (empty dict)
 - Code handles missing key: Yes (get with default)
-  ```python
+  ```
   adp_ranges = config.get("adp_multiplier_ranges", {})
   ```markdown
 
@@ -639,7 +639,7 @@ Each phase:
 **Verification:**
 - [x] Tested with old config (key missing) - works
 - [x] Tested with new config (key present) - works
-```markdown
+```
 
 2. **Check ALL consumers of config:**
 
@@ -647,7 +647,7 @@ Search for all code that reads this config:
 
 ```bash
 grep -r "adp_multiplier_ranges" --include="*.py"
-```markdown
+```
 
 Verify each consumer handles both old and new config.
 
@@ -662,7 +662,7 @@ Verify each consumer handles both old and new config.
 ```bash
 # Find all callers of method you're modifying
 grep -r "\.load_players()" --include="*.py"
-```markdown
+```
 
 2. **Verify change is backward compatible:**
    - Adding optional parameter? ✅ Safe
@@ -706,7 +706,7 @@ Check implementation_plan.md:
 **Remaining:** 0
 
 ✅ All tasks complete
-```markdown
+```
 
 ### 4.2: Verify All Tests Passing
 
@@ -716,13 +716,13 @@ Run complete test suite for this feature:
 # Run ALL tests for this feature
 python -m pytest tests/league_helper/util/test_PlayerManager_adp.py -v
 python -m pytest tests/integration/test_adp_integration.py -v
-```markdown
+```
 
 **Required:** 100% pass rate
 
 ```bash
 ========================= 25 passed in 2.15s =========================
-```markdown
+```
 
 ### 4.3: Verify All Requirements Checked Off
 
@@ -736,7 +736,7 @@ Check implementation_checklist.md:
 **Remaining:** 0
 
 ✅ All requirements implemented and verified
-```markdown
+```
 
 ### 4.4: Final Smoke Test
 
@@ -745,7 +745,7 @@ Run feature end-to-end:
 ```bash
 python run_league_helper.py --mode draft
 # Verify: Loads ADP data, calculates scores, generates recommendations
-```markdown
+```
 
 **Expected:** No errors, feature works end-to-end
 

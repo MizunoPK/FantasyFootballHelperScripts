@@ -114,7 +114,7 @@ grep -n "\bS[0-9][a-z]\b\|Stage [0-9][a-z]" README.md EPIC_WORKFLOW_USAGE.md pro
 grep -n "S[0-9]\.[A-Z]" README.md | head -5  # Shows new notation
 grep -n "S[0-9][a-z]" README.md | head -5    # Shows old notation
 # If both return results → mixed notation issue
-```text
+```
 
 **Historical Issue:**
 - D2 scripts searched `guides_v2/` BUT primary focus was on stages/ directory
@@ -131,7 +131,7 @@ grep -n "S[0-9][a-z]" README.md | head -5    # Shows old notation
 "5a", "5b", "5c", "5d", "5e"
 "Round 1", "Round 2", "Round 3" (when should be S5.P1, S5.P2, S5.P3)
 "STAGE_5a", "STAGE_6b" (all caps variants)
-```text
+```
 
 **Search Commands:**
 
@@ -150,7 +150,7 @@ grep -rn "STAGE_[0-9][a-z]" --include="*.md"
 
 # Without S prefix
 grep -rn "\b[0-9][a-z]\b" --include="*.md" | grep -v "S[0-9]"
-```markdown
+```
 
 ### Type 2: Incorrect Hierarchy Usage
 
@@ -160,7 +160,7 @@ grep -rn "\b[0-9][a-z]\b" --include="*.md" | grep -v "S[0-9]"
 Using "Stage" for phase level: "Stage 5.P1" → Should be "S5.P1"
 Using "Phase" for iteration level: "Phase 5.1.1" → Should be "S5.P1.I1"
 Using "Round" for phase: "Round 1" → Should be "S5.P1" or just "P1"
-```text
+```
 
 **Search Commands:**
 
@@ -173,7 +173,7 @@ grep -rn "Phase [0-9]\.[0-9]\.[0-9]" --include="*.md"
 
 # "Round" as hierarchy (context-dependent)
 grep -rn "Round [0-9]" --include="*.md"
-```markdown
+```
 
 ### Type 3: Formatting Inconsistencies
 
@@ -184,7 +184,7 @@ Missing dots: "S5P1" → Should be "S5.P1"
 Wrong separators: "S5-P1" → Should be "S5.P1"
 Spaces: "S5 P1" → Should be "S5.P1"
 Lowercase: "s5.p1" → Should be "S5.P1"
-```text
+```
 
 **Search Commands:**
 
@@ -200,7 +200,7 @@ grep -rn "S[0-9] [A-Z][0-9]" --include="*.md"
 
 # Lowercase
 grep -rn "s[0-9]\.p[0-9]" --include="*.md"
-```markdown
+```
 
 ### Type 4: File Name Convention Violations
 
@@ -210,7 +210,7 @@ grep -rn "s[0-9]\.p[0-9]" --include="*.md"
 Missing s# prefix: "epic_planning.md" → Should be "s1_epic_planning.md"
 Wrong separator: "s5-p1-planning.md" → Should be "s5_p1_planning.md"
 Mixed case: "S5_Planning.md" → Should be "s5_planning.md"
-```text
+```
 
 **Search Commands:**
 
@@ -223,7 +223,7 @@ find stages -name "*-*-*.md"
 
 # Find files with capital letters
 find stages -name "*[A-Z]*.md"
-```markdown
+```
 
 ---
 
@@ -238,7 +238,7 @@ find stages -name "*[A-Z]*.md"
 All instances of "5a" → "S5.P1"
 All instances of "5b" → "S5.P2"
 All instances of "5c" → "S5.P3"
-```text
+```
 
 **What Happens:**
 ```bash
@@ -252,7 +252,7 @@ sed -i 's/5a/S5.P1/g' *.md
 # - "S5a" (with S prefix already)
 # - "back to 5a" (in sentence)
 # - "5a_planning.md" (in file names)
-```markdown
+```
 
 **Result:** 60% updated, 40% stragglers
 
@@ -279,7 +279,7 @@ File A: "spec" (abbreviated)
 File B: "specification" (full)
 File C: "spec.md" (file reference)
 File D: "Spec" (capitalized in header)
-```markdown
+```
 
 **Problem:** Should standardize on one form
 
@@ -317,7 +317,7 @@ grep -rn "\b[5-9][a-z]\b" --include="*.md" guides_v2/ | grep -v "S[0-9]"
 # All caps variants
 echo "Checking for STAGE_Xa patterns..."
 grep -rn "STAGE_[0-9][a-z]" --include="*.md" guides_v2/
-```markdown
+```
 
 ### Script 2: Validate Notation Format
 
@@ -339,7 +339,7 @@ grep -rn "S[0-9]-[A-Z]" --include="*.md" guides_v2/
 # Check for spaces
 echo "Checking for S# P# (spaces)..."
 grep -rn "S[0-9] [A-Z][0-9]" --include="*.md" guides_v2/
-```markdown
+```
 
 ### Script 3: File Name Validation
 
@@ -358,7 +358,7 @@ find guides_v2/stages -name "*-*-*.md" -print
 
 # Should be lowercase
 find guides_v2/stages -name "*[A-Z]*.md" ! -name "README.md" -print
-```markdown
+```
 
 ---
 
@@ -383,7 +383,7 @@ for file in README.md EPIC_WORKFLOW_USAGE.md prompts_reference_v2.md; do
   grep -n "Last Updated" "$file" 2>/dev/null | head -1
   echo ""
 done
-```text
+```
 
 **Red Flags:**
 - Last Updated > 1 month old = likely missed during recent changes
@@ -432,7 +432,7 @@ STEP 3: Identify inconsistencies
 STEP 4: Update to preferred form
 - Replace casual "spec" with "specification"
 - Exception: file names (spec.md stays as is)
-```markdown
+```
 
 ---
 
@@ -451,19 +451,19 @@ STEP 4: Update to preferred form
 **New notation (v2.0+):**
 - S5.P1 → Implementation Planning
 - S6 → Execution
-```text
+```
 **Verdict:** ✅ ACCEPTABLE (clearly labeled as historical)
 
 **2. Migration Guides:**
 ```markdown
 If you see "S5a" in old epics, update to "S5.P1"
-```text
+```
 **Verdict:** ✅ ACCEPTABLE (teaching migration)
 
 **3. User Quotes:**
 ```markdown
 User reported: "Can't find Stage 5a in documentation"
-```markdown
+```
 **Verdict:** ✅ ACCEPTABLE (quoting user input)
 
 ### Always Errors
@@ -473,20 +473,20 @@ User reported: "Can't find Stage 5a in documentation"
 **1. Current Documentation:**
 ```markdown
 Next, proceed to S5a for implementation planning
-```text
+```
 **Verdict:** ❌ ERROR (should be S5.P1 or S5)
 
 **2. File Names:**
 ```text
 s5a_planning.md
-```text
+```
 **Verdict:** ❌ ERROR (should be s5_p1_planning.md)
 
 **3. Prerequisites:**
 ```markdown
 ## Prerequisites
 - S5a complete
-```markdown
+```
 **Verdict:** ❌ ERROR (should be S5.P1)
 
 ---
@@ -499,14 +499,14 @@ s5a_planning.md
 ```text
 Pattern: \bS[5-9]a\b
 Instances: 60+ across 30+ files
-```text
+```
 
 **Sample Matches:**
 ```text
 stages/s5/s5_bugfix_workflow.md:45: "After S5a complete"
 stages/s8/s8_p1_cross_feature_alignment.md:67: "Return to S5a"
 templates/epic_readme_template.md:123: "Current: S6a"
-```text
+```
 
 **Analysis:**
 - All are current workflow references (not historical)
@@ -519,13 +519,13 @@ templates/epic_readme_template.md:123: "Current: S6a"
 sed -i 's/\bS5a\b/S5/g; s/\bS6a\b/S6/g; s/\bS7a\b/S7/g; \
         s/\bS8a\b/S8/g; s/\bS9a\b/S9/g' \
   stages/**/*.md templates/*.md reference/*.md
-```text
+```
 
 **Verification:**
 ```bash
 $ grep -rn "\bS[5-9]a\b" --include="*.md"
 # 0 matches
-```markdown
+```
 
 ### Example 2: Wrong Hierarchy Level
 
@@ -534,7 +534,7 @@ $ grep -rn "\bS[5-9]a\b" --include="*.md"
 File: stages/s2/s2_feature_deep_dive.md
 Line: 45
 Content: "Stage 2.P1 - Research Phase"
-```text
+```
 
 **Analysis:**
 - Used "Stage" with phase notation
@@ -545,19 +545,19 @@ Content: "Stage 2.P1 - Research Phase"
 ```bash
 sed -i 's/Stage \([0-9]\)\.\([A-Z][0-9]\)/S\1.\2/g' \
   stages/s2/s2_feature_deep_dive.md
-```text
+```
 
 **Result:**
 ```text
 S2.P1 - Research Phase
-```markdown
+```
 
 ### Example 3: File Name Convention
 
 **Issue Found:**
 ```text
 File: stages/s5/round1_planning.md
-```text
+```
 
 **Analysis:**
 - Missing s5_ prefix
@@ -572,7 +572,7 @@ git mv stages/s5/round1_planning.md stages/s5/s5_p1_planning_round1.md
 # Update all references
 sed -i 's|stages/s5/round1_planning\.md|stages/s5/s5_p1_planning_round1.md|g' \
   stages/**/*.md
-```markdown
+```
 
 ### Example 4: Root File Mixed Notation (High Priority)
 
@@ -580,7 +580,7 @@ sed -i 's|stages/s5/round1_planning\.md|stages/s5/s5_p1_planning_round1.md|g' \
 ```markdown
 File: feature-updates/guides_v2/README.md
 Last Updated: 2025-12-30 (over 1 month stale)
-```text
+```
 
 **Search Results:**
 ```bash
@@ -589,7 +589,7 @@ $ grep -n "S[0-9][a-z]\|S[0-9]\.[A-Z]" README.md | head -10
 88:New workflow: S5.P1 → S5.P2 → S5.P3
 92:   Flesh out spec.md for each feature
 156:STAGE 2: Feature Deep Dives (Loop per feature)
-```text
+```
 
 **Analysis:**
 - **CRITICAL** - README.md is main entry point (referenced in CLAUDE.md)
@@ -615,7 +615,7 @@ sed -i 's/S[0-9][a-z]\>/S5.P1/g' README.md  # Update remaining old notation
 
 # Update Last Updated field
 sed -i 's/Last Updated:.*$/Last Updated: 2026-02-04/g' README.md
-```text
+```
 
 **Why This Was Missed:**
 - D2 scripts searched `guides_v2/` BUT agents focused on stages/ directory
@@ -642,7 +642,7 @@ grep -rn " S[0-9][a-z]"              # S5a (with space before)
 grep -rn "back to [0-9][a-z]"        # Context phrases
 grep -rn "restart [0-9][a-z]"
 grep -rn "proceed to [0-9][a-z]"
-```text
+```
 
 **After stage renumbering (S6→S9, S7→S10):**
 

@@ -10,7 +10,7 @@
 S9.P1 (Epic Smoke Testing) →
 → [YOU ARE HERE: S9.P2 - Epic QC Rounds] →
 → S9.P3 (User Testing) → S9.P4 (Epic Final Review) → S10
-```markdown
+```
 
 ---
 
@@ -100,7 +100,7 @@ Epic QC Rounds are complete when all 3 rounds pass with zero critical issues, al
    - Update epic_lessons_learned.md after each round
    - Include: Issues found, fixes applied, status
    - Serves as evidence of thorough QC
-```markdown
+```
 
 **Universal rules (from pattern file):**
 - All 3 rounds mandatory
@@ -174,7 +174,7 @@ Round 3: End-to-End Success Criteria (10-20 min)
    ↓
    If PASS → Epic QC complete, proceed to S6c
    If CRITICAL FAILURES → Fix, RESTART from S6
-```markdown
+```
 
 ---
 
@@ -212,7 +212,7 @@ Round 3: End-to-End Success Criteria (10-20 min)
 2. Feature 02 (RatingSystem) → Feature 03 (RecommendationEngine)
    - Data flow: Rated players → Recommendation generation
    - Interface: get_rated_players() returns List[RatedPlayer]
-```markdown
+```
 
 **For EACH integration point, verify:**
 
@@ -238,7 +238,7 @@ assert len(rated_players) == len(players), "Data lost in integration"
 assert all(hasattr(p, 'rating') for p in rated_players), "Ratings not applied"
 
 print("✅ Feature 01 → Feature 02 integration validated")
-```markdown
+```
 
 **Check ALL integration points** (not just one example)
 
@@ -270,7 +270,7 @@ assert 'rating' in recommendations[0], "Lost rating data"
 assert 'draft_position' in recommendations[0], "Missing final output"
 
 print("✅ Complete data flow validated")
-```markdown
+```
 
 ---
 
@@ -294,7 +294,7 @@ assert result is not None, "Feature 02 rejected Feature 01 format"
 assert hasattr(result, 'rating'), "Feature 02 didn't add rating"
 
 print("✅ Interface compatibility verified")
-```markdown
+```
 
 ---
 
@@ -313,7 +313,7 @@ try:
 except ValueError as e:
     assert "Invalid player data" in str(e), "Error message unclear"
     print("✅ Error propagation works")
-```markdown
+```
 
 ---
 
@@ -381,7 +381,7 @@ from feature_02.RatingSystem import RatingSystem
 
 # Feature 03 sample
 from feature_03.RecommendationEngine import RecommendationEngine
-```python
+```
 
 **Check consistency:**
 - ✅ Import style consistent (absolute vs relative)
@@ -410,7 +410,7 @@ from feature_03.RecommendationEngine import RecommendationEngine
 # If different, decide:
 # - Critical (confusing, breaks expectations) → RESTART
 # - Minor (just different, still clear) → Document, accept
-```markdown
+```
 
 ---
 
@@ -438,7 +438,7 @@ try:
     settings = load_settings()
 except FileNotFoundError:
     return None  # ❌ Different (returns None vs raises error)
-```markdown
+```
 
 **Verify:**
 - ✅ All features use same error hierarchy
@@ -531,7 +531,7 @@ User Goal 2: "Allow users to adjust rating multipliers"
 
 User Goal 3: "Generate top 200 ranked players"
 ✅ Verified: Feature 03 outputs exactly 200 ranked players
-```markdown
+```
 
 **If ANY goal not met:**
 - Critical → Create bug fix, RESTART S6
@@ -554,7 +554,7 @@ User Goal 3: "Generate top 200 ranked players"
 
 3. Top player in each position has rating > 0.8
    ✅ Verified: QB top=0.92, RB top=0.88, WR top=0.90, TE top=0.85, K top=0.82, DST top=0.87
-```markdown
+```
 
 **All criteria must be met 100%**
 
@@ -575,7 +575,7 @@ python run_script.py --generate-recs      # Feature 03
 # - Clear progress indicators
 # - Expected output files created
 # - Help text accurate
-```markdown
+```
 
 ---
 
@@ -598,7 +598,7 @@ elapsed = time.time() - start
 assert elapsed < 60.0, f"Epic workflow too slow: {elapsed}s (expected <60s)"
 
 print(f"✅ Epic workflow completed in {elapsed:.2f}s")
-```markdown
+```
 
 ---
 

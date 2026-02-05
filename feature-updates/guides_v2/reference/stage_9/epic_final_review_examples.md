@@ -40,7 +40,7 @@ GOOD: Comparing code quality ACROSS all features (consistency check)
 
 BAD: Checking if Feature 01 has unit tests
 GOOD: Checking if epic-level integration tests exist (cross-feature scenarios)
-```markdown
+```
 
 ---
 
@@ -72,7 +72,7 @@ GOOD:
 - RESTART S9 from S9.P1 (smoke testing)
 - Re-run S9.P1, 6b, S9.P3 (all steps)
 - Only then proceed to S10
-```markdown
+```
 
 ---
 
@@ -104,7 +104,7 @@ GOOD:
   - Feature 02: MatchupManager ✅
   - Feature 03: PerformanceTracker ✅
   - Design pattern: Manager pattern used consistently ✅
-```markdown
+```
 
 ---
 
@@ -135,7 +135,7 @@ GOOD:
 - Epic delivered all 3 ✅
 - No undocumented features added ✅
 - Mark Scope & Changes as PASS
-```markdown
+```
 
 ---
 
@@ -165,7 +165,7 @@ GOOD:
 Issue: Feature 01 uses Manager pattern, Feature 02 uses functions
 Priority: HIGH (architectural inconsistency, maintainability impact)
 Action: Create bugfix_high_architecture_inconsistency
-```markdown
+```
 
 ---
 
@@ -198,7 +198,7 @@ GOOD:
   **Issues Found:** 0
 - Update EPIC_README.md: "Epic PR review: ✅ PASSED"
 - Proceed to Step 8
-```markdown
+```
 
 ---
 
@@ -238,7 +238,7 @@ Step 8.1: Verification Checklist
 → Re-run all steps
 → Re-verify checklist (all items ✅)
 → Then proceed to S10
-```markdown
+```
 
 ---
 
@@ -276,7 +276,7 @@ matchup_diff = matchup_mgr.get_matchup_difficulty("Patrick Mahomes", week=5)
 final_score = player.score * adp_mult * matchup_diff
 # Verify: 300 * 1.2 * 0.9 = 324
 assert 320 <= final_score <= 330, "Integration calculation incorrect"
-```markdown
+```
 
 **Result:** ✅ PASS (all cross-feature workflows correct)
 
@@ -299,7 +299,7 @@ def get_matchup_difficulty(player_name: str, week: int) -> float:  # ❌ Standal
 class PerformanceTracker:  # ✅ Manager pattern
     def __init__(self, data_folder: Path):
         self.data_folder = data_folder
-```markdown
+```
 
 **Result:** ❌ FAIL - Architectural inconsistency
 
@@ -342,7 +342,7 @@ class PerformanceTracker:  # ✅ Manager pattern
 - Fix Required: Refactor Feature 02 to MatchupManager class
 
 **Next Action:** Create bug fix, then RESTART S9
-```markdown
+```
 
 ---
 
@@ -362,7 +362,7 @@ class PerformanceTracker:  # ✅ Manager pattern
 - **Root Cause:** Different implementation approach for Feature 02
 - **Fix Required:** Refactor Feature 02 to MatchupManager class
 - **Priority:** high
-```markdown
+```
 
 **Step 7.2: Determine Priority**
 
@@ -371,7 +371,7 @@ class PerformanceTracker:  # ✅ Manager pattern
 
 **HIGH priority (create bug fixes now):**
 - Issue 1: Architectural inconsistency → bugfix_high_architecture_inconsistency
-```markdown
+```
 
 **Step 7.3: Present to User**
 
@@ -387,7 +387,7 @@ I found 1 issue during S9.P3 Epic PR Review that requires a bug fix:
 After fixing, I'll RESTART S9 from S9.P1.
 
 Should I proceed?
-```markdown
+```
 
 **Step 7.4: Create Bug Fix**
 
@@ -397,7 +397,7 @@ bugfix_high_architecture_inconsistency/
 ├── spec.md (bug fix specification)
 ├── implementation_plan.md (refactoring tasks)
 └── lessons_learned.md (what we learned)
-```markdown
+```
 
 **Run through:** S2 → S5 → S6 → S7 (bug fix complete)
 
@@ -420,7 +420,7 @@ bugfix_high_architecture_inconsistency/
   - Architecture category now PASSED (all features use Manager pattern)
 
 **Result:** S9 complete after restart (no new issues)
-```markdown
+```
 
 ---
 
@@ -443,7 +443,7 @@ bugfix_high_architecture_inconsistency/
 - ✅ ALL tests passing (2247/2247 tests)
 
 **Result:** S9 verification PASSED
-```markdown
+```
 
 **Step 8.2: Update EPIC_README.md**
 
@@ -458,7 +458,7 @@ bugfix_high_architecture_inconsistency/
 - Bug fixes completed: 1
 - S9 restarts: 1 (after bug fix)
 - Date completed: 2025-01-02
-```markdown
+```
 
 **Step 8.3: Update epic_lessons_learned.md**
 
@@ -479,7 +479,7 @@ bugfix_high_architecture_inconsistency/
 - Establish architectural patterns early (S2)
 - Document patterns in EPIC_README.md
 - Review architectural consistency after EACH feature (S8.P1)
-```markdown
+```
 
 **Step 8.4: Update Agent Status**
 

@@ -133,7 +133,7 @@ Prerequisites Met?
               │
               ▼
         Ready for S10
-```markdown
+```
 
 ---
 
@@ -184,7 +184,7 @@ Prerequisites Met?
    - All 8 steps of S9 must be complete
    - No pending issues or bug fixes
    - EPIC_README.md must show S9 complete
-```markdown
+```
 
 ---
 
@@ -282,7 +282,7 @@ Prerequisites Met?
    ```text
    Location: KAI-{N}-{epic_name}/pr_review_issues.md
    Purpose: Track issues discovered during PR review rounds
-   ```markdown
+   ```
 
 2. **Launch Round 1a (Code Quality - Fresh Agent):**
    - Code Quality (Epic Level)

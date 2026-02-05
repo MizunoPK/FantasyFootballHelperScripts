@@ -129,7 +129,7 @@ grep -A 50 "Stage-by-Stage" feature-updates/guides_v2/EPIC_WORKFLOW_USAGE.md > /
 # Compare for similarity
 diff /tmp/claude_workflow.txt /tmp/readme_workflow.txt
 diff /tmp/readme_workflow.txt /tmp/usage_workflow.txt
-```text
+```
 
 **Recommendation:**
 - CLAUDE.md: High-level overview (3-5 sentences per stage)
@@ -161,7 +161,7 @@ Same content appears verbatim in multiple files.
 3. Update Agent Status after each phase
 4. Zero tech debt tolerance
 5. Fix all issues immediately
-```text
+```
 
 **File B (stages/s6/s6_execution.md):**
 ```markdown
@@ -172,7 +172,7 @@ Same content appears verbatim in multiple files.
 3. Update Agent Status after each phase
 4. Zero tech debt tolerance
 5. Fix all issues immediately
-```text
+```
 
 **Problem:** Exact duplicate - if rules change, must update both files.
 
@@ -191,7 +191,7 @@ for header in "Critical Rules" "Common Mistakes" "Exit Criteria"; do
   # For each pair, compare content
   # (Manual comparison needed for semantic understanding)
 done
-```text
+```
 
 **Validation Process:**
 
@@ -221,14 +221,14 @@ Content is nearly identical with minor wording variations.
 ## Testing Requirements
 
 All code must be tested before committing. Run the full test suite and ensure 100% pass rate. Never commit failing tests.
-```text
+```
 
 **File B:**
 ```markdown
 ## Testing Requirements
 
 All code should be tested before committing. Run the complete test suite and verify 100% pass rate. Do not commit failing tests.
-```text
+```
 
 **Similarity:** ~90% (must→should, full→complete, ensure→verify, Never→Do not)
 
@@ -250,7 +250,7 @@ for file1 in stages/s*/*.md; do
     fi
   done
 done
-```text
+```
 
 **Manual Detection:**
 ```bash
@@ -258,7 +258,7 @@ done
 grep -rh "^## Testing Requirements\|^## Quality Standards" stages/ > /tmp/testing_sections.txt
 
 # Manually review for near-duplicates
-```text
+```
 
 **Red Flags:**
 - Same meaning expressed with different words
@@ -286,7 +286,7 @@ Create branch: `git checkout -b epic/KAI-{number}`
 
 Branch naming format: {work_type}/KAI-{number}
 Where work_type is: epic, feat, or fix
-```text
+```
 
 **S10 Guide:**
 ```markdown
@@ -296,7 +296,7 @@ First, ensure you're on correct branch: `git checkout -b epic/KAI-{number}`
 
 Branch naming format: {work_type}/KAI-{number}
 Where work_type is: epic, feat, or fix
-```text
+```
 
 **Problem:** Branch naming rules duplicated. Should reference GIT_WORKFLOW.md instead.
 
@@ -310,7 +310,7 @@ Create branch following git workflow conventions.
 See `reference/GIT_WORKFLOW.md` for branch naming format.
 
 Command: `git checkout -b epic/KAI-{number}`
-```text
+```
 
 **S10 Guide:**
 ```markdown
@@ -318,7 +318,7 @@ Command: `git checkout -b epic/KAI-{number}`
 
 Follow git workflow for PR creation.
 See `reference/GIT_WORKFLOW.md` for complete process.
-```text
+```
 
 **Detection:**
 ```bash
@@ -336,7 +336,7 @@ for instruction in "${common_instructions[@]}"; do
   grep -rn "$instruction" stages/ | wc -l
   # If count > 3, may be redundant duplication
 done
-```text
+```
 
 **Red Flags:**
 - Same how-to instructions in 5+ files
@@ -362,7 +362,7 @@ Same examples used in multiple guides instead of referencing common examples.
 **Cause:** Missing import statement
 **Solution:** Add `import pandas as pd`
 **Result:** Code executes successfully
-```text
+```
 
 **S7 Guide:**
 ```markdown
@@ -372,7 +372,7 @@ Same examples used in multiple guides instead of referencing common examples.
 **Cause:** Missing import statement
 **Solution:** Add `import pandas as pd`
 **Result:** Tests pass
-```text
+```
 
 **Problem:** Same example duplicated with slight context changes.
 
@@ -381,12 +381,12 @@ Same examples used in multiple guides instead of referencing common examples.
 **Create shared examples file:**
 ```text
 reference/common_examples.md
-```text
+```
 
 **S5 and S7 both reference:**
 ```markdown
 See `reference/common_examples.md` → "Missing Import Error" for debugging approach.
-```text
+```
 
 **Detection:**
 ```bash
@@ -395,7 +395,7 @@ grep -rn "^### Example\|^## Example" stages/ > /tmp/all_examples.txt
 
 # Manually review for duplicates
 # Look for same scenario, problem, solution patterns
-```text
+```
 
 **Red Flags:**
 - Same scenario described in multiple examples
@@ -426,7 +426,7 @@ Before starting this stage:
 - [ ] Verify prerequisites checklist
 - [ ] Update Agent Status in README
 - [ ] THEN proceed with work
-```text
+```
 
 **If this appears in 10 stage guides identically, it's duplication.**
 
@@ -435,7 +435,7 @@ Before starting this stage:
 **Create shared prerequisite template:**
 ```text
 reference/standard_prerequisites.md
-```text
+```
 
 **Stage guides reference:**
 ```markdown
@@ -448,7 +448,7 @@ See `reference/standard_prerequisites.md` for standard workflow prerequisites.
 - [ ] Completed S4
 - [ ] test_strategy.md exists
 - [ ] User approved epic plan (Gate 4.5)
-```text
+```
 
 **Detection:**
 ```bash
@@ -460,7 +460,7 @@ for file in stages/**/*.md; do
   # For each section, compare to sections in other files
   # (Requires tooling or manual review)
 done
-```text
+```
 
 **Red Flags:**
 - Same 50+ line section in 5+ files
@@ -488,7 +488,7 @@ Same reference lists (See Also, Additional Resources) duplicated across files.
 - `reference/common_mistakes.md` - Anti-pattern reference
 - `reference/GIT_WORKFLOW.md` - Git branching workflow
 - `CODING_STANDARDS.md` - Coding standards
-```text
+```
 
 **Problem:** Duplicated reference lists. If new reference added, must update all files.
 
@@ -497,7 +497,7 @@ Same reference lists (See Also, Additional Resources) duplicated across files.
 **Create master reference index:**
 ```text
 reference/REFERENCE_INDEX.md
-```text
+```
 
 **Guides reference index:**
 ```markdown
@@ -508,7 +508,7 @@ See `reference/REFERENCE_INDEX.md` for complete reference list.
 **Stage-Specific:**
 - `stages/s6/s6_execution.md` - Implementation guide
 - `stages/s7/s7_testing.md` - Testing guide
-```text
+```
 
 **Detection:**
 ```bash
@@ -517,7 +517,7 @@ grep -A 10 "^## See Also" stages/**/*.md > /tmp/see_also_sections.txt
 
 # Compare for duplication
 # Count unique vs total
-```text
+```
 
 **Red Flags:**
 - Same reference list in 5+ files
@@ -544,7 +544,7 @@ Templates create duplicates by design - content appears in all instances.
 1. Forgetting to run tests
 2. Skipping user approval
 3. Not updating Agent Status
-```text
+```
 
 **Every feature spec has this section.**
 
@@ -567,7 +567,7 @@ Templates create duplicates by design - content appears in all instances.
 common_sections=$(grep -rh "^## Common Pitfalls" feature-updates/KAI-*/feature_*/spec.md | sort | uniq)
 
 # If all identical, template content not being customized
-```text
+```
 
 **Recommendation:**
 
@@ -580,7 +580,7 @@ common_sections=$(grep -rh "^## Common Pitfalls" feature-updates/KAI-*/feature_*
 [List feature-specific pitfalls here]
 
 **See:** `reference/common_pitfalls.md` for general pitfalls
-```text
+```
 
 **Red Flags:**
 - Template creates non-customizable boilerplate
@@ -690,7 +690,7 @@ for header in $headers; do
     done
   done
 done
-```text
+```
 
 **CHECK 20: Instruction Duplication Count** *(planned, not yet implemented)*
 ```bash
@@ -715,7 +715,7 @@ for pattern in "${patterns[@]}"; do
     echo "  Consider creating reference file"
   fi
 done
-```text
+```
 
 **Automation Coverage: ~50%**
 - ✅ Exact duplicate detection
@@ -746,7 +746,7 @@ grep -rh "^## " stages/ reference/ | sort | uniq -c | sort -rn | head -30
 # - Common Mistakes
 # - Examples
 # - See Also
-```text
+```
 
 **For each common section:**
 1. Note how many files contain it
@@ -767,7 +767,7 @@ done > /tmp/critical_rules_comparison.txt
 
 # Manually review for duplicates
 cat /tmp/critical_rules_comparison.txt
-```text
+```
 
 **Questions to ask:**
 - Is content identical across files?
@@ -794,7 +794,7 @@ for instr in "${instructions[@]}"; do
   echo "Total occurrences: $count"
   echo ""
 done
-```text
+```
 
 **For high-count instructions:**
 - Check if same text appears in multiple places
@@ -810,7 +810,7 @@ grep -B 2 -A 10 "^### Example" stages/**/*.md > /tmp/all_examples.txt
 # - Same scenario in multiple examples
 # - Same code snippets
 # - Same problem-solution pairs
-```python
+```
 
 **Create spreadsheet:**
 
@@ -853,7 +853,7 @@ For each duplicate found:
 ## Critical Rule
 
 NEVER commit without running tests first. 100% test pass rate required.
-```text
+```
 
 **Evaluation:**
 - Is rule truly critical? (commits without tests = high risk)
@@ -869,7 +869,7 @@ NEVER commit without running tests first. 100% test pass rate required.
 [NOTE: Intentionally duplicated across S5-S7 for emphasis]
 
 NEVER commit without running tests first. 100% test pass rate required.
-```markdown
+```
 
 ---
 
@@ -886,7 +886,7 @@ NEVER commit without running tests first. 100% test pass rate required.
 - [ ] Previous stage complete
 - [ ] Required files exist
 - [ ] User approval received
-```text
+```
 
 **Evaluation:**
 - Is template content placeholder?
@@ -953,7 +953,7 @@ NEVER commit without running tests first. 100% test pass rate required.
 3. Update Agent Status after each phase
 4. Zero tech debt tolerance
 5. Fix all issues immediately
-```text
+```
 
 **Problem:**
 - 8 files with same content
@@ -972,7 +972,7 @@ See `reference/critical_workflow_rules.md` for universal workflow rules.
 
 **Stage-Specific Rules:**
 - [Stage-specific rules here]
-```text
+```
 
 **Result:**
 - Single source of truth
@@ -1004,7 +1004,7 @@ Where work_type is:
 - fix: For bug fixes
 
 Command: `git checkout -b epic/KAI-{number}`
-```text
+```
 
 **S10 Guide:**
 ```markdown
@@ -1018,7 +1018,7 @@ Where work_type is:
 - fix: For bug fixes
 
 Use: `git checkout -b epic/KAI-{number}` if needed
-```bash
+```
 
 **Problem:**
 - Branch naming rules duplicated
@@ -1030,7 +1030,7 @@ Use: `git checkout -b epic/KAI-{number}` if needed
 **Both guides updated to:**
 ```markdown
 See `reference/GIT_WORKFLOW.md` for branch naming and git commands.
-```bash
+```
 
 **Result:**
 - Git workflow in one canonical location
@@ -1056,7 +1056,7 @@ See `reference/GIT_WORKFLOW.md` for branch naming and git commands.
 **Cause:** Missing import statement
 **Solution:** Add `import pandas as pd` at top of file
 **Result:** Code executes successfully
-```text
+```
 
 **Problem:**
 - Same example in 5 places
@@ -1077,7 +1077,7 @@ See `reference/GIT_WORKFLOW.md` for branch naming and git commands.
 ### Example: Missing Import
 
 See `reference/common_examples.md` → "Missing Import Error" for debugging approach.
-```text
+```
 
 **Result:**
 - Examples in one location
@@ -1105,7 +1105,7 @@ See `reference/common_examples.md` → "Missing Import Error" for debugging appr
 3. Not updating Agent Status regularly
 4. Deferring issues for later
 5. Skipping validation loops
-```text
+```
 
 **All 12 features in KAI-7 had identical "Common Pitfalls" section.**
 
@@ -1123,7 +1123,7 @@ See `reference/common_examples.md` → "Missing Import Error" for debugging appr
 [List feature-specific pitfalls discovered during implementation]
 
 **See:** `reference/common_pitfalls.md` for general workflow pitfalls
-```bash
+```
 
 **Existing features:**
 - Generic content removed
@@ -1156,7 +1156,7 @@ Before starting this stage:
 - [ ] Verify prerequisites checklist
 - [ ] Update Agent Status in README with current guide path
 - [ ] THEN proceed with work
-```text
+```
 
 **Problem:**
 - Same 5 items in all guides
