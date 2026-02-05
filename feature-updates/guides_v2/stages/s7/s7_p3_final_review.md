@@ -1,5 +1,4 @@
-# S7: Implementation Testing & Review
-## S7.P3: Final Review
+# S7.P3: Final Review
 
 **File:** `s7_p3_final_review.md`
 
@@ -272,14 +271,14 @@ Re-Reading Checkpoint
 
 **Example:**
 ```python
-# ❌ Off-by-one error
+## ❌ Off-by-one error
 for i in range(len(players)):  # Correct
     player = players[i]
 
 for i in range(len(players) + 1):  # ❌ Will crash on last iteration
     player = players[i]
 
-# ✅ Correct comparison
+## ✅ Correct comparison
 if player.adp_rank < 50:  # Top 50 players
     apply_bonus()
 
@@ -308,7 +307,7 @@ if player.adp_rank <= 50:  # Depends on requirement (inclusive vs exclusive)
 
 **Example - Bad vs Good:**
 ```python
-# ❌ BAD - Unclear, does too much
+## ❌ BAD - Unclear, does too much
 def proc(d):
     r = []
     for x in d:
@@ -316,7 +315,7 @@ def proc(d):
             r.append({'n': x['n'], 'v': x['s'] * 1.5})
     return sorted(r, key=lambda y: y['v'], reverse=True)
 
-# ✅ GOOD - Clear, focused functions
+## ✅ GOOD - Clear, focused functions
 def filter_high_scorers(players, threshold=10):
     """Return players with score above threshold."""
     return [p for p in players if p['score'] > threshold]
@@ -350,15 +349,15 @@ def sort_by_value(players, descending=True):
 
 **Example:**
 ```python
-# ❌ BAD - Restates code
-# Loop through players
+## ❌ BAD - Restates code
+## Loop through players
 for player in players:
     # Add to list
     results.append(player)
 
-# ✅ GOOD - Explains why
-# Filter to only rostered players for trade analysis
-# (Free agents handled separately in draft mode)
+## ✅ GOOD - Explains why
+## Filter to only rostered players for trade analysis
+## (Free agents handled separately in draft mode)
 for player in players:
     if player.is_rostered:
         results.append(player)
@@ -375,25 +374,25 @@ for player in players:
 
 **Example:**
 ```python
-# ❌ DUPLICATION - Same logic in 3 places
-# In DraftHelper:
+## ❌ DUPLICATION - Same logic in 3 places
+## In DraftHelper:
 if player.injury_status == "Out":
     penalty = -10
 elif player.injury_status == "Questionable":
     penalty = -5
 
-# In TradeSimulator:
+## In TradeSimulator:
 if player.injury_status == "Out":
     penalty = -10
 elif player.injury_status == "Questionable":
     penalty = -5
 
-# ✅ REFACTORED - Unified in ConfigManager
-# In ConfigManager:
+## ✅ REFACTORED - Unified in ConfigManager
+## In ConfigManager:
 def get_injury_penalty(self, injury_status):
     return self.config['injury_penalties'].get(injury_status, 0)
 
-# In DraftHelper & TradeSimulator:
+## In DraftHelper & TradeSimulator:
 penalty = config.get_injury_penalty(player.injury_status)
 ```
 
@@ -441,13 +440,13 @@ penalty = config.get_injury_penalty(player.injury_status)
 
 **Example - Performance Issue:**
 ```python
-# ❌ BAD - O(n²) when O(n) possible
+## ❌ BAD - O(n²) when O(n) possible
 for player in all_players:
     for team_player in team_roster:  # Inner loop runs for EACH player
         if player.name == team_player.name:
             player.is_rostered = True
 
-# ✅ GOOD - O(n) with set lookup
+## ✅ GOOD - O(n) with set lookup
 rostered_names = {p.name for p in team_roster}
 for player in all_players:
     player.is_rostered = player.name in rostered_names  # O(1) lookup
@@ -466,13 +465,13 @@ for player in all_players:
 
 **Example:**
 ```python
-# ❌ BAD - Swallows all errors, no info
+## ❌ BAD - Swallows all errors, no info
 try:
     load_data()
 except:
     pass
 
-# ✅ GOOD - Specific exception, helpful error
+## ✅ GOOD - Specific exception, helpful error
 try:
     load_data()
 except FileNotFoundError as e:
@@ -508,16 +507,16 @@ except FileNotFoundError as e:
 
 **Example:**
 ```python
-# ❌ BREAKING CHANGE - Changed method signature
-# Before:
+## ❌ BREAKING CHANGE - Changed method signature
+## Before:
 def calculate_score(player):
     ...
 
-# After (BREAKS all existing callers):
+## After (BREAKS all existing callers):
 def calculate_score(player, config):
     ...
 
-# ✅ BACKWARDS COMPATIBLE - Added optional parameter
+## ✅ BACKWARDS COMPATIBLE - Added optional parameter
 def calculate_score(player, config=None):
     if config is None:
         config = ConfigManager()

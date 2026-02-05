@@ -1,5 +1,4 @@
-# S9: Epic-Level Final QC
-## S9.P2: Epic QC Rounds
+# S9.P2: Epic QC Rounds
 
 **Purpose:** Validate the epic as a cohesive whole through 3 systematic quality checks focusing on cross-feature integration and epic-wide consistency.
 
@@ -240,23 +239,23 @@ Round 3: End-to-End Success Criteria (10-20 min)
 **For EACH integration point, verify:**
 
 ```python
-# Integration Test: Feature 01 → Feature 02
+## Integration Test: Feature 01 → Feature 02
 from feature_01.PlayerDataManager import PlayerDataManager
 from feature_02.RatingSystem import RatingSystem
 
-# Get data from Feature 01
+## Get data from Feature 01
 player_mgr = PlayerDataManager()
 players = player_mgr.get_all_players()
 
-# Verify data format
+## Verify data format
 assert len(players) > 0, "Feature 01 returned no data"
 assert hasattr(players[0], 'adp'), "Players missing ADP field"
 
-# Pass to Feature 02
+## Pass to Feature 02
 rating_sys = RatingSystem()
 rated_players = rating_sys.apply_ratings(players)
 
-# Verify integration works
+## Verify integration works
 assert len(rated_players) == len(players), "Data lost in integration"
 assert all(hasattr(p, 'rating') for p in rated_players), "Ratings not applied"
 
@@ -272,21 +271,21 @@ print("✅ Feature 01 → Feature 02 integration validated")
 **Verify data flows correctly through feature chain:**
 
 ```python
-# Complete data flow: Feature 01 → 02 → 03
+## Complete data flow: Feature 01 → 02 → 03
 from feature_01.PlayerDataManager import PlayerDataManager
 from feature_02.RatingSystem import RatingSystem
 from feature_03.RecommendationEngine import RecommendationEngine
 
-# Step 1: Get raw data
+## Step 1: Get raw data
 players = PlayerDataManager().get_all_players()
 
-# Step 2: Apply ratings
+## Step 2: Apply ratings
 rated_players = RatingSystem().apply_ratings(players)
 
-# Step 3: Generate recommendations
+## Step 3: Generate recommendations
 recommendations = RecommendationEngine().generate(rated_players)
 
-# Verify complete flow
+## Verify complete flow
 assert len(recommendations) > 0, "No recommendations generated"
 assert recommendations[0]['player_name'] in [p.name for p in players], "Lost player data"
 assert 'rating' in recommendations[0], "Lost rating data"
@@ -302,14 +301,14 @@ print("✅ Complete data flow validated")
 **Verify features use compatible interfaces:**
 
 ```python
-# Check Feature 02 accepts Feature 01's output format
+## Check Feature 02 accepts Feature 01's output format
 from feature_01.PlayerDataManager import Player
 from feature_02.RatingSystem import RatingSystem
 
-# Create sample player (Feature 01 format)
+## Create sample player (Feature 01 format)
 sample_player = Player(name="Test", position="QB", adp=50.0)
 
-# Verify Feature 02 can process it
+## Verify Feature 02 can process it
 rating_sys = RatingSystem()
 result = rating_sys.rate_player(sample_player)
 
@@ -326,7 +325,7 @@ print("✅ Interface compatibility verified")
 **Test error handling at integration boundaries:**
 
 ```python
-# Test error propagates correctly
+## Test error propagates correctly
 from feature_02.RatingSystem import RatingSystem
 
 try:
@@ -396,13 +395,13 @@ except ValueError as e:
 
 **Sample files from each feature:**
 ```python
-# Feature 01 sample
+## Feature 01 sample
 from feature_01.PlayerDataManager import PlayerDataManager
 
-# Feature 02 sample
+## Feature 02 sample
 from feature_02.RatingSystem import RatingSystem
 
-# Feature 03 sample
+## Feature 03 sample
 from feature_03.RecommendationEngine import RecommendationEngine
 ```
 
@@ -423,16 +422,16 @@ from feature_03.RecommendationEngine import RecommendationEngine
 **Check naming is consistent across features:**
 
 ```python
-# Check method naming patterns
-# All features should use similar naming for similar operations
+## Check method naming patterns
+## All features should use similar naming for similar operations
 
-# Feature 01: get_all_players()
-# Feature 02: get_rated_players()  ✅ Consistent "get_XXX_players()" pattern
-# Feature 03: get_recommendations()  ❌ Different pattern
+## Feature 01: get_all_players()
+## Feature 02: get_rated_players()  ✅ Consistent "get_XXX_players()" pattern
+## Feature 03: get_recommendations()  ❌ Different pattern
 
-# If different, decide:
-# - Critical (confusing, breaks expectations) → RESTART
-# - Minor (just different, still clear) → Document, accept
+## If different, decide:
+## - Critical (confusing, breaks expectations) → RESTART
+## - Minor (just different, still clear) → Document, accept
 ```
 
 ---
@@ -442,21 +441,21 @@ from feature_03.RecommendationEngine import RecommendationEngine
 **Check error handling is consistent:**
 
 ```python
-# Do all features use same error handling approach?
+## Do all features use same error handling approach?
 
-# Feature 01
+## Feature 01
 try:
     data = load_data()
 except FileNotFoundError:
     raise DataProcessingError("Player data file not found")
 
-# Feature 02
+## Feature 02
 try:
     config = load_config()
 except FileNotFoundError:
     raise DataProcessingError("Rating config not found")  # ✅ Consistent
 
-# Feature 03
+## Feature 03
 try:
     settings = load_settings()
 except FileNotFoundError:
@@ -588,16 +587,16 @@ User Goal 3: "Generate top 200 ranked players"
 **Execute complete user workflow end-to-end:**
 
 ```bash
-# Simulated user workflow
+## Simulated user workflow
 python run_script.py --fetch-player-data  # Feature 01
 python run_script.py --apply-ratings      # Feature 02
 python run_script.py --generate-recs      # Feature 03
 
-# Verify smooth experience
-# - No confusing errors
-# - Clear progress indicators
-# - Expected output files created
-# - Help text accurate
+## Verify smooth experience
+## - No confusing errors
+## - Clear progress indicators
+## - Expected output files created
+## - Help text accurate
 ```
 
 ---
@@ -609,15 +608,15 @@ python run_script.py --generate-recs      # Feature 03
 ```python
 import time
 
-# Time complete workflow
+## Time complete workflow
 start = time.time()
 
-# Run epic workflow
+## Run epic workflow
 run_complete_workflow()
 
 elapsed = time.time() - start
 
-# Verify acceptable performance
+## Verify acceptable performance
 assert elapsed < 60.0, f"Epic workflow too slow: {elapsed}s (expected <60s)"
 
 print(f"✅ Epic workflow completed in {elapsed:.2f}s")

@@ -1,5 +1,4 @@
-# S7: Implementation Testing & Review
-## S7.P2: QC Rounds
+# S7.P2: QC Rounds
 
 **File:** `s7_p2_qc_rounds.md`
 
@@ -348,7 +347,7 @@ python tests/run_all_tests.py
 ```python
 from pathlib import Path
 
-# Check all expected output files exist
+## Check all expected output files exist
 expected_outputs = [
     "data/output_file_1.json",
     "data/output_file_2.csv",
@@ -374,13 +373,13 @@ print("✅ All output files exist")
 **From S5 Algorithm Traceability Matrix, verify each integration point:**
 
 ```python
-# Example: Feature calls PlayerManager.get_players()
+## Example: Feature calls PlayerManager.get_players()
 from league_helper.PlayerManager import PlayerManager
 
 pm = PlayerManager()
 players = pm.get_players()  # Verify this method exists
 
-# Verify return type matches spec
+## Verify return type matches spec
 assert isinstance(players, list), "get_players should return list"
 assert len(players) > 0, "get_players returned empty list"
 
@@ -457,17 +456,17 @@ print("✅ PlayerManager interface verified")
 **If feature modifies existing functionality:**
 
 ```python
-# Compare old vs new behavior
+## Compare old vs new behavior
 import pandas as pd
 
-# Load baseline output (before feature)
+## Load baseline output (before feature)
 baseline = pd.read_csv("baseline/output.csv")
 
-# Load new output (after feature)
+## Load new output (after feature)
 new_output = pd.read_csv("data/output.csv")
 
-# Verify new output includes everything from baseline
-# (unless spec says to remove something)
+## Verify new output includes everything from baseline
+## (unless spec says to remove something)
 baseline_players = set(baseline['player_name'])
 new_players = set(new_output['player_name'])
 
@@ -491,15 +490,15 @@ import pandas as pd
 
 df = pd.read_csv("data/output.csv")
 
-# Check column exists (structure)
+## Check column exists (structure)
 assert 'projected_points' in df.columns
 
-# Check values are correct (DEEP validation)
+## Check values are correct (DEEP validation)
 assert df['projected_points'].notna().all(), "Has null values"
 assert (df['projected_points'] > 0).all(), "Has zero/negative values"
 assert df['projected_points'].between(0, 500).all(), "Values out of expected range"
 
-# Check statistical properties match spec
+## Check statistical properties match spec
 mean_points = df['projected_points'].mean()
 assert 100 < mean_points < 200, f"Mean {mean_points} outside expected range"
 
@@ -519,7 +518,7 @@ print("✅ Data validation passed")
 **Verify existing functionality still works:**
 
 ```bash
-# Run tests for related modules (not just new tests)
+## Run tests for related modules (not just new tests)
 python -m pytest tests/league_helper/test_PlayerManager.py -v
 python -m pytest tests/league_helper/test_LeagueHelper.py -v
 ```
@@ -574,20 +573,20 @@ def calculate_player_rating(self, player):
 **Test edge cases from spec:**
 
 ```python
-# Edge case 1: Empty input
+## Edge case 1: Empty input
 result = feature.process([])
 assert result == [], "Empty input should return empty output"
 
-# Edge case 2: Single item
+## Edge case 2: Single item
 result = feature.process([single_item])
 assert len(result) == 1, "Single item should return single result"
 
-# Edge case 3: Maximum input
+## Edge case 3: Maximum input
 large_input = [item] * 1000
 result = feature.process(large_input)
 assert len(result) == 1000, "Should handle large input"
 
-# Edge case 4: Invalid input
+## Edge case 4: Invalid input
 try:
     result = feature.process(None)
     assert False, "Should raise error for None"
@@ -769,11 +768,11 @@ Agent thought: "80% is good enough, I'll finish the rest later"
 
 **Example:**
 ```python
-# WRONG - creates structure but uses placeholders
+## WRONG - creates structure but uses placeholders
 for player in players:
     ratings.append({'name': player.name, 'rating': 1.0})  # All 1.0!
 
-# CORRECT - actually calculates values
+## CORRECT - actually calculates values
 for player in players:
     rating = calculate_rating(player)  # Real calculation
     ratings.append({'name': player.name, 'rating': rating})

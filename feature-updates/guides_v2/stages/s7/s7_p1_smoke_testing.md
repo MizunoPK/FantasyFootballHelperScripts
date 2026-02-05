@@ -1,5 +1,4 @@
-# S7: Implementation Testing & Review
-## S7.P1: Smoke Testing
+# S7.P1: Smoke Testing
 
 **File:** `s7_p1_smoke_testing.md`
 
@@ -207,11 +206,11 @@ This shows all files changed in this feature branch.
 ### Step 2: Test Each Module Import
 
 ```bash
-# Test new modules
+## Test new modules
 python -c "from league_helper.util.PlayerRatingManager import PlayerRatingManager"
 python -c "import league_helper.util.PlayerRatingManager"
 
-# Test modified modules still import
+## Test modified modules still import
 python -c "from league_helper.LeagueHelper import LeagueHelper"
 python -c "import run_league_helper"
 ```
@@ -239,18 +238,18 @@ From `spec.md` "Usage" section, identify how feature is invoked:
 ### Step 2: Test Feature Help
 
 ```bash
-# If feature adds new mode
+## If feature adds new mode
 python run_league_helper.py --mode rating_helper --help
 
-# If feature adds new flag
+## If feature adds new flag
 python run_simulation.py --help
-# (verify --use-ratings appears in help text)
+## (verify --use-ratings appears in help text)
 ```
 
 ### Step 3: Test Feature Initialization
 
 ```bash
-# Basic startup test (dry-run or help mode)
+## Basic startup test (dry-run or help mode)
 python run_league_helper.py --mode rating_helper --dry-run
 ```
 
@@ -293,10 +292,10 @@ Before executing E2E testing, create standardized test artifacts in epic folder:
 
 **Ensure clean state and dependencies:**
 ```bash
-# Verify virtual environment activated
+## Verify virtual environment activated
 which python  # Should show venv path
 
-# Ensure clean state (optional)
+## Ensure clean state (optional)
 python -m pip install -e .  # If using editable install
 ```
 
@@ -372,7 +371,7 @@ python run_league_helper.py --mode rating_helper --data-folder ./data
 from pathlib import Path
 import json
 
-# Verify expected output files exist
+## Verify expected output files exist
 expected_files = ['qb_ratings.json', 'rb_ratings.json', 'wr_ratings.json',
                   'te_ratings.json', 'k_ratings.json', 'dst_ratings.json']
 
@@ -414,7 +413,7 @@ print("✅ Output structure validated")
 import json
 from pathlib import Path
 
-# Feature updates 6 position files
+## Feature updates 6 position files
 positions = ['QB', 'RB', 'WR', 'TE', 'K', 'DST']
 
 for pos in positions:
@@ -500,9 +499,9 @@ logger.error(f"Failed to load player data: {e}", exc_info=True)
 
 **Check for feature-specific log messages:**
 ```bash
-# Check application logs for feature activity
+## Check application logs for feature activity
 grep "feature_name\|important_keyword" logs/application.log
-# Or check recent logs
+## Or check recent logs
 tail -100 logs/application.log | grep -i "feature"
 ```
 
@@ -577,7 +576,7 @@ def _close_logger_handlers(logger):
         handler.close()
         logger.removeHandler(handler)
 
-# In test:
+## In test:
 try:
     # Test logging functionality
     logger = setup_debug_logging("test_component")
@@ -604,11 +603,11 @@ finally:
 
 **Example:**
 ```python
-# Test mocked this to return 170.0 for all players
+## Test mocked this to return 170.0 for all players
 mock_api.get_adp.return_value = 170.0
 
-# But real API returns None for some players (not in database)
-# Feature crashed on None value
+## But real API returns None for some players (not in database)
+## Feature crashed on None value
 ```
 
 **Fix:** Update implementation to handle real-world edge cases (None, missing data, API errors)
@@ -621,12 +620,12 @@ mock_api.get_adp.return_value = 170.0
 
 **Example:**
 ```python
-# WRONG - creates structure but doesn't populate
+## WRONG - creates structure but doesn't populate
 players = []
 for p in raw_data:
     players.append({'name': p.name, 'multiplier': 1.0})  # Placeholder!
 
-# CORRECT - actually calculate values
+## CORRECT - actually calculate values
 players = []
 for p in raw_data:
     multiplier = calculate_multiplier(p.adp)  # Real calculation

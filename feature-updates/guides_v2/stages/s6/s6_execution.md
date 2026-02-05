@@ -1,4 +1,3 @@
-# S6: Implementation Execution
 
 **File:** `s6_execution.md`
 
@@ -21,7 +20,7 @@
 
 ---
 
-## Table of Contents
+# S6: Implementation Execution
 
 1. [Overview](#overview)
 2. [File Roles in S6](#file-roles-in-s6)
@@ -231,14 +230,14 @@ External Dependencies to Verify:
 **DO NOT ASSUME - OPEN THE FILE AND READ IT**
 
 ```bash
-# Example: Verify ConfigManager.get_adp_multiplier
+## Example: Verify ConfigManager.get_adp_multiplier
 code league_helper/util/ConfigManager.py:234
 ```
 
 3. **Copy-paste EXACT signature:**
 
 ```python
-# league_helper/util/ConfigManager.py:234
+## league_helper/util/ConfigManager.py:234
 def get_adp_multiplier(self, adp: int) -> Tuple[float, int]:
     """
     Calculate ADP multiplier based on ADP ranking.
@@ -260,7 +259,7 @@ def get_adp_multiplier(self, adp: int) -> Tuple[float, int]:
 Create `feature_{N}_{name}_interface_contracts.md`:
 
 ```markdown
-# Feature {N}: {Name} - Verified Interface Contracts
+## Feature {N}: {Name} - Verified Interface Contracts
 
 **Purpose:** Document ALL external interfaces verified from source code
 
@@ -292,7 +291,7 @@ def get_adp_multiplier(self, adp: int) -> Tuple[float, int]
 
 **Example Usage Found:**
 ```
-# league_helper/util/PlayerManager.py:456
+## league_helper/util/PlayerManager.py:456
 multiplier, rating = self.config.get_adp_multiplier(player_adp)
 ```markdown
 
@@ -339,7 +338,7 @@ Read spec.md sections:
 2. **Create implementation_checklist.md:**
 
 ```markdown
-# Feature {N}: {Name} - Implementation Checklist
+## Feature {N}: {Name} - Implementation Checklist
 
 **Purpose:** Track spec requirements during implementation (check off AS YOU IMPLEMENT)
 
@@ -475,7 +474,7 @@ Read spec.md sections:
 **Implement:**
 
 ```python
-# league_helper/util/PlayerManager.py
+## league_helper/util/PlayerManager.py
 
 def load_adp_data(self) -> List[Tuple[str, str, int]]:
     """
@@ -545,7 +544,7 @@ def load_adp_data(self) -> List[Tuple[str, str, int]]:
 1. **Run tests for this phase:**
 
 ```bash
-# Run tests for Phase 1 (Data Loading)
+## Run tests for Phase 1 (Data Loading)
 python -m pytest tests/league_helper/util/test_PlayerManager_adp.py::test_load_adp_data_success -v
 python -m pytest tests/league_helper/util/test_PlayerManager_adp.py::test_load_adp_data_file_not_found -v
 ```
@@ -595,13 +594,13 @@ Add to feature README.md:
 **Quick smoke test:**
 
 ```python
-# Quick manual verification
+## Quick manual verification
 from league_helper.util.PlayerManager import PlayerManager
 pm = PlayerManager(data_folder="data/")
 adp_data = pm.load_adp_data()
 print(f"Loaded {len(adp_data)} ADP rankings")
 print(f"First entry: {adp_data[0]}")
-# Expected: Loaded 200+ rankings, First entry valid tuple
+## Expected: Loaded 200+ rankings, First entry valid tuple
 ```
 
 **If mini-QC passes:**
@@ -681,7 +680,7 @@ Verify each consumer handles both old and new config.
 1. **Identify all callers:**
 
 ```bash
-# Find all callers of method you're modifying
+## Find all callers of method you're modifying
 grep -r "\.load_players()" --include="*.py"
 ```
 
@@ -734,7 +733,7 @@ Check implementation_plan.md:
 Run complete test suite for this feature:
 
 ```bash
-# Run ALL tests for this feature
+## Run ALL tests for this feature
 python -m pytest tests/league_helper/util/test_PlayerManager_adp.py -v
 python -m pytest tests/integration/test_adp_integration.py -v
 ```
@@ -765,7 +764,7 @@ Run feature end-to-end:
 
 ```bash
 python run_league_helper.py --mode draft
-# Verify: Loads ADP data, calculates scores, generates recommendations
+## Verify: Loads ADP data, calculates scores, generates recommendations
 ```
 
 **Expected:** No errors, feature works end-to-end

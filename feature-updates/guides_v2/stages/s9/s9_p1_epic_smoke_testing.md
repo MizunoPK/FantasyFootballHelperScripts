@@ -1,5 +1,4 @@
-# S9: Epic-Level Final QC
-## S9.P1: Epic Smoke Testing
+# S9.P1: Epic Smoke Testing
 
 **Purpose:** Validate the complete epic end-to-end with ALL features working together through mandatory 4-part smoke testing.
 
@@ -274,12 +273,12 @@ Check epic folder for any `bugfix_{priority}_{name}/` folders. If found, verify 
 Test that ALL feature modules can be imported together (no conflicts):
 
 ```bash
-# Import key modules from each feature
+## Import key modules from each feature
 python -c "from feature_01.MainClass import MainClass"
 python -c "from feature_02.HelperClass import HelperClass"
 python -c "from feature_03.ManagerClass import ManagerClass"
 
-# Verify no import conflicts or circular dependencies
+## Verify no import conflicts or circular dependencies
 ```
 
 **Pass:** All epic modules import successfully
@@ -296,11 +295,11 @@ python -c "from feature_03.ManagerClass import ManagerClass"
 Test that epic-level workflows can be initiated:
 
 ```bash
-# Test help includes all feature modes
+## Test help includes all feature modes
 python run_script.py --help
-# (verify all features' modes/options appear)
+## (verify all features' modes/options appear)
 
-# Test each feature's mode is accessible
+## Test each feature's mode is accessible
 python run_script.py --mode feature_01_mode --help
 python run_script.py --mode feature_02_mode --help
 python run_script.py --mode feature_03_mode --help
@@ -333,7 +332,7 @@ From epic_smoke_test_plan.md, execute each scenario:
 
 **Execute:**
 ```bash
-# Step-by-step or combined workflow
+## Step-by-step or combined workflow
 python run_script.py --complete-draft-workflow --data-folder ./data
 ```
 
@@ -344,30 +343,30 @@ python run_script.py --complete-draft-workflow --data-folder ./data
 **Epic-specific validation:**
 
 ```python
-# Verify epic-level outputs have correct data
+## Verify epic-level outputs have correct data
 from pathlib import Path
 import json
 
-# Check final epic output (combines all features)
+## Check final epic output (combines all features)
 epic_output = Path("data/draft_recommendations_final.json")
 assert epic_output.exists(), "Epic output file missing"
 
 with open(epic_output) as f:
     data = json.load(f)
 
-# Verify data from ALL features integrated correctly
+## Verify data from ALL features integrated correctly
 assert len(data) > 0, "Epic output is empty"
 
-# Verify Feature 01 data present (player info)
+## Verify Feature 01 data present (player info)
 assert all('player_name' in p for p in data), "Missing player names (Feature 01)"
 
-# Verify Feature 02 data present (ratings)
+## Verify Feature 02 data present (ratings)
 assert all('rating' in p for p in data), "Missing ratings (Feature 02)"
 
-# Verify Feature 03 data present (recommendations)
+## Verify Feature 03 data present (recommendations)
 assert all('draft_position' in p for p in data), "Missing positions (Feature 03)"
 
-# Verify values are CORRECT (not placeholders)
+## Verify values are CORRECT (not placeholders)
 assert data[0]['rating'] != 0.0, "Ratings are placeholder values"
 assert data[0]['draft_position'] > 0, "Positions are invalid"
 
@@ -400,19 +399,19 @@ From `epic_smoke_test_plan.md`, identify cross-feature integration scenarios:
 For EACH integration point, verify data flows correctly:
 
 ```python
-# Integration Test: Feature 01 → Feature 02
+## Integration Test: Feature 01 → Feature 02
 from feature_01.PlayerDataManager import PlayerDataManager
 from feature_02.RatingSystem import RatingSystem
 
-# Get data from Feature 01
+## Get data from Feature 01
 player_mgr = PlayerDataManager()
 players = player_mgr.get_all_players()
 
-# Pass to Feature 02
+## Pass to Feature 02
 rating_sys = RatingSystem()
 rated_players = rating_sys.apply_ratings(players)
 
-# Verify integration works
+## Verify integration works
 assert len(rated_players) == len(players), "Data lost in integration"
 assert all(hasattr(p, 'rating') for p in rated_players), "Ratings not applied"
 assert rated_players[0].rating > 0, "Rating values invalid"
@@ -425,7 +424,7 @@ print("✅ Feature 01 → Feature 02 integration works")
 Test that errors propagate correctly across feature boundaries:
 
 ```python
-# Test error handling at integration point
+## Test error handling at integration point
 try:
     invalid_data = None
     rating_sys.apply_ratings(invalid_data)
@@ -440,14 +439,14 @@ except ValueError as e:
 Ensure features use compatible interfaces:
 
 ```python
-# Verify Feature 02 accepts Feature 01's output format
+## Verify Feature 02 accepts Feature 01's output format
 from feature_01.PlayerDataManager import Player
 from feature_02.RatingSystem import RatingSystem
 
 sample_player = Player(name="Test", position="QB")
 rating_sys = RatingSystem()
 
-# This should work without errors
+## This should work without errors
 result = rating_sys.rate_player(sample_player)
 assert result is not None, "Interface mismatch between features"
 
