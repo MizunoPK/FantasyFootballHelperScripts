@@ -370,10 +370,9 @@ feature-updates/KAI-{N}-{epic_name}/
 **Guide:** 5 guides (Round 1, 2, 3 split into 3 parts)
 - `stages/s5/s5_p1_planning_round1.md` (iterations 1-7 + 4a)
 - `stages/s5/s5_p2_planning_round2.md` (iterations 8-13)
-- `stages/s5/round3_todo_creation.md` (Round 3 router)
 - `stages/s5/s5_p3_planning_round3.md` (Round 3 Part 1: iterations 14-19)
-- `stages/s5/5.1.3.2_round3_part2a.md` (Round 3 Part 2a: iterations 23, 23a)
-- `stages/s5/5.1.3.3_round3_part2b.md` (Round 3 Part 2b: iterations 25, 24)
+- `stages/s5/s5_p3_i2_gates_part1.md` (Round 3 Part 2a: iterations 20, 23a)
+- `stages/s5/s5_p3_i3_gates_part2.md` (Round 3 Part 2b: iterations 21-22, 25, 24)
 
 **Key Activities:**
 - Round 1: Initial analysis (7 iterations + mandatory 4a gate)
@@ -799,10 +798,9 @@ I'll now proceed with Round 1 (iterations 1-7 + 4a)...
 **Implementation Guides (11):**
 - stages/s5/s5_p1_planning_round1.md (Round 1)
 - stages/s5/s5_p2_planning_round2.md (Round 2)
-- stages/s5/round3_todo_creation.md (Round 3 router)
 - stages/s5/s5_p3_planning_round3.md (Round 3 Part 1)
-- stages/s5/5.1.3.2_round3_part2a.md (Round 3 Part 2a)
-- stages/s5/5.1.3.3_round3_part2b.md (Round 3 Part 2b)
+- stages/s5/s5_p3_i2_gates_part1.md (Round 3 Part 2a)
+- stages/s5/s5_p3_i3_gates_part2.md (Round 3 Part 2b)
 - stages/s6/s6_execution.md
 - stages/s7/s7_p1_smoke_testing.md (Phase 1)
 - stages/s7/s7_p2_qc_rounds.md (Phase 2)

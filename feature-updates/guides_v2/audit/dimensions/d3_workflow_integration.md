@@ -256,7 +256,7 @@ done
 
 **If more features remain:**
 - Repeat S5-S8 loop for next feature
-- Read `stages/s5/s5_implementation_planning.md`
+- Read `stages/s5/s5_p1_planning_round1.md`
 
 **If all features complete:**
 - Proceed to S9: Epic-Level Final QC
@@ -955,7 +955,7 @@ Proceed to S9: Epic-Level Final QC (`stages/s9/s9_epic_final_qc.md`)
 
 **If more features remain:**
 - Repeat S5-S8 loop for next feature
-- Read `stages/s5/s5_implementation_planning.md`
+- Read `stages/s5/s5_p1_planning_round1.md`
 
 **If all features complete:**
 - Proceed to S9: Epic-Level Final QC
