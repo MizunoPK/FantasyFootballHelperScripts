@@ -7,6 +7,21 @@
 
 ---
 
+## Table of Contents
+
+1. [MANDATORY READING PROTOCOL](#mandatory-reading-protocol)
+2. [Overview](#overview)
+3. [Critical Rules](#critical-rules)
+4. [Prerequisites Checklist](#prerequisites-checklist)
+5. [Workflow Overview](#workflow-overview)
+6. [Quick Navigation](#quick-navigation)
+7. [Detailed Workflow](#detailed-workflow)
+8. [Re-Reading Checkpoints](#re-reading-checkpoints)
+9. [Exit Criteria](#exit-criteria)
+10. [Summary](#summary)
+
+---
+
 ## 🚨 MANDATORY READING PROTOCOL
 
 **BEFORE starting S10, you MUST:**

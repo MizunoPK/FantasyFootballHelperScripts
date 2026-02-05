@@ -14,6 +14,25 @@ S7.P1 (Smoke Testing) →
 
 ---
 
+## Table of Contents
+
+1. [MANDATORY READING PROTOCOL](#mandatory-reading-protocol)
+2. [Overview](#overview)
+3. [Critical Rules (Feature-Specific)](#critical-rules-feature-specific)
+4. [Prerequisites Checklist](#prerequisites-checklist)
+5. [Workflow Overview](#workflow-overview)
+6. [Code Inspection Protocol (MANDATORY)](#code-inspection-protocol-mandatory)
+7. [QC Round 1: Basic Validation](#qc-round-1-basic-validation)
+8. [QC Round 2: Deep Verification](#qc-round-2-deep-verification)
+9. [QC Round 3: Final Skeptical Review](#qc-round-3-final-skeptical-review)
+10. [Common Feature-Specific Issues](#common-feature-specific-issues)
+11. [MANDATORY CHECKPOINT 1](#mandatory-checkpoint-1)
+12. [Next Steps](#next-steps)
+13. [Summary](#summary)
+14. [Exit Criteria](#exit-criteria)
+
+---
+
 ## 🚨 MANDATORY READING PROTOCOL
 
 **BEFORE starting QC Rounds, you MUST:**

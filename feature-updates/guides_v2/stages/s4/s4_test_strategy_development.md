@@ -12,6 +12,18 @@
 
 ---
 
+## Table of Contents
+
+1. [Overview](#overview)
+2. [Iteration 1: Test Strategy Development (15-20 minutes)](#iteration-1-test-strategy-development-15-20-minutes)
+3. [Iteration 2: Edge Case Enumeration (10-15 minutes)](#iteration-2-edge-case-enumeration-10-15-minutes)
+4. [Iteration 3: Configuration Change Impact (10-15 minutes)](#iteration-3-configuration-change-impact-10-15-minutes)
+5. [Completion Criteria for Iterations 1-3](#completion-criteria-for-iterations-1-3)
+6. [Next: Iteration 4 (Validation Loop)](#next-iteration-4-validation-loop)
+7. [Exit Criteria](#exit-criteria)
+
+---
+
 ## Overview
 
 **What is this guide?**

@@ -21,6 +21,27 @@
 
 ---
 
+## Table of Contents
+
+1. [Overview](#overview)
+2. [File Roles in S6](#file-roles-in-s6)
+3. [Critical Rules](#critical-rules)
+4. [Prerequisites Checklist](#prerequisites-checklist)
+5. [Workflow Overview](#workflow-overview)
+6. [Step 1: Interface Verification Protocol (MANDATORY FIRST STEP)](#step-1-interface-verification-protocol-mandatory-first-step)
+7. [Step 2: Create Implementation Checklist](#step-2-create-implementation-checklist)
+8. [Step 3: Phase-by-Phase Implementation](#step-3-phase-by-phase-implementation)
+9. [Special Protocols](#special-protocols)
+10. [Step 4: Final Verification](#step-4-final-verification)
+11. [Exit Criteria](#exit-criteria)
+12. [Common Mistakes to Avoid](#common-mistakes-to-avoid)
+13. [Real-World Example](#real-world-example)
+14. [README Agent Status Update Requirements](#readme-agent-status-update-requirements)
+15. [Prerequisites for S7 (Testing & Review)](#prerequisites-for-s7-testing--review)
+16. [Next Stage](#next-stage)
+
+---
+
 ## Overview
 
 **What is this guide?**
