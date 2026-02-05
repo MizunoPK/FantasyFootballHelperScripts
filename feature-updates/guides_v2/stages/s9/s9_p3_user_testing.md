@@ -14,6 +14,25 @@ S9.P1 (Epic Smoke) → S9.P2 (QC Rounds) →
 
 ---
 
+## Table of Contents
+
+1. [🚨 MANDATORY READING PROTOCOL](#-mandatory-reading-protocol)
+2. [Prerequisites](#prerequisites)
+3. [Overview](#overview)
+4. [🛑 Critical Rules](#-critical-rules)
+5. [Workflow Overview](#workflow-overview)
+6. [Step S9.P1: Ask User to Test the System](#step-s9p1-ask-user-to-test-the-system)
+7. [Step S9.P2: Wait for User Testing Results](#step-s9p2-wait-for-user-testing-results)
+8. [Step S9.P3: Bug Fix Protocol (If User Found Bugs)](#step-s9p3-bug-fix-protocol-if-user-found-bugs)
+9. [Step 6d: Document User Testing Completion](#step-6d-document-user-testing-completion)
+10. [Why User Testing is Critical](#why-user-testing-is-critical)
+11. [Integration with Debugging Protocol](#integration-with-debugging-protocol)
+12. [Exit Criteria](#exit-criteria)
+13. [Next Steps](#next-steps)
+14. [Summary](#summary)
+
+---
+
 ## 🚨 MANDATORY READING PROTOCOL
 
 **BEFORE starting User Testing, you MUST:**

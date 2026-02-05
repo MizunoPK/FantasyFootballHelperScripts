@@ -8,6 +8,18 @@
 
 ---
 
+## Table of Contents
+
+1. [🚨 MANDATORY READING PROTOCOL](#-mandatory-reading-protocol)
+2. [Overview](#overview)
+3. [Critical Rules](#critical-rules)
+4. [Prerequisites Checklist](#prerequisites-checklist)
+5. [Exit Criteria](#exit-criteria)
+6. [Next Stage](#next-stage)
+7. [Benefits of Validation Phase](#benefits-of-validation-phase)
+
+---
+
 ## 🚨 MANDATORY READING PROTOCOL
 
 **Before starting this guide:**
