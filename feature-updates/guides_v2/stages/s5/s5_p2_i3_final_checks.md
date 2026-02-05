@@ -10,6 +10,31 @@
 **Main Guide:** `stages/s5/s5_p2_planning_round2.md`
 
 ---
+---
+
+## Prerequisites
+
+**Before starting Iteration 13-16:**
+
+- [ ] Previous iterations complete (as specified in guide header)
+- [ ] implementation_plan.md exists and is up to date
+- [ ] Working directory: Feature folder
+- [ ] S5.P2 Round 2 in progress
+
+**If any prerequisite fails:**
+- Complete missing iterations before starting this iteration
+
+---
+
+## Overview
+
+**What is this iteration?**
+Iteration 13-16: Final Checks (Dependencies, Gaps, Coverage, Boundary)
+
+**Time Estimate:** As specified in guide header
+
+---
+
 
 ## Iteration 13: Dependency Version Check
 
@@ -451,6 +476,20 @@ Progress: Planning Round 2 complete (9/9 iterations)
 Next Action: Planning Round 2 checkpoint - evaluate confidence
 ```
 
+
+## Exit Criteria
+
+**Iterations 13-16 complete when ALL of these are true:**
+
+- [ ] All iteration tasks complete as specified in guide
+- [ ] implementation_plan.md updated with any discoveries
+- [ ] questions.md updated if new questions arose
+- [ ] Agent Status updated with progress and next action
+- [ ] Ready to proceed to next iteration
+
+**If any criterion unchecked:** Continue iterations until complete
+
+---
 ---
 
 *End of iterations_13_16_final_checks.md*

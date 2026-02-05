@@ -10,6 +10,31 @@
 **Main Guide:** `stages/s5/s5_p2_planning_round2.md`
 
 ---
+---
+
+## Prerequisites
+
+**Before starting Iteration 11-12:**
+
+- [ ] Previous iterations complete (as specified in guide header)
+- [ ] implementation_plan.md exists and is up to date
+- [ ] Working directory: Feature folder
+- [ ] S5.P2 Round 2 in progress
+
+**If any prerequisite fails:**
+- Complete missing iterations before starting this iteration
+
+---
+
+## Overview
+
+**What is this iteration?**
+Iteration 11-12: Algorithm Traceability & Data Flow Re-verification
+
+**Time Estimate:** As specified in guide header
+
+---
+
 
 ## Iteration 11: Algorithm Traceability Matrix (Re-verify)
 
@@ -145,6 +170,20 @@ Progress: Iteration 12/16 (Planning Round 2) complete
 Next Action: Iteration 13 - Dependency Version Check
 ```
 
+
+## Exit Criteria
+
+**Iterations 11-12 complete when ALL of these are true:**
+
+- [ ] All iteration tasks complete as specified in guide
+- [ ] implementation_plan.md updated with any discoveries
+- [ ] questions.md updated if new questions arose
+- [ ] Agent Status updated with progress and next action
+- [ ] Ready to proceed to next iteration
+
+**If any criterion unchecked:** Continue iterations until complete
+
+---
 ---
 
 *End of iterations_11_12_reverification.md*

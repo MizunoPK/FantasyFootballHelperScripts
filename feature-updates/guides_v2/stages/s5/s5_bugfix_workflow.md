@@ -27,7 +27,23 @@
 
 ---
 
-## Quick Start
+## Prerequisites
+
+**Before starting bug fix workflow:**
+
+- [ ] Bug or missing scope discovered during S5 (implementation) OR reported by user
+- [ ] Bug is clearly defined (not a vague issue)
+- [ ] Epic is in progress (has active feature work)
+- [ ] Read prompts_reference_v2.md "Creating Bug Fix" prompt
+- [ ] Working directory: Epic folder root
+
+**If any prerequisite fails:**
+- Define bug clearly before proceeding
+- If not during epic work, use standard feature workflow instead
+
+---
+
+## Overview
 
 **What is this guide?**
 Bug Fix Workflow is a streamlined process for handling bugs discovered during epic implementation, using a simplified workflow (S2 → S5 → S6 → S7) that skips epic-level stages while maintaining full rigor for quality.
@@ -692,6 +708,25 @@ Action:
 **Why wrong:** Paused feature left incomplete
 
 **Correct:** Resume paused work, verify compatibility, complete paused feature
+
+---
+
+## Exit Criteria
+
+**Bug fix workflow is complete when ALL of these are true:**
+
+- [ ] User approved bug fix creation (priority and timing decided)
+- [ ] bugfix_{priority}_{name}/ folder created with complete structure
+- [ ] notes.txt created and user-verified
+- [ ] Bug fix workflow followed (S2 → S5 → S6 → S7 with full rigor)
+- [ ] All 22 iterations completed in S5 (no shortcuts)
+- [ ] QC rounds passed (S7)
+- [ ] Bug fix tested and verified
+- [ ] Epic documentation updated for resumability
+- [ ] Paused work resumed cleanly with compatibility verification
+- [ ] Bug fix remains in epic folder (not moved to done/)
+
+**If any criterion unchecked:** Complete missing items before considering bug fix done
 
 ---
 

@@ -10,6 +10,31 @@
 **Main Guide:** `stages/s5/s5_p2_planning_round2.md`
 
 ---
+---
+
+## Prerequisites
+
+**Before starting Iteration 8-10:**
+
+- [ ] Previous iterations complete (as specified in guide header)
+- [ ] implementation_plan.md exists and is up to date
+- [ ] Working directory: Feature folder
+- [ ] S5.P2 Round 2 in progress
+
+**If any prerequisite fails:**
+- Complete missing iterations before starting this iteration
+
+---
+
+## Overview
+
+**What is this iteration?**
+Iteration 8-10: Test Strategy Development, Edge Cases, Config Tests
+
+**Time Estimate:** As specified in guide header
+
+---
+
 
 ## Iteration 8: Test Strategy Development
 
@@ -320,6 +345,20 @@ Progress: Iteration 10/16 (Planning Round 2) complete
 Next Action: Iteration 11 - Algorithm Traceability Matrix (Re-verify)
 ```
 
+
+## Exit Criteria
+
+**Iterations 8-10 complete when ALL of these are true:**
+
+- [ ] All iteration tasks complete as specified in guide
+- [ ] implementation_plan.md updated with any discoveries
+- [ ] questions.md updated if new questions arose
+- [ ] Agent Status updated with progress and next action
+- [ ] Ready to proceed to next iteration
+
+**If any criterion unchecked:** Continue iterations until complete
+
+---
 ---
 
 *End of iterations_8_10_test_strategy.md*
