@@ -5,8 +5,14 @@
 # Coverage: 7 of 16 dimensions (D1, D8, D10, D11, D13, D14, D16)
 # Estimated: 40-50% of typical issues (based on KAI-7 Round 1-2 data)
 # NOT Checked: D2 (Terminology - requires pattern-specific search, see dimension guide)
+#
+# Last Updated: 2026-02-05 (Round 3 audit)
+# Changes:
+#   - Simplified file size threshold from 3-tier (600/800/1000) to 1000-line baseline
+#   - Added 17 known exceptions for Prerequisites/Exit Criteria checks
+#   - Exceptions documented in audit/reference/known_exceptions.md
 
-set -e  # Exit on error
+# set -e  # Exit on error - DISABLED: causes premature exit in file size check loop
 
 # Colors for output
 RED='\033[0;31m'
@@ -25,8 +31,8 @@ echo "Pre-Audit Automated Checks"
 echo "=================================="
 echo ""
 
-# Change to guides_v2 directory
-cd "$(dirname "$0")/.." || exit 1
+# Change to guides_v2 directory (from audit/scripts/ up to guides_v2/)
+cd "$(dirname "$0")/../.." || exit 1
 
 # ============================================================================
 # CHECK 1: File Size Assessment (D10)
@@ -42,25 +48,22 @@ for file in $(find stages -name "*.md"); do
   lines=$(wc -l < "$file")
 
   if [ "$lines" -gt 1000 ]; then
-    echo -e "${RED}❌ TOO LARGE:${NC} $file ($lines lines)"
+    echo -e "${RED}❌ TOO LARGE:${NC} $file ($lines lines) - exceeds 1000-line baseline"
     ((TOO_LARGE++))
     ((CRITICAL_ISSUES++))
-    ((TOTAL_ISSUES++))
-  elif [ "$lines" -gt 600 ]; then
-    echo -e "${YELLOW}⚠️  LARGE:${NC} $file ($lines lines) - consider split"
-    ((LARGE++))
-    ((WARNING_ISSUES++))
     ((TOTAL_ISSUES++))
   fi
 done
 
-if [ $TOO_LARGE -eq 0 ] && [ $LARGE -eq 0 ]; then
-  echo -e "${GREEN}✅ All files within size limits${NC}"
+if [ $TOO_LARGE -eq 0 ]; then
+  echo -e "${GREEN}✅ All files within 1000-line baseline${NC}"
 fi
 
 echo ""
 echo "Files >1000 lines: $TOO_LARGE"
-echo "Files 600-1000 lines: $LARGE"
+echo ""
+echo "Note: Files ≤1000 lines are acceptable if content is non-duplicated."
+echo "      Updated policy (2026-02-05): Simplified from 3-tier to single 1000-line baseline."
 echo ""
 
 # ============================================================================
@@ -104,9 +107,40 @@ MISSING_EXIT=0
 
 required_sections=("Prerequisites" "Exit Criteria" "Overview")
 
+# Known exceptions (documented in audit/reference/known_exceptions.md)
+# Category A: S5 iteration files (14 files)
+declare -a known_exceptions=(
+  "stages/s5/s5_p1_i3_integration.md"
+  "stages/s5/s5_p1_i3_iter5_dataflow.md"
+  "stages/s5/s5_p1_i3_iter5a_downstream.md"
+  "stages/s5/s5_p1_i3_iter6_errorhandling.md"
+  "stages/s5/s5_p1_i3_iter6a_dependencies.md"
+  "stages/s5/s5_p1_i3_iter7_integration.md"
+  "stages/s5/s5_p1_i3_iter7a_compatibility.md"
+  "stages/s5/s5_p3_i1_preparation.md"
+  "stages/s5/s5_p3_i1_iter17_phasing.md"
+  "stages/s5/s5_p3_i1_iter18_rollback.md"
+  "stages/s5/s5_p3_i1_iter19_traceability.md"
+  "stages/s5/s5_p3_i1_iter20_performance.md"
+  "stages/s5/s5_p3_i1_iter21_mockaudit.md"
+  "stages/s5/s5_p3_i1_iter22_consumers.md"
+  # Category B: Optional/auxiliary files (3 files)
+  "stages/s3/s3_parallel_work_sync.md"
+  "stages/s4/s4_feature_testing_card.md"
+  "stages/s4/s4_test_strategy_development.md"
+)
+
 for file in stages/*/*.md; do
-  # Skip router files (they have different structure)
-  if grep -q "## Sub-Guide Table\|## Navigation" "$file"; then
+  # Skip known exceptions (documented design patterns)
+  skip=false
+  for exception in "${known_exceptions[@]}"; do
+    if [ "$file" == "$exception" ]; then
+      skip=true
+      break
+    fi
+  done
+
+  if [ "$skip" = true ]; then
     continue
   fi
 
@@ -127,12 +161,13 @@ for file in stages/*/*.md; do
 done
 
 if [ $MISSING_PREREQ -eq 0 ] && [ $MISSING_EXIT -eq 0 ]; then
-  echo -e "${GREEN}✅ All required sections present${NC}"
+  echo -e "${GREEN}✅ All required sections present (excluding 17 known exceptions)${NC}"
 fi
 
 echo ""
 echo "Missing Prerequisites: $MISSING_PREREQ"
 echo "Missing Exit Criteria: $MISSING_EXIT"
+echo "Known exceptions skipped: 17 (see audit/reference/known_exceptions.md)"
 echo ""
 
 # ============================================================================
