@@ -231,85 +231,14 @@ Features to compare:
 
 ### Step 1.2: Create Comparison Template
 
-Create `epic/research/SANITY_CHECK_{DATE}.md`:
+**Copy the template to create:** `epic/research/SANITY_CHECK_{DATE}.md`
 
-```markdown
-# Cross-Feature Sanity Check
+**Template file:** `feature-updates/guides_v2/templates/cross_feature_sanity_check_template.md`
 
-**Date:** {YYYY-MM-DD}
-**Epic:** {epic_name}
-**Features Compared:** {N} features
-
----
-
-## Comparison Matrix
-
-### Category 1: Data Structures
-
-| Feature | Data Added | Field Names | Data Types | Conflicts? |
-|---------|-----------|-------------|------------|------------|
-| Feature 1 | | | | |
-| Feature 2 | | | | |
-| Feature 3 | | | | |
-| Feature 4 | | | | |
-
-### Category 2: Interfaces & Dependencies
-
-| Feature | Depends On | Calls Methods | Return Types Expected | Conflicts? |
-|---------|-----------|---------------|----------------------|------------|
-| Feature 1 | | | | |
-| Feature 2 | | | | |
-| Feature 3 | | | | |
-| Feature 4 | | | | |
-
-### Category 3: File Locations & Naming
-
-| Feature | Creates Files | File Locations | Naming Conventions | Conflicts? |
-|---------|--------------|----------------|-------------------|------------|
-| Feature 1 | | | | |
-| Feature 2 | | | | |
-| Feature 3 | | | | |
-| Feature 4 | | | | |
-
-### Category 4: Configuration Keys
-
-| Feature | Config Keys Added | Config File | Key Conflicts? | Conflicts? |
-|---------|------------------|-------------|----------------|------------|
-| Feature 1 | | | | |
-| Feature 2 | | | | |
-| Feature 3 | | | | |
-| Feature 4 | | | | |
-
-### Category 5: Algorithms & Logic
-
-| Feature | Algorithm Type | Multiplier/Score Impact | Order Dependencies | Conflicts? |
-|---------|---------------|------------------------|-------------------|------------|
-| Feature 1 | | | | |
-| Feature 2 | | | | |
-| Feature 3 | | | | |
-| Feature 4 | | | | |
-
-### Category 6: Testing Assumptions
-
-| Feature | Test Data Needs | Mock Dependencies | Integration Points | Conflicts? |
-|---------|----------------|-------------------|-------------------|------------|
-| Feature 1 | | | | |
-| Feature 2 | | | | |
-| Feature 3 | | | | |
-| Feature 4 | | | | |
-
----
-
-## Conflicts Identified
-
-{Will populate during Step 2}
-
----
-
-## Resolutions Applied
-
-{Will populate during Step 3}
-```
+The template contains:
+- 6 comparison matrix categories (Data Structures, Interfaces, File Locations, Config Keys, Algorithms, Testing)
+- Placeholder sections for Conflicts Identified and Resolutions Applied
+- Will be populated during Step 2 and Step 3
 
 ---
 
