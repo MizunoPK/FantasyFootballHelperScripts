@@ -248,7 +248,7 @@ If confidence < MEDIUM: Update questions file, wait for user
 
 ---
 
-## Completion Criteria
+## Exit Criteria
 
 **Planning Round 2 is complete when ALL of these are true:**
 

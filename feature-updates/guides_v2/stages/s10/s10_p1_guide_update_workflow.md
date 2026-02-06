@@ -112,7 +112,7 @@ S10.5 is complete when all proposals have been reviewed by user, approved change
 
 ---
 
-### Prerequisites Checklist
+## Prerequisites Checklist
 
 **Verify BEFORE starting S10.5:**
 

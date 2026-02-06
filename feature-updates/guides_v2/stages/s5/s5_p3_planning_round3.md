@@ -230,7 +230,7 @@ Transition to Part 2 (Read stages/s5/s5_p3_i3_gates_part2.md)
 
 ---
 
-## Part 1 Completion Criteria
+## Exit Criteria
 
 **Part 1 is COMPLETE when ALL of these are true:**
 
