@@ -17,16 +17,17 @@
 
 | KAI # | Epic Name | Type | Branch | Status | Date Started |
 |-------|-----------|------|--------|--------|--------------|
-| 7 | improve_configurability_of_scripts | epic | epic/KAI-7 | In Progress | 2026-01-28 |
+| 8 | logging_refactoring | epic | epic/KAI-8 | In Progress | 2026-02-06 |
 
 ---
 
 ## Completed Epics
 
-### Next Available Number: KAI-8
+### Next Available Number: KAI-9
 
 | KAI # | Epic Name | Type | Branch | Date Completed | Location |
 |-------|-----------|------|--------|----------------|----------|
+| 7 | improve_configurability_of_scripts | epic | epic/KAI-7 | 2026-02-01 | feature-updates/done/KAI-7-improve_configurability_of_scripts/ |
 | 6 | nfl_team_penalty | epic | epic/KAI-6 | 2026-01-15 | feature-updates/done/KAI-6-nfl_team_penalty/ |
 | 5 | add_k_dst_ranking_metrics_support | epic | epic/KAI-5 | 2026-01-09 | feature-updates/done/KAI-5-add_k_dst_ranking_metrics_support/ |
 | 3 | integrate_new_player_data_into_simulation | epic | epic/KAI-3 | 2026-01-04 | feature-updates/done/integrate_new_player_data_into_simulation/ |
