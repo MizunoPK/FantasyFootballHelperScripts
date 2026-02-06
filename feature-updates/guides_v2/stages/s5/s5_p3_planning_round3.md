@@ -21,7 +21,7 @@
 
 ---
 
-## Quick Start
+## Overview
 
 **What is this guide?**
 Planning Round 3 Part 1 (Preparation) is the first half of Planning Round 3, where you prepare for implementation by defining phasing, rollback strategies, final algorithm traceability, performance optimizations, mock audits, and output validation through 6 systematic iterations (14-19).

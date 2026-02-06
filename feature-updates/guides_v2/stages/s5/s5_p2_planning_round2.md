@@ -21,7 +21,7 @@
 
 ---
 
-## Quick Start
+## Overview
 
 **What is this guide?**
 Planning Round 2 of Implementation Planning is the deep verification phase where you create comprehensive test strategy, identify edge cases, and re-verify critical matrices through 9 mandatory iterations (8-13) to catch bugs introduced during Planning Round 1.
