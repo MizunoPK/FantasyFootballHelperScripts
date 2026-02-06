@@ -67,14 +67,14 @@
 
 ### Workflow Guides (stages/, reference/, etc.)
 
-**Line Count Thresholds:**
+**Line Count Threshold:**
 
 | Size | Threshold | Status | Action Required |
 |------|-----------|--------|-----------------|
-| Small | <600 lines | ✅ OK | None |
-| Medium | 600-800 lines | ⚠️ WARNING | Evaluate for split |
-| Large | 800-1000 lines | ⚠️ LARGE | Strongly consider split |
-| Too Large | >1000 lines | ❌ CRITICAL | MUST reduce or justify |
+| Acceptable | ≤1000 lines | ✅ OK | None (content complexity may justify size) |
+| Too Large | >1000 lines | ❌ CRITICAL | MUST reduce (baseline threshold) |
+
+**Philosophy:** Files ≤1000 lines are acceptable if content is non-duplicated and serves the guide's purpose. Only files exceeding 1000 lines require reduction.
 
 **Character Count (for CLAUDE.md only):**
 - ≤40,000 chars: ✅ OK
@@ -95,10 +95,8 @@
 ```
 
 **Priority Order:**
-1. CLAUDE.md (if exceeds 40,000 chars) - P1
-2. Files >1000 lines - P1
-3. Files 800-1000 lines - P2
-4. Files 600-800 lines - P3
+1. CLAUDE.md (if exceeds 40,000 chars) - P1 CRITICAL
+2. Files >1000 lines - P1 CRITICAL
 
 ### Step 2: Evaluate Each Large File
 

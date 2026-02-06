@@ -337,9 +337,9 @@ After Step 2:
 
 ## Step 3: Discovery Phase (MANDATORY)
 
-**Goal:** Explore the problem space through iterative research and user Q&A before proposing feature breakdown.
+**🚨 CRITICAL:** Discovery Phase is MANDATORY for every epic. Cannot create feature folders until Discovery is complete and user-approved.
 
-**CRITICAL:** Discovery Phase is MANDATORY for every epic. Cannot create feature folders until Discovery is complete and user-approved.
+**Goal:** Explore problem space through iterative research and user Q&A before proposing feature breakdown.
 
 **Time-Box by Epic Size:**
 | Epic Size | Discovery Time |
@@ -348,58 +348,19 @@ After Step 2:
 | MEDIUM (3-5 features) | 2-3 hours |
 | LARGE (6+ features) | 3-4 hours |
 
-**Detailed Guide:** `stages/s1/s1_p3_discovery_phase.md`
+**Exit Condition:** Discovery Loop exits when 3 CONSECUTIVE research iterations produce NO NEW QUESTIONS.
 
-### Discovery Phase Overview
+**Key Outputs:** DISCOVERY.md (source of truth), solution approach, scope definition, feature breakdown draft
 
-The Discovery Phase is an iterative loop:
+**📖 READ ENTIRE GUIDE:** `stages/s1/s1_p3_discovery_phase.md`
 
-```text
-S1.P3.1: Initialize DISCOVERY.md
-    |
-    v
-S1.P3.2: Discovery Loop
-    +-- Research (read code, examine patterns - fresh perspective!)
-    +-- Document findings in DISCOVERY.md
-    +-- Identify questions
-    +-- Ask user, record answers
-    +-- Repeat until 3 CONSECUTIVE iterations with NO NEW QUESTIONS
-    |
-    v
-S1.P3.3: Synthesize Findings
-    +-- Compare solution options
-    +-- Document recommended approach
-    +-- Define scope (in/out/deferred)
-    +-- Draft feature breakdown
-    |
-    v
-S1.P3.4: User Approval
-```
+The detailed guide contains:
+- S1.P3.1: Initialize DISCOVERY.md
+- S1.P3.2: Discovery Loop (iterative research, questions, user answers)
+- S1.P3.3: Synthesize Findings (compare options, define scope, draft features)
+- S1.P3.4: User Approval
 
-### Key Discovery Outputs
-
-- **DISCOVERY.md** - Epic-level source of truth for decisions
-- **Solution approach** - Recommended approach with rationale
-- **Scope definition** - What's in, out, and deferred
-- **Feature breakdown** - Informed by research and user answers
-
-### Discovery Exit Condition
-
-Discovery Loop exits when 3 CONSECUTIVE research iterations produce NO NEW QUESTIONS. Continue iterating until:
-- 3 consecutive iterations with no new unknowns
-- All pending questions are resolved
-- Scope is clearly defined
-- Solution approach is determined
-- Clean iteration counter reaches 3
-
-### After Discovery Approval
-
-Once user approves Discovery findings:
-1. DISCOVERY.md marked as COMPLETE
-2. Proceed to Step 4 (Feature Breakdown Proposal)
-3. Feature breakdown is already drafted in DISCOVERY.md
-
-**See full guide:** `stages/s1/s1_p3_discovery_phase.md`
+**After Discovery approved:** Proceed to Step 4 with feature breakdown drafted.
 
 ---
 
