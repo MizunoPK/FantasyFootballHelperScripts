@@ -1163,7 +1163,7 @@ For build steps, refer to implementation_checklist.md.
 - **Division:** D10 = size, D12 = existence/dependencies
 
 **Example:**
-- D10 checks: implementation_plan.md is ~400 lines (not >1000) ✅
+- D10 checks: implementation_plan.md is ~400 lines (not >1250) ✅
 - D12 checks: implementation_plan.md exists when S6 needs it ✅
 
 ---

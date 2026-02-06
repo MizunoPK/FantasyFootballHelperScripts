@@ -148,12 +148,12 @@ Issue discovered → Can I fix with confidence?
 
 **Examples of CORRECT behavior:**
 - ✅ 34 files missing Prerequisites/Exit Criteria → Read each file → Determine if sections needed → Add or document as intentional
-- ✅ 32 files >1000 lines → Read each file → Split using reduction guide → Verify file sizes reduced
+- ✅ 32 files >1250 lines → Read each file → Split using reduction guide → Verify file sizes reduced
 - ✅ Broken file reference → Cannot determine correct path → ASK USER for intended reference
 
 **Examples of WRONG behavior:**
 - ❌ 34 files missing Prerequisites/Exit Criteria → "Requires file reading" → Defer to Round 3
-- ❌ 32 files >1000 lines → "Requires 12-16 hours" → Defer to post-audit
+- ❌ 32 files >1250 lines → "Requires 12-16 hours" → Defer to post-audit
 - ❌ Uncertain about fix → "Seems complex" → Defer for later
 
 **2. Fresh Eyes, Zero Assumptions**
@@ -656,8 +656,8 @@ The automated pre-audit script (`scripts/pre_audit_checks.sh`) performs two file
 
 **1. Workflow Guide Size Check (D10):**
 - Checks all `stages/**/*.md` files
-- Flags files >1000 lines as **TOO LARGE** (critical issue)
-- Flags files 600-1000 lines as **LARGE** (warning - consider split)
+- Flags files >1250 lines as **TOO LARGE** (critical issue)
+- Updated policy: Baseline increased from 1000 → 1250 lines during Meta-Audit (2026-02-05)
 
 **2. CLAUDE.md Character Count (D10 Policy Compliance):**
 - Checks `CLAUDE.md` character count

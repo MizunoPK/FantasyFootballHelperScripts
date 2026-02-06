@@ -366,8 +366,7 @@ bash feature-updates/guides_v2/audit/scripts/pre_audit_checks.sh
 
 ✅ All files within size limits
 
-Files >1000 lines: 0
-Files 600-1000 lines: 0
+Files >1250 lines: 0
 ```
 
 **If ANY failures:**
@@ -391,7 +390,7 @@ wc -c ../../CLAUDE.md
 for file in [list of reduced files]; do
   lines=$(wc -l < "$file")
   echo "$file: $lines lines"
-  # Expected: ≤1000 lines (preferably ≤600)
+  # Expected: ≤1250 lines (baseline threshold)
 done
 ```
 

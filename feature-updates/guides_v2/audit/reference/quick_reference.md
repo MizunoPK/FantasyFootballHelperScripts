@@ -94,10 +94,10 @@ grep -rn "^- " --include="*.md"                    # Bullet lists
 ### File Size Check (D10)
 
 ```bash
-# Find files over 1000 lines (potential readability issues)
+# Find files over 1250 lines (potential readability issues)
 for file in $(find stages -name "*.md"); do
   lines=$(wc -l < "$file")
-  [ "$lines" -gt 1000 ] && echo "$file: $lines lines"
+  [ "$lines" -gt 1250 ] && echo "$file: $lines lines"
 done
 
 # Estimate tokens (rough: lines * 13)

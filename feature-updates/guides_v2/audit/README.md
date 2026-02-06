@@ -319,7 +319,7 @@ bash scripts/pre_audit_checks.sh
 
 ### File Size Reduction Guide ✅ COMPLETE
 `reference/file_size_reduction_guide.md` - Systematic approach to reducing large files
-- File size thresholds (CLAUDE.md: 40,000 chars, guides: 1000 lines)
+- File size thresholds (CLAUDE.md: 40,000 chars, guides: 1250 lines)
 - Evaluation framework (when to split vs keep)
 - Reduction strategies (extract sub-guides, reference files, consolidate, examples)
 - CLAUDE.md reduction protocol

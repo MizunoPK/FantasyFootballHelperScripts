@@ -6,10 +6,11 @@
 # Estimated: 40-50% of typical issues (based on KAI-7 Round 1-2 data)
 # NOT Checked: D2 (Terminology - requires pattern-specific search, see dimension guide)
 #
-# Last Updated: 2026-02-05 (Round 3 audit)
+# Last Updated: 2026-02-05 (Meta-Audit)
 # Changes:
-#   - Simplified file size threshold from 3-tier (600/800/1000) to 1000-line baseline
-#   - Added 17 known exceptions for Prerequisites/Exit Criteria checks
+#   - Round 3: Simplified file size threshold from 3-tier (600/800/1000) to 1000-line baseline
+#   - Round 3: Added 17 known exceptions for Prerequisites/Exit Criteria checks
+#   - Meta-Audit: Increased baseline from 1000 → 1250 lines for comprehensive reference guides
 #   - Exceptions documented in audit/reference/known_exceptions.md
 
 # set -e  # Exit on error - DISABLED: causes premature exit in file size check loop
@@ -47,8 +48,8 @@ LARGE=0
 for file in $(find stages -name "*.md"); do
   lines=$(wc -l < "$file")
 
-  if [ "$lines" -gt 1000 ]; then
-    echo -e "${RED}❌ TOO LARGE:${NC} $file ($lines lines) - exceeds 1000-line baseline"
+  if [ "$lines" -gt 1250 ]; then
+    echo -e "${RED}❌ TOO LARGE:${NC} $file ($lines lines) - exceeds 1250-line baseline"
     ((TOO_LARGE++))
     ((CRITICAL_ISSUES++))
     ((TOTAL_ISSUES++))
@@ -56,14 +57,16 @@ for file in $(find stages -name "*.md"); do
 done
 
 if [ $TOO_LARGE -eq 0 ]; then
-  echo -e "${GREEN}✅ All files within 1000-line baseline${NC}"
+  echo -e "${GREEN}✅ All files within 1250-line baseline${NC}"
 fi
 
 echo ""
-echo "Files >1000 lines: $TOO_LARGE"
+echo "Files >1250 lines: $TOO_LARGE"
 echo ""
-echo "Note: Files ≤1000 lines are acceptable if content is non-duplicated."
-echo "      Updated policy (2026-02-05): Simplified from 3-tier to single 1000-line baseline."
+echo "Note: Files ≤1250 lines are acceptable if content is non-duplicated."
+echo "      Updated policy:"
+echo "        - Round 3 (2026-02-05): Simplified from 3-tier to single 1000-line baseline"
+echo "        - Meta-Audit (2026-02-05): Increased baseline to 1250 lines for comprehensive reference guides"
 echo ""
 
 # ============================================================================

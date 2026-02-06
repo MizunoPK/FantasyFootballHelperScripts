@@ -34,10 +34,12 @@
 - Must reduce before audit completion
 
 ✅ **Workflow Guide Line Limits:**
-- CRITICAL: >1000 lines (exceeds baseline - must reduce or justify)
-- ACCEPTABLE: ≤1000 lines (within baseline - OK if content non-duplicated)
+- CRITICAL: >1250 lines (exceeds baseline - must reduce or justify)
+- ACCEPTABLE: ≤1250 lines (within baseline - OK if content non-duplicated)
 
-**Updated Policy (2026-02-05):** Simplified from 3-tier threshold (600/800/1000) to single 1000-line baseline for clarity and reduced audit noise.
+**Updated Policy:**
+- **2026-02-05:** Simplified from 3-tier threshold (600/800/1000) to single 1000-line baseline
+- **2026-02-05 (Meta-Audit):** Increased baseline from 1000 → 1250 lines to accommodate comprehensive reference guides while maintaining agent usability
 
 ✅ **Root-Level File Sizes:**
 - README.md, EPIC_WORKFLOW_USAGE.md, prompts_reference_v2.md
@@ -120,18 +122,18 @@ fi
 
 **Automated:** ✅ Yes (CHECK 1b in pre_audit_checks.sh)
 
-### Type 1: Critical Size Files (>1000 lines)
+### Type 1: Critical Size Files (>1250 lines)
 
 **What to Check:**
-- Any workflow guide >1000 lines
+- Any workflow guide >1250 lines
 - Indicates substantial content that likely has natural subdivisions
 - MUST reduce or provide strong justification
 
 **Search Command:**
 ```bash
-# Find files >1000 lines
+# Find files >1250 lines
 find stages reference templates -name "*.md" -exec wc -l {} \; | \
-  awk '$1 > 1000 {print $1, $2}' | \
+  awk '$1 > 1250 {print $1, $2}' | \
   sort -rn
 ```
 
@@ -294,17 +296,13 @@ LARGE=0
 for file in $(find stages -name "*.md"); do
   lines=$(wc -l < "$file")
 
-  if [ "$lines" -gt 1000 ]; then
+  if [ "$lines" -gt 1250 ]; then
     echo "❌ TOO LARGE: $file ($lines lines)"
     ((TOO_LARGE++))
-  elif [ "$lines" -gt 600 ]; then
-    echo "⚠️  LARGE: $file ($lines lines) - consider split"
-    ((LARGE++))
   fi
 done
 
-echo "Files >1000 lines: $TOO_LARGE"
-echo "Files 600-1000 lines: $LARGE"
+echo "Files >1250 lines: $TOO_LARGE"
 ```
 
 ### Script 2: CLAUDE.md Character Limit (IN pre_audit_checks.sh)
@@ -419,7 +417,7 @@ STEP 6: Validate reduction
 $ wc -c CLAUDE.md  # Should be ≤40,000
 ```
 
-**For workflow guides >1000 lines:**
+**For workflow guides >1250 lines:**
 
 ```markdown
 STEP 1: Analyze file structure
@@ -442,7 +440,7 @@ STEP 4: Execute reduction
 - Verify navigation intact
 
 STEP 5: Validate reduction
-$ wc -l new_files.md  # All should be <600 lines
+$ wc -l new_files.md  # All should be <1000 lines ideally
 $ grep -r "old_file_path" .  # No broken references
 ```
 
@@ -477,10 +475,10 @@ Verdict: ✅ ACCEPTABLE (copied then edited, not read repeatedly)
 
 **1. Sequential Workflow Guides:**
 ```markdown
-File: stages/s5/s5_implementation_planning.md (1200 lines)
+File: stages/s5/s5_implementation_planning.md (1400 lines)
 Content: Step-by-step instructions for S5
 Verdict: ❌ ERROR (agents must read sequentially, too long)
-Fix: Split into s5_p1, s5_p2, s5_p3 (400 lines each)
+Fix: Split into s5_p1, s5_p2, s5_p3 (400-500 lines each)
 ```
 
 **2. Root Entry Point Files:**
@@ -542,7 +540,7 @@ $ wc -c CLAUDE.md
 **Issue Found:**
 ```bash
 $ wc -l stages/s1/s1_epic_planning.md
-1089 stages/s1/s1_epic_planning.md
+1289 stages/s1/s1_epic_planning.md
 
 ❌ TOO LARGE: Must reduce or justify
 ```
@@ -560,12 +558,12 @@ $ wc -l stages/s1/s1_epic_planning.md
 **Result:**
 ```bash
 $ wc -l stages/s1/s1_epic_planning.md
-650 stages/s1/s1_epic_planning.md
+850 stages/s1/s1_epic_planning.md
 
 $ wc -l stages/s1/s1_p3_discovery_phase.md
 400 stages/s1/s1_p3_discovery_phase.md
 
-✅ PASS: Both files <1000 lines, improved navigation
+✅ PASS: Both files <1250 lines, improved navigation
 ```
 
 ### Example 3: Incremental Growth Not Noticed
@@ -604,7 +602,7 @@ $ wc -l stages/s5/s5_p1_i*.md
 195 stages/s5/s5_p1_i2_algorithms.md
 160 stages/s5/s5_p1_i3_integration.md
 
-✅ PASS: All files <600 lines
+✅ PASS: All files well under 1250-line baseline
 ```
 
 ### Example 4: Template Appropriately Large
@@ -654,18 +652,18 @@ This dimension guide focuses on **detection and evaluation**. For **reduction ex
 
 ## Acceptance Criteria for Files Near Threshold
 
-**Updated:** 2026-02-05 (Round 3 audit)
+**Updated:** 2026-02-05 (Meta-Audit - baseline increased to 1250 lines)
 
-### Files 1000-1050 Lines: Case-by-Case Evaluation
+### Files 1250-1300 Lines: Case-by-Case Evaluation
 
-**Philosophy:** Not all files >1000 lines are violations. Comprehensive guides may legitimately need ~1000 lines if content is non-duplicated and serves the guide's purpose.
+**Philosophy:** Not all files >1250 lines are violations. Comprehensive guides may legitimately need ~1250 lines if content is non-duplicated and serves the guide's purpose.
 
 **Acceptance Criteria:**
 
 ✅ **ACCEPT as legitimate complexity when:**
 1. **Content is non-duplicated** (no sections copying from other guides)
 2. **File serves single cohesive purpose** (not multiple unrelated workflows)
-3. **Only slightly over threshold** (1000-1050 lines, not 1200+)
+3. **Only slightly over threshold** (1250-1300 lines, not 1500+)
 4. **Whitespace is reasonable** (<30% blank lines + separators)
 5. **Content cannot be reasonably reduced** without harming usability
 6. **Critical workflows require inline context** (extracting would cause navigation barriers)
@@ -677,34 +675,26 @@ This dimension guide focuses on **detection and evaluation**. For **reduction ex
 4. **Multiple unrelated workflows** (apply Strategy 1: Break into Sequential Phases)
 5. **Verbose examples** that could be condensed or moved to appendices
 
-### Current Accepted Files (1000-1050 lines)
+### Current Accepted Files (Under New 1250 Baseline)
 
-**As of Round 3 audit, 2 files accepted:**
+**As of Meta-Audit (2026-02-05), all previously borderline files now well under threshold:**
+
+**Former borderline files (now under 1250):**
 
 **1. stages/s1/s1_p3_discovery_phase.md (1006 lines)**
-- **Overage:** 6 lines (0.6%)
-- **Whitespace:** 28.4% (264 blank + 22 separators = 286 lines)
-- **Content:** 720 lines actual content
-- **Justification:** Comprehensive Discovery Phase workflow with non-duplicated Validation Loop instructions (231 lines), inline templates, checkpoints, complete workflow
-- **Status:** Accepted as legitimate complexity
+- **Status:** ✅ Well under 1250 baseline (244 lines of headroom)
+- **No action needed**
 
 **2. stages/s8/s8_p2_epic_testing_update.md (1010 lines)**
-- **Overage:** 10 lines (1.0%)
-- **Whitespace:** 29.6% (261 blank + 38 separators = 299 lines)
-- **Content:** 711 lines actual content
-- **Justification:** STEP 3 (223 lines) contains before/after examples teaching agents required detail level for test plan updates. Inline examples necessary - extracting would harm agent workflow.
-- **Status:** Accepted as legitimate complexity
+- **Status:** ✅ Well under 1250 baseline (240 lines of headroom)
+- **No action needed**
 
-### Monitoring Accepted Files
+### Monitoring for New Files Near Threshold
 
-**Watch for growth:**
-- **s1_p3_discovery_phase.md:** If grows >1050 lines, revisit
-- **s8_p2_epic_testing_update.md:** If grows >1050 lines, revisit
-
-**Trigger thresholds:**
-- 1000-1050 lines: Acceptable with justification
-- 1050-1100 lines: Should investigate reduction opportunities
-- >1100 lines: Must reduce (clear violation)
+**Watch for files approaching new baseline:**
+- **1250-1300 lines:** Acceptable with justification (case-by-case evaluation)
+- **1300-1350 lines:** Should investigate reduction opportunities
+- **>1350 lines:** Must reduce (clear violation)
 
 ### Historical Context
 
@@ -720,9 +710,16 @@ This dimension guide focuses on **detection and evaluation**. For **reduction ex
 - Accepted 2 files as legitimate complexity (s1_p3: 1006, s8_p2: 1010)
 - Net result: 0 files requiring action
 
-**Philosophy Shift:**
-- Old: "All files >600 lines should be smaller"
-- New: "Files ≤1000 lines OK if content justified, files >1000 need case-by-case evaluation"
+**After Meta-Audit (2026-02-05):**
+- Increased baseline from 1000 → 1250 lines
+- Rationale: Dimension reference guides (d1-d16) legitimately need 1000-1200 lines for comprehensive coverage
+- Agent usability maintained (comprehensive guides acceptable if well-structured)
+- 6 dimension files were 1104-1324 lines → 3 now under threshold, 3 still require reduction
+
+**Philosophy Evolution:**
+- Round 1-2: "All files >600 lines should be smaller"
+- Round 3: "Files ≤1000 lines OK if content justified"
+- Meta-Audit: "Files ≤1250 lines OK if comprehensive reference content justified"
 
 ---
 

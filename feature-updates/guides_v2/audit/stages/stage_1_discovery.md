@@ -84,7 +84,7 @@
 
 **Dimensions:**
 - **D9: Intra-File Consistency** - Within-file quality (formatting, headers, etc.)
-- **D10: File Size Assessment** - Files within readable limits (CLAUDE.md <40K, guides <1000 lines)
+- **D10: File Size Assessment** - Files within readable limits (CLAUDE.md <40K, guides <1250 lines)
 - **D11: Structural Patterns** - Guides follow expected template structures
 - **D12: Cross-File Dependencies** - Stage prerequisites match outputs, workflow continuity
 

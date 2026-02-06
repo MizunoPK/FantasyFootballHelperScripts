@@ -132,8 +132,7 @@ sed -i 's|old_path|new_path|g' path/to/file.md
 $ bash scripts/pre_audit_checks.sh
 
 === File Size Assessment ===
-Files >1000 lines: 2
-Files 600-1000 lines: 5
+Files >1250 lines: 0
 
 === Structure Validation ===
 Missing Prerequisites: 3 files
