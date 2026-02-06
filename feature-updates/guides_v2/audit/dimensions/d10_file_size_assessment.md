@@ -4,7 +4,7 @@
 **Category:** Structural Dimensions
 **Automation Level:** 100% automated
 **Priority:** MEDIUM
-**Last Updated:** 2026-02-04
+**Last Updated:** 2026-02-05
 
 **Focus:** Ensure files are appropriately sized for agent comprehension and usability
 **Typical Issues Found:** 2-5 large files per audit
@@ -34,10 +34,10 @@
 - Must reduce before audit completion
 
 ✅ **Workflow Guide Line Limits:**
-- CRITICAL: >1000 lines (must reduce or justify)
-- LARGE: 800-1000 lines (strongly consider split)
-- WARNING: 600-800 lines (evaluate for split)
-- OK: <600 lines (no action needed)
+- CRITICAL: >1000 lines (exceeds baseline - must reduce or justify)
+- ACCEPTABLE: ≤1000 lines (within baseline - OK if content non-duplicated)
+
+**Updated Policy (2026-02-05):** Simplified from 3-tier threshold (600/800/1000) to single 1000-line baseline for clarity and reduced audit noise.
 
 ✅ **Root-Level File Sizes:**
 - README.md, EPIC_WORKFLOW_USAGE.md, prompts_reference_v2.md
@@ -649,6 +649,80 @@ This dimension guide focuses on **detection and evaluation**. For **reduction ex
 **Division of Responsibility:**
 - **D10 (this guide):** WHAT to check, WHEN files are too large, WHETHER to reduce
 - **file_size_reduction_guide.md:** HOW to reduce, step-by-step protocols
+
+---
+
+## Acceptance Criteria for Files Near Threshold
+
+**Updated:** 2026-02-05 (Round 3 audit)
+
+### Files 1000-1050 Lines: Case-by-Case Evaluation
+
+**Philosophy:** Not all files >1000 lines are violations. Comprehensive guides may legitimately need ~1000 lines if content is non-duplicated and serves the guide's purpose.
+
+**Acceptance Criteria:**
+
+✅ **ACCEPT as legitimate complexity when:**
+1. **Content is non-duplicated** (no sections copying from other guides)
+2. **File serves single cohesive purpose** (not multiple unrelated workflows)
+3. **Only slightly over threshold** (1000-1050 lines, not 1200+)
+4. **Whitespace is reasonable** (<30% blank lines + separators)
+5. **Content cannot be reasonably reduced** without harming usability
+6. **Critical workflows require inline context** (extracting would cause navigation barriers)
+
+❌ **REDUCE when:**
+1. **Content duplicates other guides** (apply Strategy 0: Reduce Duplication)
+2. **Embedded templates** can be extracted (apply Strategy 2: Extract to Templates)
+3. **Excessive whitespace** (>35% blank lines, can be tightened)
+4. **Multiple unrelated workflows** (apply Strategy 1: Break into Sequential Phases)
+5. **Verbose examples** that could be condensed or moved to appendices
+
+### Current Accepted Files (1000-1050 lines)
+
+**As of Round 3 audit, 2 files accepted:**
+
+**1. stages/s1/s1_p3_discovery_phase.md (1006 lines)**
+- **Overage:** 6 lines (0.6%)
+- **Whitespace:** 28.4% (264 blank + 22 separators = 286 lines)
+- **Content:** 720 lines actual content
+- **Justification:** Comprehensive Discovery Phase workflow with non-duplicated Validation Loop instructions (231 lines), inline templates, checkpoints, complete workflow
+- **Status:** Accepted as legitimate complexity
+
+**2. stages/s8/s8_p2_epic_testing_update.md (1010 lines)**
+- **Overage:** 10 lines (1.0%)
+- **Whitespace:** 29.6% (261 blank + 38 separators = 299 lines)
+- **Content:** 711 lines actual content
+- **Justification:** STEP 3 (223 lines) contains before/after examples teaching agents required detail level for test plan updates. Inline examples necessary - extracting would harm agent workflow.
+- **Status:** Accepted as legitimate complexity
+
+### Monitoring Accepted Files
+
+**Watch for growth:**
+- **s1_p3_discovery_phase.md:** If grows >1050 lines, revisit
+- **s8_p2_epic_testing_update.md:** If grows >1050 lines, revisit
+
+**Trigger thresholds:**
+- 1000-1050 lines: Acceptable with justification
+- 1050-1100 lines: Should investigate reduction opportunities
+- >1100 lines: Must reduce (clear violation)
+
+### Historical Context
+
+**Before Round 3 (Round 1-2):**
+- Used 3-tier threshold: 600 (WARNING), 800 (LARGE), 1000 (CRITICAL)
+- Created 32 violations (18 WARNING + 10 LARGE + 4 CRITICAL)
+- 75% of flagged files were false positives
+
+**After Round 3:**
+- Simplified to single 1000-line baseline
+- Reduced violations from 32 → 4 (75% reduction)
+- Applied Strategy 0 to reduce: s1 (1017→978), s3 (1019→948)
+- Accepted 2 files as legitimate complexity (s1_p3: 1006, s8_p2: 1010)
+- Net result: 0 files requiring action
+
+**Philosophy Shift:**
+- Old: "All files >600 lines should be smaller"
+- New: "Files ≤1000 lines OK if content justified, files >1000 need case-by-case evaluation"
 
 ---
 
