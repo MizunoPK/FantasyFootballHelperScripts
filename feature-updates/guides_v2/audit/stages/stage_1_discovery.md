@@ -1,8 +1,8 @@
 # Stage 1: Discovery
 
 **Purpose:** Find issues using systematic search patterns with fresh eyes
-**Duration:** 30-60 minutes per round
-**Input:** Pre-audit check results (from `scripts/pre_audit_checks.sh`) OR lessons learned from Round N-1
+**Duration:** 30-60 minutes per sub-round
+**Input:** Pre-audit check results (from `scripts/pre_audit_checks.sh`) OR lessons learned from previous sub-rounds
 **Output:** Discovery report with categorized issues
 **Reading Time:** 15-20 minutes
 
@@ -11,13 +11,14 @@
 ## Table of Contents
 
 1. [Overview](#overview)
-2. [Prerequisites](#prerequisites)
-3. [Discovery Philosophy](#discovery-philosophy)
-4. [Discovery Strategy](#discovery-strategy)
-5. [Discovery Execution](#discovery-execution)
-6. [Documentation Format](#documentation-format)
-7. [Exit Criteria](#exit-criteria)
-8. [Common Pitfalls](#common-pitfalls)
+2. [Sub-Round Focus](#sub-round-focus)
+3. [Prerequisites](#prerequisites)
+4. [Discovery Philosophy](#discovery-philosophy)
+5. [Discovery Strategy](#discovery-strategy)
+6. [Discovery Execution](#discovery-execution)
+7. [Documentation Format](#documentation-format)
+8. [Exit Criteria](#exit-criteria)
+9. [Common Pitfalls](#common-pitfalls)
 
 ---
 
@@ -27,9 +28,110 @@
 
 **Stage 1: Discovery** is where you find issues that need fixing. The goal is to:
 - Search systematically using multiple pattern types
+- Focus on specific dimensions based on current sub-round
 - Document every issue found with evidence
 - Categorize issues by audit dimension
 - Prepare for Stage 2 (Fix Planning)
+
+---
+
+## Sub-Round Focus
+
+### Dimension Focus by Sub-Round
+
+**🚨 CRITICAL:** Only check dimensions assigned to your current sub-round. Do NOT check all 16 dimensions in one discovery phase.
+
+#### Sub-Round N.1: Core Dimensions
+**Focus on:** D1, D2, D3, D8 (4 dimensions)
+**Duration:** 60-90 minutes (full cycle)
+**Why First:** Broken references and inconsistent notation affect all other checks
+
+**Dimensions:**
+- **D1: Cross-Reference Accuracy** - File paths, links, stage references
+- **D2: Terminology Consistency** - Notation (S#.P#.I#), naming conventions
+- **D3: Workflow Integration** - Prerequisites, stage transitions, workflow continuity
+- **D8: CLAUDE.md Sync** - Root file content matches guide content
+
+**Priority Order:**
+1. D1 first (broken references block other work)
+2. D2 second (notation consistency needed for D3)
+3. D3 third (workflow integration depends on correct references)
+4. D8 last (root file sync validates D1-D3)
+
+#### Sub-Round N.2: Content Quality Dimensions
+**Focus on:** D4, D5, D6, D13, D14 (5 dimensions)
+**Duration:** 75-120 minutes (full cycle)
+**Why Second:** Content fixes may reveal structural issues
+
+**Dimensions:**
+- **D4: Count Accuracy** - File counts, iteration counts, stage counts
+- **D5: Content Completeness** - Missing sections, gaps, orphaned references
+- **D6: Template Currency** - Templates reflect current workflow and terminology
+- **D13: Documentation Quality** - Required sections present, no TODOs/placeholders
+- **D14: Content Accuracy** - Claims match reality (step counts, durations, etc.)
+
+**Priority Order:**
+1. D5 first (find missing sections)
+2. D13 second (validate required sections present)
+3. D4 third (verify counts accurate)
+4. D14 fourth (validate claims vs reality)
+5. D6 last (templates match current state)
+
+#### Sub-Round N.3: Structural Dimensions
+**Focus on:** D9, D10, D11, D12 (4 dimensions)
+**Duration:** 60-90 minutes (full cycle)
+**Why Third:** Structure depends on correct content and references
+
+**Dimensions:**
+- **D9: Intra-File Consistency** - Within-file quality (formatting, headers, etc.)
+- **D10: File Size Assessment** - Files within readable limits (CLAUDE.md <40K, guides <1000 lines)
+- **D11: Structural Patterns** - Guides follow expected template structures
+- **D12: Cross-File Dependencies** - Stage prerequisites match outputs, workflow continuity
+
+**Priority Order:**
+1. D10 first (file size issues may require splitting)
+2. D11 second (structural patterns)
+3. D9 third (intra-file consistency)
+4. D12 last (cross-file dependencies require D9-D11 clean)
+
+#### Sub-Round N.4: Advanced Dimensions
+**Focus on:** D7, D15, D16 (3 dimensions)
+**Duration:** 45-75 minutes (full cycle)
+**Why Last:** Advanced checks require all other dimensions to be clean
+
+**Dimensions:**
+- **D7: Context-Sensitive Validation** - Distinguish errors from intentional exceptions
+- **D15: Duplication Detection** - No duplicate content or contradictory instructions
+- **D16: Accessibility** - Navigation aids, TOCs, scannable structure
+
+**Priority Order:**
+1. D16 first (accessibility - missing TOCs)
+2. D15 second (duplication detection)
+3. D7 last (context-sensitive validation requires understanding all content)
+
+### How to Use This Section
+
+**Before starting discovery:**
+1. Identify your current sub-round (N.1, N.2, N.3, or N.4)
+2. Read the dimension focus for that sub-round
+3. Read the dimension guides for those specific dimensions ONLY
+4. Use search patterns relevant to those dimensions
+5. Document issues under those dimension categories ONLY
+
+**Example:**
+```text
+Current: Sub-Round 2.1 (Core Dimensions)
+Focus: D1, D2, D3, D8
+Read: d1_cross_reference_accuracy.md, d2_terminology_consistency.md, d3_workflow_integration.md, d8_claude_md_sync.md
+Search: File paths, old notation, prerequisite chains, CLAUDE.md vs guides
+Output: Discovery report with D1, D2, D3, D8 issues ONLY
+```
+
+**Do NOT:**
+- ❌ Check all 16 dimensions in Sub-Round N.1
+- ❌ Check D10 (file size) during Sub-Round N.1 (save for N.3)
+- ❌ Mix dimensions from different sub-rounds
+- ❌ Skip dimensions assigned to current sub-round
 
 ### Mindset
 
@@ -547,20 +649,39 @@ done
 
 ## Exit Criteria
 
-### Stage 1 Complete When ALL These Are True
+### Stage 1 Complete When ALL These Are True (Sub-Round Specific)
 
-- [ ] Ran automated pre-checks (`scripts/pre_audit_checks.sh`)
+**Sub-Round Focus:**
+- [ ] Identified current sub-round (N.1, N.2, N.3, or N.4)
+- [ ] Read dimension guides for current sub-round ONLY
+- [ ] Focused search on assigned dimensions ONLY
+
+**Discovery Execution:**
+- [ ] Ran automated pre-checks (`scripts/pre_audit_checks.sh`) if Sub-Round 1.1
 - [ ] Checked all Priority 1 files (templates, CLAUDE.md, prompts, core docs)
 - [ ] Searched all folders systematically (at least 6 folders)
-- [ ] Ran all pattern variations from Step 4 (minimum 5 patterns)
+- [ ] Ran all pattern variations from Step 4 (minimum 5 patterns per dimension)
 - [ ] Performed spot-checks on 10+ random files
+
+**Documentation:**
 - [ ] Documented ALL issues found using template above
-- [ ] Categorized issues by dimension
+- [ ] Categorized issues by dimension (ONLY dimensions in current sub-round)
 - [ ] Assigned severity to each issue
-- [ ] Created discovery report
-- [ ] Ready to proceed to Stage 2 (Fix Planning)
+- [ ] Created discovery report for current sub-round
+- [ ] Issues ONLY include dimensions assigned to current sub-round
+
+**Verification:**
+- [ ] Did NOT check dimensions outside current sub-round
+- [ ] Discovery report dimension categories match sub-round focus
+- [ ] Ready to proceed to Stage 2 (Fix Planning) for current sub-round
 
 **If ANY criterion incomplete:** Continue discovery until all complete.
+
+**Sub-Round Dimension Checklist:**
+- Sub-Round N.1: D1 ✓, D2 ✓, D3 ✓, D8 ✓ (Core)
+- Sub-Round N.2: D4 ✓, D5 ✓, D6 ✓, D13 ✓, D14 ✓ (Content)
+- Sub-Round N.3: D9 ✓, D10 ✓, D11 ✓, D12 ✓ (Structural)
+- Sub-Round N.4: D7 ✓, D15 ✓, D16 ✓ (Advanced)
 
 ---
 

@@ -33,32 +33,49 @@
 
 **Critical Principle:** Better to do one more round than exit prematurely.
 
-### MANDATORY Loop Condition
+### MANDATORY Loop Conditions (Sub-Round System)
 
 ```text
 ┌─────────────────────────────────────────────────────────────────┐
-│  🚨 YOU MUST LOOP if current round found ANY issues             │
+│  🚨 THREE LEVELS OF LOOP DECISIONS:                             │
 │                                                                  │
-│  Loop Logic:                                                     │
-│  • Round N found issues → Fix ALL → Round N+1 (fresh patterns)  │
-│  • Round N found ZERO issues → Check other exit criteria        │
+│  SUB-ROUND LEVEL (Stage 5 within sub-round):                    │
+│  • Current sub-round found issues → Fix ALL → Re-run SAME       │
+│    sub-round (e.g., if 2.3 found issues, re-run 2.3)            │
+│  • Current sub-round ZERO issues → Proceed to next sub-round    │
 │                                                                  │
-│  Exit ONLY when:                                                 │
-│  • Current round discovered ZERO new issues, AND                 │
-│  • ALL issues from all previous rounds are resolved, AND         │
-│  • ALL 9 exit criteria below are met                            │
+│  ROUND LEVEL (After Sub-Round N.4 complete):                    │
+│  • ALL 4 sub-rounds found ZERO issues → Round N complete        │
+│  • ANY sub-round found issues → Continue sub-round loops        │
+│  • Round N complete → Proceed to Round N+1 (fresh eyes)         │
+│                                                                  │
+│  AUDIT LEVEL (After Round N complete):                          │
+│  • Minimum 3 rounds complete (12 sub-rounds total)              │
+│  • Latest round ZERO issues (all 4 sub-rounds clean)            │
+│  • ALL 9 exit criteria met → Consider exit                      │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-**If Round N found issues:**
-- You MUST fix ALL issues from Round N
-- You MUST loop to Round N+1
-- You CANNOT exit (even if you completed 3+ rounds)
+**If current sub-round (N.X) found issues:**
+- You MUST fix ALL issues from sub-round N.X
+- You MUST re-run SAME sub-round N.X
+- You CANNOT proceed to next sub-round until current clean
 
-**"Minimum 3 rounds" is NOT sufficient to exit:**
-- 3 rounds is a BASELINE (prevents premature exit)
-- Real exit trigger: Round finds ZERO issues + all criteria met
-- You may need 4, 5, or more rounds until achieving clean round
+**If current sub-round (N.X) found ZERO issues:**
+- Sub-Round N.1 clean → Proceed to N.2
+- Sub-Round N.2 clean → Proceed to N.3
+- Sub-Round N.3 clean → Proceed to N.4
+- Sub-Round N.4 clean → Round N complete
+
+**If Round N complete (all 4 sub-rounds clean):**
+- Proceed to Round N+1, Sub-Round (N+1).1
+- Use fresh patterns, different approach
+- Reset mental model between rounds
+
+**"Minimum 3 rounds" = 12 sub-rounds total:**
+- 3 rounds × 4 sub-rounds = 12 minimum cycles
+- Real exit trigger: Round with ALL sub-rounds clean + all criteria met
+- You may need 4-6 rounds (16-24 sub-rounds) until achieving clean round
 
 ### Why This Stage Matters
 
@@ -107,29 +124,40 @@
 
 **If ANY issues remain unfixed:** MUST loop (not optional)
 
-#### Criterion 2: Zero New Discoveries
-- [ ] Round N Discovery (Stage 1) found ZERO new issues
-- [ ] Tried at least 5 different pattern types in discovery
-- [ ] Searched all folders systematically
-- [ ] Used automated scripts + manual search
+#### Criterion 2: Zero New Discoveries (All Sub-Rounds)
+- [ ] Sub-Round N.1 (Core) Discovery found ZERO new issues
+- [ ] Sub-Round N.2 (Content) Discovery found ZERO new issues
+- [ ] Sub-Round N.3 (Structural) Discovery found ZERO new issues
+- [ ] Sub-Round N.4 (Advanced) Discovery found ZERO new issues
+- [ ] Tried at least 5 different pattern types per dimension category
+- [ ] Searched all folders systematically in each sub-round
+- [ ] Used automated scripts + manual search per sub-round
 
-**If found new issues in Stage 1:** MUST loop (mandatory)
+**If ANY sub-round found new issues in Stage 1:** MUST loop same sub-round (mandatory)
 
-#### Criterion 3: Zero Verification Findings
-- [ ] Round N Verification (Stage 4) found ZERO new issues
-- [ ] Re-ran all patterns from Discovery
-- [ ] Tried pattern variations not used in Discovery
-- [ ] Spot-checked 10+ random files
+#### Criterion 3: Zero Verification Findings (All Sub-Rounds)
+- [ ] Sub-Round N.1 (Core) Verification found ZERO new issues
+- [ ] Sub-Round N.2 (Content) Verification found ZERO new issues
+- [ ] Sub-Round N.3 (Structural) Verification found ZERO new issues
+- [ ] Sub-Round N.4 (Advanced) Verification found ZERO new issues
+- [ ] Re-ran all patterns from Discovery per sub-round
+- [ ] Tried pattern variations not used in Discovery per sub-round
+- [ ] Spot-checked 10+ random files per sub-round
 
-**If N_new > 0:** MUST loop (mandatory)
+**If ANY N_new > 0 in any sub-round:** MUST loop same sub-round (mandatory)
 
-#### Criterion 4: Minimum Rounds
-- [ ] Completed at least 3 rounds with fresh eyes
+#### Criterion 4: Minimum Rounds (Sub-Round System)
+- [ ] Completed at least 3 complete rounds (12 sub-rounds total)
+  - [ ] Round 1: Sub-Rounds 1.1, 1.2, 1.3, 1.4 complete
+  - [ ] Round 2: Sub-Rounds 2.1, 2.2, 2.3, 2.4 complete
+  - [ ] Round 3: Sub-Rounds 3.1, 3.2, 3.3, 3.4 complete
 - [ ] Each round used different patterns than previous
-- [ ] Each round explored different file orders
+- [ ] Each sub-round focused on correct dimension set
 - [ ] Clear mental break between rounds (fresh perspective)
+- [ ] All 16 dimensions checked at least 3 times (once per round)
 
-**If Round < 3:** MUST loop (baseline requirement)
+**If Total Rounds < 3:** MUST loop (baseline requirement)
+**If ANY sub-round skipped:** MUST loop (all 4 sub-rounds mandatory)
 **Note:** 3 rounds is minimum, NOT sufficient - must also have zero-issue round
 
 #### Criterion 5: All Remaining Documented
