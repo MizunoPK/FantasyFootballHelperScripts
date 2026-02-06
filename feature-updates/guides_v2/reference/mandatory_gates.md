@@ -80,8 +80,7 @@
 | 2a | Gate 1: Research Audit | S2.P1 | All 4 categories with evidence | Yes (Redo research) |
 | 2b | Gate 2: Spec Alignment | S2.P2 | Zero scope creep + zero missing | Yes (Revise spec) |
 | **3** | **Gate 3: Checklist Approval (NEW)** | **S2.P2** | **User answers ALL questions (100%)** | **Yes (Revise/Re-present)** |
-| 4 | Gate 4: User Approval | S2.P3 | User explicitly approves | Yes (Revise criteria) |
-| 4.5 | User Sign-Off | S3 | User approves complete plan | Yes (S3) |
+| 4.5 | Gate 4.5: Epic Plan Approval | S3.P3 | User approves complete plan | Yes (S3) |
 | **5** | **Gate 5: Epic Test Plan Approval (NEW)** | **After S4** | **User approves epic_smoke_test_plan.md** | **Yes (Revise test plan)** |
 | 5aa | Iteration 4a | Round 1 | All tasks have acceptance criteria | Yes (Iteration 4) |
 | 5ac | Iteration 20 | Part 2 | ALL 4 PARTS pass with 100% | Yes (Iteration 20) |
