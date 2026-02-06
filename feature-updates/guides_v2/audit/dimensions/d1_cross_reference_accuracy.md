@@ -65,7 +65,7 @@
 Guide said: "Read stages/s6/epic_smoke_testing.md"
 Reality: File is at stages/s9/s9_p1_epic_smoke_testing.md
 Result: Agent couldn't find file, workflow stuck
-```
+```markdown
 
 ### Common Trigger Events
 
@@ -109,7 +109,7 @@ for file in README.md EPIC_WORKFLOW_USAGE.md prompts_reference_v2.md; do
   echo "=== Checking $file ==="
   grep -n "stages/s[0-9].*\.md\|templates/.*\.md\|reference/.*\.md\|parallel_work/.*\.md\|debugging/.*\.md" "$file" || echo "No paths found"
 done
-```
+```bash
 
 **Validation:**
 ```bash
@@ -135,7 +135,7 @@ grep -h "stages/s[0-9].*\.md\|templates/.*\.md\|reference/.*\.md" \
 stages/sN/file_name.md
 templates/template_name.md
 reference/reference_name.md
-```
+```bash
 
 **Search Command:**
 ```bash
@@ -152,7 +152,7 @@ grep -rh "stages/s[0-9].*\.md\|templates/.*\.md\|reference/.*\.md" \
 while read path; do
   [ ! -f "$path" ] && echo "BROKEN: $path"
 done < paths.txt
-```
+```markdown
 
 ### Type 2: Stage References
 
@@ -170,7 +170,7 @@ grep -rn "\bS[0-9]\{1,2\}\(\.[A-Z][0-9]\{1,2\}\(\.[A-Z][0-9]\{1,2\}\)\?\)\?\b" \
 
 # Find old notation
 grep -rn "Stage [0-9][a-z]\|S[0-9][a-z]" --include="*.md"
-```
+```markdown
 
 **Validation:**
 - Verify stage numbers are 1-10 (current workflow)
@@ -193,7 +193,7 @@ grep -rh "\[.*\](.*\.md)" --include="*.md" | \
   grep -o "](.*)" | \
   sed 's/^](//; s/)$//' | \
   sort -u
-```
+```markdown
 
 **Validation:**
 ```bash
@@ -209,7 +209,7 @@ grep -rh "\[.*\](.*\.md)" --include="*.md" | \
 "After S# complete"
 "Before starting S#"
 "Proceed to S#"
-```
+```bash
 
 **Search Command:**
 ```bash
@@ -236,7 +236,7 @@ Stage 5a → S5
 Stage 5b → S6
 Stage 5c → S7
 Stage 5d → S8
-```
+```bash
 
 **What Happens:**
 ```bash
@@ -260,7 +260,7 @@ sed -i 's/Stage 5a/S5/g' *.md
 ```text
 stages/s9/s9_epic_final_qc.md:45: "stages/s7/epic_cleanup.md"
 stages/s9/s9_p4_epic_final_review.md:67: "stages/s7/epic_cleanup.md"
-```
+```markdown
 
 **What Happens:** File renamed, but references still use old name
 
@@ -289,7 +289,7 @@ Every reference to "stages/s7/" needs → "stages/s10/"
 **Templates Still Show:**
 ```text
 Workflow: S1 → S2 → S3 → S4 → S5 → S6 → S7
-```
+```markdown
 
 **Should Show:**
 ```text
@@ -339,7 +339,7 @@ else
   echo "❌ Found broken paths"
   exit 1
 fi
-```
+```bash
 
 ### Script 2: Find References to Non-Existent Files
 
@@ -392,7 +392,7 @@ grep -rn "\bS[0-9][a-z]\b\|Stage [0-9][a-z]" --include="*.md" guides_v2/ | \
   while read line; do
     echo "⚠️  OLD NOTATION: $line"
   done
-```
+```markdown
 
 ---
 
@@ -445,7 +445,7 @@ STEP 3: For errors, determine correct reference
 STEP 4: Verify replacement is correct
   ↓
 STEP 5: Document fix
-```
+```markdown
 
 ---
 
@@ -463,7 +463,7 @@ Old workflow: S5a → S5b → S5c
 ```text
 
 **After restructuring:**
-```
+```text
 New workflow: S5.P1 → S5.P2 → S5.P3
 ```text
 ```
@@ -474,7 +474,7 @@ New workflow: S5.P1 → S5.P2 → S5.P3
 If you see references to "Stage 5a" in old epics:
 - Old: Stage 5a
 - New: S5.P1
-```
+```markdown
 **Verdict:** ✅ ACCEPTABLE (teaching migration)
 
 **3. Quoted Error Messages:**
@@ -490,7 +490,7 @@ User reported: "Cannot find stages/s5/round1/file.md"
 **1. Current Workflow Instructions:**
 ```markdown
 Next, read stages/s5/round1/planning.md
-```
+```markdown
 **Verdict:** ❌ ERROR (should be stages/s5/s5_p1_planning_round1.md)
 
 **2. Prerequisites:**
@@ -502,7 +502,7 @@ Before starting S5a, ensure S4 is complete
 **3. Navigation:**
 ```markdown
 After completing this stage, proceed to S6a
-```
+```markdown
 **Verdict:** ❌ ERROR (should be S6.P1 or S9 depending on context)
 
 ---
@@ -528,7 +528,7 @@ Content: "Read stages/s6/epic_smoke_testing.md"
 ```bash
 sed -i 's|stages/s6/epic_smoke_testing\.md|stages/s9/s9_p1_epic_smoke_testing.md|g' \
   stages/s8/s8_p2_epic_testing_update.md
-```
+```bash
 
 **Verification:**
 ```bash
@@ -546,7 +546,7 @@ ls stages/s9/s9_p1_epic_smoke_testing.md
 File: stages/s10/s10_p1_guide_update_workflow.md
 Line: 45
 Content: "stages/s10/epic_cleanup.md"
-```
+```markdown
 
 **Analysis:**
 - File exists at: stages/s10/s10_epic_cleanup.md (with s10_ prefix)
@@ -565,7 +565,7 @@ sed -i 's|stages/s10/epic_cleanup\.md|stages/s10/s10_epic_cleanup.md|g' \
 File: stages/s5/s5_p1_planning_round1.md
 Line: 155
 Content: "READ: stages/s5/round1/iterations_1_3_requirements.md"
-```
+```diff
 
 **Analysis:**
 - Old structure: stages/s5/round1/
@@ -585,7 +585,7 @@ sed -i 's|stages/s5/round1/iterations_1_3_requirements\.md|stages/s5/s5_p1_i1_re
 File: feature-updates/guides_v2/README.md
 Line: 39
 Content: "audit/README.md (modular audit system entry point)"
-```
+```diff
 
 **Historical Context (Feb 2026):**
 - The monolithic GUIDES_V2_FORMAL_AUDIT_GUIDE.md (30,568 tokens) was replaced by modular audit/ system

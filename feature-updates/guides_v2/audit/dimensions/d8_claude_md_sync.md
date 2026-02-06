@@ -73,7 +73,7 @@
 CLAUDE.md: "S5: Implementation Planning (28 iterations, 3 rounds)" (outdated as of 2026-02-04)
 Reality: S5 has 22 iterations across 3 rounds (as of 2026-02-04, testing moved to S4)
 Result: Agent expects 28 iterations, looks for I23-I28 which don't exist
-```
+```markdown
 
 ### Why CLAUDE.md Drifts
 
@@ -136,7 +136,7 @@ done < /tmp/claude_paths.txt
 **S1: Epic Planning**
 - **Guide:** `stages/s1/s1_epic_planning.md`
 - **Next:** S2
-```
+```markdown
 
 **Manual Check Required:**
 1. Read CLAUDE.md Stage Workflows section
@@ -190,7 +190,7 @@ grep -n "Gate [0-9]" feature-updates/guides_v2/reference/mandatory_gates.md | \
 CLAUDE.md: "S5: Implementation Planning (22 iterations, 3 rounds)"
           ↓ Should match ↓
 stages/s5/s5_implementation_planning.md: "22 iterations across 3 rounds"
-```
+```markdown
 
 **Manual Check Required:**
 1. Read CLAUDE.md workflow description for each stage
@@ -251,7 +251,7 @@ for template in $(cat /tmp/template_refs.txt); do
     echo "MISSING: $template"
   fi
 done
-```
+```markdown
 
 **Manual Check:**
 - Read template descriptions in CLAUDE.md
@@ -384,7 +384,7 @@ for stage_ref in $(cat /tmp/claude_stages.txt); do
 done
 
 echo "✅ Stage reference check complete"
-```
+```bash
 
 **Coverage:** ~20% of D8 issues
 
@@ -519,7 +519,7 @@ echo "  - Key concepts aligned (Fresh Eyes, exit criteria, etc.)"
 # Run automated scripts
 bash feature-updates/guides_v2/audit/scripts/pre_audit_checks.sh | \
   grep -A 20 "D8: CLAUDE.md"
-```
+```markdown
 
 **Step 2: Manual Checks (20-30 minutes)**
 - Work through checklist above systematically
@@ -573,7 +573,7 @@ Example: "In KAI-6, we discovered S5 needed expansion..."
 CLAUDE.md: "S5: Implementation Planning (22 iterations)"
 Guide: "S5: Implementation Planning (22 iterations across 3 rounds:
         Round 1 (7 iterations), Round 2 (6 iterations), Round 3 (9 iterations))"
-```
+```markdown
 CLAUDE.md simplified but accurate ✅
 
 **Example - Error:**
@@ -590,7 +590,7 @@ CLAUDE.md contradicts guide ❌
 **CLAUDE.md may mention workflow history:**
 ```markdown
 "The workflow evolved from 7 stages to 10 stages in version 2..."
-```
+```markdown
 
 **This is OK** - provides context for users
 
@@ -617,7 +617,7 @@ CLAUDE.md contradicts guide ❌
 **Fix:**
 ```markdown
 **S5 Guide:** `stages/s5/s5_p1_planning_round1.md`
-```
+```markdown
 
 **How Found:** Automated path validation script
 
@@ -639,7 +639,7 @@ CLAUDE.md contradicts guide ❌
 ```markdown
 **S5: Implementation Planning**
 - **Actions:** 22 verification iterations across 3 rounds
-```
+```markdown
 
 **How Found:** Manual comparison of CLAUDE.md vs s5_implementation_planning.md
 
@@ -661,7 +661,7 @@ CLAUDE.md contradicts guide ❌
 ```markdown
 **S5: Implementation Planning**
 - **Next:** S6 (then S7, S8, repeat S5-S8 for each feature, or S9 when all features done)
-```
+```diff
 
 **How Found:** Manual workflow trace
 

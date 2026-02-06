@@ -79,7 +79,7 @@ Step 4: Create Sed Commands for Each Group
 Step 5: Identify Manual Review Cases
   ↓
 Step 6: Document Fix Order
-```
+```markdown
 
 ---
 
@@ -111,7 +111,7 @@ Group 2: Old Paths "stages/s5/round1/" → "stages/s5/s5_p1_"
   - Issue #12: s5_p1_planning_round1.md:155
   - Issue #19: s5_p1_i1_requirements.md:67
   [15 instances across 6 files]
-```
+```markdown
 **Benefit:** Fix all instances of pattern at once with single sed command
 
 ### Grouping Criteria
@@ -169,7 +169,7 @@ Total Issues: 45
 **Files:** 2 files
 **Severity:** Medium
 **Automated:** No
-```
+```diff
 
 ---
 
@@ -217,7 +217,7 @@ Total Issues: 45
 1. Automated fixes first (faster)
    ↓
 2. Manual fixes second (require thought)
-```
+```bash
 
 ---
 
@@ -261,7 +261,7 @@ sed -i 's|stages/s5/round1_todo\.md|stages/s5/s5_p1_planning.md|g' file.md
 
 # Using | as delimiter (recommended for paths)
 sed -i 's|stages/s5/round1_todo.md|stages/s5/s5_p1_planning.md|g' file.md
-```
+```bash
 
 ### Word Boundary Regex
 
@@ -283,7 +283,7 @@ sed -i 's/\b5a\b/S5.P1/g' file.md
 ## Execution Order
 
 ### Group 1: Critical File References (P0)
-```
+```bash
 # Fix broken stages/s5/round1/ references
 sed -i 's|stages/s5/round1/iterations_1_3\.md|stages/s5/s5_p1_i1_requirements.md|g; \
         s|stages/s5/round1/iteration_4\.md|stages/s5/s5_p1_i2_algorithms.md|g; \
@@ -298,7 +298,7 @@ grep -rn "stages/s5/round1/" stages/s5/ --include="*.md" | wc -l
 ```markdown
 
 ### Group 2: Old Notation (P1)
-```
+```bash
 # Fix S5a/5b/5c notation
 sed -i 's/\bS5a\b/S5.P1/g; s/\bS5b\b/S5.P2/g; s/\bS5c\b/S5.P3/g' \
     stages/s5/*.md stages/s2/*.md stages/s10/*.md
@@ -317,7 +317,7 @@ grep -rn "\bS5[a-e]\b" stages --include="*.md" | wc -l
 3. stages/s9/s9_p3_user_testing.md (line 89 - add after Overview)
 
 **Action:** Manually add using Edit tool, following template structure
-```
+```markdown
 ```markdown
 
 ---
@@ -398,7 +398,7 @@ Read files, analyze context (15-30 min)
 
 **Question for User:**
 [Specific question about how to proceed]
-```
+```json
 
 **❌ NEVER DO THIS:**
 ```text
@@ -412,7 +412,7 @@ Read files, analyze context (15-30 min)
 "Issue X requires file reading → [Reads files now] → Fixes immediately OR asks user"
 "Issue Y requires 12 hours → Investigates scope → Asks user about priority/approach"
 "Issue Z is complex → Investigates thoroughly → Presents options to user"
-```
+```markdown
 
 ---
 

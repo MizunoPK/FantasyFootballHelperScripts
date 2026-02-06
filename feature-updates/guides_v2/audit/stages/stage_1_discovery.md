@@ -125,7 +125,7 @@ Focus: D1, D2, D3, D8
 Read: d1_cross_reference_accuracy.md, d2_terminology_consistency.md, d3_workflow_integration.md, d8_claude_md_sync.md
 Search: File paths, old notation, prerequisite chains, CLAUDE.md vs guides
 Output: Discovery report with D1, D2, D3, D8 issues ONLY
-```
+```diff
 
 **Do NOT:**
 - ❌ Check all 16 dimensions in Sub-Round N.1
@@ -182,7 +182,7 @@ rm -rf audit/outputs/*
 # Verify cleanup
 ls -la audit/outputs/
 # Should show empty directory or only .gitkeep
-```
+```diff
 
 **When to clean up:**
 - ✅ Starting NEW audit after guide changes
@@ -267,7 +267,7 @@ Changes:
 - Stage 6 → S9
 - Stage 7 → S10
 - File: stage_5a_planning.md → s5_p1_planning_round1.md
-```
+```diff
 
 **If general maintenance audit:**
 
@@ -302,7 +302,7 @@ Old Patterns for [CHANGE TYPE]:
 3. [old string in sentence context]
 4. [old string in file names]
 5. [old string in headers]
-```
+```markdown
 
 ### STEP 3: Brainstorm Pattern Variations
 
@@ -320,7 +320,7 @@ Base: "5a"
 - Action verbs: "back to 5a", "restart 5a", "proceed to 5a", "complete 5a"
 - Descriptive: "in 5a", "during 5a", "from 5a", "after 5a"
 - Comparisons: "5a vs 5b", "5a or 5b", "5a and 5b"
-```
+```diff
 
 **Header Variations:**
 ```markdown
@@ -334,7 +334,7 @@ Base: "5a"
 - "stage_5a_"
 - "part_5a"
 - "round_5a"
-```
+```diff
 
 **Case Variations:**
 ```text
@@ -364,7 +364,7 @@ grep -rn "^## 5[a-e]\|^### Stage 5[a-e]" --include="*.md"
 
 # In file paths/names
 find . -name "*5a*" -o -name "*5b*" -o -name "*5c*"
-```
+```bash
 
 **Command Template:**
 ```bash
@@ -406,7 +406,7 @@ grep -rn "PATTERN" prompts/ --include="*.md"
 # README and EPIC_WORKFLOW_USAGE (entry points)
 echo "=== Checking core docs ==="
 grep -rn "PATTERN" README.md EPIC_WORKFLOW_USAGE.md
-```
+```bash
 
 **Why templates first?** Template errors multiply - every new epic created gets the error.
 
@@ -465,7 +465,7 @@ grep -rn "back to 5[a-e]\|restart 5[a-e]\|proceed to 5[a-e]" --include="*.md" -i
 grep -rn "^## 5[a-e]\|^### Stage 5[a-e]" --include="*.md"
 
 # Continue with ALL pattern variations from Step 4
-```
+```bash
 
 **Document Results:**
 - Pattern used
@@ -524,7 +524,7 @@ grep -rh "stages/s[0-9].*\.md" --include="*.md" | \
 while read path; do
   [ ! -f "$path" ] && echo "BROKEN: $path"
 done < /tmp/all_refs.txt
-```
+```bash
 
 **Example: D10 File Size Assessment**
 ```bash
@@ -559,7 +559,7 @@ done
 `grep -rn "pattern" --include="*.md"`
 
 **Context (5 lines):**
-```
+```markdown
 [Line before]
 [Line before]
 → [Issue line - mark with arrow]

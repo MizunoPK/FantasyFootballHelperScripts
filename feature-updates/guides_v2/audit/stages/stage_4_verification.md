@@ -80,7 +80,7 @@ Tier 3: SPOT-CHECK Random Files
   Manual reading catches what grep misses
   ↓
 SUCCESS: Zero new issues, all original issues fixed
-```
+```bash
 
 ---
 
@@ -113,7 +113,7 @@ grep -rn "\bS5a\b" --include="*.md" | wc -l
 
 # If 0: ✅ Pattern verified clean
 # If > 0: Analyze each match
-```
+```markdown
 
 ### STEP 3: Analyze Remaining Matches
 
@@ -146,7 +146,7 @@ grep -rn -A2 -B2 "\bS5a\b" file.md
 Stage 1 pattern: "5a" (space before/after)
 Missed variation: "5a:" (colon after)
 Missed variation: "(5a)" (in parentheses)
-```
+```bash
 
 **Solution:** Brainstorm variations not tried in Stage 1
 
@@ -188,7 +188,7 @@ grep -rn "5a-" --include="*.md"
 # Pattern 3: Period after
 grep -rn "5a\." --include="*.md"
 # Result: 0 matches → ✅ Clean
-```
+```bash
 
 ### STEP 3: Track New Discoveries
 
@@ -228,7 +228,7 @@ find stages templates reference -name "*.md" -type f | shuf -n 10
 # templates/feature_spec_template.md
 # reference/mandatory_gates.md
 # ...
-```
+```bash
 
 ### STEP 2: Manual Reading
 
@@ -278,7 +278,7 @@ tail -n 50 "$file"
 **Notes:** "Stage 5a" should be "S5.P1"
 
 [Continue for all spot-checked files]
-```
+```markdown
 
 ---
 
@@ -313,7 +313,7 @@ N_fixed = 60
 N_remaining = 0
 N_new = 0
 → ✅ Complete success
-```
+```markdown
 
 **Good verification (with intentional cases):**
 ```text
@@ -331,7 +331,7 @@ N_fixed = 60
 N_remaining = 0
 N_new = 8 (found during new pattern variations)
 → ❌ MUST loop back - discovery was incomplete
-```
+```markdown
 
 **Failed verification (issues not fixed):**
 ```text
@@ -354,7 +354,7 @@ N_new = 0
 
 ```bash
 bash feature-updates/guides_v2/audit/scripts/pre_audit_checks.sh
-```
+```markdown
 
 **Expected output:**
 ```text
@@ -392,7 +392,7 @@ for file in [list of reduced files]; do
   echo "$file: $lines lines"
   # Expected: ≤1250 lines (baseline threshold)
 done
-```
+```diff
 
 **Document results:**
 ```markdown
@@ -425,7 +425,7 @@ grep -rn "\.md" stages templates prompts reference CLAUDE.md | \
   done
 
 # Should return ZERO broken links
-```
+```markdown
 
 **If broken links found:**
 - Document as verification failure
@@ -481,7 +481,7 @@ grep -rn "\.md" stages templates prompts reference CLAUDE.md | \
 - Split guides: ✅ Navigation clear
 
 **Status:** ✅ ALL file size reductions verified
-```
+```markdown
 
 ### Critical Rules
 
@@ -572,7 +572,7 @@ IF N_new = 0 AND N_remaining acceptable:
    - Stage 3: Apply Fixes
    - Stage 4: Verification
    - Stage 5: Loop Decision
-```
+```markdown
 
 **Example:**
 
@@ -627,7 +627,7 @@ Stage 1 used pattern "\bS5a\b" which missed:
 ## Tier 1: Re-Run Original Patterns
 
 ### Pattern 1: Old notation "\bS5a\b"
-```
+```markdown
 $ grep -rn "\bS5a\b" --include="*.md"
 # Result: 0 matches
 ```markdown
@@ -649,7 +649,7 @@ $ grep -rn "stages/s5/round1/" --include="*.md"
 Tried 5 new patterns not used in Stage 1:
 
 ### New Pattern 1: "S5a:" (with colon)
-```
+```markdown
 $ grep -rn "S5a:" --include="*.md"
 # Result: 0 matches
 ```markdown

@@ -93,7 +93,7 @@
 ```bash
 ❌ TOO LARGE: stages/s5/s5_p1_planning_round1.md (1400 lines)
 ❌ POLICY VIOLATION: CLAUDE.md (45786 chars) exceeds 40,000
-```
+```markdown
 
 **Priority Order:**
 1. CLAUDE.md (if exceeds 40,000 chars) - P1 CRITICAL
@@ -243,7 +243,7 @@ s1_epic_planning.md (reduces to ~960 lines):
 
 s1_p3_discovery_phase.md (1006 lines):
   - Complete Discovery workflow (unchanged)
-```
+```markdown
 
 **Process:**
 1. Identify sections that reference detailed guides
@@ -334,7 +334,7 @@ s1_p3_structure_creation.md (~400 lines)
   - Checkpoints 4-5 (inline)
   - Exit Criteria for P3
   - Next: S2
-```
+```markdown
 
 **Benefits:**
 - Agent reads ~200-400 lines per phase (vs 1017 lines all at once)
@@ -426,7 +426,7 @@ Extracted:
 reference/anti_patterns.md (3,000 chars) - detailed examples
 reference/detailed_examples.md (8,000 chars)
 reference/workflow_reference_tables.md (5,000 chars)
-```
+```markdown
 
 **Process:**
 1. Identify sections with detailed content not critical for quick reference
@@ -495,7 +495,7 @@ guide.md (500 lines)
 
 examples/guide_examples.md (500 lines)
   - Example 1-5 (all detailed examples)
-```
+```markdown
 
 **Process:**
 1. Identify extensive example sets
@@ -579,7 +579,7 @@ wc -c CLAUDE.md
 # Common Anti-Patterns Reference
 
 [Full 750 lines of detailed anti-pattern documentation]
-```
+```markdown
 
 ### Step 4: Validate Reduction
 
@@ -642,7 +642,7 @@ After:
   - validation_loop_discovery.md (200 lines - context-specific)
   - validation_loop_spec_refinement.md (200 lines)
   - validation_loop_qc_pr.md (200 lines)
-```
+```yaml
 
 **Option C: Extract Examples/Reference**
 ```text
@@ -716,7 +716,7 @@ After:
 ### Re-run Pre-Audit Script
 ```bash
 bash feature-updates/guides_v2/audit/scripts/pre_audit_checks.sh
-```
+```markdown
 
 **Expected output:**
 ```text

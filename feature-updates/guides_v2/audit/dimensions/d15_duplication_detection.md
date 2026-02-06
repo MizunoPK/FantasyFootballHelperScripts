@@ -107,7 +107,7 @@
 C:\Users\kmgam\code\FantasyFootballHelperScripts\CLAUDE.md
 feature-updates/guides_v2/README.md
 feature-updates/guides_v2/EPIC_WORKFLOW_USAGE.md
-```
+```markdown
 
 **What to Validate:**
 
@@ -161,7 +161,7 @@ Same content appears verbatim in multiple files.
 3. Update Agent Status after each phase
 4. Zero tech debt tolerance
 5. Fix all issues immediately
-```
+```markdown
 
 **File B (stages/s6/s6_execution.md):**
 ```markdown
@@ -191,7 +191,7 @@ for header in "Critical Rules" "Common Mistakes" "Exit Criteria"; do
   # For each pair, compare content
   # (Manual comparison needed for semantic understanding)
 done
-```
+```markdown
 
 **Validation Process:**
 
@@ -228,7 +228,7 @@ All code must be tested before committing. Run the full test suite and ensure 10
 ## Testing Requirements
 
 All code should be tested before committing. Run the complete test suite and verify 100% pass rate. Do not commit failing tests.
-```
+```markdown
 
 **Similarity:** ~90% (must→should, full→complete, ensure→verify, Never→Do not)
 
@@ -258,7 +258,7 @@ done
 grep -rh "^## Testing Requirements\|^## Quality Standards" stages/ > /tmp/testing_sections.txt
 
 # Manually review for near-duplicates
-```
+```markdown
 
 **Red Flags:**
 - Same meaning expressed with different words
@@ -296,7 +296,7 @@ First, ensure you're on correct branch: `git checkout -b epic/KAI-{number}`
 
 Branch naming format: {work_type}/KAI-{number}
 Where work_type is: epic, feat, or fix
-```
+```markdown
 
 **Problem:** Branch naming rules duplicated. Should reference GIT_WORKFLOW.md instead.
 
@@ -318,7 +318,7 @@ Command: `git checkout -b epic/KAI-{number}`
 
 Follow git workflow for PR creation.
 See `reference/GIT_WORKFLOW.md` for complete process.
-```
+```json
 
 **Detection:**
 ```bash
@@ -362,7 +362,7 @@ Same examples used in multiple guides instead of referencing common examples.
 **Cause:** Missing import statement
 **Solution:** Add `import pandas as pd`
 **Result:** Code executes successfully
-```
+```markdown
 
 **S7 Guide:**
 ```markdown
@@ -381,7 +381,7 @@ Same examples used in multiple guides instead of referencing common examples.
 **Create shared examples file:**
 ```text
 reference/common_examples.md
-```
+```markdown
 
 **S5 and S7 both reference:**
 ```markdown
@@ -395,7 +395,7 @@ grep -rn "^### Example\|^## Example" stages/ > /tmp/all_examples.txt
 
 # Manually review for duplicates
 # Look for same scenario, problem, solution patterns
-```
+```markdown
 
 **Red Flags:**
 - Same scenario described in multiple examples
@@ -435,7 +435,7 @@ Before starting this stage:
 **Create shared prerequisite template:**
 ```text
 reference/standard_prerequisites.md
-```
+```markdown
 
 **Stage guides reference:**
 ```markdown
@@ -460,7 +460,7 @@ for file in stages/**/*.md; do
   # For each section, compare to sections in other files
   # (Requires tooling or manual review)
 done
-```
+```markdown
 
 **Red Flags:**
 - Same 50+ line section in 5+ files
@@ -497,7 +497,7 @@ Same reference lists (See Also, Additional Resources) duplicated across files.
 **Create master reference index:**
 ```text
 reference/REFERENCE_INDEX.md
-```
+```markdown
 
 **Guides reference index:**
 ```markdown
@@ -517,7 +517,7 @@ grep -A 10 "^## See Also" stages/**/*.md > /tmp/see_also_sections.txt
 
 # Compare for duplication
 # Count unique vs total
-```
+```markdown
 
 **Red Flags:**
 - Same reference list in 5+ files
@@ -567,7 +567,7 @@ Templates create duplicates by design - content appears in all instances.
 common_sections=$(grep -rh "^## Common Pitfalls" feature-updates/KAI-*/feature_*/spec.md | sort | uniq)
 
 # If all identical, template content not being customized
-```
+```markdown
 
 **Recommendation:**
 
@@ -690,7 +690,7 @@ for header in $headers; do
     done
   done
 done
-```
+```bash
 
 **CHECK 20: Instruction Duplication Count** *(planned, not yet implemented)*
 ```bash
@@ -746,7 +746,7 @@ grep -rh "^## " stages/ reference/ | sort | uniq -c | sort -rn | head -30
 # - Common Mistakes
 # - Examples
 # - See Also
-```
+```bash
 
 **For each common section:**
 1. Note how many files contain it
@@ -794,7 +794,7 @@ for instr in "${instructions[@]}"; do
   echo "Total occurrences: $count"
   echo ""
 done
-```
+```markdown
 
 **For high-count instructions:**
 - Check if same text appears in multiple places
@@ -853,7 +853,7 @@ For each duplicate found:
 ## Critical Rule
 
 NEVER commit without running tests first. 100% test pass rate required.
-```
+```markdown
 
 **Evaluation:**
 - Is rule truly critical? (commits without tests = high risk)
@@ -886,7 +886,7 @@ NEVER commit without running tests first. 100% test pass rate required.
 - [ ] Previous stage complete
 - [ ] Required files exist
 - [ ] User approval received
-```
+```markdown
 
 **Evaluation:**
 - Is template content placeholder?
@@ -972,7 +972,7 @@ See `reference/critical_workflow_rules.md` for universal workflow rules.
 
 **Stage-Specific Rules:**
 - [Stage-specific rules here]
-```
+```diff
 
 **Result:**
 - Single source of truth
@@ -1018,7 +1018,7 @@ Where work_type is:
 - fix: For bug fixes
 
 Use: `git checkout -b epic/KAI-{number}` if needed
-```
+```markdown
 
 **Problem:**
 - Branch naming rules duplicated
@@ -1056,7 +1056,7 @@ See `reference/GIT_WORKFLOW.md` for branch naming and git commands.
 **Cause:** Missing import statement
 **Solution:** Add `import pandas as pd` at top of file
 **Result:** Code executes successfully
-```
+```markdown
 
 **Problem:**
 - Same example in 5 places
@@ -1105,7 +1105,7 @@ See `reference/common_examples.md` → "Missing Import Error" for debugging appr
 3. Not updating Agent Status regularly
 4. Deferring issues for later
 5. Skipping validation loops
-```
+```markdown
 
 **All 12 features in KAI-7 had identical "Common Pitfalls" section.**
 
@@ -1156,7 +1156,7 @@ Before starting this stage:
 - [ ] Verify prerequisites checklist
 - [ ] Update Agent Status in README with current guide path
 - [ ] THEN proceed with work
-```
+```markdown
 
 **Problem:**
 - Same 5 items in all guides

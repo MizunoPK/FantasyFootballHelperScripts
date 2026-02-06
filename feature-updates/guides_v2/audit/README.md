@@ -34,7 +34,7 @@
 ```bash
 cd feature-updates/guides_v2/audit
 bash scripts/pre_audit_checks.sh
-```
+```diff
 
 **STEP 3:** Start Round 1 Discovery
 - Read `stages/stage_1_discovery.md`
@@ -236,7 +236,7 @@ bash scripts/pre_audit_checks.sh
 # Start Round 1 focusing on high-risk dimensions
 # Read stages/stage_1_discovery.md
 # Then read d1, d2, d6, d8 dimension guides
-```
+```markdown
 
 **Estimated Duration:** 3-4 hours (3-4 rounds)
 
@@ -285,7 +285,7 @@ bash scripts/pre_audit_checks.sh
 # Generate pattern variations of old notation
 # Read dimensions/d2_terminology_consistency.md for pattern strategies
 # Manual review for context-sensitive cases
-```
+```markdown
 
 **Estimated Duration:** 3-5 hours (3-4 rounds)
 
@@ -324,7 +324,7 @@ bash scripts/pre_audit_checks.sh
 
 # If clean: No manual audit needed
 # If issues found: Run focused audit on failing dimensions
-```
+```diff
 
 **Estimated Duration:** 1-2 hours (mostly automated)
 

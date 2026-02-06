@@ -47,7 +47,7 @@ sed -i 's|OLD_PATTERN|NEW_PATTERN|g' \
   path/to/file1.md \
   path/to/file2.md \
   path/to/file3.md
-```
+```bash
 
 **Verification Command:**
 ```bash
@@ -62,7 +62,7 @@ grep -n "OLD_PATTERN" path/to/file1.md path/to/file2.md path/to/file3.md | wc -l
 ```text
 file1.md:45:stages/s5/round1/planning.md
 file1.md:67:stages/s5/round1/algorithms.md
-```
+```markdown
 
 **Expected After:**
 ```text
@@ -137,7 +137,7 @@ file1.md:67:stages/s5/s5_p1_i2_algorithms.md
    - new_string: [exact new content]
 4. Verify by reading changed section
 5. Document before/after
-```
+```markdown
 
 ---
 
@@ -312,7 +312,7 @@ git restore file1.md file2.md file3.md
 
 # Refine pattern/approach
 # Retry
-```
+```markdown
 
 **If multiple groups fail:**
 ```bash

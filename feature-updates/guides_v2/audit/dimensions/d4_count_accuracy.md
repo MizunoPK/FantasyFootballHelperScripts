@@ -109,7 +109,7 @@ C:\Users\kmgam\code\FantasyFootballHelperScripts\CLAUDE.md
 feature-updates/guides_v2/README.md
 feature-updates/guides_v2/EPIC_WORKFLOW_USAGE.md
 feature-updates/guides_v2/prompts_reference_v2.md
-```
+```markdown
 
 **What to Validate:**
 
@@ -135,7 +135,7 @@ for i in {1..10}; do
     echo "MISSING: S$i not found in CLAUDE.md"
   fi
 done
-```
+```markdown
 
 **README.md - Dimension Count:**
 ```markdown
@@ -151,7 +151,7 @@ grep -c "^\| \*\*D[0-9]" feature-updates/guides_v2/audit/README.md
 # Count actual dimension files
 ls -1 feature-updates/guides_v2/audit/dimensions/d*.md | wc -l
 # Should match README claim
-```
+```markdown
 
 **EPIC_WORKFLOW_USAGE.md - Stage/Phase/Iteration Claims:**
 ```markdown
@@ -170,7 +170,7 @@ actual=$(grep -rh "^### S5\\.P[0-9]\\." feature-updates/guides_v2/stages/s5/ | w
 if [ "$claimed" != "$actual" ]; then
   echo "MISMATCH: S5 iteration count claim doesn't match reality"
 fi
-```
+```markdown
 
 **Red Flags:**
 - CLAUDE.md lists 9 stages but workflow has 10
@@ -206,7 +206,7 @@ grep -rn "[0-9]+ stages\|[0-9]+-stage" feature-updates/guides_v2/
 grep -roh "[0-9]+ stages" feature-updates/guides_v2/ | sort | uniq -c
 
 # Should show: "10 stages" (not 9, not 11)
-```
+```markdown
 
 **Validation Checklist:**
 - [ ] CLAUDE.md mentions correct total (10 stages)
@@ -277,7 +277,7 @@ for p in {1..6}; do
     echo "MISSING: S1.P$p"
   fi
 done
-```
+```markdown
 
 **Red Flags:**
 - Documentation says "S1 has 5 phases" but guide shows P1-P6
@@ -324,7 +324,7 @@ grep -c "^### I[89]\b\|^### I1[0-3]\b\|S5\.P2\.I" \
 grep -c "^### I1[4-9]\b\|^### I2[0-2]\b\|S5\.P3\.I" \
   feature-updates/guides_v2/stages/s5/s5_p3*.md
 # Expected: 9
-```
+```markdown
 
 **Other Stages with Iterations:**
 
@@ -338,7 +338,7 @@ grep -c "S2\.P1\.I[1-3]" feature-updates/guides_v2/stages/s2/*.md
 ```bash
 grep -c "S4\.I[1-4]" feature-updates/guides_v2/stages/s4/*.md
 # Expected: 4 (I1, I2, I3, I4)
-```
+```markdown
 
 **Red Flags:**
 - Documentation says "S5 has 20 iterations" (old count before I21-I22 added)
@@ -376,7 +376,7 @@ grep -rn "[0-9]+ gates\|[0-9]+ mandatory gates" \
   feature-updates/guides_v2/ CLAUDE.md
 
 # Verify each claim matches 10
-```
+```markdown
 
 **Common Count Claims to Validate:**
 
@@ -392,7 +392,7 @@ The workflow uses **10 quality gates** (both stage-level and iteration-level):
 ## Quality Gates
 
 The workflow includes **10 mandatory gates** to ensure quality.
-```
+```bash
 
 **Validation:**
 ```bash
@@ -426,7 +426,7 @@ Claims about file counts match actual file system.
 **Dimension Count:**
 ```markdown
 The audit system has **16 dimensions** covering all quality aspects.
-```
+```bash
 
 **Validation:**
 ```bash
@@ -442,7 +442,7 @@ grep -c "^\| \*\*D[0-9]" feature-updates/guides_v2/audit/README.md
 **Stage Count:**
 ```markdown
 The workflow consists of **10 stages** with guides in stages/ directory.
-```
+```markdown
 
 **Validation:**
 ```bash
@@ -454,7 +454,7 @@ ls -d feature-updates/guides_v2/stages/s*/ | wc -l
 **Template Count:**
 ```markdown
 We provide **8 templates** for common workflows.
-```
+```markdown
 
 **Validation:**
 ```bash
@@ -466,7 +466,7 @@ ls -1 feature-updates/guides_v2/templates/*.md | wc -l
 **Prompt Count:**
 ```markdown
 prompts_reference_v2.md consolidates **45+ prompts** from all stages.
-```
+```bash
 
 **Validation:**
 ```bash
@@ -499,7 +499,7 @@ Section headers claiming "N items" actually have N items in list.
 4. Rule four
 5. Rule five
 6. Rule six  ← ERROR: Claimed 5, have 6
-```
+```bash
 
 **Search Commands:**
 ```bash
@@ -555,7 +555,7 @@ Duration claims are consistent across documentation and match historical evidenc
 **Stage Duration:**
 ```markdown
 S5: Implementation Planning (3-5 hours)
-```
+```diff
 
 **Validation:**
 - Check CLAUDE.md for same stage
@@ -583,7 +583,7 @@ grep -rn "S5.*hour\|S5.*min" feature-updates/guides_v2/ CLAUDE.md
 # - CLAUDE.md says "2-3 hours"
 # - README.md says "3-5 hours"
 # → MISMATCH
-```
+```markdown
 
 **Audit Round Duration:**
 ```markdown
@@ -713,7 +713,7 @@ for claim in $claims; do
 done
 
 echo "Expected: $actual_stages stages"
-```
+```bash
 
 **CHECK 13: Iteration Count Validation** *(planned, not yet implemented)*
 ```bash
@@ -753,7 +753,7 @@ for claim in $claims; do
 done
 
 echo "Expected: $actual gates"
-```
+```bash
 
 **CHECK 15: Dimension Count Validation** *(planned, not yet implemented)*
 ```bash
@@ -813,7 +813,7 @@ grep -n "[0-9]+ dimensions\|[0-9]+ stages" \
 echo "=== EPIC_WORKFLOW_USAGE.md Count Claims ==="
 grep -n "[0-9]+ iterations\|[0-9]+ phases" \
   feature-updates/guides_v2/EPIC_WORKFLOW_USAGE.md
-```
+```bash
 
 **For each claim:**
 1. Note the claimed number
@@ -866,7 +866,7 @@ for stage in s{1..10}; do
     echo "OK: $actual phases"
   fi
 done
-```
+```bash
 
 **Step 4: Validate List Item Counts (10 min)**
 
@@ -905,7 +905,7 @@ echo "=== Gate Count Claims ==="
 grep -rn "[0-9]+ gates" feature-updates/guides_v2/ CLAUDE.md
 
 # Manually verify each claim matches official count
-```
+```bash
 
 ---
 
@@ -951,7 +951,7 @@ grep -rn "[0-9]+/[0-9]+" feature-updates/guides_v2/
 ## Epic-Driven Development Workflow (v2)
 
 The v2 workflow is a **9-stage epic-driven development process**...
-```
+```diff
 
 **Problem:**
 - Claimed 9 stages
@@ -985,7 +985,7 @@ The v2 workflow is a **9-stage epic-driven development process**...
 
 **Duration:** 3-5 hours
 **Iterations:** 20 (across 3 rounds)
-```
+```diff
 
 **Actual S5 Structure:**
 - Round 1: I1-I7 (7 iterations)
@@ -1027,7 +1027,7 @@ The workflow uses two types of gates:
 **Stage-Level Gates:** 5 gates (Gates 1, 2, 3, 4.5, 5)
 **Iteration-Level Gates:** 3 gates (Gates 4a, 7a, 23a)
 **TOTAL: 8 gates**
-```
+```markdown
 
 **reference/mandatory_gates.md:**
 ```markdown
@@ -1063,7 +1063,7 @@ The workflow uses two types of gates:
 +**Iteration-Level Gates:** 5 gates (Gate 4a, Gate 7a, Gate 23a, Gate 24, Gate 25)
 -**TOTAL: 8 gates**
 +**TOTAL: 10 gates**
-```
+```markdown
 
 **Root Cause:** New gates added to reference, CLAUDE.md not updated
 
@@ -1102,7 +1102,7 @@ The workflow uses two types of gates:
 ```diff
 -## 8 Exit Criteria for Audit Completion
 +## 10 Exit Criteria for Audit Completion
-```
+```markdown
 
 **Fix Option 2 (Remove Extra Criteria):**
 If 9-10 are actually sub-criteria, move them as sub-bullets under criteria 8.
@@ -1129,7 +1129,7 @@ If 9-10 are actually sub-criteria, move them as sub-bullets under criteria 8.
 **Implementation Tracker (Updated):**
 ```markdown
 **Current Progress:** 8/16 dimensions (50%) fully implemented
-```
+```diff
 
 **Problem:**
 - README.md showed old progress (2 dimensions)

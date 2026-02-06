@@ -45,7 +45,7 @@ sed -i 's/OLD10/NEW10/g' *.md
 # Problem: If fix #3 broke something, you don't know until the end
 # Problem: Hard to isolate which fix caused the issue
 # Problem: No checkpoints to rollback to
-```
+```bash
 
 **With incremental verification:**
 ```bash
@@ -100,7 +100,7 @@ git status
 git stash  # if you want to save changes
 # OR
 git reset --hard  # if you want to discard (DANGEROUS)
-```
+```markdown
 
 ---
 
@@ -129,7 +129,7 @@ STEP 6: Move to next group
 **Priority Order:**
 ```text
 P0 (Critical) → P1 (High) → P2 (Medium) → P3 (Low)
-```
+```markdown
 
 **Within Priority:**
 ```text
@@ -160,7 +160,7 @@ sed -i 's|OLD_PATTERN|NEW_PATTERN|g' file1.md file2.md file3.md
 
 # Example:
 sed -i 's|stages/s5/round1/|stages/s5/s5_p1_|g' stages/s5/*.md
-```
+```markdown
 
 **For manual fixes:**
 ```bash
@@ -183,7 +183,7 @@ grep -n "NEW_PATTERN" file1.md file2.md file3.md
 
 # Count matches (should equal expected count from fix plan)
 grep -c "NEW_PATTERN" file1.md file2.md file3.md
-```
+```bash
 
 **Red flags:**
 - No matches found (sed didn't work)
@@ -225,7 +225,7 @@ sed -n '60,70p' file2.md  # Lines around second change
 # - Change looks correct in context
 # - Formatting preserved
 # - No unintended side effects
-```
+```markdown
 
 **What to look for:**
 - Broken markdown formatting
@@ -251,7 +251,7 @@ $ grep -n "OLD" file1.md
 ```markdown
 
 ### After
-```
+```bash
 $ grep -n "NEW" file1.md
 45:stages/s5/s5_p1_planning_round1.md
 ```markdown
@@ -264,7 +264,7 @@ $ grep -n "OLD" file1.md
 
 **Status:** ✅ Fixed and verified
 **Issues:** None
-```
+```markdown
 
 #### STEP 6: Decision Point
 
@@ -295,7 +295,7 @@ after=$(grep -rc "NEW_PATTERN" affected_files | paste -sd+ | bc)
 
 echo "Expected: $before"
 echo "Found: $after"
-```
+```bash
 
 **Level 2: File Content Grep**
 ```bash
@@ -309,7 +309,7 @@ grep -n "OLD_PATTERN" file1.md file2.md  # Should be 0 or intentional
 # Deep check: Read actual content
 sed -n 'LINE_NUMp' file.md  # Read specific lines
 git diff file.md  # See exactly what changed
-```
+```markdown
 
 **All three must pass before moving to next group.**
 
@@ -372,7 +372,7 @@ git restore file1.md file2.md file3.md
 
 ### Action Taken
 **Before:**
-```
+```markdown
 [Old content]
 ```text
 
@@ -386,7 +386,7 @@ git restore file1.md file2.md file3.md
 - [ ] Formatting consistent with file
 - [ ] No typos or errors
 - [ ] Cross-references updated if needed
-```
+```markdown
 
 ---
 
@@ -488,7 +488,7 @@ for file in $(find stages -name "*.md"); do
   fi
 done
 # Should return zero results
-```
+```markdown
 
 #### Cross-Reference Accuracy
 - [ ] All links to extracted content valid (no broken links)
@@ -512,7 +512,7 @@ bash feature-updates/guides_v2/audit/scripts/pre_audit_checks.sh
 ```text
 ✅ PASS: CLAUDE.md (39,500 chars) within 40,000 character limit
 ✅ All files within size limits
-```
+```markdown
 
 **If ANY failures:**
 - Address immediately
@@ -599,7 +599,7 @@ git diff
 
 # If satisfied, ready for Stage 4
 # (Don't commit yet - wait until after Stage 4 verification)
-```
+```markdown
 
 ---
 

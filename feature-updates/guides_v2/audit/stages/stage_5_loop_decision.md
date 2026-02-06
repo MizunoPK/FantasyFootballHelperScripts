@@ -54,7 +54,7 @@
 │  • Latest round ZERO issues (all 4 sub-rounds clean)            │
 │  • ALL 9 exit criteria met → Consider exit                      │
 └─────────────────────────────────────────────────────────────────┘
-```
+```markdown
 
 **If current sub-round (N.X) found issues:**
 - You MUST fix ALL issues from sub-round N.X
@@ -278,7 +278,7 @@ if [ $criteria_met -eq 9 ]; then
 else
   echo "❌ $((9-criteria_met)) criteria failed - LOOP to Round $((round_number+1))"
 fi
-```
+```markdown
 
 ---
 
@@ -337,7 +337,7 @@ fi
 6. Complete all 5 stages again
    ↓
 7. Return to Stage 5 decision
-```
+```markdown
 
 ---
 
@@ -417,7 +417,7 @@ fi
 ## Recommendations
 
 [Any suggestions for preventing these issues in future]
-```
+```markdown
 
 ---
 
@@ -478,7 +478,7 @@ Please review findings and challenge if:
 **If user approves:**
 ```text
 ✅ Proceed to commit
-```
+```diff
 
 **If user challenges:**
 ```bash
@@ -494,7 +494,7 @@ Please review findings and challenge if:
 Answer thoroughly, then:
 - If still satisfied → commit
 - If user expresses doubt → loop back
-```
+```markdown
 
 ---
 
@@ -556,7 +556,7 @@ Group 3: Wrong Stage Header (1 instance)
 
 Verification: Zero remaining issues
 "
-```
+```markdown
 
 **DO NOT use `git add -A` or `git add .`:**
 - These will commit output files (incorrect)

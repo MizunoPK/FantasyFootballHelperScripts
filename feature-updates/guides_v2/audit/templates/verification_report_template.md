@@ -52,7 +52,7 @@
 **Original Discovery Command:**
 ```bash
 grep -rn "PATTERN" --include="*.md" path/
-```
+```markdown
 
 **Original Count:** [N] instances found in Stage 1
 
@@ -72,7 +72,7 @@ Line: 123
 Match: [content]
 Reason: [Intentional - historical example / Error - missed in Stage 3]
 Action: [Document as acceptable / Fix and re-verify]
-```
+```markdown
 
 ---
 
@@ -90,7 +90,7 @@ Action: [Document as acceptable / Fix and re-verify]
 **Verification Results:**
 ```bash
 [Results]
-```
+```markdown
 
 **Status:** ✅ Clean / ⚠️ Remaining / ❌ Issues
 
@@ -133,7 +133,7 @@ grep -rn "NEW_VARIATION" --include="*.md" path/
 $ grep -rn "NEW_VARIATION" --include="*.md" path/
 # Results:
 [Show matches OR "0 matches - ✅ Clean"]
-```
+```markdown
 
 **Status:** ✅ Clean (0 matches) / ❌ Found issues (N matches)
 
@@ -157,7 +157,7 @@ Analysis: [Why these were missed in Stage 1]
 **Pattern:**
 ```bash
 [Command]
-```
+```markdown
 
 **Results:**
 ```bash
@@ -195,7 +195,7 @@ Analysis: [Why these were missed in Stage 1]
 ```bash
 # Command used to select random files
 find stages templates reference -name "*.md" -type f | shuf -n [N]
-```
+```diff
 
 **Files Selected:** [N] files (minimum 10 required)
 
@@ -271,7 +271,7 @@ No issues found - ✅ Clean
 │ N_remaining: [XX]  (should be 0)            │
 │ N_new:       [XX]  (MUST be 0)              │
 └─────────────────────────────────────────────┘
-```
+```markdown
 
 **Verification Math:**
 ```text
@@ -326,7 +326,7 @@ Analysis of Why Missed:
 
 Enhanced Patterns for Round N+1:
 [List new patterns to use in next round's discovery]
-```
+```markdown
 
 ---
 
@@ -503,7 +503,7 @@ IF N_new = 0 AND N_remaining acceptable:
 
 # Tier 3: Random file selection
 find stages templates reference -name "*.md" -type f | shuf -n [N]
-```
+```markdown
 
 **Quick re-verification:**
 ```bash

@@ -66,7 +66,7 @@
 Guide used: "S5a", "S5.P1", "Stage 5a", "Round 1" all for same thing
 User confusion: "Which notation is correct?"
 Result: Lost confidence in guides, manual verification of every reference
-```
+```markdown
 
 ### Common Trigger Events
 
@@ -114,7 +114,7 @@ grep -n "\bS[0-9][a-z]\b\|Stage [0-9][a-z]" README.md EPIC_WORKFLOW_USAGE.md pro
 grep -n "S[0-9]\.[A-Z]" README.md | head -5  # Shows new notation
 grep -n "S[0-9][a-z]" README.md | head -5    # Shows old notation
 # If both return results → mixed notation issue
-```
+```json
 
 **Historical Issue:**
 - D2 scripts searched `guides_v2/` BUT primary focus was on stages/ directory
@@ -150,7 +150,7 @@ grep -rn "STAGE_[0-9][a-z]" --include="*.md"
 
 # Without S prefix
 grep -rn "\b[0-9][a-z]\b" --include="*.md" | grep -v "S[0-9]"
-```
+```markdown
 
 ### Type 2: Incorrect Hierarchy Usage
 
@@ -173,7 +173,7 @@ grep -rn "Phase [0-9]\.[0-9]\.[0-9]" --include="*.md"
 
 # "Round" as hierarchy (context-dependent)
 grep -rn "Round [0-9]" --include="*.md"
-```
+```markdown
 
 ### Type 3: Formatting Inconsistencies
 
@@ -200,7 +200,7 @@ grep -rn "S[0-9] [A-Z][0-9]" --include="*.md"
 
 # Lowercase
 grep -rn "s[0-9]\.p[0-9]" --include="*.md"
-```
+```markdown
 
 ### Type 4: File Name Convention Violations
 
@@ -223,7 +223,7 @@ find stages -name "*-*-*.md"
 
 # Find files with capital letters
 find stages -name "*[A-Z]*.md"
-```
+```markdown
 
 ---
 
@@ -252,7 +252,7 @@ sed -i 's/5a/S5.P1/g' *.md
 # - "S5a" (with S prefix already)
 # - "back to 5a" (in sentence)
 # - "5a_planning.md" (in file names)
-```
+```markdown
 
 **Result:** 60% updated, 40% stragglers
 
@@ -317,7 +317,7 @@ grep -rn "\b[5-9][a-z]\b" --include="*.md" guides_v2/ | grep -v "S[0-9]"
 # All caps variants
 echo "Checking for STAGE_Xa patterns..."
 grep -rn "STAGE_[0-9][a-z]" --include="*.md" guides_v2/
-```
+```bash
 
 ### Script 2: Validate Notation Format
 
@@ -358,7 +358,7 @@ find guides_v2/stages -name "*-*-*.md" -print
 
 # Should be lowercase
 find guides_v2/stages -name "*[A-Z]*.md" ! -name "README.md" -print
-```
+```bash
 
 ---
 
@@ -432,7 +432,7 @@ STEP 3: Identify inconsistencies
 STEP 4: Update to preferred form
 - Replace casual "spec" with "specification"
 - Exception: file names (spec.md stays as is)
-```
+```markdown
 
 ---
 
@@ -457,7 +457,7 @@ STEP 4: Update to preferred form
 **2. Migration Guides:**
 ```markdown
 If you see "S5a" in old epics, update to "S5.P1"
-```
+```markdown
 **Verdict:** ✅ ACCEPTABLE (teaching migration)
 
 **3. User Quotes:**
@@ -473,7 +473,7 @@ User reported: "Can't find Stage 5a in documentation"
 **1. Current Documentation:**
 ```markdown
 Next, proceed to S5a for implementation planning
-```
+```markdown
 **Verdict:** ❌ ERROR (should be S5.P1 or S5)
 
 **2. File Names:**
@@ -486,7 +486,7 @@ s5a_planning.md
 ```markdown
 ## Prerequisites
 - S5a complete
-```
+```markdown
 **Verdict:** ❌ ERROR (should be S5.P1)
 
 ---
@@ -506,7 +506,7 @@ Instances: 60+ across 30+ files
 stages/s5/s5_bugfix_workflow.md:45: "After S5a complete"
 stages/s8/s8_p1_cross_feature_alignment.md:67: "Return to S5a"
 templates/epic_readme_template.md:123: "Current: S6a"
-```
+```diff
 
 **Analysis:**
 - All are current workflow references (not historical)
@@ -525,7 +525,7 @@ sed -i 's/\bS5a\b/S5/g; s/\bS6a\b/S6/g; s/\bS7a\b/S7/g; \
 ```bash
 $ grep -rn "\bS[5-9]a\b" --include="*.md"
 # 0 matches
-```
+```yaml
 
 ### Example 2: Wrong Hierarchy Level
 
@@ -545,7 +545,7 @@ Content: "Stage 2.P1 - Research Phase"
 ```bash
 sed -i 's/Stage \([0-9]\)\.\([A-Z][0-9]\)/S\1.\2/g' \
   stages/s2/s2_feature_deep_dive.md
-```
+```markdown
 
 **Result:**
 ```text
@@ -557,7 +557,7 @@ S2.P1 - Research Phase
 **Issue Found:**
 ```text
 File: stages/s5/round1_planning.md
-```
+```diff
 
 **Analysis:**
 - Missing s5_ prefix
@@ -580,7 +580,7 @@ sed -i 's|stages/s5/round1_planning\.md|stages/s5/s5_p1_planning_round1.md|g' \
 ```markdown
 File: feature-updates/guides_v2/README.md
 Last Updated: 2025-12-30 (over 1 month stale)
-```
+```yaml
 
 **Search Results:**
 ```bash
@@ -615,7 +615,7 @@ sed -i 's/S[0-9][a-z]\>/S5.P1/g' README.md  # Update remaining old notation
 
 # Update Last Updated field
 sed -i 's/Last Updated:.*$/Last Updated: 2026-02-04/g' README.md
-```
+```bash
 
 **Why This Was Missed:**
 - D2 scripts searched `guides_v2/` BUT agents focused on stages/ directory

@@ -74,7 +74,7 @@ Content: TODO: Add complete checklist items
 
 Problem: Agent reaches Gate 23a, finds TODO instead of checklist
 Result: Cannot validate planning completeness, workflow stuck
-```
+```diff
 
 ### Common Quality Issues
 
@@ -147,7 +147,7 @@ grep -rn "\[placeholder\]\|\[Coming Soon\]" stages templates prompts reference
 
 # Find ⏳ markers (work in progress)
 grep -rn "⏳" stages templates prompts reference
-```
+```markdown
 
 **Automated:** ✅ Yes (CHECK 3 in pre_audit_checks.sh)
 
@@ -186,7 +186,7 @@ for file in stages/s*/s*_*.md; do
   grep -q "## Critical Rules\|## Key Principles" "$file" || echo "  MISSING: Critical Rules"
   grep -q "## Next Stage\|## Next" "$file" || echo "  MISSING: Next Stage"
 done
-```
+```markdown
 
 **Automated:** ✅ Yes (structural pattern check possible)
 
@@ -233,7 +233,7 @@ for file in audit/dimensions/d*.md; do
   grep -q "## Pattern Types" "$file" || echo "  MISSING: Pattern Types"
   grep -q "## Real Examples" "$file" || echo "  MISSING: Real Examples"
 done
-```
+```markdown
 
 **Automated:** ✅ Yes (structural pattern check possible)
 
@@ -252,7 +252,7 @@ command here
 ```text
 
 # CORRECT (with language tag)
-```
+```text
 command here
 ```text
 ```
@@ -263,7 +263,7 @@ command here
 grep -rn "^\`\`\`$" stages templates prompts reference
 
 # Should have minimal results (only intentional blank tags)
-```
+```markdown
 
 **Automated:** ✅ Yes (CHECK 7 in pre_audit_checks.sh)
 
@@ -295,7 +295,7 @@ See examples below.
 ```bash
 # Find sections followed by TODO/TBD/placeholder
 grep -A 3 "^## " stages/*.md | grep -B 1 "TODO\|TBD\|placeholder"
-```
+```markdown
 
 **Automated:** ⚠️ Partial (markers automated, stub detection manual)
 
@@ -341,7 +341,7 @@ Follow the specification template structure. See examples below for guidance.
 
 ## Next Steps
 [No examples section ever added]
-```
+```markdown
 
 **Why It Happens:**
 - Intended to add examples later
@@ -372,7 +372,7 @@ Follow the specification template structure. See examples below for guidance.
 ## Gate 4a Checklist
 TODO: Move checklist from old file
 [Forgot to actually move it]
-```
+```markdown
 
 **Why It Happens:**
 - Content assumed to be moved during split
@@ -398,7 +398,7 @@ TODO: Move checklist from old file
 
 Prerequisites: None documented
 [Missing Duration and Outputs sections]
-```
+```bash
 
 **Why It Happens:**
 - Template updated, existing files not backfilled
@@ -453,7 +453,7 @@ if [ "$UNTAGGED_BLOCKS" -gt 5 ]; then
 else
   echo "✅ Most code blocks properly tagged"
 fi
-```
+```bash
 
 ### Script 3: Required Sections Check (SHOULD ADD)
 
@@ -529,7 +529,7 @@ for file in README.md EPIC_WORKFLOW_USAGE.md prompts_reference_v2.md; do
 
   echo ""
 done
-```
+```diff
 
 ### Manual Validation Process
 
@@ -574,7 +574,7 @@ STEP 2: Check for placeholder content
 STEP 3: Verify template examples
 - If template includes example values, ensure they're realistic
 - Check that example values are clearly marked as examples
-```
+```markdown
 
 ---
 
@@ -594,7 +594,7 @@ Verdict: ✅ ACCEPTABLE (work in progress, not published)
 <!-- TODO for guide author: Consider adding edge case example -->
 
 # Actual Guide Content Here
-```
+```markdown
 **Verdict:** ✅ ACCEPTABLE (comment, not visible content)
 
 **3. In Historical Examples:**
@@ -619,7 +619,7 @@ Status: Active guide used in workflow
 
 ## Gate 23a Checklist
 TODO: Add checklist items
-```
+```markdown
 **Verdict:** ❌ ERROR (blocks workflow)
 
 **2. In Templates:**
@@ -637,7 +637,7 @@ File: README.md
 
 ## Guide Index
 TODO: Complete this section
-```
+```markdown
 **Verdict:** ❌ CRITICAL (entry point must be complete)
 
 ---
@@ -676,7 +676,7 @@ TODO: Add complete 5-part checklist from original guide
 
 **Part 2: Algorithm Detail**
 [Complete 5-part checklist added]
-```
+```markdown
 
 ### Example 2: Missing Required Section
 
@@ -710,7 +710,7 @@ $ grep -A 20 "## Overview" stages/s7/s7_p2_qc_rounds.md
 - 3 QC round reports
 - All issues resolved or documented
 - Confidence in implementation quality
-```
+```markdown
 
 ### Example 3: Code Blocks Missing Language Tags
 
@@ -736,7 +736,7 @@ stages/s5/s5_p1_i1_requirements.md:292:```
 **Fix:**
 ```markdown
 # Before
-```
+```bash
 grep -rn "pattern" files/
 ```text
 
@@ -744,7 +744,7 @@ grep -rn "pattern" files/
 ```
 grep -rn "pattern" files/
 ```text
-```
+```bash
 
 ### Example 4: Root File Missing Section
 
@@ -773,7 +773,7 @@ $ grep -n "Guide Index" README.md
 - [S1: Epic Planning](stages/s1/s1_epic_planning.md)
 - [S2: Feature Planning](stages/s2/s2_feature_deep_dive.md)
 [Complete index of all guides]
-```
+```markdown
 
 ---
 

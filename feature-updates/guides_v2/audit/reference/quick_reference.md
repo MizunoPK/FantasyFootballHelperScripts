@@ -54,7 +54,7 @@ grep -rn "\[.*\](.*\.md)" --include="*.md" | grep -o "(.*\.md)" | \
 
 # Find stage references (S1-S10)
 grep -rn "\bS[0-9][0-9]*\b" --include="*.md"
-```
+```bash
 
 ---
 
@@ -87,7 +87,7 @@ grep -rn "[0-9]+ iterations\|[0-9]+ phases" --include="*.md"
 # Find list items for manual count verification
 grep -rn "^[0-9]\. " --include="*.md"              # Numbered lists
 grep -rn "^- " --include="*.md"                    # Bullet lists
-```
+```bash
 
 ---
 
@@ -122,7 +122,7 @@ grep -oh "feature-updates/guides_v2/[^)\"' ]*\.md" CLAUDE.md | \
 
 # Find stage references in CLAUDE.md
 grep -n "S[0-9]" CLAUDE.md | grep -o "S[0-9][0-9]*\(\.P[0-9][0-9]*\)\?\(\.I[0-9][0-9]*\)\?"
-```
+```markdown
 
 ---
 
@@ -229,7 +229,7 @@ grep -rn "NEW_PATTERN" --include="*.md"
 # If fixed "S5a" → "S5.P1", try variations
 grep -rn "S5 a\|S5-a\|S5_a" --include="*.md"  # Space, dash, underscore variations
 grep -rn "stage 5a\|Stage 5a" --include="*.md" # Lowercase variations
-```
+```bash
 
 ---
 
@@ -276,7 +276,7 @@ sed -i 's|S[0-9]a|S5.P1|g' *.md
 
 # Case-insensitive
 sed -i 's|pattern|replacement|gi' file.md
-```
+```bash
 
 ---
 
@@ -308,7 +308,7 @@ for file in file1.md file2.md file3.md; do
   echo "=== $file ==="
   grep -n "NEW" "$file"
 done
-```
+```diff
 
 ---
 

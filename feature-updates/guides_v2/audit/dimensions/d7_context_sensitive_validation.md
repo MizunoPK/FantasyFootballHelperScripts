@@ -104,7 +104,7 @@ This dimension provides **context analysis** to interpret findings from other di
 C:\Users\kmgam\code\FantasyFootballHelperScripts\CLAUDE.md
 feature-updates/guides_v2/README.md
 feature-updates/guides_v2/EPIC_WORKFLOW_USAGE.md
-```
+```markdown
 
 **What to Validate:**
 
@@ -131,7 +131,7 @@ grep -B 3 -A 3 "Historical\|Old workflow\|Previously\|Before 2025" CLAUDE.md
 grep -n "S[0-9][a-z]\|9 stages\|old notation" CLAUDE.md
 
 # For each match, check if within historical context
-```
+```markdown
 
 **Red Flags:**
 - "Old notation" appears outside historical context
@@ -175,7 +175,7 @@ Content describing old/deprecated patterns should be clearly marked as historica
 Complete S5a Phase 1 iterations...
 
 [No marker indicating this is historical reference]
-```
+```bash
 
 **Detection:**
 ```bash
@@ -231,7 +231,7 @@ Always use S#.P# notation for clarity.
 ### Example: Correct Notation
 
 ✅ **CORRECT:**
-```
+```markdown
 See S5.P1 for implementation planning.
 ```markdown
 
@@ -243,7 +243,7 @@ See S5a for implementation planning.
 ```text
 
 **DO NOT use S5a notation. Use S5.P1 instead.**
-```
+```markdown
 
 **Validation:**
 - ✅ Clearly marked with ❌ or "WRONG" or "Incorrect"
@@ -260,7 +260,7 @@ See S5a for implementation planning.
 See S5a for implementation planning.
 ```json
 [No indication if this is right or wrong]
-```
+```bash
 
 **Detection:**
 ```bash
@@ -307,7 +307,7 @@ Error messages shown as examples should be clearly quoted/formatted as examples.
 ### Missing Import Error
 
 If you see this error:
-```
+```yaml
 ModuleNotFoundError: No module named 'pandas'
 ```python
 
@@ -326,7 +326,7 @@ The solution is to add: `import pandas as pd`
 ModuleNotFoundError: No module named 'pandas'
 
 [Unclear if this is error in documentation or example]
-```
+```bash
 
 **Detection:**
 ```bash
@@ -379,7 +379,7 @@ For urgent hotfixes, you may proceed directly:
 S1 → Debugging Protocol → S10
 
 **This is the ONLY approved variation from standard workflow.**
-```
+```markdown
 
 **Validation:**
 - ✅ Labeled as "Exception" or "Variation"
@@ -406,7 +406,7 @@ grep -B 3 -A 3 "skip\|omit" stages/**/*.md | \
 
 # If markers present, likely intentional
 # If no markers, likely error
-```
+```markdown
 
 **Context Markers Indicating Valid Variation:**
 - "Exception:"
@@ -462,7 +462,7 @@ Placeholder text in templates should be clearly marked for replacement.
 Replace with actual feature name
 
 [Unclear if this is instruction or incomplete content]
-```
+```bash
 
 **Detection:**
 ```bash
@@ -508,7 +508,7 @@ Previously, debugging issues were logged in a single ISSUES.md file. This caused
 ### Current Approach
 
 Each issue now gets a dedicated file: `issue_01_description.md`. This provides clear separation and tracking.
-```
+```diff
 
 **Validation:**
 - ✅ Labeled "Deprecated" or "No Longer Used"
@@ -534,7 +534,7 @@ grep -n "Deprecated\|No longer\|Obsolete\|Legacy" stages/**/*.md
 # - Why deprecated
 # - What replaced it
 # - Past tense usage
-```
+```diff
 
 **Context Markers Indicating Valid Deprecation Explanation:**
 - "Deprecated:"
@@ -570,7 +570,7 @@ Files should use explicit markers to indicate intentional exceptions.
 ```markdown
 ❌ **WRONG EXAMPLE:** Don't do this...
 ✅ **CORRECT EXAMPLE:** Do this instead...
-```
+```markdown
 
 **For Deprecated Content:**
 ```markdown
@@ -580,7 +580,7 @@ Files should use explicit markers to indicate intentional exceptions.
 **For Intentional Variations:**
 ```markdown
 [APPROVED EXCEPTION] Bug fix workflow may skip S4.
-```
+```markdown
 
 **For Placeholders:**
 ```markdown
@@ -595,7 +595,7 @@ grep -rc "\[HISTORICAL\]\|\[DEPRECATED\]\|\[APPROVED\]\|❌\|✅" \
 
 # Files with high marker counts: Good explicit context
 # Files with low/zero markers: May have ambiguous content
-```
+```diff
 
 **Benefits:**
 - Unambiguous intent
@@ -724,7 +724,7 @@ while read -r line; do
     echo "⚠ $file: Example may be ambiguous"
   fi
 done < /tmp/examples_with_old.txt
-```
+```markdown
 
 **Automation Coverage: ~20%**
 - ✅ Detect presence of context markers
@@ -853,7 +853,7 @@ The old workflow (2024) used S5a/S5b/S5c notation. This caused confusion, leadin
 **Valid:**
 ```markdown
 ❌ **WRONG:**
-```
+```text
 def calculate(items):  # No type hints
     return sum(items)
 ```text
@@ -863,7 +863,7 @@ def calculate(items):  # No type hints
 def calculate(items: list[int]) -> int:
     return sum(items)
 ```text
-```
+```markdown
 
 **Validation:** Marked as wrong, followed by correct version → VALID
 
@@ -895,7 +895,7 @@ See RESEARCH_NOTES.md for technical analysis.
 ```markdown
 ### Example
 
-```
+```text
 def process_data(df):
     return df.groupby('category').sum()
 ```python
@@ -916,7 +916,7 @@ def process_data(df):
 D2: Terminology Consistency
 FOUND: "S5a" notation in stages/s5/s5_implementation_planning.md:15
 ERROR: Old notation, should be S5.P1
-```
+```markdown
 
 **Context Review:**
 ```markdown
@@ -943,7 +943,7 @@ D2: Terminology Consistency
 FOUND: "S5a" notation in stages/s5/s5_implementation_planning.md:15
 STATUS: Valid historical reference (intentional)
 ACTION: No fix needed
-```
+```yaml
 
 ---
 
@@ -966,7 +966,7 @@ When referencing other stages, use correct file paths.
 
 **Example:**
 See `stages/s4/s4_testing.md` for testing approach.
-```
+```diff
 
 **Context Validation:**
 - ❌ No "WRONG" or ❌ marker
@@ -992,7 +992,7 @@ See `stages/s4/s4_testing.md` for testing approach.
 D3: Workflow Integration
 FOUND: Workflow skips S4 in debugging/debugging_protocol.md:120
 ERROR: All stages required, S4 cannot be skipped
-```
+```markdown
 
 **Context Review:**
 ```markdown
@@ -1026,7 +1026,7 @@ D3: Workflow Integration
 FOUND: Workflow skips S4 in debugging/debugging_protocol.md:120
 STATUS: Approved exception (bug fix workflow)
 ACTION: No fix needed - variation is documented and approved
-```
+```yaml
 
 ---
 
@@ -1046,7 +1046,7 @@ ERROR: Actual iteration count is 22
 ## S5: Implementation Planning
 
 S5 has 20 iterations across 3 rounds. The final 2 iterations (I21-I22) were added in version 2.0 for enhanced gate validation.
-```
+```diff
 
 **Context Validation:**
 - ⚠️ Mentions "20 iterations" AND "final 2 iterations"
@@ -1075,7 +1075,7 @@ S5 has 20 iterations across 3 rounds. The final 2 iterations (I21-I22) were adde
 D5: Content Completeness
 FOUND: Generic placeholder text in feature_01/spec.md:20
 ERROR: Content incomplete, needs feature-specific information
-```
+```markdown
 
 **Context Review:**
 ```markdown
@@ -1092,7 +1092,7 @@ Provide feature background here based on DISCOVERY.md findings.
 ```bash
 # Check file header
 head -5 feature_01/spec.md
-```
+```markdown
 
 **If header shows:**
 ```markdown

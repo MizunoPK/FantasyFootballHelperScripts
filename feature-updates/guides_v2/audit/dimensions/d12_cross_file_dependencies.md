@@ -107,7 +107,7 @@ feature-updates/guides_v2/README.md
 feature-updates/guides_v2/EPIC_WORKFLOW_USAGE.md
 feature-updates/guides_v2/prompts_reference_v2.md
 C:\Users\kmgam\code\FantasyFootballHelperScripts\CLAUDE.md
-```
+```markdown
 
 **What to Validate:**
 
@@ -185,7 +185,7 @@ S8 → Updated specs (remaining features)
 S9 → Epic testing report
      ↓
 S10 → PR, updated EPIC_TRACKER.md
-```
+```bash
 
 **Validation Commands:**
 
@@ -255,7 +255,7 @@ When one document references another document's sections, those sections must ex
 
 From epic discovery (see DISCOVERY.md Section 3: Technical Constraints),
 we identified that...
-```
+```markdown
 
 **Validation:**
 - [ ] DISCOVERY.md has "Section 3: Technical Constraints"
@@ -283,7 +283,7 @@ grep -oE "Section [0-9]+:?[^,)]*" feature_*/spec.md
 
 # For each reference, validate section exists in target document
 # (Manual validation required)
-```
+```markdown
 
 **Red Flags:**
 - spec.md says "see DISCOVERY.md Section 4" but DISCOVERY.md only has 3 sections
@@ -320,7 +320,7 @@ for ref in $(grep -oE '\`[^`]+\.md\`' templates/*.md | tr -d '`'); do
     echo "BROKEN REFERENCE in template: $ref"
   fi
 done
-```
+```markdown
 
 **Common Template Errors:**
 
@@ -345,7 +345,7 @@ Refer to implementation_checklist.md for build steps.
 
 -Refer to implementation_checklist.md for build steps.
 +Refer to implementation_plan.md (created in S5) for build steps.
-```
+```diff
 
 **Red Flags:**
 - Template references file created AFTER template is instantiated
@@ -391,7 +391,7 @@ for file in $(grep -oE '\`stages/[^`]+\.md\`' stages/**/*.md | tr -d '`'); do
     echo "BROKEN INCLUDE: $file"
   fi
 done
-```
+```markdown
 
 **Red Flags:**
 - Guide says "see detailed_guide.md" but file doesn't exist
@@ -432,7 +432,7 @@ Prerequisites:
 # S6 guide
 Prerequisites:
 - [ ] Completed S5
-```
+```bash
 
 **Problem:** Impossible to complete either stage
 
@@ -491,7 +491,7 @@ comm -23 /tmp/created_files.txt /tmp/used_files.txt > /tmp/orphaned_files.txt
 
 echo "Orphaned files (created but never used):"
 cat /tmp/orphaned_files.txt
-```
+```diff
 
 **Common Orphaned Files:**
 
@@ -657,7 +657,7 @@ for ref in $refs; do
     echo "WARNING: Reference to $ref found but file doesn't exist"
   fi
 done
-```
+```bash
 
 **CHECK 11: Circular Dependency Detection** *(planned, not yet implemented)*
 ```bash
@@ -716,7 +716,7 @@ for stage_dir in stages/s{1..10}/; do
   grep -A 5 "^## Outputs" $stage_dir/*.md | grep "\.md"
   echo ""
 done
-```
+```markdown
 
 **Step 2: Trace Critical File Paths (15 min)**
 
@@ -789,7 +789,7 @@ echo "$used"
 echo ""
 echo "Potentially orphaned (created but not explicitly used):"
 comm -23 <(echo "$created" | sort) <(echo "$used" | sort)
-```
+```bash
 
 **Step 5: Validate Cross-Document Section References (10 min)**
 
@@ -836,7 +836,7 @@ grep -rn "Section [0-9]\|see.*Section" feature-updates/guides_v2/templates/
 ## Background
 
 [User: Provide background from DISCOVERY.md Section 2]
-```
+```markdown
 
 **This is NOT a broken reference:**
 - [User: ...] indicates placeholder
@@ -900,7 +900,7 @@ grep -rn "\[User:\|\[Agent:" templates/
 ```text
 Agent: "S5.P1.I1 requires test_strategy.md from S4. File not found.
 Should I proceed without test strategy or create minimal test strategy now?"
-```
+```diff
 
 **Problem:**
 - Workflow dependency not flexible for simple features
@@ -925,7 +925,7 @@ S4 guide:
 
 NO. Even simple features require testing strategy.
 If feature is simple, S4.I1 will produce minimal test_strategy.md (5-10 min).
-```
+```markdown
 
 **Root Cause:** Optional stage created mandatory dependency
 
@@ -956,7 +956,7 @@ From epic discovery, see DISCOVERY.md Section 3: Technical Constraints.
 ## 2. Existing Codebase Analysis
 ## 3. Feature Breakdown
 ## 4. Technical Considerations
-```
+```diff
 
 **Problem:**
 - Template references "Section 3: Technical Constraints"
@@ -992,7 +992,7 @@ From epic discovery, see DISCOVERY.md Section 3: Technical Constraints.
 
 Q1: What authentication method should we use?
    → See spec.md Section 4: Authentication for decision rationale
-```
+```markdown
 
 **spec.md:**
 ```markdown
@@ -1015,7 +1015,7 @@ Authentication method: [Determined from user answers - see checklist.md Q1]
 -Authentication method: [Determined from user answers - see checklist.md Q1]
 +Authentication method: JWT tokens
 +Rationale: Per checklist.md Q1 requirements (mobile app needs stateless auth)
-```
+```markdown
 
 **Workflow:**
 1. checklist.md asks question
@@ -1069,7 +1069,7 @@ grep "feature_requirements.md" templates/feature_spec_template.md
 -[requirements content]
 
 # Use spec.md instead (already in workflow)
-```
+```markdown
 
 **Root Cause:** Template not updated after workflow file naming change
 

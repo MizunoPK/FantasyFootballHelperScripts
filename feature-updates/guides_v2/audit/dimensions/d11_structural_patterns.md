@@ -75,7 +75,7 @@ Sections: Overview → Steps → Prerequisites (at end) → No Exit Criteria
 
 Agent: Reads i1, expects i2 to have same structure
 Result: Starts reading steps before seeing prerequisites, misses context
-```
+```markdown
 
 ### Benefits of Consistent Structure
 
@@ -124,7 +124,7 @@ Result: Starts reading steps before seeing prerequisites, misses context
   ### S1: Epic Planning
   ### S2: Feature Planning
   [S3-S10]
-```
+```markdown
 
 **Automated:** ⚠️ Partial (section presence automated, order manual)
 
@@ -159,7 +159,7 @@ for file in stages/s*/*.md; do
   grep -q "## Exit Criteria\|## Next" "$file" || echo "MISSING Exit Criteria: $file"
   grep -q "## Overview" "$file" || echo "MISSING Overview: $file"
 done
-```
+```markdown
 
 **Automated:** ✅ Yes (CHECK 2 in pre_audit_checks.sh)
 
@@ -198,7 +198,7 @@ for file in $(grep -l "router\|Router" stages/*/*.md); do
     echo "Router missing navigation: $file"
   fi
 done
-```
+```markdown
 
 **Automated:** ⚠️ Partial (pattern detection possible)
 
@@ -217,7 +217,7 @@ s#_p#_i#_iteration_name.md (e.g., s5_p1_i1_requirements.md)
 ```text
 reference/category/description.md
 reference/stage_#/stage_reference_card.md
-```
+```markdown
 
 **Templates:**
 ```text
@@ -233,7 +233,7 @@ find stages -name "*.md" | grep -v "s[0-9]_" | grep -v "README.md"
 # Check for hyphens instead of underscores
 find stages -name "*-*-*.md"
 # Should return no results (underscores preferred)
-```
+```markdown
 
 **Automated:** ✅ Yes (pattern matching with find)
 
@@ -257,7 +257,7 @@ find stages -name "*-*-*.md"
 ### Subsection (ERROR: skipped h2)
 
 #### Detail (ERROR: skipped from h1 to h4)
-```
+```bash
 
 **Validation:**
 ```bash
@@ -284,7 +284,7 @@ grep -rn "^# " stages/*.md | awk -F: '{print $1}' | uniq -c | awk '$1 > 1'
 6. Critical Rules / Key Principles
 7. Exit Criteria / Next Stage
 8. See Also
-```
+```markdown
 
 **Anti-Pattern:**
 ```text
@@ -313,7 +313,7 @@ cp s5_p1_i1_requirements.md s5_p1_i2_algorithms.md
 
 # Edit content but forget to update section order
 # Result: i2 has i1's structure even though content is different
-```
+```markdown
 
 **Why It Happens:**
 - Focus on content changes, not structure review
@@ -354,7 +354,7 @@ cp s5_p1_i1_requirements.md s5_p1_i2_algorithms.md
 ## Overview
 Purpose: ...
 Prerequisites: ...
-```
+```markdown
 
 **2026-01 Template Update:**
 ```markdown
@@ -376,7 +376,7 @@ Prerequisites: ...
 # Router File (intentional special structure)
 ## Navigation Table
 ## See Also
-```
+```markdown
 
 **File B (copied A, but shouldn't be router):**
 ```markdown
@@ -424,7 +424,7 @@ done
 
 echo "Missing Prerequisites: $MISSING_PREREQ"
 echo "Missing Exit Criteria: $MISSING_EXIT"
-```
+```bash
 
 ### Script 2: Naming Convention Validation (SHOULD ADD)
 
@@ -486,7 +486,7 @@ if [ "$DEEP_NESTING" -gt 0 ]; then
   echo "⚠️  Instances of h5 or deeper nesting: $DEEP_NESTING"
   echo "   (May indicate over-nesting, consider restructuring)"
 fi
-```
+```diff
 
 ---
 
@@ -547,7 +547,7 @@ STEP 3: Verify router doesn't have regular guide sections
 - Router should NOT have Prerequisites (sub-guides have those)
 - Router should NOT have Exit Criteria (sub-guides have those)
 - Router is navigation only
-```
+```markdown
 
 ---
 
@@ -567,7 +567,7 @@ Verdict: ✅ ACCEPTABLE (router pattern)
 File: reference/glossary.md
 Structure: Alphabetical term list (no Prerequisites/Exit Criteria)
 Verdict: ✅ ACCEPTABLE (reference material, not sequential guide)
-```
+```yaml
 
 **3. Templates (Example Structure):**
 ```markdown
@@ -583,7 +583,7 @@ Verdict: ✅ ACCEPTABLE (template, not actual guide)
 File: stages/s7/s7_p2_qc_rounds.md (regular guide)
 Structure: Overview, Steps, See Also (MISSING Prerequisites and Exit Criteria)
 Verdict: ❌ ERROR (not a router, must have all required sections)
-```
+```yaml
 
 **2. File Name Doesn't Match Convention:**
 ```markdown
@@ -601,7 +601,7 @@ File: stages/s1/s1_epic_planning.md
 [content]
 
 # Discovery Phase (ERROR: second h1)
-```
+```markdown
 **Verdict:** ❌ ERROR (should be h2: ## Discovery Phase)
 
 ---
@@ -637,7 +637,7 @@ $ grep -l "## Prerequisites" stages/s7/s7_p2_qc_rounds.md
 - Commit your latest changes
 - Clean working directory
 - Tests passing locally
-```
+```markdown
 
 ### Example 2: Wrong File Naming Convention
 
@@ -663,7 +663,7 @@ git mv stages/s5/planning-round-2.md stages/s5/s5_p2_planning_round2.md
 # Update all references
 sed -i 's|planning-round-1\.md|s5_p1_planning_round1.md|g' stages/**/*.md
 sed -i 's|planning-round-2\.md|s5_p2_planning_round2.md|g' stages/**/*.md
-```
+```markdown
 
 ### Example 3: Sections in Wrong Order
 
@@ -711,7 +711,7 @@ Purpose: ...
 
 ## Exit Criteria
 ...
-```
+```bash
 
 ### Example 4: Router File Misidentified as Regular Guide
 
