@@ -6,7 +6,7 @@
 
 **Stage Flow Context:**
 ```text
-S5 (ALL features complete) →
+S8 (ALL features complete) →
 → [YOU ARE HERE: S9.P1 - Epic Smoke Testing] →
 → S9.P2 (Epic QC Rounds) → S9.P3 (User Testing) → S9.P4 (Epic Final Review) → S10
 ```
@@ -95,7 +95,7 @@ Epic Smoke Testing is complete when ALL 4 parts of epic_smoke_test_plan.md pass,
 
 **📖 See `reference/smoke_testing_pattern.md` for universal critical rules.**
 
-**Epic-specific rules for S6:**
+**Epic-specific rules for S9:**
 
 ```text
 ┌─────────────────────────────────────────────────────────────┐
@@ -139,7 +139,7 @@ Epic Smoke Testing is complete when ALL 4 parts of epic_smoke_test_plan.md pass,
 
 ## Prerequisites Checklist
 
-**Before starting Epic Smoke Testing (STAGE_6a), verify:**
+**Before starting Epic Smoke Testing (S9.P1), verify:**
 
 **ALL features complete:**
 - [ ] EVERY feature shows "S8.P2 (Epic Testing Update) complete" in EPIC_README.md Epic Progress Tracker
@@ -166,7 +166,7 @@ Epic Smoke Testing is complete when ALL 4 parts of epic_smoke_test_plan.md pass,
 **If any prerequisite fails:**
 - ❌ Do NOT start Epic Smoke Testing
 - Complete missing prerequisites first
-- Return to STAGE_6a when all prerequisites met
+- Return to S9.P1 when all prerequisites met
 
 ---
 
@@ -174,7 +174,7 @@ Epic Smoke Testing is complete when ALL 4 parts of epic_smoke_test_plan.md pass,
 
 **📖 See `reference/smoke_testing_pattern.md` for universal workflow details.**
 
-**Epic-specific workflow for S6:**
+**Epic-specific workflow for S9:**
 
 ```text
 ┌─────────────────────────────────────────────────────────────┐
@@ -602,4 +602,4 @@ print("✅ Interface compatibility verified")
 ---
 ---
 
-**END OF STAGE 6a GUIDE**
+**END OF S9.P1 GUIDE**

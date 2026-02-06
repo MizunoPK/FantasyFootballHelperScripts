@@ -28,7 +28,7 @@
 
 **I need to check ROOT FILE sync →** `dimensions/d8_claude_md_sync.md` → Automated + manual checks
 
-**I need PRE-BUILT PATTERNS →** See "Common Search Patterns" below (or `reference/pattern_library.md` ⏳ when created)
+**I need PRE-BUILT PATTERNS →** See "Common Search Patterns" below or `reference/pattern_library.md` for comprehensive patterns
 
 **I need to report RESULTS →** Use templates:
 - Stage 1 output: `templates/discovery_report_template.md`
@@ -189,20 +189,20 @@ grep -n "S[0-9]" CLAUDE.md | grep -o "S[0-9][0-9]*\(\.P[0-9][0-9]*\)\?\(\.I[0-9]
 |-----------|-------|------------|----------|
 | **D1: Cross-Reference** | File paths, links, stage refs | 90% | After renumbering, restructuring |
 | **D2: Terminology** | Notation, naming conventions | 80% | After notation changes |
-| **D3: Workflow** ⏳ | Prerequisites, transitions | 40% | After workflow changes |
-| **D4: Count Accuracy** ⏳ | File counts, list counts | 90% | After adding/removing files |
-| **D5: Completeness** ⏳ | Missing sections, TODOs | 85% | After major updates |
-| **D6: Template Currency** ⏳ | Template synchronization | 70% | After template changes |
-| **D7: Context-Sensitive** ⏳ | Intentional exceptions | 20% | Advanced: distinguishing errors |
+| **D3: Workflow** | Prerequisites, transitions | 40% | After workflow changes |
+| **D4: Count Accuracy** | File counts, list counts | 90% | After adding/removing files |
+| **D5: Completeness** | Missing sections, TODOs | 85% | After major updates |
+| **D6: Template Currency** | Template synchronization | 70% | After template changes |
+| **D7: Context-Sensitive** | Intentional exceptions | 20% | Advanced: distinguishing errors |
 | **D8: CLAUDE.md Sync** | Root file synchronization | 60% | After S10.P1 guide updates |
-| **D9: Intra-File** ⏳ | Within-file consistency | 80% | File seems internally inconsistent |
-| **D10: File Size** ⏳ | Readability limits | 100% | Files seem too large |
-| **D11: Structural** ⏳ | Template compliance | 60% | After structural changes |
-| **D12: Dependencies** ⏳ | Cross-file dependencies | 30% | After major refactors |
-| **D13: Quality** ⏳ | Required sections, examples | 90% | General quality check |
-| **D14: Accuracy** ⏳ | Claims vs reality | 70% | Content seems wrong |
-| **D15: Duplication** ⏳ | DRY principle | 50% | Suspected duplicate content |
-| **D16: Accessibility** ⏳ | Navigation, UX | 80% | Usability concerns |
+| **D9: Intra-File** | Within-file consistency | 80% | File seems internally inconsistent |
+| **D10: File Size** | Readability limits | 100% | Files seem too large |
+| **D11: Structural** | Template compliance | 60% | After structural changes |
+| **D12: Dependencies** | Cross-file dependencies | 30% | After major refactors |
+| **D13: Quality** | Required sections, examples | 90% | General quality check |
+| **D14: Accuracy** | Claims vs reality | 70% | Content seems wrong |
+| **D15: Duplication** | DRY principle | 50% | Suspected duplicate content |
+| **D16: Accessibility** | Navigation, UX | 80% | Usability concerns |
 
 **Recommended:** Start with D1-D2 (most common issues, highest automation)
 

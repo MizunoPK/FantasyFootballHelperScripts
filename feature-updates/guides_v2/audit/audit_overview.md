@@ -727,7 +727,7 @@ If CLAUDE.md exceeds 40,000 characters, extract detailed content to separate fil
 
 ### CLAUDE.md (Project Root)
 
-**Location:** `C:\Users\kmgam\code\FantasyFootballHelperScripts\CLAUDE.md`
+**Location:** `CLAUDE.md` (project root, 3 levels up from audit/)
 
 **Why Critical:** Often the FIRST file agents read. If out of sync with guides, agents follow wrong instructions.
 
@@ -779,7 +779,7 @@ Root cause: CLAUDE.md was NOT in audit scope
    - Apply to current round
 
 4. **If user challenged findings:**
-   - Read `reference/user_challenge_protocol.md` ⏳ (coming soon - see audit_overview.md "User Challenge" section)
+   - Read `reference/user_challenge_protocol.md`
    - Reset to Round 1
    - Use fresh patterns
 

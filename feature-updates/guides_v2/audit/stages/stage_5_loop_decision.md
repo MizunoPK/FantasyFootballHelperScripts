@@ -54,7 +54,7 @@
 │  • Latest round ZERO issues (all 4 sub-rounds clean)            │
 │  • ALL 9 exit criteria met → Consider exit                      │
 └─────────────────────────────────────────────────────────────────┘
-```markdown
+```
 
 **If current sub-round (N.X) found issues:**
 - You MUST fix ALL issues from sub-round N.X
@@ -178,7 +178,7 @@
 **If user challenged:** IMMEDIATELY loop back to Round 1
 
 #### Criterion 7: Confidence Calibrated
-- [ ] Confidence score ≥ 80% (see `../reference/confidence_calibration.md` ⏳ - use self-assessment)
+- [ ] Confidence score ≥ 80% (see `../reference/confidence_calibration.md`)
 - [ ] Self-assessed using scoring rubric
 - [ ] No red flags present
 - [ ] Feel genuinely complete, not just wanting to finish
@@ -278,7 +278,7 @@ if [ $criteria_met -eq 9 ]; then
 else
   echo "❌ $((9-criteria_met)) criteria failed - LOOP to Round $((round_number+1))"
 fi
-```markdown
+```
 
 ---
 
@@ -337,7 +337,7 @@ fi
 6. Complete all 5 stages again
    ↓
 7. Return to Stage 5 decision
-```markdown
+```
 
 ---
 
@@ -417,7 +417,7 @@ fi
 ## Recommendations
 
 [Any suggestions for preventing these issues in future]
-```markdown
+```
 
 ---
 
@@ -494,7 +494,7 @@ Please review findings and challenge if:
 Answer thoroughly, then:
 - If still satisfied → commit
 - If user expresses doubt → loop back
-```markdown
+```
 
 ---
 
@@ -556,7 +556,7 @@ Group 3: Wrong Stage Header (1 instance)
 
 Verification: Zero remaining issues
 "
-```markdown
+```
 
 **DO NOT use `git add -A` or `git add .`:**
 - These will commit output files (incorrect)
@@ -612,8 +612,8 @@ git diff --name-only main | grep "audit/outputs"
 - `../templates/round_summary_template.md` - Use for final summary
 
 **Reference:**
-- `../reference/confidence_calibration.md` ⏳ - How to score confidence (use self-assessment for now)
-- `../reference/user_challenge_protocol.md` ⏳ - How to respond to challenges (see audit_overview.md)
+- `../reference/confidence_calibration.md` - How to score confidence
+- `../reference/user_challenge_protocol.md` - How to respond to challenges
 
 ---
 

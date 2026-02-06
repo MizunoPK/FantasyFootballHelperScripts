@@ -624,9 +624,9 @@ Content: "audit/README.md (modular audit system entry point)"
 - `../stages/stage_1_discovery.md` - How to search for broken references
 - `../stages/stage_4_verification.md` - Re-verify all paths after fixes
 
-**Reference (Coming Soon):**
-- `../reference/verification_commands.md` ⏳ - More validation scripts
-- `../reference/context_analysis_guide.md` ⏳ - Determining intentional vs error
+**Reference:**
+- `../reference/verification_commands.md` - Validation scripts and patterns
+- `../reference/context_analysis_guide.md` - Determining intentional vs error
 
 ---
 

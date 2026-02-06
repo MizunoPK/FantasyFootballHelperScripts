@@ -156,7 +156,7 @@ This document tracks the feedback loop from implementation â†’ lessons learned â
 
 | Lesson Type | Typical Guide(s) Updated | Count |
 |-------------|--------------------------|-------|
-| Spec misinterpretation | 5.1.3.3_round3_part2b.md (Iteration 21) | {N} |
+| Spec misinterpretation | s5_p3_i3_gates_part2.md (Iteration 21) | {N} |
 | Interface verification missed | s5_p1_planning_round1.md (Iteration 2) | {N} |
 | Algorithm traceability incomplete | s5_p1_planning_round1.md (Iteration 4) | {N} |
 | Integration gap not identified | s5_p1_planning_round1.md (Iteration 7) | {N} |
@@ -230,7 +230,7 @@ This document tracks the feedback loop from implementation â†’ lessons learned â
 **Date Applied:** 2026-01-10
 **Commit Hash:** abc1234
 
-**Guide Updated:** `stages/s5/5.1.3.3_round3_part2b.md`
+**Guide Updated:** `stages/s5/s5_p3_i3_gates_part2.md`
 **Changes Made:**
 - Added emphasis to "close spec.md and implementation_plan.md" step
 - Added "ask critical questions" examples specific to folder/file operations

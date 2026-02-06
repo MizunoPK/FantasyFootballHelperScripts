@@ -669,9 +669,9 @@ grep -rn "stages/s6/\|stages/s7/"
 - `../stages/stage_1_discovery.md` - How to search for notation issues
 - `../stages/stage_3_apply_fixes.md` - Bulk notation replacement strategies
 
-**Reference (Coming Soon):**
-- `../reference/pattern_library.md` ⏳ - More search patterns (see examples in this guide for now)
-- `../reference/context_analysis_guide.md` ⏳ - Determining intentional vs error
+**Reference:**
+- `../reference/pattern_library.md` - Comprehensive search patterns
+- `../reference/context_analysis_guide.md` - Determining intentional vs error
 
 ---
 

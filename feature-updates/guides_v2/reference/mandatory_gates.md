@@ -2,7 +2,8 @@
 
 **Purpose:** Comprehensive list of ALL mandatory gates from S1-S10
 **Use Case:** Quick lookup for gate requirements, criteria, and failure consequences
-**Total Gates:** 16 across 10 stages (NEW: Gate 4.5 added for early test plan approval)
+**Total Gates:** 10 formal gates + additional stage checkpoints
+**Formal Gates:** 1, 2, 3, 4.5, 5, 4a, 7a, 23a, 24, 25 (see CLAUDE.md for authoritative list)
 
 ---
 
@@ -339,9 +340,53 @@
 
 ---
 
+### Gate 7a: Iteration 7a - Backward Compatibility Analysis
+
+**Location:** stages/s5/s5_p1_i3_iter7a_compatibility.md (Round 1)
+**When:** After completing Iteration 7 (Integration Gap Check)
+
+**What it checks:**
+1. Data structure compatibility with older file formats
+2. Resume/load scenarios with files created before this epic
+3. Configuration file compatibility
+4. No breaking changes to existing workflows
+5. Migration strategy if breaking changes required
+
+**Pass Criteria:**
+- All file I/O operations identified and analyzed
+- Data structure changes documented (added/removed/modified fields)
+- Compatibility strategy selected and documented:
+  - Option 1: Migrate old files on load
+  - Option 2: Invalidate old files (require fresh run)
+  - Option 3: No compatibility issues (data not persisted)
+- Resume/checkpoint scenarios verified
+- Version markers checked or added if needed
+
+**Evidence Required:**
+- List of files that persist data
+- New fields added with types and defaults
+- Resume/load scenarios described
+- Compatibility strategy selected with justification
+- Code references showing file I/O operations
+
+**If FAIL:**
+- Address compatibility issues identified
+- Add migration logic or invalidation checks
+- Add version markers to data structures
+- Re-run Iteration 7a
+- Must PASS before proceeding to Round 2 (S5.P2)
+
+**Historical Context:**
+- KAI-5 Issue #001: Resume logic loaded old files without ranking_metrics field, polluting best_configs with invalid data
+- This gate specifically designed to prevent mixing old and new data formats
+
+**Why it matters:** Prevents bugs caused by new code loading old data files that lack new fields or use incompatible formats (critical for systems with resume/checkpoint functionality)
+
+---
+
 ### Gate 2: Iteration 20 - Pre-Implementation Spec Audit (5 PARTS)
 
-**Location:** stages/s5/5.1.3.2_round3_part2a.md (Round 3 Part 2a)
+**Location:** stages/s5/s5_p3_i2_gates_part1.md (Round 3 Part 2a)
 **When:** After preparation iterations (Iterations 14-19)
 
 **ALL 5 PARTS must PASS:**
@@ -396,7 +441,7 @@
 
 ### Gate 3: Iteration 21 - Spec Validation Against Validated Documents (CRITICAL)
 
-**Location:** stages/s5/5.1.3.3_round3_part2b.md (Round 3 Part 2b)
+**Location:** stages/s5/s5_p3_i3_gates_part2.md (Round 3 Part 2b)
 **When:** After Iteration 20 passes
 
 **What it checks:**
@@ -445,7 +490,7 @@
 
 ### Gate 4: Iteration 22 - Implementation Readiness Protocol (GO/NO-GO)
 
-**Location:** stages/s5/5.1.3.3_round3_part2b.md (Round 3 Part 2b)
+**Location:** stages/s5/s5_p3_i3_gates_part2.md (Round 3 Part 2b)
 **When:** After Iteration 21 passes
 
 **What it checks (comprehensive checklist):**
@@ -651,15 +696,34 @@
 
 ## Summary Statistics
 
-**Total Mandatory Gates:** 16
-- S1: 0
-- S2: 3 (per feature, so 3×N for N features)
-- S3: 1
-- S4: 1 (Gate 4.5 - Epic Test Plan Approval - NEW)
-- S5: 5 (per feature, including user approval)
-- S7: 2 (per feature)
-- S9: 0 (but restart protocol similar)
-- S10: 2
+**Formal Gates (10 total - see CLAUDE.md for authoritative list):**
+- Gate 1 (S2.P1.I1): Research Completeness Audit
+- Gate 2 (S2.P1.I3): Spec-to-Epic Alignment
+- Gate 3 (S2.P1.I3): User Checklist Approval
+- Gate 4.5 (S3.P3): Epic Plan Approval
+- Gate 5 (S5.P3): Implementation Plan Approval
+- Gate 4a (S5.P1.I2): TODO Specification Audit
+- Gate 7a (S5.P1.I3): Backward Compatibility Check
+- Gate 23a (S5.P3.I2): Pre-Implementation Spec Audit (5 parts)
+- Gate 24 (S5.P3.I3): GO/NO-GO Decision
+- Gate 25 (S5.P3.I3): Spec Validation Check
+
+**Additional Stage Checkpoints (documented in this file but not formally numbered gates):**
+- S2.P3: User Approval of Acceptance Criteria (referenced as "Gate 4" in this file for completeness)
+- S7.P1: Smoke Part 3 - E2E Data Validation (referenced as "Gate 5" in this file)
+- S7.P2: QC Round 3 - Zero Issues Required (referenced as "Gate 6" in this file)
+- S10: Unit Tests 100% Pass (referenced as "Gate 7.1" in this file)
+- S10: User Testing Zero Bugs (referenced as "Gate 7.2" in this file)
+
+**Gate Distribution by Stage:**
+- S1: 0 formal gates
+- S2: 3 formal gates per feature (Gates 1, 2, 3)
+- S3: 1 formal gate (Gate 4.5)
+- S4: 0 formal gates (test plan approval happens at Gate 4.5 in S3)
+- S5: 5 formal gates per feature (Gate 5, 4a, 7a, 23a, 24, 25)
+- S6-S8: 0 formal gates
+- S9: 0 formal gates (but restart protocol applies)
+- S10: 0 formal gates (but checkpoints 7.1 and 7.2 are critical)
 
 **Gates with Evidence Requirements:** 7
 - Phase 1.5: File paths, line numbers
@@ -677,14 +741,15 @@
 - Smoke Part 3 → Smoke Part 1
 - QC Round 3 → Smoke Part 1
 
-**Gates Requiring User Input:** 6
-- Gate 3: User approval (checklist questions)
-- Gate 4: User approval (acceptance criteria)
-- Gate 4.5 (S3): User sign-off (epic plan)
-- Gate 5: User approval (epic test plan - NEW)
-- Iteration 21: User decision (if discrepancies)
-- Gate 6: User approval (implementation plan)
-- Gate 7.2: User testing approval
+**Formal Gates Requiring User Input:** 3
+- Gate 3: User Checklist Approval (S2.P1.I3)
+- Gate 4.5: Epic Plan Approval (S3.P3) - includes test plan approval
+- Gate 5: Implementation Plan Approval (S5.P3)
+- Gate 25 (Iteration 21): User decision if discrepancies found
+
+**Stage Checkpoints Requiring User Input:** 2
+- S2.P3 Checkpoint: User approval of acceptance criteria
+- S10 Checkpoint 7.2: User testing approval (zero bugs)
 
 ---
 

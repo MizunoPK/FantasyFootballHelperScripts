@@ -105,7 +105,7 @@
 
 **Files to Always Check:**
 ```text
-C:\Users\kmgam\code\FantasyFootballHelperScripts\CLAUDE.md
+CLAUDE.md (project root)
 feature-updates/guides_v2/README.md
 feature-updates/guides_v2/EPIC_WORKFLOW_USAGE.md
 feature-updates/guides_v2/prompts_reference_v2.md

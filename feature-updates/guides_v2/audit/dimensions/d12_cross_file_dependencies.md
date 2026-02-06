@@ -106,7 +106,7 @@
 feature-updates/guides_v2/README.md
 feature-updates/guides_v2/EPIC_WORKFLOW_USAGE.md
 feature-updates/guides_v2/prompts_reference_v2.md
-C:\Users\kmgam\code\FantasyFootballHelperScripts\CLAUDE.md
+CLAUDE.md (project root)
 ```markdown
 
 **What to Validate:**

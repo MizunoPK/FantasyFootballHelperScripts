@@ -95,7 +95,7 @@
 ```text
 feature-updates/guides_v2/README.md
 feature-updates/guides_v2/EPIC_WORKFLOW_USAGE.md
-C:\Users\kmgam\code\FantasyFootballHelperScripts\CLAUDE.md (Stage Workflows section)
+CLAUDE.md (project root) (Stage Workflows section)
 ```markdown
 
 **What to Validate:**
