@@ -7,6 +7,23 @@
 
 ---
 
+## Table of Contents
+
+1. [Executive Summary](#executive-summary)
+2. [Tier 1: Re-Run Original Patterns](#tier-1-re-run-original-patterns)
+3. [Tier 2: New Pattern Variations](#tier-2-new-pattern-variations)
+4. [Tier 3: Spot-Check Random Files](#tier-3-spot-check-random-files)
+5. [Final Counts](#final-counts)
+6. [Pattern Diversity Assessment](#pattern-diversity-assessment)
+7. [Confidence Assessment](#confidence-assessment)
+8. [Decision](#decision)
+9. [Issues Requiring Action](#issues-requiring-action)
+10. [Lessons Learned](#lessons-learned)
+11. [Appendix: Commands Reference](#appendix-commands-reference)
+12. [Next Steps](#next-steps)
+
+---
+
 ## Executive Summary
 
 **Verification Status:** ✅ PASSED / ❌ FAILED / ⚠️ PARTIAL

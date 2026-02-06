@@ -7,6 +7,18 @@
 
 ---
 
+## Table of Contents
+
+1. [Executive Summary](#executive-summary)
+2. [Exit Criteria Assessment](#exit-criteria-assessment)
+3. [Round Statistics](#round-statistics)
+4. [Files Modified This Round](#files-modified-this-round)
+5. [User Presentation](#user-presentation)
+6. [Appendices](#appendices)
+7. [Quick Reference: Using This Template](#quick-reference-using-this-template)
+
+---
+
 ## Executive Summary
 
 **Decision:** ✅ EXIT AUDIT / 🔄 LOOP TO ROUND [N+1]

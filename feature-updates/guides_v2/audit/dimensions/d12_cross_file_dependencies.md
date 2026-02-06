@@ -998,7 +998,7 @@ Q1: What authentication method should we use?
 ```markdown
 ## Section 4: Authentication
 
-Authentication method: [TBD - see checklist.md Q1 for requirements]
+Authentication method: [Determined from user answers - see checklist.md Q1]
 ```
 
 **Problem:**
@@ -1012,7 +1012,7 @@ Authentication method: [TBD - see checklist.md Q1 for requirements]
 
 ## Section 4: Authentication
 
--Authentication method: [TBD - see checklist.md Q1 for requirements]
+-Authentication method: [Determined from user answers - see checklist.md Q1]
 +Authentication method: JWT tokens
 +Rationale: Per checklist.md Q1 requirements (mobile app needs stateless auth)
 ```
