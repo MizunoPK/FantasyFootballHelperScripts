@@ -1201,59 +1201,22 @@ For detailed testing patterns, see Section 7: Advanced Testing Techniques.
 
 ## Integration with Other Dimensions
 
-### D2: Terminology Consistency
+**D9 focuses on consistency WITHIN files, complementing dimensions that check ACROSS files:**
 
-**Overlap:**
-- D2 validates terminology ACROSS files
-- D9 validates terminology WITHIN files
-- **Division:** D2 = inter-file, D9 = intra-file
+| Dimension | Division of Responsibility |
+|-----------|---------------------------|
+| **D2: Terminology Consistency** | D2 = inter-file (all files use same terms), D9 = intra-file (single file doesn't mix terms) |
+| **D5: Content Completeness** | D5 = presence (sections exist), D9 = consistency (sections internally consistent) |
+| **D11: Structural Patterns** | D11 = template compliance (matches template), D9 = internal consistency (patterns match within file) |
+| **D13: Documentation Quality** | D13 = standards (quality met), D9 = consistency (quality consistent throughout) |
 
-**Example:**
-- D2 checks: All files use "epic" (not "project") ✅
-- D9 checks: Single file doesn't mix "epic" and "project" ✅
+**Example workflow:**
+1. D2 checks: All files use "epic" (not "project") ✅
+2. D9 checks: Single file doesn't mix "epic" and "project" ✅
+3. D13 checks: Examples are high-quality ✅
+4. D9 checks: All examples in file follow same structure ✅
 
-**Recommendation:** Run D2 AND D9 (complementary validations)
-
----
-
-### D5: Content Completeness
-
-**Overlap:**
-- D5 validates required sections exist
-- D9 validates those sections are internally consistent
-- **Division:** D5 = presence, D9 = consistency
-
-**Example:**
-- D5 checks: File has "Prerequisites" section ✅
-- D9 checks: All major sections have "Prerequisites" (structural consistency) ✅
-
----
-
-### D11: Structural Patterns
-
-**Overlap:**
-- D11 validates file follows template structure
-- D9 validates within-file structural consistency
-- **Division:** D11 = template compliance, D9 = internal consistency
-
-**Example:**
-- D11 checks: File has required sections per template ✅
-- D9 checks: All sections follow same format pattern ✅
-
----
-
-### D13: Documentation Quality
-
-**Overlap:**
-- D13 validates quality standards met
-- D9 validates internal consistency of quality
-- **Division:** D13 = standards, D9 = consistency
-
-**Example:**
-- D13 checks: Examples are high-quality ✅
-- D9 checks: All examples follow same structure ✅
-
----
+**Recommendation:** Run D2, D9, D11, D13 together for comprehensive consistency validation.
 
 ## Summary
 

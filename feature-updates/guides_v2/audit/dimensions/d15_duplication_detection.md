@@ -1194,55 +1194,19 @@ See `reference/standard_prerequisites.md`
 
 ## Integration with Other Dimensions
 
-### D5: Content Completeness
+**D15 complements related dimensions by focusing on consolidation and DRY principle:**
 
-**Overlap:**
-- D5 validates required content exists
-- D15 validates content doesn't exist redundantly
-- **Division:** D5 = presence, D15 = non-duplication
+| Dimension | Division of Responsibility |
+|-----------|---------------------------|
+| **D5: Content Completeness** | D5 = presence (content exists), D15 = non-duplication (content not redundant) |
+| **D11: Structural Patterns** | D11 = consistency (structure matches), D15 = consolidation (structure not duplicated) |
+| **D12: Cross-File Dependencies** | D12 = references work (links valid), D15 = prefer references (content referenced, not copied) |
+| **D14: Content Accuracy** | D14 = correctness (claims accurate), D15 = efficiency (claims not duplicated) |
 
-**Example:**
-- D5 checks: Guide has "Examples" section ✅
-- D15 checks: Examples aren't duplicated across guides ✅
-
----
-
-### D11: Structural Patterns
-
-**Overlap:**
-- D11 validates structural consistency
-- D15 validates structure isn't duplicated unnecessarily
-- **Division:** D11 = consistency, D15 = consolidation
-
-**Example:**
-- D11 checks: All guides have Prerequisites section (consistent) ✅
-- D15 checks: Prerequisites content isn't duplicated (consolidated) ✅
-
----
-
-### D12: Cross-File Dependencies
-
-**Overlap:**
-- D12 validates file references are correct
-- D15 validates content is referenced, not duplicated
-- **Division:** D12 = references work, D15 = prefer references over duplication
-
-**Example:**
-- D12 checks: Reference to common_examples.md exists and valid ✅
-- D15 checks: Examples are referenced, not copy-pasted ✅
-
----
-
-### D14: Content Accuracy
-
-**Overlap:**
-- D14 validates claims are correct
-- D15 validates claims aren't duplicated
-- **Division:** D14 = correctness, D15 = efficiency
-
-**Example:**
-- D14 checks: Gate count "10 gates" is accurate ✅
-- D15 checks: Gate list isn't duplicated, references mandatory_gates.md ✅
+**Example workflow:**
+1. D5 checks: Guide has "Examples" section ✅
+2. D15 checks: Examples aren't duplicated across guides ✅
+3. D12 checks: Examples reference is valid ✅
 
 ---
 

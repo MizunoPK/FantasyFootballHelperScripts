@@ -911,116 +911,32 @@ grep -rn "[0-9]+ gates" feature-updates/guides_v2/ CLAUDE.md
 
 ## Context-Sensitive Rules
 
-### Rule 1: "Typical" vs "Maximum" vs "Minimum" Counts
+**These count patterns are VALID and should NOT be flagged as errors:**
 
-**Context:** Some counts describe ranges or typical cases, not absolutes.
+| Rule | Pattern | Valid Example | Why Valid |
+|------|---------|---------------|-----------|
+| **1. Typical/Range Counts** | Uses "typical," "usually," "minimum," "maximum," "~" | "3-5 rounds (minimum 3)" | Describes common case, not absolute |
+| **2. Historical Counts** | Old counts in "Historical Evidence" sections | "Old workflow had 9 stages" | Intentionally references past structure |
+| **3. Approximate Counts** | Uses "+" suffix (e.g., "45+") | "45+ prompts" when actual=47 | Valid if actual ≥ claimed |
+| **4. Progress Tracking** | Uses "X/Y" format | "12/16 dimensions (75%)" | Shows partial completion, not mismatch |
 
-**Valid Variations:**
-
-**Audit Rounds:**
-```markdown
-audit/README.md: Typical audit requires 3-5 rounds (minimum 3)
-```
-
-This is VALID even if some audits take 6-7 rounds:
-- "Typical" = most common, not absolute maximum
-- "Minimum 3" is the hard requirement
-- Outliers beyond typical range are acceptable
-
-**Stage Durations:**
-```markdown
-S5: 3-5 hours (can extend to 6+ for complex features)
-```
-
-This is VALID - duration is estimate, not guarantee.
-
-**Detection:**
+**Detection Commands:**
 ```bash
-# Look for qualifying language
-grep -rn "typical\|usual\|minimum\|maximum\|approximately\|about" \
-  feature-updates/guides_v2/
-```
+# Find qualifying language (Rule 1)
+grep -rn "typical\|usual\|minimum\|maximum\|approximately" feature-updates/guides_v2/
 
-**Validation:** If claim uses "typical," "usually," "minimum," "maximum" → VALID (not exact count requirement)
-
----
-
-### Rule 2: Historical Counts Are Intentionally Different
-
-**Context:** Historical evidence sections may reference old counts.
-
-**Example:**
-```markdown
-## Historical Evidence
-
-The old workflow had 9 stages (before S4 was added in 2025).
-Current workflow: 10 stages.
-```
-
-**This is VALID:**
-- Historical section intentionally references old structure
-- Current section shows updated count
-- Not a mismatch error
-
-**Detection:**
-```bash
-# Check if count appears in "Historical Evidence" section
-grep -B 5 -A 5 "9 stages" feature-updates/guides_v2/ | \
-  grep -q "Historical Evidence\|History\|Old workflow"
-```
-
-**Validation:** Old counts in historical context sections → VALID (not errors)
-
----
-
-### Rule 3: Approximate Counts With "+" Suffix
-
-**Context:** Some counts intentionally vague with approximations.
-
-**Valid Approximations:**
-```markdown
-prompts_reference_v2.md: 45+ prompts across all stages
-```
-
-**Validation:**
-- Count actual prompts: 47
-- Claim says "45+"
-- 47 ≥ 45, so claim is ACCURATE
-
-**Invalid Example:**
-```markdown
-Claim: "50+ dimensions"
-Actual: 16 dimensions
-16 < 50 → INVALID
-```
-
-**Detection:**
-```bash
-# Find approximate counts
+# Find approximate counts (Rule 3)
 grep -rn "[0-9]++" feature-updates/guides_v2/
+
+# Find progress tracking (Rule 4)
+grep -rn "[0-9]+/[0-9]+" feature-updates/guides_v2/
 ```
 
-**Validation:** If claim uses "+", verify actual ≥ claimed → VALID if true
-
----
-
-### Rule 4: Dimension Implementation Status Intentionally Shows Progress
-
-**Context:** Implementation tracker shows current vs total counts.
-
-**Valid Format:**
-```markdown
-Current Progress: 12/16 dimensions (75%) fully implemented
-```
-
-**This shows:**
-- 12 currently done
-- 16 total planned
-- 75% complete
-
-**Not a mismatch** - intentionally showing partial completion.
-
-**Validation:** "X/Y" format indicates progress tracking → VALID (not count error)
+**Validation Approach:**
+- **Rule 1:** If claim has qualifiers → Don't require exact match
+- **Rule 2:** Check section context → Historical refs are intentional
+- **Rule 3:** Verify actual ≥ claimed → Valid if true
+- **Rule 4:** "X/Y" format → Progress tracker, not error
 
 ---
 
@@ -1239,57 +1155,22 @@ If 9-10 are actually sub-criteria, move them as sub-bullets under criteria 8.
 
 ## Integration with Other Dimensions
 
-### D14: Content Accuracy
+**D4 focuses on numeric/count accuracy, complementing dimensions that validate other aspects:**
 
-**Overlap:**
-- D14 validates semantic correctness broadly
-- D4 validates numeric correctness specifically
-- **Division:** D14 = "is claim true?", D4 = "is number correct?"
+| Dimension | Division of Responsibility |
+|-----------|---------------------------|
+| **D14: Content Accuracy** | D14 = semantic correctness ("is claim true?"), D4 = numeric correctness ("is number correct?") |
+| **D5: Content Completeness** | D5 = presence (content exists), D4 = quantity (counts match headers) |
+| **D13: Documentation Quality** | D13 = format (headers consistent), D4 = numbers ("## 8 Steps" has 8 steps) |
+| **D3: Workflow Integration** | D3 = logic (sequence correct), D4 = counts ("10 stages" matches S1-S10) |
 
-**Example:**
-- D14 checks: "S5 is most complex stage" (semantic claim)
-- D4 checks: "S5 has 22 iterations" (numeric claim)
+**Example workflow:**
+1. D5 checks: Guide has "Prerequisites" section ✅
+2. D4 checks: If header says "5 Prerequisites," list has 5 items ✅
+3. D13 checks: Section headers formatted consistently ✅
+4. D14 checks: Prerequisites content semantically correct ✅
 
-**Recommendation:** Run D4 BEFORE D14 (numbers are easier to verify than semantics)
-
----
-
-### D5: Content Completeness
-
-**Overlap:**
-- D5 validates required content exists
-- D4 validates counts of that content are correct
-- **Division:** D5 = presence, D4 = quantity
-
-**Example:**
-- D5 checks: Guide has "Prerequisites" section ✅
-- D4 checks: If header says "5 Prerequisites," list has 5 items ✅
-
----
-
-### D13: Documentation Quality
-
-**Overlap:**
-- D13 validates structure and formatting
-- D4 validates numeric claims within that structure
-- **Division:** D13 = format, D4 = numbers
-
-**Example:**
-- D13 checks: Section headers follow consistent format ✅
-- D4 checks: "## 8 Steps" actually has 8 steps ✅
-
----
-
-### D3: Workflow Integration
-
-**Overlap:**
-- D3 validates workflow sequence is correct
-- D4 validates numeric descriptions of that sequence
-- **Division:** D3 = logic, D4 = counts
-
-**Example:**
-- D3 checks: S1 → S2 → S3 sequence correct ✅
-- D4 checks: Documentation says "10 stages" ✅
+**Recommendation:** Run D4 BEFORE D14 (numbers easier to verify than semantics).
 
 ---
 
