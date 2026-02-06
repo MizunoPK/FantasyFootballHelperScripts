@@ -211,6 +211,14 @@ Read feature-updates/guides_v2/templates/{template_name}.md
 | Implementation Checklist | ~50 | No | No |
 | Feature Lessons Learned | ~180 | No | No |
 | Bug Fix Notes | ~85 | Yes (after validation) | Yes |
+| Feature Research Notes | ~367 | No | No |
+| Feature Test Strategy | ~259 | No | No |
+| Handoff Package (S2) | ~242 | No | No |
+| Validation Loop Log | ~205 | No | No |
+| PR Review Issues | ~175 | No | No |
+| Guide Update Proposal | ~257 | No | No |
+| Debugging Guide Updates | ~280 | No | No |
+| Cross-Feature Sanity Check | ~75 | No | No |
 
 **Immutable templates:** Epic Ticket, Spec Summary, Implementation Plan, Bug Fix Notes (after user validation)
 
