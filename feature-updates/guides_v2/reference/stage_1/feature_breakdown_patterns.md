@@ -6,6 +6,25 @@
 
 ---
 
+## Table of Contents
+
+1. [Feature Breakdown Criteria](#feature-breakdown-criteria)
+2. [Decision Tree: How Many Features?](#decision-tree-how-many-features)
+3. [Pattern 1: Data Pipeline Epic](#pattern-1-data-pipeline-epic)
+4. [Pattern 2: Algorithm Enhancement Epic](#pattern-2-algorithm-enhancement-epic)
+5. [Pattern 3: Multi-Source Data Epic](#pattern-3-multi-source-data-epic)
+6. [Pattern 4: Cross-System Integration Epic](#pattern-4-cross-system-integration-epic)
+7. [Pattern 5: UI Enhancement Epic](#pattern-5-ui-enhancement-epic)
+8. [Pattern 6: Refactoring Epic](#pattern-6-refactoring-epic)
+9. [Common Breakdown Mistakes](#common-breakdown-mistakes)
+10. [Decision Framework: Split or Combine?](#decision-framework-split-or-combine)
+11. [Feature Naming Conventions](#feature-naming-conventions)
+12. [Dependency Patterns](#dependency-patterns)
+13. [Estimating Feature Size](#estimating-feature-size)
+14. [Implementation Order Strategies](#implementation-order-strategies)
+
+---
+
 ## Feature Breakdown Criteria
 
 **Each feature should:**

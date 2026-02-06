@@ -173,7 +173,7 @@ This checklist contains **questions and decisions that require user input**.
 **Status:** {🔄 PENDING USER REVIEW / ✅ USER APPROVED}
 
 **If PENDING:**
-- **Next Action:** Agent presents checklist to user for review (Gate 2 - User Checklist Approval)
+- **Next Action:** Agent presents checklist to user for review (Gate 3 - User Checklist Approval)
 - **User must answer ALL questions before S5 can begin**
 
 **If APPROVED:**
@@ -240,7 +240,7 @@ This checklist contains **questions and decisions that require user input**.
 **NEW Template (User Approval Required):**
 - Agents create QUESTIONS only
 - User must answer every question
-- Gate 2: User Checklist Approval required
+- Gate 3: User Checklist Approval required
 - Zero autonomous resolution
 - Clear user visibility into all uncertainties
 

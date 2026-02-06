@@ -11,6 +11,27 @@
 
 ---
 
+## Table of Contents
+
+1. [🔀 Parallel Work Check (FIRST PRIORITY)](#-parallel-work-check-first-priority)
+2. [📖 Terminology Note](#-terminology-note)
+3. [Prerequisites](#prerequisites)
+4. [Quick Navigation](#quick-navigation)
+5. [Overview](#overview)
+6. [Sub-Stage Breakdown](#sub-stage-breakdown)
+7. [Workflow Through Sub-Stages](#workflow-through-sub-stages)
+8. [Mandatory Gates](#mandatory-gates)
+9. [Critical Rules (Same Across All Sub-Stages)](#critical-rules-same-across-all-sub-stages)
+10. [How to Use This Router Guide](#how-to-use-this-router-guide)
+11. [Exit Criteria](#exit-criteria)
+12. [Next Stage After S2](#next-stage-after-s2)
+13. [Why S2 Was Split](#why-s2-was-split)
+14. [Frequently Asked Questions](#frequently-asked-questions)
+15. [Original Guide Location](#original-guide-location)
+16. [Summary](#summary)
+
+---
+
 ## 🔀 Parallel Work Check (FIRST PRIORITY)
 
 **Before proceeding with S2 phases, check if you're in parallel work mode:**

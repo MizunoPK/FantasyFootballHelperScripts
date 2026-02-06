@@ -13,6 +13,25 @@
 
 ---
 
+## Table of Contents
+
+1. [Prerequisites](#prerequisites)
+2. [Quick Navigation](#quick-navigation)
+3. [Overview](#overview)
+4. [Sub-Stage Breakdown](#sub-stage-breakdown)
+5. [Workflow Through Sub-Stages](#workflow-through-sub-stages)
+6. [Mandatory Restart Protocol](#mandatory-restart-protocol)
+7. [Critical Rules (Same Across All Sub-Stages)](#critical-rules-same-across-all-sub-stages)
+8. [How to Use This Router Guide](#how-to-use-this-router-guide)
+9. [Exit Criteria](#exit-criteria)
+10. [Next Stage After S9](#next-stage-after-s9)
+11. [Why S9 Was Split](#why-s9-was-split)
+12. [Frequently Asked Questions](#frequently-asked-questions)
+13. [Original Guide Location](#original-guide-location)
+14. [Summary](#summary)
+
+---
+
 ## Prerequisites
 
 **Before starting S9:**

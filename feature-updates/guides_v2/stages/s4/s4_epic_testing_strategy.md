@@ -125,8 +125,7 @@ S4 runs ONCE PER ROUND (not just once at end):
 
 **Verify BEFORE starting S4:**
 
-□ S3 (Cross-Feature Sanity Check) complete
-□ User approved implementation plan (documented in epic EPIC_README.md)
+□ S3 (Cross-Feature Sanity Check) complete with user approval (Gate 4.5 passed)
 □ All feature specs complete and conflict-free
 □ epic_smoke_test_plan.md exists (created in S1)
 □ Have read all feature specs to understand:
