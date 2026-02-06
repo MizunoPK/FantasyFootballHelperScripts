@@ -770,8 +770,8 @@ $ grep -n "Guide Index" README.md
 ## Guide Index
 
 ### Stage Guides
-- [S1: Epic Planning](stages/s1/s1_epic_planning.md)
-- [S2: Feature Planning](stages/s2/s2_feature_deep_dive.md)
+- [S1: Epic Planning](../../stages/s1/s1_epic_planning.md)
+- [S2: Feature Planning](../../stages/s2/s2_feature_deep_dive.md)
 [Complete index of all guides]
 ```markdown
 

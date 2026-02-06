@@ -210,7 +210,7 @@ Continue to [S5.P1.I2: Algorithm Design](s5_p1_i2_algorithms.md)
 ## See Also
 
 - [S5.P1: Round 1 Overview](s5_p1_planning_round1.md) - Router to all iterations
-- [S4: Testing Strategy](../s4/s4_feature_testing_strategy.md) - Inputs to this iteration
+- [S4: Testing Strategy](../../stages/s4/s4_feature_testing_strategy.md) - Inputs to this iteration
 ```markdown
 
 **Automated:** ⚠️ Partial (link presence automated, quality manual)
@@ -641,7 +641,7 @@ File: stages/s5/s5_p1_i1_requirements.md
 
 ## See Also
 - [S5.P1 Overview](s5_p1_planning_round1.md)
-- [S4: Testing Strategy](../s4/s4_feature_testing_strategy.md)
+- [S4: Testing Strategy](../../stages/s4/s4_feature_testing_strategy.md)
 
 # MISSING: What comes after I1?
 ```text

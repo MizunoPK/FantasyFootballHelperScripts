@@ -25,9 +25,9 @@
 - **[sync_timeout_protocol.md](sync_timeout_protocol.md)** - Sync point timeout handling
 
 ### Templates
-- **[templates/handoff_package_s2_template.md](templates/handoff_package_s2_template.md)** - Secondary agent handoff
-- **[templates/feature_status_template.txt](templates/feature_status_template.txt)** - STATUS file format
-- **[templates/epic_readme_template.md](templates/epic_readme_template.md)** - EPIC_README with parallel sections
+- **[templates/handoff_package_s2_template.md](../templates/handoff_package_s2_template.md)** - Secondary agent handoff
+- **[templates/feature_status_template.txt](../templates/feature_status_template.txt)** - STATUS file format
+- **[templates/epic_readme_template.md](../templates/epic_readme_template.md)** - EPIC_README with parallel sections
 
 ---
 

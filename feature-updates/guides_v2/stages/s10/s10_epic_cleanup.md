@@ -262,9 +262,9 @@ STAGE 7: Epic Cleanup
 
 | Reference | Description | Location |
 |-----------|-------------|----------|
-| **Commit Message Examples** | Format, examples, anti-patterns | [reference/stage_10/commit_message_examples.md](reference/stage_10/commit_message_examples.md) |
-| **Epic Completion Template** | EPIC_README completion format | [reference/stage_10/epic_completion_template.md](reference/stage_10/epic_completion_template.md) |
-| **Lessons Learned Guide** | How to extract and apply lessons | [reference/stage_10/lessons_learned_examples.md](reference/stage_10/lessons_learned_examples.md) |
+| **Commit Message Examples** | Format, examples, anti-patterns | [reference/stage_10/commit_message_examples.md](../../reference/stage_10/commit_message_examples.md) |
+| **Epic Completion Template** | EPIC_README completion format | [reference/stage_10/epic_completion_template.md](../../reference/stage_10/epic_completion_template.md) |
+| **Lessons Learned Guide** | How to extract and apply lessons | [reference/stage_10/lessons_learned_examples.md](../../reference/stage_10/lessons_learned_examples.md) |
 
 **Key Sections:**
 
