@@ -222,6 +222,19 @@ Guides contain mandatory checkpoints marked with 🛑 or "CHECKPOINT".
 
 **User decides:** Always present options, let user choose
 
+### Parallelization Modes
+
+**Group-Based (dependency groups exist):**
+- Features organized into groups based on spec-level dependencies
+- Wave 1: Group 1 completes S2 first
+- Wave 2: Group 2 starts after Group 1 S2 complete
+- See: `parallel_work/s2_primary_agent_group_wave_guide.md`
+
+**Full Parallelization (all features independent):**
+- All features execute S2 simultaneously
+- No dependency waves needed
+- See: `parallel_work/s2_primary_agent_guide.md`
+
 ### If User Chooses Parallel Work
 
 **Primary Agent (you):**
@@ -238,7 +251,8 @@ Guides contain mandatory checkpoints marked with 🛑 or "CHECKPOINT".
 
 **Complete Protocols:** `feature-updates/guides_v2/parallel_work/`
 - `s2_parallel_protocol.md` - Complete 9-phase workflow
-- `s2_primary_agent_guide.md` - Primary agent workflow
+- `s2_primary_agent_guide.md` - Primary agent workflow (full parallelization)
+- `s2_primary_agent_group_wave_guide.md` - Primary agent workflow (group-based waves)
 - `s2_secondary_agent_guide.md` - Secondary agent workflow
 - Infrastructure, recovery, and template files
 

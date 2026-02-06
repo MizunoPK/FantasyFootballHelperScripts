@@ -214,7 +214,7 @@ Specification Phase is complete when spec.md has complete requirements with trac
 **IF your feature is in Group 2 or later (depends on prior group specs):**
 
 1. Identify all completed features from previous dependency groups
-   - Check EPIC_README.md Feature Dependency Groups section
+   - Check EPIC_README.md Feature Dependency Groups (S2 Only) section
    - For Feature 08 (Group 2): Features 01-07 (Group 1) should be complete
 
 2. Read their spec.md files focusing on areas relevant to current feature

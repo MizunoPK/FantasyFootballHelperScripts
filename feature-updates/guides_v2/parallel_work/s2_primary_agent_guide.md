@@ -86,9 +86,55 @@ Wave Assignment                                     Run S3 when all complete
 
 ---
 
-## Phase 2: Offer Parallel Work to User
+## Phase 2: Determine Parallelization Mode
 
-**After S1 complete:**
+**After S1 complete, check EPIC_README.md for dependency groups:**
+
+### Mode A: Group-Based Parallelization
+
+**Check for group-based mode indicators:**
+- EPIC_README.md has "Feature Dependency Groups (S2 Only)" section
+- Multiple dependency groups documented (Group 1, Group 2, etc.)
+- Groups organized by spec-level dependencies
+
+**If group-based mode detected:**
+
+**→ Stop here and switch to:** `parallel_work/s2_primary_agent_group_wave_guide.md`
+
+**That guide handles:**
+- Wave 1: Execute S2 for Group 1 features (solo or parallel within group)
+- Wave Transition: Generate handoffs for Group 2 after Group 1 S2 complete
+- Wave 2: Coordinate Group 2 parallel work
+- Additional Waves: Repeat for Group 3+ if needed
+- Wave Completion: Final S2.P2 across ALL features, transition to S3
+
+**Do NOT continue with this guide** if you're in group-based mode. This guide assumes all features can parallelize simultaneously (no dependency groups).
+
+---
+
+### Mode B: Full Parallelization (No Groups)
+
+**Check for full parallelization indicators:**
+- All features independent (no spec-level dependencies)
+- OR EPIC_README.md says "All features independent - Single S2 wave"
+- OR EPIC_README.md has "Feature Dependency Groups (S2 Only)" section with ONLY Group 1
+
+**If full parallelization mode confirmed:**
+
+**→ Continue with this guide** (rest of the phases below)
+
+**This guide handles:**
+- Generate handoffs for all features immediately (no waves)
+- All features execute S2 in parallel simultaneously
+- Coordinate all secondary agents together
+- Run S2.P2 after all features complete
+- Transition to S3
+
+---
+
+## Phase 3: Offer Parallel Work to User
+
+**After S1 complete and Mode B (full parallelization) confirmed:**
 
 ### Step 1: Prepare Offering Message
 
@@ -169,7 +215,7 @@ Would you like to:
 
 ---
 
-## Phase 3: Generate Handoff Packages
+## Phase 4: Generate Handoff Packages
 
 **When user accepts parallel work:**
 
@@ -285,7 +331,7 @@ done
 
 ---
 
-## Phase 4: Parallel S2 Work
+## Phase 5: Parallel S2 Work
 
 **You now have dual responsibilities:**
 
@@ -434,7 +480,7 @@ Total: 2.5 hours
 
 ---
 
-## Phase 5: Sync Point - All Features Complete S2
+## Phase 6: Sync Point - All Features Complete S2
 
 **When all features complete S2.P3:**
 
@@ -508,7 +554,7 @@ I'll review all 3 specs for conflicts, overlaps, and gaps...
 
 ---
 
-## Phase 6: S3 Cross-Feature Sanity Check (Solo)
+## Phase 7: S3 Cross-Feature Sanity Check (Solo)
 
 **Run S3 alone (no parallel work):**
 
@@ -533,7 +579,7 @@ I'll review all 3 specs for conflicts, overlaps, and gaps...
 
 ---
 
-## Phase 7: S4 Epic Testing Strategy (Solo)
+## Phase 8: S4 Epic Testing Strategy (Solo)
 
 **Run S4 alone:**
 
@@ -549,7 +595,7 @@ I'll review all 3 specs for conflicts, overlaps, and gaps...
 
 ---
 
-## Phase 8: Notify Secondary Agents of S3/S4 Completion
+## Phase 9: Notify Secondary Agents of S3/S4 Completion
 
 **Send final message to secondaries:**
 

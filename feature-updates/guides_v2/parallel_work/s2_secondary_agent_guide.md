@@ -93,6 +93,63 @@ Begin S2.P1 now.
 - Feature assignment: Which feature you own
 - Agent ID: Your identifier (Secondary-A, Secondary-B, etc.)
 - Coordination paths: Where to check inbox, write messages, etc.
+- **Dependency Group:** Which group you belong to (if applicable)
+- **Group Context:** Which previous groups you depend on (if applicable)
+
+### Step 2.5: Understand Group Context (If Applicable)
+
+**Check if handoff package includes group information:**
+
+**Indicators:**
+- "Dependency Group: Group 2" (or Group 3, Group 4, etc.)
+- "Group Dependencies: Group 2 depends on Group 1 completing S2 first"
+- "Why You're Starting Now" section explaining previous group completion
+- "Group N Specs Available" with file paths to reference
+
+**If group context present:**
+
+**What it means:**
+- Your feature is in Group N (dependent group)
+- Group N-1 has already completed S2
+- Your feature depends on Group N-1's specs to write its own spec
+- You should reference Group N-1 spec.md files during your research
+
+**Example:**
+```markdown
+**Dependency Group:** Group 2
+**Group Dependencies:** Group 2 depends on Group 1 completing S2 first
+
+**Why You're Starting Now:**
+- Group 1 has completed S2 (Feature 01: core_logging_infrastructure)
+- Group 1's specs are available for reference
+- Your feature depends on Group 1's spec to write its own spec
+
+**Group 1 Specs Available:**
+- Feature 01: feature_01_core_logging_infrastructure/spec.md
+- **Key content:** LineBasedRotatingHandler API, setup_logger() function
+```
+
+**How to use group context:**
+
+1. **During S2.P1.I1 (Discovery):**
+   - Read Group N-1 spec.md files listed in handoff
+   - Understand APIs/interfaces your feature will use
+   - Reference these in your RESEARCH_NOTES.md
+
+2. **During S2.P1.I2 (Checklist Resolution):**
+   - Answer checklist questions with knowledge of Group N-1 APIs
+   - Reference Group N-1 decisions for consistency
+
+3. **During S2.P1.I3 (Refinement):**
+   - Write your spec.md assuming Group N-1 APIs exist
+   - Add traceability references to Group N-1 specs
+
+**If NO group context present:**
+- Your feature is in Group 1 OR all features are independent
+- No dependencies on other features' specs
+- Research and specify independently
+
+**Group context only matters for S2** - after S2 complete, groups are irrelevant.
 
 ### Step 3: Verify Epic Exists
 

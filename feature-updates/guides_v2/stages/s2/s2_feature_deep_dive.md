@@ -51,20 +51,41 @@
 - Follow coordination protocols (checkpoints, inbox, STATUS)
 - **Do NOT continue with this router guide**
 
-### Are You Primary Agent in Parallel Mode?
+### Are You Primary Agent in Group-Based Parallel Mode?
 
-**Check for parallel mode indicators:**
+**Check for group-based parallelization:**
+- EPIC_README.md has "Feature Dependency Groups (S2 Only)" section
+- Multiple dependency groups documented (Group 1, Group 2, etc.)
+- User accepted group-based parallel work offering in S1
+- Currently working on Group N features
+
+**→ Go to:** `parallel_work/s2_primary_agent_group_wave_guide.md` (Group Wave Management)
+
+**Group Wave Workflow:**
+1. Complete S2 for Group 1 features first (solo work)
+2. After Group 1 S2 complete → generate handoffs for Group 2
+3. Coordinate Group 2 parallel work (secondary agents)
+4. Repeat for additional groups if needed
+5. After all groups complete S2 → run S2.P2 across ALL features
+6. Proceed to S3 (groups no longer matter)
+
+**Within each group:** Follow standard parallel coordination
+**Use this router guide ONLY for phase navigation**
+
+### Are You Primary Agent in Full Parallel Mode?
+
+**Check for full parallelization (no groups):**
+- All features independent (no spec-level dependencies)
+- OR EPIC_README.md says "All features independent - Single S2 wave"
 - User accepted parallel work offering in S1
-- You generated handoff packages
-- Multiple agents working simultaneously
-- **AND** you're working on Feature 01
+- Generated handoffs for all features immediately
 
 **→ Go to:** `parallel_work/s2_primary_agent_guide.md`
 - Follow Primary workflow for parallel S2
 - Work on Feature 01 using S2.P1 guide (3 iterations)
 - Coordinate secondary agents (monitor, escalations, sync)
-- After entire group completes S2.P1 → run S2.P2 alone
-- After all features complete → run S3 and S4 alone
+- After all features complete S2.P1 → run S2.P2 alone
+- After S2 complete → run S3 and S4 alone
 - **Use this router guide ONLY for phase navigation**
 
 ### Are You in Sequential Mode?
