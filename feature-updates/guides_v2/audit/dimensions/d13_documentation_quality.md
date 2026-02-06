@@ -4,7 +4,7 @@
 **Category:** Content Quality Dimensions
 **Automation Level:** 90% automated
 **Priority:** MEDIUM
-**Last Updated:** 2026-02-04
+**Last Updated:** 2026-02-05
 
 **Focus:** Ensure guides have required sections, complete content, no TODOs, and meet quality standards
 **Typical Issues Found:** 5-15 per audit
@@ -787,6 +787,82 @@ $ grep -n "Guide Index" README.md
 **Complementary:**
 - **D5: Content Completeness** (not implemented) - Would check for missing content within sections
 - **D16: Accessibility** - TOC requirement overlaps
+
+---
+
+## Known Exceptions
+
+**Updated:** 2026-02-05 (Round 3 audit)
+
+### Prerequisites and Exit Criteria Exceptions
+
+**17 files intentionally lack formal "## Prerequisites" or "## Exit Criteria" sections** due to established design patterns.
+
+**Documentation:** `../reference/known_exceptions.md` (complete list with rationale)
+
+**Categories:**
+
+**Category A: S5 Iteration Files (14 files)**
+- Pattern: Router files and detailed iteration guides
+- Prerequisites: Inline statements (e.g., "**Prerequisites:** Previous iterations complete")
+- Exit Criteria: Inherited from parent round guides (s5_p1, s5_p2, s5_p3)
+- Examples: s5_p1_i3_integration.md, s5_p1_i3_iter5_dataflow.md, s5_p3_i1_iter17_phasing.md
+- Design: Sequential steps within larger workflow, formal sections would be redundant
+
+**Category B: Optional/Auxiliary Files (3 files)**
+- Pattern: Conditional or reference guides, not standard workflows
+- Examples: s3_parallel_work_sync.md (optional), s4_feature_testing_card.md (reference card)
+- Design: Not part of standard epic workflow sequence
+
+**Audit Workflow:**
+
+When checking Prerequisites/Exit Criteria (Type 1, Type 2):
+1. Generate violation list using automated patterns
+2. **Cross-reference with known_exceptions.md** before flagging
+3. Filter out 17 known exceptions
+4. Investigate remaining violations as potential real issues
+
+**Automation:**
+
+The `pre_audit_checks.sh` script (CHECK 2) now includes exception filtering:
+```bash
+# Known exceptions array (17 files)
+declare -a known_exceptions=(
+  "stages/s5/s5_p1_i3_integration.md"
+  "stages/s5/s5_p1_i3_iter5_dataflow.md"
+  # ... (14 S5 iteration files)
+  "stages/s3/s3_parallel_work_sync.md"
+  "stages/s4/s4_feature_testing_card.md"
+  "stages/s4/s4_test_strategy_development.md"
+)
+
+# Skip known exceptions in check loop
+for file in stages/*/*.md; do
+  skip=false
+  for exception in "${known_exceptions[@]}"; do
+    if [ "$file" == "$exception" ]; then
+      skip=true
+      break
+    fi
+  done
+
+  if [ "$skip" = true ]; then
+    continue
+  fi
+
+  # Check for Prerequisites/Exit Criteria...
+done
+```
+
+**History:**
+- Round 2: Flagged 34 files missing Prerequisites/Exit Criteria
+- Round 3: Investigated all 34, categorized as 4 real issues + 30 intentional exceptions
+- Post-Round 3: Documented exceptions, updated automation to filter them
+
+**Why This Matters:**
+- Prevents false positives in future audits
+- Documents design decisions
+- Enables accurate quality metrics (real issues vs. design patterns)
 
 ---
 
