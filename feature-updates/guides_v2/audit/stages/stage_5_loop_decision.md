@@ -154,7 +154,7 @@
 - [ ] Each round used different patterns than previous
 - [ ] Each sub-round focused on correct dimension set
 - [ ] Clear mental break between rounds (fresh perspective)
-- [ ] All 16 dimensions checked at least 3 times (once per round)
+- [ ] All 17 dimensions checked at least 3 times (once per round)
 
 **If Total Rounds < 3:** MUST loop (baseline requirement)
 **If ANY sub-round skipped:** MUST loop (all 4 sub-rounds mandatory)
