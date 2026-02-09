@@ -5,17 +5,18 @@ Runner Script for League Helper
 This script runs the league helper from the parent directory.
 
 Usage:
-    python run_league_helper.py
+    python run_league_helper.py [--enable-log-file]
+
+Arguments:
+    --enable-log-file    Enable file logging (logs written to logs/league_helper/)
 
 Author: Kai Mizuno
 """
 
+import argparse
 import subprocess
 import sys
 from pathlib import Path
-
-# Default data folder for league helper (contains CSV files and configurations)
-DATA_FOLDER = "./data"
 
 
 def run_league_helper():
@@ -25,6 +26,9 @@ def run_league_helper():
     Executes the LeagueHelperManager.py script from the league_helper directory
     with the configured data folder as an argument.
 
+    Command-line arguments are forwarded to the target script, allowing users
+    to control file logging via --enable-log-file flag.
+
     Returns:
         int: Exit code from the league helper subprocess (0 = success, non-zero = error)
 
@@ -32,6 +36,16 @@ def run_league_helper():
         subprocess.CalledProcessError: If league helper exits with non-zero code
         Exception: For unexpected errors (file not found, permission denied, etc.)
     """
+    # Parse command-line arguments
+    parser = argparse.ArgumentParser(description="Fantasy Football League Helper")
+    parser.add_argument(
+        '--enable-log-file',
+        action='store_true',
+        default=False,
+        help='Enable file logging (logs written to logs/league_helper/)'
+    )
+    args = parser.parse_args()
+
     # Get the directory where this script is located (project root)
     script_dir = Path(__file__).parent
 
@@ -42,14 +56,14 @@ def run_league_helper():
     league_helper_script = league_helper_dir / "LeagueHelperManager.py"
 
     try:
-        # Run the league helper script with DATA_FOLDER as argument
+        # Run the league helper script (constructs data path internally)
         # Uses sys.executable to ensure same Python interpreter is used
         # check=True raises CalledProcessError if script exits with non-zero code
+        # Forward all command-line arguments (sys.argv[1:]) to target script
         result = subprocess.run([
             sys.executable,              # Current Python interpreter path
-            str(league_helper_script),   # Path to LeagueHelperManager.py
-            DATA_FOLDER                  # Data folder argument
-        ], check=True)
+            str(league_helper_script)    # Path to LeagueHelperManager.py
+        ] + sys.argv[1:], check=True)  # Forward CLI args (e.g., --enable-log-file)
 
         # Return the exit code from the subprocess (0 = success)
         return result.returncode
