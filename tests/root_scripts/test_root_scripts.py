@@ -27,6 +27,7 @@ sys.path.append(str(project_root))
 class TestRunLeagueHelper:
     """Test run_league_helper.py"""
 
+    @patch('sys.argv', ['run_league_helper.py'])
     @patch('subprocess.run')
     def test_run_league_helper_success(self, mock_run):
         """Test successful league helper execution"""
@@ -46,6 +47,7 @@ class TestRunLeagueHelper:
         assert "LeagueHelperManager.py" in call_args[1]
         assert "./data" in call_args
 
+    @patch('sys.argv', ['run_league_helper.py'])
     @patch('subprocess.run')
     def test_run_league_helper_handles_subprocess_error(self, mock_run):
         """Test handling of subprocess errors"""
@@ -57,6 +59,7 @@ class TestRunLeagueHelper:
 
         assert exit_code == 1
 
+    @patch('sys.argv', ['run_league_helper.py'])
     @patch('subprocess.run')
     def test_run_league_helper_handles_general_exception(self, mock_run):
         """Test handling of general exceptions"""
@@ -68,6 +71,7 @@ class TestRunLeagueHelper:
 
         assert exit_code == 1
 
+    @patch('sys.argv', ['run_league_helper.py'])
     @patch('subprocess.run')
     def test_run_league_helper_uses_correct_data_folder(self, mock_run):
         """Test that correct data folder is passed"""
