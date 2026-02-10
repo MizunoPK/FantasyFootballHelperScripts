@@ -110,13 +110,13 @@ Final Review is complete when 3 consecutive validation rounds find ZERO issues a
    - Minor issues: Must fix before next round (no deferring)
    - Continue validation (no restart to S7.P2)
 
-3. ⚠️ LESSONS LEARNED MUST UPDATE GUIDES
+4. ⚠️ LESSONS LEARNED MUST UPDATE GUIDES
    - If you discover guide gaps → update guides IMMEDIATELY
    - Don't just document the lesson → apply it to guides
    - Update relevant guide files before completing S7.P3
    - This is NOT optional
 
-4. ⚠️ 100% REQUIREMENT COMPLETION - ZERO TECH DEBT TOLERANCE
+5. ⚠️ 100% REQUIREMENT COMPLETION - ZERO TECH DEBT TOLERANCE
    - Feature is DONE or NOT DONE (no partial credit, no "90% done")
    - ALL spec requirements must be implemented 100%
    - ALL checklist items must be verified and resolved
@@ -126,12 +126,12 @@ Final Review is complete when 3 consecutive validation rounds find ZERO issues a
    - If something cannot be implemented, get user approval to REMOVE from scope
    - Clean codebase with zero compromises - every requirement fully complete
 
-5. ⚠️ FINAL VERIFICATION IS MANDATORY
+6. ⚠️ FINAL VERIFICATION IS MANDATORY
    - Cannot skip final verification checklist
    - Must honestly answer: "Would I ship this to production?"
    - If any hesitation → investigate why
 
-6. ⚠️ RE-READING CHECKPOINT
+7. ⚠️ RE-READING CHECKPOINT
    - Before declaring complete → re-read Completion Criteria
    - Verify ALL criteria met (not just most)
    - Update README Agent Status one final time
@@ -267,9 +267,9 @@ Re-Reading Checkpoint
 
 ---
 
-### Quick Reference: 11-Category Checklist (used in Rounds 2-5)
+### Quick Reference: 11-Category Checklist (checked every round)
 
-**For detailed examples and guidance, see pr_review_protocol.md**
+**For detailed examples and guidance, see `reference/validation_loop_qc_pr.md`**
 
 ### Category 1: Correctness and Logic
 
@@ -568,25 +568,23 @@ Spec requirement: "Add ADP multiplier to draft recommendations"
 
 ### PR Review Execution
 
-**🚨 CRITICAL: Do NOT execute PR review manually from this guide**
+**Follow the PR Validation Loop Protocol:**
 
-**Instead:**
+1. **READ:** `reference/validation_loop_qc_pr.md` (complete protocol)
 
-1. **READ:** `stages/s5/s5_pr_review_protocol.md` (complete protocol)
+2. **Follow validation loop approach:**
+   - Check ALL 11 categories + 7 master dimensions EVERY round
+   - Fresh eyes through breaks + re-reading (NOT agent spawning)
+   - Track all findings in `VALIDATION_LOOP_LOG.md`
+   - Continue until 3 consecutive clean rounds
 
-2. **Follow hybrid approach:**
-   - Spawn fresh agents via Task tool for each review round
-   - Track all findings in `pr_review_issues.md`
-   - Continue until 2 consecutive clean rounds
-
-3. **After PR review PASSED:**
-   - Verify pr_review_issues.md shows final status: PASSED
-   - Verify 2 consecutive clean rounds achieved
+3. **After PR validation PASSED:**
+   - Verify VALIDATION_LOOP_LOG.md shows 3 consecutive clean rounds
    - Proceed to Step 2 (Lessons Learned)
 
-**The 11 categories above are REFERENCE ONLY** - they are automatically used by fresh agents during Rounds 2-5. You do NOT manually execute them from this guide.
+**The 11 categories above are checked every round** - you run the validation loop following the protocol in validation_loop_qc_pr.md.
 
-**See pr_review_protocol.md for complete execution instructions.**
+**See reference/validation_loop_qc_pr.md for complete execution instructions.**
 
 ---
 

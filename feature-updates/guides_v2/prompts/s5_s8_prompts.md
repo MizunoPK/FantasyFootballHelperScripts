@@ -317,7 +317,7 @@ Starting implementation...
 
 ---
 
-## Starting S7 (Phase 1): Smoke Testing
+## Starting S7.P1: Smoke Testing
 
 **User says:** "Validate the implementation" or Agent detects S6 complete
 
@@ -368,104 +368,114 @@ Running import test for {feature_name}...
 
 ---
 
-## Starting S7 (Phase 2): QC Rounds
+## Starting S7.P2: Feature QC Validation Loop
 
-**User says:** "Begin QC rounds" or Agent detects smoke testing passed
+**User says:** "Begin QC" or Agent detects smoke testing passed
 
 **Prerequisite:** Smoke testing complete (all 3 parts passed)
 
 **Agent MUST respond:**
 
 ```markdown
-I'm reading `stages/s7/s7_p2_qc_rounds.md` to ensure I follow the 3-round QC protocol...
+I'm reading `stages/s7/s7_p2_qc_rounds.md` and `reference/validation_loop_s7_feature_qc.md` to follow the Feature QC Validation Loop...
 
 **The guide requires:**
-- **QC Round 1: Basic Validation**
-  - Pass criteria: <3 critical issues, >80% requirements met
-  - Unit tests, code structure, output files, interfaces, documentation
-- **QC Round 2: Deep Verification**
-  - Pass criteria: ALL Round 1 issues resolved + zero new critical issues
-  - Baseline comparison, data validation, regression testing, semantic diff, edge cases
-- **QC Round 3: Final Skeptical Review**
-  - Pass criteria: ZERO issues found (zero tolerance)
-  - Re-read spec with fresh eyes, re-check matrices, re-run smoke test
-- **QC Restart Protocol**:
-  - If ANY critical issues found → COMPLETELY RESTART validation
-  - Restart from: Smoke Testing Part 1 → QC Round 1 → QC Round 2 → QC Round 3
-  - NO partial fixes - complete restart ensures proper validation
-- **Re-Reading Checkpoints**:
-  - After Round 1: Re-read Round 2 pass criteria
-  - After Round 2: Re-read Round 3 zero-tolerance policy
-  - After Round 3: Re-read restart protocol
+- **Validation Loop Protocol** (extends Master Validation Loop):
+  - Check ALL 12 dimensions EVERY round (7 master + 5 S7 QC-specific)
+  - Exit when 3 consecutive rounds find ZERO issues
+  - Fix ALL issues immediately before next round (no deferring)
+  - Typical: 6-8 rounds total to achieve 3 consecutive clean
+
+- **12 Dimensions Checked Every Round:**
+  - Master (7): Empirical Verification, Completeness, Internal Consistency, Traceability, Clarity & Specificity, Upstream Alignment, Standards Compliance
+  - S7 QC (5): Cross-Feature Integration, Error Handling Completeness, End-to-End Functionality, Test Coverage Quality, Requirements Completion
+
+- **Key Difference from Old Approach:**
+  - OLD: Sequential rounds checking different concerns → Any issue → Restart from S7.P1
+  - NEW: All dimensions checked every round → Fix immediately → Continue until 3 consecutive clean
+  - Time savings: 60-180 min per bug (no restart overhead)
+
+- **Fresh Eyes Every Round:**
+  - Take 2-5 minute break between rounds
+  - Re-read ENTIRE codebase using Read tool
+  - Use different reading patterns (sequential, reverse, spot-checks)
 
 **Prerequisites I'm verifying:**
 ✅ Smoke testing complete (all 3 parts passed)
 ✅ Part 3 verified OUTPUT DATA VALUES (not just structure)
-✅ All unit tests still passing
+✅ All unit tests passing (100% pass rate)
 
-**I'll now begin QC Round 1: Basic Validation...**
+**I'll now begin Validation Round 1...**
 
 **Updating feature README Agent Status:**
-- Current Phase: POST_IMPLEMENTATION_QC_ROUNDS
-- Current Guide: stages/s7/s7_p2_qc_rounds.md
+- Current Phase: S7.P2 (Feature QC Validation Loop)
+- Current Guide: reference/validation_loop_s7_feature_qc.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
-- Critical Rules: "3 rounds (no exceptions)", "QC RESTART if critical issues", "Round 3 zero tolerance"
-- Progress: 0/3 rounds complete
-- Next Action: QC Round 1 - Basic Validation
+- Critical Rules: "12 dimensions checked every round", "3 consecutive clean rounds required", "Fix issues immediately (no restart)", "100% tests passing"
+- Progress: Round 1, Clean Count: 0
+- Next Action: Validation Round 1 - Sequential Review + Test Verification
 
-Starting QC Round 1 for {feature_name}...
+Starting Validation Round 1 for {feature_name}...
 ```
 
 ---
 
-## Starting S7 (Phase 3): Final Review
+## Starting S7.P3: Final Review (PR Validation Loop)
 
-**User says:** "Begin final review" or Agent detects QC rounds passed
+**User says:** "Begin final review" or Agent detects S7.P2 complete
 
-**Prerequisite:** QC rounds complete (all 3 rounds passed, zero issues found in Round 3)
+**Prerequisite:** S7.P2 Feature QC complete (3 consecutive clean rounds achieved)
 
 **Agent MUST respond:**
 
 ```markdown
-I'm reading `stages/s7/s7_p3_final_review.md` to ensure I follow the final review protocol...
+I'm reading `stages/s7/s7_p3_final_review.md` and `reference/validation_loop_qc_pr.md` to follow the PR Validation Loop...
 
 **The guide requires:**
-- **PR Review Protocol** (Multi-round with fresh eyes - MANDATORY):
-  - READ: `stages/s5/s5_pr_review_protocol.md` (complete protocol)
-  - Hybrid approach: Round 1 (4 specialized reviews) + Rounds 2-5 (comprehensive reviews)
-  - Fresh agent spawned for EACH review round (eliminates context bias)
-  - Continue until 2 consecutive clean rounds
-  - Maximum 5 rounds total
-  - User escalation for multi-approach issues
+- **PR Validation Loop Protocol** (extends Master Validation Loop):
+  - READ: `reference/validation_loop_qc_pr.md` (complete protocol)
+  - Check ALL 11 PR categories + 7 master dimensions EVERY round
+  - Exit when 3 consecutive rounds find ZERO issues
+  - Fresh eyes through re-reading and breaks (NOT agent spawning)
+  - Fix ALL issues immediately before next round (no deferring)
+  - Typical: 4-6 rounds to achieve 3 consecutive clean
+- **11 PR Categories:**
+  1. Code Quality & Standards
+  2. Test Coverage & Quality
+  3. Security & Data Handling
+  4. Documentation Completeness
+  5. Error Handling
+  6. Integration Points
+  7. Performance Considerations
+  8. Backwards Compatibility
+  9. Configuration & Dependencies
+  10. Edge Cases & Validation
+  11. Commit History & Messages
 - **Lessons Learned Capture**:
   - Document what worked well
   - Document what didn't work
   - **IMMEDIATELY UPDATE GUIDES** (not just document issues)
-  - Example: If QC found zero data issue → update S10.P1 guide NOW
-- **Final Verification**:
-  - 100% requirement completion (from spec)
-  - All lessons_learned.md captured
 - **Completion Criteria**:
-  - PR review: PASSED (2 consecutive clean rounds achieved)
+  - PR validation: PASSED (3 consecutive clean rounds achieved)
   - Lessons learned: Updated (including guide updates if needed)
   - Final verification: 100% complete
 
 **Prerequisites I'm verifying:**
-✅ QC Round 3 complete (zero issues found)
-✅ All smoke testing and QC documentation complete
-✅ Feature fully functional with real data
+- S7.P2 complete (3 consecutive clean rounds achieved in Feature QC)
+- All smoke testing and QC documentation complete
+- Feature fully functional with real data
 
-**I'll now begin PR Review Protocol (multi-round fresh-eyes approach)...**
+**I'll now begin PR Validation Loop (re-reading fresh-eyes approach)...**
 
 **Updating feature README Agent Status:**
 - Current Phase: POST_IMPLEMENTATION_FINAL_REVIEW
 - Current Guide: stages/s7/s7_p3_final_review.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
-- Critical Rules: "PR review protocol MANDATORY", "Fresh agents for each round", "Update guides immediately", "100% completion required"
-- Progress: PR Review Protocol starting
-- Next Action: READ pr_review_protocol.md and begin Round 1 specialized reviews
+- Critical Rules: "PR Validation Loop MANDATORY", "3 consecutive clean rounds to exit", "Update guides immediately", "100% completion required"
+- Progress: PR Validation Loop starting
+- Next Action: Begin Round 1 - check all 11 PR categories + 7 master dimensions
 
-Starting PR Review Protocol for {feature_name}...
+Starting PR Validation Loop for {feature_name}...
 ```
 
 ---

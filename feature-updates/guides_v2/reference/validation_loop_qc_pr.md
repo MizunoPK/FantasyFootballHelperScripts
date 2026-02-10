@@ -202,19 +202,22 @@ Round 5: Final sweep
 
 ---
 
-## Special Handling: Restart Protocol
+## Issue Handling: Fix and Continue
 
 **CRITICAL:** If ANY issues found in ANY round:
 
 1. **Fix ALL issues immediately** (no deferring)
 2. **Re-run ALL tests** to verify fixes didn't break anything
-3. **Restart from Round 1** (not mid-QC)
+3. **Reset consecutive clean rounds counter to 0**
    - Fixes can introduce new issues
-   - Fresh perspective required after fixes
-   - Reset counter to 0
-4. **Continue until 3 consecutive clean rounds**
+   - Must verify fix quality through complete validation
+4. **Continue validation until 3 consecutive clean rounds**
 
-**Why restart from Round 1:**
+**Key difference from old approach:**
+- **Old (restart protocol):** Any issue → Restart from S7.P1 (smoke testing)
+- **New (fix and continue):** Any issue → Fix immediately → Reset clean counter → Continue validation
+
+**Why counter resets:**
 - Fixing Issue A can introduce Issue B
 - Fresh eyes needed to catch fix-induced issues
 - Cannot guarantee quality by spot-checking only fixed areas
@@ -222,11 +225,11 @@ Round 5: Final sweep
 
 **Example:**
 ```bash
-Round 1: 5 issues → Fix ALL → Restart
-Round 1 (again): 2 issues (1 original missed, 1 introduced by fix) → Fix ALL → Restart
-Round 1 (again): 0 issues → Round 2 (count = 1 clean)
-Round 2: 0 issues → Round 3 (count = 2 clean)
-Round 3: 0 issues → PASSED (count = 3 consecutive clean)
+Round 1: 5 issues → Fix ALL → Continue (counter = 0)
+Round 2: 2 issues (1 missed, 1 introduced by fix) → Fix ALL → Continue (counter = 0)
+Round 3: 0 issues → (counter = 1 clean)
+Round 4: 0 issues → (counter = 2 clean)
+Round 5: 0 issues → PASSED (3 consecutive clean)
 ```
 
 ---

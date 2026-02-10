@@ -84,63 +84,63 @@ Testing Plan Update is complete when epic_smoke_test_plan.md reflects actual imp
 
 ---
 
-## 🛑 Critical Rules
+## Critical Rules
 
-```bash
-1. ⚠️ UPDATE BASED ON ACTUAL IMPLEMENTATION (Not specs)
+```text
+1. UPDATE BASED ON ACTUAL IMPLEMENTATION (Not specs)
    - Read the ACTUAL CODE that was written
    - Don't rely on specs or TODO list
    - Verify actual interfaces, data structures, behaviors
    - Test plan must reflect reality, not plans
 
-2. ⚠️ IDENTIFY INTEGRATION POINTS DISCOVERED
+2. IDENTIFY INTEGRATION POINTS DISCOVERED
    - Look for cross-feature interactions implementation revealed
    - Identify dependencies specs didn't predict
    - Note data flows between features
    - Document edge cases discovered during implementation
 
-3. ⚠️ ADD SPECIFIC TEST SCENARIOS (Not vague categories)
+3. ADD SPECIFIC TEST SCENARIOS (Not vague categories)
    - Bad: "Test feature integration"
    - Good: "Test that PlayerManager.calculate_score() applies ADP multiplier to final score"
    - Include WHAT to test, HOW to verify, EXPECTED result
 
-4. ⚠️ UPDATE EXISTING SCENARIOS (Don't just append)
+4. UPDATE EXISTING SCENARIOS (Don't just append)
    - If implementation contradicts existing scenario → update it
    - If behavior more complex than assumed → expand scenario
    - Remove scenarios that don't apply anymore
    - Keep test plan internally consistent
 
-5. ⚠️ FOCUS ON EPIC-LEVEL TESTING (Not feature unit tests)
+5. FOCUS ON EPIC-LEVEL TESTING (Not feature unit tests)
    - Feature unit tests covered in S7 (Testing & Review)
    - This is about EPIC-LEVEL integration testing
    - Test cross-feature workflows
    - Test epic success criteria
 
-6. ⚠️ DOCUMENT UPDATE RATIONALE
+6. DOCUMENT UPDATE RATIONALE
    - Add notes explaining WHY test added
    - Reference feature that drove update
    - Link to actual code locations if relevant
    - Update history table with changes
 
-7. ⚠️ KEEP PLAN EXECUTABLE
+7. KEEP PLAN EXECUTABLE
    - Test scenarios should be runnable during S9
    - Include commands/steps to execute tests
    - Specify expected outputs
    - Make plan actionable, not aspirational
 
-8. ⚠️ PRESERVE STAGE 1 AND 4 UPDATES
+8. PRESERVE STAGE 1 AND 4 UPDATES
    - Don't delete original test categories from S1
    - Don't remove test scenarios added in S4
    - ADD to the plan (don't replace it)
    - Evolution builds on previous stages
 
-9. ⚠️ COMMIT TEST PLAN UPDATES
+9. COMMIT TEST PLAN UPDATES
    - Update epic_smoke_test_plan.md
    - Commit changes with descriptive message
    - Include feature name in commit message
    - Keep git history clear
 
-10. ⚠️ SHORT BUT THOROUGH
+10. SHORT BUT THOROUGH
     - This stage should take 15-30 minutes
     - Focus on significant insights
     - Don't overthink minor details

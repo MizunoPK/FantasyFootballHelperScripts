@@ -20,18 +20,16 @@ S7.P1 (Smoke Testing) →
 
 1. [MANDATORY READING PROTOCOL](#mandatory-reading-protocol)
 2. [Overview](#overview)
-3. [Critical Rules (Feature-Specific)](#critical-rules-feature-specific)
+3. [Critical Rules](#critical-rules)
 4. [Prerequisites Checklist](#prerequisites-checklist)
 5. [Workflow Overview](#workflow-overview)
-6. [Code Inspection Protocol (MANDATORY)](#code-inspection-protocol-mandatory)
-7. [QC Round 1: Basic Validation](#qc-round-1-basic-validation)
-8. [QC Round 2: Deep Verification](#qc-round-2-deep-verification)
-9. [QC Round 3: Final Skeptical Review](#qc-round-3-final-skeptical-review)
-10. [Common Feature-Specific Issues](#common-feature-specific-issues)
-11. [MANDATORY CHECKPOINT 1](#mandatory-checkpoint-1)
-12. [Next Steps](#next-steps)
-13. [Summary](#summary)
-14. [Exit Criteria](#exit-criteria)
+6. [Detailed Validation Process](#detailed-validation-process)
+7. [Code Inspection Protocol (MANDATORY)](#code-inspection-protocol-mandatory)
+8. [Common Feature-Specific Issues](#common-feature-specific-issues)
+9. [MANDATORY CHECKPOINT 1](#mandatory-checkpoint-1)
+10. [Next Steps](#next-steps)
+11. [Summary](#summary)
+12. [Exit Criteria](#exit-criteria)
 
 ---
 
@@ -214,7 +212,21 @@ VALIDATION COMPLETE → Proceed to S7.P3 (Final Review)
 **Key Difference from Old Approach:**
 - **Old:** 3 sequential rounds checking different concerns → Any issue → Restart from S7.P1
 - **New:** N rounds checking ALL concerns → Fix issues immediately → Continue until 3 consecutive clean
-- **Time Savings:** 60-180 min per bug (no restart overhead)
+
+**VALIDATION_LOOP_LOG.md:** Create this file at the start of S7.P2 in the feature folder. Log each round's findings, issues fixed, and clean round counter. Format:
+```markdown
+# Validation Loop Log - {feature_name}
+
+## Round 1 (Sequential Review)
+- Issues Found: [list or "None"]
+- Fixes Applied: [list or "N/A"]
+- Clean Count: 0 (or 1 if no issues)
+
+## Round 2 (Reverse Review)
+...
+```
+
+**Time Savings:** 60-180 min per bug (no restart overhead)
 
 ---
 
@@ -354,466 +366,22 @@ Code conventions verified: Follows CODING_STANDARDS.md (type hints, error contex
 
 ---
 
-## QC Round 1: Basic Validation
-
-**📖 See `reference/qc_rounds_pattern.md` for universal Round 1 patterns.**
-**📖 See `reference/validation_loop_qc_pr.md` for Validation Loop QC approach.**
-
-**Objective:** Basic validation - does the feature work?
-
-**Validation Loop Approach:**
-- **Assume everything is wrong:** Skeptically analyze all changed files
-- **Fresh eyes:** Use sequential reading pattern (top to bottom)
-- **No deferred issues:** ALL issues (critical, major, minor) must be fixed before Round 2
-- **Exit criteria:** Zero critical issues, all tests pass, spec 100% implemented
-
-**Time Estimate:** 10-20 minutes
-
-**Pass Criteria:**
-- <3 critical issues found
-- 100% of spec requirements implemented (no partial work)
-
----
-
-### Validation 1.1: Unit Tests
-
-```bash
-python tests/run_all_tests.py
-```
-
-**Verify:**
-- ✅ Exit code = 0 (all tests pass)
-- ✅ 100% pass rate
-- ✅ No skipped tests for this feature
-
-**If tests fail:** Document failures, fix, restart from smoke testing
-
----
-
-### Validation 1.2: Code Structure
-
-**Check feature files exist and are complete:**
-
-```markdown
-## Feature Files (example)
-- [ ] spec.md (complete specification)
-- [ ] checklist.md (all items resolved)
-- [ ] implementation_plan.md (all tasks documented)
-- [ ] implementation_checklist.md (all requirements verified)
-- [ ] README.md (Agent Status updated)
-```
-
-**Check code organization:**
-- ✅ New modules in correct directories
-- ✅ No temporary/debug files committed
-- ✅ Code follows project conventions (see CLAUDE.md)
-
----
-
-### Validation 1.3: Output Files
-
-**Verify feature output files:**
-
-```python
-from pathlib import Path
-
-## Check all expected output files exist
-expected_outputs = [
-    "data/output_file_1.json",
-    "data/output_file_2.csv",
-]
-
-for output_file in expected_outputs:
-    assert Path(output_file).exists(), f"Missing output: {output_file}"
-
-print("✅ All output files exist")
-```
-
-**Verify output structure:**
-- ✅ Files have expected format (JSON, CSV, etc.)
-- ✅ Files have expected schema/columns
-- ✅ Files are not empty
-
----
-
-### Validation 1.4: Interface Verification
-
-**Verify feature interfaces match dependencies:**
-
-**From S5 Algorithm Traceability Matrix, verify each integration point:**
-
-```python
-## Example: Feature calls PlayerManager.get_players()
-from league_helper.PlayerManager import PlayerManager
-
-pm = PlayerManager()
-players = pm.get_players()  # Verify this method exists
-
-## Verify return type matches spec
-assert isinstance(players, list), "get_players should return list"
-assert len(players) > 0, "get_players returned empty list"
-
-print("✅ PlayerManager interface verified")
-```
-
-**Check ALL dependencies identified in S5:**
-- ✅ Methods exist
-- ✅ Method signatures match usage
-- ✅ Return types correct
-
----
-
-### Validation 1.5: Documentation Complete
-
-**Check documentation updated:**
-
-- [ ] Code has docstrings (Google style)
-- [ ] README.md updated if user-facing changes
-- [ ] No placeholder comments ("TODO: implement this later")
-
----
-
-### Round 1 Checkpoint
-
-**Count critical issues found:**
-
-**Critical issues:**
-- Unit tests failing
-- Output files missing or wrong format
-- Interface mismatches
-- Required functionality missing
-
-**Pass Criteria:**
-- <3 critical issues found
-- 100% of spec requirements implemented
-
-**If Round 1 FAILS:**
-1. Document ALL issues found
-2. Fix ALL issues
-3. **RESTART from S7.P1 (smoke testing)**
-4. Re-run smoke testing → QC Round 1
-
-**If Round 1 PASSES:**
-- Document results in README
-- **Re-read "Common Mistakes"** in `reference/qc_rounds_pattern.md`
-- Proceed to Round 2
-
----
-
-## QC Round 2: Deep Verification
-
-**📖 See `reference/qc_rounds_pattern.md` for universal Round 2 patterns.**
-**📖 See `reference/validation_loop_qc_pr.md` for Validation Loop QC approach.**
-
-**Objective:** Deep verification - does it work CORRECTLY?
-
-**Validation Loop Approach:**
-- **Different patterns than Round 1:** Use reverse reading order (bottom to top)
-- **Focus:** Verify Round 1 fixes AND find NEW issues
-- **No deferred issues:** ALL new issues must be fixed before Round 3
-- **Exit criteria:** Zero critical issues, all Round 1 fixes verified
-
-**Time Estimate:** 10-20 minutes
-
-**Pass Criteria:**
-- ALL Round 1 issues resolved (none remaining)
-- ZERO new critical issues found in Round 2
-
----
-
-### Validation 2.1: Baseline Comparison (If Updating Existing Feature)
-
-**If feature modifies existing functionality:**
-
-```python
-## Compare old vs new behavior
-import pandas as pd
-
-## Load baseline output (before feature)
-baseline = pd.read_csv("baseline/output.csv")
-
-## Load new output (after feature)
-new_output = pd.read_csv("data/output.csv")
-
-## Verify new output includes everything from baseline
-## (unless spec says to remove something)
-baseline_players = set(baseline['player_name'])
-new_players = set(new_output['player_name'])
-
-assert baseline_players.issubset(new_players), "Lost players in new output"
-
-print("✅ Baseline comparison passed")
-```
-
-**Skip if:** Feature is entirely new (no baseline to compare)
-
----
-
-### Validation 2.2: Data Validation
-
-**📖 See pattern file for data validation patterns.**
-
-**Verify data VALUES are correct (not just structure):**
-
-```python
-import pandas as pd
-
-df = pd.read_csv("data/output.csv")
-
-## Check column exists (structure)
-assert 'projected_points' in df.columns
-
-## Check values are correct (DEEP validation)
-assert df['projected_points'].notna().all(), "Has null values"
-assert (df['projected_points'] > 0).all(), "Has zero/negative values"
-assert df['projected_points'].between(0, 500).all(), "Values out of expected range"
-
-## Check statistical properties match spec
-mean_points = df['projected_points'].mean()
-assert 100 < mean_points < 200, f"Mean {mean_points} outside expected range"
-
-print("✅ Data validation passed")
-```
-
-**Check for common data issues:**
-- ❌ All zeros (forgot to populate)
-- ❌ All same value (placeholder)
-- ❌ Null values (missing data)
-- ❌ Out of range (algorithm bug)
-
----
-
-### Validation 2.3: Regression Testing
-
-**Verify existing functionality still works:**
-
-```bash
-## Run tests for related modules (not just new tests)
-python -m pytest tests/league_helper/test_PlayerManager.py -v
-python -m pytest tests/league_helper/test_LeagueHelper.py -v
-```
-
-**Verify:**
-- ✅ All related tests pass
-- ✅ No new test failures
-- ✅ Existing features unaffected
-
----
-
-### Validation 2.4: Semantic Diff (Behavior Matches Spec)
-
-**Re-read spec algorithms, verify implementation matches EXACTLY:**
-
-**Example from spec:**
-```markdown
-## Algorithm: Calculate Player Rating
-1. Get player ADP (Average Draft Position)
-2. Look up ADP in multiplier ranges config
-3. Apply multiplier to base rating
-4. Clamp result between 0.5 and 1.5
-5. Return multiplier
-```
-
-**Verify code does EXACTLY this:**
-```python
-def calculate_player_rating(self, player):
-    # Step 1: Get ADP
-    adp = player.get_adp()  # ✅ Matches spec step 1
-
-    # Step 2: Look up in config
-    multiplier = self.config.get_adp_multiplier(adp)  # ✅ Matches spec step 2
-
-    # Step 3: Apply to base rating
-    base_rating = player.get_base_rating()
-    rating = base_rating * multiplier  # ✅ Matches spec step 3
-
-    # Step 4: Clamp between 0.5 and 1.5
-    rating = max(0.5, min(1.5, rating))  # ✅ Matches spec step 4
-
-    # Step 5: Return
-    return rating  # ✅ Matches spec step 5
-```
-
-**Check EVERY algorithm in spec has matching code behavior**
-
----
-
-### Validation 2.5: Edge Cases
-
-**Test edge cases from spec:**
-
-```python
-## Edge case 1: Empty input
-result = feature.process([])
-assert result == [], "Empty input should return empty output"
-
-## Edge case 2: Single item
-result = feature.process([single_item])
-assert len(result) == 1, "Single item should return single result"
-
-## Edge case 3: Maximum input
-large_input = [item] * 1000
-result = feature.process(large_input)
-assert len(result) == 1000, "Should handle large input"
-
-## Edge case 4: Invalid input
-try:
-    result = feature.process(None)
-    assert False, "Should raise error for None"
-except ValueError:
-    pass  # Expected
-
-print("✅ Edge cases handled correctly")
-```
-
----
-
-### Round 2 Checkpoint
-
-**Verify:**
-- ✅ ALL Round 1 issues resolved (none remaining)
-- ✅ Data validation passed (values correct, not just structure)
-- ✅ Regression tests passed (existing functionality works)
-- ✅ Semantic diff passed (behavior matches spec)
-- ✅ Edge cases handled
-
-**If Round 2 FAILS:**
-1. Document ALL issues (unresolved Round 1 + new critical)
-2. Fix ALL issues
-3. **RESTART from S7.P1 (smoke testing)**
-4. Re-run smoke testing → Round 1 → Round 2
-
-**If Round 2 PASSES:**
-- Document results in README
-- **Re-read "Critical Rules"** in pattern file and this guide
-- Proceed to Round 3
-
----
-
-## QC Round 3: Final Skeptical Review
-
-**📖 See `reference/qc_rounds_pattern.md` for universal Round 3 patterns.**
-**📖 See `reference/validation_loop_qc_pr.md` for Validation Loop QC approach.**
-
-**Objective:** Final skeptical review with ZERO tolerance
-
-**Validation Loop Approach:**
-- **Final validation:** Random spot-checks and thematic clustering
-- **Requirement:** ZERO issues (critical, major, or minor)
-- **Exit criteria:** 3 consecutive clean rounds (no known issues remain)
-- **If ANY issues found:** Fix ALL immediately, restart from S7.P1 (smoke testing)
-
-**Time Estimate:** 10-20 minutes
-
-**Pass Criteria:**
-- **ZERO issues found** (critical, medium, OR minor)
-- Spec re-read confirms 100% implementation
-- Fresh-eyes review finds no gaps
-
----
-
-### Validation 3.1: Fresh-Eyes Spec Review
-
-**Close spec.md → Wait 1 minute → Re-read independently:**
-
-This prevents confirmation bias (seeing what you expect, not what's actually there).
-
-**Re-read spec.md section by section:**
-- [ ] Overview - verify feature does what spec describes
-- [ ] Requirements - verify EACH requirement implemented (100%)
-- [ ] Algorithms - verify EACH algorithm implemented correctly
-- [ ] Data Structures - verify EACH structure matches spec
-- [ ] Edge Cases - verify EACH edge case handled
-- [ ] Examples - verify examples work as shown
-
-**Mark ANY gaps found as issues (even minor)**
-
----
-
-### Validation 3.2: Re-check Algorithm Traceability Matrix
-
-**From S5, re-verify Algorithm Traceability Matrix:**
-
-```markdown
-## Algorithm Traceability Matrix (example)
-
-| Algorithm (from spec) | Code Location | Verified |
-|----------------------|---------------|----------|
-| Calculate player rating | PlayerRatingManager.py:45 | ✅ |
-| Look up ADP multiplier | ConfigManager.py:120 | ✅ |
-| Apply rating to recommendations | RecommendationEngine.py:89 | ✅ |
-| Clamp values 0.5-1.5 | PlayerRatingManager.py:52 | ✅ |
-```
-
-**Re-verify EACH entry:**
-- ✅ Algorithm from spec still exists
-- ✅ Code location still correct
-- ✅ Implementation still matches spec
-
----
-
-### Validation 3.3: Re-check Integration Gap Check
-
-**From S5, re-verify Integration Gap Check:**
-
-**For EACH new method, verify it has identified CALLERS:**
-
-```markdown
-## Integration Gap Check (example)
-
-| New Method | Called By | Verified |
-|------------|-----------|----------|
-| get_player_rating() | RecommendationEngine.generate() | ✅ |
-| apply_multiplier() | get_player_rating() | ✅ |
-| load_adp_config() | __init__() | ✅ |
-```
-
-**Verify:**
-- ✅ No orphan methods (methods never called)
-- ✅ All integration points still valid
-- ✅ No missing connections
-
----
-
-### Validation 3.4: Zero Issues Scan
-
-**Scan for ANY remaining issues (even minor):**
-
-**Code issues:**
-- [ ] No commented-out code
-- [ ] No debug print statements
-- [ ] No placeholder comments ("TODO", "FIXME")
-- [ ] No unused imports
-- [ ] No unused variables
-
-**Documentation issues:**
-- [ ] No typos in docstrings
-- [ ] No missing docstrings
-- [ ] No outdated comments
-- [ ] README.md accurate
-
-**Data issues:**
-- [ ] No placeholder values in output
-- [ ] No suspiciously round numbers (10.0, 100.0 - often placeholders)
-- [ ] No repeated identical values (sign of placeholder)
-
----
-
-### Round 3 Checkpoint
-
-**ZERO TOLERANCE:**
-
-**If ANY issues found (critical, medium, OR minor):**
-1. Document ALL issues
-2. Fix ALL issues
-3. **RESTART from S7.P1 (smoke testing)**
-4. Re-run smoke testing → Round 1 → Round 2 → Round 3
-
-**If ZERO issues found:**
-- ✅ QC Rounds COMPLETE
-- ✅ Document completion in README
-- ✅ Update Agent Status: "QC Rounds COMPLETE"
-- ✅ Proceed to **S7.P3: Final Review**
+## Validation Round Execution
+
+**For complete validation round instructions, see:**
+- `reference/validation_loop_s7_feature_qc.md` - Complete 12-dimension checklist
+- `reference/validation_loop_master_protocol.md` - Core validation loop principles
+
+**Each validation round:**
+1. Check ALL 12 dimensions (7 master + 5 S7 QC-specific)
+2. Run all tests (must pass 100%)
+3. Fix ANY issues found immediately
+4. Take 2-5 minute break before next round
+5. Continue until 3 consecutive clean rounds achieved
+
+**Key difference from old approach:**
+- **Old (v1.0):** 3 sequential rounds checking different concerns, restart from S7.P1 on any issue
+- **New (v2.0):** N rounds checking ALL concerns, fix immediately and continue (no restart needed)
 
 ---
 
@@ -864,27 +432,27 @@ Code does: rating = max(0, min(2.0, rating))  # Wrong range!
 
 ---
 
-## 🛑 MANDATORY CHECKPOINT 1
+## MANDATORY CHECKPOINT 1
 
-**You have completed all 3 QC rounds**
+**You have achieved 3 consecutive clean validation rounds**
 
-⚠️ STOP - DO NOT PROCEED TO S7.P3 YET
+STOP - DO NOT PROCEED TO S7.P3 YET
 
 **REQUIRED ACTIONS:**
 1. [ ] Use Read tool to re-read "Critical Rules" section of this guide
-2. [ ] Use Read tool to re-read `reference/qc_rounds_pattern.md` (ALL Critical Rules)
-3. [ ] Use Read tool to re-read "Restart Protocol" section of pattern file
+2. [ ] Use Read tool to re-read `reference/validation_loop_s7_feature_qc.md` (12 dimensions)
+3. [ ] Verify 3 consecutive clean rounds documented in VALIDATION_LOOP_LOG.md
 4. [ ] Verify ZERO issues remain (scan implementation one more time)
 5. [ ] Update feature README Agent Status:
    - Current Guide: "stages/s7/s7_p3_final_review.md"
-   - Current Step: "S7.P2 complete (3/3 rounds passed), ready to start S7.P3"
+   - Current Step: "S7.P2 complete (3 consecutive clean rounds), ready to start S7.P3"
    - Last Updated: [timestamp]
-6. [ ] Output acknowledgment: "✅ CHECKPOINT 1 COMPLETE: Re-read Critical Rules and Restart Protocol, verified ZERO issues"
+6. [ ] Output acknowledgment: "CHECKPOINT 1 COMPLETE: Re-read Critical Rules, verified 3 consecutive clean rounds, ZERO issues"
 
 **Why this checkpoint exists:**
-- 85% of agents miss subtle issues without re-reading pattern file
-- Restart Protocol violations cause failed QC in later stages
-- 3 minutes of re-reading prevents days of rework
+- Ensures validation loop was properly executed
+- Confirms all 12 dimensions checked every round
+- 3 minutes of verification prevents hours of rework
 
 **ONLY after completing ALL 6 actions above, proceed to Next Steps section**
 
@@ -892,42 +460,49 @@ Code does: rating = max(0, min(2.0, rating))  # Wrong range!
 
 ## Next Steps
 
-**If ALL 3 rounds PASSED:**
-- ✅ Document QC results in feature README
-- ✅ Update Agent Status: "QC Rounds COMPLETE (3/3 rounds passed, zero issues)"
-- ✅ Proceed to **S7.P3: Final Review**
+**If 3 consecutive clean rounds achieved:**
+- Document QC results in feature README
+- Update Agent Status: "S7.P2 COMPLETE (3 consecutive clean rounds, zero issues)"
+- Proceed to **S7.P3: Final Review**
 
-**If ANY round FAILED:**
-- ❌ Fix ALL issues identified
-- ❌ **RESTART from S7.P1 (smoke testing)**
-- ❌ Re-run entire validation: Smoke → Round 1 → Round 2 → Round 3
-- ❌ Do NOT proceed to Final Review until clean pass
+**If still finding issues:**
+- Fix ALL issues immediately (no deferring)
+- Re-run tests (must pass 100%)
+- Continue validation loop until 3 consecutive clean rounds
+- Do NOT proceed to Final Review until clean pass
 
 ---
 
 ## Summary
 
-**Feature-Level QC Rounds validate:**
-- Round 1: Basic validation (does it work?)
-- Round 2: Deep verification (does it work correctly?)
-- Round 3: Final skeptical review (is it ACTUALLY complete?)
+**Feature QC Validation Loop validates:**
+- ALL 12 dimensions checked EVERY round (7 master + 5 S7 QC-specific)
+- Continue until 3 consecutive clean rounds achieved
+- Fix issues immediately (no restart protocol needed)
 
-**Key Differences from Epic-Level:**
-- Stricter zero tech debt tolerance (feature-level more strict)
-- Baseline comparison (if updating existing feature)
-- Algorithm traceability matrix re-verification
-- Integration gap check re-verification
-- Restart destination: S7.P1 (feature smoke testing)
+**12 Dimensions Checked:**
+1. Empirical Verification (master)
+2. Completeness (master)
+3. Internal Consistency (master)
+4. Traceability (master)
+5. Clarity & Specificity (master)
+6. Upstream Alignment (master)
+7. Standards Compliance (master)
+8. Cross-Feature Integration (S7 QC)
+9. Error Handling Completeness (S7 QC)
+10. End-to-End Functionality (S7 QC)
+11. Test Coverage Quality (S7 QC)
+12. Requirements Completion (S7 QC)
 
 **Critical Success Factors:**
 - Zero tech debt tolerance (100% or INCOMPLETE)
-- All 3 rounds mandatory (no skipping)
-- Restart protocol if ANY round fails
-- Fresh-eyes spec review (Round 3)
-- ZERO issues tolerance in Round 3
+- 3 consecutive clean rounds required (exit criteria)
+- Fix issues immediately and continue (no restart)
+- Fresh eyes through breaks + re-reading
+- 100% tests passing every round
 
-**📖 For universal patterns and detailed validation techniques, see:**
-`reference/qc_rounds_pattern.md`
+**For complete validation loop protocol, see:**
+`reference/validation_loop_s7_feature_qc.md`
 
 
 ## Exit Criteria

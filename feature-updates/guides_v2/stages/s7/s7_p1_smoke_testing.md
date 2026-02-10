@@ -47,7 +47,7 @@ S5 (Implementation Planning) → S6 (Implementation Execution) →
    - Study common mistakes to avoid
 
 2. **Use the phase transition prompt** from `prompts/s5_s8_prompts.md`
-   - Find "Starting S7 (Testing & Review) (Phase 1): Smoke Testing" prompt
+   - Find "Starting S7.P1: Smoke Testing" prompt
    - Speak it out loud (acknowledge requirements)
    - List critical requirements from this guide
 
