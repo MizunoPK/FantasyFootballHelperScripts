@@ -49,8 +49,8 @@
 Implementation Execution is where you write the feature code following the implementation_plan.md, keeping spec.md visible at all times, verifying interfaces before coding, and running tests after each step with mini-QC checkpoints.
 
 **When do you use this guide?**
-- S5 complete (Round 3 Iteration 22 returned "GO")
-- implementation_plan.md v3.0 is ready
+- S5 complete (Validation Loop passed - 3 consecutive clean rounds achieved)
+- implementation_plan.md is validated and ready
 - Ready to write feature code
 
 **Key Outputs:**
@@ -149,9 +149,9 @@ S6 is complete when all implementation tasks from implementation_plan.md are imp
 **Verify BEFORE starting S6:**
 
 □ S5 complete:
-  - Iteration 22 shows: ✅ GO decision
-  - implementation_plan.md v3.0 exists and complete
-  - Iteration 20: ALL 4 PARTS PASSED
+  - Validation Loop passed (3 consecutive clean rounds achieved)
+  - implementation_plan.md validated and complete
+  - Gate 5 approval obtained from user
 □ All unit test files created (from implementation_plan.md test tasks)
 □ spec.md is accessible and will be kept open
 □ implementation_checklist.md created from implementation_plan.md
@@ -168,7 +168,7 @@ S6 is complete when all implementation tasks from implementation_plan.md are imp
 
 ```text
 ┌──────────────────────────────────────────────────────────────┐
-│            STAGE 5b WORKFLOW (Implementation)                │
+│            STAGE 6 WORKFLOW (Implementation Execution)       │
 └──────────────────────────────────────────────────────────────┘
 
 Step 1: Create Implementation Checklist (MANDATORY FIRST)
@@ -919,15 +919,15 @@ python run_league_helper.py --mode draft
 ⏱️ **ESTIMATE:** 30-45 minutes
 
 **Then continue with:**
-- `stages/s7/s7_p2_qc_rounds.md` - 3 QC rounds with restart protocol
+- `stages/s7/s7_p2_qc_rounds.md` - Feature QC Validation Loop (3 consecutive clean rounds)
 - `stages/s7/s7_p3_final_review.md` - PR review and lessons learned
 
 **S7 (Testing & Review) will:**
 - Execute 3-part smoke testing protocol (MANDATORY)
-- Complete 3 QC rounds (no exceptions)
-- Follow PR review protocol (multi-round with fresh eyes)
+- Run Feature QC Validation Loop (12 dimensions, 3 consecutive clean rounds)
+- Follow PR Validation Loop (11 categories + 7 master dimensions)
 - Verify 100% requirement completion
-- If ANY issues found → COMPLETELY RESTART S7 (Testing & Review)
+- Fix ALL issues immediately (no restart needed - validation loop approach)
 
 **Remember:** Use the phase transition prompt from `prompts_reference_v2.md` when starting S7 (Testing & Review).
 

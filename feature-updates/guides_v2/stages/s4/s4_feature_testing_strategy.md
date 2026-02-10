@@ -285,7 +285,7 @@ Output: Create test_strategy.md
 **If any prerequisite fails:**
 - ❌ Do NOT transition to S5
 - Complete missing prerequisites
-- S5.P1.I1 will verify test_strategy.md exists and escalate if missing
+- S5 will verify test_strategy.md exists and escalate if missing
 
 ---
 
@@ -293,14 +293,15 @@ Output: Create test_strategy.md
 
 **After completing S4:**
 
-📖 **READ:** `stages/s5/s5_p1_planning_round1.md` (start with Round 1)
-🎯 **GOAL:** Create comprehensive implementation plan (22 verification iterations across 3 rounds)
-⏱️ **ESTIMATE:** 2-3 hours per feature (split across 3 rounds)
+**READ:** `stages/s5/s5_v2_validation_loop.md`
+**GOAL:** Create comprehensive implementation plan using 2-phase validation loop approach
+**ESTIMATE:** 4.5-7 hours per feature (Phase 1: 60-90 min draft + Phase 2: 3.5-6 hours validation)
 
-**S5.P1.I1 will:**
+**S5 v2 will:**
 - Verify test_strategy.md exists (from S4)
-- Merge test strategy into implementation_plan.md
-- Continue with 22 verification iterations
+- Create draft implementation_plan.md with all 11 dimension sections
+- Run validation loop until 3 consecutive clean rounds achieved
+- Reference test strategy for test coverage requirements
 
 **Remember:** Use the phase transition prompt from `prompts_reference_v2.md` when starting S5.
 

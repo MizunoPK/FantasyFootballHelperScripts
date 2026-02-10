@@ -28,7 +28,8 @@ I'm reading `stages/s5/s5_v2_validation_loop.md` to ensure I follow the 2-phase 
 - Copy VALIDATION_LOOP_LOG_S5_template.md to feature folder
 
 **Phase 2: Validation Loop (3.5-6 hours, typically 6-8 rounds)**
-- Validate against 11 dimensions EVERY round:
+- Validate against 18 dimensions EVERY round (7 master + 11 S5-specific):
+- **11 S5-specific dimensions** (create sections in implementation_plan.md):
   1. Requirements Completeness
   2. Interface & Dependency Verification
   3. Algorithm Traceability
@@ -70,7 +71,7 @@ I'm reading `stages/s5/s5_v2_validation_loop.md` to ensure I follow the 2-phase 
 - Current Phase: S5_V2_DRAFT_CREATION
 - Current Guide: stages/s5/s5_v2_validation_loop.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
-- Critical Rules: "Implementation tasks MUST trace to spec requirements", "Draft = 70% in 90 min", "Validation Loop: 3 consecutive clean rounds", "11 dimensions ALL rounds", "Zero deferred issues", "Interface verification: READ actual code"
+- Critical Rules: "Implementation tasks MUST trace to spec requirements", "Draft = 70% in 90 min", "Validation Loop: 3 consecutive clean rounds", "18 dimensions ALL rounds (7 master + 11 S5)", "Zero deferred issues", "Interface verification: READ actual code"
 - Progress: Phase 1 - Draft Creation
 - Next Action: Begin draft creation (target 90 minutes)
 
@@ -92,7 +93,8 @@ I'm starting S5 v2 Phase 2: Validation Loop...
 
 **The guide requires:**
 - **Validation Loop Protocol**: 3 consecutive clean rounds required
-- **Check ALL 11 dimensions EVERY round** (no skipping):
+- **Check ALL 18 dimensions EVERY round** (7 master + 11 S5-specific, no skipping):
+- **11 S5-specific dimensions** (detailed in guide):
   1. Requirements Completeness
   2. Interface & Dependency Verification
   3. Algorithm Traceability
