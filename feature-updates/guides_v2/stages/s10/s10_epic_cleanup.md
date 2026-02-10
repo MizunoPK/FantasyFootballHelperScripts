@@ -151,8 +151,8 @@ Epic cleanup typically takes 15-30 minutes.
 
 ### S9 Completion
 - [ ] EPIC_README.md shows "S9 - Epic Final QC: ✅ COMPLETE"
-- [ ] Epic smoke testing passed (all parts)
-- [ ] Epic QC rounds passed (all 3 rounds)
+- [ ] Epic smoke testing passed (S9.P1)
+- [ ] Epic QC Validation Loop passed (3 consecutive clean rounds in S9.P2)
 - [ ] User testing passed (Step 6 - ZERO bugs reported by user)
 - [ ] Epic PR review passed (all 11 categories)
 - [ ] No pending issues from S9
@@ -180,7 +180,7 @@ Epic cleanup typically takes 15-30 minutes.
 ## Workflow Overview
 
 ```text
-STAGE 7: Epic Cleanup
+STAGE 10: Epic Cleanup
 │
 ├─> STEP 1: Pre-Cleanup Verification (Verify epic truly complete)
 │   ├─ Verify S9 complete
@@ -520,7 +520,7 @@ Key changes:
 Testing:
 - All unit tests passing (2200/2200)
 - Epic smoke testing passed
-- Epic QC rounds passed (3/3)
+- Epic QC Validation Loop passed (3 consecutive clean rounds)
 ```
 
 **Where:**
@@ -795,7 +795,7 @@ The epic is now complete!
 - ✅ Epic planned with {N} features
 - ✅ All features implemented and tested
 - ✅ Epic-level integration validated
-- ✅ All QC rounds passed
+- ✅ All validation loops passed
 - ✅ Documentation complete
 - ✅ Changes committed to git
 - ✅ Epic archived in done/ folder
@@ -846,7 +846,7 @@ The epic is now complete!
 ### S9 Completion (Including User Testing)
 - [ ] User tested complete system (S9 Step 6)
 - [ ] User testing result: ZERO bugs found
-- [ ] If bugs found: All fixed, S9 re-run from S9.P1, user re-tested
+- [ ] If bugs found: All fixed, restart S9 from S9.P1 (smoke testing), user re-tested
 - [ ] Epic PR review passed (all categories)
 
 ### Git Commit and Pull Request

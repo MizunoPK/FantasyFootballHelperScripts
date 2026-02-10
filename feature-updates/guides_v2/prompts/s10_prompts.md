@@ -34,9 +34,10 @@ I'm reading `stages/s10/s10_epic_cleanup.md` to ensure I properly finalize and a
 - **⚠️ USER TESTING (MANDATORY GATE - BEFORE COMMIT)**:
   - Ask user to test complete system themselves
   - User reports any bugs discovered during testing
-  - If bugs found → Follow bug fix protocol (S2→5a→5b→5c)
-  - After ALL bug fixes → RESTART S9 (Epic Final QC)
-  - Return to user testing after S9 passes
+  - If bugs found → Use debugging protocol to fix bugs
+  - After ALL bug fixes → RESTART from S9.P1 (Epic Smoke Testing)
+  - Complete full S9.P2 Validation Loop again (3 consecutive clean rounds required)
+  - Return to user testing (S9.P3) after validation loop passes
   - Repeat until user testing passes with ZERO bugs
   - CANNOT commit without user approval
 - **Final Commit and Pull Request**:

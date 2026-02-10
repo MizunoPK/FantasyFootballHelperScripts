@@ -189,7 +189,7 @@ Post-Feature Alignment is complete when all remaining feature specs are updated 
 **From S7 (Testing & Review) (Post-Implementation):**
 - [ ] S7 (Testing & Review) completed for current feature
 - [ ] All smoke tests passed
-- [ ] All QC rounds passed (3 rounds)
+- [ ] S7 Validation Loop passed (3 consecutive clean rounds)
 - [ ] PR review complete
 - [ ] lessons_learned.md updated
 - [ ] Feature is production-ready
