@@ -51,7 +51,7 @@ Discovery: We forgot to include player injury status tracking
 
 ### Example 2: Discovered during QA
 ```text
-Currently: feature_03_performance_tracker (S7 - QC Round 2)
+Currently: feature_03_performance_tracker (S7 - Validation Round 2)
 
 Discovery: We forgot to add export functionality
 - Users need to export performance reports to CSV
@@ -71,7 +71,7 @@ Discovery: Root cause is missing validation layer
 
 ### Example 4: Discovered during epic testing
 ```text
-Currently: Epic QC Round 1 (S9.P2)
+Currently: Epic Validation Round 1 (S9.P2)
 
 Discovery: Missing integration between features
 - feature_02 and feature_04 need shared caching layer

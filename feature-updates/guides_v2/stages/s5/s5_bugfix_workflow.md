@@ -714,7 +714,7 @@ Action:
 
 **Why wrong:** Small bugs can have big impacts. Same rigor required.
 
-**Correct:** Full S7 (Testing & Review) validation (smoke tests + 3 QC rounds + PR review)
+**Correct:** Full S7 (Testing & Review) validation (smoke tests + Validation Loop (3 consecutive clean rounds) + PR review)
 
 ---
 

@@ -273,9 +273,9 @@ This guide contains:
 **CRITICAL:** QC rounds require ACTUAL code inspection, not checkbox validation.
 
 **Historical Context (KAI-1 Feature 01):**
-- Agent claimed "error handling verified" in QC Round 1
+- Agent claimed "error handling verified" in Validation Round 1
 - Actually: Agent didn't read the file, just assumed it was correct
-- Result: Missing `set -e` in shell script passed through 3 QC rounds
+- Result: Missing `set -e` in shell script passed through multiple validation rounds
 - Caught only when user asked "did you actually review the code?"
 - **This protocol prevents that anti-pattern**
 

@@ -155,9 +155,9 @@ python tests/run_all_tests.py
 
 **Issues by Discovery Stage:**
 - Smoke Testing (Part 3): {count}
-- QC Round 1: {count}
-- QC Round 2: {count}
-- QC Round 3: {count}
+- Validation Round 1: {count}
+- Validation Round 2: {count}
+- Validation Round 3+: {count}
 - Epic Testing: {count}
 - User Testing: {count}
 

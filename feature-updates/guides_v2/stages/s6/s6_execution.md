@@ -139,7 +139,7 @@ S6 is complete when all implementation tasks from implementation_plan.md are imp
 10. ⚠️ Create implementation_checklist.md FIRST
    - Must be created BEFORE writing ANY code
    - Track progress in real-time as you implement
-   - Historical case: Agent skipped checklist creation, caught in QC Round 1
+   - Historical case: Agent skipped checklist creation, caught in Validation Round 1
 ```
 
 ---

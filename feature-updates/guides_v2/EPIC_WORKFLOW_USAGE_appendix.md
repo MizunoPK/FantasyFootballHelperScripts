@@ -133,13 +133,13 @@ I'll now proceed with S3...
 [Begin S3 workflow]
 ```
 
-### Pattern 4: Handling QC Failures
+### Pattern 4: Handling QC Validation Loop Issues
 
-**QC Round 2 finds issues**
+**Validation loop finds issues**
 
 **Your response:**
 ```text
-QC Round 2 found the following issues:
+Validation Loop Round 3 found the following issues:
 
 CRITICAL:
 1. PlayerManager.calculate_score() returns incorrect value for edge case (injured player with bye week)
@@ -149,10 +149,10 @@ MINOR:
 
 These issues require fixes before proceeding.
 
-Following QC Restart Protocol from stages/s7/s7_p2_qc_rounds.md:
+Following Validation Loop Protocol from stages/s7/s7_p2_qc_rounds.md:
 - Fix ALL issues immediately (no deferrals)
-- RESTART from smoke testing (Part 1)
-- Re-run all 3 QC rounds
+- Reset clean counter to 0
+- Continue validation (no restart needed)
 
 Fixing issues now...
 
@@ -160,19 +160,13 @@ Fixing issues now...
 [Fix issue 2 - add type hint]
 [Run unit tests - verify 100% pass]
 
-All issues fixed. Restarting QC process from smoke testing...
+All issues fixed. Clean counter reset to 0. Continuing validation...
 
-[Execute stages/s7/s7_p1_smoke_testing.md Part 1]
-[Execute Part 2]
-[Execute Part 3]
+[Execute Validation Round 4 - check all 11 dimensions]
+[Execute Validation Round 5 - check all 11 dimensions]
+[Execute Validation Round 6 - check all 11 dimensions]
 
-Smoke testing passed. Moving to QC rounds...
-
-[Execute QC Round 1]
-[Execute QC Round 2 - verify no issues]
-[Execute QC Round 3]
-
-All QC rounds passed. Proceeding to Final Review...
+3 consecutive clean rounds achieved. Proceeding to Final Review...
 ```
 
 ### Pattern 5: User Testing Finds Bugs (S10)

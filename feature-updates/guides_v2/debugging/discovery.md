@@ -63,7 +63,7 @@ mkdir -p epic_name/debugging/diagnostic_logs
 3. **Set initial status:** 🔴 NOT_STARTED
 
 4. **Record discovery location:**
-   - Examples: "Smoke Part 3", "QC Round 1", "Epic Smoke Step 2", "User Testing"
+   - Examples: "Smoke Part 3", "Validation Round 1", "Epic Smoke Step 2", "User Testing"
 
 5. **Add any immediate notes:**
    - Error messages
@@ -85,7 +85,7 @@ mkdir -p epic_name/debugging/diagnostic_logs
 **Current Guide:** debugging/discovery.md
 **Guide Last Read:** {YYYY-MM-DD HH:MM}
 
-**Testing Stage Paused:** {S7.P1 Smoke Part 3 / S7.P2 QC Round 1 / S9.P1 Epic Smoke / S9.P2 Epic QC / etc}
+**Testing Stage Paused:** {S7.P1 Smoke Part 3 / S7.P2 Validation Round 1 / S9.P1 Epic Smoke / S9.P2 Epic Validation / etc}
 
 **Debugging Status:**
 - Issues in Checklist: {count}
@@ -112,7 +112,7 @@ mkdir -p epic_name/debugging/diagnostic_logs
 **Current Guide:** debugging/discovery.md
 **Guide Last Read:** {YYYY-MM-DD HH:MM}
 
-**Testing Stage Paused:** {S9.P1 Epic Smoke Step 2 / S9.P2 Epic QC Round 1 / S10 User Testing}
+**Testing Stage Paused:** {S9.P1 Epic Smoke Step 2 / S9.P2 Epic Validation Round 1 / S10 User Testing}
 
 **Debugging Status:**
 - Issues in Checklist: {count}

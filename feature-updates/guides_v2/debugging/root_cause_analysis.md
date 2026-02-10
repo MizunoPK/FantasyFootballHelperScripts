@@ -138,7 +138,7 @@ WHY #5: Why didn't Iteration 9 catch it?
 
 **This bug SHOULD have been caught at:**
 - Stage: {S2 / S5 / S6 / S7.P1 / S7.P2 / etc.}
-- Specific Step: {Iteration 9 / QC Round 1 / etc.}
+- Specific Step: {Iteration 9 / Validation Round 1 / etc.}
 - Guide: {s5_p2_planning_round2.md / s7_p2_qc_rounds.md / etc.}
 - Specific Section: {Iteration 9: Edge Case Analysis}
 

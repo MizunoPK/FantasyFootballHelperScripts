@@ -419,11 +419,11 @@ feature-updates/KAI-{N}-{epic_name}/
 - Part 3: E2E Execution Test (verify OUTPUT DATA VALUES)
 - MANDATORY GATE before QC rounds
 
-**Step 2 - QC Rounds:**
-- QC Round 1: Basic validation (<3 critical issues, >80% requirements)
-- QC Round 2: Deep verification (all Round 1 resolved + zero new critical)
-- QC Round 3: Final skeptical review (ZERO tolerance)
-- **QC Restart Protocol:** If ANY issues → RESTART from smoke testing
+**Step 2 - QC Validation Loop:**
+- Check ALL 11 dimensions every round (not different focuses per round)
+- Fix issues immediately, reset clean counter, continue
+- Exit after 3 consecutive clean rounds (ZERO issues)
+- No restart needed - fix and continue approach
 
 **Step 3 - Final Review:**
 - PR Review Checklist (11 categories - all mandatory)
@@ -638,23 +638,25 @@ I'll now proceed with S1...
 
 ### 4. QC Restart Protocol
 
-**Applies to:** S7 QC Rounds, S9 Epic QC
+**Applies to:** S7 QC Validation Loop, S9 Epic QC Validation Loop
 
-**Rule:** If ANY issues found during QC → COMPLETELY RESTART from beginning
+**Rule:** Fix issues immediately, continue validation until 3 consecutive clean rounds
 
-**S7 (Feature QC):**
-- Issues found in QC Round 1, 2, or 3?
-- Fix all issues
-- RESTART from smoke testing (Part 1)
-- Re-run all 3 QC rounds
+**S7 (Feature QC Validation Loop):**
+- Issues found during validation?
+- Fix ALL issues immediately
+- Reset clean counter to 0
+- Continue validation (no restart needed)
+- Exit after 3 consecutive clean rounds
 
-**S9 (Epic QC):**
+**S9 (Epic QC Validation Loop):**
 - Issues found during epic validation?
-- Create bug fixes (follow bug fix protocol)
-- After ALL bug fixes complete → RESTART S9 from beginning
-- Re-run all epic smoke testing and QC rounds
+- Fix ALL issues immediately
+- Reset clean counter to 0
+- Continue validation (no restart needed for S9.P2)
+- Note: User bugs in S9.P3 require restart from S9.P1
 
-**Why:** Ensures validation covers ALL changes, including fixes
+**Why:** Fix-and-continue approach saves 60-180 minutes per issue vs restart
 
 ### 5. Zero Tech Debt Tolerance
 
