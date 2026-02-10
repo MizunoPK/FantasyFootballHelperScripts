@@ -61,7 +61,7 @@ Validate test strategy completeness using systematic Validation Loop validation 
 
 ## Validation Loop Process
 
-**Follow master protocol:** `validation_loop_protocol.md`
+**Follow master protocol:** `validation_loop_master_protocol.md`
 **Context-specific guide:** `validation_loop_test_strategy.md`
 
 **Exit Criteria:** 3 consecutive rounds with ZERO issues found
@@ -195,7 +195,7 @@ Validate test strategy completeness using systematic Validation Loop validation 
 - Continue with next round
 - Repeat until 3 consecutive rounds with ZERO issues
 
-**Maximum rounds:** 10 (see `validation_loop_protocol.md` for escalation if exceeded)
+**Maximum rounds:** 10 (see `validation_loop_master_protocol.md` for escalation if exceeded)
 
 ---
 

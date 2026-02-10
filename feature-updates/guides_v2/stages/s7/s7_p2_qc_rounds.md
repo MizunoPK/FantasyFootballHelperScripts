@@ -1,13 +1,16 @@
-# S7.P2: QC Rounds
+# S7.P2: Feature QC (Validation Loop)
 
 **File:** `s7_p2_qc_rounds.md`
 
-**Purpose:** Comprehensive quality control through 3 validation rounds to ensure feature correctness, data quality, and completeness.
+**Purpose:** Comprehensive quality control through validation loop to ensure feature correctness, integration, and completeness.
+
+**Version:** 2.0 (Updated to use validation loop approach)
+**Last Updated:** 2026-02-10
 
 **Stage Flow Context:**
 ```text
 S7.P1 (Smoke Testing) →
-→ [YOU ARE HERE: S7.P2 - QC Rounds] →
+→ [YOU ARE HERE: S7.P2 - Feature QC Validation Loop] →
 → S7.P3 (Final Review) → S8 (Post-Feature Alignment)
 ```
 
@@ -34,98 +37,116 @@ S7.P1 (Smoke Testing) →
 
 ## 🚨 MANDATORY READING PROTOCOL
 
-**BEFORE starting QC Rounds, you MUST:**
+**BEFORE starting Feature QC, you MUST:**
 
-1. **Read the QC rounds pattern:** `reference/qc_rounds_pattern.md`
-   - Understand universal 3-round QC workflow
-   - Review critical rules that apply to ALL QC rounds
-   - Study restart protocol and common mistakes
+1. **Read the validation loop guide:** `reference/validation_loop_s7_feature_qc.md`
+   - Understand 12 dimensions (7 master + 5 S7 QC-specific)
+   - Review fresh eyes patterns per round
+   - Understand 3 consecutive clean rounds exit criteria
+   - Study master protocol: `reference/validation_loop_master_protocol.md`
 
-2. **Use the phase transition prompt** from `prompts/s5_s8_prompts.md`
-   - Find "Starting S7 (Testing & Review) (Phase 2): QC Rounds" prompt
+2. **Use the phase transition prompt** from `prompts_reference_v2.md`
+   - Find "Starting S7.P2: Feature QC Validation Loop" prompt
    - Acknowledge requirements
-   - List critical requirements from this guide
+   - List critical requirements from validation loop guide
 
 3. **Update README Agent Status** with:
-   - Current Phase: POST_IMPLEMENTATION_QC_ROUNDS
-   - Current Guide: stages/s7/s7_p2_qc_rounds.md
+   - Current Phase: S7.P2 (Feature QC Validation Loop)
+   - Current Guide: reference/validation_loop_s7_feature_qc.md
    - Guide Last Read: {YYYY-MM-DD HH:MM}
-   - Critical Rules: "3 rounds MANDATORY", "QC restart if ANY issues", "Round 3 = zero issues or restart"
-   - Next Action: QC Round 1 - Basic Validation
+   - Critical Rules: "12 dimensions checked every round", "3 consecutive clean rounds required", "Fix issues immediately (no restart)", "100% tests passing"
+   - Next Action: Validation Round 1 - Sequential Review + Test Verification
 
 4. **Verify all prerequisites** (see checklist below)
 
-5. **THEN AND ONLY THEN** begin QC rounds
+5. **THEN AND ONLY THEN** begin validation loop
 
-**This is NOT optional.** Reading both the pattern and this guide ensures comprehensive validation.
+**This is NOT optional.** Reading the validation loop guide ensures you check all 12 dimensions systematically.
 
 ---
 
 ## Overview
 
 **What is this guide?**
-Feature-level QC Rounds perform 3 progressively deeper quality checks (Basic Validation, Deep Verification, Final Skeptical Review) with zero tech debt tolerance. See `reference/qc_rounds_pattern.md` for universal workflow.
+Feature QC validates implemented features through systematic validation loop checking 12 dimensions (7 master + 5 S7-specific) every round until 3 consecutive clean rounds achieved.
 
 **When do you use this guide?**
 - S7.P1 complete (Smoke Testing passed all 3 parts)
+- S6 execution complete (all implementation done)
 - Ready for comprehensive quality validation
-- Before final review
+- Before S7.P3 (Final Review)
 
 **Key Outputs:**
-- ✅ Round 1 PASSED: Basic Validation (<3 critical issues, 100% requirements met)
-- ✅ Round 2 PASSED: Deep Verification (all Round 1 issues resolved, zero new critical)
-- ✅ Round 3 PASSED: Final Skeptical Review (ZERO issues found)
-- ✅ All issues fixed with zero tech debt
-- ✅ Ready for S7.P3
+- ✅ All 12 dimensions validated every round
+- ✅ 3 consecutive clean rounds achieved (zero issues found)
+- ✅ 100% tests passing (verified every round)
+- ✅ All spec requirements implemented (100% coverage)
+- ✅ All integration points verified and working
+- ✅ Zero tech debt (no TODOs, no partial implementations)
+- ✅ Ready for S7.P3 (Final Review)
 
 **Time Estimate:**
-30-60 minutes (all 3 rounds, assuming no major issues)
+4-5 hours (typically 6-8 validation rounds)
 
 **Exit Condition:**
-QC Rounds are complete when all 3 rounds pass (Round 3 with ZERO issues), no tech debt remains, and you're ready to proceed to Final Review
+Feature QC is complete when 3 consecutive validation rounds find ZERO issues across all 12 dimensions, all tests passing (100%), and feature is production-ready
 
 ---
 
-## 🛑 Critical Rules (Feature-Specific)
+## 🛑 Critical Rules
 
-**📖 See `reference/qc_rounds_pattern.md` for universal critical rules.**
+**📖 See `reference/validation_loop_master_protocol.md` for universal validation loop principles.**
 
-**Feature-specific rules for S7.P2:**
+**S7.P2 Feature QC rules:**
 
 ```text
 ┌─────────────────────────────────────────────────────────────┐
-│ FEATURE-SPECIFIC RULES - Add to README Agent Status         │
+│ CRITICAL RULES - Copy to README Agent Status                │
 └─────────────────────────────────────────────────────────────┘
 
-1. ⚠️ ZERO TECH DEBT TOLERANCE (Feature-level is stricter than epic-level)
-   - "90% complete" = INCOMPLETE = RESTART
-   - "Placeholder values" = INCOMPLETE = RESTART
-   - "Will finish later" = INCOMPLETE = RESTART
-   - Feature must be 100% production-ready
+1. ⚠️ ALL 12 DIMENSIONS CHECKED EVERY ROUND
+   - 7 master dimensions (universal)
+   - 5 S7 QC dimensions (feature-specific)
+   - Cannot skip any dimension
+   - Re-read entire codebase each round (no working from memory)
 
-2. ⚠️ QC RESTART PROTOCOL (Feature-specific)
-   - If Round 1: ≥3 critical OR <100% requirements → RESTART from smoke testing
-   - If Round 2: Any Round 1 issues unresolved OR new critical → RESTART
-   - If Round 3: ANY issues (critical OR minor) → RESTART
-   - Restart destination: S7.P1 (Feature Smoke Testing)
+2. ⚠️ 3 CONSECUTIVE CLEAN ROUNDS REQUIRED
+   - Clean = ZERO issues found across all 12 dimensions
+   - Counter resets if ANY issue found
+   - Cannot exit early (must achieve 3 consecutive)
+   - Typical: 6-8 rounds total to achieve 3 consecutive clean
 
-3. ⚠️ Algorithm verification MANDATORY
-   - Re-check Algorithm Traceability Matrix from S5
-   - Every algorithm in spec must map to exact code location
-   - Code behavior must match spec EXACTLY
+3. ⚠️ FIX ISSUES IMMEDIATELY (NO RESTART PROTOCOL)
+   - If issues found → Fix ALL immediately
+   - Re-run tests after fixes (must pass 100%)
+   - Continue validation from current round (no restart needed)
+   - New approach: Fix and continue vs old: Fix and restart from beginning
 
-4. ⚠️ 100% requirement completion REQUIRED
-   - ALL spec requirements implemented
-   - ALL checklist items verified
-   - NO "we'll add that later" items
+4. ⚠️ 100% TESTS PASSING MANDATORY
+   - Run ALL tests EVERY validation round
+   - Must achieve 100% pass rate
+   - Any test failure = issue (must fix before next round)
+   - Verify tests still pass after code changes
+
+5. ⚠️ ZERO TECH DEBT TOLERANCE
+   - "90% complete" = INCOMPLETE (must finish)
+   - "Placeholder values" = INCOMPLETE (must replace)
+   - "Will finish later" = NOT ACCEPTABLE (finish now)
+   - NO TODOs, NO temporary solutions, NO deferred features
+
+6. ⚠️ FRESH EYES EVERY ROUND
+   - Take 2-5 minute break between rounds
+   - Re-read ENTIRE codebase using Read tool
+   - Use different reading patterns each round
+   - Assume everything is wrong (skeptical fresh perspective)
 ```
 
-**Universal rules (from pattern file):**
-- All 3 rounds mandatory
-- Each round has unique focus
-- Verify DATA VALUES (not just structure)
-- Re-reading checkpoints mandatory
-- See `reference/qc_rounds_pattern.md` for complete list
+**Validation Loop Principles (from master protocol):**
+- Assume everything is wrong (start each round skeptical)
+- Fresh eyes required (break + re-read between rounds)
+- Zero deferred issues (fix ALL before next round)
+- Exit only after 3 consecutive clean rounds
+- See `reference/validation_loop_master_protocol.md` for complete principles
 
 ---
 
@@ -153,35 +174,84 @@ QC Rounds are complete when all 3 rounds pass (Round 3 with ZERO issues), no tec
 
 ## Workflow Overview
 
-**📖 See `reference/qc_rounds_pattern.md` for universal workflow details.**
+**📖 See `reference/validation_loop_s7_feature_qc.md` for complete validation loop protocol.**
 
-**Feature-specific workflow for S7.P2:**
+**S7.P2 Validation Loop Process:**
 
 ```text
 ┌─────────────────────────────────────────────────────────────┐
-│         FEATURE-LEVEL QC ROUNDS (3 Rounds)                  │
+│     S7.P2 FEATURE QC VALIDATION LOOP (Until 3 Clean)       │
 └─────────────────────────────────────────────────────────────┘
 
-Round 1: Basic Validation (10-20 min)
-   ↓ Unit tests, code structure, output files, interfaces, docs
-   ↓ Pass: <3 critical issues, 100% requirements met
-   ↓
-   If PASS → Round 2
-   If FAIL → Fix, RESTART from smoke testing (S7.P1)
+PREPARATION
+   ↓ Read validation_loop_s7_feature_qc.md
+   ↓ Create VALIDATION_LOOP_LOG.md
+   ↓ Run ALL tests (must pass 100%)
 
-Round 2: Deep Verification (10-20 min)
-   ↓ Baseline comparison, data validation, regression, edge cases
-   ↓ Pass: ALL Round 1 issues resolved + zero new critical
+ROUND 1: Sequential Review + Test Verification
+   ↓ Check ALL 12 dimensions (7 master + 5 S7 QC)
+   ↓ Run tests, read code sequentially, verify requirements
    ↓
-   If PASS → Round 3
-   If FAIL → Fix, RESTART from smoke testing
+   If issues found → Fix ALL immediately → Re-run tests → Round 2
+   If clean → Round 2 (count = 1)
 
-Round 3: Final Skeptical Review (10-20 min)
-   ↓ Re-read spec with fresh eyes, re-check matrices
-   ↓ Pass: ZERO issues (critical, medium, OR minor)
+ROUND 2: Reverse Review + Integration Focus
+   ↓ Check ALL 12 dimensions again (fresh eyes)
+   ↓ Run tests, read code in reverse, focus on integration
    ↓
-   If PASS → QC complete, proceed to S7.P3
-   If FAIL → Fix, RESTART from smoke testing
+   If issues found → Fix ALL immediately → Re-run tests → Round 3
+   If clean → Round 3 (count = 2 or 1 depending on previous)
+
+ROUND 3+: Continue Until 3 Consecutive Clean
+   ↓ Check ALL 12 dimensions (different reading patterns)
+   ↓ Run tests, spot-checks, E2E verification
+   ↓
+   Continue until 3 consecutive rounds with ZERO issues
+   ↓
+VALIDATION COMPLETE → Proceed to S7.P3 (Final Review)
+```
+
+**Key Difference from Old Approach:**
+- **Old:** 3 sequential rounds checking different concerns → Any issue → Restart from S7.P1
+- **New:** N rounds checking ALL concerns → Fix issues immediately → Continue until 3 consecutive clean
+- **Time Savings:** 60-180 min per bug (no restart overhead)
+
+---
+
+## Detailed Validation Process
+
+**🚨 FOLLOW THE COMPLETE VALIDATION LOOP GUIDE:**
+
+**Primary guide:** `reference/validation_loop_s7_feature_qc.md`
+
+This guide contains:
+- Complete 12-dimension checklist (7 master + 5 S7 QC)
+- Fresh eyes patterns for each round
+- Common issues with examples
+- Exit criteria details
+- Example validation round sequence
+
+**Do NOT attempt to run S7.P2 without reading the validation loop guide.**
+
+**Quick Summary of What to Check:**
+
+**Master Dimensions (7):**
+1. Empirical Verification - All interfaces verified from source
+2. Completeness - All requirements implemented
+3. Internal Consistency - No contradictions
+4. Traceability - All code traces to requirements
+5. Clarity & Specificity - Clear naming, specific errors
+6. Upstream Alignment - Matches spec and implementation plan
+7. Standards Compliance - Follows project standards
+
+**S7 QC Dimensions (5):**
+8. Cross-Feature Integration - Integration points work
+9. Error Handling Completeness - All errors handled gracefully
+10. End-to-End Functionality - Complete user flow works
+11. Test Coverage Quality - 100% tests passing, adequate coverage
+12. Requirements Completion - 100% complete, zero tech debt
+
+**See validation_loop_s7_feature_qc.md for detailed checklists for each dimension.**
 ```
 
 ---

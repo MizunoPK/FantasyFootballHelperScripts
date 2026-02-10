@@ -1,8 +1,16 @@
-# Validation Loop: QC and PR Review Context
+# Validation Loop: QC and PR Review
 
-**Master Protocol:** See `validation_loop_protocol.md`
+**Extends:** Master Validation Loop Protocol
+**See:** `reference/validation_loop_master_protocol.md`
 
-**Context:** S7.P2 QC Rounds (Feature), S7.P3 PR Review (Feature), S9.P2 Epic QC Rounds
+**Applicable Stages:**
+- S7.P2: Feature QC Rounds (3 rounds post-smoke testing)
+- S7.P3: Feature PR Review (final review before commit)
+- S9.P2: Epic QC Rounds (3 rounds post-epic smoke testing)
+- S10.P2: Final PR Review (epic-level)
+
+**Version:** 2.0 (Updated to extend master protocol)
+**Last Updated:** 2026-02-10
 
 ---
 

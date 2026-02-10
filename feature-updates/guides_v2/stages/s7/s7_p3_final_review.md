@@ -1,8 +1,11 @@
-# S7.P3: Final Review
+# S7.P3: Final Review (PR Validation Loop)
 
 **File:** `s7_p3_final_review.md`
 
-**Purpose:** Production readiness validation through comprehensive code review, lessons learned capture, and final verification.
+**Purpose:** Production readiness validation through PR validation loop, lessons learned capture, and final verification.
+
+**Version:** 2.0 (Updated to use standardized validation loop)
+**Last Updated:** 2026-02-10
 
 **Stage Flow Context:**
 ```text
@@ -42,11 +45,11 @@ S7.P1 (Smoke Testing) → S7.P2 (QC Rounds) →
    - List critical requirements from this guide
 
 2. **Update README Agent Status** with:
-   - Current Phase: POST_IMPLEMENTATION (Final Review)
-   - Current Guide: stages/s7/s7_p3_final_review.md
+   - Current Phase: S7.P3 (Final Review - PR Validation Loop)
+   - Current Guide: reference/validation_loop_qc_pr.md
    - Guide Last Read: {YYYY-MM-DD HH:MM}
-   - Critical Rules: "PR review protocol MANDATORY", "Fresh agents for each round", "Update guides immediately", "100% completion required"
-   - Next Action: READ pr_review_protocol.md and begin Round 1 specialized reviews
+   - Critical Rules: "3 consecutive clean rounds required", "All 11 PR categories checked every round", "Update guides immediately", "100% completion required"
+   - Next Action: Begin PR Validation Loop Round 1
 
 3. **Verify all prerequisites** (see checklist below)
 
@@ -59,25 +62,26 @@ S7.P1 (Smoke Testing) → S7.P2 (QC Rounds) →
 ## Overview
 
 **What is this guide?**
-Final Review is the production readiness validation where you perform 11-category PR review, immediately apply lessons learned to guides, verify 100% completion, and document feature completion.
+Final Review validates production readiness through PR validation loop (7 master dimensions + QC/PR criteria), applies lessons learned to guides immediately, and verifies 100% completion.
 
 **When do you use this guide?**
-- S7.P2 complete (all 3 QC rounds passed)
+- S7.P2 complete (Feature QC validation loop passed)
 - Ready for final production readiness validation
 - Before cross-feature alignment
 
 **Key Outputs:**
-- ✅ PR review complete (11 categories checked, zero critical issues)
+- ✅ PR validation loop complete (3 consecutive clean rounds)
+- ✅ All 11 PR categories checked (code quality, testing, security, etc.)
 - ✅ lessons_learned.md updated
 - ✅ Workflow guides updated immediately (lessons applied, not just documented)
 - ✅ Final verification passed (100% completion confirmed)
-- ✅ Ready for S8.P1
+- ✅ Ready for S8.P1 (Cross-Feature Alignment)
 
 **Time Estimate:**
-30-45 minutes
+2-3 hours (PR validation loop typically 4-6 rounds)
 
 **Exit Condition:**
-Final Review is complete when PR review finds zero critical issues, lessons learned are applied to guides (not just documented), 100% completion is verified, and you're ready to proceed to Cross-Feature Alignment
+Final Review is complete when 3 consecutive validation rounds find ZERO issues across all categories, lessons learned are applied to guides (not just documented), 100% completion is verified, and feature is ready for commit
 
 ---
 
@@ -88,15 +92,23 @@ Final Review is complete when PR review finds zero critical issues, lessons lear
 │ CRITICAL RULES - These MUST be copied to README Agent Status │
 └─────────────────────────────────────────────────────────────┘
 
-1. ⚠️ ALL 11 PR REVIEW CATEGORIES ARE MANDATORY
+1. ⚠️ ALL 11 PR CATEGORIES CHECKED EVERY ROUND
    - Cannot skip any category
    - Each category catches different issues
-   - Must document findings for ALL categories (even if no issues)
+   - Check all categories every validation round (not just once)
+   - Must document findings for ALL categories
 
-2. ⚠️ IF PR REVIEW FINDS CRITICAL ISSUES → QC RESTART
-   - Critical = correctness, security, breaking changes
-   - Must follow QC Restart Protocol from S7.P2
-   - Minor issues can be documented and don't block
+2. ⚠️ 3 CONSECUTIVE CLEAN ROUNDS REQUIRED
+   - Clean = ZERO issues across all 11 categories
+   - Counter resets if ANY issue found
+   - Cannot exit early (must achieve 3 consecutive)
+   - Typical: 4-6 rounds total to achieve 3 consecutive clean
+
+3. ⚠️ FIX ISSUES IMMEDIATELY (NO RESTART)
+   - If issues found → Fix ALL immediately
+   - Critical issues (correctness, security): Must fix before next round
+   - Minor issues: Must fix before next round (no deferring)
+   - Continue validation (no restart to S7.P2)
 
 3. ⚠️ LESSONS LEARNED MUST UPDATE GUIDES
    - If you discover guide gaps → update guides IMMEDIATELY
@@ -199,54 +211,58 @@ Re-Reading Checkpoint
 
 ---
 
-## Step 1: PR Review (Multi-Round with Fresh Eyes)
+## Step 1: PR Review (Validation Loop)
 
-**🚨 MANDATORY: READ PR REVIEW PROTOCOL**
+**🚨 MANDATORY: READ PR VALIDATION LOOP GUIDE**
 
 **Before proceeding, you MUST:**
-1. **READ:** `stages/s5/s5_pr_review_protocol.md`
-2. **READ:** `reference/validation_loop_qc_pr.md` (Validation Loop QC approach)
-3. **Follow the complete hybrid approach:**
-   - Round 1: 4 specialized reviews (fresh agent for each)
-   - Rounds 2-5: Repeated comprehensive reviews (fresh agent for each)
-   - 2 consecutive clean rounds required to pass
-   - Maximum 5 rounds total
+1. **READ:** `reference/validation_loop_qc_pr.md` (PR Validation Loop - v2.0)
+2. **READ:** `reference/validation_loop_master_protocol.md` (Master protocol with 7 universal dimensions)
+3. **Follow the complete validation loop approach:**
+   - Check all 11 PR categories EVERY round
+   - Use fresh eyes patterns (re-read code, different reading orders)
+   - 3 consecutive clean rounds required (standard)
+   - Fix issues immediately, continue validation
 
-**Purpose:** Systematic PR review using fresh agent context to catch issues before committing.
-
-**Why fresh agents?** New agents avoid context bias and provide "fresh eyes" on code changes.
+**Purpose:** Systematic PR validation through comprehensive multi-round review.
 
 **Validation Loop Principles:**
-- **Assume everything is wrong:** Skeptically verify all changes
-- **Fresh eyes:** Different review patterns each round
-- **No deferred issues:** Cannot commit with known issues
-- **Exit criteria:** 2 consecutive clean rounds (zero issues)
+- **Assume everything is wrong:** Skeptically verify all code
+- **Fresh eyes:** 2-5 min break + re-read entire codebase each round
+- **No deferred issues:** Fix ALL issues before next round
+- **Exit criteria:** 3 consecutive clean rounds (zero issues)
 
 ---
 
-### PR Review Protocol Summary
+### PR Validation Loop Summary
 
-**You MUST follow pr_review_protocol.md completely. Key points:**
+**Follow validation_loop_qc_pr.md for complete protocol. Key points:**
 
-**Round 1: Specialized Reviews** (spawn 4 fresh agents via Task tool)
-- Round 1a: Code Quality Review
-- Round 1b: Test Coverage Review
-- Round 1c: Security Review
-- Round 1d: Documentation Review
+**Every Round Checks:**
+- **7 Master Dimensions:** Empirical Verification, Completeness, Internal Consistency, Traceability, Clarity & Specificity, Upstream Alignment, Standards Compliance
+- **QC/PR Criteria:** Code correctness, quality, performance, security, documentation
 
-**Consolidate Round 1 results:**
-- If issues found → Fix all → Restart from Round 1a
-- If multi-approach issues → Escalate to user
-- If NO issues → Proceed to Round 2
+**11 PR Categories Checked:**
+1. **Correctness and Logic** - Code logically sound?
+2. **Code Quality and Readability** - Clean, understandable?
+3. **Comments and Documentation** - Well-documented?
+4. **Refactoring Concerns** - Needs cleanup?
+5. **Testing** - Comprehensive tests?
+6. **Security** - No vulnerabilities?
+7. **Performance** - Performs well?
+8. **Error Handling** - Robust?
+9. **Architecture and Design** - Good patterns?
+10. **Compatibility and Integration** - Backward compatible?
+11. **Scope and Focus** - Within scope, no bloat?
 
-**Rounds 2-5: Repeated Comprehensive Reviews** (spawn 1 fresh agent per round)
-- Full checklist: Code Quality, Testing, Security, Documentation, Spec Alignment, Implementation Plan Alignment, Tech Debt, Performance
-- Continue until 2 consecutive clean rounds
-- If issues found → Fix all → Restart next round
-- If 5 rounds without 2 consecutive clean → Escalate to user
+**Process:**
+- **Round 1:** Sequential code review, check all categories
+- **Round 2:** Reverse order review, check all categories
+- **Round 3+:** Continue with different reading patterns
+- **Exit:** 3 consecutive rounds with ZERO issues
 
 **Completion:**
-- 2 consecutive clean rounds = PASSED ✅
+- 3 consecutive clean rounds = PASSED ✅
 - Create `pr_review_issues.md` tracking all findings
 
 ---
