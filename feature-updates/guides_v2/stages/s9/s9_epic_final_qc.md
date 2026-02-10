@@ -508,24 +508,14 @@ A: Fix issues immediately, reset clean counter to 0, and continue validation. No
 **Q: What if user finds bugs during S9.P3 (User Testing)?**
 A: User-reported bugs require restart from S9.P1. Fix bugs using debugging protocol, then restart from S9.P1 (smoke testing) through S9.P2 (validation loop) and return to S9.P3.
 
-**Q: What's the difference between feature-level testing (5c) and epic-level testing (6)?**
-A: Feature-level testing (5c) validates features in ISOLATION. Epic-level testing (6) validates features working TOGETHER as a cohesive system.
+**Q: What's the difference between feature-level testing (S7) and epic-level testing (S9)?**
+A: Feature-level testing (S7) validates features in ISOLATION. Epic-level testing (S9) validates features working TOGETHER as a cohesive system.
 
 **Q: Can I use the original epic_smoke_test_plan.md from S1?**
 A: No. You MUST use the EVOLVED epic_smoke_test_plan.md (updated in S4 and S8.P2 (Epic Testing Update)). The original plan is outdated.
 
-**Q: Can I reference the original guide?**
-A: Yes. The original guide is backed up as `STAGE_6_epic_final_qc_guide_ORIGINAL_BACKUP.md` for reference, but use the new split guides for workflow.
-
----
-
-## Original Guide Location
-
-**Backup:** `STAGE_6_epic_final_qc_guide_ORIGINAL_BACKUP.md`
-
-**Purpose:** Historical reference only. Do NOT use for workflow.
-
-The original guide has been preserved for reference but is deprecated. All S9 work should use the new split guides (6a, 6b, 6c).
+**Q: Was there an original monolithic guide?**
+A: Yes, S9 was originally a single 1,644-line guide. It has been split into four focused sub-stage guides (S9.P1, P2, P3, P4) for better token efficiency and navigation.
 
 ---
 
