@@ -5,7 +5,7 @@
 **This is a routing guide.** The complete S9 workflow is now split across four focused guides:
 
 - **S9.P1**: Epic Smoke Testing
-- **S9.P2**: Epic QC Rounds
+- **S9.P2**: Epic QC Validation Loop
 - **S9.P3**: User Testing
 - **S9.P4**: Epic Final Review
 
@@ -57,7 +57,7 @@
 |---------------|---------------|---------------|
 | Starting S9 | `stages/s9/s9_p1_epic_smoke_testing.md` | 60-90 min |
 | S9.P1: Epic Smoke Testing | `stages/s9/s9_p1_epic_smoke_testing.md` | 45-75 min |
-| S9.P2: QC Rounds | `stages/s9/s9_p2_epic_qc_rounds.md` | 2-3 hours |
+| S9.P2: Validation Loop | `stages/s9/s9_p2_epic_qc_rounds.md` | 2-4 hours |
 | S9.P3: User Testing | `stages/s9/s9_p3_user_testing.md` | Variable |
 | S9.P4: Epic Final Review | `stages/s9/s9_p4_epic_final_review.md` | 1.5-2 hours |
 
@@ -375,22 +375,22 @@ Ready to begin Step 1: Pre-QC Verification.
 
 ### If you're transitioning between sub-stages:
 
-**After completing STAGE_6a:**
-- Update EPIC_README.md Agent Status: "STAGE_6a complete, starting STAGE_6b"
+**After completing S9.P1:**
+- Update EPIC_README.md Agent Status: "S9.P1 complete, starting S9.P2"
 - **READ:** `stages/s9/s9_p2_epic_qc_rounds.md` (full guide)
 - Use phase transition prompt from `prompts_reference_v2.md`
 
-**After completing STAGE_6b:**
-- Update EPIC_README.md Agent Status: "STAGE_6b complete, starting STAGE_6c (User Testing)"
+**After completing S9.P2:**
+- Update EPIC_README.md Agent Status: "S9.P2 complete (3 consecutive clean rounds), starting S9.P3 (User Testing)"
 - **READ:** `stages/s9/s9_p3_user_testing.md` (full guide)
 - Use phase transition prompt from `prompts_reference_v2.md`
 
-**After completing STAGE_6c:**
-- Update EPIC_README.md Agent Status: "STAGE_6c complete (User Testing PASSED), starting STAGE_6d"
+**After completing S9.P3:**
+- Update EPIC_README.md Agent Status: "S9.P3 complete (User Testing PASSED), starting S9.P4"
 - **READ:** `stages/s9/s9_p4_epic_final_review.md` (full guide)
 - Use phase transition prompt from `prompts_reference_v2.md`
 
-**After completing STAGE_6d:**
+**After completing S9.P4:**
 - S9 is COMPLETE
 - Update EPIC_README.md Epic Progress Tracker
 - Proceed to S10 (Epic Cleanup)
@@ -401,16 +401,14 @@ Ready to begin Step 1: Pre-QC Verification.
 
 **S9 is complete when ALL of these are true:**
 
-□ **All 9 steps complete:**
-  - Step 1: Pre-QC Verification complete
-  - Step 2: Epic Smoke Testing PASSED (all 4 parts)
-  - Step 3: QC Round 1 PASSED (Cross-Feature Integration)
-  - Step 4: QC Round 2 PASSED (Epic Cohesion & Consistency)
-  - Step 5: QC Round 3 PASSED (End-to-End Success Criteria)
-  - Step 6: User Testing PASSED (user reports "No bugs found")
-  - Step 7: Epic PR Review PASSED (all 11 categories)
-  - Step 8: Validate Against Epic Request PASSED
-  - Step 9: Final Verification complete
+□ **All phases complete:**
+  - S9.P1: Pre-QC Verification complete
+  - S9.P1: Epic Smoke Testing PASSED (all 4 parts)
+  - S9.P2: Epic QC Validation Loop PASSED (3 consecutive clean rounds, 12 dimensions)
+  - S9.P3: User Testing PASSED (user reports "No bugs found")
+  - S9.P4: Epic PR Review PASSED (all 11 categories)
+  - S9.P4: Validate Against Epic Request PASSED
+  - S9.P4: Final Verification complete
 
 □ **Epic Smoke Testing:**
   - Part 1 (Import Tests): ✅ PASSED
@@ -418,10 +416,11 @@ Ready to begin Step 1: Pre-QC Verification.
   - Part 3 (E2E Execution Tests): ✅ PASSED with correct data values
   - Part 4 (Cross-Feature Integration Tests): ✅ PASSED
 
-□ **QC Rounds:**
-  - QC Round 1 (Cross-Feature Integration): ✅ PASSED
-  - QC Round 2 (Epic Cohesion & Consistency): ✅ PASSED
-  - QC Round 3 (End-to-End Success Criteria): ✅ PASSED (100% of criteria met)
+□ **Epic QC Validation Loop (S9.P2):**
+  - 3 consecutive clean rounds achieved: ✅ PASSED
+  - All 12 dimensions checked every round (7 master + 5 epic): ✅ PASSED
+  - VALIDATION_LOOP_LOG.md complete: ✅ PASSED
+  - All issues fixed immediately (no deferred issues): ✅ PASSED
 
 □ **Epic PR Review:**
   - All 11 categories reviewed: ✅ PASSED
@@ -433,9 +432,9 @@ Ready to begin Step 1: Pre-QC Verification.
   - EPIC_README.md Epic Progress Tracker shows S9 complete
   - EPIC_README.md Agent Status shows S9.P3 complete
 
-□ **Bug Fixes (if any):**
+**Bug Fixes (if any):**
   - All bug fixes created and completed (S7 (Testing & Review))
-  - S9 RESTARTED after bug fixes (from STAGE_6a)
+  - S9 RESTARTED after bug fixes (from S9.P1)
   - All steps re-run and passed
 
 □ **Quality Gates:**
@@ -471,9 +470,9 @@ Ready to begin Step 1: Pre-QC Verification.
 ### Benefits of Split Guides:
 
 1. **50-70% token reduction per step:**
-   - STAGE_6a: ~829 lines vs 1,644 lines (50% reduction)
-   - STAGE_6b: ~1,000 lines vs 1,644 lines (39% reduction)
-   - STAGE_6c: ~950 lines vs 1,644 lines (42% reduction)
+   - S9.P1: ~829 lines vs 1,644 lines (50% reduction)
+   - S9.P2: ~1,000 lines vs 1,644 lines (39% reduction)
+   - S9.P3/P4: ~950 lines vs 1,644 lines (42% reduction)
 
 2. **Clear step boundaries:**
    - Natural breakpoints at workflow transitions
@@ -494,8 +493,8 @@ Ready to begin Step 1: Pre-QC Verification.
 
 ## Frequently Asked Questions
 
-**Q: Do I need to read all three sub-stage guides?**
-A: Yes, but sequentially. Read STAGE_6a first, complete it, then read STAGE_6b, complete it, then read STAGE_6c.
+**Q: Do I need to read all four sub-stage guides?**
+A: Yes, but sequentially. Read S9.P1 first, complete it, then read S9.P2, complete it, then read S9.P3, then S9.P4.
 
 **Q: Can I skip a step?**
 A: No. All 8 steps are mandatory. The split doesn't change workflow, just organization.

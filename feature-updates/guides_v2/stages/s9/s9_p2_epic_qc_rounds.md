@@ -19,24 +19,23 @@ S9.P1 (Epic Smoke Testing) →
 
 ## Table of Contents
 
-1. [S9.P2: Epic QC Rounds](#s9p2-epic-qc-rounds)
-2. [🚨 MANDATORY READING PROTOCOL](#-mandatory-reading-protocol)
+1. [S9.P2: Epic QC Validation Loop](#s9p2-epic-qc-validation-loop)
+2. [MANDATORY READING PROTOCOL](#-mandatory-reading-protocol)
 3. [Overview](#overview)
-4. [🛑 Critical Rules (Epic-Specific)](#-critical-rules-epic-specific)
+4. [Critical Rules (Epic-Specific)](#-critical-rules-epic-specific)
 5. [Prerequisites Checklist](#prerequisites-checklist)
 6. [Workflow Overview](#workflow-overview)
-7. [QC Round 1: Cross-Feature Integration](#qc-round-1-cross-feature-integration)
-8. [Integration Points (example from test plan)](#integration-points-example-from-test-plan)
-9. [QC Round 2: Epic Cohesion & Consistency](#qc-round-2-epic-cohesion--consistency)
-10. [QC Round 3: End-to-End Success Criteria](#qc-round-3-end-to-end-success-criteria)
-11. [Original Epic Request (example)](#original-epic-request-example)
-12. [Epic Success Criteria (example from S4)](#epic-success-criteria-example-from-s4)
-13. [Epic Issue Handling Protocol](#epic-issue-handling-protocol)
-14. [Issues Found in S9.P2 QC](#issues-found-in-s9p2-qc)
-15. [🛑 MANDATORY CHECKPOINT 1](#-mandatory-checkpoint-1)
-16. [Next Steps](#next-steps)
-17. [Summary](#summary)
-18. [Exit Criteria](#exit-criteria)
+7. [12 Dimensions Checklist](#12-dimensions-checklist)
+8. [Dimension 8: Cross-Feature Integration](#dimension-8-cross-feature-integration)
+9. [Dimension 9: Epic Cohesion](#dimension-9-epic-cohesion)
+10. [Dimension 10: Error Handling Consistency](#dimension-10-error-handling-consistency)
+11. [Dimension 11: Architectural Alignment](#dimension-11-architectural-alignment)
+12. [Dimension 12: Success Criteria Completion](#dimension-12-success-criteria-completion)
+13. [Issue Handling: Fix and Continue](#issue-handling-fix-and-continue)
+14. [MANDATORY CHECKPOINT 1](#-mandatory-checkpoint-1)
+15. [Next Steps](#next-steps)
+16. [Summary](#summary)
+17. [Exit Criteria](#exit-criteria)
 
 ---
 ## MANDATORY READING PROTOCOL
@@ -155,9 +154,9 @@ Epic QC Validation Loop is complete when 3 consecutive validation rounds find ZE
 
 ## Prerequisites Checklist
 
-**Before starting Epic QC Rounds (STAGE_6b), verify:**
+**Before starting Epic QC Validation Loop, verify:**
 
-**STAGE_6a complete:**
+**S9.P1 complete:**
 - [ ] Epic smoke testing PASSED (all 4 parts)
 - [ ] Epic smoke test results documented
 - [ ] No smoke testing failures
@@ -169,7 +168,7 @@ Epic QC Validation Loop is complete when 3 consecutive validation rounds find ZE
 - [ ] All cross-feature integration tests passed
 
 **Agent Status updated:**
-- [ ] EPIC_README.md shows STAGE_6a complete
+- [ ] EPIC_README.md shows S9.P1 complete
 - [ ] Current guide: stages/s9/s9_p2_epic_qc_rounds.md
 
 **Original epic request available:**
@@ -177,8 +176,8 @@ Epic QC Validation Loop is complete when 3 consecutive validation rounds find ZE
 - [ ] Can reference original goals for Round 3
 
 **If any prerequisite fails:**
-- ❌ Do NOT start Epic QC Rounds
-- Return to STAGE_6a to complete smoke testing
+- Do NOT start Epic QC Validation Loop
+- Return to S9.P1 to complete smoke testing
 - Verify all prerequisites met before proceeding
 
 ---

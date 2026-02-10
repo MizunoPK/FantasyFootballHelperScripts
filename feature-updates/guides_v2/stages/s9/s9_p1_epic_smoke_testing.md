@@ -81,7 +81,7 @@ Epic-level smoke testing validates that ALL features work together as a cohesive
 - ✅ Part 2 PASSED: Epic-level entry point tests
 - ✅ Part 3 PASSED: Epic E2E execution tests (data values verified)
 - ✅ Part 4 PASSED: Cross-feature integration tests
-- ✅ Ready for S9.P2 (Epic QC Rounds)
+- ✅ Ready for S9.P2 (Epic QC Validation Loop)
 
 **Time Estimate:**
 20-30 minutes for 3-feature epics, 30-60 minutes for 5+ feature epics
@@ -536,7 +536,7 @@ print("✅ Interface compatibility verified")
 4. [ ] Verify cross-feature integration tested (Part 4) - actual data flow between features
 5. [ ] Update EPIC_README.md Agent Status:
    - Current Guide: "stages/s9/s9_p2_epic_qc_rounds.md"
-   - Current Step: "S9.P1 complete, ready to start S9.P2 QC Round 1"
+   - Current Step: "S9.P1 complete, ready to start S9.P2 Validation Loop"
    - Last Updated: [timestamp]
 6. [ ] Output acknowledgment: "✅ CHECKPOINT 1 COMPLETE: Re-read Critical Rules and Pattern File, verified epic-level data values and integration"
 

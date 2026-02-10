@@ -38,9 +38,9 @@ S9.P1 (Epic Smoke) → S9.P2 (Epic QC Validation Loop) →
 **BEFORE starting User Testing, you MUST:**
 
 1. **Verify Prerequisites:**
-   - Epic QC Rounds (Steps 3-5) COMPLETE
-   - All 3 rounds PASSED
-   - EPIC_README.md shows "Epic QC Rounds: ✅ COMPLETE"
+   - S9.P2 Epic QC Validation Loop COMPLETE
+   - 3 consecutive clean rounds achieved
+   - EPIC_README.md shows "S9.P2: COMPLETE (3 consecutive clean rounds)"
 
 2. **This is a MANDATORY GATE**
    - You CANNOT skip user testing
@@ -72,9 +72,9 @@ S9.P1 (Epic Smoke) → S9.P2 (Epic QC Validation Loop) →
 User Testing is where the actual user tests the complete epic with real data and realistic workflows to catch issues that automated testing and agent QC might miss.
 
 **When do you use this step?**
-- After Epic QC Rounds (Steps 3-5) complete
-- All 3 QC rounds PASSED
-- Before Epic PR Review (Step 7)
+- After S9.P2 Epic QC Validation Loop complete
+- 3 consecutive clean rounds achieved
+- Before S9.P4 Epic Final Review
 
 **Key Outputs:**
 - ✅ User testing request presented to user
@@ -370,13 +370,13 @@ Update EPIC_README.md:
    - Part 4: Cross-Feature Integration Test
 3. Verify all parts PASS
 
-**3b. Proceed to S9.P2 (Epic QC Rounds)**
+**3b. Proceed to S9.P2 (Epic QC Validation Loop)**
 1. Read `stages/s9/s9_p2_epic_qc_rounds.md` again
-2. Execute all 3 QC rounds:
-   - Round 1: Cross-Feature Integration
-   - Round 2: Epic Cohesion & Consistency
-   - Round 3: End-to-End Success Criteria
-3. Verify all rounds PASS
+2. Execute validation loop:
+   - Check ALL 12 dimensions every round (7 master + 5 epic)
+   - Fix issues immediately, reset counter, continue
+   - Continue until 3 consecutive clean rounds
+3. Verify 3 consecutive clean rounds achieved
 
 **3c. If S9 finds MORE bugs:**
 - Create new bug fix folders
@@ -427,9 +427,9 @@ Update EPIC_README.md:
 - Date completed: {YYYY-MM-DD}
 - Results: All 4 parts passed
 
-**S9.P2 - Epic QC Rounds:** ✅ COMPLETE
+**S9.P2 - Epic QC Validation Loop:** ✅ COMPLETE
 - Date completed: {YYYY-MM-DD}
-- Results: All 3 rounds passed
+- Results: 3 consecutive clean rounds achieved (12 dimensions checked)
 
 **Step 6 - User Testing:** ✅ COMPLETE
 - Date completed: {YYYY-MM-DD}
