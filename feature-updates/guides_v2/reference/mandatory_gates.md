@@ -88,7 +88,7 @@
 | 5ac | Iteration 22 | Part 2 | GO decision (confidence >= MEDIUM) | Yes (Fix + redo) |
 | S5 | Gate 5: Implementation Plan Approval | After S5 | User approves implementation_plan.md | Yes (Revise plan) |
 | S7.P1 | Smoke Part 3 | Smoke Testing | Data values verified | Yes (Part 1) |
-| S7.P2 | QC Round 3 | QC Rounds | ZERO issues found | Yes (Smoke Part 1) |
+| S7.P2 | Validation Loop | Validation Loop | 3 consecutive clean rounds | Yes (Smoke Part 1) |
 | 7 | Unit Tests | Cleanup | 100% test pass (exit code 0) | Yes (Fix tests) |
 | 7 | User Testing | Cleanup | ZERO bugs found by user | Yes (S9) |
 
@@ -615,34 +615,33 @@
 - **Restart from S10.P1 Step 1** (Import Test)
 - Must re-run all 3 parts
 
-**Why it matters:** Ensures feature actually works end-to-end with real data before QC rounds
+**Why it matters:** Ensures feature actually works end-to-end with real data before Validation Loop
 
 ---
 
-### Gate 6: S7.P2 QC Round 3 - ZERO Issues Required
+### Gate 6: S7.P2 Validation Loop - 3 Consecutive Clean Rounds
 
 **Location:** stages/s7/s7_p2_qc_rounds.md
-**When:** After QC Rounds 1 and 2 pass
+**When:** During Validation Loop (S7.P2)
 
 **What it checks:**
-- ZERO issues found (critical, major, OR minor)
-- Complete skeptical review of entire feature
+- Check ALL 11 dimensions every round
+- 3 consecutive rounds with ZERO issues
 
 **Pass Criteria:**
-- QC Round 1: <3 critical issues, >80% requirements met, no unfixable architecture
-- QC Round 2: All Round 1 issues resolved, zero new critical issues
-- QC Round 3: ZERO issues (critical, major, or minor)
+- 3 consecutive clean rounds achieved
+- Zero issues deferred (fix immediately, reset counter, continue)
 
-**If FAIL (ANY issues found in Round 3):**
-- Fix ALL issues
-- **Restart from S7.P1 Step 1** (smoke testing)
-- Re-run smoke testing → QC Round 1 → QC Round 2 → QC Round 3
-- ZERO tolerance for issues
+**If issues found during a round:**
+- Fix ALL issues immediately
+- Reset clean round counter to 0
+- Continue validation (fix-and-continue approach)
+- No restart needed - fix issues and keep going
 
-**QC Restart Protocol:**
-- Any code change invalidates QC rounds
-- Must re-verify entire feature works end-to-end
-- Cannot defer issues to "later"
+**Validation Loop Protocol:**
+- Check all 11 dimensions every round (not different focuses per round)
+- Fix issues immediately when found
+- Only exit after 3 CONSECUTIVE clean rounds
 
 **Why it matters:** Ensures feature is production-ready with zero known issues before final review
 
@@ -663,7 +662,7 @@
 
 **Requirements:**
 - Epic smoke testing passes
-- QC Round 3 passes with zero issues
+- Validation Loop passes (3 consecutive clean rounds)
 - If ANY issues → restart S9
 
 ---
@@ -733,7 +732,7 @@
 **Additional Stage Checkpoints (documented in this file but not formally numbered gates):**
 - S2.P3: User Approval of Acceptance Criteria (referenced as "Gate 4" in this file for completeness)
 - S7.P1: Smoke Part 3 - E2E Data Validation (referenced as "Gate 5" in this file)
-- S7.P2: QC Round 3 - Zero Issues Required (referenced as "Gate 6" in this file)
+- S7.P2: Validation Loop - 3 Consecutive Clean Rounds (referenced as "Gate 6" in this file)
 - S10: Unit Tests 100% Pass (referenced as "Gate 7.1" in this file)
 - S10: User Testing Zero Bugs (referenced as "Gate 7.2" in this file)
 
@@ -753,7 +752,7 @@
 - Iteration 20: 4 parts with specific numbers
 - Iteration 21: Three-way comparison results
 - Smoke Part 3: Data values
-- QC Round 3: Zero issues count
+- Validation Loop: 3 consecutive clean rounds
 
 **Gates with Restart Protocol:** 6
 - Phase 1.5 → Phase 1
@@ -761,7 +760,7 @@
 - Iteration 4a → Iteration 4
 - Iteration 20 → Iteration 20
 - Smoke Part 3 → Smoke Part 1
-- QC Round 3 → Smoke Part 1
+- Validation Loop issues → Fix and continue (no restart)
 
 **Formal Gates Requiring User Input:** 3
 - Gate 3: User Checklist Approval (S2.P1.I3)

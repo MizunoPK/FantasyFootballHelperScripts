@@ -360,7 +360,7 @@ S5.P3: Planning Round 3 (I14-I22)
 ```text
 S7.P1: Smoke Testing (MANDATORY GATE)
   ↓ Must pass before
-S7.P2: QC Rounds (3 rounds)
+S7.P2: Validation Loop (3 consecutive clean rounds)
   ↓ Must complete before
 S7.P3: Final Review
 ```

@@ -1,6 +1,6 @@
-# QC Rounds Pattern (Reference)
+# Validation Loop Pattern (Reference)
 
-**Purpose:** Generic QC rounds workflow applicable to both feature-level (S7.P2) and epic-level (S9.P2) quality control.
+**Purpose:** Generic validation loop workflow applicable to both feature-level (S7.P2) and epic-level (S9.P2) quality control.
 
 **This is a REFERENCE PATTERN.** Actual guides:
 - **Feature-level:** `stages/s7/s7_p2_qc_rounds.md`
@@ -8,47 +8,39 @@
 
 ---
 
-## What are QC Rounds?
+## What is the Validation Loop?
 
-**Definition:** QC Rounds are systematic quality control checks performed through 3 progressively deeper validation rounds to ensure correctness, completeness, and production readiness.
+**Definition:** The Validation Loop is an iterative quality control process that checks ALL dimensions every round until 3 consecutive clean rounds are achieved.
 
 **Purpose:**
 - Comprehensive validation beyond smoke testing
 - Zero tech debt tolerance
-- Mandatory restart if critical issues found
-- Progressive validation (each round catches different issues)
+- Fix-and-continue approach (no restart needed)
+- All dimensions checked every round (not different focuses per round)
 
 **Scope-Specific Implementation:**
-- **Feature-level (S7.P2):** Validates individual feature correctness and completeness
-- **Epic-level (S9.P2):** Validates cross-feature integration and epic cohesion
+- **Feature-level (S7.P2):** 11 dimensions validated
+- **Epic-level (S9.P2):** 12 dimensions validated (7 master + 5 epic-specific)
 
 ---
 
-## Common QC Rounds Structure
+## Validation Loop Structure
 
-**All QC rounds follow this 3-round pattern:**
+**The validation loop follows this pattern:**
 
 ```text
-Round 1: [Scope-Specific Focus]
-   ↓ Basic validation level
-   ↓ Pass criteria: Defined per scope
+Each Round: Check ALL dimensions
+   ↓ All dimensions checked every round
+   ↓ Pass criteria: ZERO issues found
    ↓
-   If PASS → Round 2
-   If FAIL → Fix issues, RESTART from smoke testing
+   If CLEAN (0 issues) → Increment clean counter
+      → If 3 consecutive clean rounds → EXIT (proceed to next stage)
+      → Otherwise → Next round
 
-Round 2: [Scope-Specific Focus]
-   ↓ Deep verification level
-   ↓ Pass criteria: All Round 1 issues resolved + zero new critical issues
-   ↓
-   If PASS → Round 3
-   If FAIL → Fix issues, RESTART from smoke testing
-
-Round 3: [Scope-Specific Focus]
-   ↓ Final skeptical review
-   ↓ Pass criteria: ZERO issues (zero tolerance)
-   ↓
-   If PASS → Complete, proceed to next stage
-   If FAIL → Fix issues, RESTART from smoke testing
+   If ISSUES FOUND → Fix immediately
+      → Reset clean counter to 0
+      → Continue validation (next round)
+      → No restart needed - fix-and-continue approach
 ```
 
 ---
@@ -67,22 +59,22 @@ Round 3: [Scope-Specific Focus]
 **If ANY round fails, RESTART from smoke testing:**
 
 ```text
-RESTART PROTOCOL:
-1. Fix ALL issues found in failed round
-2. Return to smoke testing (S7.P1 OR S9.P1)
-3. Re-run ALL smoke test parts
-4. Re-run ALL 3 QC rounds from Round 1
+VALIDATION LOOP PROTOCOL (v2.0):
+1. Fix ALL issues found immediately
+2. Reset clean counter to 0
+3. Continue validation (no restart needed)
+4. Exit after 3 consecutive clean rounds
 
-WHY complete restart?
-- Fixes can introduce new issues in earlier parts
-- Clean validation state required
-- Ensures ALL validation passes consistently
+WHY fix-and-continue?
+- Saves 60-180 minutes per issue vs restart
+- Maintains validation context
+- Still achieves same quality (3 consecutive clean rounds)
 ```
 
-**Restart Triggers:**
-- **Round 1:** Fails acceptance criteria (scope-specific)
-- **Round 2:** Any Round 1 issues unresolved OR new critical issues found
-- **Round 3:** ANY issues found (zero tolerance)
+**Issue Handling:**
+- **Any Round:** Fix issues immediately, reset clean counter, continue
+- **Exit Criteria:** 3 consecutive rounds with ZERO issues
+- **Max Rounds:** 10 (escalate to user if exceeded)
 
 ### 3. NO Partial Work Accepted - ZERO TECH DEBT TOLERANCE
 
@@ -370,66 +362,59 @@ Did QC round find issues?
 
 ## Scope-Specific Differences
 
-### Feature-Level QC Rounds (S7.P2)
+### Feature-Level Validation Loop (S7.P2)
 
-**Round 1 Focus:** Basic Validation
-- Unit tests passing
-- Code structure correct
-- Output files exist and correct
-- Interfaces match dependencies
-- Documentation complete
+**11 Dimensions Checked EVERY Round:**
+1. Content Accuracy - Requirements met
+2. References - All links valid
+3. Workflow Integration - Fits into overall workflow
+4. Template Compliance - Follows templates
+5. Cross-Feature Integration - Works with other features
+6. Data Validation - Values correct (not just structure)
+7. Error Handling - All errors caught and handled
+8. Edge Cases - Boundary conditions handled
+9. Algorithm Correctness - Logic matches spec
+10. Regression Testing - Old functionality still works
+11. Spec Alignment - Implementation matches spec
 
-**Round 2 Focus:** Deep Verification
-- Baseline comparison (if updating existing feature)
-- Data validation (values correct)
-- Regression testing (old functionality still works)
-- Semantic diff (behavior matches spec)
-- Edge cases handled
-
-**Round 3 Focus:** Final Skeptical Review
-- Re-read spec with fresh eyes
-- Re-check Algorithm Traceability Matrix
-- Re-check Integration Gap Check
-- Zero issues tolerance
-
-**Restart Destination:** S7.P1 (Feature Smoke Testing)
+**If issues found:** Fix immediately, reset counter, continue
 
 ---
 
-### Epic-Level QC Rounds (S9.P2)
+### Epic-Level Validation Loop (S9.P2)
 
-**Round 1 Focus:** Cross-Feature Integration
-- Integration points work correctly
-- Data flows between features
-- Interface compatibility
-- Error propagation handling
+**12 Dimensions Checked EVERY Round (7 master + 5 epic-specific):**
 
-**Round 2 Focus:** Epic Cohesion & Consistency
-- Code style consistency across features
-- Naming convention consistency
-- Error handling consistency
-- Architectural pattern consistency
+Master Dimensions (1-7):
+1. Content Accuracy
+2. References
+3. Workflow Integration
+4. Template Compliance
+5. Cross-Feature Integration
+6. Data Validation
+7. Error Handling
 
-**Round 3 Focus:** End-to-End Success Criteria
-- Validation against original epic request
-- Epic success criteria met (from S4)
-- User experience flows validated
-- Performance characteristics acceptable
+Epic-Specific Dimensions (8-12):
+8. Cross-Feature Integration Points
+9. Data Flow Validation
+10. Epic Cohesion & Consistency
+11. Error Propagation
+12. End-to-End Success Criteria
 
-**Restart Destination:** S9.P1 (Epic Smoke Testing)
+**If issues found:** Fix immediately, reset counter, continue
 
 ---
 
 ## Summary
 
 **Key Principles:**
-1. All 3 rounds mandatory (no skipping)
-2. Zero tech debt tolerance (100% or INCOMPLETE)
-3. Restart from smoke testing if ANY round fails
+1. Check ALL dimensions every round (not different focuses)
+2. Zero tech debt tolerance (fix issues immediately)
+3. Fix-and-continue approach (no restart needed)
 4. Verify DATA VALUES (not just structure)
-5. Each round has unique focus (cannot skip)
+5. Exit after 3 consecutive clean rounds
 6. Re-reading checkpoints mandatory
-7. Round 3 is zero tolerance (ANY issue → RESTART)
+7. Zero tolerance for deferred issues
 
 **Purpose:**
 - Comprehensive validation
@@ -437,7 +422,7 @@ Did QC round find issues?
 - Ensure production readiness
 - Zero tech debt deployment
 
-**Remember:** QC Rounds take 30-60 minutes but ensure quality. NEVER accept partial implementations. NEVER skip rounds. NEVER skip restart protocol.
+**Remember:** Validation Loop ensures quality through systematic dimension checking. NEVER defer issues. NEVER skip dimensions. Fix immediately and continue.
 
 ---
 

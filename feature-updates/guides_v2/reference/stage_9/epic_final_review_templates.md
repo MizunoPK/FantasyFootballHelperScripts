@@ -365,11 +365,9 @@ bugfix_{priority}_{name}/
 [List all bug fixes]
 
 **Restart Actions:**
-- ✅ Re-ran S9.P1: Epic Smoke Testing (all 4 parts) - {PASSED/issues found}
-- ✅ Re-ran S9.P2: QC Round 1 (Cross-Feature Integration) - {PASSED/issues found}
-- ✅ Re-ran S9.P2: QC Round 2 (Epic Cohesion & Consistency) - {PASSED/issues found}
-- ✅ Re-ran S9.P2: QC Round 3 (End-to-End Success Criteria) - {PASSED/issues found}
-- ✅ Re-ran S9.P3: Epic PR Review (all 11 categories) - {PASSED/issues found}
+- Re-ran S9.P1: Epic Smoke Testing (all 4 parts) - {PASSED/issues found}
+- Re-ran S9.P2: Validation Loop (3 consecutive clean rounds) - {PASSED/issues found}
+- Re-ran S9.P3: Epic PR Review (all 11 categories) - {PASSED/issues found}
 - ✅ All unit tests passing ({pass_rate}% - {N} tests)
 
 **Result:** S9 {complete/incomplete} after restart ({no new issues found / N new issues found})
@@ -388,11 +386,9 @@ bugfix_{priority}_{name}/
 2. bugfix_high_performance_regression: Implemented batch loading for matchup data
 
 **Restart Actions:**
-- ✅ Re-ran S9.P1: Epic Smoke Testing (all 4 parts) - PASSED
-- ✅ Re-ran S9.P2: QC Round 1 (Cross-Feature Integration) - PASSED
-- ✅ Re-ran S9.P2: QC Round 2 (Epic Cohesion & Consistency) - PASSED
-- ✅ Re-ran S9.P2: QC Round 3 (End-to-End Success Criteria) - PASSED
-- ✅ Re-ran S9.P3: Epic PR Review (all 11 categories) - PASSED
+- Re-ran S9.P1: Epic Smoke Testing (all 4 parts) - PASSED
+- Re-ran S9.P2: Validation Loop (3 consecutive clean rounds) - PASSED
+- Re-ran S9.P3: Epic PR Review (all 11 categories) - PASSED
 - ✅ All unit tests passing (100% - 2247 tests)
 
 **Result:** S9 complete after restart (no new issues found)
@@ -415,9 +411,9 @@ bugfix_{priority}_{name}/
 
 **Verification Results:**
 - ✅/❌ Epic smoke testing passed (all 4 parts)
-- ✅/❌ QC Round 1 passed (no integration issues)
-- ✅/❌ QC Round 2 passed (no consistency issues)
-- ✅/❌ QC Round 3 passed (success criteria met {percentage}%)
+- Validation Loop passed (3 consecutive clean rounds)
+- All 12 dimensions checked every round
+- Zero issues deferred (fix-and-continue approach used)
 - ✅/❌ Epic PR review passed (all 11 categories)
 - ✅/❌ NO pending issues or bug fixes
 - ✅/❌ ALL tests passing ({N}/{total} tests, {percentage}% pass rate)
@@ -454,9 +450,9 @@ python tests/run_all_tests.py
 
 **Verification Results:**
 - ✅ Epic smoke testing passed (all 4 parts)
-- ✅ QC Round 1 passed (no integration issues)
-- ✅ QC Round 2 passed (no consistency issues)
-- ✅ QC Round 3 passed (success criteria met 100%)
+- Validation Loop passed (3 consecutive clean rounds)
+- All 12 dimensions checked every round
+- Zero issues deferred (fix-and-continue approach used)
 - ✅ Epic PR review passed (all 11 categories)
 - ✅ NO pending issues or bug fixes
 - ✅ ALL tests passing (2247/2247 tests, 100% pass rate)
@@ -488,10 +484,10 @@ python tests/run_all_tests.py
 
 **S9 - Epic Final QC:** ✅ COMPLETE
 - S9.P1 (Epic Smoke Testing): ✅ COMPLETE
-- S9.P2 (Epic QC Rounds): ✅ COMPLETE
-- S9.P3 (Epic Final Review): ✅ COMPLETE
-- Epic smoke testing passed: ✅
-- Epic QC rounds passed: ✅ (Rounds {1, 2, 3})
+- S9.P2 (Epic Validation Loop): COMPLETE
+- S9.P3 (Epic Final Review): COMPLETE
+- Epic smoke testing passed: Yes
+- Validation Loop passed: Yes (3 consecutive clean rounds)
 - Epic PR review passed: ✅ ({N} categories)
 - End-to-end validation passed: ✅
 - Issues found: {N} ({all resolved / N unresolved})
@@ -516,10 +512,10 @@ python tests/run_all_tests.py
 
 **S9 - Epic Final QC:** ✅ COMPLETE
 - S9.P1 (Epic Smoke Testing): ✅ COMPLETE
-- S9.P2 (Epic QC Rounds): ✅ COMPLETE
-- S9.P3 (Epic Final Review): ✅ COMPLETE
-- Epic smoke testing passed: ✅
-- Epic QC rounds passed: ✅ (Rounds 1, 2, 3)
+- S9.P2 (Epic Validation Loop): COMPLETE
+- S9.P3 (Epic Final Review): COMPLETE
+- Epic smoke testing passed: Yes
+- Validation Loop passed: Yes (3 consecutive clean rounds)
 - Epic PR review passed: ✅ (11 categories)
 - End-to-end validation passed: ✅
 - Issues found: 2 (both resolved via bug fixes)
@@ -651,7 +647,7 @@ python tests/run_all_tests.py
 
 **S9 Summary:**
 - S9.P1 (Epic Smoke Testing): ✅ {PASSED/issues found}
-- S9.P2 (Epic QC Rounds): ✅ {PASSED/issues found} (Rounds {1, 2, 3})
+- S9.P2 (Epic Validation Loop): {PASSED/issues found} (3 consecutive clean rounds)
 - S9.P3 (Epic Final Review): ✅ {PASSED/issues found}
 - Epic PR review: ✅ {PASSED/issues found} ({N} categories)
 - Issues found: {N} ({resolution status})
@@ -675,7 +671,7 @@ python tests/run_all_tests.py
 
 **S9 Summary:**
 - S9.P1 (Epic Smoke Testing): ✅ PASSED
-- S9.P2 (Epic QC Rounds): ✅ PASSED (Rounds 1, 2, 3)
+- S9.P2 (Epic Validation Loop): PASSED (3 consecutive clean rounds)
 - S9.P3 (Epic Final Review): ✅ PASSED
 - Epic PR review: ✅ PASSED (11 categories)
 - Issues found: 2 (both fixed via bug fixes)

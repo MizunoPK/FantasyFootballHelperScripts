@@ -277,7 +277,7 @@ s1_p3_discovery_phase.md (1006 lines):
 
 **Examples Already in System:**
 - S5: Split into S5.P1 (Round 1), S5.P2 (Round 2), S5.P3 (Round 3)
-- S7: Split into S7.P1 (Smoke), S7.P2 (QC Rounds), S7.P3 (Final Review)
+- S7: Split into S7.P1 (Smoke), S7.P2 (Validation Loop), S7.P3 (Final Review)
 - S1: Extracted S1.P3 (Discovery Phase) as separate guide
 
 **When to Use This Strategy:**

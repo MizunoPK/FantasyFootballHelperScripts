@@ -57,7 +57,7 @@ Plan  Deep Dive  Check  Strategy  (per feature)   QC
 **Last Updated:** {YYYY-MM-DD HH:MM}
 **Current Stage:** Stage {X} - {stage name}
 **Current Phase:** {PLANNING / IMPLEMENTATION / QC}
-**Current Step:** {Specific step name - e.g., "QC Round 2 (Consistency)"}
+**Current Step:** {Specific step name - e.g., "Validation Round 2 (clean counter: 1)"}
 **Current Guide:** `{guide_file_name}.md`
 **Guide Last Read:** {YYYY-MM-DD HH:MM}
 

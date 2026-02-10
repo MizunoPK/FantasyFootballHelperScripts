@@ -150,7 +150,7 @@ Feature QC is complete when 3 consecutive validation rounds find ZERO issues acr
 
 ## Prerequisites Checklist
 
-**Verify these BEFORE starting QC Rounds:**
+**Verify these BEFORE starting Validation Loop:**
 
 **From S7.P1:**
 - [ ] All 3 smoke test parts passed
@@ -507,7 +507,7 @@ STOP - DO NOT PROCEED TO S7.P3 YET
 
 ## Exit Criteria
 
-**QC Rounds (S7.P2) is complete when ALL of these are true:**
+**Validation Loop (S7.P2) is complete when ALL of these are true:**
 
 - [ ] All steps in this phase complete as specified
 - [ ] Agent Status updated with phase completion

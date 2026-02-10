@@ -98,16 +98,17 @@ This document captures lessons specific to THIS feature's development. This is s
 - Part 2 (Entry Point): {PASSED / Issues found and fixed}
 - Part 3 (E2E Execution): {PASSED / Issues found and fixed}
 
-**QC Rounds Results:**
-- QC Round 1: {PASSED / Issues found and fixed}
-- QC Round 2: {PASSED / Issues found and fixed}
-- QC Round 3: {PASSED / Issues found and fixed}
+**Validation Loop Results:**
+- Total Rounds: {N}
+- Consecutive Clean Rounds: 3 (exit criteria met)
+- Issues Found & Fixed: {count}
+- All 11 dimensions validated: YES
 
 **PR Review Results:**
 - Categories with issues: {List or "None"}
 - Key improvements made: {List}
 
-**QC Restart Count:** {N} (if > 0, explain why restart was needed)
+**Issues Found During Validation:** {N} (if > 0, list what was fixed)
 
 **What Went Well:**
 - {Positive observation}

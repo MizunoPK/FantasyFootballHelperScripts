@@ -46,9 +46,9 @@ Terms are organized alphabetically. Terms with multiple context-specific meaning
 
 ## A
 ### Acceptance Criteria
-Requirements that define when a feature or task is considered complete. Documented in spec.md and used to verify implementation in S7 QC rounds.
+Requirements that define when a feature or task is considered complete. Documented in spec.md and used to verify implementation in S7 Validation Loop.
 
-**See:** Spec.md, QC Rounds
+**See:** Spec.md, Validation Loop
 
 ---
 
@@ -243,7 +243,7 @@ Testing complete workflow from start to finish with real data.
 ### Edge Case
 Unusual input or scenario that tests boundaries of implementation.
 
-**See:** QC Rounds
+**See:** Validation Loop
 
 ---
 
@@ -616,11 +616,11 @@ Process of continuing work after session compaction.
 
 - Round 2: Iterations 8-13 (6 iterations) - Integration Verification
 
-**[QC Rounds]** Quality control verification rounds:
+**[Validation Loop]** Iterative quality control validation:
 
-- Round 1: Algorithm Verification
+- Check ALL dimensions every round until 3 consecutive clean rounds
 
-**See:** Iteration, Phase, QC Rounds
+**See:** Iteration, Phase, Validation Loop
 
 ---
 

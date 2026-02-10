@@ -762,7 +762,7 @@ warnings.warn("Old ADP format deprecated. Use new format.", DeprecationWarning)
 - [ ] No scope creep (undocumented features added)
 - [ ] All changes necessary for epic (no unrelated changes)
 - [ ] No unrelated changes included (bug fixes, refactoring unrelated to epic)
-- [ ] Epic goals achieved (validated in QC Round 3)
+- [ ] Epic goals achieved (validated in Validation Loop)
 
 ### How to Verify
 
@@ -797,7 +797,7 @@ warnings.warn("Old ADP format deprecated. Use new format.", DeprecationWarning)
 - No scope creep identified (no undocumented features)
 - All changes necessary for epic (traced back to requirements)
 - No unrelated changes (no bug fixes or refactoring outside epic scope)
-- Epic goals achieved (validated in QC Round 3)
+- Epic goals achieved (validated in Validation Loop)
 
 **Scope Validation Table:**
 | Original Goal | Delivered | Evidence |

@@ -124,7 +124,7 @@ STAGE 6: Implementation Execution
    ↓
 STAGE 7: Implementation Testing & Review
    ├─ S7.P1: Smoke Testing (3 parts - MANDATORY GATE)
-   ├─ S7.P2: QC Rounds (3 rounds with restart protocol)
+   ├─ S7.P2: Validation Loop (3 consecutive clean rounds)
    └─ S7.P3: Final Review (PR review, lessons learned)
    ↓
 STAGE 8: Post-Feature Alignment
@@ -134,7 +134,7 @@ STAGE 8: Post-Feature Alignment
    ↓
 STAGE 9: Epic-Level Final QC
    ├─ S9.P1: Epic Smoke Testing
-   ├─ S9.P2: Epic QC Rounds (3 rounds)
+   ├─ S9.P2: Epic Validation Loop (3 consecutive clean rounds)
    ├─ S9.P3: User Testing (MANDATORY - must report "no bugs found")
    └─ S9.P4: Epic Final Review
    ↓
@@ -165,13 +165,13 @@ STAGE 10: Epic Cleanup
 | Ready to implement | `stages/s5/s5_v2_validation_loop.md` | Draft Creation + Validation Loop (11 dimensions, 3 consecutive clean rounds required) |
 | S5 v2 complete (Gate 5 approved) | `stages/s6/s6_execution.md` | Implement feature with continuous verification |
 | Implementation done (Smoke Testing) | `stages/s7/s7_p1_smoke_testing.md` | Part 1: Import, Part 2: Entry Point, Part 3: E2E (verify DATA VALUES) |
-| Smoke testing passed (QC Rounds) | `stages/s7/s7_p2_qc_rounds.md` | Round 1: Basic validation, Round 2: Deep verification, Round 3: Final review |
-| QC rounds passed (Final Review) | `stages/s7/s7_p3_final_review.md` | PR review (11 categories), lessons learned, final verification |
-| QC passed | `stages/s8/s8_p1_cross_feature_alignment.md` | Update remaining feature specs based on actual code |
+| Smoke testing passed (Validation Loop) | `stages/s7/s7_p2_qc_rounds.md` | Check all 11 dimensions every round, 3 consecutive clean rounds required |
+| Validation Loop passed (Final Review) | `stages/s7/s7_p3_final_review.md` | PR review (11 categories), lessons learned, final verification |
+| Validation passed | `stages/s8/s8_p1_cross_feature_alignment.md` | Update remaining feature specs based on actual code |
 | Alignment updated | `stages/s8/s8_p2_epic_testing_update.md` | Update epic test plan based on implementation |
 | All features done (Router) | `stages/s9/s9_epic_final_qc.md` | Router: Links to epic smoke/qc/review sub-stages |
 | All features done (Smoke) | `stages/s9/s9_p1_epic_smoke_testing.md` | Validate entire epic end-to-end (start with smoke testing) |
-| Epic smoke passed (QC) | `stages/s9/s9_p2_epic_qc_rounds.md` | 3 rounds of epic-level QC |
+| Epic smoke passed (Validation Loop) | `stages/s9/s9_p2_epic_qc_rounds.md` | 12 dimensions (7 master + 5 epic), 3 consecutive clean rounds |
 | Epic QC passed (Final Review) | `stages/s9/s9_p4_epic_final_review.md` | Final epic validation before cleanup |
 | Epic review passed | `stages/s10/s10_epic_cleanup.md` | User testing, finalize, commit, archive |
 | Documentation verified (S10 Step 3) | `stages/s10/s10_p1_guide_update_workflow.md` | Apply lessons learned to guides (P0-P3 prioritization) |
@@ -336,7 +336,7 @@ feature-updates/
     │   │   └── s6_execution.md
     │   ├── s7/                               ← S7: Implementation Testing & Review
     │   │   ├── s7_p1_smoke_testing.md           ← S7.P1 (Smoke Testing: 3 parts)
-    │   │   ├── s7_p2_qc_rounds.md               ← S7.P2 (QC Rounds: 3 rounds)
+    │   │   ├── s7_p2_qc_rounds.md               ← S7.P2 (Validation Loop: 3 consecutive clean rounds)
     │   │   └── s7_p3_final_review.md            ← S7.P3 (Final Review: PR + lessons)
     │   ├── s8/                               ← S8: Post-Feature Alignment
     │   │   ├── s8_p1_cross_feature_alignment.md ← S8.P1 (Update remaining features)
@@ -344,7 +344,7 @@ feature-updates/
     │   ├── s9/                               ← S9: Epic Final QC
     │   │   ├── s9_epic_final_qc.md              ← S9 Router (links to S9.P1-P4)
     │   │   ├── s9_p1_epic_smoke_testing.md      ← S9.P1 (Epic smoke testing)
-    │   │   ├── s9_p2_epic_qc_rounds.md          ← S9.P2 (Epic QC rounds)
+    │   │   ├── s9_p2_epic_qc_rounds.md          ← S9.P2 (Epic Validation Loop)
     │   │   ├── s9_p3_user_testing.md            ← S9.P3 (User testing - MANDATORY)
     │   │   └── s9_p4_epic_final_review.md       ← S9.P4 (Epic final review)
     │   └── s10/                              ← S10: Epic Cleanup
@@ -634,7 +634,7 @@ S9 (Execution):
 12. Agent reads `stages/s7/s7_p1_smoke_testing.md`
 13. Agent runs smoke testing (3 parts - MANDATORY GATE)
 14. Agent reads `stages/s7/s7_p2_qc_rounds.md`
-15. Agent runs 3 QC rounds (restart protocol if issues found)
+15. Agent runs Validation Loop (3 consecutive clean rounds required)
 16. Agent reads `stages/s7/s7_p3_final_review.md`
 17. Agent runs PR review (11 categories) and captures lessons learned
 18. **S7 complete**
@@ -803,7 +803,7 @@ See `prompts_reference_v2.md` → "Problem Situation Prompts" section for:
 ### Q: When should I enter debugging protocol vs just fixing it?
 
 **Enter debugging protocol when:**
-- Issues discovered during Smoke Testing (S7.P1) or QC Rounds (S7.P2)
+- Issues discovered during Smoke Testing (S7.P1) or Validation Loop (S7.P2)
 - Root cause is UNKNOWN (requires investigation)
 - Issue affects multiple files or components
 - Multiple related issues discovered

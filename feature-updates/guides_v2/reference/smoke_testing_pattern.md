@@ -360,7 +360,7 @@ assert df['adp'].min() > 0  # Not placeholder values
 - **Scope:** ALL features working together
 - **Parts:** 4 parts (Import, Entry Point, E2E, Cross-Feature Integration)
 - **Data:** Epic-level workflows with multiple features
-- **Next Stage:** S9.P2 (Epic QC Rounds) if passed
+- **Next Stage:** S9.P2 (Epic Validation Loop) if passed
 - **Restart Destination:** S9.P1 Step 1 (complete epic smoke testing)
 
 ---

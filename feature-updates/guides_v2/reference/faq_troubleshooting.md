@@ -40,7 +40,7 @@
 **A:**
 - **Round:** Collection of iterations (S5 has 3 rounds)
 - **Iteration:** Single verification step (Round 1 has 7 iterations: I1-I7, includes Gates 4a, 7a)
-- **Phase:** Distinct workflow section (S7 has 3 phases: Smoke Testing, QC Rounds, Final Review)
+- **Phase:** Distinct workflow section (S7 has 3 phases: Smoke Testing, Validation Loop, Final Review)
 - **Stage:** Top-level workflow division (10 stages total: S1-S10)
 
 ### Q: When do I update EPIC_README.md vs feature README.md?
@@ -285,12 +285,13 @@ A: YES - Complete restart protocol:
 3. Re-run Part 1 → Part 2 → Part 3
 4. Only proceed to QC rounds if all 3 parts pass
 
-**Q: QC Round 2 found issues - do I restart from Round 1?**
+**Q: Validation Round 2 found issues - do I restart?**
 
-A: NO - Restart from Smoke Testing Part 1:
-- Any issues in ANY QC round = restart entire S7
-- Restart from smoke testing (not QC Round 1)
-- Zero tolerance for incomplete validation
+A: NO - Use fix-and-continue approach:
+- Fix ALL issues immediately
+- Reset clean counter to 0
+- Continue validation until 3 consecutive clean rounds
+- No restart needed (validation loop approach)
 
 **Q: What if issues found are "minor" like missing type hint?**
 
@@ -534,7 +535,7 @@ Context window limit reached → Session compacted
 
 **Use for:**
 - Issues found during Smoke Testing (S7 Part 3)
-- Issues found during QC Rounds (S7 Phase 2)
+- Issues found during Validation Loop (S7 Phase 2)
 - Issues found during Epic Testing (S9)
 - Issues found during User Testing (S10)
 - Root cause is UNKNOWN (requires investigation)

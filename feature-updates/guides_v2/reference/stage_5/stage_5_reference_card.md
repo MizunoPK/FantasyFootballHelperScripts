@@ -58,10 +58,10 @@ STAGE 5c: Post-Implementation (1.5-2.5 hours, 3 phases)
     │   ├─ Part 2: Entry Point Test
     │   └─ Part 3: E2E Test (verify DATA VALUES) ← MANDATORY GATE
     │
-    ├─ Phase 2: QC Rounds (stages/s7/s7_p2_qc_rounds.md)
-    │   ├─ QC Round 1: Basic validation
-    │   ├─ QC Round 2: Deep verification
-    │   └─ QC Round 3: Final review (ZERO tolerance) ← MANDATORY
+    ├─ Phase 2: Validation Loop (stages/s7/s7_p2_qc_rounds.md)
+    │   ├─ Check ALL 11 dimensions every round
+    │   ├─ Fix issues immediately, reset clean counter
+    │   └─ 3 consecutive clean rounds required ← MANDATORY
     │
     └─ Phase 3: Final Review (stages/s7/s7_p3_final_review.md)
         ├─ PR review (11 categories)
@@ -91,7 +91,7 @@ Next Feature (loop S5→S6→S7→S8) OR STAGE 6 (if all features done)
 | 5a Round 3 Part 2 | stages/s5/s5_p3_i2_gates_part1.md + s5_p3_i3_gates_part2.md | 1.5-2.5 hrs | Integration, spec audit, validation | Iterations 20, 23a, 25, 24 |
 | 5b | stages/s6/s6_execution.md | 1-4 hrs | Execute TODO tasks, mini-QC checkpoints | 100% test pass |
 | S7.P1 | stages/s7/s7_p1_smoke_testing.md | 30-45 min | Import, entry point, E2E tests | Part 3 data values |
-| S7.P2 | stages/s7/s7_p2_qc_rounds.md | 45-75 min | 3 QC rounds, deep verification | QC Round 3 ZERO issues |
+| S7.P2 | stages/s7/s7_p2_qc_rounds.md | 45-75 min | Validation Loop, 11 dimensions | 3 consecutive clean rounds |
 | S7.P3 | stages/s7/s7_p3_final_review.md | 30-45 min | PR review, lessons learned | Zero tech debt |
 | 5d | stages/s8/s8_p1_cross_feature_alignment.md | 15-30 min | Update remaining specs | None |
 | 5e | stages/s8/s8_p2_epic_testing_update.md | 15-30 min | Update epic test plan | None |
@@ -139,33 +139,30 @@ Next Feature (loop S5→S6→S7→S8) OR STAGE 6 (if all features done)
 - **Criteria:** E2E test with REAL data, verify DATA VALUES (not just file existence)
 - **If FAIL:** Restart from S7.P1 Step 1
 
-**Gate 6: S7.P2 QC Round 3 - ZERO Issues Required**
+**Gate 6: S7.P2 Validation Loop - 3 Consecutive Clean Rounds**
 - **Location:** stages/s7/s7_p2_qc_rounds.md
-- **Criteria:** ZERO issues found (critical, major, or minor)
-- **If ANY ISSUES:** Restart from S7.P1 Step 1 (smoke testing)
+- **Criteria:** 3 consecutive rounds with ZERO issues found
+- **If issues found:** Fix immediately, reset counter, continue (fix-and-continue approach)
 
 ---
 
-## Restart Points (QC Restart Protocol)
+## Validation Loop Protocol
 
 **If smoke testing fails (S7.P1):**
 → Fix issues, restart from S7.P1 Step 1 (Import Test)
 
-**If QC Round 1 finds issues (S7.P2):**
-→ Fix issues, restart from S7.P1 Step 1 (smoke testing)
-
-**If QC Round 2 finds issues (S7.P2):**
-→ Fix issues, restart from S7.P1 Step 1 (smoke testing)
-
-**If QC Round 3 finds issues (S7.P2):**
-→ Fix issues, restart from S7.P1 Step 1 (smoke testing)
+**If issues found during Validation Loop (S7.P2):**
+→ Fix issues immediately, reset clean counter to 0, continue validation
+→ No restart needed - fix-and-continue approach
+→ Continue until 3 consecutive clean rounds achieved
 
 **If PR review finds critical issues (S7.P3):**
 → Fix issues, restart from S7.P1 Step 1 (smoke testing)
 
-**Why restart from smoke testing?**
-- Any code change invalidates QC rounds
-- Must re-verify entire feature works end-to-end
+**Why fix-and-continue?**
+- Check ALL 11 dimensions every round
+- Fix issues immediately when found
+- More efficient than full restart protocol
 - Zero tech debt tolerance - no deferring issues
 
 ---
@@ -213,8 +210,8 @@ Next Feature (loop S5→S6→S7→S8) OR STAGE 6 (if all features done)
 
 ### S7 (Post-Implementation)
 - ✅ Verify DATA VALUES in smoke testing (not just file existence)
-- ✅ QC Round 3 requires ZERO issues
-- ✅ If ANY issues found → restart from smoke testing
+- ✅ Validation Loop requires 3 consecutive clean rounds
+- ✅ If issues found → fix immediately, reset counter, continue
 - ✅ Zero tech debt tolerance (fix ALL issues immediately)
 - ✅ PR review covers all 11 categories
 
@@ -269,7 +266,7 @@ Next Feature (loop S5→S6→S7→S8) OR STAGE 6 (if all features done)
 | GO decision from Iteration 22 | stages/s6/s6_execution.md |
 | Implementation complete | stages/s7/s7_p1_smoke_testing.md |
 | Smoke testing passed | stages/s7/s7_p2_qc_rounds.md |
-| QC Round 3 passed | stages/s7/s7_p3_final_review.md |
+| Validation Loop passed | stages/s7/s7_p3_final_review.md |
 | PR review passed | stages/s8/s8_p1_cross_feature_alignment.md |
 | Alignment updated | stages/s8/s8_p2_epic_testing_update.md |
 
@@ -281,7 +278,7 @@ Next Feature (loop S5→S6→S7→S8) OR STAGE 6 (if all features done)
 - [ ] All 24 TODO iterations passed (including all 4 gates)
 - [ ] Implementation complete (100% unit tests pass)
 - [ ] Smoke testing passed (Part 3 data values verified)
-- [ ] QC Round 3 passed (ZERO issues)
+- [ ] Validation Loop passed (3 consecutive clean rounds)
 - [ ] PR review passed (all 11 categories)
 - [ ] Lessons learned documented
 - [ ] Remaining feature specs updated (S8.P1)

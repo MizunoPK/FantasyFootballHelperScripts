@@ -4,7 +4,7 @@
 **See:** `reference/validation_loop_master_protocol.md`
 
 **Applicable Stages:**
-- S7.P2: Feature QC Rounds (post-implementation quality validation)
+- S7.P2: Feature Validation Loop (post-implementation quality validation)
 
 **Version:** 2.0 (Created to extend master protocol)
 **Last Updated:** 2026-02-10
@@ -376,7 +376,7 @@ Implementation:
 
 ## What's Being Validated
 
-### S7.P2: Feature QC Rounds
+### S7.P2: Feature Validation Loop
 
 **Artifact:** Implemented feature code (post-S6 execution)
 
@@ -629,7 +629,7 @@ All positions supported ✅
 
 ## Integration with S7
 
-### S7.P2: Feature QC Rounds
+### S7.P2: Feature Validation Loop
 
 **When:** After S7.P1 (Smoke Testing) passes, after S6 (Execution) complete
 

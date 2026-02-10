@@ -41,7 +41,7 @@
 
 **Last Updated:** {YYYY-MM-DD HH:MM}
 **Current Phase:** {PLANNING / IMPLEMENTATION_PLANNING / IMPLEMENTATION / POST_IMPLEMENTATION / COMPLETE}
-**Current Step:** {Specific step - e.g., "Iteration 12/24", "QC Round 2"}
+**Current Step:** {Specific step - e.g., "Iteration 12/24", "Validation Round 2"}
 **Current Guide:** `{guide_name}.md`
 **Guide Last Read:** {YYYY-MM-DD HH:MM}
 
@@ -77,9 +77,8 @@
 
 **S7 - Implementation Testing & Review:**
 - [ ] Smoke testing (3 parts) passed
-- [ ] QC Round 1 passed
-- [ ] QC Round 2 passed
-- [ ] QC Round 3 passed
+- [ ] Validation Loop passed (3 consecutive clean rounds)
+- [ ] All 11 dimensions checked every round
 - [ ] PR Review (11 categories) passed
 - [ ] `lessons_learned.md` updated with S7 insights
 - [ ] S7 complete: {✅/◻️}

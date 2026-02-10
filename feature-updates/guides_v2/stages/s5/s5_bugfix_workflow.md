@@ -240,7 +240,7 @@ What's wrong:
 - {Symptom 3}
 
 How discovered:
-- {How the issue was found - e.g., "QC Round 2 revealed...", "User reported..."}
+- {How the issue was found - e.g., "Validation Loop revealed...", "User reported..."}
 
 Impact:
 - {What doesn't work because of this bug}
@@ -329,7 +329,7 @@ Once you've reviewed, let me know and I'll proceed with the bug fix workflow.
 
 **Active Bug Fixes:**
 - bugfix_high_authentication_error (S2 - Deep Dive)
-  - Discovered: During feature_01 QC Round 2
+  - Discovered: During feature_01 Validation Loop
   - Priority: high (blocks feature_02 implementation)
   - Currently: Creating spec.md for bug fix
 
@@ -350,17 +350,16 @@ Once you've reviewed, let me know and I'll proceed with the bug fix workflow.
 
 **Last Updated:** 2025-12-30 18:00
 **Status:** PAUSED for bugfix_high_authentication_error
-**Paused At:** S7 (Testing & Review) - QC Round 2 (found bug, creating fix)
+**Paused At:** S7 (Testing & Review) - Validation Loop (found bug, creating fix)
 
 **Resume Instructions:**
 When bug fix complete:
-1. Re-run S7 (Testing & Review) QC Round 2 (verify bug fix didn't affect this feature)
-2. If passes: Continue to QC Round 3
+1. Re-run S7 (Testing & Review) Validation Loop (verify bug fix didn't affect this feature)
+2. If passes: Continue to Final Review (S7.P3)
 3. If fails: Investigate interaction with bug fix
 
 **Context at Pause:**
-- QC Round 1: PASSED
-- QC Round 2: In progress - found authentication bug that affects this feature
+- Validation Loop in progress - found authentication bug that affects this feature
 - Bug discovered: ConfigManager.get_adp_multiplier() crashes on null ADP
 - This feature calls get_adp_multiplier() - need to verify fix works correctly
 ```
@@ -509,14 +508,14 @@ Integration test:
 
 **Read guides in order:**
 1. stages/s7/s7_p1_smoke_testing.md - Smoke Testing (3 parts - MANDATORY GATE)
-2. stages/s7/s7_p2_qc_rounds.md - QC Round 1, 2, 3 (with restart protocol)
+2. stages/s7/s7_p2_qc_rounds.md - Validation Loop (3 consecutive clean rounds)
 3. stages/s7/s7_p3_final_review.md - PR Review (11 categories) + lessons learned
 
 **Same validation as features:**
 - Smoke Testing (3 parts)
-- QC Round 1, 2, 3
+- Validation Loop (3 consecutive clean rounds)
 - PR Review (11 categories)
-- QC Restart Protocol if issues found
+- Fix-and-continue approach if issues found
 
 **Bug fix smoke testing:**
 ```bash
@@ -558,8 +557,8 @@ python run_league_helper.py --mode draft
 
 **Resuming Work:**
 - feature_01_adp_integration: Resuming S7 (Testing & Review) (post-implementation)
-  - Resume from: QC Round 2 (re-run after bug fix)
-  - Next action: Complete QC Round 2, then Round 3
+  - Resume from: Validation Loop (re-run after bug fix)
+  - Next action: Complete Validation Loop (3 consecutive clean rounds)
 ```
 
 ---
@@ -581,7 +580,7 @@ Impact check:
 - feature_01 calls get_adp_multiplier() → AFFECTED
 - Need to re-run feature_01's QC to verify fix didn't break it
 
-Action: Re-run feature_01 S7 (Testing & Review) QC Round 2 before continuing
+Action: Re-run feature_01 S7 (Testing & Review) Validation Loop before continuing
 ```
 
 ---
@@ -594,8 +593,8 @@ Action: Re-run feature_01 S7 (Testing & Review) QC Round 2 before continuing
 
 **Resume Instructions:**
 When bug fix complete:
-1. Re-run S7 (Testing & Review) QC Round 2 (verify bug fix didn't affect this feature)
-2. If passes: Continue to QC Round 3
+1. Re-run S7 (Testing & Review) Validation Loop (verify bug fix didn't affect this feature)
+2. If passes: Continue to Final Review (S7.P3)
 3. If fails: Investigate interaction with bug fix
 ```
 
@@ -606,11 +605,11 @@ When bug fix complete:
 ### Step 4: Update README Agent Status
 
 ```markdown
-**Current Phase:** POST_IMPLEMENTATION_QC_ROUNDS (Resumed)
+**Current Phase:** POST_IMPLEMENTATION_VALIDATION_LOOP (Resumed)
 **Current Guide:** stages/s7/s7_p2_qc_rounds.md
 **Guide Last Read:** 2025-12-30 19:15
 **Resumed After:** bugfix_high_authentication_error completion
-**Next Action:** Re-run QC Round 2 to verify bug fix compatibility
+**Next Action:** Re-run Validation Loop to verify bug fix compatibility
 ```
 
 ---
@@ -667,7 +666,7 @@ Action:
 
 **Example:**
 ```text
-Currently: feature_03 S7 (Testing & Review) (QC Round 2)
+Currently: feature_03 S7 (Testing & Review) (Validation Loop)
 Bug discovered: Typo in output message
 Priority: low
 

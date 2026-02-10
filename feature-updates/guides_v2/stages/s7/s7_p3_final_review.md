@@ -9,7 +9,7 @@
 
 **Stage Flow Context:**
 ```text
-S7.P1 (Smoke Testing) → S7.P2 (QC Rounds) →
+S7.P1 (Smoke Testing) → S7.P2 (Validation Loop) →
 → [YOU ARE HERE: S7.P3 - Final Review] →
 → S8 (Post-Feature Alignment)
 ```
@@ -144,9 +144,9 @@ Final Review is complete when 3 consecutive validation rounds find ZERO issues a
 **Verify these BEFORE starting Final Review:**
 
 **From S7.P2:**
-- [ ] QC Round 1: PASSED (<3 critical, >80% requirements)
-- [ ] QC Round 2: PASSED (all Round 1 issues resolved, zero new critical)
-- [ ] QC Round 3: PASSED (ZERO issues found)
+- [ ] Validation Loop: PASSED (3 consecutive clean rounds)
+- [ ] All 11 dimensions checked every round
+- [ ] Zero issues deferred (fix-and-continue approach used)
 - [ ] All re-reading checkpoints completed
 
 **From S7.P1:**
@@ -631,7 +631,7 @@ This is NOT optional. If you found guide gaps, fix them NOW.
 ```markdown
 ## Lesson Learned:
 
-Issue: QC Round 2 found all output data was zeros
+Issue: Validation Loop found all output data was zeros
 Root cause: Smoke test Part 3 only checked "file exists", didn't verify data VALUES
 Guide gap: stages/s7/s7_p1_smoke_testing.md didn't emphasize DATA VALUES enough
 
@@ -652,7 +652,7 @@ Files updated:
 
 ### What Went Well
 - Smoke testing caught integration bug that unit tests missed
-- QC Round 2 baseline comparison revealed pattern inconsistency
+- Validation Loop baseline comparison revealed pattern inconsistency
 - PR Review Category 5 (Testing) identified missing edge case tests
 
 ### What Didn't Go Well
@@ -704,10 +704,10 @@ Files updated:
 - [ ] Part 2 (Entry Point Test): PASSED
 - [ ] Part 3 (E2E Execution Test): PASSED with data VALUES verified
 
-**QC Rounds:**
-- [ ] QC Round 1 (Basic Validation): PASSED
-- [ ] QC Round 2 (Deep Verification): PASSED
-- [ ] QC Round 3 (Final Skeptical Review): PASSED (zero issues)
+**Validation Loop:**
+- [ ] Validation Loop: PASSED (3 consecutive clean rounds)
+- [ ] All 11 dimensions checked every round
+- [ ] Zero issues deferred (fix-and-continue approach used)
 
 **PR Review:**
 - [ ] All 11 categories reviewed
@@ -779,10 +779,10 @@ Files updated:
 - [x] Feature executes end-to-end without crashes
 - [x] Output data is correct and reasonable
 
-### QC Rounds (S7.P2)
-- [x] QC Round 1 passed (<3 critical issues, >80% requirements met)
-- [x] QC Round 2 passed (all Round 1 issues resolved, zero new critical issues)
-- [x] QC Round 3 passed (ZERO issues found in skeptical review)
+### Validation Loop (S7.P2)
+- [x] Validation Loop passed (3 consecutive clean rounds)
+- [x] All 11 dimensions checked every round
+- [x] Zero issues deferred (fix-and-continue approach used)
 
 ### PR Review (S7.P3)
 - [x] All 11 categories reviewed
@@ -883,7 +883,7 @@ Files updated:
 
 **Feature:** Schedule strength multiplier
 
-**Issue found in QC Round 2:**
+**Issue found in Validation Loop:**
 ```text
 Log quality check: 487 WARNING messages during normal execution
 Investigation: Most are "Opponent data missing for week {week}, using default"

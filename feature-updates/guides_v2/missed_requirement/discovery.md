@@ -18,7 +18,7 @@
 - S5 (TODO creation): Realize missing scope while planning implementation
 - S6 (Implementation): Discover forgotten functionality while coding
 - S7 (Smoke Testing): Find missing requirement during Part 1/2/3 tests
-- S7 (QC Rounds): Discover missing scope during Round 1/2/3
+- S7 (Validation Loop): Discover missing scope during validation rounds
 
 **During Debugging:**
 - While investigating issues: Realize root cause is missing functionality
@@ -26,7 +26,7 @@
 
 **During Epic-Level Work (S9/7):**
 - S9.P1 (Epic Smoke Testing): Find missing integration between features
-- S9.P2 (Epic QC Rounds): Discover missing epic-level functionality
+- S9.P2 (Epic Validation Loop): Discover missing epic-level functionality
 - S10 (User Testing): User reports missing functionality that was in original intent
 
 **User Reports:**

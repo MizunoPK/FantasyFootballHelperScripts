@@ -202,7 +202,7 @@ S10.P1 (Guide Update from Lessons Learned) requires finding ALL lessons learned 
 
 **What Went Well:**
 - Smoke testing caught CSV encoding issue
-- QC Round 2 found unused import statement
+- Validation Loop found unused import statement
 
 **What Could Be Improved:**
 - None - S7 worked well

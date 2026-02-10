@@ -45,7 +45,7 @@
 
 **Should have been caught at:**
 - **Stage:** {S5 / S6 / S10.P1 / S10.P2 / 2 / etc.}
-- **Step:** {Iteration X / QC Round X / etc.}
+- **Step:** {Iteration X / Validation Round X / etc.}
 - **Guide:** `{guide name}`
 - **Why missed:** {specific gap}
 

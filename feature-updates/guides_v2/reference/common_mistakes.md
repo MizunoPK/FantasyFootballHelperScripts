@@ -57,10 +57,10 @@
 - ✅ Update after EACH major checkpoint
 - **Why:** Breaks resumability after session compaction
 
-### Skipping QC Restart
-- ❌ "I fixed the bug, I'll just continue from QC Round 2"
-- ✅ Loop back to START of testing (smoke testing Part 1)
-- **Why:** Fixes might introduce new bugs
+### Not Following Validation Loop Protocol
+- ❌ "I fixed the bug, I'll just continue from where I left off"
+- ✅ Fix issue immediately, reset clean counter to 0, continue validation
+- **Why:** Validation Loop uses fix-and-continue approach (3 consecutive clean rounds required)
 
 ---
 

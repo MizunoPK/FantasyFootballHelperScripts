@@ -4,9 +4,9 @@
 **See:** `reference/validation_loop_master_protocol.md`
 
 **Applicable Stages:**
-- S7.P2: Feature QC Rounds (3 rounds post-smoke testing)
+- S7.P2: Feature Validation Loop (3 consecutive clean rounds post-smoke testing)
 - S7.P3: Feature PR Review (final review before commit)
-- S9.P2: Epic QC Rounds (3 rounds post-epic smoke testing)
+- S9.P2: Epic Validation Loop (3 consecutive clean rounds post-epic smoke testing)
 - S10.P2: Final PR Review (epic-level)
 
 **Version:** 2.0 (Updated to extend master protocol)
@@ -171,9 +171,10 @@ Round 5: Final sweep
 
 ## Integration with Stages
 
-**S7.P2 QC Rounds (Feature-Level):**
+**S7.P2 Validation Loop (Feature-Level):**
 - Use this protocol after implementation complete
-- 3 QC rounds required (embedded Validation Loop)
+- Check ALL 11 dimensions every round
+- Exit after 3 consecutive clean rounds
 - Must pass before S7.P3 (PR Review)
 
 **S7.P3 PR Review (Feature-Level):**
@@ -181,9 +182,10 @@ Round 5: Final sweep
 - Verify ALL issues from S7.P2 fixed
 - Must pass before feature commit
 
-**S9.P2 Epic QC Rounds (Epic-Level):**
+**S9.P2 Epic Validation Loop (Epic-Level):**
 - Use this protocol after all features complete
-- 3 QC rounds across entire epic codebase
+- Check ALL 12 dimensions every round (7 master + 5 epic-specific)
+- Exit after 3 consecutive clean rounds
 - Must pass before S9.P3 (User Testing)
 
 ---

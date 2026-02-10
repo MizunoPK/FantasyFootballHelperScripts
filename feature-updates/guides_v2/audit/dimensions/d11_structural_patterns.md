@@ -633,7 +633,7 @@ $ grep -l "## Prerequisites" stages/s7/s7_p2_qc_rounds.md
 - All smoke test failures resolved
 - implementation_checklist.md fully checked off
 
-**Before Starting QC Rounds:**
+**Before Starting Validation Loop:**
 - Commit your latest changes
 - Clean working directory
 - Tests passing locally

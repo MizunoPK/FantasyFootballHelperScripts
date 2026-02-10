@@ -13,9 +13,9 @@
 ## Triggered When
 
 - Smoke Testing (S7.P1) Part 3 discovers issues
-- QC Rounds (S7.P2) any round discovers issues
+- Validation Loop (S7.P2) discovers issues
 - Epic Smoke Testing (S9.P1) discovers issues
-- Epic QC Rounds (S9.P2) discovers issues
+- Epic Validation Loop (S9.P2) discovers issues
 - User Testing (S9.P3) discovers bugs
 
 ---
@@ -136,7 +136,7 @@ mkdir -p epic_name/debugging/diagnostic_logs
 # Issues Checklist - {Feature/Epic Name}
 
 **Source:** {Feature/Epic}
-**Testing Stage:** {S7.P1 Smoke Testing / S7.P2 QC Rounds / S9.P1 Epic Smoke Testing / S9.P2 Epic QC Rounds / S9.P3 User Testing}
+**Testing Stage:** {S7.P1 Smoke Testing / S7.P2 Validation Loop / S9.P1 Epic Smoke Testing / S9.P2 Epic Validation Loop / S9.P3 User Testing}
 **Created:** {YYYY-MM-DD HH:MM}
 **Status:** In Progress
 
@@ -286,7 +286,7 @@ feature_01_player_integration/
 
 **When to use:**
 - Issues discovered during S9.P1 (Epic Smoke Testing)
-- Issues discovered during S9.P2 (Epic QC Rounds)
+- Issues discovered during S9.P2 (Epic Validation Loop)
 - Issues discovered during S10 (User Testing)
 - Cross-feature integration issues
 - Epic-level coordination issues

@@ -889,7 +889,7 @@ $ grep "### S10:" EPIC_WORKFLOW_USAGE.md
 
 **Phases:**
 - S9.P1: Epic Smoke Testing (30-45 min)
-- S9.P2: Epic QC Rounds (3 rounds, 90-135 min)
+- S9.P2: Epic Validation Loop (3 consecutive clean rounds, 90-135 min)
 - S9.P3: User Testing (variable)
 - S9.P4: Epic Final Review (20-30 min)
 

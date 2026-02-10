@@ -214,7 +214,7 @@ This bug ({brief description}) occurred because {reason}. Adding this checkpoint
 
 **For debugging bugs discovered during testing:**
 - Smoke Testing → Usually P1 (caught early but still got through planning)
-- QC Rounds → Usually P1 (got through implementation)
+- Validation Loop → Usually P1 (got through implementation)
 - User Testing → Always P0 (got through ALL our gates)
 
 **Record:**
@@ -258,7 +258,7 @@ I've analyzed why this bug existed and how we can prevent it in future epics.
 
 **This bug SHOULD have been caught at:**
 - **Stage:** {S5/5b/etc.}
-- **Step:** {Iteration X / QC Round X}
+- **Step:** {Iteration X / Validation Round X}
 - **Guide:** `{guide name}`
 - **Why it wasn't caught:** {specific gap}
 

@@ -750,18 +750,18 @@ Looping back to smoke testing...
 
 **If issues discovered during S7.P2:**
 
-Loop back to: **S7.P1 Step 1** (NOT back to QC Round directly)
+Loop back to: **S7.P1 Step 1** (NOT back to Validation Loop directly)
 
-**Why loop back to smoke testing instead of QC?**
-- QC restart protocol: Always restart from smoke testing after fixes
+**Why loop back to smoke testing instead of Validation Loop?**
+- After debugging fixes, always restart from smoke testing
 - Ensures foundational smoke tests still pass
-- Comprehensive validation before QC rounds
+- Comprehensive validation before Validation Loop resumes
 
 **Actions:**
 1. Update README Agent Status
 2. Return to smoke testing guide
 3. Run all 3 parts of smoke testing
-4. Then run all QC rounds (1, 2, 3) again
+4. Then run Validation Loop again (3 consecutive clean rounds)
 5. If issues found → back to debugging
 6. If zero issues → proceed to S7.P3
 
@@ -778,7 +778,7 @@ Loop back to: **S9.P1 Step 1** (Epic Smoke Testing start)
 2. Return to epic smoke testing guide
 3. Run all epic smoke test steps
 4. If new issues found → back to epic debugging
-5. If zero issues → proceed to S9.P2 (Epic QC Rounds)
+5. If zero issues → proceed to S9.P2 (Epic Validation Loop)
 
 **EPIC_README Agent Status update:**
 
@@ -807,7 +807,7 @@ Looping back to epic smoke testing...
 
 ---
 
-**If issues discovered during S9.P2 (Epic QC Rounds):**
+**If issues discovered during S9.P2 (Epic Validation Loop):**
 
 Loop back to: **S9.P1 Step 1** (Epic Smoke Testing)
 
@@ -829,7 +829,7 @@ Loop back to: **S9.P1 Step 1** (Epic Smoke Testing)
 1. Update EPIC_README Agent Status
 2. Inform user: "Fixing bugs, will return to S9 for re-validation"
 3. Return to S9.P1 (Epic Smoke Testing)
-4. Run epic smoke testing and QC rounds
+4. Run epic smoke testing and Validation Loop
 5. If passes: Inform user fixes are ready, request new user testing session
 6. If fails: Back to debugging
 
@@ -875,17 +875,17 @@ Re-running epic testing now...
    - Loop back to Part 1 again
    - Repeat until zero issues
 
-**S7.P2: QC Rounds**
+**S7.P2: Validation Loop**
 
-1. **Run all 3 rounds:**
-   - Round 1: Basic Validation
-   - Round 2: Deep Verification
-   - Round 3: Skeptical Review
+1. **Run Validation Loop:**
+   - Check ALL 11 dimensions every round
+   - Fix issues immediately, reset clean counter
+   - Continue until 3 consecutive clean rounds
 
 2. **Outcome possibilities:**
 
-   **✅ All rounds pass, zero issues:**
-   - QC complete
+   **✅ 3 consecutive clean rounds achieved:**
+   - Validation Loop complete
    - Proceed to S7.P3
 
    **❌ Issues found:**
@@ -907,7 +907,7 @@ Re-running epic testing now...
 
    **✅ All steps pass, zero issues:**
    - Epic smoke testing complete
-   - Proceed to S9.P2 (Epic QC Rounds)
+   - Proceed to S9.P2 (Epic Validation Loop)
 
    **❌ New issues found:**
    - Add to epic_name/debugging/ISSUES_CHECKLIST.md
@@ -916,14 +916,17 @@ Re-running epic testing now...
    - Loop back to S9.P1 Step 1 again
    - Repeat until zero issues
 
-**S9.P2: Epic QC Rounds**
+**S9.P2: Epic Validation Loop**
 
-1. **Run all 3 rounds**
+1. **Run Validation Loop:**
+   - Check ALL 12 dimensions every round (7 master + 5 epic-specific)
+   - Fix issues immediately, reset clean counter
+   - Continue until 3 consecutive clean rounds
 
 2. **Outcome possibilities:**
 
-   **✅ All rounds pass, zero issues:**
-   - Epic QC complete
+   **✅ 3 consecutive clean rounds achieved:**
+   - Epic Validation Loop complete
    - Proceed to S9.P3 (Epic Final Review)
 
    **❌ Issues found:**
@@ -977,17 +980,19 @@ Re-running epic testing now...
 
 ---
 
-### S7.P2: QC Rounds Integration
+### S7.P2: Validation Loop Integration
 
 **Add to qc_rounds.md after each round:**
 
 ```markdown
-### Round {N} Result Handling
+### Validation Round Result Handling
 
-**If Round {N} PASSES:**
-- Proceed to Round {N+1} / Final Review
+**If round is CLEAN (zero issues):**
+- Increment clean round counter
+- If 3 consecutive clean rounds → proceed to Final Review
+- Otherwise continue to next round
 
-**If Round {N} FAILS (issues found):**
+**If round has ISSUES:**
 
 1. **Add issues to debugging/ISSUES_CHECKLIST.md**
 
@@ -996,11 +1001,11 @@ Re-running epic testing now...
    - Resolve all issues
 
 3. **Loop back to Smoke Testing Part 1:**
-   - NOT back to QC Round {N}
+   - NOT back to Validation Loop directly
    - Must re-run smoke tests after fixes
-   - Then re-run all QC rounds from Round 1
+   - Then re-run Validation Loop
 
-**Critical:** QC restart protocol applies - always loop back to smoke testing after fixes
+**Critical:** After debugging fixes, always loop back to smoke testing before resuming Validation Loop
 ```
 
 ---
@@ -1094,9 +1099,9 @@ Re-running epic testing now...
 
 **Loop-Back Destinations:**
 - **Feature Smoke Testing (S7.P1)** → Loop back to Part 1
-- **Feature QC Rounds (S7.P2)** → Loop back to S7.P1 Step 1
+- **Feature Validation Loop (S7.P2)** → Loop back to S7.P1 Step 1
 - **Epic Smoke Testing (S9.P1)** → Loop back to Step 1
-- **Epic QC Rounds (S9.P2)** → Loop back to S9.P1 Step 1
+- **Epic Validation Loop (S9.P2)** → Loop back to S9.P1 Step 1
 - **User Testing (S10)** → Loop back to S9.P1 Step 1
 
 **Key Principle:** Always loop back to START of testing stage (not to where issues were found)

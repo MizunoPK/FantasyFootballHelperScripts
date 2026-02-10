@@ -21,23 +21,17 @@ S9.P1: Epic Smoke Testing (60-90 min)
     │   └─ Part 4: Cross-Feature Integration Test ← MANDATORY GATE
     │       └─ If FAIL → Fix and restart from Part 1
     ↓
-S9.P2: Epic QC Rounds (2-3 hours)
-    ├─ Step 3: QC Round 1 - Cross-Feature Integration (45-60 min)
-    │   ├─ Integration points tested
-    │   ├─ Data flow verification
-    │   ├─ Interface compatibility
-    │   └─ Error propagation across features
-    ├─ Step 4: QC Round 2 - Epic Cohesion & Consistency (45-60 min)
-    │   ├─ Code style consistency
-    │   ├─ Naming conventions alignment
-    │   ├─ Error handling patterns
-    │   └─ Architectural patterns
-    ├─ Step 5: QC Round 3 - End-to-End Success Criteria (30-45 min)
-    │   ├─ Original epic goals validated
-    │   ├─ All success criteria met (100%)
-    │   ├─ UX flow validated
-    │   └─ Performance benchmarks met
-    │       └─ If ANY ISSUES → Create bug fix → RESTART S9.P1
+S9.P2: Epic Validation Loop (2-3 hours)
+    ├─ Check ALL 12 dimensions every round (7 master + 5 epic-specific)
+    │   ├─ Master dimensions (content, references, integration, etc.)
+    │   ├─ Dimension 8: Cross-Feature Integration
+    │   ├─ Dimension 9: Data Flow Validation
+    │   ├─ Dimension 10: Epic Cohesion & Consistency
+    │   ├─ Dimension 11: Error Propagation
+    │   └─ Dimension 12: End-to-End Success Criteria
+    ├─ Fix issues immediately, reset clean counter
+    ├─ Continue until 3 consecutive clean rounds
+    │       └─ Fix-and-continue approach (no restart for minor issues)
     ↓
 S9.P3: Epic Final Review (60-90 min + bug fixes if needed)
     ├─ Step 6: Epic PR Review - 11 Categories (45-60 min)
@@ -74,7 +68,7 @@ S9.P3: Epic Final Review (60-90 min + bug fixes if needed)
 2. **RESTART S9 from S9.P1** (cannot partially continue)
 3. **Re-run ALL 8 steps:**
    - S9.P1: Epic Smoke Testing (all 4 parts)
-   - S9.P2: QC Rounds 1, 2, 3
+   - S9.P2: Validation Loop (3 consecutive clean rounds)
    - S9.P3: Epic PR Review (all 11 categories)
 4. **Document restart** in epic_lessons_learned.md
 
@@ -149,9 +143,9 @@ S9.P3: Epic Final Review (60-90 min + bug fixes if needed)
 
 ---
 
-## QC Round Focus Areas (Steps 3-5)
+## Epic-Specific Validation Dimensions (8-12)
 
-### QC Round 1: Cross-Feature Integration (Step 3)
+### Dimension 8: Cross-Feature Integration
 **Check:**
 - Integration points tested (features communicate correctly)
 - Data flow verification (data passed correctly between features)
@@ -160,7 +154,15 @@ S9.P3: Epic Final Review (60-90 min + bug fixes if needed)
 
 **Pass Criteria:** All integration points working, no cross-feature errors
 
-### QC Round 2: Epic Cohesion & Consistency (Step 4)
+### Dimension 9: Data Flow Validation
+**Check:**
+- Data flows correctly between all features
+- No data corruption at integration points
+- Correct data types and formats
+
+**Pass Criteria:** Data integrity maintained across features
+
+### Dimension 10: Epic Cohesion & Consistency
 **Check:**
 - Code style consistency (same style across all features)
 - Naming conventions alignment (consistent naming)
@@ -169,7 +171,15 @@ S9.P3: Epic Final Review (60-90 min + bug fixes if needed)
 
 **Pass Criteria:** Epic is cohesive, no inconsistencies
 
-### QC Round 3: End-to-End Success Criteria (Step 5)
+### Dimension 11: Error Propagation
+**Check:**
+- Errors propagate correctly across feature boundaries
+- Error handling is consistent
+- User-facing error messages are appropriate
+
+**Pass Criteria:** Error handling works end-to-end
+
+### Dimension 12: End-to-End Success Criteria
 **Check:**
 - Original epic goals validated (re-read epic request)
 - ALL success criteria met (100% - defined in epic_smoke_test_plan.md)
@@ -178,7 +188,7 @@ S9.P3: Epic Final Review (60-90 min + bug fixes if needed)
 
 **Pass Criteria:** 100% of success criteria met, user goals achieved
 
-**If ANY ISSUES in any round:** Create bug fix → RESTART S9.P1
+**If issues found:** Fix immediately, reset clean counter, continue validation
 
 ---
 
@@ -214,10 +224,10 @@ S9.P3: Epic Final Review (60-90 min + bug fixes if needed)
 **Impact:** File has incorrect data, bugs escape to S10
 **Solution:** Verify DATA VALUES (not just file existence)
 
-### ❌ Pitfall 3: Skipping QC Rounds
-**Problem:** "Smoke testing passed, I'll skip QC rounds"
+### ❌ Pitfall 3: Skipping Validation Loop
+**Problem:** "Smoke testing passed, I'll skip validation"
 **Impact:** Quality issues slip through, fail in user testing
-**Solution:** ALL 3 QC rounds are MANDATORY
+**Solution:** Validation Loop with 3 consecutive clean rounds is MANDATORY
 
 ### ❌ Pitfall 4: Inline Bug Fixes
 **Problem:** "Small bug, I'll fix it inline without bug fix workflow"
@@ -256,10 +266,10 @@ S9.P3: Epic Final Review (60-90 min + bug fixes if needed)
 - [ ] Cross-feature integration tested
 
 **S9.P2 → S9.P3:**
-- [ ] QC Round 1 PASSED (Cross-Feature Integration)
-- [ ] QC Round 2 PASSED (Epic Cohesion & Consistency)
-- [ ] QC Round 3 PASSED (End-to-End Success Criteria, 100%)
-- [ ] All QC findings resolved
+- [ ] Validation Loop PASSED (3 consecutive clean rounds)
+- [ ] All 12 dimensions checked every round
+- [ ] Zero issues deferred (fix-and-continue approach used)
+- [ ] All findings resolved immediately
 
 **S9.P3 → S10:**
 - [ ] Epic PR review PASSED (all 11 categories)
@@ -277,7 +287,7 @@ S9.P3: Epic Final Review (60-90 min + bug fixes if needed)
 - Epic smoke testing results (documented in epic_lessons_learned.md)
 
 **S9.P2:**
-- QC Round 1, 2, 3 findings (documented in epic_lessons_learned.md)
+- Validation Loop findings (documented in epic_lessons_learned.md)
 
 **S9.P3:**
 - Epic PR review results (documented in epic_lessons_learned.md)

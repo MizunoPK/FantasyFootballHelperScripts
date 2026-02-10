@@ -879,12 +879,12 @@ This reduced section focuses on the workflow without showing all the detailed co
 - If issues found → Enter debugging protocol → Fix all issues → Restart from S7.P1
 - MUST pass before proceeding to QC rounds
 
-**S7.P2: QC Rounds** (3 rounds)
+**S7.P2: Validation Loop** (3 consecutive clean rounds required)
 - Guide: `stages/s7/s7_p2_qc_rounds.md`
-- Round 1: Functional QC
-- Round 2: Integration QC
-- Round 3: Edge case QC
-- If issues found → Enter debugging protocol → Fix all issues → Restart from S7.P1 (NOT mid-QC)
+- Check ALL 11 dimensions every round
+- Fix issues immediately, reset clean counter, continue
+- Exit after 3 consecutive clean rounds (ZERO issues)
+- No restart needed - fix-and-continue approach
 
 **S7.P3: Final Review**
 - Guide: `stages/s7/s7_p3_final_review.md`
@@ -944,12 +944,12 @@ This reduced section focuses on the workflow without showing all the detailed co
 - Test feature integration
 - If issues found → Enter debugging protocol → Fix all issues → Restart from S9.P1
 
-**S9.P2: Epic QC Rounds** (3 rounds)
+**S9.P2: Epic Validation Loop** (3 consecutive clean rounds required)
 - Guide: `stages/s9/s9_p2_epic_qc_rounds.md`
-- Round 1: Epic functionality QC
-- Round 2: Epic integration QC
-- Round 3: Epic edge case QC
-- If issues found → Enter debugging protocol → Fix all issues → Restart from S9.P1
+- Check ALL 12 dimensions every round (7 master + 5 epic-specific)
+- Fix issues immediately, reset clean counter, continue
+- Exit after 3 consecutive clean rounds (ZERO issues)
+- No restart needed - fix-and-continue approach
 
 **S9.P3: User Testing**
 - Guide: `stages/s9/s9_p3_user_testing.md`

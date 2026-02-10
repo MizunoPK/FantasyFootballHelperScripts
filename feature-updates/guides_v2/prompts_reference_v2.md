@@ -59,7 +59,7 @@
 - Exiting S5 v2: Validation Loop Complete
 - Starting S6: Implementation Execution
 - Starting S7.P1: Smoke Testing
-- Starting S7.P2: QC Rounds
+- Starting S7.P2: Validation Loop
 - Starting S7.P3: Final Review
 - Starting S8.P1: Cross-Feature Alignment
 - Starting S8.P2: Epic Testing Plan Update

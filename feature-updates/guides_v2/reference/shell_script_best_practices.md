@@ -39,7 +39,7 @@ set -o pipefail  # Exit if any command in pipeline fails
 - Script could continue after command failures
 - Reported success even when operations failed
 - Caused silent failures and mysterious test failures
-- Issue passed through 3 QC rounds undetected
+- Issue passed through multiple validation rounds undetected
 - Caught only during PR review
 
 ---

@@ -139,7 +139,7 @@ Presenting to user...
 **When to use:** Issues discovered during QC/Smoke Testing with unknown root cause
 
 **Prerequisites:**
-- Issues found during Smoke Testing or QC Rounds
+- Issues found during Smoke Testing or Validation Loop
 - Root cause is unknown - requires investigation
 - May have multiple related issues
 

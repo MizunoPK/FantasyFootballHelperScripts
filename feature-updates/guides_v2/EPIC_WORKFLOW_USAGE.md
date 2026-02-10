@@ -408,7 +408,7 @@ feature-updates/KAI-{N}-{epic_name}/
 
 #### S7: Post-Implementation (3 phases)
 
-**Guides:** 3 guides (Smoke Testing, QC Rounds, Final Review)
+**Guides:** 3 guides (Smoke Testing, Validation Loop, Final Review)
 - `stages/s7/s7_p1_smoke_testing.md`
 - `stages/s7/s7_p2_qc_rounds.md`
 - `stages/s7/s7_p3_final_review.md`
@@ -579,7 +579,7 @@ I'll now proceed with Phase 1: Draft Creation...
 **Phase transition prompts are MANDATORY for:**
 - Starting any of the 10 stages (S1, S2, S3, S4, S5, S6, S7, S8, S9, S10)
 - Starting S5 v2 phases (Draft Creation, Validation Loop)
-- Starting S7 phases (Smoke Testing, QC Rounds, Final Review)
+- Starting S7 phases (Smoke Testing, Validation Loop, Final Review)
 - Creating a bug fix
 - Resuming after session compaction
 
@@ -705,7 +705,7 @@ Phase transition prompts are **mandatory acknowledgments** that prove you read t
 **MANDATORY for:**
 1. Starting any stage (1-7)
 2. Starting S5 rounds (1, 2, 3)
-3. Starting S7 phases (Smoke Testing, QC Rounds, Final Review)
+3. Starting S7 phases (Smoke Testing, Validation Loop, Final Review)
 4. Creating a bug fix
 5. Resuming in-progress epic after session compaction
 
@@ -1124,7 +1124,7 @@ Create `feature-updates/guides_v2/PROJECT_SPECIFIC_STANDARDS.md`:
 
 ## Integration with Epic Workflow
 - Apply these standards during S6 (Implementation)
-- Verify compliance during S7 (QC Rounds)
+- Verify compliance during S7 (Validation Loop)
 - Include in PR Review checklist
 ```
 
