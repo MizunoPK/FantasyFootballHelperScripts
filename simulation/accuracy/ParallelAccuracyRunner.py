@@ -2,24 +2,27 @@
 Parallel processing support for accuracy simulation using ProcessPoolExecutor.
 
 This module provides parallel evaluation of configs across multiple horizons
-to speed up tournament optimization. Each config is evaluated across all 5
-horizons (ROS, week 1-5, 6-9, 10-13, 14-17) to calculate MAE.
+to speed up tournament optimization. Each config is evaluated across all 4
+weekly horizons (week 1-5, 6-9, 10-13, 14-17) to calculate MAE.
 
 Author: Kai Mizuno
 """
 
+# Standard library imports
 import json
-import logging
 import shutil
+import sys
 import tempfile
 from pathlib import Path
 from typing import Dict, List, Any, Tuple
+
+# Third-party imports
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
 
 # Add parent directory to path for imports
-import sys
 sys.path.append(str(Path(__file__).parent.parent.parent))
 
+# Local imports
 from simulation.accuracy.AccuracyCalculator import AccuracyCalculator, AccuracyResult
 from utils.LoggingManager import get_logger
 from league_helper.util.ConfigManager import ConfigManager
@@ -46,7 +49,7 @@ def _evaluate_config_tournament_process(
     Returns:
         Tuple of (config_dict, results_dict) where results_dict maps horizon to AccuracyResult.
         Uses underscore keys to match AccuracyResultsManager expectations:
-        {'ros': result_ros, 'week_1_5': result_1_5, 'week_6_9': result_6_9, 'week_10_13': result_10_13, 'week_14_17': result_14_17}
+        {'week_1_5': result_1_5, 'week_6_9': result_6_9, 'week_10_13': result_10_13, 'week_14_17': result_14_17}
     """
     # Create calculator instance
     calculator = AccuracyCalculator()
@@ -397,6 +400,14 @@ class ParallelAccuracyRunner:
                         result = future.result()
                         results.append(result)
                         completed += 1
+
+                        # DEBUG: Log progress every 10th config (throttled to avoid verbosity)
+                        if completed % 10 == 0 or completed == len(configs):
+                            progress_pct = (completed / len(configs)) * 100
+                            self.logger.debug(
+                                f"Progress: {completed}/{len(configs)} configs evaluated "
+                                f"({progress_pct:.1f}% complete)"
+                            )
 
                         # Progress callback
                         if progress_callback is not None:

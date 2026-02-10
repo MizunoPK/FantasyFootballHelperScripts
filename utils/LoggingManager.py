@@ -16,6 +16,8 @@ from pathlib import Path
 from typing import Optional, Union
 from datetime import datetime
 
+from utils.LineBasedRotatingHandler import LineBasedRotatingHandler
+
 
 class LoggingManager:
     """
@@ -96,18 +98,23 @@ class LoggingManager:
         if log_to_file:
             # Auto-generate timestamped log file path if none provided
             if log_file_path is None:
-                log_file_path = self._generate_log_file_path(log_file_path, name)
+                # Use default logs/ directory at project root
+                log_file_path = self._generate_log_file_path(Path('logs'), name)
 
             log_file_path = Path(log_file_path)
             # Create parent directory if it doesn't exist (e.g., logs/)
             log_file_path.parent.mkdir(parents=True, exist_ok=True)
 
-            # RotatingFileHandler automatically rotates logs when they reach max_file_size
-            # Example: app.log → app.log.1 → app.log.2, keeping backup_count old files
-            file_handler = logging.handlers.RotatingFileHandler(
-                log_file_path,
-                maxBytes=max_file_size,  # Default 10MB before rotation
-                backupCount=backup_count,  # Keep last 5 rotated files
+            # LineBasedRotatingHandler rotates logs based on line count (not file size)
+            # Creates timestamped files: {name}-{YYYYMMDD_HHMMSS}.log
+            # Automatically cleans up old files when folder exceeds max_files limit
+            # Note: max_file_size and backup_count parameters are kept for backward
+            # compatibility but are not used by LineBasedRotatingHandler
+            file_handler = LineBasedRotatingHandler(
+                filename=str(log_file_path),
+                mode='a',
+                max_lines=500,  # Rotate after 500 lines (hardcoded per spec)
+                max_files=50,   # Keep max 50 files per folder (hardcoded per spec)
                 encoding='utf-8'
             )
             file_handler.setFormatter(formatter)
@@ -131,15 +138,46 @@ class LoggingManager:
         format_string = format_map.get(format_style, self.STANDARD_FORMAT)
         return logging.Formatter(format_string, datefmt=self.TIMESTAMP_FORMAT)
 
-    def _generate_log_file_path(self, log_path: str, logger_name: str) -> Path:
-        """Generate a log file path with timestamp for daily log rotation."""
-        # Use YYYYMMDD format for easy sorting and daily rotation
-        # Example: PlayerManager_20251017.log
-        timestamp = datetime.now().strftime('%Y%m%d')
-        filename = f"{logger_name}_{timestamp}.log"
+    def _generate_log_file_path(self, log_path: Path, logger_name: str) -> Path:
+        """
+        Generate a log file path with timestamp in script-specific subfolder.
 
-        # Return path in logs directory (caller creates directory if needed)
-        return log_path / filename
+        Creates logs/{logger_name}/ subfolder structure and generates
+        timestamped filename: {logger_name}-{YYYYMMDD_HHMMSS}.log
+
+        Args:
+            log_path (Path): Base logs directory (e.g., Path('logs'))
+            logger_name (str): Logger name (used for subfolder and filename)
+
+        Returns:
+            Path: Full path to log file
+
+        Example:
+            >>> _generate_log_file_path(Path('logs'), 'accuracy_simulation')
+            Path('logs/accuracy_simulation/accuracy_simulation-20260207_160000.log')
+
+        Raises:
+            OSError: If folder creation fails due to permissions
+        """
+        # Create script-specific subfolder: logs/{logger_name}/
+        log_dir = log_path / logger_name
+
+        # Auto-create subfolder if it doesn't exist
+        try:
+            log_dir.mkdir(parents=True, exist_ok=True)
+        except (PermissionError, OSError) as e:
+            # Log error to console (can't write to file yet)
+            print(f"ERROR: Failed to create log directory {log_dir}: {e}", file=sys.stderr)
+            raise
+
+        # Generate full timestamp: YYYYMMDD_HHMMSS (not just date)
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+
+        # Generate filename with hyphen separator: {logger_name}-{timestamp}.log
+        filename = f"{logger_name}-{timestamp}.log"
+
+        # Return full path: logs/{logger_name}/{logger_name}-{YYYYMMDD_HHMMSS}.log
+        return log_dir / filename
 
 
 

@@ -22,10 +22,11 @@ FANTASY_TEAM_NAME = "Sea Sharp"
 # LOGGING CONFIGURATION
 # =============================================================================
 LOGGING_LEVEL = 'INFO'      # DEBUG, INFO, WARNING, ERROR, CRITICAL (WARNING+ to reduce spam)
-LOGGING_TO_FILE = False        # Console vs file logging
 LOG_NAME = "league_helper"     # Logger name
-LOGGING_FILE = './data/log.txt'  # Log file path (if LOGGING_TO_FILE=True)
 LOGGING_FORMAT = 'detailed'    # detailed / standard / simple
+
+# LOGGING_TO_FILE removed - replaced by --enable-log-file CLI flag (run_league_helper.py, LeagueHelperManager.py)
+# LOGGING_FILE removed - Feature 01 auto-generates log file paths (logs/league_helper/)
 
 # =============================================================================
 # GENERAL SETTINGS

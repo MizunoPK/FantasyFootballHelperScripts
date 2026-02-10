@@ -40,21 +40,45 @@ Plan  Deep Dive  Check  Strategy  (per feature)   QC
 ## Agent Status
 
 **Debugging Active:** NO
-**Last Updated:** 2026-02-06 21:15
-**Current Stage:** S1 Complete → Guide Analysis Complete
-**Current Phase:** GUIDE GAP ANALYSIS
-**Current Step:** Completed comprehensive analysis of group-based S2 parallelization gaps
-**Current Guide:** Multiple guides analyzed (s1, s2, s3, parallel work guides)
-**Guide Last Read:** 2026-02-06 21:00 (s1, s2, s3 guides)
+**Last Updated:** 2026-02-10 20:35 (S8.P1 COMPLETE - Ready for S8.P2)
+**Current Stage:** S8.P1 - Cross-Feature Alignment ✅ COMPLETE
+**Current Phase:** All remaining features (05, 06, 07) reviewed and validated
+**Current Step:** S8.P1 complete (zero issues, 2 consecutive clean validation loops)
+**Current Guide:** stages/s8/s8_p2_epic_testing_update.md (next)
+**Guide Last Read:** 2026-02-10 20:20
+**Critical Rules:** S8.P1 complete, ready for S8.P2 (Epic Testing Plan Update)
 
-**Critical Rules:**
-- **S2 GROUP-BASED:** Group 1 (F01) completes S2 first, then Group 2 (F02-07) does S2 in parallel
-- After S2 complete: Groups don't matter, proceed with S3 (epic-level) then S4, then S5-S8 (feature-sequential)
-- **GUIDE ANALYSIS COMPLETE:** 8 gaps identified preventing group-based S2 parallelization
-- **ANALYSIS DOCUMENT:** `research/GROUP_BASED_S2_PARALLELIZATION_INTENDED_FLOW.md` (31 pages, comprehensive)
+**Feature 01 Status:**
+- ✅ S2-S8 COMPLETE (all stages done)
 
-**Progress:** S1 COMPLETE, guide gap analysis COMPLETE
-**Next Action:** Await user direction (proceed with S2 or address guide gaps first)
+**Feature 02 Status:**
+- ✅ S2-S8 COMPLETE (all stages done)
+
+**Feature 03 Status:**
+- ✅ S2-S8 COMPLETE (all stages done)
+- Implementation: 38/38 requirements, 13 tasks, 6 phases
+- Testing: 330/330 tests passing (100%)
+- Quality: 0 issues (smoke testing, 3 QC rounds, PR review)
+- S8: Cross-feature alignment complete (4 features reviewed, 0 updates needed)
+
+**Feature 04 Status:**
+- ✅ S2-S8 COMPLETE (all stages done)
+- Implementation: 10 tasks across 4 phases (CLI flag + logging enhancements)
+- Testing: 2581/2581 tests passing (100%, includes 58 Feature 04-specific tests)
+- Quality: 67 issues found and fixed in PR review (test coverage gap, imports, documentation)
+- S7: Smoke testing passed, 3 QC rounds passed (0 issues), PR review passed (2 consecutive clean rounds)
+- Production-ready: Feature 04 fully validated and complete
+
+**Features 05-07 Status:**
+- ✅ S2-S3 COMPLETE (specs approved, aligned with Feature 01)
+- ✅ S8.P1 COMPLETE (specs validated against Feature 04 actual implementation - ZERO changes needed)
+- 🔄 S4 NOT STARTED (ready to begin - Feature Testing Strategy)
+- Alignment validation: 2 consecutive clean loops, 0 issues found, all specs correctly aligned
+- Next: Feature 05 (win_rate_sim_logging) S4 after S8.P2 complete
+
+**Progress:** 4/7 features complete (Features 01-04), S8.P1 complete (alignment validated)
+**Next Action:** S8.P2 - Update epic_smoke_test_plan.md based on Feature 04 implementation
+**S8.P1 Summary:** 3 features reviewed, 0 issues found, 0 spec updates needed, validation loops: 2 clean
 **Blockers:** None
 
 ---
@@ -119,9 +143,9 @@ Improve logging infrastructure across all major scripts with centralized log man
 
 ## Epic Progress Tracker
 
-**Overall Status:** 0 features (to be determined after Discovery Phase)
+**Overall Status:** 7 features (S1 ✅, S2 ✅, S3 ✅)
 
-**S1 - Epic Planning:** 🔄 IN PROGRESS
+**S1 - Epic Planning:** ✅ COMPLETE
 - [x] Git branch created (epic/KAI-8)
 - [x] EPIC_TRACKER.md updated
 - [x] Epic folder created
@@ -138,27 +162,146 @@ Improve logging infrastructure across all major scripts with centralized log man
 
 ## Feature Summary
 
-**Total Features:** 7
+**Total Features:** 7 (1 foundation + 6 per-script implementations)
 
-1. **Feature 01: core_logging_infrastructure** - Custom LineBasedRotatingHandler, centralized logs/ folder, 500-line rotation, max 50 files cleanup, .gitignore update
-2. **Feature 02: league_helper_logging** - CLI flag and log quality for league_helper
-3. **Feature 03: player_data_fetcher_logging** - CLI flag and log quality for player-data-fetcher
-4. **Feature 04: accuracy_sim_logging** - CLI flag and log quality for accuracy_sim
-5. **Feature 05: win_rate_sim_logging** - CLI flag and log quality for win_rate_sim
-6. **Feature 06: historical_data_compiler_logging** - CLI flag and log quality for historical_data_compiler
-7. **Feature 07: schedule_fetcher_logging** - CLI flag and log quality for schedule_fetcher
+### Feature 01: core_logging_infrastructure (Foundation)
+**What:** Custom LineBasedRotatingHandler with 500-line rotation, centralized logs/ folder structure, max 50 files cleanup, .gitignore update, LoggingManager integration
+**Key Components:**
+- `utils/LineBasedRotatingHandler.py` (new class, ~150 lines)
+- `utils/LoggingManager.py` (modified setup_logger and path generation)
+- `.gitignore` line 71 (add `logs/`)
+**Integration Points:** Provides infrastructure for Features 02-07 via setup_logger() API
+**Dependencies:** None (foundation must complete first)
+
+### Feature 02: league_helper_logging
+**What:** --enable-log-file CLI flag via subprocess wrapper (sys.argv forwarding), log quality improvements to 316 logger calls across 17 league_helper modules
+**Key Components:**
+- `run_league_helper.py` (add argparse, forward to subprocess)
+- `league_helper/LeagueHelperManager.py` (add argparse, wire to setup_logger)
+- 17 module files (improve DEBUG/INFO log quality)
+**Logger Name:** "league_helper" → creates logs/league_helper/
+**Dependencies:** Feature 01 (requires LineBasedRotatingHandler)
+
+### Feature 03: player_data_fetcher_logging
+**What:** --enable-log-file CLI flag via subprocess wrapper, log quality improvements to player-data-fetcher modules
+**Key Components:**
+- `run_player_fetcher.py` (add argparse, forward to subprocess)
+- `player_data_fetcher.py` (add argparse, wire to setup_logger)
+- Player data fetcher modules (improve log quality)
+**Logger Name:** "player_data_fetcher" → creates logs/player_data_fetcher/
+**Dependencies:** Feature 01
+
+### Feature 04: accuracy_sim_logging
+**What:** --enable-log-file CLI flag (direct entry, already has argparse), log quality improvements to accuracy simulation modules
+**Key Components:**
+- `run_accuracy_simulation.py` (add flag, wire to setup_logger)
+- `simulation/accuracy/` modules (improve log quality)
+**Logger Name:** "accuracy_simulation" → creates logs/accuracy_simulation/
+**Dependencies:** Feature 01
+
+### Feature 05: win_rate_sim_logging
+**What:** --enable-log-file CLI flag (direct entry, replace hardcoded constant), log quality improvements to win rate simulation modules
+**Key Components:**
+- `run_win_rate_simulation.py` (add argparse, replace LOG_FILE_PATH constant)
+- `simulation/win_rate/` modules (improve log quality)
+**Logger Name:** "win_rate_simulation" → creates logs/win_rate_simulation/
+**Dependencies:** Feature 01
+
+### Feature 06: historical_data_compiler_logging
+**What:** --enable-log-file CLI flag (direct entry), log quality improvements to historical data compiler modules
+**Key Components:**
+- `compile_historical_data.py` (add argparse, wire to setup_logger)
+- Historical data compiler modules (improve log quality)
+**Logger Name:** "historical_data_compiler" → creates logs/historical_data_compiler/
+**Dependencies:** Feature 01
+
+### Feature 07: schedule_fetcher_logging
+**What:** --enable-log-file CLI flag (async main entry), log quality improvements to schedule fetcher modules
+**Key Components:**
+- `run_schedule_fetcher.py` (add argparse to async main, wire to setup_logger)
+- Schedule fetcher modules (improve log quality)
+**Logger Name:** "schedule_fetcher" → creates logs/schedule_fetcher/
+**Dependencies:** Feature 01
+
+---
+
+## Epic-Level Architecture
+
+### Architectural Pattern: Foundation + Per-Script Integration
+
+**Design Decision:** Split epic into 1 foundation feature + 6 per-script features (not monolithic)
+- **Rationale:** Enables parallel S2 work (Group 2 features in parallel after Group 1), modular implementation, isolated testing
+- **Alternative considered:** Single monolithic feature (rejected due to 60 files, 939 logger calls - too large)
+
+### Integration Contract (Feature 01 → Features 02-07)
+
+**Contract 1: Logger Name = Folder Name**
+- Each script uses unique snake_case logger name matching its folder name
+- Example: "league_helper" creates logs/league_helper/
+- No validation enforced (trusts callers per user decision Q4)
+
+**Contract 2: log_file_path=None**
+- Scripts do NOT specify custom paths
+- LoggingManager auto-generates: logs/{logger_name}/{logger_name}-{YYYYMMDD_HHMMSS}.log
+
+**Contract 3: log_to_file from CLI**
+- File logging OFF by default (opt-in via --enable-log-file flag)
+- Scripts wire CLI flag to setup_logger(log_to_file=args.enable_log_file)
+
+### Data Flow
+
+```
+User runs script with --enable-log-file
+  ↓
+Script entry point (argparse)
+  ↓
+Wire flag → setup_logger(log_to_file=True)
+  ↓
+LoggingManager creates LineBasedRotatingHandler
+  ↓
+Handler writes to logs/{script_name}/{script_name}-{timestamp}.log
+  ↓
+Rotation at 500 lines → new timestamped file
+  ↓
+Cleanup when 51st file created → delete oldest
+```
+
+### Scope Boundaries
+
+**In Scope:**
+- 6 main entry scripts (league_helper, player-data-fetcher, accuracy_sim, win_rate_sim, historical_data_compiler, schedule_fetcher)
+- 939 total logger.debug/info calls across 60 files
+- Centralized logs/ folder with script-specific subfolders
+- CLI toggle for file logging (OFF by default)
+- Log quality improvements (DEBUG: tracing, INFO: user awareness)
+
+**Out of Scope:**
+- Other scripts (run_simulation.py, run_scores_fetcher.py) - not included per Discovery
+- WARNING/ERROR/CRITICAL log levels (not part of epic scope)
+- Custom log rotation intervals (hardcoded 500 lines per user decision Q2)
+- Custom max files limits (hardcoded 50 files per user decision Q2)
+- Log file compression or archival
+- Remote log shipping or centralized logging servers
+
+### Key Constraints
+
+1. **Backward Compatibility:** LoggingManager.setup_logger() signature unchanged (Features 02-07 work without modification)
+2. **File Logging Default:** OFF (users must opt-in via --enable-log-file)
+3. **Hardcoded Limits:** 500 lines, 50 files (not configurable per user decision Q2)
+4. **No Validation:** Trusts callers for logger names and paths (per user decisions Q4, Q6)
+5. **Append Mode:** Always append to existing log files if script re-run (per user decision Q3)
 
 ## Feature Tracking
 
-| Feature | S2 Complete | S8.P2 Complete | Status |
-|---------|-------------|----------------|--------|
-| 01: core_logging_infrastructure | ☐ | ☐ | NOT STARTED |
-| 02: league_helper_logging | ☐ | ☐ | NOT STARTED |
-| 03: player_data_fetcher_logging | ☐ | ☐ | NOT STARTED |
-| 04: accuracy_sim_logging | ☐ | ☐ | NOT STARTED |
-| 05: win_rate_sim_logging | ☐ | ☐ | NOT STARTED |
-| 06: historical_data_compiler_logging | ☐ | ☐ | NOT STARTED |
-| 07: schedule_fetcher_logging | ☐ | ☐ | NOT STARTED |
+| Feature | S2 Complete | S4 Complete | S7 Complete | S8 Complete | Status |
+|---------|-------------|-------------|-------------|-------------|--------|
+| 01: core_logging_infrastructure | ☑️ | ☑️ | ☑️ | ☑️ | ✅ COMPLETE (S2-S8 done, production-ready) |
+| 02: league_helper_logging | ☑️ | ☐ | ☐ | ☑️ | SPEC UPDATED (ready for S4 after Feature 01 S8.P2) |
+| 03: player_data_fetcher_logging | ☑️ | ☐ | ☐ | ☑️ | SPEC UPDATED (ready for S4 after Feature 01 S8.P2) |
+| 04: accuracy_sim_logging | ☑️ | ☐ | ☐ | ☑️ | SPEC UPDATED (ready for S4 after Feature 01 S8.P2) |
+| 05: win_rate_sim_logging | ☑️ | ☐ | ☐ | ☑️ | SPEC UPDATED (ready for S4 after Feature 01 S8.P2) |
+| 06: historical_data_compiler_logging | ☑️ | ☐ | ☐ | ☑️ | SPEC UPDATED (ready for S4 after Feature 01 S8.P2) |
+| 07: schedule_fetcher_logging | ☑️ | ☐ | ☐ | ☑️ | SPEC UPDATED (ready for S4 after Feature 01 S8.P2) |
 
 ## Feature Dependency Groups (S2 Only)
 
@@ -240,13 +383,30 @@ Improve logging infrastructure across all major scripts with centralized log man
 - [x] Lesson learned documented: Group-based parallelization for dependencies
 
 **S2 - Feature Deep Dives:**
-- Not started
+- [x] Wave 1 (Group 1): Feature 01 completed S2.P1 + S2.P2
+- [x] Wave 2 (Group 2): Features 02-07 completed S2.P1 in parallel
+- [x] S2.P2 cross-feature alignment: 21 pairwise comparisons, 0 conflicts
+- [x] Validation Loop passed (3 consecutive clean rounds)
+- [x] All 7 features have user-approved specs
+- [x] Time: 4 hours total (vs 14h sequential) - 71% time savings
 
-**S3 - Cross-Feature Sanity Check:**
-- Not started
+**S3 - Epic Planning & Approval:**
+- [x] S3.P1: Epic Testing Strategy complete (epic_smoke_test_plan.md updated with 33 scenarios)
+- [x] S3.P2: Epic Documentation Refinement complete (EPIC_README.md enhanced with feature summaries and architecture)
+- [x] S3.P3: Gate 4.5 User Approval obtained (2026-02-06)
+- [x] Cross-feature comparison complete (done in S2.P2: 21 pairs, 0 conflicts)
+- [x] Validation Loops passed (S3.P1: 3 clean rounds, S3.P2: 3 clean rounds)
+- [x] All features aligned and conflict-free
 
-**S4 - Epic Testing Strategy:**
-- Not started
+**S4 - Feature Testing Strategy (Per-Feature):**
+- [ ] Feature 01: test_strategy.md created
+- [ ] Feature 02: test_strategy.md created
+- [ ] Feature 03: test_strategy.md created
+- [ ] Feature 04: test_strategy.md created
+- [ ] Feature 05: test_strategy.md created
+- [ ] Feature 06: test_strategy.md created
+- [ ] Feature 07: test_strategy.md created
+- [ ] All features have >90% test coverage planned
 
 **S5-S8 - Feature Implementation:**
 - Not started

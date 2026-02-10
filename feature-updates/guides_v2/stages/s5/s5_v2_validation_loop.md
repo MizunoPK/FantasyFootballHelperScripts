@@ -1,8 +1,12 @@
 # S5 v2: Implementation Planning with Validation Loop
 
+**Extends:** Master Validation Loop Protocol
+**See:** `reference/validation_loop_master_protocol.md`
+
 **Stage:** S5 (Implementation Planning)
-**Version:** 2.0
+**Version:** 2.1 (Updated to extend master protocol)
 **Created:** 2026-02-09
+**Last Updated:** 2026-02-10
 **Status:** Active (replaces S5 v1 22-iteration workflow)
 
 ---
@@ -46,6 +50,33 @@ S5 v2 is a **validation loop-based approach** to implementation planning that sy
 - Feature spec.md complete (all sections filled, no TBD)
 - Feature checklist.md resolved (all user questions answered)
 - S5 v2 template available: `templates/implementation_plan_template.md`
+
+---
+
+### Relationship to Master Validation Loop Protocol
+
+**S5 v2 extends the Master Validation Loop Protocol** with implementation planning-specific dimensions.
+
+**Validation Structure:**
+- **7 Master Dimensions** (universal, always checked) - from `reference/validation_loop_master_protocol.md`
+- **11 Implementation Planning Dimensions** (S5-specific, detailed below)
+- **Total:** 18 dimensions checked every validation round
+
+**How Master Dimensions Apply in S5 Context:**
+
+| Master Dimension | How It Applies to implementation_plan.md |
+|------------------|------------------------------------------|
+| **D1: Empirical Verification** | All interfaces verified from actual source code (file:line), no assumed method signatures |
+| **D2: Completeness** | All spec.md requirements have tasks, all test_strategy.md tests have creation tasks, all 11 sections present |
+| **D3: Internal Consistency** | No contradictions between tasks, algorithms, data flow, or test coverage |
+| **D4: Traceability** | Every task traces to spec requirement or test category, every algorithm traces to spec section |
+| **D5: Clarity & Specificity** | Task acceptance criteria are specific and measurable (no vague "handle X properly") |
+| **D6: Upstream Alignment** | Plan matches spec.md requirements exactly (no scope creep, no missing requirements) |
+| **D7: Standards Compliance** | Follows implementation_plan_template.md structure and project coding standards |
+
+**The 11 S5 Dimensions (below) provide the detailed implementation planning checklists** that operationalize these master dimensions in the context of creating implementation_plan.md.
+
+**Core Validation Process:** Same as master protocol - 3 consecutive clean rounds required, zero deferred issues, fresh eyes every round.
 
 ---
 
@@ -113,17 +144,27 @@ S5 v2 is a **validation loop-based approach** to implementation planning that sy
 
 #### **Step 2: Requirements → Tasks (15-20 minutes)**
 
-**Goal:** Create implementation tasks for all spec.md requirements
+**Goal:** Create implementation tasks for all spec.md requirements **AND test_strategy.md tests**
+
+**🚨 CRITICAL: Test Creation Tasks are MANDATORY**
+
+Historical evidence from KAI-8 Feature 04 shows test creation tasks missing from implementation plan caused 56 tests to be missing until S7.P3 PR review (2-4 hour rework). **Test creation is implementation work**, not verification work.
 
 **Process:**
-1. Read spec.md completely
-2. For EACH requirement in spec.md:
-   - Create a task in implementation_plan.md
+1. **Read spec.md completely**
+2. **Read test_strategy.md completely** (S4 output)
+3. For EACH requirement in spec.md:
+   - Create a FEATURE TASK in implementation_plan.md
    - Add requirement reference (which spec section)
    - Add basic acceptance criteria (2-3 items minimum)
    - Note file/method location (approximate is OK for draft)
+4. For EACH test category in test_strategy.md:
+   - Create a TEST CREATION TASK in implementation_plan.md
+   - Reference test category (e.g., "R1 CLI Flag Integration - 8 tests")
+   - Add test file path and test names
+   - Include acceptance: "All [N] tests implemented and passing"
 
-**Example Task (Draft Quality):**
+**Example Feature Task (Draft Quality):**
 ```markdown
 ## Task 1: Load ADP Data
 
@@ -137,8 +178,23 @@ S5 v2 is a **validation loop-based approach** to implementation planning that sy
 **Location:** league_helper/util/PlayerManager.py (~line 450)
 ```
 
+**Example Test Task (Draft Quality):**
+```markdown
+## Task 6: Create CLI Flag Tests (R1)
+
+**Requirement:** test_strategy.md Category 1 - CLI Flag Integration (8 tests)
+
+**Acceptance Criteria:**
+- [ ] All 8 tests from test_strategy.md implemented (tests 1.1-1.8)
+- [ ] Tests in tests/root_scripts/test_run_<feature>.py
+- [ ] All tests passing (100% pass rate)
+
+**Test Names:** test_argparse_has_flag, test_flag_default_false, test_flag_with_value_true, test_flag_action_store_true, test_existing_flags_unchanged, test_combined_flags_work, test_help_text_describes_flag, test_constant_changed_to_false
+```
+
 **Draft Quality Bar:**
-- At least 70% of spec requirements have tasks
+- At least 70% of spec requirements have feature tasks
+- At least 70% of test_strategy.md tests have test creation tasks
 - Acceptance criteria exist (even if incomplete)
 - Approximate locations OK
 
@@ -295,9 +351,9 @@ S5 v2 is a **validation loop-based approach** to implementation planning that sy
 
 ### Validation Loop Protocol
 
-**Master Protocol:** See `reference/validation_loop_protocol.md`
+**Master Protocol:** See `reference/validation_loop_master_protocol.md`
 
-**S5 Context:** Validating implementation_plan.md against 11 dimensions
+**S5 Context:** Validating implementation_plan.md against 18 dimensions (7 master + 11 implementation planning)
 
 **Exit Criteria:** 3 consecutive rounds finding ZERO issues
 
@@ -316,7 +372,9 @@ Each round follows this pattern:
    - Use Read tool (no working from memory)
    - Assume everything is wrong (fresh skepticism)
 
-3. CHECK ALL 11 DIMENSIONS
+3. CHECK ALL 18 DIMENSIONS
+   - 7 master dimensions (always checked)
+   - 11 implementation planning dimensions (context-specific)
    - Systematically validate against each dimension
    - Use reading pattern for this round
    - Document EVERY issue found (no matter how minor)
@@ -332,7 +390,14 @@ Each round follows this pattern:
 
 ---
 
-### The 11 Validation Dimensions
+### The 11 Implementation Planning Dimensions
+
+**These dimensions extend the 7 master dimensions** with implementation planning-specific checks.
+
+**Every validation round checks:**
+- ✅ All 7 master dimensions (Empirical Verification, Completeness, Internal Consistency, Traceability, Clarity & Specificity, Upstream Alignment, Standards Compliance)
+- ✅ All 11 implementation planning dimensions (detailed below)
+- **Total:** 18 dimensions per round
 
 **📍 WHERE EVIDENCE GOES:**
 - All evidence artifacts go IN implementation_plan.md
@@ -345,20 +410,34 @@ Each round follows this pattern:
 
 **What to Check:**
 - [ ] Every spec.md requirement has implementation task(s)
-- [ ] No orphan tasks (all tasks trace to spec requirements)
+- [ ] **🚨 CRITICAL: Every test_strategy.md test category has test creation task(s)**
+- [ ] No orphan tasks (all tasks trace to spec requirements OR test_strategy.md)
 - [ ] No scope creep (no tasks for unrequested features)
 - [ ] Task numbering sequential with no gaps
-- [ ] Every task cites which spec section it implements
+- [ ] Every task cites which spec section OR test category it implements
+- [ ] **Test task count matches test_strategy.md test count** (e.g., if test_strategy.md has 58 tests across 7 categories, implementation_plan.md should have ≥7 test creation tasks covering all 58 tests)
 
 **Evidence Required:**
-- Requirement-to-task mapping table showing 100% coverage
+- Requirement-to-task mapping table showing 100% coverage (spec.md)
+- **Test-to-task mapping table showing 100% coverage (test_strategy.md)**
 
-**Example Issue:**
+**Example Issue (Feature Requirements):**
 - "Missing requirement: spec.md line 67 'Handle player name matching' has no task"
+
+**Example Issue (Test Requirements - NEW):**
+- "Missing test creation: test_strategy.md Category 1 (8 CLI flag tests) has no implementation task"
+- "Test count mismatch: test_strategy.md specifies 58 tests, but implementation_plan.md tasks only cover 42 tests (16 missing)"
 
 **How to Fix:**
 - Add Task X implementing the missing requirement
+- **Add Test Creation Task Y for missing test category**
 - Update requirement mapping table
+- **Update test mapping table to show all test_strategy.md tests covered**
+
+**Historical Evidence:**
+- KAI-8 Feature 04: 56 tests missing from implementation plan caused 2-4 hour rework in S7.P3
+- Root cause: S5 didn't create test creation tasks (only feature implementation tasks)
+- Fix: Dimension 1 now validates BOTH feature tasks AND test creation tasks
 
 ---
 
@@ -607,28 +686,30 @@ Each round follows this pattern:
 
 **Vary patterns each round to catch different issue types**
 
-#### **Round 1: Sequential + Dimensions 1-4 Focus**
+**Every round checks all 18 dimensions (7 master + 11 implementation planning), but with varying focus areas:**
+
+#### **Round 1: Sequential + Requirements/Interfaces Focus**
 - Read implementation_plan.md top to bottom
-- Focus on: Requirements, Interfaces, Algorithms, Task Quality
-- Check: Sections exist and structured correctly
+- Primary focus: Master D1-D4 + Implementation D1-D4 (Requirements, Interfaces, Algorithms, Task Quality)
+- Check: Sections exist and structured correctly, all requirements mapped, interfaces verified
 - Pattern: Line-by-line completeness check
 
-#### **Round 2: Reverse + Dimensions 5-8 Focus**
+#### **Round 2: Reverse + Data Flow/Testing Focus**
 - Read implementation_plan.md bottom to top
-- Focus on: Data Flow, Errors, Integration, Tests
-- Check: Gaps and inconsistencies
+- Primary focus: Master D5-D7 + Implementation D5-D8 (Data Flow, Errors, Integration, Tests)
+- Check: Gaps and inconsistencies in data handling and test coverage
 - Pattern: Reverse reading catches issues missed in forward read
 
-#### **Round 3: Spot-Checks + Dimensions 9-11 Focus**
+#### **Round 3: Spot-Checks + Quality/Alignment Focus**
 - Random spot-check 5-10 tasks
-- Focus on: Performance, Implementation Prep, Spec Alignment
-- Check: Consistency across plan
+- Primary focus: Implementation D9-D11 + Master D6 (Performance, Implementation Prep, Spec Alignment)
+- Check: Consistency across plan, upstream alignment
 - Pattern: Sample validation (not exhaustive)
 
 #### **Round 4+: Alternate Patterns**
-- **Round 4:** Sequential again (fresh eyes on whole document)
+- **Round 4:** Sequential again (fresh eyes on whole document, all 18 dimensions)
 - **Round 5:** Focus on recent changes (did fixes introduce issues?)
-- **Round 6:** Cross-section validation (do all sections align?)
+- **Round 6:** Cross-section validation (do all sections align? master dimensions + implementation dimensions)
 - **Round 7+:** Deep dive into previously clean dimensions
 
 ---

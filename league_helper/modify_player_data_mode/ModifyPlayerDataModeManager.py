@@ -63,8 +63,6 @@ class ModifyPlayerDataModeManager:
         self.player_manager = player_manager
         self.logger = get_logger()
 
-        self.logger.info("Initializing Modify Player Data Mode Manager")
-
     def set_managers(self, player_manager: PlayerManager):
         """
         Update the player_manager reference with latest player data.

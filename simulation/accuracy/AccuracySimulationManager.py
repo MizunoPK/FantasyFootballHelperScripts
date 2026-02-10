@@ -18,36 +18,33 @@ Unlike win-rate simulation:
 Author: Kai Mizuno
 """
 
+# Standard library imports
 import copy
-import csv
 import json
 import re
 import shutil
 import signal
-import time
+import sys
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Any
 
+# Third-party imports
 import numpy as np
 
-import sys
+# Add parent directories to path for imports
 sys.path.append(str(Path(__file__).parent.parent.parent))
-from utils.LoggingManager import get_logger
-
-# Import from shared folder
 sys.path.append(str(Path(__file__).parent.parent / "shared"))
+sys.path.append(str(Path(__file__).parent))
+sys.path.append(str(Path(__file__).parent.parent.parent / "league_helper"))
+sys.path.append(str(Path(__file__).parent.parent.parent / "league_helper" / "util"))
+
+# Local imports
+from utils.LoggingManager import get_logger
 from ConfigGenerator import ConfigGenerator
 from ProgressTracker import ProgressTracker
 from config_cleanup import cleanup_old_accuracy_optimal_folders, cleanup_accuracy_intermediate_folders
-
-# Import from same folder (accuracy/)
-sys.path.append(str(Path(__file__).parent))
 from AccuracyCalculator import AccuracyCalculator, AccuracyResult
 from AccuracyResultsManager import AccuracyResultsManager, RankingMetrics, WEEK_RANGES
-
-# Import league helper components for scoring
-sys.path.append(str(Path(__file__).parent.parent.parent / "league_helper"))
-sys.path.append(str(Path(__file__).parent.parent.parent / "league_helper" / "util"))
 from league_helper.util.PlayerManager import PlayerManager
 from league_helper.util.ConfigManager import ConfigManager
 from league_helper.util.TeamDataManager import TeamDataManager
@@ -169,6 +166,7 @@ class AccuracySimulationManager:
         self._original_sigterm_handler = signal.getsignal(signal.SIGTERM)
 
         def graceful_shutdown(signum, frame):
+            """Handle SIGINT/SIGTERM signals for graceful shutdown with current best config save."""
             self.logger.warning(f"Received signal {signum}, initiating graceful shutdown...")
             if self._current_optimal_config_path:
                 self.logger.info(f"Current best config saved at: {self._current_optimal_config_path}")
@@ -206,6 +204,8 @@ class AccuracySimulationManager:
             - Folders for some parameters → (True, highest_idx, path) - resume from next parameter
             - Parameter order mismatch → (False, 0, None) - validation failed, start fresh
         """
+        self.logger.debug(f"_detect_resume_state: mode={mode}, output_dir={self.output_dir}")
+
         # Get all intermediate folders for accuracy simulation
         intermediate_folders = [
             p for p in self.output_dir.glob("accuracy_intermediate_*")
@@ -214,6 +214,7 @@ class AccuracySimulationManager:
 
         if not intermediate_folders:
             self.logger.debug("No intermediate folders found")
+            self.logger.debug("_detect_resume_state exit: should_resume=False, start_idx=0, last_config=None")
             return (False, 0, None)
 
         # Parse all folders and collect valid ones
@@ -272,6 +273,7 @@ class AccuracySimulationManager:
         # No valid folders found
         if not valid_folders:
             self.logger.debug("No valid intermediate folders found after validation")
+            self.logger.debug("_detect_resume_state exit: should_resume=False, start_idx=0, last_config=None")
             return (False, 0, None)
 
         # Find highest valid index
@@ -281,6 +283,7 @@ class AccuracySimulationManager:
         # Check if all parameters are complete
         if highest_idx >= len(param_order) - 1:
             self.logger.debug(f"All parameters complete (idx {highest_idx} >= {len(param_order) - 1})")
+            self.logger.debug("_detect_resume_state exit: should_resume=False, start_idx=0, last_config=None (all complete)")
             return (False, 0, None)
 
         # Resume from next parameter
@@ -288,6 +291,7 @@ class AccuracySimulationManager:
             f"Found {len(valid_folders)} valid intermediate folders, "
             f"highest: {highest_param} (idx {highest_idx})"
         )
+        self.logger.debug(f"_detect_resume_state exit: should_resume=True, start_idx={highest_idx + 1}, last_config={highest_path}")
         return (True, highest_idx + 1, highest_path)
 
     def _load_season_data(
@@ -314,6 +318,8 @@ class AccuracySimulationManager:
             - projected_folder: week_N folder (for projected_points)
             - actual_folder: week_N+1 folder (for actual_points)
         """
+        self.logger.debug(f"_load_season_data: season_path={season_path}, week_num={week_num}")
+
         # Week N folder for projections
         projected_folder = season_path / "weeks" / f"week_{week_num:02d}"
 
@@ -325,6 +331,7 @@ class AccuracySimulationManager:
         # Both folders must exist
         if not projected_folder.exists():
             self.logger.warning(f"Projected folder not found: {projected_folder}")
+            self.logger.debug("_load_season_data exit: projected=None, actual=None (projected folder missing)")
             return None, None
 
         if not actual_folder.exists():
@@ -333,8 +340,10 @@ class AccuracySimulationManager:
                 f"(needed for week {week_num} actuals). Using projected data as fallback."
             )
             # Fallback to projected data (align with Win Rate Sim behavior)
+            self.logger.debug(f"_load_season_data exit: projected={projected_folder}, actual={projected_folder} (fallback)")
             return projected_folder, projected_folder
 
+        self.logger.debug(f"_load_season_data exit: projected={projected_folder}, actual={actual_folder}")
         return projected_folder, actual_folder
 
     def _create_player_manager(
@@ -584,11 +593,15 @@ class AccuracySimulationManager:
         Returns:
             Path: Path to optimal configuration folder
         """
-        self.logger.info("Starting weekly accuracy optimization")
+        total_params = len(self.parameter_order)
+        self.logger.info(
+            f"Starting weekly accuracy optimization: "
+            f"{total_params} parameters × {self.config_generator.num_test_values} test values "
+            f"× 4 week ranges ({len(WEEK_RANGES)} horizons)"
+        )
         self._setup_signal_handlers()
 
         try:
-            total_params = len(self.parameter_order)
 
             # Detect if we should resume from a previous run
             should_resume, start_idx, last_config_path = self._detect_resume_state('weekly')
@@ -700,7 +713,10 @@ class AccuracySimulationManager:
             if deleted_count > 0:
                 self.logger.info(f"Cleaned up {deleted_count} intermediate folders")
 
-            self.logger.info(f"Weekly optimization complete. Results saved to: {optimal_path}")
+            self.logger.info(
+                f"Weekly optimization complete: Optimized {total_params} parameters "
+                f"across {len(WEEK_RANGES)} week ranges. Results saved to: {optimal_path}"
+            )
             return optimal_path
 
         finally:
@@ -720,6 +736,13 @@ class AccuracySimulationManager:
         Returns:
             Path: Path to optimal configuration folder
         """
+        total_params = len(self.parameter_order)
+        self.logger.info(
+            f"Starting tournament optimization: {total_params} parameters × "
+            f"{self.config_generator.num_test_values} test values × 4 horizons "
+            f"(each config evaluated across all 4 week ranges)"
+        )
+
         # Setup signal handlers (existing pattern)
         self._setup_signal_handlers()
 
@@ -868,7 +891,10 @@ class AccuracySimulationManager:
             if deleted_count > 0:
                 self.logger.info(f"Cleaned up {deleted_count} intermediate folders")
 
-            self.logger.info(f"Tournament optimization complete. Results saved to {optimal_path}")
+            self.logger.info(
+                f"Tournament optimization complete: Optimized {total_params} parameters "
+                f"across 4 week ranges. Results saved to: {optimal_path}"
+            )
 
             return optimal_path
 

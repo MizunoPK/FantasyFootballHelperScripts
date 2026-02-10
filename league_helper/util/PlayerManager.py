@@ -105,7 +105,6 @@ class PlayerManager:
             - Logs player loading statistics
         """
         self.logger = get_logger()
-        self.logger.debug("Initializing Player Manager")
 
         self.config = config
         self.data_folder = data_folder
@@ -375,7 +374,7 @@ class PlayerManager:
 
         # Store and return (spec lines 308-318)
         self.players = all_players
-        self.logger.debug(f"Total players loaded: {len(self.players)}")
+        self.logger.debug(f"All position files loaded: {len(self.players)} total players across all positions")
 
         # Calculate max_projection (spec lines 312-313)
         if self.players:
@@ -482,7 +481,7 @@ class PlayerManager:
 
         Spec Reference: sub_feature_04_file_update_strategy_spec.md lines 154-178
         """
-        self.logger.debug("Updating player JSON files (selective update)")
+        self.logger.debug(f"Updating player JSON files: {len(self.players)} players across 6 position files")
 
         # Task 1.2: Group players by position (spec line 159)
         # Dict[str, List[FantasyPlayer]]

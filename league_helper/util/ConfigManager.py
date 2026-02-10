@@ -881,7 +881,6 @@ class ConfigManager:
         try:
             with open(self.config_path, 'r') as f:
                 data = json.load(f)
-            self.logger.debug("Successfully loaded JSON configuration")
         except json.JSONDecodeError as e:
             self.logger.error(f"Invalid JSON in configuration file: {e}")
             raise
@@ -946,8 +945,6 @@ class ConfigManager:
             error_msg = "'parameters' field must be a dictionary"
             self.logger.error(error_msg)
             raise ValueError(error_msg)
-
-        self.logger.debug("Configuration structure validation passed")
 
     def _extract_parameters(self) -> None:
         """Extract and validate all parameters from the config."""

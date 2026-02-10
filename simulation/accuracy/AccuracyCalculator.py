@@ -15,15 +15,19 @@ Player Filtering Rules (from specs):
 Author: Kai Mizuno
 """
 
-import csv
+# Standard library imports
+import sys
 from pathlib import Path
 from typing import List, Dict, Tuple, Optional, Any
 
+# Third-party imports
 import numpy as np
 from scipy.stats import spearmanr
 
-import sys
+# Add parent directory to path
 sys.path.append(str(Path(__file__).parent.parent.parent))
+
+# Local imports
 from utils.LoggingManager import get_logger
 
 
@@ -96,6 +100,11 @@ class AccuracyCalculator:
             - Skips players with actual points <= 0 (didn't play)
             - Returns MAE of 0 with 0 players if no valid data
         """
+        # DEBUG: Log data transformation - before filtering
+        self.logger.debug(
+            f"calculate_mae: Processing {len(player_data)} players (before filtering)"
+        )
+
         errors = []
         skipped_count = 0
 
@@ -121,8 +130,8 @@ class AccuracyCalculator:
         mae = total_error / len(errors)
 
         self.logger.debug(
-            f"MAE calculation: {mae:.4f} from {len(errors)} players "
-            f"(skipped {skipped_count} with 0 actual points)"
+            f"calculate_mae: MAE={mae:.4f} from {len(errors)} players after filtering "
+            f"(skipped {skipped_count} with actual<=0)"
         )
 
         return AccuracyResult(

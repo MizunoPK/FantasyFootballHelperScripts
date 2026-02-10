@@ -186,13 +186,10 @@ class TradeSimulatorModeManager:
             - Reloads all player data from JSON (resets drafted, locked, score state)
             - Populates self.team_rosters with Dict[team_name, List[FantasyPlayer]]
         """
-        self.logger.info("Initializing team data for Trade Simulator")
-
         # CRITICAL: Reload player data to reset any state changes
         # This ensures drafted status, locked status, and scores are fresh
         # Without this, simulations can become inconsistent (e.g., waiver recommendations
         # may differ between runs due to stale locked/drafted state)
-        self.logger.debug("Reloading player data from JSON to reset state")
         self.player_manager.reload_player_data()
 
         # Get all players from PlayerManager (includes projections, ADPs, and injury data)
@@ -206,8 +203,6 @@ class TradeSimulatorModeManager:
 
         # Log team roster sizes for debugging
         self.logger.info(f"Organized players into {len(self.team_rosters)} team rosters")
-        for team_name, roster in self.team_rosters.items():
-            self.logger.debug(f"Team '{team_name}': {len(roster)} players")
 
         # Create TradeSimTeam objects for scoring and analysis
         # My team uses PlayerManager's roster (already has full player data)

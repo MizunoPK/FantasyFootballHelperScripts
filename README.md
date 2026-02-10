@@ -72,6 +72,9 @@ All 2,255 tests should pass (100% pass rate required).
 ```bash
 # Download latest player projections
 python run_player_fetcher.py
+
+# With file logging enabled
+python run_player_fetcher.py --enable-log-file
 ```
 
 This fetches projected statistics for all NFL players and saves them to `data/players.csv`.
@@ -636,6 +639,9 @@ These files are separate from main data files to allow simulation testing withou
 Run the player data fetcher:
 ```bash
 python run_player_fetcher.py
+
+# With file logging (logs saved to logs/player_data_fetcher/)
+python run_player_fetcher.py --enable-log-file
 ```
 
 ### Simulation Taking Too Long

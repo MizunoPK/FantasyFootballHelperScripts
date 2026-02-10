@@ -93,9 +93,7 @@ class TestLoggingConfiguration:
         valid_levels = ['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']
         assert config.LOGGING_LEVEL in valid_levels
 
-    def test_logging_to_file_is_boolean(self):
-        """Test LOGGING_TO_FILE is boolean"""
-        assert isinstance(config.LOGGING_TO_FILE, bool)
+    # Note: LOGGING_TO_FILE constant removed - file logging now controlled via --enable-log-file CLI flag
 
     def test_log_name_is_string(self):
         """Test LOG_NAME is a string"""
