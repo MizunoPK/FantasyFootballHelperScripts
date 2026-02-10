@@ -7,7 +7,7 @@
 
 **Stage Flow Context:**
 ```text
-S9.P1 (Epic Smoke) → S9.P2 (QC Rounds) →
+S9.P1 (Epic Smoke) → S9.P2 (Epic QC Validation Loop) →
 → [YOU ARE HERE: S9.P3 - User Testing] →
 → S9.P4 (Epic Final Review) → S10
 ```
@@ -53,9 +53,9 @@ S9.P1 (Epic Smoke) → S9.P2 (QC Rounds) →
 
 **Before starting S9.P3 (User Testing):**
 
-- [ ] S9.P1 complete (Epic Smoke Testing passed)
-- [ ] S9.P2 complete (All 3 QC rounds passed)
-- [ ] EPIC_README.md shows "Epic QC Rounds: ✅ COMPLETE"
+- [ ] S9.P1 complete (Epic Smoke Testing passed all 4 parts)
+- [ ] S9.P2 complete (Validation loop achieved 3 consecutive clean rounds)
+- [ ] EPIC_README.md shows "S9.P2: COMPLETE (3 consecutive clean rounds)"
 - [ ] All features tested and validated
 - [ ] No pending bug fixes or debugging sessions
 - [ ] Epic is ready for end-user testing
@@ -114,11 +114,12 @@ User testing passes with ZERO bugs reported by user
    - Fix ALL bugs user reports
 
 4. ⚠️ RESTART S9.P1 AFTER BUG FIXES
-   - After fixing user-reported bugs → RESTART S9.P1
+   - After fixing user-reported bugs → RESTART from S9.P1 (not S9.P2)
    - Re-run smoke testing (4 parts)
-   - Re-run QC rounds (3 rounds)
+   - Re-run validation loop (until 3 consecutive clean rounds)
    - Re-run user testing
    - Repeat until user reports "No bugs found"
+   - Note: This is different from S9.P2 which uses fix-and-continue
 
 5. ⚠️ DOCUMENT USER TESTING RESULTS
    - Update EPIC_README.md with results
@@ -524,10 +525,15 @@ User-reported bugs follow the epic debugging protocol:
    - RESTART epic smoke testing from beginning
    - Proceed through S9.P1 → 6b → Step 6 again
 
-**Why loop back to S9.P1 (not Step 6)?**
+**Why loop back to S9.P1 (not continue validation loop)?**
+- User-reported bugs indicate real-world issues missed by agent validation
 - Bug fixes might affect epic-level integration
 - Must re-validate entire epic before returning to user
 - Comprehensive validation prevents new issues
+
+**Note on S9.P2 vs S9.P3 restart distinction:**
+- S9.P2 (Validation Loop): Fix issues immediately, continue (no restart)
+- S9.P3 (User Testing): User bugs require restart from S9.P1
 
 ---
 

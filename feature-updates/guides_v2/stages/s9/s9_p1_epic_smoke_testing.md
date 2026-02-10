@@ -8,7 +8,7 @@
 ```text
 S8 (ALL features complete) →
 → [YOU ARE HERE: S9.P1 - Epic Smoke Testing] →
-→ S9.P2 (Epic QC Rounds) → S9.P3 (User Testing) → S9.P4 (Epic Final Review) → S10
+→ S9.P2 (Epic QC Validation Loop) → S9.P3 (User Testing) → S9.P4 (Epic Final Review) → S10
 ```
 
 ---
@@ -116,9 +116,9 @@ Epic Smoke Testing is complete when ALL 4 parts of epic_smoke_test_plan.md pass,
    - Epic testing (6a): Tests ALL features working together
    - Focus: Cross-feature workflows, integration points
 
-4. ⚠️ If smoke testing fails → Fix issues, RESTART Step 2
-   - Do NOT proceed to QC rounds with failing smoke tests
-   - After fixing → Re-run entire smoke testing process
+4. ⚠️ If smoke testing fails → Fix issues, re-run from Part 1
+   - Do NOT proceed to QC validation loop with failing smoke tests
+   - After fixing → Re-run smoke testing from Part 1
    - Do NOT skip any parts
 
 5. ⚠️ Execute ALL 4 parts of epic_smoke_test_plan.md
@@ -507,7 +507,7 @@ print("✅ Interface compatibility verified")
 
 **Fix immediately, re-run affected tests, continue**
 
-### Critical Issues (Restart Required)
+### Critical Issues (Re-run Required)
 - Integration point failures
 - Data corruption across features
 - Interface incompatibilities
@@ -516,10 +516,10 @@ print("✅ Interface compatibility verified")
 **Follow epic debugging protocol:**
 1. Create `epic_name/debugging/ISSUES_CHECKLIST.md`
 2. Enter debugging protocol (see `debugging/debugging_protocol.md`)
-3. After ALL issues resolved → **RESTART S6 from Step 1**
-4. Re-run entire smoke testing process
+3. After ALL issues resolved → **Re-run smoke testing from Part 1**
+4. Re-run all 4 parts of smoke testing
 
-**Critical:** Loop back to Epic Smoke Testing (NOT back to this test), ensures clean validation
+**Note:** Once smoke testing passes, S9.P2 uses validation loop (fix and continue). Restart from S9.P1 only required if user testing (S9.P3) finds bugs.
 
 ---
 
@@ -552,15 +552,15 @@ print("✅ Interface compatibility verified")
 ## Next Steps
 
 **If ALL 4 parts PASSED:**
-- ✅ Document epic smoke test results in EPIC_README.md
-- ✅ Update Agent Status: "Epic Smoke Testing COMPLETE"
-- ✅ Proceed to **S9.P2: Epic QC Rounds**
+- Document epic smoke test results in EPIC_README.md
+- Update Agent Status: "Epic Smoke Testing COMPLETE"
+- Proceed to **S9.P2: Epic QC Validation Loop** (12 dimensions, 3 consecutive clean rounds)
 
 **If ANY part FAILED:**
-- ❌ Fix ALL issues identified
-- ❌ If critical issues → Follow epic debugging protocol
-- ❌ RE-RUN ALL 4 PARTS from Part 1
-- ❌ Do NOT proceed to QC Rounds until clean pass
+- Fix ALL issues identified
+- If critical issues → Follow epic debugging protocol
+- RE-RUN ALL 4 PARTS from Part 1
+- Do NOT proceed to S9.P2 until clean pass
 
 ---
 
@@ -575,8 +575,8 @@ print("✅ Interface compatibility verified")
 **Key Differences from Feature-Level:**
 - Tests ALL features TOGETHER (not in isolation)
 - 4 parts (adds Part 4: Cross-Feature Integration)
-- Uses EVOLVED test plan (updated through Stages 1, 4, 5e)
-- Next stage: Epic QC Rounds (S9.P2)
+- Uses EVOLVED test plan (updated through Stages 1, 4, S8.P2)
+- Next: S9.P2 uses validation loop (12 dimensions, 3 consecutive clean rounds)
 
 **Critical Success Factors:**
 - Verify ALL features complete S8.P2 (Epic Testing Update) first

@@ -65,15 +65,15 @@ Before proceeding, you must have:
 ### When do you use this guide?
 
 **Use this guide when:**
-- STAGE_6b is complete (all 3 QC rounds passed)
-- Epic smoke testing passed (STAGE_6a)
+- S9.P2 complete (validation loop achieved 3 consecutive clean rounds)
+- S9.P1 epic smoke testing passed (all 4 parts)
+- S9.P3 user testing passed (user reports "No bugs found")
 - Ready for final epic-level PR review and validation
-- All features completed S8.P2 (Epic Testing Update)
 
 **Do NOT use this guide if:**
-- STAGE_6a smoke testing not complete
-- STAGE_6b QC rounds not complete
-- Any features still in S6 implementation
+- S9.P1 smoke testing not complete
+- S9.P2 validation loop not complete (3 consecutive clean rounds required)
+- S9.P3 user testing not complete
 - Pending bug fixes not yet completed
 
 ### What are the key outputs?
@@ -106,12 +106,12 @@ Before proceeding, you must have:
 ### Workflow overview
 
 ```bash
-STAGE_6c Workflow (Steps 6-8)
+S9.P4 Workflow (Epic Final Review)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 Prerequisites Met?
-  ├─ STAGE_6b complete (3 QC rounds passed)
-  ├─ No pending issues
+  ├─ S9.P2 complete (3 consecutive clean rounds)
+  ├─ S9.P3 complete (user testing passed)
   └─ All tests passing (100%)
          │
          ▼
@@ -209,19 +209,24 @@ Prerequisites Met?
 
 ## Prerequisites
 
-**Before starting S9.P3, verify ALL of these are true:**
+**Before starting S9.P4, verify ALL of these are true:**
 
-### From STAGE_6b (QC Rounds)
-- [ ] QC Round 1 (Cross-Feature Integration): ✅ PASSED
-- [ ] QC Round 2 (Epic Cohesion & Consistency): ✅ PASSED
-- [ ] QC Round 3 (End-to-End Success Criteria): ✅ PASSED
-- [ ] STAGE_6b completion documented in EPIC_README.md
+### From S9.P2 (Epic QC Validation Loop)
+- [ ] 3 consecutive clean rounds achieved
+- [ ] All 12 dimensions checked every round (7 master + 5 epic)
+- [ ] VALIDATION_LOOP_LOG.md complete
+- [ ] S9.P2 completion documented in EPIC_README.md
 
-### From STAGE_6a (Smoke Testing)
-- [ ] Epic smoke testing Part 1 (Import Tests): ✅ PASSED
-- [ ] Epic smoke testing Part 2 (Entry Point Tests): ✅ PASSED
-- [ ] Epic smoke testing Part 3 (E2E Execution Tests): ✅ PASSED
-- [ ] Epic smoke testing Part 4 (Cross-Feature Integration Tests): ✅ PASSED
+### From S9.P1 (Epic Smoke Testing)
+- [ ] Epic smoke testing Part 1 (Import Tests): PASSED
+- [ ] Epic smoke testing Part 2 (Entry Point Tests): PASSED
+- [ ] Epic smoke testing Part 3 (E2E Execution Tests): PASSED
+- [ ] Epic smoke testing Part 4 (Cross-Feature Integration Tests): PASSED
+
+### From S9.P3 (User Testing)
+- [ ] User testing completed
+- [ ] User reports "No bugs found"
+- [ ] No pending bug fixes
 
 ### Feature Completion
 - [ ] All features completed S8.P2 (Epic Testing Update) (Post-Feature Testing Update)
@@ -235,13 +240,13 @@ Prerequisites Met?
 
 ### Documentation
 - [ ] epic_lessons_learned.md exists and accessible
-- [ ] EPIC_README.md shows STAGE_6b complete
+- [ ] EPIC_README.md shows S9.P1, S9.P2, S9.P3 complete
 - [ ] Original {epic_name}.txt file located
 
 **If ANY prerequisite not met:**
-- STOP - Do not proceed with S9.P3
+- STOP - Do not proceed with S9.P4
 - Complete missing prerequisites first
-- Return to appropriate stage (6a or 6b)
+- Return to appropriate phase (S9.P1, S9.P2, or S9.P3)
 
 ---
 

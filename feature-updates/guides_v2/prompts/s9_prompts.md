@@ -23,10 +23,10 @@ I'm reading `stages/s9/s9_p1_epic_smoke_testing.md` to ensure I validate the ent
   - Part 3: Epic E2E execution tests (complete workflows with REAL data)
   - Part 4: Cross-feature integration tests (features working together)
   - **CRITICAL:** Verify OUTPUT DATA VALUES (not just structure)
-- **Epic-Level QC Rounds** (3 rounds):
-  - Round 1: Cross-Feature Integration Validation
-  - Round 2: Epic Cohesion & Consistency
-  - Round 3: End-to-End Success Criteria
+- **Epic-Level QC Validation Loop** (until 3 consecutive clean rounds):
+  - Check ALL dimensions every round (7 master + 5 epic-specific = 12 total)
+  - 3 consecutive clean rounds required to exit
+  - Fix issues immediately and continue (no restart for minor issues)
 - **Epic PR Review** (11 categories at EPIC scope):
   - Focus: Architectural consistency across features
   - Review epic-wide changes (not individual features)
@@ -37,9 +37,11 @@ I'm reading `stages/s9/s9_p1_epic_smoke_testing.md` to ensure I validate the ent
 - **Use EVOLVED epic_smoke_test_plan.md**:
   - Plan updated in S1 → S4 → S8.P2 (all features)
   - Reflects ACTUAL implementation (not assumptions)
-- **QC RESTART if ANY issues**:
-  - Create bug fixes for issues
-  - COMPLETELY RESTART S9 after bug fixes
+- **Validation Loop approach**:
+  - Fix issues immediately (no restart for minor issues)
+  - Reset clean counter and continue validation
+  - 3 consecutive clean rounds required to exit
+  - Major issues (user-reported bugs) may require restart
 
 **Critical Distinction:**
 - Feature testing (S7): Tests feature in ISOLATION
@@ -60,7 +62,7 @@ I'm reading `stages/s9/s9_p1_epic_smoke_testing.md` to ensure I validate the ent
 - Current Stage: S9.P1 - Epic Smoke Testing
 - Current Guide: stages/s9/s9_p1_epic_smoke_testing.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
-- Critical Rules: "Use EVOLVED test plan", "Verify OUTPUT DATA VALUES", "4-part smoke testing", "Cross-feature integration", "RESTART if ANY part fails"
+- Critical Rules: "Use EVOLVED test plan", "Verify OUTPUT DATA VALUES", "4-part smoke testing", "12 dimensions checked every round", "3 consecutive clean rounds required"
 - Next Action: Execute Step 1 - Pre-QC Verification
 
 Starting epic smoke testing...
