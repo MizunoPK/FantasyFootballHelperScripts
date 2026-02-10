@@ -53,10 +53,10 @@
 - Starting S4: Epic Testing Strategy
 
 **[S5-S8: Feature Loop](prompts/s5_s8_prompts.md)**
-- Starting S5: Implementation Planning (Round 1)
-- Starting S5: Implementation Planning (Round 2)
-- Starting S5 Round 3 Part 1: Implementation Planning (Preparation)
-- Starting S5 Round 3 Part 2: Implementation Planning (Final Gates)
+- Starting S5 v2: Implementation Planning (Draft Creation)
+- Starting S5 v2: Validation Loop Phase
+- Reporting S5 v2: Validation Round Results
+- Exiting S5 v2: Validation Loop Complete
 - Starting S6: Implementation Execution
 - Starting S7.P1: Smoke Testing
 - Starting S7.P2: QC Rounds
@@ -148,8 +148,8 @@ Document guide read, critical rules, next action
 
 **✅ CORRECT:**
 ```text
-I'm reading `stages/s5/s5_p1_planning_round1.md` to ensure I follow all 7 iterations in Round 1...
-{List critical requirements for Round 1}
+I'm reading `stages/s5/s5_v2_validation_loop.md` to ensure I follow the 2-phase validation loop approach...
+{List critical requirements for S5 v2}
 ```
 
 ---

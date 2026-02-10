@@ -162,13 +162,8 @@ STAGE 10: Epic Cleanup
 | S2.P3 (Refinement) | `stages/s2/s2_p3_refinement.md` | Questions, scope, alignment, user approval |
 | All features planned | `stages/s3/s3_cross_feature_sanity_check.md` | Validate alignment, resolve conflicts, get user sign-off |
 | Features aligned | `stages/s4/s4_epic_testing_strategy.md` | Update test plan based on specs |
-| Ready to implement (Round 1) | `stages/s5/s5_p1_planning_round1.md` | Iterations 1-7 + 4a: Requirements, dependencies, algorithms |
-| Round 1 complete | `stages/s5/s5_p2_planning_round2.md` | Iterations 8-13: Test strategy, edge cases, re-verification |
-| Round 2 complete | `stages/s5/s5_p3_planning_round3.md` | Router: Links to Part 1/Part 2a/Part 2b sub-stages |
-| Round 3 preparation phase | `stages/s5/s5_p3_planning_round3.md` | Iterations 14-19: Phasing, rollback, algorithm (final), performance, mock audit |
-| Round 3 gates phase (Part 2a) | `stages/s5/s5_p3_i2_gates_part1.md` | Iterations 23, 23a: Integration Gap + Pre-Impl Spec Audit |
-| Round 3 gates phase (Part 2b) | `stages/s5/s5_p3_i3_gates_part2.md` | Iterations 25, 24: Spec Validation + GO/NO-GO |
-| Implementation planning complete (22 iterations) | `stages/s6/s6_execution.md` | Implement feature with continuous verification |
+| Ready to implement | `stages/s5/s5_v2_validation_loop.md` | Draft Creation + Validation Loop (11 dimensions, 3 consecutive clean rounds required) |
+| S5 v2 complete (Gate 5 approved) | `stages/s6/s6_execution.md` | Implement feature with continuous verification |
 | Implementation done (Smoke Testing) | `stages/s7/s7_p1_smoke_testing.md` | Part 1: Import, Part 2: Entry Point, Part 3: E2E (verify DATA VALUES) |
 | Smoke testing passed (QC Rounds) | `stages/s7/s7_p2_qc_rounds.md` | Round 1: Basic validation, Round 2: Deep verification, Round 3: Final review |
 | QC rounds passed (Final Review) | `stages/s7/s7_p3_final_review.md` | PR review (11 categories), lessons learned, final verification |
@@ -332,12 +327,9 @@ feature-updates/
     │   ├── s4/
     │   │   └── s4_epic_testing_strategy.md
     │   ├── s5/                               ← S5: Implementation Planning (22 iterations)
-    │   │   ├── s5_p1_planning_round1.md         ← S5.P1 Router (Round 1: Iterations 1-7)
-    │   │   ├── s5_p2_planning_round2.md         ← S5.P2 Router (Round 2: Iterations 8-13)
-    │   │   ├── s5_p3_planning_round3.md         ← S5.P3 Router (Round 3: Iterations 14-22)
-    │   │   ├── s5_p3_i1_preparation.md          ← S5.P3.I1 (Iterations 14-19)
-    │   │   ├── s5_p3_i2_gates_part1.md          ← S5.P3.I2 (Iterations 23, 23a)
-    │   │   ├── s5_p3_i3_gates_part2.md          ← S5.P3.I3 (Iterations 24, 25)
+    │   │   ├── s5_v2_validation_loop.md         ← S5 v2: Validation Loop Approach (Draft + 11 Dimensions)
+    │   │   ├── S5_V1_TO_V2_MIGRATION.md         ← Migration guide (v1 → v2)
+    │   │   ├── S5_V2_DESIGN_PLAN.md             ← S5 v2 architectural design
     │   │   ├── s5_bugfix_workflow.md            ← Bug fix workflow
     │   │   └── s5_pr_review_protocol.md         ← PR review protocol
     │   ├── s6/                               ← S6: Implementation Execution
@@ -487,17 +479,18 @@ Agent continues through all 10 stages for the complete epic lifecycle.
 ```markdown
 ## Agent Status
 
-**Last Updated:** 2026-02-05 22:00
-**Current Phase:** IMPLEMENTATION_PLANNING
-**Current Step:** Iteration 12/24
-**Current Guide:** stages/s5/s5_p1_planning_round1.md
-**Guide Last Read:** 2025-12-30 15:20
+**Last Updated:** 2026-02-09 14:00
+**Current Phase:** S5_V2_VALIDATION_LOOP
+**Current Step:** Validation Round 4
+**Current Guide:** stages/s5/s5_v2_validation_loop.md
+**Guide Last Read:** 2026-02-09 10:00
 **Critical Rules from Guide:**
-- 22 iterations mandatory, no skipping
-- STOP if confidence < Medium
+- Check ALL 11 dimensions every round
+- Fix ALL issues before next round
+- 3 consecutive clean rounds required
 - Update Agent Status after each round
-**Progress:** 12/22 iterations complete
-**Next Action:** Begin iteration 13 - Dependency Verification
+**Progress:** Round 4, Clean Count: 1
+**Next Action:** Begin Validation Round 5
 **Blockers:** None
 ```
 
@@ -516,9 +509,9 @@ Agent continues through all 10 stages for the complete epic lifecycle.
 ```markdown
 ## 🎯 Quick Reference Card (Always Visible)
 
-**Current Stage:** S5 - Implementation Planning
-**Active Guide:** `guides_v2/stages/s5/s5_p1_planning_round1.md`
-**Last Guide Read:** 2025-12-30 15:20
+**Current Stage:** S5 v2 - Implementation Planning
+**Active Guide:** `guides_v2/stages/s5/s5_v2_validation_loop.md`
+**Last Guide Read:** 2026-02-09 10:00
 
 **Stage Workflow:**
 S1 → S2 → S3 → S4 → [S5→S6→S7→S8] → S9 → S10
@@ -526,17 +519,17 @@ S1 → S2 → S3 → S4 → [S5→S6→S7→S8] → S9 → S10
 Epic  Features  Sanity  Testing  Implementation  Epic    Done
 Plan  Deep Dive  Check  Strategy  (per feature)   QC
 
-**You are here:** ➜ S5
+**You are here:** ➜ S5 v2
 
 **Critical Rules for Current Stage:**
-1. 24 verification iterations mandatory (NO SKIPPING)
-2. STOP if confidence < Medium
-3. Create questions.md if blockers arise
-4. Update Agent Status after each round
-5. Algorithm Traceability Matrix required (iterations 4, 11, 19)
+1. Draft Creation: 60-90 min, ~70% quality target
+2. Validation Loop: Check ALL 11 dimensions every round
+3. Fix ALL issues before next round (zero deferral)
+4. Exit: 3 consecutive clean rounds required
+5. Update Agent Status after each round
 
 **Before Proceeding to Next Step:**
-□ Read guide: `guides_v2/stages/s5/s5_p1_planning_round1.md` (start with Round 1)
+□ Read guide: `guides_v2/stages/s5/s5_v2_validation_loop.md` (start with Phase 1: Draft Creation)
 □ Acknowledge critical requirements
 □ Verify prerequisites
 □ Update this Quick Reference Card
@@ -628,11 +621,12 @@ S9 (Execution):
 
 1. Agent completes Stages 1-4 (epic planning, feature deep dives, sanity check, testing strategy)
 2. User says: "Implement feature_01"
-3. Agent reads `stages/s5/s5_p1_planning_round1.md`
-4. Agent executes 24 verification iterations across 3 rounds
-5. Agent creates `implementation_plan.md` (~400 lines) and `questions.md`
-6. **User approves implementation_plan.md** (MANDATORY CHECKPOINT)
-7. **S5 complete**
+3. Agent reads `stages/s5/s5_v2_validation_loop.md`
+4. Agent executes Phase 1: Draft Creation (60-90 min)
+5. Agent executes Phase 2: Validation Loop (11 dimensions, 6-8 rounds typical)
+6. Agent creates `implementation_plan.md` (~400 lines) validated to 99%+ quality
+7. **User approves implementation_plan.md** (Gate 5 - MANDATORY CHECKPOINT)
+8. **S5 v2 complete**
 8. Agent reads `stages/s6/s6_execution.md`
 9. Agent creates `implementation_checklist.md` (~50 lines) from implementation_plan.md tasks
 10. Agent implements feature using implementation_plan.md as PRIMARY reference (spec.md provides context)
@@ -670,7 +664,7 @@ S9 (Execution):
    - **S4:** Update epic_smoke_test_plan.md
 7. Planning complete → Agent resumes paused work
 8. New/updated feature waits its turn in implementation sequence
-9. When its turn comes: Implement through full S5 (S5 → S6 → S7 → S8)
+9. When its turn comes: Implement through full S5 v2 (S5 v2 → S6 → S7 → S8)
 10. **SPECIAL CASE - If discovered during S9/7:**
     - Complete ALL remaining features first
     - Implement new/updated feature
@@ -718,11 +712,11 @@ S9 (Execution):
 
 ### Workflow 4: Resuming After Session Compaction
 
-1. Session compacts during S5 (iteration 12/24)
+1. Session compacts during S5 v2 (Validation Round 4)
 2. New agent spawned
 3. Agent reads EPIC_README.md "Agent Status"
-4. Agent sees: Current Guide = `stages/s5/s5_p2_planning_round2.md`, Current Step = "Iteration 12/24"
-5. Agent reads `stages/s5/s5_p2_planning_round2.md` (full guide, Round 2)
+4. Agent sees: Current Guide = `stages/s5/s5_v2_validation_loop.md`, Current Step = "Validation Round 4"
+5. Agent reads `stages/s5/s5_v2_validation_loop.md` (full guide)
 6. Agent uses "Resuming After Compaction" prompt
 7. Agent acknowledges requirements for S5
 8. Agent continues from Iteration 13 (picks up where previous agent left off)

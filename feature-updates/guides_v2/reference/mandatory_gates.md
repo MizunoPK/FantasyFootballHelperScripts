@@ -308,11 +308,30 @@
 
 ---
 
-## S5: Implementation Planning (5 gates per feature)
+## S5 v2: Implementation Planning (Validation Loop Approach)
+
+**NOTE:** S5 v2 uses Validation Loop approach. Former gates (4a, 7a, 23a, 24, 25) are now embedded as validation dimensions. Gate 5 (User Approval) remains separate.
+
+**Embedded Gates (now validation dimensions):**
+- Gate 4a → Embedded in Dimension 4: Task Specification Quality
+- Gate 7a → Embedded in Dimension 7: Integration & Compatibility
+- Gate 23a → Embedded in Dimension 11: Spec Alignment & Cross-Validation
+- Gate 24 → Embedded in Dimension 10: Implementation Readiness (confidence check)
+- Gate 25 → Embedded in Dimension 11: Spec Alignment & Cross-Validation
+
+**How it works:**
+- Draft Creation Phase (60-90 min): Create initial implementation_plan.md
+- Validation Loop Phase (3.5-6 hours): Validate against 11 dimensions each round
+- Exit when 3 consecutive rounds find zero issues
+- Present to user for Gate 5 approval
+
+---
+
+## S5 v2 Embedded Gates (formerly S5 v1 gates)
 
 ### Gate 1: Iteration 4a - Implementation Plan Specification Audit
 
-**Location:** stages/s5/s5_p1_planning_round1.md (Round 1)
+**Location:** Embedded in S5 v2 Dimension 4 (Task Specification Quality), validated every round
 **When:** After creating initial implementation_plan.md (Iteration 4)
 
 **What it checks:**
@@ -341,7 +360,7 @@
 
 ### Gate 7a: Iteration 7a - Backward Compatibility Analysis
 
-**Location:** stages/s5/s5_p1_i3_iter7a_compatibility.md (Round 1)
+**Location:** Embedded in S5 v2 Dimension 7 (Integration & Compatibility), validated every round
 **When:** After completing Iteration 7 (Integration Gap Check)
 
 **What it checks:**
@@ -385,7 +404,7 @@
 
 ### Gate 2: Iteration 20 - Pre-Implementation Spec Audit (5 PARTS)
 
-**Location:** stages/s5/s5_p3_i2_gates_part1.md (Round 3 Part 2a)
+**Location:** Embedded in S5 v2 Dimension 11 (Spec Alignment & Cross-Validation), validated every round
 **When:** After preparation iterations (Iterations 14-19)
 
 **ALL 5 PARTS must PASS:**
@@ -440,8 +459,8 @@
 
 ### Gate 3: Iteration 21 - Spec Validation Against Validated Documents (CRITICAL)
 
-**Location:** stages/s5/s5_p3_i3_gates_part2.md (Round 3 Part 2b)
-**When:** After Iteration 20 passes
+**Location:** Embedded in S5 v2 Dimension 11 (Spec Alignment & Cross-Validation), validated every round
+**When:** Checked in every validation round
 
 **What it checks:**
 - Spec.md matches ALL three user-validated sources:
@@ -489,8 +508,8 @@
 
 ### Gate 4: Iteration 22 - Implementation Readiness Protocol (GO/NO-GO)
 
-**Location:** stages/s5/s5_p3_i3_gates_part2.md (Round 3 Part 2b)
-**When:** After Iteration 21 passes
+**Location:** Embedded in S5 v2 Dimension 10 (Implementation Readiness), validated every round
+**When:** Checked in every validation round
 
 **What it checks (comprehensive checklist):**
 - Spec Verification: Complete, validated
@@ -520,33 +539,37 @@
 
 ### Gate 5: User Approval of Implementation Plan (MANDATORY CHECKPOINT)
 
-**Location:** Between S5 and S6
-**When:** After Iteration 22 returns GO decision
+**Location:** Between S5 v2 and S6
+**When:** After S5 v2 Validation Loop achieves 3 consecutive clean rounds
 
 **What it checks:**
-- User reviews implementation_plan.md (~400 lines)
+- User reviews implementation_plan.md (~400 lines) validated through S5 v2 loop
 - User approves implementation approach before coding begins
 
 **Pass Criteria:**
-- User reviews implementation_plan.md containing:
+- User reviews implementation_plan.md containing (validated by 11 dimensions):
   - Implementation tasks with acceptance criteria
-  - Component dependencies matrix
-  - Algorithm traceability matrix
+  - Component dependencies matrix with file:line references
+  - Algorithm traceability matrix (40+ mappings)
   - Test strategy (>90% coverage)
-  - Edge cases and error handling
-  - Implementation phasing (5-6 checkpoints)
+  - Edge cases and error handling (enumerated)
+  - Implementation phasing (4-6 checkpoints)
   - Performance considerations
-  - Mock audit results
+  - Mock audit results (verified against real interfaces)
+  - Integration test plan (3+ real-object tests)
 - User explicitly approves proceeding to S6
 - User says "approved" or "looks good" or equivalent
 
 **If FAIL (user requests changes):**
 - Revise implementation_plan.md based on user feedback
-- Re-run affected iterations from S5 if needed
+- If minor changes: Fix and present again (no re-validation needed)
+- If major changes: Re-run validation loop from affected dimension(s)
 - Get user approval before proceeding
 - Cannot proceed to S6 without user approval
 
 **Why it matters:** Gives user visibility and control over implementation approach before code is written. User can request changes to phasing, test strategy, or approach without wasting implementation effort.
+
+**S5 v2 Improvement:** implementation_plan.md quality guaranteed by 3 consecutive clean validation rounds (99%+ quality) before user review.
 
 **Benefits:**
 - User sees full implementation plan before coding
@@ -700,12 +723,12 @@
 - Gate 2 (S2.P1.I3): Spec-to-Epic Alignment
 - Gate 3 (S2.P1.I3): User Checklist Approval
 - Gate 4.5 (S3.P3): Epic Plan Approval
-- Gate 5 (S5.P3): Implementation Plan Approval
-- Gate 4a (S5.P1.I2): TODO Specification Audit
-- Gate 7a (S5.P1.I3): Backward Compatibility Check
-- Gate 23a (S5.P3.I2): Pre-Implementation Spec Audit (5 parts)
-- Gate 24 (S5.P3.I3): GO/NO-GO Decision
-- Gate 25 (S5.P3.I3): Spec Validation Check
+- Gate 5 (S5 v2): Implementation Plan Approval (after validation loop)
+- Gate 4a (S5 v2): Embedded in Dimension 4 - Task Specification Quality
+- Gate 7a (S5 v2): Embedded in Dimension 7 - Integration & Compatibility
+- Gate 23a (S5 v2): Embedded in Dimension 11 - Spec Alignment & Cross-Validation
+- Gate 24 (S5 v2): Embedded in Dimension 10 - Implementation Readiness
+- Gate 25 (S5 v2): Embedded in Dimension 11 - Spec Alignment & Cross-Validation
 
 **Additional Stage Checkpoints (documented in this file but not formally numbered gates):**
 - S2.P3: User Approval of Acceptance Criteria (referenced as "Gate 4" in this file for completeness)
@@ -719,7 +742,7 @@
 - S2: 3 formal gates per feature (Gates 1, 2, 3)
 - S3: 1 formal gate (Gate 4.5)
 - S4: 0 formal gates (test plan approval happens at Gate 4.5 in S3)
-- S5: 5 formal gates per feature (Gate 5, 4a, 7a, 23a, 24, 25)
+- S5 v2: 1 formal user gate (Gate 5 - User Approval), 5 embedded validation gates (4a, 7a, 23a, 24, 25 now embedded in 11 validation dimensions)
 - S6-S8: 0 formal gates
 - S9: 0 formal gates (but restart protocol applies)
 - S10: 0 formal gates (but checkpoints 7.1 and 7.2 are critical)

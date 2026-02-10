@@ -5,54 +5,60 @@
 
 ---
 
-## Starting S5: Implementation Planning (Round 1)
+## Starting S5 v2: Implementation Planning
 
 **User says:** "Prepare for updates based on {feature_name}" or "Start implementation of feature_01" or "Create implementation plan"
 
 **Prerequisite:** S4 complete (Gate 4.5 passed - user approved test plan) AND feature spec.md complete AND checklist.md resolved
 
-**Note:** S5 is split into 5 separate guides for better digestibility:
-- **stages/s5/s5_p1_planning_round1.md** - Round 1: Iterations 1-7 + 4a (START HERE)
-- **stages/s5/s5_p2_planning_round2.md** - Round 2: Iterations 8-13
-- **stages/s5/s5_p3_planning_round3.md** - Round 3 Part 1: Iterations 14-19
-- **stages/s5/s5_p3_i2_gates_part1.md** - Round 3 Part 2a: Iterations 20, 23a
-- **stages/s5/s5_p3_i3_gates_part2.md** - Round 3 Part 2b: Iterations 21-22, 25, 24
+**Note:** S5 v2 uses Validation Loop approach (replaces 22-iteration v1 structure)
 
 **Agent MUST respond:**
 
 ```markdown
-I'm reading `stages/s5/s5_p1_planning_round1.md` to ensure I follow all 7 iterations in Round 1...
+I'm reading `stages/s5/s5_v2_validation_loop.md` to ensure I follow the 2-phase validation loop approach...
 
 **The guide requires:**
-- **🚨 CRITICAL: IMPLEMENTATION TASKS MUST TRACE TO SPEC REQUIREMENTS**:
-  - Every implementation task must map to explicit spec.md requirement
-  - Do NOT add tasks based on "best practices" or assumptions
-  - Do NOT add tasks the user didn't ask for
-  - If uncertain about a task → create question in questions.md
-  - Only create implementation tasks for confirmed, documented requirements
-- **Round 1: 7 MANDATORY iterations** (NO SKIPPING):
-  - Iterations 1-7 + iteration 4a (Implementation Plan Specification Audit)
-- **Iteration 4a is a MANDATORY GATE**:
-  - Every implementation task MUST have acceptance criteria
-  - Cannot proceed to Round 2 without PASSING iteration 4a
-- **Algorithm Traceability Matrix** (iteration 4):
-  - Map EVERY algorithm in spec.md to exact code location
-  - Typical matrix has 40+ mappings
-- **Integration Gap Check** (iteration 7):
-  - Verify all new methods have identified CALLERS
-  - No orphan code allowed
-- **Interface Verification Protocol**:
-  - READ actual source code for every dependency
-  - Do NOT assume interfaces - verify them
-- **STOP if confidence < Medium at Round 1 checkpoint**:
-  - Create questions.md
-  - Wait for user answer
-  - Do NOT proceed to Round 2
 
-**Why Round 1 matters:**
-- Establishes foundation for all subsequent rounds
-- Algorithm Traceability Matrix created here (used in Rounds 2 & 3)
-- Integration Gap Check ensures no orphan code
+**Phase 1: Draft Creation (60-90 minutes)**
+- Use template: `templates/implementation_plan_template.md`
+- Create all 11 dimension sections in implementation_plan.md
+- Target: ~70% completeness (known gaps acceptable)
+- Time limit: Stop at 90 minutes even if only 70% complete
+- Copy VALIDATION_LOOP_LOG_S5_template.md to feature folder
+
+**Phase 2: Validation Loop (3.5-6 hours, typically 6-8 rounds)**
+- Validate against 11 dimensions EVERY round:
+  1. Requirements Completeness
+  2. Interface & Dependency Verification
+  3. Algorithm Traceability
+  4. Task Specification Quality (embeds Gate 4a)
+  5. Data Flow & Consumption
+  6. Error Handling & Edge Cases
+  7. Integration & Compatibility (embeds Gate 7a)
+  8. Test Coverage Quality
+  9. Performance & Dependencies
+  10. Implementation Readiness
+  11. Spec Alignment & Cross-Validation (embeds Gate 23a)
+- Fix ALL issues before next round (zero deferred issues)
+- Exit when 3 consecutive rounds find zero issues
+- Document each round in VALIDATION_LOOP_LOG.md
+
+**🚨 CRITICAL: IMPLEMENTATION TASKS MUST TRACE TO SPEC REQUIREMENTS**:
+- Every implementation task must map to explicit spec.md requirement
+- Do NOT add tasks based on "best practices" or assumptions
+- Do NOT add tasks the user didn't ask for
+- If uncertain → document in questions.md
+
+**Interface Verification Protocol**:
+- READ actual source code for every dependency
+- Do NOT assume interfaces - verify them with file:line references
+
+**Benefits vs S5 v1:**
+- 35-50% time reduction (4.5-7 hours vs 9-11 hours)
+- No redundancy (v1 had 3x re-verifications)
+- Systematic validation (impossible to skip checks)
+- Objective quality metric (3 clean rounds prove completeness)
 
 **Prerequisites I'm verifying:**
 ✅ spec.md exists and is complete
@@ -60,66 +66,153 @@ I'm reading `stages/s5/s5_p1_planning_round1.md` to ensure I follow all 7 iterat
 ✅ S4 complete (Gate 4.5 passed - user approved test plan)
 ✅ No pending questions from S2
 
-**I'll now proceed with Round 1 (iterations 1-7 + 4a). I'll create questions.md after Round 1 checkpoint if needed.**
-
 **Updating feature README Agent Status:**
-- Current Phase: IMPLEMENTATION_PLANNING
-- Current Guide: stages/s5/s5_p1_planning_round1.md
+- Current Phase: S5_V2_DRAFT_CREATION
+- Current Guide: stages/s5/s5_v2_validation_loop.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
-- Critical Rules: "Implementation tasks MUST trace to spec requirements (no assumptions)", "7 iterations mandatory (Round 1)", "Iteration 4a is MANDATORY GATE", "STOP if confidence < Medium", "Interface verification: READ actual code"
-- Progress: 0/7 iterations complete (Round 1)
-- Next Action: Begin iteration 1 - Requirements Coverage Check
+- Critical Rules: "Implementation tasks MUST trace to spec requirements", "Draft = 70% in 90 min", "Validation Loop: 3 consecutive clean rounds", "11 dimensions ALL rounds", "Zero deferred issues", "Interface verification: READ actual code"
+- Progress: Phase 1 - Draft Creation
+- Next Action: Begin draft creation (target 90 minutes)
 
-Starting iteration 1...
+Starting Phase 1: Draft Creation...
 ```
 
 ---
 
-## Starting S5: Implementation Planning (Round 2)
+## Starting S5 v2: Validation Loop Phase
 
-**User says:** Agent detects Round 1 complete (7/7 iterations done, confidence >= MEDIUM)
+**User says:** Agent completes draft creation (Phase 1)
 
-**Prerequisite:** Round 1 complete (Part 5.1.1), Iteration 4a PASSED, confidence >= MEDIUM
+**Prerequisite:** Draft implementation_plan.md created with all 11 dimension sections
 
 **Agent MUST respond:**
 
 ```markdown
-I'm reading `stages/s5/s5_p2_planning_round2.md` to ensure I follow all 6 iterations in Round 2...
+I'm starting S5 v2 Phase 2: Validation Loop...
 
 **The guide requires:**
-- **Round 2: 6 MANDATORY iterations** (NO SKIPPING):
-  - Iterations 8-13 (Deep Verification)
-- **Re-verification iterations (11, 12, 14) are CRITICAL**:
-  - Algorithm Traceability Matrix re-verify (Iteration 11)
-  - E2E Data Flow re-verify (Iteration 12)
-  - Integration Gap Check re-verify (Iteration 14)
-  - These catch bugs introduced during Round 1 updates
-- **Test Coverage Depth Check** (Iteration 15):
-  - Verify tests cover edge cases, not just happy path
-  - Target: >90% coverage
-- **STOP if confidence < Medium at Round 2 checkpoint**:
-  - Update questions.md
-  - Wait for user answer
+- **Validation Loop Protocol**: 3 consecutive clean rounds required
+- **Check ALL 11 dimensions EVERY round** (no skipping):
+  1. Requirements Completeness
+  2. Interface & Dependency Verification
+  3. Algorithm Traceability
+  4. Task Specification Quality
+  5. Data Flow & Consumption
+  6. Error Handling & Edge Cases
+  7. Integration & Compatibility
+  8. Test Coverage Quality
+  9. Performance & Dependencies
+  10. Implementation Readiness
+  11. Spec Alignment & Cross-Validation
+- **Fix ALL issues immediately** before next round (zero deferral)
+- **Document each round** in VALIDATION_LOOP_LOG.md with:
+  - Reading pattern used
+  - Issues found (count and description)
+  - Fixes applied
+  - Consecutive clean count
+- **Exit criteria**: 3 consecutive rounds with zero issues
+- **Escalation**: If >10 rounds, escalate to user
 
-**Why Round 2 matters:**
-- Deep verification of test strategy
-- Edge case enumeration
-- Re-verification catches bugs from Round 1 updates
-
-**Prerequisites I'm verifying:**
-✅ Round 1 complete (7/7 iterations)
-✅ Iteration 4a PASSED
-✅ Confidence: >= MEDIUM (from Round 1 checkpoint)
-✅ implementation_plan.md created with acceptance criteria for all tasks
-
-**I'll now proceed with Round 2 (iterations 8-13).**
+**Reading Patterns (vary each round):**
+- Round 1: Sequential (top-to-bottom), focus D1-D4
+- Round 2: Reverse (bottom-to-top), focus D5-D8
+- Round 3: Spot-checks, focus D9-D11
+- Round 4+: Alternate patterns
 
 **Updating feature README Agent Status:**
-- Current Phase: IMPLEMENTATION_PLANNING
-- Current Guide: stages/s5/s5_p2_planning_round2.md
-- Guide Last Read: {YYYY-MM-DD HH:MM}
-- Critical Rules: "6 iterations mandatory (Round 2)", "Re-verification iterations are CRITICAL", "Test coverage >90% required"
-- Progress: 8/24 total iterations complete (starting Round 2)
+- Current Phase: S5_V2_VALIDATION_LOOP
+- Progress: Round {N}, Clean Count: {X}
+- Next Action: Validation Round {N}
+
+Starting Validation Round 1...
+```
+
+---
+
+## Reporting S5 v2: Validation Round Results
+
+**After completing each validation round:**
+
+**Agent MUST respond:**
+
+```markdown
+**Validation Round {N} Complete**
+
+**Reading Pattern:** {pattern used}
+**Duration:** {X minutes}
+
+**Issues Found:** {count}
+
+{If count > 0:}
+| Dimension | Issue | Fix Applied |
+|-----------|-------|-------------|
+| D{N} | {description} | {fix description} |
+| ... | ... | ... |
+
+**All issues fixed:** ✅
+
+**Consecutive Clean Count:** RESET to 0 (issues found)
+
+**Next:** Starting Round {N+1} after 2-minute break...
+
+{If count = 0:}
+**Zero issues found** ✅
+
+**Consecutive Clean Count:** {X}
+
+{If X < 3:}
+**Next:** Proceeding to Round {N+1} (need {3-X} more clean rounds)
+
+{If X = 3:}
+**Validation Loop PASSED** - 3 consecutive clean rounds achieved!
+
+**Proceeding to Gate 5: User Approval**
+```
+
+---
+
+## Exiting S5 v2: Validation Loop Complete
+
+**When 3 consecutive clean rounds achieved:**
+
+**Agent MUST respond:**
+
+```markdown
+**S5 v2 Validation Loop COMPLETE**
+
+**Final Metrics:**
+- Total Rounds: {N}
+- Total Time: {X hours Y minutes}
+- Issues Found Total: {count across all rounds}
+- Final Quality: 99%+ (validated by 3 consecutive clean rounds)
+
+**Validation Summary:**
+- Draft Creation: {X minutes}
+- Validation Rounds: {N rounds in Y hours}
+- First Clean Round: Round {N}
+- Final Clean Streak: Rounds {N-2}, {N-1}, {N}
+
+**All 11 Dimensions Validated:**
+✅ Requirements Completeness
+✅ Interface & Dependency Verification
+✅ Algorithm Traceability
+✅ Task Specification Quality
+✅ Data Flow & Consumption
+✅ Error Handling & Edge Cases
+✅ Integration & Compatibility
+✅ Test Coverage Quality
+✅ Performance & Dependencies
+✅ Implementation Readiness
+✅ Spec Alignment & Cross-Validation
+
+**implementation_plan.md is ready for Gate 5: User Approval**
+
+**Updating feature README Agent Status:**
+- Current Phase: S5_V2_COMPLETE_AWAITING_GATE_5
+- Validation Loop: PASSED (3 consecutive clean rounds)
+- Next Action: Present implementation_plan.md to user for Gate 5 approval
+
+Presenting implementation_plan.md to user for approval...
 - Next Action: Begin iteration 8 - Test Strategy Development
 
 Starting iteration 8...
@@ -127,166 +220,52 @@ Starting iteration 8...
 
 ---
 
-## Starting S5 Round 3 Part 1: Implementation Planning (Preparation)
+## S5 v2: Gate 5 - User Approval of Implementation Plan
 
-**User says:** Agent detects Round 2 complete (16/22 iterations done, confidence >= MEDIUM, test coverage >90%)
+**When:** After S5 v2 validation loop achieves 3 consecutive clean rounds
 
-**Prerequisite:** Round 2 complete (Part 5.1.2), confidence >= MEDIUM, test coverage >90%
+**Prerequisite:** S5 v2 validation loop complete (PASSED), implementation_plan.md validated to 99%+ quality
 
-**Note:** Round 3 is split into 3 parts for better navigation:
-- **stages/s5/s5_p3_planning_round3.md** - Iterations 14-19 (START HERE)
-- **stages/s5/s5_p3_i2_gates_part1.md** - Iterations 20, 23a (Gates 1-2)
-- **stages/s5/s5_p3_i3_gates_part2.md** - Iterations 21-22, 25, 24 (Gate 3 + GO/NO-GO)
+**🚨 MANDATORY GATE 5 - USER MUST APPROVE implementation_plan.md BEFORE S6**
 
 **Agent MUST respond:**
 
 ```markdown
-I'm reading `stages/s5/s5_p3_planning_round3.md` to ensure I follow all 6 preparation iterations in Round 3 Part 1...
+**S5 v2 (Implementation Planning) Complete**
 
-**The guide requires:**
-- **Part 1: 6 preparation iterations** (NO SKIPPING):
-  - Iteration 17: Implementation Phasing
-  - Iteration 18: Rollback Strategy
-  - Iteration 19: Algorithm Traceability Matrix (Final)
-  - Iteration 20: Performance Considerations
-  - Iteration 21: Mock Audit & Integration Test Plan (CRITICAL)
-  - Iteration 22: Output Consumer Validation
-- **Implementation Phasing** (Iteration 17):
-  - Break implementation into 5-6 phases with checkpoints
-  - Prevents "big bang" integration failures
-- **Mock Audit** (Iteration 21 - CRITICAL):
-  - Verify EACH mock matches real interface (READ actual source code)
-  - Plan at least 3 integration tests with REAL objects (NO MOCKS)
-  - Prevents unit tests passing with wrong mocks
-- **Performance Optimization** (Iteration 20):
-  - Identify O(n²) algorithms, optimize to O(n)
-  - Document performance requirements
+I've completed the validation loop with 3 consecutive clean rounds. implementation_plan.md is ready for your review (~400 lines):
 
-**Why Round 3 Part 1 matters:**
-- Preparation iterations ensure implementation is well-planned
-- Final algorithm traceability prevents missing requirements
-- Mock audit prevents interface mismatch bugs
+**Key Sections (validated by 11 dimensions):**
+- Implementation Tasks (100% requirements coverage, all with acceptance criteria)
+- Component Dependencies Matrix (all interfaces verified from source code)
+- Algorithm Traceability Matrix (40+ mappings with file:line references)
+- Test Strategy (>90% coverage, includes resume/persistence tests)
+- Edge Cases and Error Handling (all enumerated with handling strategy)
+- Implementation Phasing (4-6 checkpoints with test validation)
+- Performance Considerations (regression analysis, optimization strategy)
+- Mock Audit Results (all mocks verified against real interfaces)
+- Integration Test Plan (3+ real-object tests, no mocks)
+- Data Flow & Consumption (verified downstream consumers)
+- Spec Alignment (validated against epic notes, epic ticket, spec summary)
 
-**Prerequisites I'm verifying:**
-✅ Round 2 complete (16/22 iterations)
-✅ Test coverage: >90%
-✅ Confidence: >= MEDIUM (from Round 2 checkpoint)
-✅ Algorithm Traceability Matrix updated (Round 2)
-✅ Integration Gap Check updated (Round 2)
-
-**I'll now proceed with Round 3 Part 1 (iterations 14-19).**
-
-**Updating feature README Agent Status:**
-- Current Phase: IMPLEMENTATION_PLANNING
-- Current Guide: stages/s5/s5_p3_planning_round3.md
-- Guide Last Read: {YYYY-MM-DD HH:MM}
-- Critical Rules: "6 preparation iterations mandatory", "Iteration 21: Verify mocks against ACTUAL source code", "Integration tests must use REAL objects"
-- Progress: 16/24 total iterations complete (starting Round 3 Part 1)
-- Next Action: Begin iteration 17 - Implementation Phasing
-
-Starting iteration 17...
-```
-
----
-
-## Starting S5 Round 3 Part 2: Implementation Planning (Final Gates)
-
-**User says:** Agent detects Round 3 Part 1 complete (22/22 iterations done)
-
-**Prerequisite:** Round 3 Part 1 complete (Part 5.1.3.1), Iterations 14-19 done
-
-**Agent MUST respond:**
-
-```markdown
-I'm reading `stages/s5/s5_p3_i2_gates_part1.md` (Part 2a) and `stages/s5/s5_p3_i3_gates_part2.md` (Part 2b) to ensure I follow all 4 final gate iterations in Round 3 Part 2...
-
-**The guide requires:**
-- **Part 2: 4 final gate iterations containing ALL 3 MANDATORY GATES**:
-  - Iteration 19: Integration Gap Check (Final)
-  - Iteration 20: Pre-Implementation Spec Audit (MANDATORY GATE - 4 PARTS)
-  - Iteration 21: Spec Validation Against Validated Documents (CRITICAL GATE)
-  - Iteration 22: Implementation Readiness Protocol (FINAL GATE - GO/NO-GO)
-- **Iteration 20 (Pre-Implementation Spec Audit) has 4 MANDATORY PARTS**:
-  - Part 1: Completeness Audit (Coverage = 100%)
-  - Part 2: Specificity Audit (Specificity = 100%)
-  - Part 3: Interface Contracts Audit (Verification = 100%)
-  - Part 4: Integration Evidence Audit (Integration = 100%)
-  - ALL 4 PARTS must show 100% metrics with evidence (cite specific numbers)
-- **Iteration 21 (Spec Validation) - CRITICAL GATE**:
-  - Close spec.md first (avoid confirmation bias)
-  - Re-read validated documents independently: epic notes + epic ticket + spec summary
-  - Three-way comparison: spec.md vs all three validated sources
-  - IF ANY DISCREPANCIES → STOP and report to user with 3 options
-  - Prevents catastrophic bugs (Feature 02 bug: spec misinterpreted epic notes)
-- **Iteration 22 (Implementation Readiness) - FINAL GATE**:
-  - GO/NO-GO decision required
-  - CANNOT proceed to S6 without "GO" decision
-  - GO requires: confidence >= MEDIUM, all gates PASSED, all checklists complete
-
-**Why Round 3 Part 2 matters:**
-- Contains ALL 3 mandatory gates that CANNOT be skipped
-- Evidence-based verification (must cite specific numbers, provide proof)
-- Three-way validation prevents implementing wrong solution
-- GO/NO-GO framework prevents implementing with incomplete planning
-
-**Prerequisites I'm verifying:**
-✅ Round 3 Part 1 complete (22/22 iterations)
-✅ Implementation phasing defined
-✅ Rollback strategy documented
-✅ Algorithm traceability matrix complete (final)
-✅ Mock audit complete (all mocks verified against real interfaces)
-✅ Integration test plan created (at least 3 tests with REAL objects)
-
-**I'll now proceed with Round 3 Part 2 (iterations 23, 23a, 25, 24).**
-
-**Updating feature README Agent Status:**
-- Current Phase: IMPLEMENTATION_PLANNING
-- Current Guide: stages/s5/s5_p3_i2_gates_part1.md (Part 2a, then Part 2b)
-- Guide Last Read: {YYYY-MM-DD HH:MM}
-- Critical Rules: "3 MANDATORY GATES (23a, 25, 24) - CANNOT skip", "Evidence-based verification (cite numbers)", "Close spec.md before Iteration 21", "User decision required if discrepancies"
-- Progress: 22/24 total iterations complete (starting Round 3 Part 2)
-- Next Action: Begin iteration 23 - Integration Gap Check (Final)
-
-Starting iteration 23...
-```
-
----
-
-## User Approval of Implementation Plan
-
-**User says:** "Review implementation plan" or Agent detects S5 complete (22 iterations done, Iteration 22: Implementation Readiness = PASSED)
-
-**Prerequisite:** S5 complete (22 iterations passed, implementation_plan.md v3.0 created)
-
-**🚨 MANDATORY CHECKPOINT - USER MUST APPROVE implementation_plan.md BEFORE S6**
-
-**Agent MUST respond:**
-
-```markdown
-S5 (Implementation Planning) is complete. I've created implementation_plan.md v3.0 (~400 lines) with:
-
-**Key Sections:**
-- Implementation Tasks (mapped to spec.md requirements)
-- Component Dependencies Matrix
-- Algorithm Traceability Matrix
-- Test Strategy (>90% coverage)
-- Edge Cases and Error Handling
-- Implementation Phasing (5-6 checkpoints)
-- Performance Considerations
-- Mock Audit Results
-- Integration Test Plan
+**Validation Metrics:**
+- Total Rounds: {N}
+- Total Time: {X hours Y minutes}
+- Issues Found & Fixed: {count}
+- Final Quality: 99%+ (3 consecutive clean validation rounds)
 
 **File Location:** `feature-updates/KAI-{N}-{epic_name}/feature_{XX}_{name}/implementation_plan.md`
 
 **Please review implementation_plan.md and confirm:**
 1. Implementation approach makes sense
-2. Phasing is reasonable (5-6 checkpoints)
+2. Phasing is reasonable (4-6 checkpoints)
 3. Test coverage is adequate (>90%)
 4. No missing requirements
+5. All 11 validation dimensions look complete
 
 **Say "approved" to proceed to S6 (Implementation), or request changes.**
 
-**Note:** This is your opportunity to adjust the implementation approach before code is written. Once approved, I'll create implementation_checklist.md and begin coding.
+**Note:** This is your opportunity to adjust the implementation approach before code is written. The validation loop has ensured 99%+ quality, but you have final approval.
 ```
 
 ---

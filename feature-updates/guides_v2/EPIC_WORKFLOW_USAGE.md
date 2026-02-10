@@ -346,36 +346,48 @@ feature-updates/KAI-{N}-{epic_name}/
 
 **Stages:** S5 → S6 → S7 → S8 (for EACH feature)
 
-#### S5: Implementation Planning (22 verification iterations across 3 rounds)
+#### S5 v2: Implementation Planning (Validation Loop Approach)
 
-**Guide:** 5 guides (Round 1, 2, 3 split into 3 parts)
-- `stages/s5/s5_p1_planning_round1.md` (iterations 1-7 + 4a)
-- `stages/s5/s5_p2_planning_round2.md` (iterations 8-13)
-- `stages/s5/s5_p3_planning_round3.md` (Round 3 Part 1: iterations 14-19)
-- `stages/s5/s5_p3_i2_gates_part1.md` (Round 3 Part 2a: iterations 20, 23a)
-- `stages/s5/s5_p3_i3_gates_part2.md` (Round 3 Part 2b: iterations 21-22, 25, 24)
+**Guide:** `stages/s5/s5_v2_validation_loop.md`
 
-**Key Activities:**
-- Round 1: Initial analysis (7 iterations + mandatory 4a gate)
-  - Iteration 4: Algorithm Traceability Matrix
-  - Iteration 4a: Implementation Plan Specification Audit (MANDATORY GATE)
-  - Iteration 7: Integration Gap Check
-- Round 2: Deep verification (6 iterations)
-  - Iteration 11: Algorithm Traceability Matrix (re-verify)
-  - Iteration 14: Integration Gap Check (re-verify)
-  - Iteration 15: Test Coverage Depth Check (>90%)
-- Round 3: Final readiness (9 iterations split into 2 parts + 3 mandatory gates)
-  - Iteration 19: Algorithm Traceability Matrix (final)
-  - Iteration 21: Mock Audit & Integration Test Plan
-  - Iteration 19: Integration Gap Check (final)
-  - Iteration 20: Pre-Implementation Spec Audit (4 MANDATORY PARTS)
-  - Iteration 22: GO/NO-GO decision
+**Approach:** 2-phase validation loop (replaces 22-iteration v1 structure)
 
-**Outputs:** `implementation_plan.md` (~400 lines), `questions.md` (if needed)
+**Phase 1: Draft Creation (60-90 minutes)**
+- Use template: `templates/implementation_plan_template.md`
+- Create initial implementation_plan.md with all 11 dimension sections
+- Target: ~70% completeness (known gaps acceptable)
+- Time limit: Stop at 90 minutes even if only 70% complete
 
-**User Approval:** **MANDATORY CHECKPOINT** - User must approve implementation_plan.md before S6
+**Phase 2: Validation Loop (3.5-6 hours typical, 6-8 rounds)**
+- Apply Validation Loop Protocol (3 consecutive clean rounds required)
+- Validate against 11 dimensions each round:
+  1. Requirements Completeness
+  2. Interface & Dependency Verification
+  3. Algorithm Traceability
+  4. Task Specification Quality (embeds Gate 4a)
+  5. Data Flow & Consumption
+  6. Error Handling & Edge Cases
+  7. Integration & Compatibility (embeds Gate 7a)
+  8. Test Coverage Quality
+  9. Performance & Dependencies
+  10. Implementation Readiness
+  11. Spec Alignment & Cross-Validation (embeds Gate 23a)
+- Fix ALL issues before next round (zero deferred issues)
+- Exit when 3 consecutive rounds find zero issues
 
-**Critical Rule:** ALL 22 iterations are mandatory, cannot skip
+**Key Benefits vs v1:**
+- 35-50% time reduction (4.5-7 hours vs 9-11 hours)
+- No redundancy (v1 had 3x re-verifications)
+- Systematic validation (impossible to skip checks)
+- Objective quality metric (3 clean rounds prove completeness)
+
+**Outputs:** `implementation_plan.md` (~400 lines), `VALIDATION_LOOP_LOG.md`
+
+**User Approval:** **MANDATORY GATE 5** - User must approve implementation_plan.md before S6
+
+**Critical Rule:** Must achieve 3 consecutive clean validation rounds before Gate 5
+
+**Migration:** See `stages/s5/S5_V1_TO_V2_MIGRATION.md` for v1→v2 differences
 
 #### S6: Implementation Execution
 
@@ -546,28 +558,27 @@ feature-updates/KAI-{N}-{epic_name}/bugfix_{priority}_{name}/
 
 **Example:**
 ```text
-I'm reading stages/s5/s5_p1_planning_round1.md to ensure I follow all 7 iterations in Round 1...
+I'm reading stages/s5/s5_v2_validation_loop.md to ensure I follow the 2-phase validation loop approach...
 
 The guide requires:
-- Round 1: 7 MANDATORY iterations (iterations 1-7 + 4a)
-- Iteration 4a is a MANDATORY GATE (Implementation Plan Specification Audit)
-- Algorithm Traceability Matrix (iteration 4)
-- Integration Gap Check (iteration 7)
-- STOP if confidence < Medium at Round 1 checkpoint
+- Phase 1: Draft Creation (60-90 minutes, ~70% quality target)
+- Phase 2: Validation Loop (11 dimensions, ALL rounds)
+- Exit criteria: 3 consecutive rounds with zero issues
+- Fix ALL issues before next round (zero deferral)
 
 Prerequisites I'm verifying:
 ✅ spec.md exists and is complete
 ✅ checklist.md all items resolved
 ✅ S4 (Epic Testing Strategy) complete
 
-I'll now proceed with Round 1 (iterations 1-7 + 4a)...
+I'll now proceed with Phase 1: Draft Creation...
 ```
 
 ### 2. Phase Transition Protocol
 
 **Phase transition prompts are MANDATORY for:**
 - Starting any of the 10 stages (S1, S2, S3, S4, S5, S6, S7, S8, S9, S10)
-- Starting S5 rounds (Round 1, 2, 3)
+- Starting S5 v2 phases (Draft Creation, Validation Loop)
 - Starting S7 phases (Smoke Testing, QC Rounds, Final Review)
 - Creating a bug fix
 - Resuming after session compaction
@@ -722,33 +733,32 @@ Phase transition prompts are **mandatory acknowledgments** that prove you read t
 
 ### Example Phase Transition
 
-**Scenario:** Starting S5 Round 1
+**Scenario:** Starting S5 v2
 
-**Step 1:** Read `stages/s5/s5_p1_planning_round1.md`
+**Step 1:** Read `stages/s5/s5_v2_validation_loop.md`
 
-**Step 2:** Find "Starting S5 Round 1" prompt in `prompts_reference_v2.md`
+**Step 2:** Find "Starting S5 v2" prompt in `prompts_reference_v2.md`
 
 **Step 3:** Use the prompt:
 
 ```text
-I'm reading stages/s5/s5_p1_planning_round1.md to ensure I follow all 7 iterations in Round 1...
+I'm reading stages/s5/s5_v2_validation_loop.md to ensure I follow the 2-phase validation loop approach...
 
 The guide requires:
-- Round 1: 7 MANDATORY iterations (iterations 1-7 + 4a)
-- Iteration 4a is a MANDATORY GATE (Implementation Plan Specification Audit)
-- Algorithm Traceability Matrix (iteration 4)
-- Integration Gap Check (iteration 7)
-- STOP if confidence < Medium at Round 1 checkpoint
+- Phase 1: Draft Creation (60-90 minutes, ~70% quality target)
+- Phase 2: Validation Loop (11 dimensions, ALL rounds)
+- Exit criteria: 3 consecutive rounds with zero issues
+- Fix ALL issues before next round (zero deferral)
 
 Prerequisites I'm verifying:
 ✅ spec.md exists and is complete
 ✅ checklist.md all items resolved
 ✅ S4 (Epic Testing Strategy) complete
 
-I'll now proceed with Round 1 (iterations 1-7 + 4a)...
+I'll now proceed with Phase 1: Draft Creation...
 ```
 
-**Step 4:** Execute Round 1 iterations
+**Step 4:** Execute draft creation, then validation loop
 
 ### What Happens if You Skip the Prompt?
 
@@ -776,19 +786,14 @@ I'll now proceed with Round 1 (iterations 1-7 + 4a)...
 - stages/s3/s3_cross_feature_sanity_check.md
 - stages/s4/s4_epic_testing_strategy.md
 
-**Implementation Guides (11):**
-- stages/s5/s5_p1_planning_round1.md (Round 1)
-- stages/s5/s5_p2_planning_round2.md (Round 2)
-- stages/s5/s5_p3_planning_round3.md (Round 3 Part 1)
-- stages/s5/s5_p3_i2_gates_part1.md (Round 3 Part 2a)
-- stages/s5/s5_p3_i3_gates_part2.md (Round 3 Part 2b)
+**Implementation Guides (7):**
+- stages/s5/s5_v2_validation_loop.md (S5 v2: Draft + Validation Loop)
 - stages/s6/s6_execution.md
 - stages/s7/s7_p1_smoke_testing.md (Phase 1)
 - stages/s7/s7_p2_qc_rounds.md (Phase 2)
 - stages/s7/s7_p3_final_review.md (Phase 3)
 - stages/s8/s8_p1_cross_feature_alignment.md
 - stages/s8/s8_p2_epic_testing_update.md
-- stages/s5/s5_bugfix_workflow.md
 
 **Finalization Guides (5):**
 - stages/s9/s9_epic_final_qc.md (router)

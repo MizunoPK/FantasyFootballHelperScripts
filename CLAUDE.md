@@ -68,7 +68,7 @@ Per-feature loop: S5 (Planning) → S6 (Execution) → S7 (Testing) → S8 (Alig
 **Phase transition prompts are MANDATORY for:**
 - Starting any of the 10 stages (S1, S2, S3, S4, S5, S6, S7, S8, S9, S10)
 - Starting S1.P3 Discovery Phase
-- Starting S5 rounds (Round 1, 2, 3)
+- Starting S5 phases (Draft Creation, Validation Loop)
 - Starting S7 phases (Smoke Testing, QC Rounds, Final Review)
 - Creating missed requirements or entering debugging protocol
 - Resuming after session compaction
@@ -186,7 +186,7 @@ Guides contain mandatory checkpoints marked with 🛑 or "CHECKPOINT".
 | **S2** | Complete S1 | `stages/s2/s2_feature_deep_dive.md` | spec.md, checklist.md, RESEARCH_NOTES.md (Gate 3: User approval) | S3 |
 | **S3** | All features done S2 | `stages/s3/s3_epic_planning_approval.md` | Epic testing strategy, documentation (Gate 4.5: User approval) | S4 |
 | **S4** | S3 approved | `stages/s4/s4_feature_testing_strategy.md` | test_strategy.md (4 iterations, Validation Loop) | S5 |
-| **S5** | S4 complete | `stages/s5/s5_p1_planning_round1.md` | implementation_plan.md (22 iterations, 3 rounds, Gate 5: User approval) | S6 |
+| **S5** | S4 complete | `stages/s5/s5_v2_validation_loop.md` | implementation_plan.md (Draft + Validation Loop, Gate 5: User approval) | S6 |
 | **S6** | S5 approved | `stages/s6/s6_execution.md` | implementation_checklist.md, implement code | S7 |
 | **S7** | S6 complete | `stages/s7/s7_p1_smoke_testing.md` | Smoke test, 3 QC rounds, commit feature | S8 |
 | **S8** | S7 complete | `stages/s8/s8_p1_cross_feature_alignment.md` | Update remaining specs, update epic testing plan | S5 (next) or S9 |
@@ -195,7 +195,7 @@ Guides contain mandatory checkpoints marked with 🛑 or "CHECKPOINT".
 
 **Critical Workflows:**
 - **S1.P3 Discovery Phase:** MANDATORY for ALL epics - research loop until 3 consecutive iterations with no new questions
-- **S5 Structure:** 22 iterations across 3 rounds (Round 1: I1-I7, Round 2: I8-I13, Round 3: I14-I22)
+- **S5 v2 Structure:** 2-phase approach (Draft Creation 60-90 min + Validation Loop 3.5-6 hours with 11 dimensions, 3 consecutive clean rounds required)
 - **🚨 RESTART PROTOCOL:** S7/S9 - If ANY issues found → Restart from phase beginning (S7.P1 or S9.P1)
 
 **Phase Transition Prompts:** `feature-updates/guides_v2/prompts_reference_v2.md` (MANDATORY)

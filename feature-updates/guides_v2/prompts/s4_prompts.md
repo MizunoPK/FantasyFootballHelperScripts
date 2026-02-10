@@ -109,7 +109,7 @@ I've updated the epic testing strategy in `epic_smoke_test_plan.md` based on the
 
 Now that I know EXACTLY how to test this work (user-approved test plan), I'll transition to S5 to begin implementation planning for the first feature.
 
-Following `stages/s5/s5_p1_planning_round1.md` (Round 1) to create comprehensive implementation plan with 22 verification iterations across 3 rounds.
+Following `stages/s5/s5_v2_validation_loop.md` to create comprehensive implementation plan using 2-phase validation loop approach (Draft Creation + 11 validation dimensions).
 ```
 
 ---
