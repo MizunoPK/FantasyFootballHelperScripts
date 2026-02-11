@@ -20,7 +20,7 @@
 **Scope:**
 - Add --enable-log-file flag to run_win_rate_simulation.py (direct entry)
 - Replace hardcoded LOGGING_TO_FILE constant with CLI flag
-- Apply DEBUG/INFO quality criteria to simulation/win_rate_sim/ modules
+- Apply DEBUG/INFO quality criteria to simulation/win_rate/ modules
 - Review shared simulation utilities: ResultsManager, ConfigGenerator
 - Update affected test assertions
 
@@ -42,7 +42,7 @@
 | Q3: Log quality criteria | Agent to propose criteria | Must apply DEBUG (tracing) and INFO (user awareness) criteria |
 | Q4: CLI flag default | File logging OFF by default | Replace LOGGING_TO_FILE constant with CLI flag (default False) |
 | Q5: Script coverage | Just those 6 scripts | Confirms win_rate_sim in scope |
-| Q6: Log quality scope | System-wide (Option B) | Affects simulation/win_rate_sim/ AND shared simulation utilities |
+| Q6: Log quality scope | System-wide (Option B) | Affects simulation/win_rate/ AND shared simulation utilities |
 
 ### Discovery Basis for This Feature
 
@@ -133,16 +133,16 @@ Audit and improve DEBUG-level logging calls across all simulation/win_rate/ modu
 - ✅ Conditional branch logs show which path executed (e.g., "Using Process mode" vs "Using Thread mode")
 - ❌ NOT every variable assignment (avoid spam)
 - ❌ NOT logging inside tight loops without throttling (performance impact)
-- ✅ All 197 DEBUG calls audited using systematic review
+- ✅ All 69 DEBUG calls audited using systematic review
 
 **Modules in Scope:**
-- SimulationManager.py (111 logging calls)
-- ParallelLeagueRunner.py (26 calls)
-- SimulatedLeague.py (35 calls)
-- DraftHelperTeam.py (8 calls)
-- SimulatedOpponent.py (5 calls)
-- Week.py (6 calls)
-- manual_simulation.py (6 calls)
+- SimulationManager.py (9 DEBUG calls)
+- ParallelLeagueRunner.py (16 DEBUG calls)
+- SimulatedLeague.py (27 DEBUG calls)
+- DraftHelperTeam.py (6 DEBUG calls)
+- SimulatedOpponent.py (5 DEBUG calls)
+- Week.py (6 DEBUG calls)
+- manual_simulation.py (0 DEBUG calls)
 
 **Example Current Code (from RESEARCH_NOTES):**
 ```python
@@ -156,13 +156,13 @@ self.logger.debug(f"Season {season_folder.name}: {valid_count} valid players - O
 ```
 
 **Review Process:**
-- **Comprehensive manual audit** (all 197 calls reviewed individually)
+- **Comprehensive manual audit** (all 69 calls reviewed individually)
 - Systematic file-by-file audit (7 files)
 - Categorize each DEBUG call: KEEP, IMPROVE, REMOVE
 - Document violations found in implementation checklist
 - Fix all violations before commit
 
-**User Decision:** Q1 Answer - Option A (Comprehensive Manual Audit) - Review all 197 calls for complete quality assurance
+**User Decision:** Q1 Answer - Option A (Comprehensive Manual Audit) - Review all 69 calls for complete quality assurance
 
 ---
 
@@ -179,7 +179,7 @@ Audit and improve INFO-level logging calls to meet quality criteria. INFO logs s
 - ✅ Significant outcomes (e.g., "Generated 46,656 configurations", "Win rate: 75%")
 - ❌ NOT implementation details (move to DEBUG level)
 - ❌ NOT every function call (only major phases)
-- ✅ All 197 INFO calls audited using systematic review
+- ✅ All 100 INFO calls audited using systematic review
 
 **Example Current Code (from RESEARCH_NOTES):**
 ```python
@@ -196,13 +196,13 @@ self.logger.info(f"Registered {len(combinations)} configurations")
 ```
 
 **Review Process:**
-- **Comprehensive manual audit** (all 197 calls reviewed individually)
+- **Comprehensive manual audit** (all 100 calls reviewed individually)
 - Same systematic file-by-file audit as DEBUG level
 - Categorize each INFO call: KEEP, IMPROVE, REMOVE, DOWNGRADE_TO_DEBUG
 - Ensure INFO logs remain user-friendly (avoid technical jargon)
 - Fix all violations before commit
 
-**User Decision:** Q1 Answer - Option A (Comprehensive Manual Audit) - Review all 197 calls for complete quality assurance
+**User Decision:** Q1 Answer - Option A (Comprehensive Manual Audit) - Review all 100 calls for complete quality assurance
 
 ---
 
