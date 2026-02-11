@@ -348,7 +348,7 @@ You'll need to open 2 new Claude Code sessions (one for each secondary agent).
 
 In NEW Claude Code session #1, enter:
 
-```
+```text
 You are a secondary agent for Feature 02
 ```
 
@@ -360,9 +360,9 @@ The agent will automatically read `feature_02_{name}/HANDOFF_PACKAGE.md` and sel
 
 In NEW Claude Code session #2, enter:
 
-```
+```text
 You are a secondary agent for Feature 03
-```
+```text
 
 The agent will automatically read `feature_03_{name}/HANDOFF_PACKAGE.md` and self-configure.
 

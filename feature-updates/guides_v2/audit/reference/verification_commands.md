@@ -421,19 +421,19 @@ echo "Remaining placeholders: $N_remaining"
 ```bash
 [Command used]
 [Output showing count]
-```
+```markdown
 
 ### Before/After Evidence
 
 **Before (sample):**
 ```
 [Line from file before fix]
-```
+```text
 
 **After (sample):**
 ```
 [Line from file after fix]
-```
+```markdown
 
 ### Spot-Check Files (10 random)
 

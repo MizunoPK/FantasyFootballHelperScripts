@@ -82,7 +82,7 @@ Organize features into **dependency groups** based on spec-level dependencies. E
 
 ### Dependency Wave Pattern
 
-```
+```yaml
 START: All features identified in S1
   ↓
 WAVE 1: Group 1 (Foundation)
@@ -118,7 +118,7 @@ WAVE COMPLETION: All Groups Done
 **KAI-8 Logging Epic: 7 Features, 2 Groups**
 
 **Sequential S2:**
-```
+```text
 Feature 01: 2 hours
 Feature 02: 2 hours
 Feature 03: 2 hours
@@ -130,7 +130,7 @@ Total: 14 hours
 ```
 
 **Group-Based Parallel S2:**
-```
+```text
 Wave 1 (Group 1):
   - Feature 01: 2 hours (solo)
 
@@ -437,15 +437,15 @@ I'm joining as a secondary agent to help with S2 parallelization for the {epic_n
 
 ### Secondary-A: Feature 02 (league_helper_logging)
 
-```
+```text
 [Full handoff package with group context...]
 ```
 
 ### Secondary-B: Feature 03 (player_data_fetcher_logging)
 
-```
+```text
 [Full handoff package with group context...]
-```
+```text
 
 [Continue for all 6 Group 2 features...]
 
@@ -863,7 +863,7 @@ grep "ISSUES:" feature_*/STATUS | grep -v "ISSUES: 0"
 **Estimated time:** 1-2 hours
 
 **Proceeding to S3 now...**
-```
+```text
 
 **Then:**
 - Read `stages/s3/s3_epic_planning_approval.md`
@@ -878,7 +878,7 @@ grep "ISSUES:" feature_*/STATUS | grep -v "ISSUES: 0"
 
 **Location:** `parallel_work/coordination/`
 
-```
+```text
 parallel_work/
 └── coordination/
     ├── agent_checkpoints/

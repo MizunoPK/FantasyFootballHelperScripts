@@ -117,7 +117,7 @@ These 3 dimensions are specific to test strategy validation:
 - [ ] All smoke test scenarios defined
 
 **Coverage Calculation:**
-```
+```bash
 Coverage = (Requirements with tests) / (Total requirements) × 100%
 
 Feature-level minimum: >90%

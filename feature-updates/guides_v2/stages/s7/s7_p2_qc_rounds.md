@@ -224,7 +224,7 @@ VALIDATION COMPLETE → Proceed to S7.P3 (Final Review)
 
 ## Round 2 (Reverse Review)
 ...
-```
+```text
 
 **Time Savings:** 60-180 min per bug (no restart overhead)
 

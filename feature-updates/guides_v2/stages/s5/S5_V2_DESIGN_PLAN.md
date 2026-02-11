@@ -316,7 +316,7 @@ Each validation round checks implementation_plan.md against these 11 dimensions:
 
 Each round follows this pattern:
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────┐
 │                    VALIDATION ROUND N                        │
 └─────────────────────────────────────────────────────────────┘

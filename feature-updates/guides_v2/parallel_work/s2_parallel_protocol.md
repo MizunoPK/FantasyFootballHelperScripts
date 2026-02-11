@@ -1282,7 +1282,7 @@ bash feature-updates/guides_v2/parallel_work/scripts/validate_structure.sh \
 # ✅ PASSED - structure valid
 # ⚠️  PASSED WITH WARNINGS - functional but has style issues
 # ❌ FAILED - critical issues found
-```
+```text
 
 **When to run:**
 1. **After Primary creates infrastructure** (Phase 3, Step 1)
@@ -1301,7 +1301,7 @@ bash feature-updates/guides_v2/parallel_work/scripts/validate_structure.sh \
 - ✅ Lock files use .lock extension
 
 **Example output:**
-```
+```text
 ==================================================
 Parallel S2 Structure Validation
 ==================================================

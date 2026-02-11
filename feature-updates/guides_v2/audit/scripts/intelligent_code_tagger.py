@@ -2,12 +2,14 @@
 """
 Intelligent code block tagging for markdown files.
 Tags untagged code blocks (```) with appropriate language identifiers.
+
+CRITICAL: Only tags OPENING fences. Closing fences always remain as just ```.
 """
 
 import re
 import sys
 from pathlib import Path
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 
 def detect_language(content: str) -> str:
     """Detect the appropriate language tag for a code block."""
@@ -39,6 +41,7 @@ def detect_language(content: str) -> str:
         r'^while\s',
         r'^if\s\[',
         r'^#!/bin/(ba)?sh',
+        r'^\w+\s*=',  # Variable assignment
     ]
 
     for pattern in bash_patterns:
@@ -46,7 +49,7 @@ def detect_language(content: str) -> str:
             return 'bash'
 
     # Check all lines for strong bash indicators
-    bash_keywords = ['#!/bin/bash', '#!/bin/sh', 'set -e', 'set -u', 'function ', 'do\n', 'done\n']
+    bash_keywords = ['#!/bin/bash', '#!/bin/sh', 'set -e', 'set -u']
     for keyword in bash_keywords:
         if keyword in content:
             return 'bash'
@@ -72,7 +75,9 @@ def detect_language(content: str) -> str:
 
     # YAML patterns
     if re.search(r'^[\w-]+:\s', first_line) and not re.search(r'[{}]', content):
-        return 'yaml'
+        # Check for more yaml indicators
+        if ':' in content and not '{' in content:
+            return 'yaml'
 
     # Python patterns
     python_patterns = [
@@ -105,6 +110,10 @@ def detect_language(content: str) -> str:
     if re.search(r'^[\+\-]{3}\s', first_line) or re.search(r'^@@.*@@', first_line):
         return 'diff'
 
+    # Check for arrow diagrams (workflow)
+    if '→' in content or '↓' in content or '←' in content or '↑' in content:
+        return 'text'
+
     # Default to text for anything else
     return 'text'
 
@@ -113,6 +122,8 @@ def process_file(filepath: Path) -> Tuple[int, int]:
     """
     Process a single markdown file, tagging untagged code blocks.
     Returns (blocks_found, blocks_tagged).
+
+    CRITICAL: Only tags opening fences. Closing fences stay as ```.
     """
     try:
         content = filepath.read_text(encoding='utf-8')
@@ -124,47 +135,59 @@ def process_file(filepath: Path) -> Tuple[int, int]:
     new_lines = []
     in_block = False
     block_content = []
+    opening_fence_index = None
     blocks_found = 0
     blocks_tagged = 0
 
-    for line in lines:
-        # Check for code fence
+    for i, line in enumerate(lines):
+        # Check for code fence (opening or closing)
         if line.strip().startswith('```'):
+            fence_content = line.strip()[3:]  # Get everything after ```
+
             if not in_block:
-                # Opening fence
-                fence = line.strip()
-                if fence == '```':
-                    # Untagged block
+                # This is an opening fence
+                if fence_content == '':
+                    # Untagged opening fence
                     in_block = True
                     block_content = []
+                    opening_fence_index = len(new_lines)
                     blocks_found += 1
-                    new_lines.append(line)  # Keep original for now
+                    new_lines.append(line)  # Keep as-is for now
                 else:
-                    # Already tagged
+                    # Already tagged opening fence
                     new_lines.append(line)
             else:
-                # Closing fence
-                if line.strip() == '```':
-                    # This is the closing fence for an untagged block
-                    # Detect language and update opening fence
+                # This is a closing fence (we're in a block)
+                # CRITICAL: Closing fences should NEVER be tagged
+                # They should always be just ```
+
+                if fence_content == '':
+                    # Correct closing fence (just ```)
+                    # Now we can detect language and update the opening fence
                     language = detect_language('\n'.join(block_content))
 
-                    # Update the opening fence (last occurrence before block_content)
-                    # Find it in new_lines
-                    for i in range(len(new_lines) - 1, -1, -1):
-                        if new_lines[i].strip() == '```':
-                            new_lines[i] = new_lines[i].replace('```', f'```{language}')
-                            blocks_tagged += 1
-                            break
+                    # Update the opening fence we saved earlier
+                    if opening_fence_index is not None:
+                        old_line = new_lines[opening_fence_index]
+                        # Preserve indentation
+                        indent = old_line[:len(old_line) - len(old_line.lstrip())]
+                        new_lines[opening_fence_index] = f"{indent}```{language}"
+                        blocks_tagged += 1
 
+                    new_lines.append(line)  # Keep closing fence as-is
+                    in_block = False
+                    block_content = []
+                    opening_fence_index = None
+                else:
+                    # This is weird - a "closing" fence with a tag
+                    # Treat this as the start of a new block (nested/malformed)
+                    # Just add the line and reset state
                     new_lines.append(line)
                     in_block = False
                     block_content = []
-                else:
-                    # This shouldn't happen for untagged blocks
-                    new_lines.append(line)
-                    in_block = False
+                    opening_fence_index = None
         else:
+            # Regular line
             new_lines.append(line)
             if in_block:
                 block_content.append(line)
@@ -172,7 +195,8 @@ def process_file(filepath: Path) -> Tuple[int, int]:
     # Write back if changes were made
     if blocks_tagged > 0:
         try:
-            filepath.write_text('\n'.join(new_lines), encoding='utf-8')
+            new_content = '\n'.join(new_lines)
+            filepath.write_text(new_content, encoding='utf-8')
             return blocks_found, blocks_tagged
         except Exception as e:
             print(f"Error writing {filepath}: {e}", file=sys.stderr)
@@ -216,7 +240,18 @@ def main():
     print(f"  Blocks found: {total_found}")
     print(f"  Blocks tagged: {total_tagged}")
 
-    return 0 if total_tagged == total_found else 1
+    if total_found > 0 and total_tagged == total_found:
+        print()
+        print("✅ All untagged blocks successfully tagged!")
+        return 0
+    elif total_tagged > 0:
+        print()
+        print(f"⚠️  {total_found - total_tagged} blocks remain (may need manual review)")
+        return 1
+    else:
+        print()
+        print("✅ No untagged blocks found!")
+        return 0
 
 
 if __name__ == '__main__':

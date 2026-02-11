@@ -150,7 +150,7 @@ S5 v2 is a **validation loop-based approach** to implementation planning that sy
 
 ## 📐 THE TWO-PHASE APPROACH
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────┐
 │                    PHASE 1: DRAFT CREATION                   │
 │                       (60-90 minutes)                         │
@@ -366,7 +366,7 @@ Historical evidence from KAI-8 Feature 04 shows test creation tasks missing from
 1. Empty ADP file: All players get default multiplier
 2. Duplicate players: Use first occurrence
 3. Invalid ADP values: Clamp to valid range (1-500)
-```
+```text
 
 **Draft Quality Bar:**
 - 5-10 error scenarios identified
@@ -454,7 +454,7 @@ Each round follows this pattern:
 5. FIX OR CONTINUE
    - If X > 0: Fix ALL issues immediately → Round N+1, RESET counter
    - If X = 0: Increment clean counter → Check if 3 consecutive clean
-```
+```text
 
 ---
 
@@ -784,7 +784,7 @@ Each round follows this pattern:
 
 ### Example Validation Loop Execution
 
-```
+```text
 DRAFT CREATION: 90 minutes
 - Created implementation_plan.md with all 11 dimensions
 - Quality estimate: ~70%

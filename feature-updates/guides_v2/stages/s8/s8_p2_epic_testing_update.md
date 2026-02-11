@@ -741,7 +741,7 @@ integration points (PlayerManager → ConfigManager), and edge case behaviors
 (missing data, rank 0, rank > 250) that weren't captured in S4 plan.
 
 Ensures S9 epic QC tests actual implementation, not assumptions.
-```
+```text
 
 ---
 
@@ -810,7 +810,7 @@ Steps:
   2. Call PlayerManager.calculate_total_score(player)
   3. Verify: Final score includes adp_multiplier boost
 Expected: score > base_score (multiplier applied)
-```
+```text
 
 ---
 

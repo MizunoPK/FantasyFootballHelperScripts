@@ -144,7 +144,7 @@ git log --oneline | head -5
 # Re-run discovery pattern
 grep -rn "pattern" --include="*.md" .
 # Output: [show zero or documented remaining instances]
-```
+```text
 
 If you cannot provide this evidence, loop back immediately.
 ```
@@ -445,7 +445,7 @@ $ grep -rn "pattern" --include="*.md" .
 $ git log --oneline | grep -i audit
 abc123 feat/audit: Apply Round 3 fixes - notation standardization (70 files)
 def456 feat/audit: Apply Round 2 fixes - file paths (15 files)
-```
+```markdown
 
 ### Spot-Check Results
 

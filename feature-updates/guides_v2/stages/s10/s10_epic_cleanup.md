@@ -501,12 +501,12 @@ git add {file1} {file2} {file3}
 
 ## Stage epic folder (all files)
 git add feature-updates/{epic_name}/
-```
+```text
 
 **5c. Create Commit with Clear Message**
 
 **Commit Message Format:**
-```
+```text
 {commit_type}/KAI-{number}: Complete {epic_name} epic
 
 Major features:
