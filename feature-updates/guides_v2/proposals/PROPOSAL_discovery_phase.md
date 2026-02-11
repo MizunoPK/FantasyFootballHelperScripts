@@ -632,7 +632,7 @@ Shared debug config, verbose logging setup, base debug utilities
 | File | Changes |
 |------|---------|
 | `stages/s1/s1_epic_planning.md` | Add Step 3 Discovery Phase, update Steps 4-6 numbering |
-| `stages/s2/s2_p1_research.md` | Change Phase 0 from Epic Intent to Discovery Context Review |
+| `stages/s2/s2_p1_spec_creation_refinement.md` | Change Phase 0 from Epic Intent to Discovery Context Review |
 | `prompts_reference_v2.md` | Add Discovery Phase prompts |
 | `reference/glossary.md` | Add Discovery terminology |
 | `templates/feature_spec_template.md` | Add Discovery Context section |

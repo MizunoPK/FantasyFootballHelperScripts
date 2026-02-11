@@ -3,8 +3,8 @@
 **Guide Version:** 1.0
 **Created:** 2026-01-10
 **Purpose:** Detailed examples and templates for Research Phase execution
-**Prerequisites:** Read stages/s2/s2_p1_research.md first
-**Main Guide:** stages/s2/s2_p1_research.md
+**Prerequisites:** Read stages/s2/s2_p1_spec_creation_refinement.md first
+**Main Guide:** stages/s2/s2_p1_spec_creation_refinement.md
 
 ---
 

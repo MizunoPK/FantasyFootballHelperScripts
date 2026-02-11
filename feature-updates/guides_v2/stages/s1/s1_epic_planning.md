@@ -1152,7 +1152,7 @@ If you cannot answer these questions without re-reading the guide, you haven't r
 
 **After completing S1:**
 
-**READ:** `stages/s2/s2_p1_research.md` (Research Phase - first of three phases)
+**READ:** `stages/s2/s2_p1_spec_creation_refinement.md` (Research Phase - first of three phases)
 **GOAL:** Review Discovery Context, conduct feature-specific research, pass research audit
 **ESTIMATE:** 45-60 minutes (then continue with S2.P2 and S2.P3)
 

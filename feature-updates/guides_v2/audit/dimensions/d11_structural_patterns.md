@@ -209,7 +209,7 @@ done
 **Stage guides:**
 ```text
 s#_stage_name.md          (e.g., s1_epic_planning.md)
-s#_p#_phase_name.md       (e.g., s2_p1_research.md)
+s#_p#_phase_name.md       (e.g., s2_p1_spec_creation_refinement.md)
 s#_p#_i#_iteration_name.md (e.g., s5_p1_i1_requirements.md)
 ```
 

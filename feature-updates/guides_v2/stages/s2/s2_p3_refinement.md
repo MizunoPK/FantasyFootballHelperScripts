@@ -859,7 +859,7 @@ If changes needed: Let me know what to modify
    - Approval checkbox marked [x]
    - Approval timestamp documented
 
-**Next Stage:** Either next feature's Research Phase (stages/s2/s2_p1_research.md) OR Cross-Feature Sanity Check (stages/s3/s3_epic_planning_approval.md) if all features complete
+**Next Stage:** Either next feature's Research Phase (stages/s2/s2_p1_spec_creation_refinement.md) OR Cross-Feature Sanity Check (stages/s3/s3_epic_planning_approval.md) if all features complete
 
 ---
 

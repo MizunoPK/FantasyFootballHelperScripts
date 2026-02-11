@@ -46,7 +46,7 @@ S2.P3: Refinement Phase (45-60 min)
 ## Mandatory Gates
 
 ### Gate 1: Phase 1.5 - Research Completeness Audit
-**Location:** stages/s2/s2_p1_research.md
+**Location:** stages/s2/s2_p1_spec_creation_refinement.md
 **What it checks:**
 - Component Research: Have you found the code mentioned in epic?
 - Pattern Research: Have you studied similar features?
@@ -217,8 +217,8 @@ S2.P3: Refinement Phase (45-60 min)
 
 | Current Phase | Guide to Read |
 |---------------|---------------|
-| Starting S2 | stages/s2/s2_p1_research.md |
-| Phase 0, 1, or 1.5 | stages/s2/s2_p1_research.md |
+| Starting S2 | stages/s2/s2_p1_spec_creation_refinement.md |
+| Phase 0, 1, or 1.5 | stages/s2/s2_p1_spec_creation_refinement.md |
 | Phase 2 or 2.5 | stages/s2/s2_p2_specification.md |
 | Phase 3, 4, 5, or 6 | stages/s2/s2_p3_refinement.md |
 | Need overview | stages/s2/s2_feature_deep_dive.md (router) |

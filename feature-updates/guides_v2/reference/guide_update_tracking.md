@@ -30,7 +30,7 @@ This document tracks the feedback loop from implementation â†’ lessons learned â
 | Epic | Priority | Lesson Summary | Guide(s) Updated | Date Applied | Commit |
 |------|----------|----------------|------------------|--------------|--------|
 | KAI-1 (external) | P0 | Code Inspection Protocol - agents rushed through QC without reading actual code | s7_p2_qc_rounds.md | 2026-01-30 | dd10778 |
-| KAI-1 (external) | P1 | External Dependency Verification - assumed libraries work without testing | s1_p3_discovery_phase.md, s2_p1_research.md, s5_v2_validation_loop.md (D2: Interface & Dependency Verification) | 2026-01-30 | dd10778 |
+| KAI-1 (external) | P1 | External Dependency Verification - assumed libraries work without testing | s1_p3_discovery_phase.md, s2_p1_spec_creation_refinement.md, s5_v2_validation_loop.md (D2: Interface & Dependency Verification) | 2026-01-30 | dd10778 |
 | KAI-1 (external) | P3 | Shell Script Best Practices - missing set -e caused silent failures | reference/shell_script_best_practices.md (NEW) | 2026-01-30 | dd10778 |
 | KAI-7-improve_debugging_runs | P0 | Debugging Active Detection - new agents missed active debugging | CLAUDE.md, debugging_protocol.md, epic_readme_template.md | 2026-01-23 | pending |
 | KAI-7-improve_debugging_runs | P0 | Zero Tolerance for Errors - agent marked errors as "environment issue" | smoke_testing_pattern.md | 2026-01-23 | pending |

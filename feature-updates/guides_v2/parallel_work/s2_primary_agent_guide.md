@@ -414,7 +414,7 @@ done
 **Work on your feature (S2.P1 → S2.P2 → S2.P3):**
 
 1. **Execute S2.P1 for Feature 01:**
-   - Follow guide: `stages/s2/s2_p1_research.md`
+   - Follow guide: `stages/s2/s2_p1_spec_creation_refinement.md`
    - Complete research phase
    - Update checkpoint every 15 min
    - Update EPIC_README.md progress section

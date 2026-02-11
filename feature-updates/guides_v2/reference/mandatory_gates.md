@@ -111,7 +111,7 @@
 
 ### Gate 1: Phase 1.5 - Research Completeness Audit
 
-**Location:** stages/s2/s2_p1_research.md
+**Location:** stages/s2/s2_p1_spec_creation_refinement.md
 **When:** After completing targeted research (Phase 1)
 
 **What it checks:**

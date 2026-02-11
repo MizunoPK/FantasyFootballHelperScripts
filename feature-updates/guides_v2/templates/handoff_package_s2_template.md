@@ -226,7 +226,7 @@ EOF
    ```
 
 8. **Begin S2.P1:**
-   - Read guide: `stages/s2/s2_p1_research.md`
+   - Read guide: `stages/s2/s2_p1_spec_creation_refinement.md`
    - Follow guide steps
    - Update checkpoint every 15 min
    - Check inbox every 15 min

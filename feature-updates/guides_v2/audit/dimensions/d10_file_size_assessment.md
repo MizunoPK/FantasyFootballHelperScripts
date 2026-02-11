@@ -494,7 +494,7 @@ Fix: Extract to EPIC_WORKFLOW_USAGE.md, keep quick reference
 File: stages/s2/s2_feature_deep_dive.md (950 lines)
 Content: Research + Specification + Refinement (3 phases)
 Verdict: ⚠️ LARGE (should split into phase files)
-Fix: Create s2_p1_research.md, s2_p2_specification.md, s2_p3_refinement.md
+Fix: Create s2_p1_spec_creation_refinement.md, s2_p2_specification.md, s2_p3_refinement.md
 ```
 
 ---

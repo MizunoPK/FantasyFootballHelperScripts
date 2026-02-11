@@ -131,7 +131,7 @@ feature-updates/guides_v2/
 │   │   └── s1_epic_planning.md                    (Level 1: Stage)
 │   ├── s2/
 │   │   ├── s2_feature_deep_dive.md                (Level 1: Stage, router)
-│   │   ├── s2_p1_research.md                      (Level 2: Phase)
+│   │   ├── s2_p1_spec_creation_refinement.md                      (Level 2: Phase)
 │   │   ├── s2_p2_specification.md                 (Level 2: Phase)
 │   │   ├── s2_p2_5_spec_validation.md             (Level 2: Phase variant)
 │   │   └── s2_p3_refinement.md                    (Level 2: Phase)

@@ -157,7 +157,7 @@ STAGE 10: Epic Cleanup
 |-------------|------------|---------|
 | Starting a new epic | `stages/s1/s1_epic_planning.md` | Analyze request, propose features, create structure |
 | Planning a feature (start) | `stages/s2/s2_feature_deep_dive.md` | Router: Links to S2.P1, S2.P2, S2.P3 guides |
-| S2.P1 (Research) | `stages/s2/s2_p1_research.md` | Epic intent extraction, targeted research, audit |
+| S2.P1 (Research) | `stages/s2/s2_p1_spec_creation_refinement.md` | Epic intent extraction, targeted research, audit |
 | S2.P2 (Specification) | `stages/s2/s2_p2_specification.md` | Spec with traceability, alignment check |
 | S2.P3 (Refinement) | `stages/s2/s2_p3_refinement.md` | Questions, scope, alignment, user approval |
 | All features planned | `stages/s3/s3_epic_planning_approval.md` | Validate alignment, resolve conflicts, get user sign-off |
@@ -319,7 +319,7 @@ feature-updates/
     │   │   └── s1_epic_planning.md
     │   ├── s2/
     │   │   ├── s2_feature_deep_dive.md          ← Router (links to S2.P1/P2/P3)
-    │   │   ├── s2_p1_research.md                ← S2.P1 (Research)
+    │   │   ├── s2_p1_spec_creation_refinement.md                ← S2.P1 (Research)
     │   │   ├── s2_p2_specification.md           ← S2.P2 (Specification)
     │   │   └── s2_p3_refinement.md              ← S2.P3 (Refinement)
     │   ├── s3/

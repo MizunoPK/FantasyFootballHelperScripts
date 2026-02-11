@@ -168,7 +168,7 @@ Feature Planning is where you research each feature, create detailed specificati
 
 ### S2.P1: Research Phase (Phases 0, 1, 1.5)
 
-**Read:** `stages/s2/s2_p1_research.md`
+**Read:** `stages/s2/s2_p1_spec_creation_refinement.md`
 
 **What it covers:**
 - **Phase 0:** Discovery Context Review (review DISCOVERY.md, verify spec has context)
@@ -415,7 +415,7 @@ STAGE_2a
 
 ### If you're starting S2:
 
-**READ:** `stages/s2/s2_p1_research.md`
+**READ:** `stages/s2/s2_p1_spec_creation_refinement.md`
 
 **Use the phase transition prompt** from `prompts_reference_v2.md`:
 ```markdown
@@ -584,7 +584,7 @@ The original guide has been preserved for reference but is deprecated. All S2 wo
 
 **S2 is now split into three focused guides:**
 
-1. **stages/s2/s2_p1_research.md** - Research & Audit (Phases 0, 1, 1.5)
+1. **stages/s2/s2_p1_spec_creation_refinement.md** - Research & Audit (Phases 0, 1, 1.5)
 2. **stages/s2/s2_p2_specification.md** - Specification & Alignment (Phases 2, 2.5)
 3. **stages/s2/s2_p3_refinement.md** - Refinement & Approval (Phases 3, 4, 5, 6)
 
@@ -592,7 +592,7 @@ The original guide has been preserved for reference but is deprecated. All S2 wo
 
 **Improvement:** 60-70% reduction in guide size per phase, clearer navigation, better phase focus
 
-**Start here:** `stages/s2/s2_p1_research.md` (unless resuming mid-stage)
+**Start here:** `stages/s2/s2_p1_spec_creation_refinement.md` (unless resuming mid-stage)
 
 ---
 

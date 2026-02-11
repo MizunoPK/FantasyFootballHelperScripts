@@ -349,7 +349,7 @@ release_lock "epic_readme"
 
 🚀 Starting S2.P1 (Feature Deep Dive - Research Phase)
 
-Reading guide: stages/s2/s2_p1_research.md...
+Reading guide: stages/s2/s2_p1_spec_creation_refinement.md...
 ```
 
 ---
@@ -358,7 +358,7 @@ Reading guide: stages/s2/s2_p1_research.md...
 
 ### S2.P1: Research Phase
 
-**Follow guide:** `stages/s2/s2_p1_research.md`
+**Follow guide:** `stages/s2/s2_p1_spec_creation_refinement.md`
 
 **Additional coordination steps:**
 
