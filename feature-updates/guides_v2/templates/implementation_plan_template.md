@@ -1,7 +1,7 @@
 # Implementation Plan Template
 
 **Instructions for Agents:**
-This template is used during S5 (Implementation Planning) to accumulate findings from the 22 verification iterations. The plan grows incrementally as you progress through 3 rounds.
+This template is used during S5 v2 (Implementation Planning) created through Draft Creation phase and validated through the Validation Loop. The plan is drafted in Phase 1, then systematically validated across 11 dimensions until 3 consecutive clean rounds are achieved.
 
 **Key Principles:**
 - Add sections as iterations complete (not all at once)
@@ -14,7 +14,7 @@ This template is used during S5 (Implementation Planning) to accumulate findings
 ## Template
 
 ```markdown
-# Implementation Plan: {feature_name}
+## Implementation Plan: {feature_name}
 
 **Created:** {YYYY-MM-DD} S5 - Round 1, Iteration 1
 **Last Updated:** {YYYY-MM-DD HH:MM}
@@ -38,10 +38,10 @@ This template is used during S5 (Implementation Planning) to accumulate findings
 
 **Change:**
 ```
-# Current
+## Current
 {current_code}
 
-# New
+## New
 {new_code}
 ```markdown
 
@@ -253,7 +253,8 @@ Maps every algorithm in spec.md to exact code location for quick reference durin
 - [x/  ] All tasks have test coverage (100%)
 
 **Iteration Completion:**
-- [x/  ] All 22 iterations complete
+- [ ] Draft Creation complete (Phase 1)
+- [ ] Validation Loop complete (Phase 2: 3 consecutive clean rounds, all 11 dimensions passing)
 - [x/  ] Round 1: Iterations 1-7 + 4a ✅
 - [x/  ] Round 2: Iterations 8-13 ✅
 - [x/  ] Round 3: Iterations 14-19 ✅

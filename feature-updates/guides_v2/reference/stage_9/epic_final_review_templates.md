@@ -305,7 +305,7 @@ bugfix_{priority}_{name}/
 ### notes.txt Template
 
 ```markdown
-# Bug Fix: {Issue Name}
+## Bug Fix: {Issue Name}
 
 **Issue:** {Brief description of the problem}
 **Impact:** {HIGH/MEDIUM/LOW} - {Why it matters}
@@ -325,7 +325,7 @@ bugfix_{priority}_{name}/
 ### notes.txt Example
 
 ```markdown
-# Bug Fix: Architectural Inconsistency in Feature 02
+## Bug Fix: Architectural Inconsistency in Feature 02
 
 **Issue:** Feature 01 uses Manager class pattern, Feature 02 uses standalone functions
 **Impact:** HIGH - Architectural inconsistency makes epic hard to maintain
@@ -424,21 +424,21 @@ bugfix_{priority}_{name}/
 ### Verification Commands
 
 ```bash
-# 1. Run all tests to confirm 100% pass rate
+## 1. Run all tests to confirm 100% pass rate
 python tests/run_all_tests.py
 
-# Expected output:
-# ============================== 2247 passed in 45.32s ===========================
-# Exit code: 0 ✅
+## Expected output:
+## ============================== 2247 passed in 45.32s ===========================
+## Exit code: 0 ✅
 
-# 2. Check EPIC_README.md for pending issues
-# Should show: "No pending issues or bug fixes"
+## 2. Check EPIC_README.md for pending issues
+## Should show: "No pending issues or bug fixes"
 
-# 3. Check epic_lessons_learned.md for unresolved issues
-# All issues should have "Status: RESOLVED" or not be listed
+## 3. Check epic_lessons_learned.md for unresolved issues
+## All issues should have "Status: RESOLVED" or not be listed
 
-# 4. Verify bug fix folders (if any) completed S7
-# bugfix_high_*/README.md should show "S7: COMPLETE"
+## 4. Verify bug fix folders (if any) completed S7
+## bugfix_high_*/README.md should show "S7: COMPLETE"
 ```
 
 ### Example

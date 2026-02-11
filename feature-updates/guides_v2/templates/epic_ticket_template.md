@@ -12,7 +12,7 @@
 ## Template
 
 ```markdown
-# Epic Ticket: {epic_name}
+## Epic Ticket: {epic_name}
 
 **Created:** {YYYY-MM-DD}
 **Status:** {VALIDATED / DRAFT}

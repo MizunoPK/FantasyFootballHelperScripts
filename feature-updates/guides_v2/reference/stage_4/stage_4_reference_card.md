@@ -76,7 +76,7 @@ STEP 6: Mark Complete (2 min + user approval time)
 - Recommendations are more accurate (not measurable)
 
 ## Test 1: Run Draft Helper
-# Command TBD after S2 deep dives
+## Command TBD after S2 deep dives
 **Expected:** TBD
 ```
 

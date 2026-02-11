@@ -254,7 +254,7 @@ This reference provides detailed examples for executing Specification Phase (S2.
 ### Example 3: Valid Checklist Questions
 
 ```markdown
-# Feature 01: ADP Integration - Planning Checklist
+## Feature 01: ADP Integration - Planning Checklist
 
 **Purpose:** Track open questions and decisions for this feature
 
@@ -777,7 +777,7 @@ User confirmed FantasyPros CSV has columns:
 
 **Implementation:**
 ```python
-# adp_loader.py
+## adp_loader.py
 def load_adp_data(filepath: Path) -> Dict[str, int]:
     df = read_csv_with_validation(
         filepath,

@@ -5,6 +5,22 @@
 
 ---
 
+## Table of Contents
+
+1. [Starting S5 v2: Implementation Planning](#starting-s5-v2-implementation-planning)
+1. [Starting S5 v2: Validation Loop Phase](#starting-s5-v2-validation-loop-phase)
+1. [Reporting S5 v2: Validation Round Results](#reporting-s5-v2-validation-round-results)
+1. [Exiting S5 v2: Validation Loop Complete](#exiting-s5-v2-validation-loop-complete)
+1. [S5 v2: Gate 5 - User Approval of Implementation Plan](#s5-v2-gate-5-user-approval-of-implementation-plan)
+1. [Starting S6: Implementation](#starting-s6-implementation)
+1. [Starting S7.P1: Smoke Testing](#starting-s7p1-smoke-testing)
+1. [Starting S7.P2: Feature QC Validation Loop](#starting-s7p2-feature-qc-validation-loop)
+1. [Starting S7.P3: Final Review (PR Validation Loop)](#starting-s7p3-final-review-pr-validation-loop)
+1. [Starting S8.P1: Cross-Feature Alignment](#starting-s8p1-cross-feature-alignment)
+1. [Starting S8.P2: Epic Testing Plan Update](#starting-s8p2-epic-testing-plan-update)
+
+---
+
 ## Starting S5 v2: Implementation Planning
 
 **User says:** "Prepare for updates based on {feature_name}" or "Start implementation of feature_01" or "Create implementation plan"
@@ -299,7 +315,7 @@ I'm reading `stages/s6/s6_execution.md` to ensure I follow the implementation wo
 - STOP if stuck or blocked - ask user
 
 **Prerequisites I'm verifying:**
-✅ S5 complete (EPIC_README.md shows 22 iterations done)
+✅ S5 v2 complete (EPIC_README.md shows Validation Loop passed: 3 clean rounds)
 ✅ Iteration 22: Implementation Readiness = PASSED
 ✅ implementation_plan.md v3.0 exists and user-approved
 ✅ questions.md resolved (or documented "no questions")

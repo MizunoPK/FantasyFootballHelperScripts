@@ -261,7 +261,7 @@ feature-updates/KAI-{N}-{epic_name}/bugfix_{priority}_{short_name}/
 In each bugfix folder, create `notes.txt`:
 
 ```markdown
-# Bug Fix: {short_name}
+## Bug Fix: {short_name}
 
 **Priority:** {high/medium/low}
 **Reported By:** User (during S9 user testing)

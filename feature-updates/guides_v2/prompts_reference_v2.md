@@ -189,7 +189,7 @@ I'm reading `stages/s7/s7_p1_smoke_testing.md`...
 **✅ CORRECT:**
 ```bash
 **Prerequisites I'm verifying:**
-✅ S5 complete (22 iterations done)
+✅ S5 v2 complete (Validation Loop passed: 3 consecutive clean rounds)
 ✅ Iteration 22: Implementation Readiness = PASSED
 ✅ implementation_plan.md v3.0 exists and user-approved
 {Verify ALL prerequisites}

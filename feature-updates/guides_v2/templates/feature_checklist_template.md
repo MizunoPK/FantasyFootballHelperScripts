@@ -40,7 +40,7 @@
 ## Template
 
 ```markdown
-# Feature Checklist: {feature_name}
+## Feature Checklist: {feature_name}
 
 **Part of Epic:** {epic_name}
 **Created:** {YYYY-MM-DD}

@@ -511,7 +511,7 @@ Ready to begin Phase 0: Discovery Context Review.
 **If ALL features complete S2:**
 - Transition to S3 (Cross-Feature Sanity Check)
 
-📖 **READ:** `stages/s3/s3_cross_feature_sanity_check.md`
+📖 **READ:** `stages/s3/s3_epic_planning_approval.md`
 
 ---
 

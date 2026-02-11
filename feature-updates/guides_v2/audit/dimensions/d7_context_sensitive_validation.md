@@ -914,13 +914,13 @@ def process_data(df):
 **Audit Finding:**
 ```text
 D2: Terminology Consistency
-FOUND: "S5a" notation in stages/s5/s5_implementation_planning.md:15
+FOUND: "S5a" notation in stages/s5/s5_v2_validation_loop.md:15
 ERROR: Old notation, should be S5.P1
 ```markdown
 
 **Context Review:**
 ```markdown
-## Line 10-20 of s5_implementation_planning.md:
+## Line 10-20 of s5_v2_validation_loop.md:
 
 ## Notation Evolution
 
@@ -940,7 +940,7 @@ ERROR: Old notation, should be S5.P1
 **Action:** Update audit finding:
 ```text
 D2: Terminology Consistency
-FOUND: "S5a" notation in stages/s5/s5_implementation_planning.md:15
+FOUND: "S5a" notation in stages/s5/s5_v2_validation_loop.md:15
 STATUS: Valid historical reference (intentional)
 ACTION: No fix needed
 ```yaml

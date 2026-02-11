@@ -153,7 +153,7 @@ Same content appears verbatim in multiple files.
 
 **Common Pattern:**
 
-**File A (stages/s5/s5_p1_planning_round1.md):**
+**File A (stages/s5/s5_v2_validation_loop.md):**
 ```markdown
 ## Critical Rules
 

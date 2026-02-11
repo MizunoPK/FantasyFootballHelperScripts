@@ -48,15 +48,15 @@ set -o pipefail  # Exit if any command in pipeline fails
 
 ```bash
 #!/bin/bash
-# Missing set -e, set -u, set -o pipefail
+## Missing set -e, set -u, set -o pipefail
 
-# Create directory
+## Create directory
 mkdir /tmp/data
 
-# Copy files (this might fail silently)
+## Copy files (this might fail silently)
 cp important_file.txt /tmp/data/
 
-# Deploy (runs even if copy failed!)
+## Deploy (runs even if copy failed!)
 ./deploy.sh
 
 echo "Success!"  # Prints even if commands failed
@@ -77,19 +77,19 @@ set -e  # Exit on any failure
 set -u  # Exit on undefined variable
 set -o pipefail  # Exit if pipeline fails
 
-# Create directory (-p doesn't fail if exists)
+## Create directory (-p doesn't fail if exists)
 mkdir -p /tmp/data
 
-# Verify file exists before copying
+## Verify file exists before copying
 if [ ! -f "important_file.txt" ]; then
     echo "ERROR: important_file.txt not found"
     exit 1
 fi
 
-# Copy files
+## Copy files
 cp important_file.txt /tmp/data/
 
-# Deploy (only runs if previous commands succeeded)
+## Deploy (only runs if previous commands succeeded)
 ./deploy.sh
 
 echo "Success!"  # Only prints if all commands succeeded
@@ -122,7 +122,7 @@ Before committing any shell script:
 
 ```bash
 #!/bin/bash
-# Missing set -e
+## Missing set -e
 
 awslocal s3 mb s3://bucket1
 awslocal s3 mb s3://bucket2  # This fails (already exists)
@@ -166,13 +166,13 @@ echo "All buckets created!"  # Only prints if all 3 succeeded
 #!/bin/bash
 set -e
 
-# Download file
+## Download file
 if ! curl -o data.json https://api.example.com/data; then
     echo "ERROR: Failed to download data"
     exit 1
 fi
 
-# Verify file is not empty
+## Verify file is not empty
 if [ ! -s data.json ]; then
     echo "ERROR: Downloaded file is empty"
     exit 1
@@ -184,21 +184,21 @@ echo "Download successful"
 ### 2. Use Safe Directory Creation
 
 ```bash
-# Good: -p doesn't fail if directory exists
+## Good: -p doesn't fail if directory exists
 mkdir -p /path/to/directory
 
-# Bad: Fails if directory exists
+## Bad: Fails if directory exists
 mkdir /path/to/directory
 ```
 
 ### 3. Quote Variables to Handle Spaces
 
 ```bash
-# Good: Handles paths with spaces
+## Good: Handles paths with spaces
 FILE_PATH="/path with spaces/file.txt"
 cp "$FILE_PATH" /destination/
 
-# Bad: Breaks on paths with spaces
+## Bad: Breaks on paths with spaces
 cp $FILE_PATH /destination/
 ```
 
@@ -225,18 +225,18 @@ fi
 
 ### Mistake 2: Using Exit 0 After Failures
 ```bash
-# Bad: Masks failures
+## Bad: Masks failures
 command_that_might_fail || exit 0
 
-# Good: Let it fail
+## Good: Let it fail
 command_that_might_fail
 ```
 
 ### Mistake 3: Not Testing Failure Scenarios
 ```bash
-# Test your script with intentional failures
-# Does it exit correctly?
-# Are error messages clear?
+## Test your script with intentional failures
+## Does it exit correctly?
+## Are error messages clear?
 ```
 
 ---

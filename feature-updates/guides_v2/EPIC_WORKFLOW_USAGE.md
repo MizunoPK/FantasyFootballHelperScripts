@@ -66,7 +66,7 @@ S10: Epic Cleanup (commit, archive, apply lessons)
 - **Feature**: Individual component within an epic
 - **Stage**: Major phase of the workflow (S1-S10)
 - **Round**: Sub-phase within a stage (e.g., S5 has 3 rounds)
-- **Iteration**: Specific verification step within a round (e.g., 22 iterations in S5)
+- **Iteration**: Specific verification step within a round (Note: S5 v2 uses 11 dimensions checked in validation rounds, not sequential iterations)
 - **Phase**: Sub-section within a stage (e.g., S7 has 3 phases)
 
 ---
@@ -296,7 +296,7 @@ feature-updates/KAI-{N}-{epic_name}/
 - Verified specs with no conflicts
 - User sign-off on complete plan
 
-**Guide:** `stages/s3/s3_cross_feature_sanity_check.md`
+**Guide:** `stages/s3/s3_epic_planning_approval.md`
 
 **Key Activities:**
 - Systematic pairwise comparison of all features
@@ -785,7 +785,7 @@ I'll now proceed with Phase 1: Draft Creation...
 **Planning Guides (4):**
 - stages/s1/s1_epic_planning.md
 - stages/s2/s2_feature_deep_dive.md
-- stages/s3/s3_cross_feature_sanity_check.md
+- stages/s3/s3_epic_planning_approval.md
 - stages/s4/s4_epic_testing_strategy.md
 
 **Implementation Guides (7):**
@@ -855,7 +855,7 @@ I'll now proceed with Phase 1: Draft Creation...
 |-----------|-------------|
 | User wants new epic | stages/s1/s1_epic_planning.md |
 | Writing feature spec | stages/s2/s2_feature_deep_dive.md |
-| Checking feature conflicts | stages/s3/s3_cross_feature_sanity_check.md |
+| Checking feature conflicts | stages/s3/s3_epic_planning_approval.md |
 | Planning epic tests | stages/s4/s4_epic_testing_strategy.md |
 | Creating implementation plan | S5.P1/S5.P2/S5.P3 (rounds 1-3) |
 | Writing code | stages/s6/s6_execution.md |
@@ -1201,7 +1201,7 @@ Create `feature-updates/guides_v2/PROJECT_SPECIFIC_STANDARDS.md`:
 
 **The Epic-Driven Development Workflow v2 provides:**
 - ✅ Structured 10-stage process (Planning → Implementation → Validation)
-- ✅ Rigorous verification at every step (22 iterations in S5 alone)
+- ✅ Rigorous verification at every step (S5 v2: 11 dimensions validated each round until 3 consecutive clean rounds)
 - ✅ Complete documentation (specs, changes, lessons learned)
 - ✅ Quality gates (100% tests, zero tech debt, user testing)
 - ✅ Continuous improvement (lessons applied to guides)

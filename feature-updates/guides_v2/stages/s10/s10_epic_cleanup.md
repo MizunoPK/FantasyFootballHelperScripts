@@ -496,10 +496,10 @@ Verify:
 
 Add all epic-related changes:
 ```bash
-# Stage modified files
+## Stage modified files
 git add {file1} {file2} {file3}
 
-# Stage epic folder (all files)
+## Stage epic folder (all files)
 git add feature-updates/{epic_name}/
 ```
 
@@ -605,7 +605,7 @@ mkdir feature-updates/done
 
 **Check current epic count:**
 ```bash
-# Count directories in done/ (excluding guides_v2)
+## Count directories in done/ (excluding guides_v2)
 ls -d feature-updates/done/*/ | wc -l
 ```
 

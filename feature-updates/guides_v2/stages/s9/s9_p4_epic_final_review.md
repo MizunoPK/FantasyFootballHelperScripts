@@ -255,7 +255,7 @@ Prerequisites Met?
 **🚨 MANDATORY: READ PR REVIEW PROTOCOL**
 
 **Before proceeding, you MUST:**
-1. **READ:** `stages/s5/s5_pr_review_protocol.md`
+1. **READ:** `reference/validation_loop_qc_pr.md`
 2. **Follow the complete hybrid approach:**
    - Round 1: 4 specialized reviews (fresh agent for each)
    - Rounds 2-5: Repeated comprehensive reviews (fresh agent for each)
@@ -471,7 +471,7 @@ For EACH issue:
 **Run all tests to confirm:**
 ```bash
 python tests/run_all_tests.py
-# Expected: 100% pass rate, exit code 0
+## Expected: 100% pass rate, exit code 0
 ```
 
 **If ANY item unchecked:** STOP - Address remaining issues, re-run affected steps

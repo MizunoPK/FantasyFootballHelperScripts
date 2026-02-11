@@ -768,7 +768,7 @@ grep "ISSUES:" feature_*/STATUS | grep -v "ISSUES: 0"
 **S3: Cross-Feature Sanity Check (Epic-Level)**
 - Groups no longer matter (all features participate equally)
 - Primary agent runs S3 solo
-- Guide: `stages/s3/s3_cross_feature_sanity_check.md`
+- Guide: `stages/s3/s3_epic_planning_approval.md`
 ```
 
 #### Step 5.4: Notify Secondary Agents
@@ -818,7 +818,7 @@ grep "ISSUES:" feature_*/STATUS | grep -v "ISSUES: 0"
 - Current Stage: S2 → S3 Transition
 - Current Step: All features complete S2, preparing for S3
 - Next Action: Read S3 guide and begin Cross-Feature Sanity Check
-- Current Guide: stages/s3/s3_cross_feature_sanity_check.md
+- Current Guide: stages/s3/s3_epic_planning_approval.md
 - S2 Status: ✅ COMPLETE (all features, all groups)
 - Groups: No longer matter (S3 is epic-level)
 ```
@@ -866,7 +866,7 @@ grep "ISSUES:" feature_*/STATUS | grep -v "ISSUES: 0"
 ```
 
 **Then:**
-- Read `stages/s3/s3_cross_feature_sanity_check.md`
+- Read `stages/s3/s3_epic_planning_approval.md`
 - Execute S3 workflow (epic-level, solo work)
 - Groups no longer matter
 

@@ -5,9 +5,34 @@
 
 **Skip this:** If S2 was done sequentially (single agent)
 
+---
+
+## Prerequisites
+
+**Before starting parallel work sync:**
+
+- [ ] S2 completed in parallel mode (Primary + Secondary agents)
+- [ ] All secondary agents have sent completion messages
+- [ ] All feature folders exist with spec.md and checklist.md files
+- [ ] Agent communication infrastructure in place (agent_comms/ folder)
+- [ ] Checkpoint files exist for all secondary agents
+
+**If S2 was sequential:** Skip this guide entirely, proceed directly to S3.P1
+
+---
+
+## Overview
+
 **Purpose:** Verify all secondary agents completed S2 properly before Primary begins S3
 
-**Time:** 15-20 minutes
+**Duration:** 15-20 minutes
+
+**Prerequisites:** S2 parallel mode execution complete (all features)
+
+**Outputs:**
+- S3_SYNC_VERIFICATION_{DATE}.md document
+- Notification messages sent to all secondary agents
+- Confirmed readiness to proceed to S3.P1
 
 ---
 
@@ -117,7 +142,7 @@
 Create sync verification record in `epic/research/S3_SYNC_VERIFICATION_{DATE}.md`:
 
 ```markdown
-# S3 Sync Verification
+## S3 Sync Verification
 
 **Date:** {YYYY-MM-DD HH:MM}
 **Epic:** {epic_name}
@@ -209,6 +234,33 @@ Create sync verification record in `epic/research/S3_SYNC_VERIFICATION_{DATE}.md
 **Proceed to:** Step 1 (Prepare Comparison Matrix)
 
 **See:** `parallel_work/s2_parallel_protocol.md` → Phase 7 for S3 coordination details
+
+---
+
+## Exit Criteria
+
+**Parallel Work Sync is complete when ALL of these are true:**
+
+- [ ] All secondary agents sent completion messages (Step 0.1)
+- [ ] All feature STATUS files show COMPLETE and READY_FOR_SYNC (Step 0.2)
+- [ ] All agent checkpoints show WAITING_FOR_SYNC status (Step 0.3)
+- [ ] All feature specs have required sections complete (Step 0.4)
+- [ ] All feature checklists fully resolved with user approval (Step 0.4)
+- [ ] Sync verification document created (Step 0.5)
+- [ ] All secondary agents notified of S3 start (Step 0.6)
+
+**If any criterion incomplete:**
+- ❌ Do NOT proceed to S3.P1
+- Resolve blocking issues with secondary agents
+- Re-run verification steps until all pass
+
+---
+
+## Next
+
+**After sync verification complete:** Proceed to S3.P1 (Prepare Comparison Matrix)
+
+**See:** `stages/s3/s3_epic_planning_approval.md` for S3 main workflow
 
 ---
 

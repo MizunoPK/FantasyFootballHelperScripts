@@ -187,7 +187,7 @@ done
 ```
 
 **Examples:**
-- `stages/s5/s5_p1_planning_round1.md` (router to I1, I2, I3)
+- `stages/s5/s5_v2_validation_loop.md` (router to I1, I2, I3)
 - `stages/s2/s2_feature_deep_dive.md` (router to P1, P2, P3)
 
 **Validation:**
@@ -557,7 +557,7 @@ STEP 3: Verify router doesn't have regular guide sections
 
 **1. Router Files (Intentional Special Structure):**
 ```markdown
-File: stages/s5/s5_p1_planning_round1.md
+File: stages/s5/s5_v2_validation_loop.md
 Structure: Sub-Guide Table, Navigation (no Prerequisites)
 Verdict: ✅ ACCEPTABLE (router pattern)
 ```
@@ -588,7 +588,7 @@ Verdict: ❌ ERROR (not a router, must have all required sections)
 **2. File Name Doesn't Match Convention:**
 ```markdown
 File: stages/s5/planning-round-1.md (ERROR: hyphens instead of underscores)
-Should be: stages/s5/s5_p1_planning_round1.md
+Should be: stages/s5/s5_v2_validation_loop.md
 Verdict: ❌ ERROR (violates naming convention)
 ```
 
@@ -657,12 +657,12 @@ stages/s5/planning-round-2.md
 
 **Fix:**
 ```bash
-git mv stages/s5/planning-round-1.md stages/s5/s5_p1_planning_round1.md
-git mv stages/s5/planning-round-2.md stages/s5/s5_p2_planning_round2.md
+git mv stages/s5/planning-round-1.md stages/s5/s5_v2_validation_loop.md
+git mv stages/s5/planning-round-2.md stages/s5/s5_v2_validation_loop.md
 
 # Update all references
-sed -i 's|planning-round-1\.md|s5_p1_planning_round1.md|g' stages/**/*.md
-sed -i 's|planning-round-2\.md|s5_p2_planning_round2.md|g' stages/**/*.md
+sed -i 's|planning-round-1\.md|s5_v2_validation_loop.md|g' stages/**/*.md
+sed -i 's|planning-round-2\.md|s5_v2_validation_loop.md|g' stages/**/*.md
 ```markdown
 
 ### Example 3: Sections in Wrong Order

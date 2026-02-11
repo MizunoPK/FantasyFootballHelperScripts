@@ -118,7 +118,7 @@ STEP 6: Mark Complete (2 min)
 ## Mandatory Gate
 
 ### Gate: User Sign-Off on Complete Plan (Step 5)
-**Location:** stages/s3/s3_cross_feature_sanity_check.md Step 5
+**Location:** stages/s3/s3_epic_planning_approval.md Step 5
 **What it checks:**
 - User reviews complete epic plan (all features, all dependencies)
 - User explicitly approves proceeding to implementation
@@ -306,9 +306,9 @@ STEP 6: Mark Complete (2 min)
 
 | Current Activity | Guide to Read |
 |------------------|---------------|
-| Starting cross-feature sanity check | stages/s3/s3_cross_feature_sanity_check.md |
-| Need comparison examples | stages/s3/s3_cross_feature_sanity_check.md (examples section) |
-| Conflict resolution patterns | stages/s3/s3_cross_feature_sanity_check.md (Step 3) |
+| Starting cross-feature sanity check | stages/s3/s3_epic_planning_approval.md |
+| Need comparison examples | stages/s3/s3_epic_planning_approval.md (examples section) |
+| Conflict resolution patterns | stages/s3/s3_epic_planning_approval.md (Step 3) |
 
 ---
 

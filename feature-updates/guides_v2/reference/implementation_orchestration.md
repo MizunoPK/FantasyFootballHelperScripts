@@ -149,11 +149,11 @@ Validate the implemented feature through smoke testing, QC rounds, and PR review
 
 **Update Agent Status:**
 ```markdown
-# If more features remaining:
+## If more features remaining:
 Current Stage: S8.P1 - Post-Feature Alignment
 Next Action: Read stages/s8/s8_p1_cross_feature_alignment.md
 
-# If NO more features:
+## If NO more features:
 Current Stage: S9 - Epic Final QC
 Next Action: Read stages/s9/s9_epic_final_qc.md
 ```
@@ -267,12 +267,12 @@ Update epic_smoke_test_plan.md to reflect ACTUAL implementation discoveries and 
 
 **Update Agent Status:**
 ```markdown
-# If more features remaining:
+## If more features remaining:
 Current Stage: S5 - TODO Creation (Next Feature)
 Next Feature: feature_0X_{name}
-Next Action: Read stages/s5/s5_p1_planning_round1.md for next feature
+Next Action: Read stages/s5/s5_v2_validation_loop.md for next feature
 
-# If NO more features:
+## If NO more features:
 Current Stage: S9 - Epic Final QC
 Next Action: Read stages/s9/s9_epic_final_qc.md
 ```

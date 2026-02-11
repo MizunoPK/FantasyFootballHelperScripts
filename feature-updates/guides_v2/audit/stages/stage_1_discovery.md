@@ -266,7 +266,7 @@ Changes:
 - Stage 5b → S5.P2
 - Stage 6 → S9
 - Stage 7 → S10
-- File: stage_5a_planning.md → s5_p1_planning_round1.md
+- File: stage_5a_planning.md → s5_v2_validation_loop.md
 ```diff
 
 **If general maintenance audit:**

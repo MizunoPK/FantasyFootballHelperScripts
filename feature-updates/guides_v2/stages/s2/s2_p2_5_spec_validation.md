@@ -326,16 +326,16 @@ Validation Phase is complete when all spec claims are validated, maximum checkli
 
 **Research process:**
 ```bash
-# Look for similar conversion methods
+## Look for similar conversion methods
 grep -r "convertTo.*Response" --include="*.java"
 
-# Check error handling patterns
+## Check error handling patterns
 grep -r "try.*catch" service/ota-info-service-application/src/main/java/com/swacorp/crew/sched/ota/info/application/service/
 
-# Look for validation patterns
+## Look for validation patterns
 grep -r "@Valid\|@NotNull\|@NotEmpty" --include="*.java"
 
-# Check configuration patterns
+## Check configuration patterns
 find . -name "application*.yml" -o -name "*.properties"
 ```
 

@@ -97,7 +97,7 @@ Data source: "FantasyPros CSV" - Line 22
 ### Example 2: Discovery Context Section in spec.md
 
 ```markdown
-# Feature 01: ADP Integration
+## Feature 01: ADP Integration
 
 ---
 
@@ -212,7 +212,7 @@ Based on Discovery Context section, I must research:
 ### Example 2: Complete Research Findings Document
 
 ```markdown
-# Feature 01: ADP Integration - Discovery Findings
+## Feature 01: ADP Integration - Discovery Findings
 
 **Research Date:** 2026-01-02
 **Researcher:** Agent
@@ -513,19 +513,19 @@ Christian McCaffrey,RB,CAR,380.2
 **My answer:** Yes, documented actual signatures:
 
 ```
-# PlayerManager.calculate_total_score
+## PlayerManager.calculate_total_score
 def calculate_total_score(self, player: FantasyPlayer, config: ConfigManager) -> float:
     # Source: PlayerManager.py:125
 
-# PlayerManager._calculate_injury_multiplier
+## PlayerManager._calculate_injury_multiplier
 def _calculate_injury_multiplier(self, player: FantasyPlayer) -> float:
     # Source: PlayerManager.py:450
 
-# ConfigManager.get_injury_multiplier
+## ConfigManager.get_injury_multiplier
 def get_injury_multiplier(self, status: str) -> float:
     # Source: ConfigManager.py:180
 
-# csv_utils.read_csv_with_validation
+## csv_utils.read_csv_with_validation
 def read_csv_with_validation(filepath: Union[str, Path], required_columns: List[str]) -> pd.DataFrame:
     # Source: csv_utils.py:45
 ```markdown

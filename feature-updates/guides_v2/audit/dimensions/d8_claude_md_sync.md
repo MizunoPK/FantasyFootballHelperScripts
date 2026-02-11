@@ -189,7 +189,7 @@ grep -n "Gate [0-9]" feature-updates/guides_v2/reference/mandatory_gates.md | \
 ```markdown
 CLAUDE.md: "S5: Implementation Planning (22 iterations, 3 rounds)"
           ↓ Should match ↓
-stages/s5/s5_implementation_planning.md: "22 iterations across 3 rounds"
+stages/s5/s5_v2_validation_loop.md: "22 iterations across 3 rounds"
 ```markdown
 
 **Manual Check Required:**
@@ -612,11 +612,11 @@ CLAUDE.md contradicts guide ❌
 ```
 
 **Problem:** File moved during restructure
-**Actual location:** `stages/s5/s5_p1_planning_round1.md`
+**Actual location:** `stages/s5/s5_v2_validation_loop.md`
 
 **Fix:**
 ```markdown
-**S5 Guide:** `stages/s5/s5_p1_planning_round1.md`
+**S5 Guide:** `stages/s5/s5_v2_validation_loop.md`
 ```markdown
 
 **How Found:** Automated path validation script
@@ -641,7 +641,7 @@ CLAUDE.md contradicts guide ❌
 - **Actions:** 22 verification iterations across 3 rounds
 ```markdown
 
-**How Found:** Manual comparison of CLAUDE.md vs s5_implementation_planning.md
+**How Found:** Manual comparison of CLAUDE.md vs s5_v2_validation_loop.md
 
 ---
 

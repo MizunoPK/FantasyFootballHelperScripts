@@ -11,7 +11,81 @@
 
 ---
 
-## 🎯 OVERVIEW
+## Table of Contents
+
+1. [🎯 OVERVIEW](#-overview)
+   - [What is S5 v2?](#what-is-s5-v2)
+   - [How S5 v2 Differs from S5 v1](#how-s5-v2-differs-from-s5-v1)
+   - [When to Use This Guide](#when-to-use-this-guide)
+   - [Relationship to Master Validation Loop Protocol](#relationship-to-master-validation-loop-protocol)
+1. [📐 THE TWO-PHASE APPROACH](#-the-two-phase-approach)
+1. [🚀 PHASE 1: DRAFT CREATION](#-phase-1-draft-creation)
+   - [Step-by-Step Process](#step-by-step-process)
+1. [Task 1: Load ADP Data](#task-1-load-adp-data)
+1. [Task 6: Create CLI Flag Tests (R1)](#task-6-create-cli-flag-tests-r1)
+1. [Component Dependencies](#component-dependencies)
+1. [Algorithm Traceability Matrix](#algorithm-traceability-matrix)
+1. [Data Flow](#data-flow)
+1. [Error Handling](#error-handling)
+1. [Edge Cases](#edge-cases)
+   - [Draft Creation Exit Criteria](#draft-creation-exit-criteria)
+1. [🔄 PHASE 2: VALIDATION LOOP](#-phase-2-validation-loop)
+   - [Validation Loop Protocol](#validation-loop-protocol)
+   - [Round Structure](#round-structure)
+   - [The 11 Implementation Planning Dimensions](#the-11-implementation-planning-dimensions)
+   - [Round-by-Round Reading Patterns](#round-by-round-reading-patterns)
+   - [Example Validation Loop Execution](#example-validation-loop-execution)
+1. [🛑 SPECIAL CASES & PROTOCOLS](#-special-cases-protocols)
+   - [If Validation Loop Exceeds 10 Rounds](#if-validation-loop-exceeds-10-rounds)
+   - [If spec.md Discrepancies Found (Dimension 11)](#if-specmd-discrepancies-found-dimension-11)
+   - [If Draft Quality <70% After 90 Minutes](#if-draft-quality-70-after-90-minutes)
+1. [⚠️ COMMON ISSUES & FIXES](#-common-issues-fixes)
+   - [Issue 1: "Can't find all algorithms in spec"](#issue-1-cant-find-all-algorithms-in-spec)
+   - [Issue 2: "Interface verification taking too long"](#issue-2-interface-verification-taking-too-long)
+   - [Issue 3: "Fixes introducing new issues"](#issue-3-fixes-introducing-new-issues)
+   - [Issue 4: "Validation loop stuck at 8-9 rounds"](#issue-4-validation-loop-stuck-at-8-9-rounds)
+   - [Issue 5: "Unsure if something is an issue"](#issue-5-unsure-if-something-is-an-issue)
+1. [🚫 ANTI-PATTERNS TO AVOID](#-anti-patterns-to-avoid)
+   - [❌ Anti-Pattern 1: "Working from Memory"](#-anti-pattern-1-working-from-memory)
+   - [❌ Anti-Pattern 2: "Deferring Minor Issues"](#-anti-pattern-2-deferring-minor-issues)
+   - [❌ Anti-Pattern 3: "Stopping at 3 Rounds Total"](#-anti-pattern-3-stopping-at-3-rounds-total)
+   - [❌ Anti-Pattern 4: "Batching Fixes"](#-anti-pattern-4-batching-fixes)
+   - [❌ Anti-Pattern 5: "Skipping Re-Reading After Small Fix"](#-anti-pattern-5-skipping-re-reading-after-small-fix)
+   - [❌ Anti-Pattern 6: "Saying 'Efficiently' or 'Quickly'"](#-anti-pattern-6-saying-efficiently-or-quickly)
+1. [✅ EXIT CRITERIA & QUALITY METRICS](#-exit-criteria-quality-metrics)
+   - [Validation Loop Exit Criteria](#validation-loop-exit-criteria)
+   - [Gate 5: User Approval](#gate-5-user-approval)
+   - [Quality Metrics](#quality-metrics)
+1. [📊 TRACKING & DOCUMENTATION](#-tracking-documentation)
+   - [Update Agent Status](#update-agent-status)
+   - [Validation Loop Log](#validation-loop-log)
+1. [🎓 LESSONS LEARNED & BEST PRACTICES](#-lessons-learned-best-practices)
+   - [Best Practice 1: Trust the Process](#best-practice-1-trust-the-process)
+   - [Best Practice 2: Fresh Eyes Are Critical](#best-practice-2-fresh-eyes-are-critical)
+   - [Best Practice 3: Conservative Issue Flagging](#best-practice-3-conservative-issue-flagging)
+   - [Best Practice 4: One Dimension Can Affect Others](#best-practice-4-one-dimension-can-affect-others)
+   - [Best Practice 5: Use Different Reading Patterns](#best-practice-5-use-different-reading-patterns)
+1. [📚 REFERENCE](#-reference)
+1. [Summary](#summary)
+
+---
+
+## Prerequisites
+
+**Before starting S5 v2:**
+
+- [ ] S4 complete - epic_smoke_test_plan.md updated, test_strategy.md created for this feature
+- [ ] Feature spec.md complete (all sections filled, no TBD)
+- [ ] Feature checklist.md resolved (all user questions answered, Gate 3 passed)
+- [ ] S5 v2 template available: `templates/implementation_plan.md`
+- [ ] Feature README.md exists with Agent Status section
+
+**If any prerequisite missing:**
+- ❌ Do NOT start S5 - Return to complete missing prerequisites
+
+---
+
+## Overview
 
 ### What is S5 v2?
 
@@ -44,12 +118,6 @@ S5 v2 is a **validation loop-based approach** to implementation planning that sy
 - Starting implementation planning after S4 complete (Epic Testing Strategy approved)
 - Creating implementation_plan.md for a new feature
 - All spec.md requirements finalized and user-approved (Gate 3 passed)
-
-**Prerequisites:**
-- S4 complete: epic_smoke_test_plan.md updated, test_strategy.md created
-- Feature spec.md complete (all sections filled, no TBD)
-- Feature checklist.md resolved (all user questions answered)
-- S5 v2 template available: `templates/implementation_plan_template.md`
 
 ---
 
@@ -1056,7 +1124,7 @@ Next: Present implementation_plan.md to user (Gate 5)
 
 ---
 
-## ✅ EXIT CRITERIA & QUALITY METRICS
+## Exit Criteria
 
 ### Validation Loop Exit Criteria
 

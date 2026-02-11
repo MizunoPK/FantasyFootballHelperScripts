@@ -21,7 +21,7 @@ Epic-level PR review focuses on CROSS-FEATURE concerns that emerge when multiple
 - Feature-specific implementation details (unless they affect other features)
 
 **Review Protocol:**
-This checklist supplements the complete PR review protocol. See `stages/s5/s5_pr_review_protocol.md` for:
+This checklist supplements the complete PR review protocol. See `reference/validation_loop_qc_pr.md` for:
 - Hybrid multi-round approach (Round 1: 4 specialized reviews, Rounds 2-5: comprehensive reviews)
 - Fresh agent spawning via Task tool
 - pr_review_issues.md tracking
@@ -54,7 +54,7 @@ This checklist supplements the complete PR review protocol. See `stages/s5/s5_pr
 ## How to Use This Checklist
 
 **During Epic PR Review (Step 6):**
-1. Follow `stages/s5/s5_pr_review_protocol.md` for complete review process
+1. Follow `reference/validation_loop_qc_pr.md` for complete review process
 2. Spawn fresh agents for each review round
 3. Use this checklist as **reference for epic-level considerations**
 4. Fresh agents automatically apply 11-category checklist during Rounds 2-5
@@ -100,28 +100,28 @@ This is an EPIC-LEVEL PR review covering {N} features:
 ### How to Verify
 
 ```python
-# Example: Verify cross-feature workflow correctness
-# Epic: Improve Draft Helper (ADP + Matchup + Performance)
+- Example: Verify cross-feature workflow correctness
+- Epic: Improve Draft Helper (ADP + Matchup + Performance)
 
-# 1. Verify Feature 01 (ADP) correctness
+- 1. Verify Feature 01 (ADP) correctness
 from feature_01.adp_manager import ADPManager
 adp_mgr = ADPManager()
 multiplier, rank = adp_mgr.get_adp_data("Patrick Mahomes")
 assert 0.5 <= multiplier <= 1.5, "ADP multiplier out of valid range"
 assert rank > 0, "ADP rank invalid"
 
-# 2. Verify Feature 02 (Matchup) correctness
+- 2. Verify Feature 02 (Matchup) correctness
 from feature_02.matchup_manager import MatchupManager
 matchup_mgr = MatchupManager()
 difficulty = matchup_mgr.get_matchup_difficulty("Patrick Mahomes", week=5)
 assert 0.5 <= difficulty <= 1.5, "Matchup difficulty out of valid range"
 
-# 3. Verify INTEGRATION correctness
+- 3. Verify INTEGRATION correctness
 from league_helper.util.FantasyPlayer import FantasyPlayer
 player = FantasyPlayer("Patrick Mahomes", "QB", 300.0)
-# Apply both multipliers
+- Apply both multipliers
 final_score = player.score * multiplier * difficulty
-# Verify final score makes sense
+- Verify final score makes sense
 assert 150 <= final_score <= 600, f"Final score {final_score} unrealistic"
 ```
 
@@ -170,18 +170,18 @@ assert 150 <= final_score <= 600, f"Final score {final_score} unrealistic"
 ### How to Verify
 
 ```bash
-# 1. Check for code duplication across features
-# Look for similar functions/classes that should be extracted
+- 1. Check for code duplication across features
+- Look for similar functions/classes that should be extracted
 
-# Example: Both Feature 01 and Feature 02 have `load_csv()` methods
-# Should be extracted to utils/csv_utils.py
+- Example: Both Feature 01 and Feature 02 have `load_csv()` methods
+- Should be extracted to utils/csv_utils.py
 
-# 2. Review code complexity across features
-# All features should have similar complexity levels
+- 2. Review code complexity across features
+- All features should have similar complexity levels
 
-# 3. Check for inconsistent abstractions
-# Example: Feature 01 uses classes, Feature 02 uses functions only
-# Should be consistent (all classes or all functions)
+- 3. Check for inconsistent abstractions
+- Example: Feature 01 uses classes, Feature 02 uses functions only
+- Should be consistent (all classes or all functions)
 ```
 
 ### Common Issues
@@ -222,23 +222,23 @@ assert 150 <= final_score <= 600, f"Final score {final_score} unrealistic"
 ### How to Verify
 
 ```markdown
-# 1. Check EPIC_README.md completeness
+- 1. Check EPIC_README.md completeness
 - Epic overview present
 - Feature list complete
 - Integration points documented
 - Epic success criteria listed
 
-# 2. Check integration point documentation
-# Example: Feature 01 → Feature 02 interface
+- 2. Check integration point documentation
+- Example: Feature 01 → Feature 02 interface
 
-# In feature_01/README.md:
+- In feature_01/README.md:
 ## Public Interfaces
 - `get_adp_data(player_name: str) -> Tuple[float, int]`
   - Returns: (multiplier, adp_rank)
   - Used by: Feature 02 (Matchup System)
   - Contract: multiplier in [0.5, 1.5], rank > 0
 
-# In feature_02/README.md:
+- In feature_02/README.md:
 ## Dependencies
 - Feature 01: Consumes `get_adp_data()` for ADP multiplier
   - Expected: Tuple[float, int]
@@ -277,7 +277,7 @@ assert 150 <= final_score <= 600, f"Final score {final_score} unrealistic"
 ### How to Verify
 
 ```bash
-# 1. Check feature folder structure consistency
+- 1. Check feature folder structure consistency
 feature_01_win_rate_sim_json_integration/
   ├── README.md
   ├── spec.md
@@ -292,13 +292,13 @@ feature_02_accuracy_sim_json_integration/
   ├── implementation_plan.md
   └── lessons_learned.md
 
-# Structure consistent? ✅
+- Structure consistent? ✅
 
-# 2. Check for shared utilities
-# Both features load JSON data → Should use shared JSONLoader
+- 2. Check for shared utilities
+- Both features load JSON data → Should use shared JSONLoader
 
-# 3. Check for circular dependencies
-# Feature 01 imports Feature 02 → Feature 02 imports Feature 01 → ❌ CIRCULAR
+- 3. Check for circular dependencies
+- Feature 01 imports Feature 02 → Feature 02 imports Feature 01 → ❌ CIRCULAR
 ```
 
 ### Document Results
@@ -333,23 +333,23 @@ feature_02_accuracy_sim_json_integration/
 ### How to Verify
 
 ```bash
-# 1. Run all tests
+- 1. Run all tests
 python tests/run_all_tests.py
 
-# Expected output:
-# ============================= test session starts ==============================
-# collected 2247 items
+- Expected output:
+- ============================= test session starts ==============================
+- collected 2247 items
 #
-# tests/unit/test_adp_manager.py ................                          [  1%]
-# tests/unit/test_matchup_manager.py ................                      [  2%]
-# tests/integration/test_epic_integration.py ....                          [ 99%]
-# ============================== 2247 passed in 45.32s ===========================
+- tests/unit/test_adp_manager.py ................                          [  1%]
+- tests/unit/test_matchup_manager.py ................                      [  2%]
+- tests/integration/test_epic_integration.py ....                          [ 99%]
+- ============================== 2247 passed in 45.32s ===========================
 
-# 2. Check for epic-level integration tests
-# tests/integration/test_epic_integration.py should exist and test cross-feature workflows
+- 2. Check for epic-level integration tests
+- tests/integration/test_epic_integration.py should exist and test cross-feature workflows
 
-# 3. Verify test coverage for integration points
-# Coverage should include: Feature 01 → Feature 02 → Feature 03 flow
+- 3. Verify test coverage for integration points
+- Coverage should include: Feature 01 → Feature 02 → Feature 03 flow
 ```
 
 ### Document Results
@@ -396,10 +396,10 @@ python tests/run_all_tests.py
 ### How to Verify
 
 ```python
-# 1. Check input validation across features
-# All features should validate inputs consistently
+- 1. Check input validation across features
+- All features should validate inputs consistently
 
-# Example: Feature 01 validates player names
+- Example: Feature 01 validates player names
 def get_adp_data(player_name: str) -> Tuple[float, int]:
     if not player_name:
         raise ValueError("Player name required")
@@ -407,7 +407,7 @@ def get_adp_data(player_name: str) -> Tuple[float, int]:
         raise TypeError("Player name must be string")
     # ... proceed
 
-# Feature 02 should validate similarly
+- Feature 02 should validate similarly
 def get_matchup_difficulty(player_name: str, week: int) -> float:
     if not player_name:
         raise ValueError("Player name required")  # ✅ Consistent
@@ -415,11 +415,11 @@ def get_matchup_difficulty(player_name: str, week: int) -> float:
         raise TypeError("Player name must be string")  # ✅ Consistent
     # ... proceed
 
-# 2. Check for sensitive data leaks
-# Error messages should not expose file paths, DB credentials, etc.
+- 2. Check for sensitive data leaks
+- Error messages should not expose file paths, DB credentials, etc.
 
-# 3. Check file operations
-# Ensure no path traversal: player_name = "../../etc/passwd"
+- 3. Check file operations
+- Ensure no path traversal: player_name = "../../etc/passwd"
 ```
 
 ### Document Results
@@ -454,30 +454,30 @@ def get_matchup_difficulty(player_name: str, week: int) -> float:
 ### How to Verify
 
 ```python
-# 1. Measure epic-level performance
+- 1. Measure epic-level performance
 import time
 start = time.time()
 
-# Run epic workflow (e.g., draft with all features)
-# python run_league_helper.py --mode draft --week 5 --iterations 10
+- Run epic workflow (e.g., draft with all features)
+- python run_league_helper.py --mode draft --week 5 --iterations 10
 
 end = time.time()
 epic_time = end - start
 print(f"Epic execution time: {epic_time:.2f}s")
 
-# 2. Compare to baseline (pre-epic)
+- 2. Compare to baseline (pre-epic)
 baseline_time = 2.5  # seconds (from S1 epic notes)
 regression = (epic_time - baseline_time) / baseline_time * 100
 print(f"Performance change: {regression:+.1f}%")
 
-# Acceptable if: regression < 20% OR epic_time < 5s
+- Acceptable if: regression < 20% OR epic_time < 5s
 
-# 3. Check for N+1 queries
-# Example BAD: Loading ADP data for each player in loop
+- 3. Check for N+1 queries
+- Example BAD: Loading ADP data for each player in loop
 for player in players:
     adp_data = get_adp_data(player.name)  # ❌ N queries
 
-# Example GOOD: Batch load ADP data
+- Example GOOD: Batch load ADP data
 adp_data_map = get_all_adp_data()  # ✅ 1 query
 for player in players:
     adp_data = adp_data_map.get(player.name)
@@ -532,17 +532,17 @@ for player in players:
 ### How to Verify
 
 ```python
-# 1. Check error class consistency
-# Feature 01:
+- 1. Check error class consistency
+- Feature 01:
 from utils.error_handler import DataProcessingError
 raise DataProcessingError("ADP data not found")
 
-# Feature 02:
+- Feature 02:
 from utils.error_handler import DataProcessingError  # ✅ Same error class
 raise DataProcessingError("Matchup data not found")
 
-# 2. Check error propagation
-# Feature 01 error should propagate to Feature 02
+- 2. Check error propagation
+- Feature 01 error should propagate to Feature 02
 try:
     adp_data = get_adp_data("NonexistentPlayer")
 except DataProcessingError as e:
@@ -551,12 +551,12 @@ except DataProcessingError as e:
     # Use default multiplier
     adp_data = (1.0, 999)
 
-# 3. Check user-facing error messages
-# GOOD: "Player 'John Doe' not found in ADP data. Using default ranking."
-# BAD: "KeyError: 'John Doe' at line 342 in adp_manager.py"
+- 3. Check user-facing error messages
+- GOOD: "Player 'John Doe' not found in ADP data. Using default ranking."
+- BAD: "KeyError: 'John Doe' at line 342 in adp_manager.py"
 
-# 4. Check graceful degradation
-# If Feature 01 fails, Feature 02 should still work (with defaults)
+- 4. Check graceful degradation
+- If Feature 01 fails, Feature 02 should still work (with defaults)
 ```
 
 ### Document Results
@@ -599,10 +599,10 @@ except DataProcessingError as e:
 ### How to Verify
 
 ```python
-# 1. Check architectural consistency
-# All features should follow same architectural pattern
+- 1. Check architectural consistency
+- All features should follow same architectural pattern
 
-# Feature 01:
+- Feature 01:
 class ADPManager:
     def __init__(self, data_folder: Path):
         self.data_folder = data_folder
@@ -610,7 +610,7 @@ class ADPManager:
     def get_adp_data(self, player_name: str) -> Tuple[float, int]:
         # ...
 
-# Feature 02:
+- Feature 02:
 class MatchupManager:  # ✅ Same Manager pattern
     def __init__(self, data_folder: Path):
         self.data_folder = data_folder
@@ -618,7 +618,7 @@ class MatchupManager:  # ✅ Same Manager pattern
     def get_matchup_difficulty(self, player_name: str, week: int) -> float:
         # ...
 
-# Feature 03:
+- Feature 03:
 class PerformanceTracker:  # ✅ Consistent
     def __init__(self, data_folder: Path):
         self.data_folder = data_folder
@@ -626,32 +626,32 @@ class PerformanceTracker:  # ✅ Consistent
     def track_performance(self, player_name: str, actual_score: float):
         # ...
 
-# 2. Check interface design
-# Interfaces should be clean and well-defined
+- 2. Check interface design
+- Interfaces should be clean and well-defined
 
-# GOOD:
+- GOOD:
 def get_adp_data(player_name: str) -> Tuple[float, int]:
     """Clean interface: single responsibility, clear contract"""
 
-# BAD:
+- BAD:
 def get_adp_data_and_maybe_matchup_if_available(player_name: str, week: Optional[int] = None) -> Union[float, Tuple[float, int], Dict[str, Any]]:
     """Unclear interface: multiple responsibilities, ambiguous return type"""
 
-# 3. Check feature coupling
-# Features should be loosely coupled (depend on interfaces, not implementations)
+- 3. Check feature coupling
+- Features should be loosely coupled (depend on interfaces, not implementations)
 
-# GOOD: Feature 02 depends on interface
+- GOOD: Feature 02 depends on interface
 from feature_01.interfaces import IADPProvider
 adp_provider: IADPProvider = get_adp_provider()
 multiplier = adp_provider.get_multiplier("Patrick Mahomes")
 
-# BAD: Feature 02 depends on implementation
+- BAD: Feature 02 depends on implementation
 from feature_01.adp_manager import ADPManager
 adp_mgr = ADPManager()  # ❌ Tightly coupled
 multiplier = adp_mgr.get_adp_data("Patrick Mahomes")[0]
 
-# 4. Check design pattern consistency
-# All features should use same patterns (Manager, Factory, Strategy, etc.)
+- 4. Check design pattern consistency
+- All features should use same patterns (Manager, Factory, Strategy, etc.)
 ```
 
 ### Document Results
@@ -705,26 +705,26 @@ multiplier = adp_mgr.get_adp_data("Patrick Mahomes")[0]
 ### How to Verify
 
 ```python
-# 1. Run existing tests (pre-epic)
-# All tests that existed before epic should still pass
+- 1. Run existing tests (pre-epic)
+- All tests that existed before epic should still pass
 
 python -m pytest tests/unit/test_player_manager.py -v
-# All tests pass? ✅
+- All tests pass? ✅
 
-# 2. Test existing workflows (pre-epic functionality)
-# Epic should not break users who don't use new features
+- 2. Test existing workflows (pre-epic functionality)
+- Epic should not break users who don't use new features
 
-# Example: User runs draft without using new ADP feature
+- Example: User runs draft without using new ADP feature
 python run_league_helper.py --mode draft --week 5
-# Should still work as before epic? ✅
+- Should still work as before epic? ✅
 
-# 3. Check for breaking changes
-# Example: Did epic change existing CSV column names?
-# Before epic: 'score' column
-# After epic: 'final_score' column ❌ BREAKING CHANGE
+- 3. Check for breaking changes
+- Example: Did epic change existing CSV column names?
+- Before epic: 'score' column
+- After epic: 'final_score' column ❌ BREAKING CHANGE
 
-# 4. Check for deprecation warnings
-# If deprecating old features, should warn user
+- 4. Check for deprecation warnings
+- If deprecating old features, should warn user
 import warnings
 warnings.warn("Old ADP format deprecated. Use new format.", DeprecationWarning)
 ```
@@ -767,11 +767,11 @@ warnings.warn("Old ADP format deprecated. Use new format.", DeprecationWarning)
 ### How to Verify
 
 ```markdown
-# 1. Re-read original epic request
-# Read {epic_name}.txt file from feature-updates/
+- 1. Re-read original epic request
+- Read {epic_name}.txt file from feature-updates/
 
-# 2. Compare epic scope to original request
-# Create validation table:
+- 2. Compare epic scope to original request
+- Create validation table:
 
 | Original Request | Implemented | Evidence | Scope Creep? |
 |------------------|-------------|----------|--------------|
@@ -780,11 +780,11 @@ warnings.warn("Old ADP format deprecated. Use new format.", DeprecationWarning)
 | Track performance | ✅ YES | Feature 03 | NO |
 | (NOT requested: Refactor PlayerManager) | ✅ YES | Code changes | ⚠️ YES - SCOPE CREEP |
 
-# 3. Check for unrelated changes
-# Example: Epic about draft helper but also refactored trade analyzer ❌
+- 3. Check for unrelated changes
+- Example: Epic about draft helper but also refactored trade analyzer ❌
 
-# 4. Verify all changes necessary
-# Every code change should trace back to epic requirements
+- 4. Verify all changes necessary
+- Every code change should trace back to epic requirements
 ```
 
 ### Document Results
@@ -837,7 +837,7 @@ warnings.warn("Old ADP format deprecated. Use new format.", DeprecationWarning)
 - `stages/s9/s9_p4_epic_final_review.md` - Complete Step 6 workflow
 
 **PR Review Protocol:**
-- `stages/s5/s5_pr_review_protocol.md` - Complete hybrid multi-round approach
+- `reference/validation_loop_qc_pr.md` - Complete hybrid multi-round approach
 
 **Related Guides:**
 - `stages/s9/s9_p2_epic_qc_rounds.md` - Previous stage

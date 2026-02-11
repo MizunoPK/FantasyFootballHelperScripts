@@ -359,25 +359,25 @@ bash scripts/pre_audit_checks.sh
 - Spot-check commands
 
 ### Context Analysis Guide ✅ COMPLETE
-`reference/context_analysis_guide.md` - How to determine if pattern match is error or intentional
+`audit/reference/context_analysis_guide.md` - How to determine if pattern match is error or intentional
 - Decision trees
 - Example analyses
 - File-specific exception rules
 
 ### User Challenge Protocol ✅ COMPLETE
-`reference/user_challenge_protocol.md` - How to respond when user challenges findings
+`audit/reference/user_challenge_protocol.md` - How to respond when user challenges findings
 - "Are you sure?" response
 - "Did you actually make fixes?" response
 - "Assume everything is wrong" response
 
 ### Confidence Calibration ✅ COMPLETE
-`reference/confidence_calibration.md` - Scoring system for audit completeness
+`audit/reference/confidence_calibration.md` - Scoring system for audit completeness
 - Confidence score calculation
 - Exit criteria thresholds
 - Red flags indicating more work needed
 
 ### Issue Classification ✅ COMPLETE
-`reference/issue_classification.md` - Severity levels and prioritization
+`audit/reference/issue_classification.md` - Severity levels and prioritization
 - Critical: Breaks workflow
 - High: Causes confusion
 - Medium: Cosmetic but important
@@ -522,7 +522,7 @@ Issue discovered → Can I fix with confidence?
 1. Read `audit_overview.md` for philosophy and principles
 2. Check relevant dimension guide for specific checks
 3. Review `examples/` for similar situations
-4. Use `reference/user_challenge_protocol.md` if user challenges findings
+4. Use `audit/reference/user_challenge_protocol.md` if user challenges findings
 5. Remember: Better to over-audit than under-audit
 
 **Key Principle:** If you're unsure whether to continue auditing, continue auditing.

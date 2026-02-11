@@ -143,7 +143,7 @@ Not: feature-updates/json_export_epic/feature_01_serialization/
 **Epic Ticket:**
 
 ```markdown
-# Epic Ticket: Integrate JSON Player Data into Simulations
+## Epic Ticket: Integrate JSON Player Data into Simulations
 
 ## Description
 Replace CSV-based player data loading with JSON format for both win rate and accuracy simulations. The new JSON files contain weekly arrays instead of individual columns, enabling more efficient data organization and week-based queries across all 18 NFL regular season weeks.
@@ -226,7 +226,7 @@ Users cannot predict playoff outcomes or evaluate playoff scenarios during the s
 ### Example 7: Epic Ticket Template - Standard
 
 ```markdown
-# Epic Ticket: [Epic Name]
+## Epic Ticket: [Epic Name]
 
 ## Description
 [2-3 sentences describing what this epic achieves and why it matters]

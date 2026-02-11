@@ -79,7 +79,7 @@
 Create `epic/research/S2_P2_COMPARISON_MATRIX_GROUP_{N}.md`
 
 ```markdown
-# S2.P2 Comparison Matrix - Group {N}
+## S2.P2 Comparison Matrix - Group {N}
 
 **Date:** {YYYY-MM-DD}
 **Group:** {N}

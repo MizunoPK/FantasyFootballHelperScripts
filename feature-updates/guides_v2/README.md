@@ -160,7 +160,7 @@ STAGE 10: Epic Cleanup
 | S2.P1 (Research) | `stages/s2/s2_p1_research.md` | Epic intent extraction, targeted research, audit |
 | S2.P2 (Specification) | `stages/s2/s2_p2_specification.md` | Spec with traceability, alignment check |
 | S2.P3 (Refinement) | `stages/s2/s2_p3_refinement.md` | Questions, scope, alignment, user approval |
-| All features planned | `stages/s3/s3_cross_feature_sanity_check.md` | Validate alignment, resolve conflicts, get user sign-off |
+| All features planned | `stages/s3/s3_epic_planning_approval.md` | Validate alignment, resolve conflicts, get user sign-off |
 | Features aligned | `stages/s4/s4_epic_testing_strategy.md` | Update test plan based on specs |
 | Ready to implement | `stages/s5/s5_v2_validation_loop.md` | Draft Creation + Validation Loop (11 dimensions, 3 consecutive clean rounds required) |
 | S5 v2 complete (Gate 5 approved) | `stages/s6/s6_execution.md` | Implement feature with continuous verification |
@@ -323,15 +323,15 @@ feature-updates/
     │   │   ├── s2_p2_specification.md           ← S2.P2 (Specification)
     │   │   └── s2_p3_refinement.md              ← S2.P3 (Refinement)
     │   ├── s3/
-    │   │   └── s3_cross_feature_sanity_check.md
+    │   │   └── s3_epic_planning_approval.md
     │   ├── s4/
     │   │   └── s4_epic_testing_strategy.md
-    │   ├── s5/                               ← S5: Implementation Planning (22 iterations)
-    │   │   ├── s5_v2_validation_loop.md         ← S5 v2: Validation Loop Approach (Draft + 11 Dimensions)
+    │   ├── s5/                               ← S5 v2: Implementation Planning (Validation Loop)
+    │   │   ├── s5_v2_validation_loop.md         ← S5 v2: 2 Phases with 11 Validation Dimensions
     │   │   ├── S5_V1_TO_V2_MIGRATION.md         ← Migration guide (v1 → v2)
     │   │   ├── S5_V2_DESIGN_PLAN.md             ← S5 v2 architectural design
     │   │   ├── s5_bugfix_workflow.md            ← Bug fix workflow
-    │   │   └── s5_pr_review_protocol.md         ← PR review protocol
+    │   │   └── validation_loop_qc_pr.md         ← PR review protocol
     │   ├── s6/                               ← S6: Implementation Execution
     │   │   └── s6_execution.md
     │   ├── s7/                               ← S7: Implementation Testing & Review
@@ -765,17 +765,20 @@ See `prompts_reference_v2.md` → "Problem Situation Prompts" section for:
 
 ---
 
-### Q: Do I really need 22 iterations for implementation planning?
+### Q: Do I really need to complete the full S5 v2 Validation Loop?
 
-**A: YES.** All 22 iterations are MANDATORY.
+**A: YES.** All 11 dimensions and the validation loop are MANDATORY.
 
-**Data shows:**
+**S5 v2 Structure:**
+- Phase 1: Draft Creation (60-90 minutes)
+- Phase 2: Validation Loop - systematically check all 11 dimensions until 3 consecutive clean rounds
+
+**Why it's mandatory:**
+- Each dimension catches different issue types
+- Validation Loop ensures nothing is missed (systematic checking)
+- 3 consecutive clean rounds guarantee quality
 - Shortcuts cause 40% QC failure rate
-- Each iteration catches different issue types
-- Complexity hides in details
-- Iterations 4, 11, 19 (Traceability Matrix) catch 30% of issues
-- Iteration 21 (Mock Audit) catches another 15%
-- Iteration 20 (Pre-Implementation Audit) catches 20%
+- Key dimensions (Algorithm Traceability, Spec Alignment, Implementation Readiness) catch 65% of issues
 
 **NO SKIPPING ITERATIONS.**
 

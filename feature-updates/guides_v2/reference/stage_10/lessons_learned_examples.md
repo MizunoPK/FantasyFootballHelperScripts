@@ -34,7 +34,7 @@ S10.P1 (Guide Update from Lessons Learned) requires finding ALL lessons learned 
 **File:** `feature-updates/done/{epic_name}/epic_lessons_learned.md`
 
 ```markdown
-# Epic Lessons Learned: improve_draft_helper
+## Epic Lessons Learned: improve_draft_helper
 
 **Epic Overview:** Enhanced draft helper with ADP integration, matchup analysis, and performance tracking
 **Date Range:** 2025-12-15 - 2025-12-30
@@ -102,7 +102,7 @@ S10.P1 (Guide Update from Lessons Learned) requires finding ALL lessons learned 
 - Round 2 test coverage iterations could include integration test examples
 
 **Guide Improvements Needed:**
-- stages/s5/s5_p1_planning_round1.md: Add example for nested algorithm traceability
+- stages/s5/s5_v2_validation_loop.md: Add example for nested algorithm traceability
 - Section: "Iteration 4: Algorithm Traceability Matrix"
 - Update: Add example showing how to trace nested algorithms (algorithm calling other algorithms)
 
@@ -144,7 +144,7 @@ S10.P1 (Guide Update from Lessons Learned) requires finding ALL lessons learned 
 **File:** `feature-updates/done/{epic_name}/feature_01_adp_integration/lessons_learned.md`
 
 ```markdown
-# Feature Lessons Learned: ADP Integration
+## Feature Lessons Learned: ADP Integration
 
 **Feature:** feature_01_adp_integration
 **Epic:** improve_draft_helper
@@ -225,7 +225,7 @@ S10.P1 (Guide Update from Lessons Learned) requires finding ALL lessons learned 
 **File:** `feature-updates/done/{epic_name}/bugfix_high_point_calculation/lessons_learned.md`
 
 ```markdown
-# Bug Fix Lessons Learned: Point Calculation Error
+## Bug Fix Lessons Learned: Point Calculation Error
 
 **Bug Fix:** bugfix_high_point_calculation
 **Epic:** improve_draft_helper
@@ -253,7 +253,7 @@ S10.P1 (Guide Update from Lessons Learned) requires finding ALL lessons learned 
 ## S5: TODO Creation
 
 **What Went Well:**
-- 22 iterations ensured fix didn't introduce new bugs
+- S5 v2 Validation Loop (11 dimensions checked each round) ensured fix didn't introduce new bugs
 - Test coverage included edge cases (zero denominator)
 
 **What Could Be Improved:**
@@ -330,7 +330,7 @@ For EACH file found, read it completely and extract "Guide Improvements Needed" 
    - Update: Add step for CSV format verification
 
 3. S5 Lesson: Add nested algorithm traceability example
-   - Guide: stages/s5/s5_p1_planning_round1.md
+   - Guide: stages/s5/s5_v2_validation_loop.md
    - Section: Iteration 4: Algorithm Traceability Matrix
    - Update: Show example of tracing nested algorithms
 
@@ -361,7 +361,7 @@ Combine ALL lessons from ALL files:
   - Update: Add CSV format check step
 
 □ Lesson 3: Nested algorithm example in S5
-  - Guide: stages/s5/s5_p1_planning_round1.md
+  - Guide: stages/s5/s5_v2_validation_loop.md
   - Section: Iteration 4
   - Update: Add nested algorithm traceability example
 
@@ -393,7 +393,7 @@ For each lesson in master checklist:
 
 1. **Read current guide:**
    ```bash
-   Read feature-updates/guides_v2/stages/s5/s5_p1_planning_round1.md
+   Read feature-updates/guides_v2/stages/s5/s5_v2_validation_loop.md
    ```
 
 2. **Locate section:**

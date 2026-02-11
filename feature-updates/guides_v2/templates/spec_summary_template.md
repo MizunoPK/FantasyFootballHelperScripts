@@ -12,7 +12,7 @@
 ## Template
 
 ```markdown
-# Feature Spec Summary: {feature_name}
+## Feature Spec Summary: {feature_name}
 
 **Part of Epic:** {epic_name}
 **Created:** {YYYY-MM-DD}

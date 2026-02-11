@@ -10,6 +10,44 @@
 
 ---
 
+## Table of Contents
+
+1. [Triggered When](#triggered-when)
+1. [Step 1: Verify All Issues Resolved](#step-1-verify-all-issues-resolved)
+   - [Checklist](#checklist)
+1. [All Issues Resolution Verification](#all-issues-resolution-verification)
+1. [Step 2: Final Code Review](#step-2-final-code-review)
+   - [2.1: Check for leftover artifacts](#21-check-for-leftover-artifacts)
+   - [2.3: Run full test suite](#23-run-full-test-suite)
+1. [Step 3: Cross-Bug Pattern Analysis (MANDATORY)](#step-3-cross-bug-pattern-analysis-mandatory)
+   - [3.1: Review Per-Bug Analyses from Phase 4b](#31-review-per-bug-analyses-from-phase-4b)
+   - [3.2: Cross-Bug Pattern Analysis](#32-cross-bug-pattern-analysis)
+1. [Summary of All Issues](#summary-of-all-issues)
+1. [Cross-Bug Patterns (NEW FOCUS)](#cross-bug-patterns-new-focus)
+   - [Pattern #1: {Pattern Name - e.g., "Missing Entity Status Checks"}](#pattern-1-pattern-name-eg-missing-entity-status-checks)
+1. [High-Priority Guide Updates (Cross-Pattern)](#high-priority-guide-updates-cross-pattern)
+1. [Systemic Process Gaps](#systemic-process-gaps)
+   - [3.3: Update guide_update_recommendations.md with Patterns](#33-update-guideupdaterecommendationsmd-with-patterns)
+1. [CROSS-PATTERN RECOMMENDATIONS (Added from Phase 5 Step 3)](#cross-pattern-recommendations-added-from-phase-5-step-3)
+1. [Pattern-Based Recommendation #{next_number}: {Pattern Name}](#pattern-based-recommendation-nextnumber-pattern-name)
+1. [Affected Guides](#affected-guides)
+1. [Why This Matters](#why-this-matters)
+1. [4: Loop Back to Testing Stage](#4-loop-back-to-testing-stage)
+   - [4.1: Determine Return Point](#41-determine-return-point)
+   - [4.2: Update Agent Status](#42-update-agent-status)
+   - [4.3: Clean Up Debugging Artifacts](#43-clean-up-debugging-artifacts)
+   - [4.4: Resume Testing from Checkpoint](#44-resume-testing-from-checkpoint)
+1. [Exit Criteria](#exit-criteria)
+1. [Common Questions](#common-questions)
+   - [Q: "Do I need to re-run ALL tests from the beginning?"](#q-do-i-need-to-re-run-all-tests-from-the-beginning)
+   - [Q: "What if user finds NEW issues during re-testing?"](#q-what-if-user-finds-new-issues-during-re-testing)
+   - [Q: "Can I skip cross-pattern analysis if only 1 bug?"](#q-can-i-skip-cross-pattern-analysis-if-only-1-bug)
+   - [Q: "What if no cross-patterns found?"](#q-what-if-no-cross-patterns-found)
+   - [Q: "Should I commit code before or after looping back?"](#q-should-i-commit-code-before-or-after-looping-back)
+1. [See Also](#see-also)
+
+---
+
 ## Triggered When
 
 ALL issues in ISSUES_CHECKLIST.md meet these criteria:
@@ -53,15 +91,15 @@ ALL issues in ISSUES_CHECKLIST.md meet these criteria:
 **Search codebase for debug artifacts:**
 
 ```bash
-# Search for diagnostic logging statements
+## Search for diagnostic logging statements
 grep -r "logger.debug.*DEBUG" .
 grep -r "print.*DEBUG" .
 
-# Search for TODO comments added during debugging
+## Search for TODO comments added during debugging
 grep -r "TODO.*debug" .
 grep -r "FIXME.*debug" .
 
-# Search for commented-out diagnostic code
+## Search for commented-out diagnostic code
 grep -r "#.*logger.info.*diagnostic" .
 ```
 
@@ -115,8 +153,8 @@ python tests/run_all_tests.py
 **FIRST: Check if Phase 4b was completed for ALL issues:**
 
 ```bash
-# Check ISSUES_CHECKLIST.md "Root Cause?" column
-# Should show ✅ YES or ⏭️ SKIP for every 🟢 FIXED issue
+## Check ISSUES_CHECKLIST.md "Root Cause?" column
+## Should show ✅ YES or ⏭️ SKIP for every 🟢 FIXED issue
 ```
 
 **If any issue missing root cause analysis:**
@@ -137,7 +175,7 @@ python tests/run_all_tests.py
 **Create or update file:** `debugging/process_failure_analysis.md`
 
 ```markdown
-# Process Failure Analysis - {Feature/Epic Name}
+## Process Failure Analysis - {Feature/Epic Name}
 
 **Purpose:** Identify PATTERNS across multiple bugs and aggregate guide improvements
 
@@ -175,7 +213,7 @@ python tests/run_all_tests.py
 
 **Common Root Cause:**
 {What's the common process/guide gap across these bugs?}
-Example: "All three bugs involved missing checks for entity status fields (injured, active, etc.) because s5_p2_planning_round2.md Iteration 9 (Edge Case Analysis) doesn't explicitly mention status field edge cases"
+Example: "All three bugs involved missing checks for entity status fields (injured, active, etc.) because s5_v2_validation_loop.md Iteration 9 (Edge Case Analysis) doesn't explicitly mention status field edge cases"
 
 **Common Prevention Point:**
 {Which stage/iteration should have caught all these bugs?}
@@ -183,7 +221,7 @@ Example: "S5 Round 2, Iteration 9 (Edge Case Analysis)"
 
 **Pattern-Based Guide Improvement:**
 {What ONE guide change prevents ALL these bugs?}
-Example: "Add to s5_p2_planning_round2.md Iteration 9 checklist: '[ ] Entity status fields (active, injured, suspended, bye week, etc.)'"
+Example: "Add to s5_v2_validation_loop.md Iteration 9 checklist: '[ ] Entity status fields (active, injured, suspended, bye week, etc.)'"
 
 **Impact:**
 - Bugs prevented: {count} similar bugs in future epics
@@ -331,7 +369,7 @@ Example: "Add to s5_p2_planning_round2.md Iteration 9 checklist: '[ ] Entity sta
 **Template:**
 
 ```markdown
-# Debugging Lessons Learned - {Feature/Epic Name}
+## Debugging Lessons Learned - {Feature/Epic Name}
 
 **Feature/Epic:** {name}
 **Testing Stage:** {S7.P1 Smoke Testing / S7.P2 QC / S9 Epic Testing / S10 User Testing}
@@ -462,13 +500,13 @@ This document captures technical lessons from debugging. For process improvement
 
 **Common Code Pattern:**
 ```
-# Example of problematic pattern
+## Example of problematic pattern
 {code snippet}
 ```markdown
 
 **Recommended Solution:**
 ```
-# Example of fix pattern
+## Example of fix pattern
 {code snippet}
 ```markdown
 

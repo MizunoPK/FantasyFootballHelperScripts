@@ -25,7 +25,7 @@
 
 ### Skipping Iterations
 - ❌ "Iteration 7 seems obvious, I'll skip it"
-- ✅ ALL 22 iterations in S5 are MANDATORY
+- ✅ ALL 11 dimensions in S5 v2 are MANDATORY, and the Validation Loop must be completed (3 consecutive clean rounds)
 - **Why:** Each iteration catches specific bug categories
 
 ### Committing Without Tests

@@ -694,7 +694,7 @@ find templates -name "*.md" -o -name "*.txt" | wc -l
 
 **Issue Found:**
 ```markdown
-File: stages/s5/s5_p1_planning_round1.md
+File: stages/s5/s5_v2_validation_loop.md
 Line: 12
 Content: "Round 1 has 7 iterations (I1-I7)"
 Actual: Round 1 has 7 iterations, but guide splits them across 3 sub-files
@@ -780,7 +780,7 @@ grep -rn "automat.*[0-9]\+%\|Checks [0-9] of [0-9]" guides_v2/ -i
 - `../stages/stage_4_verification.md` - Re-verify counts after fixes
 
 **Reference:**
-- `../reference/file_size_reduction_guide.md` - Why stale large files are problematic
+- `reference/file_size_reduction_guide.md` - Why stale large files are problematic
 - `../_internal/DIMENSION_IMPLEMENTATION_STATUS.md` - Current dimension implementation status
 
 ---

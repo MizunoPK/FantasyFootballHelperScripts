@@ -63,10 +63,10 @@ Hands-On Data Inspection is complete when you have opened actual data files, pri
 
 **The Reality:**
 ```python
-# week_01/qb_data.json
+- week_01/qb_data.json
 week_01[0]['actual_points'][0]  # 0.0 (week 1 not complete yet)
 
-# week_02/qb_data.json
+- week_02/qb_data.json
 week_02[0]['actual_points'][0]  # 33.6 (week 1 complete)
 ```
 
@@ -179,7 +179,7 @@ python
 import json
 from pathlib import Path
 
-# Load multiple weeks to understand pattern
+- Load multiple weeks to understand pattern
 week_01_path = Path('simulation/sim_data/2021/weeks/week_01/qb_data.json')
 week_02_path = Path('simulation/sim_data/2021/weeks/week_02/qb_data.json')
 week_03_path = Path('simulation/sim_data/2021/weeks/week_03/qb_data.json')
@@ -196,18 +196,18 @@ with open(week_03_path) as f:
 
 **Common Mistake:**
 ```python
-# WRONG - only loads one file
+- WRONG - only loads one file
 week_01 = json.load(open('week_01/qb_data.json'))
-# Can't see patterns with one data point
+- Can't see patterns with one data point
 ```
 
 **Right:**
 ```python
-# RIGHT - loads multiple files
+- RIGHT - loads multiple files
 week_01 = json.load(open('simulation/sim_data/2021/weeks/week_01/qb_data.json'))
 week_02 = json.load(open('simulation/sim_data/2021/weeks/week_02/qb_data.json'))
 week_03 = json.load(open('simulation/sim_data/2021/weeks/week_03/qb_data.json'))
-# Can compare values across files to understand pattern
+- Can compare values across files to understand pattern
 ```
 
 ---
@@ -224,20 +224,20 @@ week_03 = json.load(open('simulation/sim_data/2021/weeks/week_03/qb_data.json'))
 
 **Example - WRONG:**
 ```python
-# This tells you NOTHING about the actual values
+- This tells you NOTHING about the actual values
 print('actual_points' in week_01[0])  # True
-# You now know the key exists, but not what value it contains
+- You now know the key exists, but not what value it contains
 ```
 
 **Example - RIGHT:**
 ```python
-# This shows you the ACTUAL data
+- This shows you the ACTUAL data
 print(f"Week 1 actuals in week_01 folder: {week_01[0]['actual_points'][0]}")  # 0.0
 print(f"Week 1 actuals in week_02 folder: {week_02[0]['actual_points'][0]}")  # 33.6
 print(f"Week 2 actuals in week_02 folder: {week_02[0]['actual_points'][1]}")  # 0.0
 print(f"Week 2 actuals in week_03 folder: {week_03[0]['actual_points'][1]}")  # 22.4
 
-# Now you can see the PATTERN: week_N has 0.0 for week N, week_N+1 has real values
+- Now you can see the PATTERN: week_N has 0.0 for week N, week_N+1 has real values
 ```
 
 ---
@@ -262,44 +262,44 @@ For each assumption, create a verification test:
 
 **Assumption 1:** "Week_N folder contains week N actual points"
 ```python
-# Verification Command:
+- Verification Command:
 week_01 = json.load(open('simulation/sim_data/2021/weeks/week_01/qb_data.json'))
 actual_week_1_in_week_01 = week_01[0]['actual_points'][0]
 print(f"Week 1 actual in week_01: {actual_week_1_in_week_01}")
 
-# Result:
-# Week 1 actual in week_01: 0.0
+- Result:
+- Week 1 actual in week_01: 0.0
 
-# Conclusion:
-# ❌ INVALID - Week_N folder has 0.0 for week N actuals
+- Conclusion:
+- ❌ INVALID - Week_N folder has 0.0 for week N actuals
 ```
 
 **Assumption 2:** "Week_N+1 folder contains week N actual points"
 ```python
-# Verification Command:
+- Verification Command:
 week_02 = json.load(open('simulation/sim_data/2021/weeks/week_02/qb_data.json'))
 actual_week_1_in_week_02 = week_02[0]['actual_points'][0]
 print(f"Week 1 actual in week_02: {actual_week_1_in_week_02}")
 
-# Result:
-# Week 1 actual in week_02: 33.6
+- Result:
+- Week 1 actual in week_02: 33.6
 
-# Conclusion:
-# ✅ VALID - Week_N+1 folder has real week N actuals
+- Conclusion:
+- ✅ VALID - Week_N+1 folder has real week N actuals
 ```
 
 **Assumption 3:** "This pattern applies to all weeks (not just week 17)"
 ```python
-# Verification Command:
+- Verification Command:
 week_03 = json.load(open('simulation/sim_data/2021/weeks/week_03/qb_data.json'))
 actual_week_2_in_week_03 = week_03[0]['actual_points'][1]
 print(f"Week 2 actual in week_03: {actual_week_2_in_week_03}")
 
-# Result:
-# Week 2 actual in week_03: 22.4
+- Result:
+- Week 2 actual in week_03: 22.4
 
-# Conclusion:
-# ✅ VALID - Pattern applies to ALL weeks, not special case
+- Conclusion:
+- ✅ VALID - Pattern applies to ALL weeks, not special case
 ```
 
 ---
@@ -315,10 +315,10 @@ print(f"Week 2 actual in week_03: {actual_week_2_in_week_03}")
 
 **Method:**
 ```python
-# Get statistical distribution of values
+- Get statistical distribution of values
 import statistics
 
-# Collect all actual points for week 1 from week_02 folder
+- Collect all actual points for week 1 from week_02 folder
 week_1_actuals = [player['actual_points'][0] for player in week_02
                   if len(player['actual_points']) > 0]
 
@@ -329,12 +329,12 @@ print(f"Mean: {statistics.mean(week_1_actuals)}")
 print(f"Median: {statistics.median(week_1_actuals)}")
 print(f"Std Dev: {statistics.stdev(week_1_actuals)}")
 
-# Count zeros
+- Count zeros
 zero_count = sum(1 for val in week_1_actuals if val == 0.0)
 zero_percentage = (zero_count / len(week_1_actuals)) * 100
 print(f"Zero percentage: {zero_percentage:.1f}%")
 
-# Sample of non-zero values
+- Sample of non-zero values
 non_zero = [val for val in week_1_actuals if val > 0][:10]
 print(f"Sample non-zero values: {non_zero}")
 ```
@@ -374,7 +374,7 @@ print(f"Sample non-zero values: {non_zero}")
 
 **Method:**
 ```python
-# Check schema consistency across weeks
+- Check schema consistency across weeks
 def check_schema(week_data, week_num):
     """Verify data structure is consistent."""
     sample = week_data[0]
@@ -400,7 +400,7 @@ def check_schema(week_data, week_num):
     print(f"✅ Week {week_num}: Schema valid")
     return True
 
-# Test multiple weeks
+- Test multiple weeks
 check_schema(week_01, 1)
 check_schema(week_02, 2)
 check_schema(week_03, 3)
@@ -436,12 +436,12 @@ Pattern verified across all sampled files.
 ### Commands Run
 
 \`\`\`python
-# Load data files
+- Load data files
 import json
 week_01 = json.load(open('simulation/sim_data/2021/weeks/week_01/qb_data.json'))
 week_02 = json.load(open('simulation/sim_data/2021/weeks/week_02/qb_data.json'))
 
-# Print actual values
+- Print actual values
 print(f"Week 1 actuals in week_01: {week_01[0]['actual_points'][0]}")  # 0.0
 print(f"Week 1 actuals in week_02: {week_02[0]['actual_points'][0]}")  # 33.6
 \`\`\`
@@ -528,10 +528,10 @@ between the actual data and our spec.md/implementation_plan.md.
 
 **Evidence:**
 \`\`\`python
-# Commands run:
+- Commands run:
 [Python commands you ran]
 
-# Output:
+- Output:
 [Actual output showing the contradiction]
 \`\`\`
 
@@ -641,13 +641,13 @@ S5.5 is complete when:
 **Wrong:**
 ```python
 print('actual_points' in week_01[0])  # True
-# Conclusion: "Data exists, looks good"
+- Conclusion: "Data exists, looks good"
 ```
 
 **Right:**
 ```python
 print(f"Actual value: {week_01[0]['actual_points'][0]}")  # 0.0
-# Conclusion: "Key exists but value is 0.0 - investigate why"
+- Conclusion: "Key exists but value is 0.0 - investigate why"
 ```
 
 ### ❌ Pitfall 2: Only Loading One File
@@ -656,7 +656,7 @@ print(f"Actual value: {week_01[0]['actual_points'][0]}")  # 0.0
 ```python
 week_01 = json.load(open('week_01/qb_data.json'))
 print(week_01[0]['actual_points'][0])  # 0.0
-# Conclusion: "Week 1 actuals are 0.0" (but is this the pattern or special case?)
+- Conclusion: "Week 1 actuals are 0.0" (but is this the pattern or special case?)
 ```
 
 **Right:**
@@ -667,20 +667,20 @@ week_03 = json.load(open('week_03/qb_data.json'))
 print(f"Week 1 in week_01: {week_01[0]['actual_points'][0]}")  # 0.0
 print(f"Week 1 in week_02: {week_02[0]['actual_points'][0]}")  # 33.6
 print(f"Week 2 in week_03: {week_03[0]['actual_points'][1]}")  # 22.4
-# Conclusion: "Pattern is week_N has 0.0, week_N+1 has real values"
+- Conclusion: "Pattern is week_N has 0.0, week_N+1 has real values"
 ```
 
 ### ❌ Pitfall 3: Using Test Fixtures Instead of Real Data
 
 **Wrong:**
 ```python
-# Test fixtures might have simplified/fake data
+- Test fixtures might have simplified/fake data
 data = json.load(open('tests/fixtures/sample_week.json'))
 ```
 
 **Right:**
 ```python
-# Real production data shows actual behavior
+- Real production data shows actual behavior
 data = json.load(open('simulation/sim_data/2021/weeks/week_01/qb_data.json'))
 ```
 
@@ -688,39 +688,39 @@ data = json.load(open('simulation/sim_data/2021/weeks/week_01/qb_data.json'))
 
 **Wrong:**
 ```python
-# Variable name suggests it has week 1 actuals
+- Variable name suggests it has week 1 actuals
 week_1_actual_points = week_01[0]['actual_points'][0]
 print(week_1_actual_points)  # 0.0
-# Conclusion: "Week 1 actuals are 0.0, maybe no games played?"
+- Conclusion: "Week 1 actuals are 0.0, maybe no games played?"
 ```
 
 **Right:**
 ```python
-# Don't trust names - verify the actual values
+- Don't trust names - verify the actual values
 week_1_actual_in_week_01 = week_01[0]['actual_points'][0]  # 0.0
 week_1_actual_in_week_02 = week_02[0]['actual_points'][0]  # 33.6
-# Conclusion: "week_01 folder name is misleading - has 0.0, not real actuals"
+- Conclusion: "week_01 folder name is misleading - has 0.0, not real actuals"
 ```
 
 ### ❌ Pitfall 5: Silently Fixing Discrepancies
 
 **Wrong:**
 ```python
-# Find discrepancy
+- Find discrepancy
 print(week_01[0]['actual_points'][0])  # 0.0 (expected > 0)
-# Conclusion: "Spec is wrong, I'll fix it and continue"
-# [Updates spec.md and implementation_plan.md silently]
-# [Proceeds to S6]
+- Conclusion: "Spec is wrong, I'll fix it and continue"
+- [Updates spec.md and implementation_plan.md silently]
+- [Proceeds to S6]
 ```
 
 **Right:**
 ```python
-# Find discrepancy
+- Find discrepancy
 print(week_01[0]['actual_points'][0])  # 0.0 (expected > 0)
-# Conclusion: "Spec is wrong - STOP and report to user"
-# [Documents discrepancy with evidence]
-# [Reports to user with 3 options]
-# [Waits for user decision]
+- Conclusion: "Spec is wrong - STOP and report to user"
+- [Documents discrepancy with evidence]
+- [Reports to user with 3 options]
+- [Waits for user decision]
 ```
 
 ---
@@ -820,31 +820,31 @@ S5 → **S5.5 (Data Inspection)** → S6
 
 **S5.5 Process:**
 ```python
-# Step 1: Load actual data
+- Step 1: Load actual data
 import json
 week_01 = json.load(open('simulation/sim_data/2021/weeks/week_01/qb_data.json'))
 week_02 = json.load(open('simulation/sim_data/2021/weeks/week_02/qb_data.json'))
 
-# Step 2: Test assumption
+- Step 2: Test assumption
 print(f"Week 1 actuals in week_01: {week_01[0]['actual_points'][0]}")  # 0.0
 print(f"Week 1 actuals in week_02: {week_02[0]['actual_points'][0]}")  # 33.6
 
-# Step 3: Realize assumption is WRONG
-# week_01 folder does NOT have week 1 actuals (has 0.0)
-# week_02 folder DOES have week 1 actuals (has 33.6)
+- Step 3: Realize assumption is WRONG
+- week_01 folder does NOT have week 1 actuals (has 0.0)
+- week_02 folder DOES have week 1 actuals (has 33.6)
 
-# Step 4: Report to user
-# "Spec.md says 'no code changes needed' but data shows we need week_N+1"
+- Step 4: Report to user
+- "Spec.md says 'no code changes needed' but data shows we need week_N+1"
 
-# Step 5: User chooses Option A (fix spec, restart S5)
+- Step 5: User chooses Option A (fix spec, restart S5)
 
-# Step 6: Update spec.md with correct data model
+- Step 6: Update spec.md with correct data model
 
-# Step 7: Restart S5 with correct understanding
+- Step 7: Restart S5 with correct understanding
 
-# Step 8: Re-run S5.5 to verify fixes
+- Step 8: Re-run S5.5 to verify fixes
 
-# Step 9: Proceed to S6 with validated assumptions
+- Step 9: Proceed to S6 with validated assumptions
 ```
 
 **Result:** Bug caught before writing any code.

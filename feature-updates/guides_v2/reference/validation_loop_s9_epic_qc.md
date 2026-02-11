@@ -124,15 +124,15 @@ These 5 dimensions are specific to S9.P2 Epic QC validation:
 
 **Example Verification:**
 ```python
-# Integration: Feature 01 -> Feature 02
+## Integration: Feature 01 -> Feature 02
 from feature_01.PlayerDataManager import PlayerDataManager
 from feature_02.RatingSystem import RatingSystem
 
-# Verify data flows correctly
+## Verify data flows correctly
 players = PlayerDataManager().get_all_players()
 rated_players = RatingSystem().apply_ratings(players)
 
-# Verify no data loss
+## Verify no data loss
 assert len(rated_players) == len(players)
 assert all(hasattr(p, 'rating') for p in rated_players)
 ```
@@ -161,16 +161,16 @@ assert all(hasattr(p, 'rating') for p in rated_players)
 
 Wrong - Inconsistent patterns:
 ```python
-# Feature 01: get_all_players()
-# Feature 02: get_rated_players()  # Consistent
-# Feature 03: fetch_recommendations()  # Different pattern
+## Feature 01: get_all_players()
+## Feature 02: get_rated_players()  # Consistent
+## Feature 03: fetch_recommendations()  # Different pattern
 ```
 
 Correct - Consistent patterns:
 ```python
-# Feature 01: get_all_players()
-# Feature 02: get_rated_players()
-# Feature 03: get_recommendations()  # Consistent
+## Feature 01: get_all_players()
+## Feature 02: get_rated_players()
+## Feature 03: get_recommendations()  # Consistent
 ```
 
 ---
@@ -197,22 +197,22 @@ Correct - Consistent patterns:
 
 Wrong - Inconsistent error handling:
 ```python
-# Feature 01: Raises DataProcessingError
+## Feature 01: Raises DataProcessingError
 except FileNotFoundError:
     raise DataProcessingError("Player data not found")
 
-# Feature 03: Returns None
+## Feature 03: Returns None
 except FileNotFoundError:
     return None  # Inconsistent
 ```
 
 Correct - Consistent error handling:
 ```python
-# Feature 01: Raises DataProcessingError
+## Feature 01: Raises DataProcessingError
 except FileNotFoundError:
     raise DataProcessingError("Player data not found")
 
-# Feature 03: Also raises DataProcessingError
+## Feature 03: Also raises DataProcessingError
 except FileNotFoundError:
     raise DataProcessingError("Settings not found")
 ```
@@ -362,9 +362,9 @@ Epic-specific reading patterns:
 
 **Example:**
 ```python
-# Feature 01 returns List[Player]
-# Feature 02 expects Dict[str, Player]
-# Integration fails with TypeError
+## Feature 01 returns List[Player]
+## Feature 02 expects Dict[str, Player]
+## Integration fails with TypeError
 ```
 
 **Fix:** Verify interface contracts match, add data transformation if needed
@@ -377,9 +377,9 @@ Epic-specific reading patterns:
 
 **Example:**
 ```python
-# Feature 01: raises exception on error
-# Feature 02: returns None on error
-# Integration breaks due to unexpected None
+## Feature 01: raises exception on error
+## Feature 02: returns None on error
+## Integration breaks due to unexpected None
 ```
 
 **Fix:** Standardize error handling approach across all features
@@ -406,9 +406,9 @@ Implementation: Only generates top 100 players
 
 **Example:**
 ```python
-# Feature 01: Singleton pattern for config
-# Feature 02: Instance-based config
-# Conflict when accessing shared configuration
+## Feature 01: Singleton pattern for config
+## Feature 02: Instance-based config
+## Conflict when accessing shared configuration
 ```
 
 **Fix:** Standardize architectural patterns across features

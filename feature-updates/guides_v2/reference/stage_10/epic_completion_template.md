@@ -188,16 +188,16 @@ Before considering epic completion summary complete:
 
 **Wrong:**
 ```bash
-# Edit feature-updates/improve_draft_helper/EPIC_README.md
-# Then move epic to done/
-# Result: Edit is lost because file moved before saving
+## Edit feature-updates/improve_draft_helper/EPIC_README.md
+## Then move epic to done/
+## Result: Edit is lost because file moved before saving
 ```
 
 **Right:**
 ```bash
-# Move epic to done/
-# Then edit feature-updates/done/improve_draft_helper/EPIC_README.md
-# Result: Edit persists in correct location
+## Move epic to done/
+## Then edit feature-updates/done/improve_draft_helper/EPIC_README.md
+## Result: Edit persists in correct location
 ```
 
 ### ❌ Mistake 2: Wrong epic location in completion summary

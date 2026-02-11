@@ -12,7 +12,7 @@
 ## Template
 
 ```markdown
-# Feature: {feature_name}
+## Feature: {feature_name}
 
 **Created:** {YYYY-MM-DD}
 **Status:** {Stage X complete}

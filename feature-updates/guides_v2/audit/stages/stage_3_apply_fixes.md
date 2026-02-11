@@ -253,7 +253,7 @@ $ grep -n "OLD" file1.md
 ### After
 ```bash
 $ grep -n "NEW" file1.md
-45:stages/s5/s5_p1_planning_round1.md
+45:stages/s5/s5_v2_validation_loop.md
 ```markdown
 
 ### Verification
@@ -419,7 +419,7 @@ git restore file1.md file2.md file3.md
 ```bash
 # Files flagged by pre-audit script:
 ❌ POLICY VIOLATION: CLAUDE.md (45786 chars) exceeds 40,000
-❌ TOO LARGE: stages/s5/s5_p1_planning_round1.md (1200 lines)
+❌ TOO LARGE: stages/s5/s5_v2_validation_loop.md (1200 lines)
 ⚠️  LARGE: stages/s1/s1_epic_planning.md (650 lines)
 ```
 
@@ -710,7 +710,7 @@ echo "=== Ready for Group 2 ==="
 - `stage_4_verification.md` - Comprehensive verification after all fixes applied
 
 **Reference:**
-- `../reference/verification_commands.md` - More verification examples
+- `reference/verification_commands.md` - More verification examples
 - `../templates/verification_report_template.md` - Document results for Stage 4
 
 **Dimensions:**

@@ -403,7 +403,7 @@ This section covers...
 **Search Commands:**
 ```bash
 # Check if all major sections have same subsections
-file="stages/s5/s5_p1_planning_round1.md"
+file="stages/s5/s5_v2_validation_loop.md"
 
 # Extract section headers
 sections=$(grep "^## " "$file" | sed 's/^## //')
@@ -919,7 +919,7 @@ grep -oi "stage\|phase\|step\|iteration" "$file" | sort | uniq -c
 
 ```bash
 # Check if all sections have same structure
-file="stages/s5/s5_p1_planning_round1.md"
+file="stages/s5/s5_v2_validation_loop.md"
 
 # List all section headers
 grep "^## \|^### " "$file"
@@ -1058,7 +1058,7 @@ The agent must wait for user approval before proceeding.
 
 **Issue Found During KAI-7 Audit Round 3:**
 
-**File:** `stages/s5/s5_p1_planning_round1.md`
+**File:** `stages/s5/s5_v2_validation_loop.md`
 
 **Mixed Content:**
 ```markdown

@@ -502,7 +502,7 @@ For EACH approved feature, create folder: `feature-updates/KAI-{N}-{epic_name}/f
 Each feature's spec.md starts with Discovery Context section:
 
 ```markdown
-# Feature Spec: {feature_name}
+## Feature Spec: {feature_name}
 
 ## Discovery Context
 

@@ -223,7 +223,7 @@ echo "=== Random Spot-Check ==="
 find stages templates reference -name "*.md" -type f | shuf -n 10
 
 # Example output:
-# stages/s5/s5_p2_planning_round2.md
+# stages/s5/s5_v2_validation_loop.md
 # stages/s9/s9_p3_user_testing.md
 # templates/feature_spec_template.md
 # reference/mandatory_gates.md
@@ -236,7 +236,7 @@ find stages templates reference -name "*.md" -type f | shuf -n 10
 
 ```bash
 # Read different sections
-file="stages/s5/s5_p2_planning_round2.md"
+file="stages/s5/s5_v2_validation_loop.md"
 
 # Beginning
 sed -n '1,50p' "$file"
@@ -267,7 +267,7 @@ tail -n 50 "$file"
 
 **Files Checked:** 10 files
 
-### File 1: stages/s5/s5_p2_planning_round2.md
+### File 1: stages/s5/s5_v2_validation_loop.md
 **Sections:** Lines 1-50, 200-250, end
 **Issues:** None
 **Notes:** Notation consistent, formatting good
@@ -403,7 +403,7 @@ done
 - After: 39,500 chars
 - Status: ✅ Within 40,000 char limit
 
-**stages/s5/s5_p1_planning_round1.md:**
+**stages/s5/s5_v2_validation_loop.md:**
 - Before: 1200 lines
 - After: 400 lines (sub-guides created)
 - Status: ✅ Within limits
@@ -673,7 +673,7 @@ $ grep -rn "S5a-" --include="*.md"
 **Files Checked:** 12 files (random selection)
 
 All spot-checks CLEAN:
-- stages/s5/s5_p1_planning_round1.md ✅
+- stages/s5/s5_v2_validation_loop.md ✅
 - stages/s9/s9_p3_user_testing.md ✅
 - templates/feature_spec_template.md ✅
 - reference/mandatory_gates.md ✅
@@ -719,7 +719,7 @@ All spot-checks CLEAN:
 - `../templates/verification_report_template.md` - Use this for output
 
 **Reference:**
-- `../reference/verification_commands.md` - Additional verification commands
+- `reference/verification_commands.md` - Additional verification commands
 
 ---
 

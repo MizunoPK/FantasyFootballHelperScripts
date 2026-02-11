@@ -369,8 +369,8 @@ Guides that say "for details, see X.md" must have X.md available and accessible.
 # S5: Implementation Planning
 
 For detailed iteration guides, see:
-- Round 1: `stages/s5/s5_p1_planning_round1.md`
-- Round 2: `stages/s5/s5_p2_planning_round2.md`
+- Round 1: `stages/s5/s5_v2_validation_loop.md`
+- Round 2: `stages/s5/s5_v2_validation_loop.md`
 - Round 3: `stages/s5/s5_p3_planning_round3.md`
 ```
 
@@ -395,7 +395,7 @@ done
 
 **Red Flags:**
 - Guide says "see detailed_guide.md" but file doesn't exist
-- Guide references "stages/s5/s5_phase1.md" but actual file is "s5_p1_planning_round1.md"
+- Guide references "stages/s5/s5_phase1.md" but actual file is "s5_v2_validation_loop.md"
 - Guide says "for examples, see examples.md" but examples.md is empty/stub
 - Router references phase guide that was deleted
 
@@ -1137,7 +1137,7 @@ For build steps, refer to implementation_checklist.md.
 - **Division:** D1 = syntax, D12 = semantics
 
 **Example:**
-- D1 checks: Path `stages/s5/s5_implementation_planning.md` is correctly formatted ✅
+- D1 checks: Path `stages/s5/s5_v2_validation_loop.md` is correctly formatted ✅
 - D12 checks: File exists and is not empty/stub ✅
 
 ---

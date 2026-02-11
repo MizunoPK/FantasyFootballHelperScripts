@@ -701,7 +701,7 @@ Plan Tasks:
 
 ❌ **WRONG - Custom format instead of template:**
 ```markdown
-# My Feature Spec
+## My Feature Spec
 
 ## What it does
 ...
@@ -712,7 +712,7 @@ Plan Tasks:
 
 ✅ **CORRECT - Using official template:**
 ```markdown
-# Feature Spec: ADP Integration
+## Feature Spec: ADP Integration
 
 ## Discovery Context
 ...
@@ -902,7 +902,7 @@ Round 4: 0 issues → Counter = 3 ✅ EXIT
 
 **Structure:**
 ```markdown
-# Validation Loop Log: {Artifact Name}
+## Validation Loop Log: {Artifact Name}
 
 **Artifact:** {file name and version}
 **Validation Start:** {YYYY-MM-DD HH:MM}
@@ -1192,7 +1192,7 @@ Round 3: Check ALL 7 dimensions + scenario-specific
 
 **Structure:**
 ```markdown
-# Validation Loop: Implementation Planning (S5)
+## Validation Loop: Implementation Planning (S5)
 
 **Extends:** Master Validation Loop Protocol
 **See:** reference/validation_loop_master_protocol.md

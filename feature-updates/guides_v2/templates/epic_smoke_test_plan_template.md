@@ -12,7 +12,7 @@
 ## Template
 
 ```markdown
-# Epic Smoke Test Plan: {epic_name}
+## Epic Smoke Test Plan: {epic_name}
 
 **Purpose:** Define how to validate the complete epic end-to-end
 

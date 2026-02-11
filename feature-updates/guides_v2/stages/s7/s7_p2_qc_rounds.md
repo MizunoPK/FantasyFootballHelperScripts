@@ -215,7 +215,7 @@ VALIDATION COMPLETE → Proceed to S7.P3 (Final Review)
 
 **VALIDATION_LOOP_LOG.md:** Create this file at the start of S7.P2 in the feature folder. Log each round's findings, issues fixed, and clean round counter. Format:
 ```markdown
-# Validation Loop Log - {feature_name}
+## Validation Loop Log - {feature_name}
 
 ## Round 1 (Sequential Review)
 - Issues Found: [list or "None"]

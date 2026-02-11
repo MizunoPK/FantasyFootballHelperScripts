@@ -235,7 +235,7 @@
 
 ### Gate 1: User Sign-Off on Complete Epic Plan
 
-**Location:** stages/s3/s3_cross_feature_sanity_check.md
+**Location:** stages/s3/s3_epic_planning_approval.md
 **When:** After all features planned and conflicts resolved
 
 **What it checks:**
@@ -514,7 +514,7 @@
 **What it checks (comprehensive checklist):**
 - Spec Verification: Complete, validated
 - Implementation Plan Verification: All requirements have tasks, specificity 100%
-- Iteration Completion: All 22 iterations complete
+- Iteration Completion: S5 v2 Validation Loop complete (all 11 dimensions validated, 3 consecutive clean rounds)
 - Mandatory Gates: Iterations 4a, 23a (ALL 4 PARTS), 25 all PASSED
 - Confidence Assessment: >= MEDIUM
 - Integration Verification: Algorithm traceability, integration gaps, interfaces, mocks

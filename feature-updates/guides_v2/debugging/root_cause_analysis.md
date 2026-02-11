@@ -12,6 +12,59 @@
 
 ---
 
+## Table of Contents
+
+1. [🚨 CRITICAL: Why This Phase Is Mandatory](#-critical-why-this-phase-is-mandatory)
+1. [Trigger Condition](#trigger-condition)
+1. [Step 1: 5-Why Root Cause Analysis](#step-1-5-why-root-cause-analysis)
+   - [1.1: Start with the Bug Symptom](#11-start-with-the-bug-symptom)
+   - [1.2: Categorize the Root Cause](#12-categorize-the-root-cause)
+1. [Step 2: Identify Prevention Point](#step-2-identify-prevention-point)
+   - [2.1: Trace Back Through Workflow](#21-trace-back-through-workflow)
+   - [2.2: Identify the "Should Have Caught" Stage](#22-identify-the-should-have-caught-stage)
+1. [Prevention Point](#prevention-point)
+1. [Step 3: Draft Guide Improvement Proposal](#step-3-draft-guide-improvement-proposal)
+   - [3.1: Define the Improvement](#31-define-the-improvement)
+1. [Proposed Guide Improvement for Issue #{number}](#proposed-guide-improvement-for-issue-number)
+   - [3.2: Assign Priority Level](#32-assign-priority-level)
+1. [Step 4: Present to User for Confirmation](#step-4-present-to-user-for-confirmation)
+   - [4.1: Present Analysis to User](#41-present-analysis-to-user)
+1. [Root Cause Analysis for Issue #{number}](#root-cause-analysis-for-issue-number)
+   - [5-Why Analysis](#5-why-analysis)
+   - [Prevention Point](#prevention-point)
+   - [Proposed Guide Improvement](#proposed-guide-improvement)
+1. [Question for You](#question-for-you)
+   - [4.2: Process User Response](#42-process-user-response)
+1. [Root Cause Analysis](#root-cause-analysis)
+1. [Step 5: Document in guide_update_recommendations.md](#step-5-document-in-guideupdaterecommendationsmd)
+   - [5.1: Create or Update File](#51-create-or-update-file)
+   - [5.2: File Template (First Time)](#52-file-template-first-time)
+1. [Recommendation #1: {Short Title}](#recommendation-1-short-title)
+   - [Root Cause](#root-cause)
+   - [Current State (BEFORE)](#current-state-before)
+   - [Proposed Change (AFTER)](#proposed-change-after)
+   - [Rationale](#rationale)
+   - [Impact Assessment](#impact-assessment)
+   - [5.3: Add Recommendation for Current Issue](#53-add-recommendation-for-current-issue)
+1. [Recommendation #{next_number}: {Short Title from User-Confirmed Analysis}](#recommendation-nextnumber-short-title-from-user-confirmed-analysis)
+1. [Step 6: Update Issue File](#step-6-update-issue-file)
+   - [6.1: Add Root Cause Section](#61-add-root-cause-section)
+1. [Root Cause Analysis (Phase 4b)](#root-cause-analysis-phase-4b)
+   - [5-Why Analysis](#5-why-analysis)
+   - [Prevention Point](#prevention-point)
+   - [Guide Improvement](#guide-improvement)
+   - [User Feedback](#user-feedback)
+1. [Step 7: Update ISSUES_CHECKLIST.md](#step-7-update-issueschecklistmd)
+   - [7.1: Add New Column (If First Time)](#71-add-new-column-if-first-time)
+   - [7.2: Mark Root Cause Complete](#72-mark-root-cause-complete)
+1. [Step 8: Determine Next Action](#step-8-determine-next-action)
+   - [8.1: Check for More Issues](#81-check-for-more-issues)
+1. [Completion Checklist](#completion-checklist)
+1. [Common Mistakes to Avoid](#common-mistakes-to-avoid)
+1. [Why This Matters](#why-this-matters)
+
+---
+
 ## 🚨 CRITICAL: Why This Phase Is Mandatory
 
 **Historical Problem:**
@@ -61,7 +114,7 @@ WHY #4: Why wasn't that edge case identified?
 → {Process answer - e.g., "Iteration 9 (Edge Case Analysis) didn't consider injury status"}
 
 WHY #5: Why didn't Iteration 9 catch it?
-→ {Guide gap - e.g., "s5_p2_planning_round2.md doesn't mention checking player status fields"}
+→ {Guide gap - e.g., "s5_v2_validation_loop.md doesn't mention checking player status fields"}
 ```
 
 **Continue until you reach a PROCESS or GUIDE gap (not just technical cause).**
@@ -74,7 +127,7 @@ WHY #5: Why didn't Iteration 9 catch it?
 
 **A. Missing Guide Section**
 - Guide exists but doesn't cover this scenario
-- Example: "s5_p2_planning_round2.md Iteration 9 doesn't mention checking entity status fields"
+- Example: "s5_v2_validation_loop.md Iteration 9 doesn't mention checking entity status fields"
 
 **B. Unclear Guide Instruction**
 - Guide mentions it but not clearly enough
@@ -139,7 +192,7 @@ WHY #5: Why didn't Iteration 9 catch it?
 **This bug SHOULD have been caught at:**
 - Stage: {S2 / S5 / S6 / S7.P1 / S7.P2 / etc.}
 - Specific Step: {Iteration 9 / Validation Round 1 / etc.}
-- Guide: {s5_p2_planning_round2.md / s7_p2_qc_rounds.md / etc.}
+- Guide: {s5_v2_validation_loop.md / s7_p2_qc_rounds.md / etc.}
 - Specific Section: {Iteration 9: Edge Case Analysis}
 
 **Why it wasn't caught:**
@@ -325,7 +378,7 @@ If you choose MODIFY or DISAGREE, please explain:
 1. Revise the root cause analysis based on user feedback
 2. Update:
    - Prevention point (Iteration 4 instead of 9)
-   - Guide improvement (update s5_p1_planning_round1.md instead)
+   - Guide improvement (update s5_v2_validation_loop.md instead)
    - Priority if needed
 3. Present revised analysis to user
 4. Repeat until user AGREES
@@ -387,7 +440,7 @@ If you choose MODIFY or DISAGREE, please explain:
 ### 5.2: File Template (First Time)
 
 ```markdown
-# Guide Update Recommendations - {Feature/Epic Name}
+## Guide Update Recommendations - {Feature/Epic Name}
 
 **Purpose:** Concrete, actionable guide improvements identified during debugging
 
@@ -594,7 +647,7 @@ Are there more issues in ISSUES_CHECKLIST.md with status NOT 🟢 FIXED?
 
 ❌ **Stopping at technical cause**
 - BAD: "Root cause: Missing null check"
-- GOOD: "Root cause: s5_p2_planning_round2.md Iteration 9 doesn't mention verifying entity status fields"
+- GOOD: "Root cause: s5_v2_validation_loop.md Iteration 9 doesn't mention verifying entity status fields"
 
 ❌ **Skipping user confirmation**
 - BAD: Agent decides root cause and adds to recommendations

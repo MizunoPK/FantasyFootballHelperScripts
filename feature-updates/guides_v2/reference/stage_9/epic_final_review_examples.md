@@ -270,12 +270,12 @@ Step 8.1: Verification Checklist
 **Step 6.1: Correctness (Epic Level)**
 
 ```python
-# Verify cross-feature workflow correctness
+## Verify cross-feature workflow correctness
 from feature_01.adp_manager import ADPManager
 from feature_02.matchup_manager import MatchupManager
 from league_helper.util.FantasyPlayer import FantasyPlayer
 
-# Test integration correctness
+## Test integration correctness
 adp_mgr = ADPManager(data_folder=Path("data"))
 matchup_mgr = MatchupManager(data_folder=Path("data"))
 
@@ -284,7 +284,7 @@ adp_mult, adp_rank = adp_mgr.get_adp_data("Patrick Mahomes")
 matchup_diff = matchup_mgr.get_matchup_difficulty("Patrick Mahomes", week=5)
 
 final_score = player.score * adp_mult * matchup_diff
-# Verify: 300 * 1.2 * 0.9 = 324
+## Verify: 300 * 1.2 * 0.9 = 324
 assert 320 <= final_score <= 330, "Integration calculation incorrect"
 ```
 
@@ -295,17 +295,17 @@ assert 320 <= final_score <= 330, "Integration calculation incorrect"
 **Step 6.9: Architecture (Epic Level - CRITICAL)**
 
 ```python
-# Check architectural consistency
-# Feature 01:
+## Check architectural consistency
+## Feature 01:
 class ADPManager:  # ✅ Manager pattern
     def __init__(self, data_folder: Path):
         self.data_folder = data_folder
 
-# Feature 02:
+## Feature 02:
 def get_matchup_difficulty(player_name: str, week: int) -> float:  # ❌ Standalone function
     # ...
 
-# Feature 03:
+## Feature 03:
 class PerformanceTracker:  # ✅ Manager pattern
     def __init__(self, data_folder: Path):
         self.data_folder = data_folder

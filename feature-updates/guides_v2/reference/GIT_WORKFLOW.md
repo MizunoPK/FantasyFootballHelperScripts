@@ -106,7 +106,7 @@ gh pr create --base main --head {work_type}/KAI-{number} \
 gh pr create --base main --head epic/KAI-1 \
   --title "feat/KAI-1: Complete improve_draft_helper epic" \
   --body "$(cat <<'EOF'
-# Epic: improve_draft_helper
+- Epic: improve_draft_helper
 
 ## Features Implemented
 - Feature 01: ADP integration for player recommendations
@@ -134,16 +134,16 @@ EOF
 
 **Step 5: Update EPIC_TRACKER.md** (after user merges PR)
 ```bash
-# Switch back to main and pull merged changes
+- Switch back to main and pull merged changes
 git checkout main
 git pull origin main
 
-# Update EPIC_TRACKER.md:
-# - Move epic from "Active" to "Completed" table
-# - Add epic detail section with commits
-# - Increment "Next Available Number"
+- Update EPIC_TRACKER.md:
+- - Move epic from "Active" to "Completed" table
+- - Add epic detail section with commits
+- - Increment "Next Available Number"
 
-# Commit the tracker update
+- Commit the tracker update
 git add feature-updates/EPIC_TRACKER.md
 git commit -m "docs: Update EPIC_TRACKER.md after KAI-1 completion"
 git push origin main
@@ -260,13 +260,13 @@ git commit -m "feat/KAI-1: Add ADP integration to PlayerManager" -m "
 **Example:**
 ```bash
 git checkout -b epic/KAI-1
-# Work on feature 01
+- Work on feature 01
 git commit -m "feat/KAI-1: Complete feature 01 - ADP integration"
-# Work on feature 02
+- Work on feature 02
 git commit -m "feat/KAI-1: Complete feature 02 - confidence scoring"
-# Work on feature 03
+- Work on feature 03
 git commit -m "feat/KAI-1: Complete feature 03 - top 200 filtering"
-# S10: Create PR for entire epic
+- S10: Create PR for entire epic
 ```
 
 ---
@@ -278,21 +278,21 @@ git commit -m "feat/KAI-1: Complete feature 03 - top 200 filtering"
 **Answer:** Create a separate fix branch from main:
 
 ```bash
-# Save epic work
+- Save epic work
 git stash
 
-# Create hotfix branch from main
+- Create hotfix branch from main
 git checkout main
 git pull origin main
 git checkout -b fix/KAI-{new-number}
 
-# Fix the bug
+- Fix the bug
 git commit -m "fix/KAI-{new-number}: Fix critical bug in player scoring"
 
-# Create PR for hotfix
+- Create PR for hotfix
 gh pr create --base main --head fix/KAI-{new-number} ...
 
-# Return to epic work
+- Return to epic work
 git checkout epic/KAI-{epic-number}
 git stash pop
 ```
@@ -306,20 +306,20 @@ git stash pop
 **Answer:** Rebase your epic branch onto main:
 
 ```bash
-# Update main
+- Update main
 git checkout main
 git pull origin main
 
-# Rebase epic branch
+- Rebase epic branch
 git checkout epic/KAI-{number}
 git rebase main
 
-# Resolve conflicts if any
-# ... fix conflicts ...
+- Resolve conflicts if any
+- ... fix conflicts ...
 git add .
 git rebase --continue
 
-# Force push (required after rebase)
+- Force push (required after rebase)
 git push origin epic/KAI-{number} --force-with-lease
 ```
 
@@ -384,10 +384,10 @@ git push origin epic/KAI-{number} --force-with-lease
 
 **Solution:**
 ```bash
-# Check if branch exists
+- Check if branch exists
 git branch -a | grep KAI-{number}
 
-# If it exists, checkout instead of creating
+- If it exists, checkout instead of creating
 git checkout epic/KAI-{number}
 ```
 
@@ -399,7 +399,7 @@ git checkout epic/KAI-{number}
 
 **Solution:**
 ```bash
-# Create branch from current state
+- Create branch from current state
 git checkout -b epic/KAI-{number}
 ```
 
@@ -411,10 +411,10 @@ git checkout -b epic/KAI-{number}
 
 **Solution:**
 ```bash
-# Pull with rebase
+- Pull with rebase
 git pull --rebase origin epic/KAI-{number}
 
-# Push
+- Push
 git push origin epic/KAI-{number}
 ```
 

@@ -37,7 +37,7 @@
 
 | Template | Filename | Use When |
 |----------|----------|----------|
-| [Implementation Plan](#implementation-plan) | `implementation_plan_template.md` | Creating user-approved build guide through 22 iterations |
+| [Implementation Plan](#implementation-plan) | `implementation_plan_template.md` | Creating user-approved build guide through S5 v2 Validation Loop |
 
 ### S6: Implementation Execution
 
@@ -133,7 +133,7 @@
 
 #### Implementation Plan
 - **File:** `implementation_plan_template.md`
-- **Created:** S5 (accumulated through 22 iterations)
+- **Created:** S5 (accumulated through S5 v2 Validation Loop)
 - **Purpose:** User-approved build guide with tasks, tests, edge cases, matrices
 - **Size:** ~400 lines (grows from 150→300→400)
 - **When to use:** Throughout S5, user approves after iteration 22
@@ -252,7 +252,7 @@ Read feature-updates/guides_v2/templates/{template_name}.md
 
 ### Implementing a Feature (S5-5b)
 
-1. ✅ Create **Implementation Plan** (S5 - grows through 22 iterations)
+1. ✅ Create **Implementation Plan** (S5 - grows through S5 v2 Validation Loop)
 2. ✅ Show Implementation Plan to user for approval
 3. ✅ Create **Implementation Checklist** from plan (S6 start)
 4. ✅ Update checklist as tasks complete

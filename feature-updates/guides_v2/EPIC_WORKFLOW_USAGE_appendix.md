@@ -115,7 +115,7 @@ All criteria met. Ready to proceed to S3.
 
 [Use "Starting S3" prompt from prompts_reference_v2.md]
 
-I'm reading stages/s3/s3_cross_feature_sanity_check.md to ensure I perform thorough cross-feature validation...
+I'm reading stages/s3/s3_epic_planning_approval.md to ensure I perform thorough cross-feature validation...
 
 The guide requires:
 - Systematic pairwise comparison of all feature specs
@@ -246,7 +246,7 @@ The epic is currently at:
 - Stage: S5 - Implementation Planning
 - Round: Round 2
 - Iteration: 11 of 16
-- Guide: stages/s5/s5_p2_planning_round2.md
+- Guide: stages/s5/s5_v2_validation_loop.md
 - Next Action: Complete Algorithm Traceability Matrix (iteration 11)
 
 Session compaction occurred. Following resumption protocol...
@@ -255,7 +255,7 @@ Session compaction occurred. Following resumption protocol...
 
 I'm resuming work on {epic_name} after session compaction. Let me restore context...
 
-[Read stages/s5/s5_p2_planning_round2.md]
+[Read stages/s5/s5_v2_validation_loop.md]
 [Read feature spec.md]
 [Read current implementation_plan.md]
 
@@ -756,90 +756,85 @@ This reduced section focuses on the workflow without showing all the detailed co
 
 ---
 
-### S5: Implementation Planning (Detailed)
+### S5: Implementation Planning (Detailed) - v2 Validation Loop
 
-**First Action:** Use "Starting S5 Round 1/2/3" prompt from `prompts_reference_v2.md`
-**🚨 CRITICAL:** Execute iterations ONE at a time, IN ORDER (no batching, no skipping)
-**Duration:** 22 iterations across 3 rounds
-**Key Change:** Testing iterations (old I8-I10) moved to S4, remaining iterations renumbered sequentially
+**First Action:** Use "Starting S5 v2: Implementation Planning" prompt from `prompts_reference_v2.md`
+**Guide:** `stages/s5/s5_v2_validation_loop.md` (comprehensive)
+**Duration:** 4.5-7 hours typical (6-8 validation rounds), worst case 6-8 hours (10 rounds)
+**Structure:** 2-phase approach (Draft Creation + Validation Loop)
 
-**Round 1: Planning Foundation** (7 iterations)
-- **Guide:** `stages/s5/s5_p1_planning_round1.md` (router to I1-I3)
+---
 
-**S5.P1.I1: Requirements Analysis** (I1-I3)
-- Guide: `stages/s5/s5_p1_i1_requirements.md`
-- Merges test_strategy.md from S4
-- I1: Requirements review
-- I2: Dependencies analysis
-- I3: Interface contracts
+**Phase 1: Draft Creation (60-90 minutes)**
+- Create complete implementation_plan.md draft
+- Merge test_strategy.md from S4
+- Focus on content, not perfection
+- Cover all 11 dimension areas
+- Output: Ready-for-validation draft (~400 lines)
 
-**S5.P1.I2: Algorithm Planning** (I4-I6 + Gate 4a)
-- Guide: `stages/s5/s5_p1_i2_algorithms.md`
-- I4: Algorithm design
-- I5: Data structures
-- I6: Performance considerations
-- Gate 4a: TODO Specification Audit
+**Phase 2: Validation Loop (3.5-6 hours, typically 6-8 rounds)**
+- Systematic validation across 11 dimensions
+- Fix ALL issues immediately (ZERO deferred issues)
+- Exit criteria: 3 consecutive clean rounds
+- Maximum: 10 rounds (escalate to user if exceeded)
 
-**S5.P1.I3: Integration Planning** (I7 + Gate 7a)
-- Guide: `stages/s5/s5_p1_i3_integration.md`
-- I7: Integration points
-- Gate 7a: Backward Compatibility Check
+---
 
-**Validation Loop:** Added at end of Round 1 (validates Gates 4a, 7a)
+**The 11 Validation Dimensions:**
 
-**Round 2: Verification** (6 iterations)
-- **Guide:** `stages/s5/s5_p2_planning_round2.md` (router, I8-I13)
+| # | Dimension | Focus | Key Checks |
+|---|-----------|-------|------------|
+| **D1** | Requirements Completeness | All spec items covered | Every requirement → implementation tasks |
+| **D2** | Interface & Dependency Verification | Integration points | Imports, signatures, contracts |
+| **D3** | Algorithm Traceability | Logic implementation | Algorithm steps → implementation tasks |
+| **D4** | Task Specification Quality | Implementation clarity | Clear what/how/output (Gate 3a) |
+| **D5** | Data Flow & Consumption | Data transformation | Input → processing → output |
+| **D6** | Error Handling & Edge Cases | Robustness | Failure modes, validation, boundaries |
+| **D7** | Integration & Compatibility | Cross-feature coherence | Conflict checks |
+| **D8** | Test Coverage Quality | Testing comprehensiveness | Unit, integration, edge case tests |
+| **D9** | Performance & Dependencies | Resource efficiency | Bottlenecks, unnecessary deps |
+| **D10** | Implementation Readiness | Execution preparedness | Phasing, rollback, go/no-go (Gate 24) |
+| **D11** | Spec Alignment & Cross-Validation | Completeness verification | Final audit, no gaps (Gates 23a, 25) |
 
-**S5.P2.I1: First Verification** (I8-I9, formerly I11-I12)
-- I8: Requirements verification
-- I9: Design verification
+**See:** `reference/stage_5/s5_v2_quick_reference.md` for complete dimension descriptions and S5 v1 migration guide
 
-**S5.P2.I2: Reverification** (I10-I13, formerly I13-I16)
-- I10: Cross-reference check
-- I11: Dependency validation
-- I12: Risk assessment
-- I13: Resource estimation
+---
 
-**Round 3: Final Preparation** (9 iterations)
-- **Guide:** `stages/s5/s5_p3_planning_round3.md` (router, I14-I22)
+**Validation Round Structure:**
+1. Check all 11 dimensions systematically
+2. Document ALL issues found (by dimension)
+3. Fix ALL issues immediately (no deferring)
+4. Re-validate ALL dimensions in next round
+5. Count consecutive clean rounds (0 issues)
+6. Exit when 3 consecutive clean rounds achieved
 
-**S5.P3.I1: Implementation Preparation** (I14-I19, formerly I17-I22)
-- Guide: `stages/s5/s5_p3_i1_preparation.md`
-- I14: Implementation order
-- I15: Error handling strategy
-- I16: Logging strategy
-- I17: Documentation plan
-- I18: Code review checklist
-- I19: Rollback plan
+**Reading Pattern:**
+- Round 1-2: Read full spec.md + implementation_plan.md sections
+- Round 3+: Targeted reading based on recent changes
+- Final rounds: Full re-read for cross-dimensional validation
 
-**Validation Loop:** Added before Gate 23a (validates complete plan)
-
-**S5.P3.I2: Pre-Implementation Audit** (I20)
-- Guide: `stages/s5/s5_p3_i2_gates_part1.md`
-- Gate 23a: Pre-Implementation Spec Audit (5 parts)
-  - Part 1: Completeness check
-  - Part 2: Consistency check
-  - Part 3: Feasibility check
-  - Part 4: Testability check
-  - Part 5: Maintainability check
-
-**S5.P3.I3: Final Gates** (I21-I22)
-- Guide: `stages/s5/s5_p3_i3_gates_part2.md`
-- I21: Gate 25 (Spec Validation Check)
-- I22: Gate 24 (GO/NO-GO Decision based on confidence)
+---
 
 **Key Output:**
 - implementation_plan.md (~400 lines) - PRIMARY reference for S6
 - Includes merged test strategy from S4
+- Validated across 11 dimensions with 3 consecutive clean rounds
 - User-approved via Gate 5
 
-**Gates:**
-- Gate 4a: TODO Specification Audit (S5.P1.I2)
-- Gate 7a: Backward Compatibility Check (S5.P1.I3)
-- Gate 23a: Pre-Implementation Spec Audit (S5.P3.I2)
-- Gate 25: Spec Validation Check (S5.P3.I3)
-- Gate 24: GO/NO-GO Decision (S5.P3.I3)
-- Gate 5: User approves implementation plan (MANDATORY, 3-tier rejection handling)
+**Gates Embedded:**
+- Gate 3a: Task Specification Quality (Dimension 4)
+- Gate 23a: Pre-Implementation Spec Audit (Dimension 11)
+- Gate 24: GO/NO-GO Decision (Dimension 10)
+- Gate 25: Spec Validation Check (Dimension 11)
+- Gate 5: User approval of implementation plan (MANDATORY, 3-tier rejection handling)
+
+**Quality Guarantee:**
+- Zero deferred issues (all fixed before exit)
+- 3 consecutive clean validation rounds
+- All 150+ unique checks from S5 v1 preserved
+- Systematic validation (can't skip checks)
+
+**Migration Note:** S5 v2 replaces the previous 22-iteration structure with this Validation Loop approach. See `stages/s5/S5_V1_TO_V2_MIGRATION.md` for migration details.
 
 **Next:** S6 (Implementation Execution)
 

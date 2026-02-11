@@ -29,13 +29,13 @@
 **Create standard feature folder structure:**
 
 ```bash
-# Navigate to epic folder
+## Navigate to epic folder
 cd feature-updates/KAI-{N}-{epic_name}/
 
-# Create new feature folder
+## Create new feature folder
 mkdir -p feature_{XX}_{name}
 
-# Create standard files
+## Create standard files
 touch feature_{XX}_{name}/README.md
 touch feature_{XX}_{name}/spec.md
 touch feature_{XX}_{name}/checklist.md
@@ -57,7 +57,7 @@ feature-updates/KAI-{N}-{epic_name}/feature_{XX}_{name}/
 **Template:**
 
 ```markdown
-# Feature {XX}: {Name}
+## Feature {XX}: {Name}
 
 **Epic:** {epic_name}
 **Status:** S2 (Feature Deep Dive - Planning)
@@ -146,13 +146,13 @@ feature-updates/KAI-{N}-{epic_name}/feature_{XX}_{name}/
 **Read current feature state:**
 
 ```bash
-# Read existing spec
+## Read existing spec
 cat feature_{XX}_{name}/spec.md
 
-# Read existing checklist
+## Read existing checklist
 cat feature_{XX}_{name}/checklist.md
 
-# Read existing README
+## Read existing README
 cat feature_{XX}_{name}/README.md
 ```
 

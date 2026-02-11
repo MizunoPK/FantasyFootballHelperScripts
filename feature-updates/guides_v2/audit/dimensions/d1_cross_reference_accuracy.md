@@ -491,7 +491,7 @@ User reported: "Cannot find stages/s5/round1/file.md"
 ```markdown
 Next, read stages/s5/round1/planning.md
 ```markdown
-**Verdict:** ❌ ERROR (should be stages/s5/s5_p1_planning_round1.md)
+**Verdict:** ❌ ERROR (should be stages/s5/s5_v2_validation_loop.md)
 
 **2. Prerequisites:**
 ```markdown
@@ -545,7 +545,7 @@ ls stages/s9/s9_p1_epic_smoke_testing.md
 ```markdown
 File: stages/s10/s10_p1_guide_update_workflow.md
 Line: 45
-Content: "stages/s10/epic_cleanup.md"
+Content: "stages/s10/s10_epic_cleanup.md"
 ```markdown
 
 **Analysis:**
@@ -562,7 +562,7 @@ sed -i 's|stages/s10/epic_cleanup\.md|stages/s10/s10_epic_cleanup.md|g' \
 
 **Issue Found:**
 ```markdown
-File: stages/s5/s5_p1_planning_round1.md
+File: stages/s5/s5_v2_validation_loop.md
 Line: 155
 Content: "READ: stages/s5/round1/iterations_1_3_requirements.md"
 ```diff
@@ -575,7 +575,7 @@ Content: "READ: stages/s5/round1/iterations_1_3_requirements.md"
 **Fix:**
 ```bash
 sed -i 's|stages/s5/round1/iterations_1_3_requirements\.md|stages/s5/s5_p1_i1_requirements.md|g' \
-  stages/s5/s5_p1_planning_round1.md
+  stages/s5/s5_v2_validation_loop.md
 ```
 
 ### Example 4: Root-Level File Reference (High Priority)
@@ -625,8 +625,8 @@ Content: "audit/README.md (modular audit system entry point)"
 - `../stages/stage_4_verification.md` - Re-verify all paths after fixes
 
 **Reference:**
-- `../reference/verification_commands.md` - Validation scripts and patterns
-- `../reference/context_analysis_guide.md` - Determining intentional vs error
+- `reference/verification_commands.md` - Validation scripts and patterns
+- `reference/context_analysis_guide.md` - Determining intentional vs error
 
 ---
 

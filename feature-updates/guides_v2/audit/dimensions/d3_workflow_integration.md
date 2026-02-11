@@ -257,7 +257,7 @@ done
 
 **If more features remain:**
 - Repeat S5-S8 loop for next feature
-- Read `stages/s5/s5_p1_planning_round1.md`
+- Read `stages/s5/s5_v2_validation_loop.md`
 
 **If all features complete:**
 - Proceed to S9: Epic-Level Final QC
@@ -903,7 +903,7 @@ fi
 ```markdown
 ## Next Stage
 
-Proceed to S5: Implementation Planning (`stages/s5/s5_implementation_planning.md`)
+Proceed to S5: Implementation Planning (`stages/s5/s5_v2_validation_loop.md`)
 ```
 
 **Problem:**
@@ -915,7 +915,7 @@ Proceed to S5: Implementation Planning (`stages/s5/s5_implementation_planning.md
 ```diff
 ## Next Stage
 
--Proceed to S5: Implementation Planning (`stages/s5/s5_implementation_planning.md`)
+-Proceed to S5: Implementation Planning (`stages/s5/s5_v2_validation_loop.md`)
 +Proceed to S4: Feature Testing Strategy (`stages/s4/s4_feature_testing_strategy.md`)
 ```markdown
 
@@ -1033,7 +1033,7 @@ Proceed to S9: Epic-Level Final QC (`stages/s9/s9_epic_final_qc.md`)
 
 **If more features remain:**
 - Repeat S5-S8 loop for next feature
-- Read `stages/s5/s5_p1_planning_round1.md`
+- Read `stages/s5/s5_v2_validation_loop.md`
 
 **If all features complete:**
 - Proceed to S9: Epic-Level Final QC
@@ -1094,7 +1094,7 @@ Proceed to S9: Epic-Level Final QC (`stages/s9/s9_epic_final_qc.md`)
 - **Division:** D1 = technical correctness, D3 = workflow logic correctness
 
 **Example:**
-- D1 checks: `stages/s5/s5_implementation_planning.md` exists ✅
+- D1 checks: `stages/s5/s5_v2_validation_loop.md` exists ✅
 - D3 checks: S4 should point to S5 (not S6) ✅
 
 ---

@@ -108,10 +108,10 @@ WHY fix-and-continue?
 **Every round must verify data VALUES are correct:**
 
 ```python
-# ❌ NOT SUFFICIENT:
+## ❌ NOT SUFFICIENT:
 assert 'player_name' in df.columns  # Just checks column exists
 
-# ✅ REQUIRED:
+## ✅ REQUIRED:
 assert df['player_name'].notna().all()  # Verify values not null
 assert (df['player_name'] != "").all()  # Verify values not empty
 assert df['player_name'].str.len().min() > 2  # Verify reasonable values
@@ -144,9 +144,9 @@ assert df['player_name'].str.len().min() > 2  # Verify reasonable values
 
 **Example:**
 ```markdown
-# Spec says: "Sort players by projected_points DESC"
-# Implementation must use: df.sort_values('projected_points', ascending=False)
-# NOT acceptable: Sorting by rank ASC (even if equivalent)
+## Spec says: "Sort players by projected_points DESC"
+## Implementation must use: df.sort_values('projected_points', ascending=False)
+## NOT acceptable: Sorting by rank ASC (even if equivalent)
 ```
 
 ### 8. 100% Requirement Completion
@@ -227,7 +227,7 @@ assert df['player_name'].str.len().min() > 2  # Verify reasonable values
 **Check data VALUES, not just structure:**
 
 ```python
-# For ALL data files/outputs:
+## For ALL data files/outputs:
 1. File exists? ✓
 2. File has correct structure (columns/fields)? ✓
 3. File has data (not empty)? ✓
@@ -255,7 +255,7 @@ assert df['player_name'].str.len().min() > 2  # Verify reasonable values
 **Test boundary conditions:**
 
 ```python
-# For each algorithm/method:
+## For each algorithm/method:
 - Empty input ([], {}, "", None)
 - Single item input
 - Maximum expected input
@@ -268,7 +268,7 @@ assert df['player_name'].str.len().min() > 2  # Verify reasonable values
 **Verify interfaces between components:**
 
 ```python
-# For each integration point:
+## For each integration point:
 1. Verify caller sends correct data format
 2. Verify callee receives data correctly
 3. Verify processing is correct
@@ -284,30 +284,30 @@ assert df['player_name'].str.len().min() > 2  # Verify reasonable values
 ### ❌ Mistake 1: Skipping Rounds
 
 ```markdown
-# WRONG - "Round 1 looks good, I'll skip to Round 3"
-# Each round has unique focus - cannot skip
+## WRONG - "Round 1 looks good, I'll skip to Round 3"
+## Each round has unique focus - cannot skip
 
-# CORRECT - Complete ALL 3 rounds in order
+## CORRECT - Complete ALL 3 rounds in order
 Round 1 → Round 2 → Round 3
 ```
 
 ### ❌ Mistake 2: Partial Re-run After Failure
 
 ```markdown
-# WRONG - Fix Round 2 issues, continue to Round 3
-# (skipping smoke testing and Round 1)
+## WRONG - Fix Round 2 issues, continue to Round 3
+## (skipping smoke testing and Round 1)
 
-# CORRECT - Fix issues, RESTART from smoke testing
+## CORRECT - Fix issues, RESTART from smoke testing
 Smoke Testing → Round 1 → Round 2 → Round 3
 ```
 
 ### ❌ Mistake 3: Accepting "90% Done"
 
 ```markdown
-# WRONG - "Feature is 90% complete, we can finish the last 10% later"
-# Zero tech debt tolerance - either DONE or NOT DONE
+## WRONG - "Feature is 90% complete, we can finish the last 10% later"
+## Zero tech debt tolerance - either DONE or NOT DONE
 
-# CORRECT - Complete 100% or mark INCOMPLETE and restart
+## CORRECT - Complete 100% or mark INCOMPLETE and restart
 100% complete = PASS
 < 100% complete = INCOMPLETE = RESTART
 ```
@@ -315,20 +315,20 @@ Smoke Testing → Round 1 → Round 2 → Round 3
 ### ❌ Mistake 4: Confirming Spec Without Re-Reading
 
 ```markdown
-# WRONG - "I remember the spec, no need to re-read"
-# Confirmation bias leads to missed requirements
+## WRONG - "I remember the spec, no need to re-read"
+## Confirmation bias leads to missed requirements
 
-# CORRECT - Close spec, re-read with fresh eyes in Round 3
+## CORRECT - Close spec, re-read with fresh eyes in Round 3
 Close spec → Wait 1 minute → Re-read independently
 ```
 
 ### ❌ Mistake 5: Structure-Only Validation
 
 ```python
-# WRONG - Only checking structure
+## WRONG - Only checking structure
 assert 'projected_points' in df.columns  # Just checks column exists
 
-# CORRECT - Checking structure AND values
+## CORRECT - Checking structure AND values
 assert 'projected_points' in df.columns  # Structure
 assert df['projected_points'].notna().all()  # Values not null
 assert df['projected_points'].sum() > 0  # Values not zero

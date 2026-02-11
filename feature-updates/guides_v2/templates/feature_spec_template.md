@@ -11,7 +11,7 @@
 ## Template
 
 ```markdown
-# Feature Specification: {feature_name}
+## Feature Specification: {feature_name}
 
 **Part of Epic:** {epic_name}
 **Feature Number:** {N}
@@ -183,7 +183,7 @@ def method_name(param1: Type1, param2: Type2) -> ReturnType:
 **Example Usage:**
 ```
 result = provider.method_name("value1", 123)
-# result: (1.45, 5)
+## result: (1.45, 5)
 ```json
 
 {Repeat for all interfaces}

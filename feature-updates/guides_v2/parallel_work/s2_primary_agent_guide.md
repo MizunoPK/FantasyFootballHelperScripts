@@ -558,7 +558,7 @@ I'll review all 3 specs for conflicts, overlaps, and gaps...
 
 **Run S3 alone (no parallel work):**
 
-1. **Follow guide:** `stages/s3/s3_cross_feature_sanity_check.md`
+1. **Follow guide:** `stages/s3/s3_epic_planning_approval.md`
 
 2. **Review all specs:**
    - Read spec.md for all 3 features

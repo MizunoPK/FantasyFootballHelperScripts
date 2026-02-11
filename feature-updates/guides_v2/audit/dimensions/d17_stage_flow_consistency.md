@@ -233,7 +233,7 @@ Terms introduced or defined in Stage N must be used consistently in Stage N+1.
 | "Implementation dependency" | S1 | S5, S6 |
 | "Epic-level" | S1 | All stages |
 | "Feature-level" | S1 | S2, S4, S5-S8 |
-| "Consistency Loop" | S2 | S4, S5, S7, S9 |
+| "Validation Loop" | S2 | S4, S5, S7, S9 |
 
 **Search Commands:**
 ```bash

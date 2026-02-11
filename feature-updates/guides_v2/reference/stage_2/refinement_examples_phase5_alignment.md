@@ -30,7 +30,7 @@ This reference provides detailed examples specifically for **Phase 5: Cross-Feat
 ### Example 1: Complete Feature Comparison
 
 ```markdown
-# Alignment Check: Feature 02 vs Feature 01
+## Alignment Check: Feature 02 vs Feature 01
 
 **Date:** 2026-01-10
 **Current Feature:** Feature 02: Injury Risk Assessment
@@ -67,7 +67,7 @@ This reference provides detailed examples specifically for **Phase 5: Cross-Feat
 
 **Verification:**
 ```
-# After both features, FantasyPlayer will have:
+## After both features, FantasyPlayer will have:
 @dataclass
 class FantasyPlayer:
     # Existing fields
@@ -208,7 +208,7 @@ class FantasyPlayer:
 ### Example 2: Alignment with Conflicts Found
 
 ```markdown
-# Alignment Check: Feature 03 vs Feature 01 - CONFLICTS FOUND
+## Alignment Check: Feature 03 vs Feature 01 - CONFLICTS FOUND
 
 **Date:** 2026-01-10
 **Current Feature:** Feature 03: Schedule Strength Analysis

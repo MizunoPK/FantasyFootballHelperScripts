@@ -431,7 +431,7 @@ None - all S4 scenarios still relevant
 
 **Action:**
 ```markdown
-# Epic Smoke Test Plan: {epic_name}
+## Epic Smoke Test Plan: {epic_name}
 
 **Purpose:** Define how to validate the complete epic end-to-end
 
@@ -703,7 +703,7 @@ None - all S4 scenarios still relevant
 2. [ ] Verify you updated based on ACTUAL implementation (not spec.md)
 3. [ ] Verify test scenarios are SPECIFIC (include file names, function names, data values)
 4. [ ] Update EPIC_README.md Agent Status:
-   - Current Guide: "stages/s5/s5_p1_planning_round1.md" (if more features) OR "stages/s9/s9_epic_final_qc.md" (if all features done)
+   - Current Guide: "stages/s5/s5_v2_validation_loop.md" (if more features) OR "stages/s9/s9_epic_final_qc.md" (if all features done)
    - Current Step: "S8.P2 complete, ready to start next feature OR S9"
    - Last Updated: [timestamp]
 5. [ ] Output acknowledgment: "✅ CHECKPOINT 1 COMPLETE: Re-read Critical Rules, verified test scenarios are specific"
@@ -936,7 +936,7 @@ Before completing S8.P2, verify:
 **Current Guide:** {Next guide based on status below}
 **Guide Last Read:** {Not read yet for next guide}
 **Next Action:**
-- If more features remain: "Read stages/s5/s5_p1_planning_round1.md for feature_02 (Round 1)"
+- If more features remain: "Read stages/s5/s5_v2_validation_loop.md for feature_02 (Round 1)"
 - If all features done: "Read stages/s9/s9_p1_epic_smoke_testing.md"
 **S8.P2 (Epic Testing Update) Summary:**
 - Reviewed feature_01_adp_integration implementation
@@ -968,7 +968,7 @@ Before completing S8.P2, verify:
 ### If More Features Remain
 - [ ] Next feature identified (e.g., feature_02_player_rating)
 - [ ] Next feature has spec.md and checklist.md ready
-- [ ] Ready to read stages/s5/s5_p1_planning_round1.md (Round 1 for next feature)
+- [ ] Ready to read stages/s5/s5_v2_validation_loop.md (Round 1 for next feature)
 
 ### If All Features Done
 - [ ] Verified ALL features completed S8.P2 (Epic Testing Update)

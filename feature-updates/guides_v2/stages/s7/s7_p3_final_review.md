@@ -674,7 +674,7 @@ Files updated:
    - Made Interface Verification Protocol STEP 1 (not optional)
    - Added "NO coding from memory" critical rule
 
-3. Updated stages/s5/s5_p1_planning_round1.md:
+3. Updated stages/s5/s5_v2_validation_loop.md:
    - Enhanced Mock Audit (iteration 21) with "excessive mocking" anti-pattern
 
 ### Recommendations for Future Features

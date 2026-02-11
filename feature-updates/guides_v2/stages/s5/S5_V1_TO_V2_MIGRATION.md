@@ -488,8 +488,8 @@ Each pattern exposes different types of issues.
 - ⚠️ Specifically requested by user for compatibility
 
 **Guides:**
-- `stages/s5/s5_p1_planning_round1.md` (Round 1)
-- `stages/s5/s5_p2_planning_round2.md` (Round 2)
+- `stages/s5/s5_v2_validation_loop.md` (Round 1)
+- `stages/s5/s5_v2_validation_loop.md` (Round 2)
 - `stages/s5/s5_p3_planning_round3.md` (Round 3)
 
 **Note:** v1 guides remain available but are deprecated. v2 is the standard going forward.

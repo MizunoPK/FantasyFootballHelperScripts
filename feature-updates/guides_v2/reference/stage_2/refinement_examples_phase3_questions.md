@@ -107,7 +107,7 @@ Tyreek Hill,WR,8
 
 **Implementation:**
 ```
-# adp_loader.py
+## adp_loader.py
 def load_adp_data(filepath: Path) -> Dict[str, int]:
     """Load ADP data from FantasyPros CSV.
 
@@ -367,7 +367,7 @@ Perfect, that's exactly what I meant.
 
 **1. Add command-line flag:**
 ```
-# run_league_helper.py
+## run_league_helper.py
 parser.add_argument('--use-adp', action='store_true',
                    help='Require ADP data (fail if CSV missing)')
 ```markdown

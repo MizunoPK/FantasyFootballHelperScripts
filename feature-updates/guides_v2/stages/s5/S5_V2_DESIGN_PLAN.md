@@ -7,6 +7,74 @@
 
 ---
 
+## Table of Contents
+
+1. [🎯 EXECUTIVE SUMMARY](#-executive-summary)
+   - [Current State (S5 v1)](#current-state-s5-v1)
+   - [Proposed State (S5 v2)](#proposed-state-s5-v2)
+1. [📐 S5 V2 ARCHITECTURE](#-s5-v2-architecture)
+   - [Phase 1: Draft Creation (60-90 minutes)](#phase-1-draft-creation-60-90-minutes)
+   - [Phase 2: Validation Loop (3.5-6 hours, typically 6-8 rounds)](#phase-2-validation-loop-35-6-hours-typically-6-8-rounds)
+1. [🔍 THE 11 VALIDATION DIMENSIONS](#-the-11-validation-dimensions)
+   - [**Dimension 1: Requirements Completeness**](#dimension-1-requirements-completeness)
+   - [**Dimension 2: Interface & Dependency Verification**](#dimension-2-interface-dependency-verification)
+   - [**Dimension 3: Algorithm Traceability**](#dimension-3-algorithm-traceability)
+   - [**Dimension 4: Task Specification Quality** (EMBEDS Gate 3a)](#dimension-4-task-specification-quality-embeds-gate-3a)
+   - [**Dimension 5: Data Flow & Consumption**](#dimension-5-data-flow-consumption)
+   - [**Dimension 6: Error Handling & Edge Cases**](#dimension-6-error-handling-edge-cases)
+   - [**Dimension 7: Integration & Compatibility**](#dimension-7-integration-compatibility)
+   - [**Dimension 8: Test Coverage Quality**](#dimension-8-test-coverage-quality)
+   - [**Dimension 9: Performance & Dependencies**](#dimension-9-performance-dependencies)
+   - [**Dimension 10: Implementation Readiness**](#dimension-10-implementation-readiness)
+   - [**Dimension 11: Spec Alignment & Cross-Validation** (EMBEDS Gate 12a)](#dimension-11-spec-alignment-cross-validation-embeds-gate-12a)
+1. [🔄 VALIDATION LOOP EXECUTION](#-validation-loop-execution)
+   - [Round Structure](#round-structure)
+   - [Reading Patterns (Vary by Round)](#reading-patterns-vary-by-round)
+   - [Example Execution](#example-execution)
+1. [📊 COMPARISON: V1 vs V2](#-comparison-v1-vs-v2)
+   - [Time Comparison](#time-comparison)
+   - [Quality Comparison](#quality-comparison)
+   - [Process Comparison](#process-comparison)
+1. [🚀 IMPLEMENTATION PLAN](#-implementation-plan)
+   - [Phase 1: Create Validation Loop Guide (4-6 hours)](#phase-1-create-validation-loop-guide-4-6-hours)
+   - [Phase 2: Create Validation Loop Template (30 minutes)](#phase-2-create-validation-loop-template-30-minutes)
+1. [Draft Creation Phase](#draft-creation-phase)
+1. [Validation Loop Rounds](#validation-loop-rounds)
+   - [Round 1: {timestamp}](#round-1-timestamp)
+   - [Round 2: {timestamp}](#round-2-timestamp)
+   - [Round N: {timestamp}](#round-n-timestamp)
+1. [Final Metrics](#final-metrics)
+   - [Phase 3: Update Reference Documents (1 hour)](#phase-3-update-reference-documents-1-hour)
+   - [Phase 4: Create Migration Guide (1 hour)](#phase-4-create-migration-guide-1-hour)
+   - [Phase 5: Pilot Test (1 feature, ~6 hours)](#phase-5-pilot-test-1-feature-6-hours)
+   - [Phase 6: Full Rollout (Documentation update, 2 hours)](#phase-6-full-rollout-documentation-update-2-hours)
+1. [🔧 FURTHER OPTIMIZATION OPPORTUNITIES](#-further-optimization-opportunities)
+   - [Additional Consolidation (Optional - V2.1 Future Enhancement)](#additional-consolidation-optional-v21-future-enhancement)
+1. [📈 SUCCESS METRICS FOR S5 V2](#-success-metrics-for-s5-v2)
+   - [Quantitative Metrics](#quantitative-metrics)
+   - [Qualitative Metrics](#qualitative-metrics)
+   - [Rollback Criteria](#rollback-criteria)
+1. [❓ FAQ](#-faq)
+   - [Q: Won't the Validation Loop take longer than separate iterations?](#q-wont-the-validation-loop-take-longer-than-separate-iterations)
+   - [Q: What if I find issues in Round 10?](#q-what-if-i-find-issues-in-round-10)
+   - [Q: How do I know which dimension an issue belongs to?](#q-how-do-i-know-which-dimension-an-issue-belongs-to)
+   - [Q: Can I skip dimensions that passed in previous rounds?](#q-can-i-skip-dimensions-that-passed-in-previous-rounds)
+   - [Q: What counts as "consecutive clean"?](#q-what-counts-as-consecutive-clean)
+   - [Q: How do I know when the draft is "good enough" to start validation loop?](#q-how-do-i-know-when-the-draft-is-good-enough-to-start-validation-loop)
+   - [Q: Can I parallelize dimension checks?](#q-can-i-parallelize-dimension-checks)
+1. [🎓 LESSONS FROM V1 THAT INFORMED V2](#-lessons-from-v1-that-informed-v2)
+   - [What Worked in V1](#what-worked-in-v1)
+   - [What Didn't Work in V1](#what-didnt-work-in-v1)
+   - [How V2 Addresses V1 Issues](#how-v2-addresses-v1-issues)
+1. [🚦 GO/NO-GO DECISION FOR V2 ROLLOUT](#-gono-go-decision-for-v2-rollout)
+   - [✅ GO if](#-go-if)
+   - [❌ NO-GO if](#-no-go-if)
+1. [📝 NEXT STEPS](#-next-steps)
+   - [Immediate (Current Agent)](#immediate-current-agent)
+   - [Future (After Current Epic Complete)](#future-after-current-epic-complete)
+
+---
+
 ## 🎯 EXECUTIVE SUMMARY
 
 ### Current State (S5 v1)
@@ -411,7 +479,7 @@ QUALITY: 99%+ (validated by 6 rounds, 3 consecutive clean)
 
 **Content:**
 ```markdown
-# S5 Implementation Planning: Validation Loop Log
+## S5 Implementation Planning: Validation Loop Log
 
 **Feature:** {feature_name}
 **Started:** {timestamp}

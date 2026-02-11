@@ -447,11 +447,11 @@ Review Discovery Context and research findings:
 **Quick compatibility test (15-20 minutes per library):**
 
 ```python
-# Example: Test ESPN API with mock responses
+## Example: Test ESPN API with mock responses
 import espn_api
 from unittest.mock import Mock, patch
 
-# Can we mock this library's responses?
+## Can we mock this library's responses?
 with patch('espn_api.League') as mock_league:
     mock_league.return_value = Mock(players=[...])
     # Does library work with mocks?

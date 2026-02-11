@@ -138,7 +138,7 @@ S10.5 is complete when all proposals have been reviewed by user, approved change
 
 1.1. **Read epic-level lessons:**
 ```bash
-# Read epic lessons
+## Read epic lessons
 cat {epic_folder}/epic_lessons_learned.md
 ```
 
@@ -149,7 +149,7 @@ Note:
 
 1.2. **Read all feature-level lessons:**
 ```bash
-# Read each feature's lessons
+## Read each feature's lessons
 cat {epic_folder}/feature_01_{name}/lessons_learned.md
 cat {epic_folder}/feature_02_{name}/lessons_learned.md
 ...
@@ -190,15 +190,15 @@ Note:
 | Lesson Pattern | Likely Affected Guide(s) |
 |----------------|--------------------------|
 | Missed requirement in spec | stages/s2/s2_p2_specification.md |
-| Wrong interface assumed | stages/s5/s5_p1_planning_round1.md (Iteration 2) |
-| Algorithm traceability incomplete | stages/s5/s5_p1_planning_round1.md (Iteration 4) |
-| Integration gap not identified | stages/s5/s5_p1_planning_round1.md (Iteration 7) |
-| Test coverage insufficient | stages/s5/s5_p2_planning_round2.md (Iterations 8-10) |
+| Wrong interface assumed | stages/s5/s5_v2_validation_loop.md (Iteration 2) |
+| Algorithm traceability incomplete | stages/s5/s5_v2_validation_loop.md (Iteration 4) |
+| Integration gap not identified | stages/s5/s5_v2_validation_loop.md (Iteration 7) |
+| Test coverage insufficient | stages/s5/s5_v2_validation_loop.md (Iterations 8-10) |
 | Gate not enforced | reference/mandatory_gates.md |
 | QC round missed issue | stages/s7/s7_p2_qc_rounds.md |
 | Smoke test didn't catch bug | stages/s7/s7_p1_smoke_testing.md |
 | Epic integration issue | stages/s9/s9_p2_epic_qc_rounds.md |
-| Spec misinterpretation | stages/s5/s5_p3_i3_gates_part2.md (Iteration 21) |
+| Spec misinterpretation | stages/s5/s5_v2_validation_loop.md (D11: Gate 23a - Spec Alignment) |
 | Checklist question unclear | templates/feature_checklist_template.md |
 | Implementation plan vague | templates/implementation_plan_template.md |
 | Prompt not followed | prompts/{stage}_prompts.md |
@@ -256,7 +256,7 @@ Note:
 
 3.1. **Create file using template:**
 ```bash
-# Copy template
+## Copy template
 cp feature-updates/guides_v2/templates/guide_update_proposal_template.md \
    {epic_folder}/GUIDE_UPDATE_PROPOSAL.md
 ```
@@ -501,8 +501,8 @@ Check:
 
 7.1. **Open tracking file:**
 ```bash
-# Edit tracking file
-# Add entries to Applied Lessons Log, Rejected Lessons, and Metrics
+## Edit tracking file
+## Add entries to Applied Lessons Log, Rejected Lessons, and Metrics
 ```
 
 7.2. **Add to Applied Lessons Log:**

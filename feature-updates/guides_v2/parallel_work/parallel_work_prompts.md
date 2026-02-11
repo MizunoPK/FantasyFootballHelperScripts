@@ -283,7 +283,7 @@ Feature 01 S2 complete. Verifying sync point before S3...
   - Stale checkpoint: Follow stale agent protocol
   - Incomplete spec: Send message to agent
 
-**Reading Guide:** stages/s3/s3_cross_feature_sanity_check.md (Sync Verification section)
+**Reading Guide:** stages/s3/s3_epic_planning_approval.md (Sync Verification section)
 ═══════════════════════════════════════════════════════════
 ```
 

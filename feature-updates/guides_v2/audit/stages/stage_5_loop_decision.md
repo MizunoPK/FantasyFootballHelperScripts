@@ -178,7 +178,7 @@
 **If user challenged:** IMMEDIATELY loop back to Round 1
 
 #### Criterion 7: Confidence Calibrated
-- [ ] Confidence score ≥ 80% (see `../reference/confidence_calibration.md`)
+- [ ] Confidence score ≥ 80% (see `reference/confidence_calibration.md`)
 - [ ] Self-assessed using scoring rubric
 - [ ] No red flags present
 - [ ] Feel genuinely complete, not just wanting to finish
@@ -612,8 +612,8 @@ git diff --name-only main | grep "audit/outputs"
 - `../templates/round_summary_template.md` - Use for final summary
 
 **Reference:**
-- `../reference/confidence_calibration.md` - How to score confidence
-- `../reference/user_challenge_protocol.md` - How to respond to challenges
+- `reference/confidence_calibration.md` - How to score confidence
+- `reference/user_challenge_protocol.md` - How to respond to challenges
 
 ---
 

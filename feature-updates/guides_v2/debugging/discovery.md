@@ -25,10 +25,10 @@
 ### Step 1: Create debugging/ folder if it doesn't exist
 
 ```bash
-# For feature-level (issues found during feature testing)
+## For feature-level (issues found during feature testing)
 mkdir -p feature_XX_name/debugging/diagnostic_logs
 
-# For epic-level (issues found during epic testing or user testing)
+## For epic-level (issues found during epic testing or user testing)
 mkdir -p epic_name/debugging/diagnostic_logs
 ```
 
@@ -133,7 +133,7 @@ mkdir -p epic_name/debugging/diagnostic_logs
 ## Template: debugging/ISSUES_CHECKLIST.md
 
 ```markdown
-# Issues Checklist - {Feature/Epic Name}
+## Issues Checklist - {Feature/Epic Name}
 
 **Source:** {Feature/Epic}
 **Testing Stage:** {S7.P1 Smoke Testing / S7.P2 Validation Loop / S9.P1 Epic Smoke Testing / S9.P2 Epic Validation Loop / S9.P3 User Testing}

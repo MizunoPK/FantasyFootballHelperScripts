@@ -38,10 +38,12 @@
 ### Q: What's the difference between a "round", "iteration", and "phase"?
 
 **A:**
-- **Round:** Collection of iterations (S5 has 3 rounds)
-- **Iteration:** Single verification step (Round 1 has 7 iterations: I1-I7, includes Gates 4a, 7a)
-- **Phase:** Distinct workflow section (S7 has 3 phases: Smoke Testing, Validation Loop, Final Review)
+- **Round:** Validation Loop cycle (check all dimensions, fix issues, repeat until 3 consecutive clean rounds)
+- **Iteration:** Historical term from S5 v1 (not used in S5 v2)
+- **Phase:** Distinct workflow section (S5 has 2 phases: Draft Creation + Validation Loop; S7 has 3 phases: Smoke Testing, QC Rounds, Final Review)
 - **Stage:** Top-level workflow division (10 stages total: S1-S10)
+
+**Note:** S5 v2 uses "dimensions" (11 dimensions validated each round), not "iterations" (which were used in S5 v1).
 
 ### Q: When do I update EPIC_README.md vs feature README.md?
 
@@ -208,7 +210,7 @@ A: Make best predictions in S4:
 
 **Q: Can I skip iterations if they don't seem relevant?**
 
-A: NO - All 22 iterations are mandatory:
+A: NO - All 11 dimensions and the Validation Loop are mandatory (3 consecutive clean rounds):
 - Designed based on historical bugs and missed requirements
 - Each iteration catches specific issue types
 - Skipping iterations = high risk of bugs in S7

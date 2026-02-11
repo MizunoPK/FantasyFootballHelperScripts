@@ -12,7 +12,7 @@
 ## Template
 
 ```markdown
-# Epic: {epic_name}
+## Epic: {epic_name}
 
 **Created:** {YYYY-MM-DD}
 **Status:** {IN PROGRESS / COMPLETE}
@@ -62,7 +62,7 @@ Plan  Deep Dive  Check  Strategy  (per feature)   QC
 **Guide Last Read:** {YYYY-MM-DD HH:MM}
 
 **Critical Rules from Guide:**
-- {Rule 1 - e.g., "22 iterations mandatory, no skipping"}
+- {Rule 1 - e.g., "11 dimensions mandatory, complete Validation Loop required (3 consecutive clean rounds)"}
 - {Rule 2 - e.g., "Update Agent Status after each round"}
 - {Rule 3 - e.g., "STOP if confidence < Medium"}
 - {Rule 4 - e.g., "RESTART Post-Implementation if ANY issues found"}

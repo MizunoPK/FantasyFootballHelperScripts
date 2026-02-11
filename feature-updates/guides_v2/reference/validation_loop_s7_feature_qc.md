@@ -132,17 +132,17 @@ These 5 dimensions are specific to S7.P2 Feature QC validation:
 
 ❌ **WRONG - Integration not verified:**
 ```python
-# Feature 1 calls Feature 2's method
+## Feature 1 calls Feature 2's method
 result = feature2.process_data(player_data)
-# Assumed feature2.process_data() returns dict
-# Actually returns tuple → TypeError at runtime
+## Assumed feature2.process_data() returns dict
+## Actually returns tuple → TypeError at runtime
 ```
 
 ✅ **CORRECT - Integration verified:**
 ```python
-# Verified from feature2/processor.py:45
-# def process_data(self, data: dict) -> Tuple[int, str]:
-#     return (score, status)
+## Verified from feature2/processor.py:45
+## def process_data(self, data: dict) -> Tuple[int, str]:
+##     return (score, status)
 
 result = feature2.process_data(player_data)
 score, status = result  # Correctly unpacks tuple
@@ -187,7 +187,7 @@ score, status = result  # Correctly unpacks tuple
 def load_player_data():
     with open('data/players.csv', 'r') as f:
         return csv.reader(f)
-# FileNotFoundError crashes entire program
+## FileNotFoundError crashes entire program
 ```
 
 ✅ **CORRECT - Error handled gracefully:**
@@ -240,8 +240,8 @@ def load_player_data():
 
 ❌ **WRONG - Incomplete flow:**
 ```python
-# User runs command → code executes → no output
-# User doesn't know if it succeeded or failed
+## User runs command → code executes → no output
+## User doesn't know if it succeeded or failed
 ```
 
 ✅ **CORRECT - Complete flow:**
@@ -298,7 +298,7 @@ FAILED tests/test_trade.py::test_calculate_value
 ...
 97 passed, 1 failed
 
-# Agent proceeds to S7.P3 anyway ❌
+## Agent proceeds to S7.P3 anyway ❌
 ```
 
 ✅ **CORRECT - All tests pass:**
@@ -307,7 +307,7 @@ $ python tests/run_all_tests.py
 ...
 98 passed
 
-# All tests passing, ready to proceed ✅
+## All tests passing, ready to proceed ✅
 ```
 
 ---
@@ -477,16 +477,16 @@ S7 Feature QC-specific reading patterns:
 
 ❌ **WRONG:**
 ```python
-# Feature A calls Feature B
+## Feature A calls Feature B
 result = feature_b.calculate_score(player_name)
-# But Feature B expects: calculate_score(player_id: int)
-# TypeError at runtime
+## But Feature B expects: calculate_score(player_id: int)
+## TypeError at runtime
 ```
 
 ✅ **CORRECT:**
 ```python
-# Verified from feature_b/scorer.py:123
-# def calculate_score(self, player_id: int) -> float:
+## Verified from feature_b/scorer.py:123
+## def calculate_score(self, player_id: int) -> float:
 
 player_id = self.get_player_id(player_name)
 result = feature_b.calculate_score(player_id)  # Correct type
@@ -501,7 +501,7 @@ result = feature_b.calculate_score(player_id)  # Correct type
 ❌ **WRONG:**
 ```python
 data = json.load(open('config.json'))
-# If config.json doesn't exist → FileNotFoundError → crash
+## If config.json doesn't exist → FileNotFoundError → crash
 ```
 
 ✅ **CORRECT:**
@@ -555,7 +555,7 @@ $ python tests/run_all_tests.py
 ...
 45 passed, 2 failed
 
-# Agent: "Most tests pass, proceeding to S7.P3" ❌
+## Agent: "Most tests pass, proceeding to S7.P3" ❌
 ```
 
 ✅ **CORRECT:**
@@ -564,10 +564,10 @@ $ python tests/run_all_tests.py
 ...
 45 passed, 2 failed
 
-# Agent: "2 tests failing, must fix before proceeding"
-# Fix both test failures
-# Re-run tests → 47 passed ✅
-# Now ready to proceed
+## Agent: "2 tests failing, must fix before proceeding"
+## Fix both test failures
+## Re-run tests → 47 passed ✅
+## Now ready to proceed
 ```
 
 ---
