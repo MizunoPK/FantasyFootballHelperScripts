@@ -281,9 +281,8 @@ class TestRunSimulation:
         import run_win_rate_simulation
 
         assert hasattr(run_win_rate_simulation, 'LOGGING_LEVEL')
-        assert hasattr(run_win_rate_simulation, 'LOGGING_TO_FILE')
         assert hasattr(run_win_rate_simulation, 'LOG_NAME')
-        assert run_win_rate_simulation.LOG_NAME == "simulation"
+        assert run_win_rate_simulation.LOG_NAME == "win_rate_simulation"
 
     def test_default_arguments_defined(self):
         """Test that default argument values are reasonable"""

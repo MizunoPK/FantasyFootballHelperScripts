@@ -699,7 +699,6 @@ class SimulationManager:
                 for folder in intermediate_folders:
                     try:
                         shutil.rmtree(folder)
-                        self.logger.debug(f"  Deleted: {folder.name}")
                     except Exception as e:
                         self.logger.warning(f"  Failed to delete {folder.name}: {e}")
                 self.logger.info("✓ Cleanup complete")

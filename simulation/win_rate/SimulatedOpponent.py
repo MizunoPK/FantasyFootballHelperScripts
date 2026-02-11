@@ -129,7 +129,6 @@ class SimulatedOpponent:
                 p.drafted_by = "OPPONENT"
                 break
 
-        self.logger.debug(f"SimulatedOpponent ({self.strategy}) drafted: {player.name} ({player.position})")
 
     def get_draft_recommendation(self) -> FantasyPlayer:
         """
@@ -171,8 +170,6 @@ class SimulatedOpponent:
 
         # Apply human error
         selected_player = self._apply_human_error(ranked_players)
-
-        self.logger.debug(f"SimulatedOpponent ({self.strategy}) recommends: {selected_player.name}")
 
         return selected_player
 
@@ -360,8 +357,6 @@ class SimulatedOpponent:
             if p.id == player_id:
                 p.drafted_by = "OPPONENT"
                 break
-
-        self.logger.debug(f"Marked player {player_id} as drafted by another team")
 
     def get_roster_size(self) -> int:
         """Get current roster size."""

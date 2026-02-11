@@ -187,25 +187,15 @@ class ParallelLeagueRunner:
             Exception: Any exception during simulation is logged and re-raised
         """
         try:
-            self.logger.debug(f"[Sim {simulation_id}] Starting simulation")
-
             # Create league with this config
             league = SimulatedLeague(config_dict, self.data_folder)
 
-            # Run draft
-            self.logger.debug(f"[Sim {simulation_id}] Running draft")
+            # Run draft and season
             league.run_draft()
-
-            # Run season
-            self.logger.debug(f"[Sim {simulation_id}] Running season")
             league.run_season()
 
             # Get results
             wins, losses, total_points = league.get_draft_helper_results()
-
-            self.logger.debug(
-                f"[Sim {simulation_id}] Complete: {wins}W-{losses}L, {total_points:.2f} pts"
-            )
 
             return wins, losses, total_points
 
@@ -218,7 +208,6 @@ class ParallelLeagueRunner:
             league.cleanup()
             # Explicitly delete to help garbage collector free memory immediately
             del league
-            self.logger.debug(f"[Sim {simulation_id}] Cleanup complete")
 
     def run_single_simulation_with_weeks(
         self,
@@ -243,30 +232,15 @@ class ParallelLeagueRunner:
             Exception: Any exception during simulation is logged and re-raised
         """
         try:
-            self.logger.debug(f"[Sim {simulation_id}] Starting simulation (with week data)")
-
             # Create league with this config
             league = SimulatedLeague(config_dict, self.data_folder)
 
-            # Run draft
-            self.logger.debug(f"[Sim {simulation_id}] Running draft")
+            # Run draft and season
             league.run_draft()
-
-            # Run season
-            self.logger.debug(f"[Sim {simulation_id}] Running season")
             league.run_season()
 
             # Get per-week results
             week_results = league.get_draft_helper_results_by_week()
-
-            # Log summary
-            wins = sum(1 for _, won, _ in week_results if won)
-            losses = len(week_results) - wins
-            total_pts = sum(pts for _, _, pts in week_results)
-
-            self.logger.debug(
-                f"[Sim {simulation_id}] Complete: {wins}W-{losses}L, {total_pts:.2f} pts"
-            )
 
             return week_results
 
@@ -277,7 +251,6 @@ class ParallelLeagueRunner:
             # Explicit cleanup to prevent memory accumulation
             league.cleanup()
             del league
-            self.logger.debug(f"[Sim {simulation_id}] Cleanup complete")
 
     def run_simulations_for_config(
         self,

@@ -95,14 +95,12 @@ class SimulatedLeague:
             FileNotFoundError: If data files are missing
         """
         self.logger = get_logger()
-        self.logger.debug("Initializing SimulatedLeague")
 
         self.config_dict = config_dict
         self.data_folder = data_folder
 
         # Create temporary directory for this league's data
         self.temp_dir = Path(tempfile.mkdtemp(prefix="sim_league_"))
-        self.logger.debug(f"Created temporary directory: {self.temp_dir}")
 
         # Save config to temp file
         self.config_path = self.temp_dir / "league_config.json"
@@ -195,10 +193,8 @@ class SimulatedLeague:
             if strategy == 'draft_helper':
                 team = DraftHelperTeam(projected_pm, actual_pm, shared_config, shared_team_data_mgr)
                 self.draft_helper_team = team
-                self.logger.debug(f"Created DraftHelperTeam (team {idx})")
             else:
                 team = SimulatedOpponent(projected_pm, actual_pm, shared_config, shared_team_data_mgr, strategy)
-                self.logger.debug(f"Created SimulatedOpponent (team {idx}, strategy: {strategy})")
 
             self.teams.append(team)
 
@@ -255,7 +251,6 @@ class SimulatedLeague:
         else:
             self.logger.warning(f"team_data folder not found: {team_data_source}")
 
-        self.logger.debug(f"Created shared data directory with JSON files: {shared_dir}")
         return shared_dir
 
     def _generate_schedule(self) -> None:
@@ -331,12 +326,6 @@ class SimulatedLeague:
                 'projected': projected_data,
                 'actual': actual_data
             }
-
-            self.logger.debug(
-                f"Cached week {week_num}: "
-                f"{len(projected_data)} projected players, "
-                f"{len(actual_data)} actual players"
-            )
 
         self.logger.debug(f"Pre-loaded {len(self.week_data_cache)} weeks of player data")
 
@@ -421,7 +410,6 @@ class SimulatedLeague:
                     self.logger.warning(f"Error parsing player in {position_file}: {e}")
                     continue
 
-        self.logger.debug(f"Parsed {len(players)} players from week {week_num} JSON files")
         return players
 
     def _load_week_data(self, week_num: int) -> None:
@@ -468,7 +456,6 @@ class SimulatedLeague:
             if hasattr(team, 'actual_pm') and hasattr(team.actual_pm, 'set_player_data'):
                 team.actual_pm.set_player_data(actual_data)  # Week N+1 data for actuals
 
-        self.logger.debug(f"Loaded week {week_num} data for all teams")
 
     def run_draft(self) -> None:
         """
@@ -491,12 +478,9 @@ class SimulatedLeague:
         # Set all teams to week 1 for draft (no performance history yet)
         for team in self.teams:
             team.config.current_nfl_week = 1
-        self.logger.debug("Set all teams to week 1 for draft (no performance history)")
-
         # Randomize initial draft order
         self.draft_order = self.teams.copy()
         random.shuffle(self.draft_order)
-        self.logger.debug(f"Draft order randomized: {len(self.draft_order)} teams")
 
         # Run 15 rounds
         for round_num in range(15):
@@ -507,8 +491,6 @@ class SimulatedLeague:
             else:
                 # Odd rounds: reverse order (10→1)
                 pick_order = list(reversed(self.draft_order))
-
-            self.logger.debug(f"Draft Round {round_num + 1}/15")
 
             # Each team picks
             for team in pick_order:
@@ -522,8 +504,6 @@ class SimulatedLeague:
                 for other_team in self.teams:
                     if other_team != team:
                         other_team.mark_player_drafted(player.id)
-
-                self.logger.debug(f"Round {round_num + 1}: {player.name} ({player.position}) drafted")
 
         self.logger.debug("Draft complete: All teams have 15 players")
 
@@ -543,7 +523,6 @@ class SimulatedLeague:
         self.logger.debug("Starting 17-week season simulation")
 
         for week_num in range(1, 18):  # Weeks 1-17
-            self.logger.debug(f"Simulating Week {week_num}/17")
 
             # Load week-specific player data from pre-loaded cache (if available)
             self._load_week_data(week_num)
@@ -578,7 +557,6 @@ class SimulatedLeague:
             if hasattr(team, 'team_data_mgr') and team.team_data_mgr:
                 team.team_data_mgr.set_current_week(week_num)
 
-        self.logger.debug(f"Updated team rankings for week {week_num}")
 
     def get_draft_helper_results(self) -> Tuple[int, int, float]:
         """
@@ -681,7 +659,6 @@ class SimulatedLeague:
         # Clean up temporary directory
         if self.temp_dir.exists():
             shutil.rmtree(self.temp_dir)
-            self.logger.debug(f"Cleaned up temporary directory: {self.temp_dir}")
 
         # Clear large internal objects to free memory immediately
         # This prevents memory accumulation when GC is delayed

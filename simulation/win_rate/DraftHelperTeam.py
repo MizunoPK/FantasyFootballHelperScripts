@@ -75,7 +75,6 @@ class DraftHelperTeam:
             team_data_mgr (TeamDataManager): Team data for matchup calculations
         """
         self.logger = get_logger()
-        self.logger.debug("Initializing DraftHelperTeam")
 
         self.projected_pm = projected_pm
         self.actual_pm = actual_pm
@@ -134,8 +133,6 @@ class DraftHelperTeam:
 
         # Add to local roster for tracking
         self.roster.append(player)
-
-        self.logger.debug(f"DraftHelperTeam drafted: {player.name} ({player.position})")
 
     def get_draft_recommendation(self) -> FantasyPlayer:
         """
@@ -233,9 +230,6 @@ class DraftHelperTeam:
                     actual_points = starter.player.actual_points[week - 1]
                     if actual_points is not None:
                         total_actual_points += actual_points
-                        self.logger.debug(f"  {starter.player.name} ({starter.player.position}): {actual_points:.2f} pts")
-
-        self.logger.debug(f"DraftHelperTeam Week {week} lineup: {starters_count} starters, {total_actual_points:.2f} total points")
 
         return total_actual_points
 
@@ -263,8 +257,6 @@ class DraftHelperTeam:
             if p.id == player_id:
                 p.drafted_by = "OPPONENT"
                 break
-
-        self.logger.debug(f"Marked player {player_id} as drafted by opponent")
 
     def get_roster_size(self) -> int:
         """Get current roster size."""

@@ -117,14 +117,6 @@ class Week:
             self.results[team1] = WeekResult(team1, points1, points2, team1_won)
             self.results[team2] = WeekResult(team2, points2, points1, team2_won)
 
-            # Log matchup result
-            if team1_won:
-                self.logger.debug(f"Week {self.week_number}: Team 1 wins {points1:.2f}-{points2:.2f}")
-            elif team2_won:
-                self.logger.debug(f"Week {self.week_number}: Team 2 wins {points2:.2f}-{points1:.2f}")
-            else:
-                self.logger.debug(f"Week {self.week_number}: Tie {points1:.2f}-{points2:.2f} (both lose)")
-
         self.logger.debug(f"Week {self.week_number} simulation complete")
         return self.results
 
