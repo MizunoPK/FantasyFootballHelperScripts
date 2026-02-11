@@ -39,23 +39,6 @@
 
 ---
 
-## Table of Contents
-
-1. [Overview](#overview)
-2. [Critical Rules](#critical-rules)
-3. [Critical Decisions Summary](#critical-decisions-summary)
-4. [Prerequisites Checklist](#prerequisites-checklist)
-5. [Parallel Work Coordination (If Applicable)](#parallel-work-coordination-if-applicable)
-6. [Phase 3: Interactive Question Resolution](#phase-3-interactive-question-resolution)
-7. [Phase 4: Dynamic Scope Adjustment](#phase-4-dynamic-scope-adjustment)
-8. [Phase 5: Cross-Feature Alignment](#phase-5-cross-feature-alignment)
-9. [Phase 6: Acceptance Criteria & User Approval](#phase-6-acceptance-criteria--user-approval)
-10. [S2 Complete Checklist (Per Feature)](#s2-complete-checklist-per-feature)
-11. [Exit Criteria](#exit-criteria)
-12. [Next Steps](#next-steps)
-
----
-
 ## Overview
 
 **What is this phase?**
