@@ -386,7 +386,7 @@ After:
 stages/s5/s5_v2_validation_loop.md (200 lines - router)
 stages/s5/s5_v2_validation_loop.md (400 lines)
 stages/s5/s5_v2_validation_loop.md (400 lines)
-stages/s5/s5_p3_planning_round3.md (400 lines)
+stages/s5/s5_v2_validation_loop.md (400 lines)
 ```
 
 **Process:**
@@ -631,7 +631,7 @@ After:
   - s5_v2_validation_loop.md (200 lines router)
   - s5_v2_validation_loop.md (400 lines)
   - s5_v2_validation_loop.md (400 lines)
-  - s5_p3_planning_round3.md (400 lines)
+  - s5_v2_validation_loop.md (400 lines)
 ```
 
 **Option B: Split by Concept**

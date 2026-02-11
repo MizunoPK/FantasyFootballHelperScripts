@@ -455,7 +455,7 @@ Read files, analyze context (15-30 min)
 
 **Planned Reduction Approach:**
 1. [Step 1: e.g., "Extract Round 2 content to s5_v2_validation_loop.md"]
-2. [Step 2: e.g., "Extract Round 3 content to s5_p3_planning_round3.md"]
+2. [Step 2: e.g., "Extract Round 3 content to s5_v2_validation_loop.md"]
 3. [Step 3: e.g., "Convert original to router file with TOC"]
 4. [Step 4: e.g., "Update all cross-references"]
 

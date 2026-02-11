@@ -371,7 +371,7 @@ Guides that say "for details, see X.md" must have X.md available and accessible.
 For detailed iteration guides, see:
 - Round 1: `stages/s5/s5_v2_validation_loop.md`
 - Round 2: `stages/s5/s5_v2_validation_loop.md`
-- Round 3: `stages/s5/s5_p3_planning_round3.md`
+- Round 3: `stages/s5/s5_v2_validation_loop.md`
 ```
 
 **Validation:**

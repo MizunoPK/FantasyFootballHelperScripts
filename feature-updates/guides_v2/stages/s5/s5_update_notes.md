@@ -92,7 +92,7 @@ I25 → I22  (renumbered)
 
 **Files Requiring Renumbering:**
 - All iteration guides (I8-I22)
-- All router files (s5_v2_validation_loop.md, s5_v2_validation_loop.md, s5_p3_planning_round3.md)
+- All router files (s5_v2_validation_loop.md, s5_v2_validation_loop.md, s5_v2_validation_loop.md)
 - Cross-references in other stages
 
 ---
@@ -120,7 +120,7 @@ I25 → I22  (renumbered)
 
 ## 4. Add Validation Loop to Round 3 (Pre-Gate 23a)
 
-**Location:** `s5_p3_planning_round3.md` before Gate 23a (Pre-Implementation Spec Audit)
+**Location:** `s5_v2_validation_loop.md` before Gate 23a (Pre-Implementation Spec Audit)
 
 **Purpose:** Validate implementation plan before final gates
 
@@ -183,7 +183,7 @@ I25 → I22  (renumbered)
 
 ## 6. Update Gate 5 Definition (3-Tier Rejection)
 
-**Location:** End of `s5_p3_planning_round3.md` (after I22/new numbering)
+**Location:** End of `s5_v2_validation_loop.md` (after I22/new numbering)
 
 **Current:** Simple user approval
 
@@ -247,7 +247,7 @@ Await user decision before proceeding.
 - [ ] s5_p1_i1_requirements.md (add test_strategy.md validation)
 - [ ] s5_v2_validation_loop.md (add Validation Loop at end, update router)
 - [ ] s5_v2_validation_loop.md (remove I8-I10 references, update router, renumber I11-I13 to I8-I10)
-- [ ] s5_p3_planning_round3.md (add Validation Loop before Gate 23a, clarify exit sequence, add Gate 5 3-tier rejection)
+- [ ] s5_v2_validation_loop.md (add Validation Loop before Gate 23a, clarify exit sequence, add Gate 5 3-tier rejection)
 - [ ] All I8-I22 iteration files (renumber references)
 - [ ] s5_p3_i2_gates_part1.md (renumber from old I23 to new I20)
 - [ ] s5_p3_i3_gates_part2.md (renumber from old I24-I25 to new I21-I22)

@@ -239,7 +239,7 @@ s5_planning.md (1200 lines) ← Direct concatenation
 s5_planning.md (200 lines) ← Router to sub-guides
 s5_v2_validation_loop.md (400 lines)
 s5_v2_validation_loop.md (350 lines)
-s5_p3_planning_round3.md (450 lines)
+s5_v2_validation_loop.md (450 lines)
 ```markdown
 
 ### Root Cause 3: Detailed Examples Added Inline

@@ -95,11 +95,11 @@ Specification Phase is complete when spec.md has complete requirements with trac
 3. ⚠️ Phase 2.5 alignment check is MANDATORY GATE
    - Verify no scope creep (adding things user didn't ask for)
    - Verify no missing requirements (user requested but not in spec)
-   - Cannot proceed to STAGE_2c without passing alignment check
+   - Cannot proceed to S2.P3 without passing alignment check
 
 4. ⚠️ Only create questions for GENUINE unknowns
    - Good questions: User preferences, business logic, edge cases
-   - Bad questions: Things you should have researched in STAGE_2a
+   - Bad questions: Things you should have researched in S2.P1
    - If you should have known it from code → NOT a checklist question
 
 5. ⚠️ Update feature README.md Agent Status after EACH phase
@@ -124,7 +124,7 @@ Specification Phase is complete when spec.md has complete requirements with trac
   - Fix invalid source traceability
   - Re-run Phase 2.5 alignment check
 - **If YES (perfect alignment, all requirements traced):**
-  - ✅ Proceed to STAGE_2c (Refinement Phase)
+  - ✅ Proceed to S2.P3 (Refinement Phase)
 - **Impact:** Prevents implementing features user didn't ask for or missing what they did ask for
 
 ---
@@ -133,12 +133,12 @@ Specification Phase is complete when spec.md has complete requirements with trac
 
 **Verify BEFORE starting Specification Phase:**
 
-□ STAGE_2a complete (Research Phase)
+□ S2.P1 complete (Research Phase)
 □ Phase 1.5 Research Audit PASSED (all 4 categories)
 □ Discovery Context section exists in spec.md (created in Phase 0)
 □ Research findings documented in epic/research/{FEATURE_NAME}_DISCOVERY.md
 □ Evidence collected (file paths, line numbers, code snippets)
-□ Feature README.md Agent Status shows STAGE_2a complete
+□ Feature README.md Agent Status shows S2.P1 complete
 
 **If any prerequisite fails:**
 - ❌ STOP - Do NOT proceed with specification
@@ -328,7 +328,7 @@ Document feature dependencies and integration points:
 - ✅ Edge case handling not mentioned (missing player behavior, error handling)
 - ✅ External data formats (CSV column names, API structure)
 
-**Bad questions (should have researched in STAGE_2a):**
+**Bad questions (should have researched in S2.P1):**
 - ❌ "Which class should we modify?" → Research in Phase 1
 - ❌ "What's the current scoring algorithm?" → Read code in Phase 1
 - ❌ "Does PlayerManager have method X?" → Verify in Phase 1.5 audit
@@ -379,7 +379,7 @@ Each question should include:
 
 **Goal:** Verify spec matches user intent (no scope creep, no missing requirements)
 
-**⚠️ CRITICAL:** This is a MANDATORY GATE. Cannot proceed to STAGE_2c without passing this check.
+**⚠️ CRITICAL:** This is a MANDATORY GATE. Cannot proceed to S2.P3 without passing this check.
 
 **Why this phase exists:**
 - Prevents scope creep (adding features user didn't ask for)
@@ -391,7 +391,7 @@ Each question should include:
 
 ### Step 2.5.1: Re-Read Discovery Context Section
 
-**Read the "Discovery Context" section** at the top of spec.md (created in STAGE_2a Phase 0).
+**Read the "Discovery Context" section** at the top of spec.md (created in S2.P1 Phase 0).
 
 **Refresh your memory:**
 - What did the user EXPLICITLY request?
@@ -504,7 +504,7 @@ List all explicit user requests, then verify EACH is in spec:
 
 ## Exit Criteria
 
-**Specification Phase (STAGE_2b) is COMPLETE when ALL of these are true:**
+**Specification Phase (S2.P2) is COMPLETE when ALL of these are true:**
 
 □ **Phase 2 Complete:**
   - spec.md updated with complete technical details
@@ -526,12 +526,12 @@ List all explicit user requests, then verify EACH is in spec:
 □ **Documentation Complete:**
   - spec.md has requirement traceability for ALL requirements
   - checklist.md has valid questions (user preferences, edge cases, unknowns)
-  - Agent Status updated with STAGE_2b completion
+  - Agent Status updated with S2.P2 completion
 
 □ **Ready for Next Stage:**
   - All requirements aligned with epic intent
   - Open questions identified (not assumptions)
-  - Ready to ask user questions in STAGE_2c
+  - Ready to ask user questions in S2.P3
 
 **Exit Condition:** Specification Phase is complete when spec.md has complete requirements with traceability, Phase 2.5 alignment check passes, checklist.md has questions, and Gate 2 (User Checklist Approval) is obtained.
 
@@ -539,7 +539,7 @@ List all explicit user requests, then verify EACH is in spec:
 
 ## Phase 2.6: Present Checklist to User for Approval (🚨 MANDATORY GATE 2)
 
-**After Phase 2.5 passes, you MUST present checklist.md to user for approval before proceeding to STAGE_2c.**
+**After Phase 2.5 passes, you MUST present checklist.md to user for approval before proceeding to S2.P3.**
 
 **This is Gate 2 - User Checklist Approval (from mandatory_gates.md)**
 
@@ -608,7 +608,7 @@ Document Gate 2 completion with timestamp and PASSED status
 **After user answers ALL questions:**
 
 Update Agent Status in feature README.md:
-- Mark STAGE_2b COMPLETE + Gate 2 PASSED
+- Mark S2.P2 COMPLETE + Gate 2 PASSED
 - Document checklist status (all answered, pending 0)
 - Note spec.md updated with user answers
 - Identify next action (usually S5 if no NEW questions)
@@ -660,12 +660,12 @@ Update Agent Status in feature README.md:
 **After Gate 2 passes (all questions answered and approved), you have two options:**
 
 1. **If checklist complete with zero NEW questions:**
-   - Skip STAGE_2c (Refinement Phase) entirely
+   - Skip S2.P3 (Refinement Phase) entirely
    - Proceed directly to S5 (Implementation Planning)
    - Note: Phase 6 (Acceptance Criteria) still required before S5
 
 2. **If NEW questions arise:**
-   - Proceed to STAGE_2c (Refinement Phase)
+   - Proceed to S2.P3 (Refinement Phase)
    - Handle any additional questions in Phase 3
    - Complete Phase 4-6 as normal
 
@@ -679,12 +679,12 @@ Update Agent Status in feature README.md:
 
 **Option A: No new questions (most common):**
 → **Proceed to:** S5 (Implementation Planning)
-→ **Skip:** STAGE_2c if checklist is complete
+→ **Skip:** S2.P3 if checklist is complete
 
 **Option B: New questions discovered:**
-→ **Proceed to:** stages/s2/s2_p3_refinement.md (STAGE_2c)
+→ **Proceed to:** stages/s2/s2_p3_refinement.md (S2.P3)
 
-**What happens in STAGE_2c (if needed):**
+**What happens in S2.P3 (if needed):**
 - Step 3: Handle any NEW questions (repeated)
 - Step 4: Dynamic Scope Adjustment (split if >35 items)
 - Step 5: Cross-Feature Alignment (compare to completed features)
@@ -698,9 +698,9 @@ Update Agent Status in feature README.md:
 - ✅ Acceptance criteria defined (Phase 6 or earlier)
 
 **Time Estimate:**
-- If skipping STAGE_2c: Proceed immediately to S5
-- If continuing to STAGE_2c: 45-60 minutes
+- If skipping S2.P3: Proceed immediately to S5
+- If continuing to S2.P3: 45-60 minutes
 
 ---
 
-**END OF STAGE_2b - SPECIFICATION PHASE GUIDE**
+**END OF S2.P2 - SPECIFICATION PHASE GUIDE**

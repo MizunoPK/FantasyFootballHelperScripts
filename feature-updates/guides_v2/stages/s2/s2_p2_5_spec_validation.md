@@ -126,7 +126,7 @@ Validation Phase is complete when all spec claims are validated, maximum checkli
 
 **Verify BEFORE starting Validation Phase:**
 
-□ **STAGE_2b complete:**
+□ **S2.P2 complete:**
   - Phase 2 complete: spec.md has requirements with traceability
   - Phase 2 complete: checklist.md has open questions
   - Phase 2.5 complete: Spec-to-Epic Alignment Check PASSED
@@ -147,7 +147,7 @@ Validation Phase is complete when all spec claims are validated, maximum checkli
 **If any prerequisite fails:**
 - ❌ Do NOT start Validation Phase
 - Complete missing prerequisites first
-- Return to STAGE_2b if Phase 2.5 not passed
+- Return to S2.P2 if Phase 2.5 not passed
 
 ---
 
@@ -262,7 +262,7 @@ Validation Phase is complete when all spec claims are validated, maximum checkli
 **If MULTI-APPROACH or USER-PREFERENCE:**
 - Options documented: {List all viable approaches}
 - Recommendation updated: {Best option based on research}
-- Leave for user decision in STAGE_2c
+- Leave for user decision in S2.P3
 ```
 
 **Example self-resolution:**
@@ -461,7 +461,7 @@ AssignmentBatchResponseVO already uses String for beginDateTime/endDateTime fiel
 
 ## Exit Criteria
 
-**Validation Phase (STAGE_2b.5) is COMPLETE when ALL of these are true:**
+**Validation Phase (S2.P2.5) is COMPLETE when ALL of these are true:**
 
 □ **All spec claims validated:**
   - Every requirement researched with additional evidence
@@ -494,7 +494,7 @@ AssignmentBatchResponseVO already uses String for beginDateTime/endDateTime fiel
   - Agent Status updated with validation results
   - Evidence documented for all changes
 
-**Exit Condition:** Validation Phase is complete when spec quality is significantly improved through validation research, maximum questions are self-resolved, and only genuine user decisions remain for STAGE_2c.
+**Exit Condition:** Validation Phase is complete when spec quality is significantly improved through validation research, maximum questions are self-resolved, and only genuine user decisions remain for S2.P3.
 
 ---
 
@@ -504,13 +504,13 @@ AssignmentBatchResponseVO already uses String for beginDateTime/endDateTime fiel
 
 → **Proceed to:** stages/s2/s2_p3_refinement.md
 
-**What happens in STAGE_2c:**
+**What happens in S2.P3:**
 - Step 3: Interactive Question Resolution (remaining questions only)
 - Step 4: Dynamic Scope Adjustment
 - Step 5: Cross-Feature Alignment
 - Step 6: Acceptance Criteria & User Approval
 
-**Prerequisites for STAGE_2c:**
+**Prerequisites for S2.P3:**
 - Validation Phase complete (from this guide)
 - spec.md has validated requirements
 - checklist.md has minimal remaining questions (only user decisions)
@@ -541,4 +541,4 @@ AssignmentBatchResponseVO already uses String for beginDateTime/endDateTime fiel
 
 ---
 
-**END OF STAGE_2b.5 - SPECIFICATION VALIDATION PHASE GUIDE**
+**END OF S2.P2.5 - SPECIFICATION VALIDATION PHASE GUIDE**

@@ -490,7 +490,7 @@ Each pattern exposes different types of issues.
 **Guides:**
 - `stages/s5/s5_v2_validation_loop.md` (Round 1)
 - `stages/s5/s5_v2_validation_loop.md` (Round 2)
-- `stages/s5/s5_p3_planning_round3.md` (Round 3)
+- `stages/s5/s5_v2_validation_loop.md` (Round 3)
 
 **Note:** v1 guides remain available but are deprecated. v2 is the standard going forward.
 

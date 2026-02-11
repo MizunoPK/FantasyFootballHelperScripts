@@ -98,9 +98,9 @@ Refinement Phase is complete when all checklist questions are resolved, scope is
 
 ## Prerequisites Checklist
 
-**Before starting Refinement Phase (STAGE_2c), verify:**
+**Before starting Refinement Phase (S2.P3), verify:**
 
-□ **STAGE_2b complete:**
+□ **S2.P2 complete:**
   - Phase 2 complete: spec.md has Discovery Context section, requirements with traceability
   - Phase 2 complete: checklist.md exists with open questions
   - Phase 2.5 complete: Spec-to-Epic Alignment Check PASSED
@@ -122,7 +122,7 @@ Refinement Phase is complete when all checklist questions are resolved, scope is
 **If any prerequisite fails:**
 - ❌ Do NOT start Refinement Phase
 - Complete missing prerequisites first
-- Return to STAGE_2b if Phase 2.5 not passed
+- Return to S2.P2 if Phase 2.5 not passed
 
 ## 🔄 Parallel Work Coordination (If Applicable)
 
@@ -777,7 +777,7 @@ If changes needed: Let me know what to modify
 
 ## S2 Complete Checklist (Per Feature)
 
-**Refinement Phase (STAGE_2c) is COMPLETE when ALL of these are true:**
+**Refinement Phase (S2.P3) is COMPLETE when ALL of these are true:**
 
 ### Phase Completion
 - [ ] Phase 3: Interactive Question Resolution complete
@@ -837,7 +837,7 @@ If changes needed: Let me know what to modify
 
 ## Exit Criteria
 
-**STAGE_2c (Refinement Phase) is complete when:**
+**S2.P3 (Refinement Phase) is complete when:**
 
 1. **All phases complete:**
    - Step 3: All questions resolved
@@ -869,7 +869,7 @@ If changes needed: Let me know what to modify
 
 **If more features remain:**
 - Begin S2 for next feature
-- Start with STAGE_2a (Research Phase)
+- Start with S2.P1 (Research Phase)
 - Repeat all phases (0 through 6)
 
 **If ALL features complete S2:**

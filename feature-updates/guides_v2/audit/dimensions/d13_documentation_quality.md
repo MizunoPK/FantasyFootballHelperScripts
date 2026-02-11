@@ -68,7 +68,7 @@
 
 **Example Failure (Hypothetical):**
 ```markdown
-Guide: stages/s5/s5_p3_planning_round3.md
+Guide: stages/s5/s5_v2_validation_loop.md
 Section: ## Gate 23a Checklist
 Content: TODO: Add complete checklist items
 

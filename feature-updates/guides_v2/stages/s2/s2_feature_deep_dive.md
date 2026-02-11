@@ -256,7 +256,7 @@ Start Feature Deep Dive
           │
           ▼
     ┌─────────────┐
-    │  STAGE_2a   │  Research Phase
+    │  S2.P1   │  Research Phase
     │  (45-60min) │  • Phase 0: Discovery Context Review
     └─────────────┘  • Phase 1: Targeted Research
           │          • Phase 1.5: Research Audit (GATE)
@@ -265,7 +265,7 @@ Start Feature Deep Dive
           │
           ▼
     ┌─────────────┐
-    │  STAGE_2b   │  Specification Phase
+    │  S2.P2   │  Specification Phase
     │  (30-45min) │  • Phase 2: Spec & Checklist
     └─────────────┘  • Phase 2.5: Alignment Check (GATE)
           │
@@ -273,7 +273,7 @@ Start Feature Deep Dive
           │
           ▼
     ┌─────────────┐
-    │  STAGE_2c   │  Refinement Phase
+    │  S2.P3   │  Refinement Phase
     │  (1-2 hours)│  • Phase 3: Question Resolution
     └─────────────┘  • Phase 4: Scope Adjustment
           │          • Phase 5: Cross-Feature Alignment
@@ -292,7 +292,7 @@ Start Feature Deep Dive
      ▼           ▼
   Next        S3
  Feature
-STAGE_2a
+S2.P1
 ```
 
 ---
@@ -301,7 +301,7 @@ STAGE_2a
 
 **S2 has THREE mandatory gates that cannot be skipped:**
 
-### Gate 1: Phase 1.5 - Research Completeness Audit (STAGE_2a)
+### Gate 1: Phase 1.5 - Research Completeness Audit (S2.P1)
 
 **Purpose:** Verify research was thorough enough to avoid "should have known" checklist questions
 
@@ -323,7 +323,7 @@ STAGE_2a
 
 ---
 
-### Gate 2: Phase 2.5 - Spec-to-Epic Alignment Check (STAGE_2b)
+### Gate 2: Phase 2.5 - Spec-to-Epic Alignment Check (S2.P2)
 
 **Purpose:** Verify spec accurately reflects Discovery findings (no scope creep, no missing requirements)
 
@@ -344,7 +344,7 @@ STAGE_2a
 
 ---
 
-### Gate 3: Phase 6 - User Approval (STAGE_2c)
+### Gate 3: Phase 6 - User Approval (S2.P3)
 
 **Purpose:** Get explicit user sign-off on acceptance criteria before implementation planning
 
@@ -443,9 +443,9 @@ Ready to begin Phase 0: Discovery Context Review.
 ```
 
 **Then read the appropriate guide:**
-- **Phase 0, 1, or 1.5:** Read STAGE_2a
-- **Phase 2 or 2.5:** Read STAGE_2b
-- **Phase 3, 4, 5, or 6:** Read STAGE_2c
+- **Phase 0, 1, or 1.5:** Read S2.P1
+- **Phase 2 or 2.5:** Read S2.P2
+- **Phase 3, 4, 5, or 6:** Read S2.P3
 
 **Continue from "Next Action" in Agent Status.**
 
@@ -453,17 +453,17 @@ Ready to begin Phase 0: Discovery Context Review.
 
 ### If you're transitioning between sub-stages:
 
-**After completing STAGE_2a:**
+**After completing S2.P1:**
 - Update feature README.md Agent Status: "Phase 1.5 complete, starting Phase 2"
 - **READ:** `stages/s2/s2_p2_specification.md` (full guide)
 - Use phase transition prompt from `prompts_reference_v2.md`
 
-**After completing STAGE_2b:**
+**After completing S2.P2:**
 - Update feature README.md Agent Status: "Phase 2.5 complete, starting Phase 3"
 - **READ:** `stages/s2/s2_p3_refinement.md` (full guide)
 - Use phase transition prompt from `prompts_reference_v2.md`
 
-**After completing STAGE_2c:**
+**After completing S2.P3:**
 - Feature's S2 is COMPLETE
 - Update epic EPIC_README.md Feature Tracking table
 - Proceed to next feature or S3
@@ -505,7 +505,7 @@ Ready to begin Phase 0: Discovery Context Review.
 
 **If more features remain:**
 - Begin S2 for next feature
-- Start with STAGE_2a (Research Phase)
+- Start with S2.P1 (Research Phase)
 - Repeat all phases
 
 **If ALL features complete S2:**
@@ -527,9 +527,9 @@ Ready to begin Phase 0: Discovery Context Review.
 ### Benefits of Split Guides:
 
 1. **60-70% token reduction per phase:**
-   - STAGE_2a: 1,037 lines vs 2,348 lines (56% reduction)
-   - STAGE_2b: ~700 lines vs 2,348 lines (70% reduction)
-   - STAGE_2c: ~900 lines vs 2,348 lines (62% reduction)
+   - S2.P1: 1,037 lines vs 2,348 lines (56% reduction)
+   - S2.P2: ~700 lines vs 2,348 lines (70% reduction)
+   - S2.P3: ~900 lines vs 2,348 lines (62% reduction)
 
 2. **Clear phase boundaries:**
    - Natural breakpoints at mandatory gates
@@ -551,7 +551,7 @@ Ready to begin Phase 0: Discovery Context Review.
 ## Frequently Asked Questions
 
 **Q: Do I need to read all three sub-stage guides?**
-A: Yes, but sequentially. Read STAGE_2a first, complete it, then read STAGE_2b, complete it, then read STAGE_2c.
+A: Yes, but sequentially. Read S2.P1 first, complete it, then read S2.P2, complete it, then read S2.P3.
 
 **Q: Can I skip a phase?**
 A: No. All S2 phases are mandatory (S2.P1 with 3 iterations, S2.P2 alignment). The new structure doesn't change workflow requirements, just organization.
@@ -562,8 +562,8 @@ A: Check feature README.md Agent Status for current phase, then read the guide f
 **Q: Do the mandatory gates change?**
 A: No. Still 3 gates: Phase 1.5 (Research Audit), Phase 2.5 (Alignment Check), Phase 6 (User Approval).
 
-**Q: Why isn't Phase 2.5 (Spec Validation) in STAGE_2b?**
-A: It is! Phase 2.5 is "Spec-to-Epic Alignment Check" covered in STAGE_2b.
+**Q: Why isn't Phase 2.5 (Spec Validation) in S2.P2?**
+A: It is! Phase 2.5 is "Spec-to-Epic Alignment Check" covered in S2.P2.
 
 **Q: Can I reference the original guide?**
 A: Yes. The original guide is backed up as `STAGE_2_feature_deep_dive_guide_ORIGINAL_BACKUP.md` for reference, but use the new split guides for workflow.
