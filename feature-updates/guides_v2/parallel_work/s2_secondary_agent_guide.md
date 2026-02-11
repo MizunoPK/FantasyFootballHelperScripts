@@ -177,39 +177,30 @@ fi
 echo "✅ Feature folder verified: $FEATURE_FOLDER"
 ```
 
-### Step 5: Create Coordination Infrastructure
+### Step 5: Create Your Coordination Files (NOT Directories)
+
+**🚨 CRITICAL:** Primary agent already created directories. You ONLY create your own files.
+
+**DO NOT create directories:**
+- ❌ `mkdir agent_comms` - Primary already did this
+- ❌ `mkdir agent_checkpoints` - Primary already did this
+- ❌ `mkdir agent_comms/inboxes` - Prohibited structure
+- ❌ `mkdir parallel_work` - Prohibited structure
+
+**If directories don't exist, Primary setup is incomplete. Stop and notify user.**
+
+**ONLY create your own files:**
 
 ```bash
-# Create communication channels
-mkdir -p "$EPIC_PATH/agent_comms"
+# Verify directories exist (created by Primary)
+if [ ! -d "$EPIC_PATH/agent_comms" ] || [ ! -d "$EPIC_PATH/agent_checkpoints" ]; then
+    echo "❌ ERROR: Coordination directories missing. Primary setup incomplete."
+    exit 1
+fi
 
-# Create inbox (Primary writes, I read)
-cat > "$EPIC_PATH/agent_comms/primary_to_secondary_a.md" <<EOF
-# Messages: Primary → Secondary-A
-
-(No messages yet)
-EOF
-
-# Create outbox (I write, Primary reads)
-cat > "$EPIC_PATH/agent_comms/secondary_a_to_primary.md" <<EOF
-# Messages: Secondary-A → Primary
-
-(No messages yet)
-EOF
-
-echo "✅ Communication channels created"
-```
-
-### Step 6: Create Checkpoint File
-
-```bash
-# Create checkpoints directory
-mkdir -p "$EPIC_PATH/agent_checkpoints"
-
-# Generate session ID
+# 1. Create your checkpoint file (.json format, NOT .md)
 SESSION_ID=$(uuidgen)  # Or: $(date +%s)
 
-# Create initial checkpoint
 cat > "$EPIC_PATH/agent_checkpoints/secondary_a.json" <<EOF
 {
   "agent_id": "Secondary-A",
@@ -246,13 +237,18 @@ cat > "$EPIC_PATH/agent_checkpoints/secondary_a.json" <<EOF
 }
 EOF
 
-echo "✅ Checkpoint file created"
+echo "✅ Checkpoint file created (.json format)"
 ```
 
-### Step 7: Create STATUS File
+**Rule:** Checkpoint files MUST use `.json` extension.
+- ✅ CORRECT: `agent_checkpoints/secondary_a.json`
+- ❌ WRONG: `agent_checkpoints/secondary_a.md`
+- ❌ WRONG: `agent_checkpoints/secondary_a_checkpoint.json`
+
+### Step 6: Create Your STATUS File
 
 ```bash
-# Create STATUS file
+# 2. Create your STATUS file
 cat > "$EPIC_PATH/$FEATURE_FOLDER/STATUS" <<EOF
 STAGE: S2.P1
 PHASE: Research Phase
@@ -268,6 +264,16 @@ EOF
 
 echo "✅ STATUS file created"
 ```
+
+**Summary of files you create:**
+- ✅ `agent_checkpoints/secondary_a.json` - Your checkpoint (you write, Primary reads)
+- ✅ `feature_XX_{name}/STATUS` - Your status (you write, Primary reads)
+
+**Files Primary creates that you use:**
+- `agent_comms/primary_to_secondary_a.md` - Inbox (Primary writes, you read)
+- `agent_comms/secondary_a_to_primary.md` - Outbox (you write, Primary reads)
+
+**Note:** If communication files don't exist when you start, Primary will create them. Don't create them yourself.
 
 ### Step 8: Update EPIC_README.md
 

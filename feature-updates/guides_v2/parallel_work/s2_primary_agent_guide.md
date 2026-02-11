@@ -219,16 +219,58 @@ Would you like to:
 
 **When user accepts parallel work:**
 
-### Step 1: Create Coordination Infrastructure
+### Step 1: Create Coordination Infrastructure (Primary Only)
+
+**🚨 CRITICAL:** Primary agent creates ALL coordination infrastructure. Secondaries ONLY create their own checkpoint/STATUS files.
 
 ```bash
-# Create coordination directories
+# Create ALL coordination directories (Primary only)
 mkdir -p .epic_locks
 mkdir -p agent_comms
 mkdir -p agent_checkpoints
 
-echo "Coordination infrastructure created"
+echo "✅ Coordination infrastructure created (Primary)"
 ```
+
+**Rules:**
+- ✅ Primary creates directories
+- ✅ Secondaries create FILES (their checkpoint.json and STATUS)
+- ❌ DO NOT create subdirectories under agent_comms/ or agent_checkpoints/
+- ❌ DO NOT create parallel_work/ or agent_comms/inboxes/ or agent_comms/coordination/
+
+### Step 1.5: Validate Structure
+
+```bash
+# Run validation script to ensure structure is correct
+bash feature-updates/guides_v2/parallel_work/scripts/validate_structure.sh .
+
+# Expected output: ✅ PASSED - structure valid
+# If errors found, fix before proceeding
+```
+
+### Step 1.6: Create Your Own STATUS File
+
+**🚨 CRITICAL:** Feature 01 (Primary's feature) needs a STATUS file too.
+
+```bash
+# Create STATUS file for Feature 01
+cat > "feature_01_{name}/STATUS" <<EOF
+STAGE: S2.P1
+PHASE: Research Phase
+AGENT: Primary
+AGENT_ID: $(uuidgen)
+UPDATED: $(date -u +"%Y-%m-%dT%H:%M:%SZ")
+STATUS: IN_PROGRESS
+BLOCKERS: none
+NEXT_ACTION: Begin S2.P1 Research Phase
+READY_FOR_SYNC: false
+ESTIMATED_COMPLETION: $(date -u -d "+2 hours" +"%Y-%m-%dT%H:%M:%SZ")
+EOF
+
+echo "✅ STATUS file created for Feature 01"
+```
+
+**Rule:** ALL features need STATUS files, including Feature 01 (Primary's feature).
 
 ### Step 2: Determine Secondary Agent Assignments
 
@@ -241,29 +283,51 @@ echo "Coordination infrastructure created"
 - Use alphabetical: Secondary-A, Secondary-B, Secondary-C, etc.
 - Lowercase for filenames: secondary_a, secondary_b, etc.
 
-### Step 3: Generate Handoff Packages
+### Step 3: Generate and Save Handoff Packages
 
 **Use template from `templates/handoff_package_s2_template.md`:**
 
+**For each secondary feature:**
+
+1. Generate handoff content
+2. **Save to feature folder** (not agent_comms/)
+3. Present simplified startup instruction to user
+
+**Example for 3-feature epic:**
+
 ```bash
 # For Secondary-A (Feature 02)
-generate_s2_handoff_package \
-  "KAI-6-nfl_team_penalty" \
-  "C:/Users/kmgam/code/FantasyFootballHelperScripts/feature-updates/KAI-6-nfl_team_penalty" \
-  "feature_02_team_penalty" \
-  "Agent-Primary-abc123" \
-  "Secondary-A"
+# Generate handoff content (use template)
+# Then save to feature folder:
+cat > "feature_02_{name}/HANDOFF_PACKAGE.md" <<EOF
+═══════════════════════════════════════════════════════════
+HANDOFF PACKAGE - Secondary Agent A
+═══════════════════════════════════════════════════════════
+
+**Epic:** KAI-6-nfl_team_penalty
+**Feature Assignment:** feature_02_team_penalty
+**Primary Agent ID:** Agent-Primary-abc123
+**Your Agent ID:** Secondary-A
+**Starting Stage:** S2.P1 (Feature Deep Dive - Research Phase)
+
+[... full handoff content from template ...]
+EOF
 
 # For Secondary-B (Feature 03)
-generate_s2_handoff_package \
-  "KAI-6-nfl_team_penalty" \
-  "C:/Users/kmgam/code/FantasyFootballHelperScripts/feature-updates/KAI-6-nfl_team_penalty" \
-  "feature_03_scoring_update" \
-  "Agent-Primary-abc123" \
-  "Secondary-B"
+cat > "feature_03_{name}/HANDOFF_PACKAGE.md" <<EOF
+[... handoff content for Secondary-B ...]
+EOF
+
+echo "✅ Handoff packages saved to feature folders"
 ```
 
-### Step 4: Present Handoff Packages to User
+**Rule:** Handoff packages saved in feature folders, NOT in `agent_comms/`.
+
+**Benefit:** Secondary agents can find them automatically by reading `feature_XX_{name}/HANDOFF_PACKAGE.md`
+
+### Step 4: Present Simplified Startup Instructions to User
+
+**NEW SIMPLIFIED PROCESS:** Handoff packages are pre-saved in feature folders. User just spawns agents with one-line instructions.
 
 ```markdown
 Great! I'll set up parallel work for S2.
@@ -276,37 +340,47 @@ You'll need to open 2 new Claude Code sessions (one for each secondary agent).
 1. Open a new terminal/window
 2. Navigate to the project: cd /path/to/project
 3. Start Claude Code in the new window
-4. Copy-paste the handoff package below
+4. Enter the one-line startup command below
 
 ---
 
-🚀 SECONDARY AGENT A - HANDOFF PACKAGE
+🚀 SECONDARY AGENT A STARTUP
 
-Copy the entire block below and paste into NEW Claude Code session #1:
+In NEW Claude Code session #1, enter:
 
-═══════════════════════════════════════════════════════════
-[Handoff package for Secondary-A]
-═══════════════════════════════════════════════════════════
+```
+You are a secondary agent for Feature 02
+```
 
----
-
-🚀 SECONDARY AGENT B - HANDOFF PACKAGE
-
-Copy the entire block below and paste into NEW Claude Code session #2:
-
-═══════════════════════════════════════════════════════════
-[Handoff package for Secondary-B]
-═══════════════════════════════════════════════════════════
+The agent will automatically read `feature_02_{name}/HANDOFF_PACKAGE.md` and self-configure.
 
 ---
 
-**After pasting both packages:**
-- Secondary agents will self-configure and begin S2
+🚀 SECONDARY AGENT B STARTUP
+
+In NEW Claude Code session #2, enter:
+
+```
+You are a secondary agent for Feature 03
+```
+
+The agent will automatically read `feature_03_{name}/HANDOFF_PACKAGE.md` and self-configure.
+
+---
+
+**Benefits:**
+- ✅ No copy-paste errors
+- ✅ Scalable (works for 2 or 20 features)
+- ✅ Consistent startup for all secondaries
+- ✅ Handoff packages stored in feature folders for audit trail
+
+**After secondary agents start:**
+- They'll self-configure and begin S2
 - I'll monitor their progress via STATUS files and checkpoints
 - All agents will work on S2 simultaneously
 - When all complete S2, I'll run S3
 
-Ready to start? Please paste the handoff packages in the new sessions.
+Ready to start? Please enter the startup commands in the new sessions.
 ```
 
 ### Step 5: Wait for Secondary Agents to Start

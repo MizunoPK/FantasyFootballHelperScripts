@@ -235,25 +235,71 @@ Guides contain mandatory checkpoints marked with 🛑 or "CHECKPOINT".
 - No dependency waves needed
 - See: `parallel_work/s2_primary_agent_guide.md`
 
+### 🚨 S2 Parallel Work Structure Rules
+
+**When executing parallel S2 work, you MUST follow this structure EXACTLY:**
+
+**Allowed Coordination Directories (3 only):**
+1. `.epic_locks/` - Lock files
+2. `agent_comms/` - Communication FILES (no subdirectories)
+3. `agent_checkpoints/` - Checkpoint .json FILES (no subdirectories)
+
+**Prohibited:**
+- ❌ `parallel_work/` directory
+- ❌ `agent_comms/inboxes/` subdirectories
+- ❌ `agent_comms/agent_checkpoints/` nesting
+- ❌ `agent_comms/coordination/` or any nested coordination dirs
+- ❌ Checkpoint files with .md extension
+- ❌ Communication channel directories (must be files)
+
+**Required:**
+- ✅ ALL features (including Feature 01) MUST have STATUS file
+- ✅ ALL checkpoint files MUST use .json extension (not .md)
+- ✅ ALL communication channels MUST be individual .md files in agent_comms/
+- ✅ Handoff packages saved in feature folders: `feature_XX_{name}/HANDOFF_PACKAGE.md`
+- ✅ Primary creates ALL directories, secondaries create FILES only
+- ✅ Run validation script after infrastructure setup: `bash feature-updates/guides_v2/parallel_work/scripts/validate_structure.sh .`
+
+**File Format Requirements:**
+- Checkpoint files: `.json` extension (e.g., `secondary_a.json`)
+- Communication files: `.md` files directly in `agent_comms/` (e.g., `primary_to_secondary_a.md`)
+- STATUS files: Plain text key-value in each feature folder
+- Handoff packages: `.md` files in feature folders (e.g., `feature_02_{name}/HANDOFF_PACKAGE.md`)
+
+**Validation:**
+```bash
+# After Primary creates infrastructure, run:
+bash feature-updates/guides_v2/parallel_work/scripts/validate_structure.sh .
+
+# Expected: ✅ PASSED - structure valid
+# If errors: Fix before generating handoff packages
+```
+
 ### If User Chooses Parallel Work
 
 **Primary Agent (you):**
-- Generate handoff packages
+- Create ALL coordination directories (`.epic_locks/`, `agent_comms/`, `agent_checkpoints/`)
+- Create STATUS file for Feature 01
+- Run validation script
+- Generate and save handoff packages to feature folders
 - Execute S2 for Feature 01
 - Coordinate with secondaries every 15 min
 - Run S3/S4 solo after all features complete S2
 
 **Secondary Agent (if joining):**
-- Receive handoff package from Primary
+- Receive one-line startup instruction from user
+- Read handoff package from feature folder automatically
+- Create ONLY your checkpoint.json and STATUS files (NOT directories)
 - Execute S2 for assigned feature
 - Coordinate every 15 min
 - WAIT for Primary to run S3/S4
 
 **Complete Protocols:** `feature-updates/guides_v2/parallel_work/`
-- `s2_parallel_protocol.md` - Complete 9-phase workflow
+- `s2_parallel_protocol.md` - Complete 9-phase workflow + structure requirements
 - `s2_primary_agent_guide.md` - Primary agent workflow (full parallelization)
 - `s2_primary_agent_group_wave_guide.md` - Primary agent workflow (group-based waves)
 - `s2_secondary_agent_guide.md` - Secondary agent workflow
+- `scripts/validate_structure.sh` - Structure validation script
 - Infrastructure, recovery, and template files
 
 **Parallel work is OPTIONAL** - workflow works identically in sequential mode.
