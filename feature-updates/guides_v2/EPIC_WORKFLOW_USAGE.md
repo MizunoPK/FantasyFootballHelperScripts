@@ -387,7 +387,6 @@ feature-updates/KAI-{N}-{epic_name}/
 
 **Critical Rule:** Must achieve 3 consecutive clean validation rounds before Gate 5
 
-**Migration:** See `stages/s5/S5_V1_TO_V2_MIGRATION.md` for v1→v2 differences
 
 #### S6: Implementation Execution
 

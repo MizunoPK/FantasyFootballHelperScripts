@@ -132,12 +132,10 @@ Audit Dimension D13 (Documentation Quality) checks for "## Prerequisites" and "#
 
 **Files:**
 
-1. **stages/s5/S5_V1_TO_V2_MIGRATION.md**
    - Type: Migration guide
    - Purpose: Help agents understand transition from S5 v1 (22 iterations) to S5 v2 (Validation Loop)
    - Design: Comparison tables, side-by-side workflows, FAQ format
 
-2. **stages/s5/S5_V2_DESIGN_PLAN.md**
    - Type: Design plan document
    - Purpose: Document architectural decisions for S5 v2 design
    - Design: Architecture, dimension definitions, validation loop design

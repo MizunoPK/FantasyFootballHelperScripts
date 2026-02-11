@@ -834,7 +834,6 @@ This reduced section focuses on the workflow without showing all the detailed co
 - All 150+ unique checks from S5 v1 preserved
 - Systematic validation (can't skip checks)
 
-**Migration Note:** S5 v2 replaces the previous 22-iteration structure with this Validation Loop approach. See `stages/s5/S5_V1_TO_V2_MIGRATION.md` for migration details.
 
 **Next:** S6 (Implementation Execution)
 

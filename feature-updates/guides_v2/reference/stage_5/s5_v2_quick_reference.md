@@ -130,8 +130,6 @@
 
 **Primary Guide:**
 - For actual S5 workflow: See `stages/s5/s5_v2_validation_loop.md`
-- For migration details: See `stages/s5/S5_V1_TO_V2_MIGRATION.md`
-- For S5 design rationale: See `stages/s5/S5_V2_DESIGN_PLAN.md`
 
 ---
 
@@ -154,8 +152,6 @@
 ## Cross-References
 
 - **Full S5 v2 Guide:** `stages/s5/s5_v2_validation_loop.md`
-- **Migration Guide:** `stages/s5/S5_V1_TO_V2_MIGRATION.md`
-- **Design Plan:** `stages/s5/S5_V2_DESIGN_PLAN.md`
 - **Prompts:** `prompts/s5_s8_prompts.md`
 - **S5 Reference Card:** `reference/stage_5/stage_5_reference_card.md` (updated for v2)
 

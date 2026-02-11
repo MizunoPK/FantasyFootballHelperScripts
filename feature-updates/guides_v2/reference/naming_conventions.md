@@ -143,8 +143,6 @@ feature-updates/guides_v2/
 │   │   ├── s5_v2_validation_loop.md               (Level 2: Primary guide - Draft + Validation Loop)
 │   │   ├── validation_loop_qc_pr.md               (Support doc - QC/PR template)
 │   │   ├── s5_bugfix_workflow.md                  (Support doc - Bugfix workflow)
-│   │   ├── S5_V1_TO_V2_MIGRATION.md               (Archive - Migration notes)
-│   │   ├── S5_V2_DESIGN_PLAN.md                   (Archive - Design rationale)
 │   │   └── s5_update_notes.md                     (Archive - Update tracking)
 │   ├── s6/
 │   │   └── s6_execution.md                         (Level 1: Stage)

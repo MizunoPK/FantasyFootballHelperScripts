@@ -328,8 +328,6 @@ feature-updates/
     │   │   └── s4_epic_testing_strategy.md
     │   ├── s5/                               ← S5 v2: Implementation Planning (Validation Loop)
     │   │   ├── s5_v2_validation_loop.md         ← S5 v2: 2 Phases with 11 Validation Dimensions
-    │   │   ├── S5_V1_TO_V2_MIGRATION.md         ← Migration guide (v1 → v2)
-    │   │   ├── S5_V2_DESIGN_PLAN.md             ← S5 v2 architectural design
     │   │   ├── s5_bugfix_workflow.md            ← Bug fix workflow
     │   │   └── validation_loop_qc_pr.md         ← PR review protocol
     │   ├── s6/                               ← S6: Implementation Execution

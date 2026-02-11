@@ -1289,7 +1289,6 @@ Next: Present implementation_plan.md to user (Gate 5)
 
 **Related Guides:**
 - `reference/validation_loop_master_protocol.md` - Master validation loop protocol (7 universal dimensions)
-- `S5_V2_DESIGN_PLAN.md` - Design rationale and architecture
 - `prompts_reference_v2.md` - Phase transition prompts
 - `templates/implementation_plan_template.md` - Starting template
 - `templates/VALIDATION_LOOP_LOG_S5_template.md` - Tracking template
