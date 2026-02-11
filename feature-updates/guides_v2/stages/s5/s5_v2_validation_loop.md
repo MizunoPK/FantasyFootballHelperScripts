@@ -431,7 +431,7 @@ Historical evidence from KAI-8 Feature 04 shows test creation tasks missing from
 
 Each round follows this pattern:
 
-```
+```text
 1. BREAK (2-5 minutes)
    - Clear mental model from previous round
    - Take actual break (don't work from memory)

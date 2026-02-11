@@ -802,7 +802,7 @@ Ensures S9 epic QC tests actual implementation, not assumptions.
 
 **Wrong:** "Test ADP integration works"
 **Right:**
-```
+```text
 Test Scenario: ADP Multiplier Integration
 Context: After feature_01_adp_integration complete
 Steps:
