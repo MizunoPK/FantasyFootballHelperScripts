@@ -921,12 +921,27 @@ The epic is now complete!
 
 ---
 
-**END OF STAGE 7 GUIDE**
+## Next Stage
+
+**🎉 EPIC COMPLETE - No Next Stage**
+
+You've successfully completed all 10 stages of the epic workflow:
+- ✅ S1: Epic Planning (Discovery, breakdown, Git setup)
+- ✅ S2: Feature Deep Dives (spec.md, checklist.md for each feature)
+- ✅ S3: Cross-Feature Alignment & Epic Strategy
+- ✅ S4: Feature Testing Strategies
+- ✅ S5-S8: Feature Loop (Planning → Execution → Testing → Alignment)
+- ✅ S9: Epic-Level Final QC (100% test pass, user testing)
+- ✅ S10: Epic Cleanup (guide updates, PR, archival)
+
+**The epic is now:**
+- Production-ready code (100% test pass rate)
+- Fully documented (README, lessons learned)
+- Properly archived (`feature-updates/done/`)
+- Integrated into main branch (PR merged)
+
+**Well done!**
 
 ---
 
-**🎉 CONGRATULATIONS! 🎉**
-
-If you've completed S10, you've successfully finished an entire epic from start to finish. The epic is now production-ready, fully tested (100% pass rate), thoroughly documented, and properly archived.
-
-**Well done!**
+*End of s10_epic_cleanup.md*

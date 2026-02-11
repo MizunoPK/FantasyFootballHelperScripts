@@ -86,57 +86,17 @@ Refinement Phase is complete when all checklist questions are resolved, scope is
 
 ## Critical Rules
 
-```text
-┌─────────────────────────────────────────────────────────────┐
-│ CRITICAL RULES - These MUST be copied to README Agent Status │
-└─────────────────────────────────────────────────────────────┘
+**📖 See:** `reference/critical_workflow_rules.md` for complete rules
 
-1. ⚠️ ONE question at a time (NEVER batch questions)
-   - Ask question
-   - Wait for user answer
-   - Update spec/checklist IMMEDIATELY
-   - Evaluate for new questions
-   - Then ask next question
+**Key Rules Summary:**
+1. ⚠️ ONE question at a time (NEVER batch)
+2. ⚠️ Investigation complete ≠ Question resolved (user approval required)
+3. ⚠️ Update spec/checklist IMMEDIATELY
+4. ⚠️ Cross-feature alignment MANDATORY
+5. ⚠️ Acceptance criteria require USER APPROVAL
+6. ⚠️ Every answer creates requirement with traceability
 
-1.5. ⚠️ INVESTIGATION COMPLETE ≠ QUESTION RESOLVED
-   - Agent investigates → Status: PENDING USER APPROVAL
-   - User explicitly approves → Status: RESOLVED
-   - NEVER mark questions as resolved without explicit approval
-   - Research findings ≠ User approval
-
-   WRONG: Investigate → Mark RESOLVED → Add requirement
-   CORRECT: Investigate → Mark PENDING → User approves →
-            Mark RESOLVED → Add requirement
-
-2. ⚠️ Update spec.md and checklist.md IMMEDIATELY after each answer
-   - Do NOT batch updates
-   - Keep files current in real-time
-   - Document user's exact answer or paraphrase
-
-3. ⚠️ If checklist grows >35 items, STOP and propose split
-   - Trigger: More than 35 checklist items
-   - Action: Propose splitting into multiple features
-   - Requirement: Get user approval before splitting
-   - If approved: Return to S1 to create new features
-
-4. ⚠️ Cross-feature alignment is MANDATORY (not optional)
-   - Compare to ALL features with "S2 Complete"
-   - Look for: Conflicts, duplicates, incompatible assumptions
-   - Resolve conflicts before proceeding
-   - Document alignment verification
-
-5. ⚠️ Acceptance criteria require USER APPROVAL (mandatory gate)
-   - Create "Acceptance Criteria" section in spec.md
-   - List EXACT files, structures, behaviors
-   - Present to user for approval
-   - Wait for explicit approval
-   - Document approval timestamp
-
-6. ⚠️ Every user answer creates new requirement with traceability
-   - Source: "User Answer to Question N (checklist.md)"
-   - Add to spec.md immediately
-   - Update checklist to mark question resolved
-```
+**Copy full rules from reference file to README Agent Status before starting this phase.**
 
 ---
 
@@ -771,7 +731,7 @@ Acceptance Criteria includes: behavior changes, files modified, data structures,
 
 If yes: I'll mark approval and proceed to next feature/S3
 If changes needed: Let me know what to modify
-```
+```text
 
 **Examples:** See `reference/stage_2/refinement_examples.md` → Phase 6 Examples
 

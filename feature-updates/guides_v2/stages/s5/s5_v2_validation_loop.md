@@ -77,7 +77,7 @@
 - [ ] S4 complete - epic_smoke_test_plan.md updated, test_strategy.md created for this feature
 - [ ] Feature spec.md complete (all sections filled, no TBD)
 - [ ] Feature checklist.md resolved (all user questions answered, Gate 3 passed)
-- [ ] S5 v2 template available: `templates/implementation_plan.md`
+- [ ] S5 v2 template available: `templates/implementation_plan_template.md`
 - [ ] Feature README.md exists with Agent Status section
 
 **If any prerequisite missing:**

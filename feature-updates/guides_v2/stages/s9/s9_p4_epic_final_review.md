@@ -732,4 +732,17 @@ Mark S9.P3 complete and prepare for S10:
 ---
 ---
 
-**END OF STAGE 6c GUIDE**
+## Next Stage
+
+**After S9.P4 complete:** Proceed to `stages/s10/s10_epic_cleanup.md`
+
+**S9 Complete Checklist Before S10:**
+- [ ] All 4 phases of S9 complete (Smoke Test, QC Rounds, User Testing, Final Review)
+- [ ] ZERO bugs remaining (100% test pass, user approved)
+- [ ] Epic documentation verified and complete
+
+**📖 READ NEXT:** `stages/s10/s10_epic_cleanup.md` - Guide updates, PR creation, archival
+
+---
+
+*End of s9_p4_epic_final_review.md*

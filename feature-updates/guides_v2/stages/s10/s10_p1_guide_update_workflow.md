@@ -744,4 +744,19 @@ Adding historical context shows future agents WHY this gate exists and what happ
 
 ---
 
+## Return to Parent Guide
+
+**This is a sub-workflow of S10 (Epic Cleanup).**
+
+**After completing S10.P1 (Guide Updates):** Return to `stages/s10/s10_epic_cleanup.md` to continue with:
+- S10.P2: Create PR
+- S10.P3: Update EPIC_TRACKER.md
+- S10.P4: Move epic to done/
+
+**📖 RETURN TO:** `stages/s10/s10_epic_cleanup.md`
+
+---
+
+*End of s10_p1_guide_update_workflow.md*
+
 **Last Updated:** 2026-01-11
