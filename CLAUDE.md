@@ -608,6 +608,12 @@ git status  # Shows uncommitted changes
 **Branch format:** `{work_type}/KAI-{number}` (epic/feat/fix)
 **Commit format:** `{commit_type}/KAI-{number}: {message}` (feat or fix)
 
+**🚨 CRITICAL: Commit Message Rules**
+- ❌ **NEVER include AI attribution** (no "Co-Authored-By" lines, no "Generated with" footers, no AI credit)
+- ✅ Use standard commit format: title line + body with details
+- ✅ Keep title line under 100 characters
+- ✅ Include context in body (features, changes, testing results)
+
 **S1:** Create branch: `git checkout -b {work_type}/KAI-{number}`
 **S10:** Create PR for user review, user merges, update EPIC_TRACKER.md
 

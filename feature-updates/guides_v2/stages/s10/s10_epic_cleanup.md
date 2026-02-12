@@ -719,7 +719,7 @@ Epic KAI-{N} ({epic_name}) is complete:
 
 No further changes needed after merge.
 
-Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>"
+"
 ```
 
 Verify commit successful:
@@ -774,7 +774,7 @@ Move KAI-{N} from Active to Completed:
 
 Increment Next Available Number to KAI-{N+1}.
 
-Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>"
+"
 ```
 
 Verify commit successful:
