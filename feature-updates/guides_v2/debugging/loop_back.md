@@ -217,7 +217,7 @@ Example: "All three bugs involved missing checks for entity status fields (injur
 
 **Common Prevention Point:**
 {Which stage/iteration should have caught all these bugs?}
-Example: "S5 Round 2, Iteration 9 (Edge Case Analysis)"
+Example: "S5 v2 Validation Round 4, Dimension 6 (Error Handling & Edge Cases)"
 
 **Pattern-Based Guide Improvement:**
 {What ONE guide change prevents ALL these bugs?}

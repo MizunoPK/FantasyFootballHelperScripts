@@ -199,7 +199,7 @@ Next Feature (loop S5→S6→S7→S8) OR STAGE 6 (if all features done)
 - ✅ Pass ALL 4 mandatory gates (4a, 23a, 25, 24)
 - ✅ Achieve >90% test coverage (Round 2)
 - ✅ Evidence-based verification (cite specific numbers)
-- ✅ Close spec.md before Iteration 21 (avoid confirmation bias)
+- ✅ Close spec.md before Dimension 11 validation (avoid confirmation bias)
 
 ### S6 (Implementation)
 - ✅ Keep spec.md VISIBLE at all times
@@ -232,7 +232,7 @@ Next Feature (loop S5→S6→S7→S8) OR STAGE 6 (if all features done)
 **Impact:** Gates FAIL (no evidence = didn't actually verify)
 **Solution:** Cite specific numbers for every verification
 
-### ❌ Pitfall 3: Not Closing Spec.md in Iteration 21
+### ❌ Pitfall 3: Not Closing Spec.md in Dimension 11 validation
 **Problem:** Reading spec.md while comparing to epic notes
 **Impact:** Confirmation bias - see what you expect, not what's written
 **Solution:** Close spec.md FIRST, re-read validated docs independently
@@ -247,7 +247,7 @@ Next Feature (loop S5→S6→S7→S8) OR STAGE 6 (if all features done)
 **Impact:** Tech debt accumulates, bugs compound, rework in production
 **Solution:** Zero tech debt tolerance - fix ALL issues immediately
 
-### ❌ Pitfall 6: Mock Audit Assumptions (Iteration 21)
+### ❌ Pitfall 6: Mock Audit Assumptions (Dimension 11 validation)
 **Problem:** "I assume this mock matches the real interface"
 **Impact:** Unit tests pass with wrong mocks, integration tests fail
 **Solution:** READ actual source code, verify EACH mock against real interface

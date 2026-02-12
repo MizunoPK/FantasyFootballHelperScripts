@@ -23,10 +23,10 @@
 - ✅ WAIT for explicit user approval at gates
 - **Why:** Wastes hours of work if user wants changes
 
-### Skipping Iterations
-- ❌ "Iteration 7 seems obvious, I'll skip it"
-- ✅ ALL 11 dimensions in S5 v2 are MANDATORY, and the Validation Loop must be completed (3 consecutive clean rounds)
-- **Why:** Each iteration catches specific bug categories
+### Skipping Validation Dimensions
+- ❌ "Dimension 7 seems obvious, I'll skip it in this round"
+- ✅ ALL 11 dimensions in S5 v2 are MANDATORY every validation round, and the Validation Loop must be completed (3 consecutive clean rounds)
+- **Why:** Each dimension catches specific bug categories
 
 ### Committing Without Tests
 - ❌ Committing code without running full test suite
@@ -162,7 +162,7 @@
 ### Agent Status
 - ❌ Not updating after major checkpoints
 - ❌ Generic next actions ("continue working")
-- ✅ Specific next actions ("Begin Round 2 Iteration 8")
+- ✅ Specific next actions ("Begin Validation Round 4 - Dimension 6")
 
 ### Commit Messages
 - ❌ Vague messages ("fixed stuff", "updates")

@@ -215,24 +215,24 @@ A: NO - All 11 dimensions and the Validation Loop are mandatory (3 consecutive c
 - Each iteration catches specific issue types
 - Skipping iterations = high risk of bugs in S7
 
-**Q: What if Iteration 22 (GO/NO-GO) says NO-GO?**
+**Q: What if S5 v2 Validation Loop isn't converging (not getting 3 consecutive clean rounds)?**
 
-A: Follow the guidance in the NO-GO section:
-1. Review which criteria failed
-2. Determine which iteration to return to
-3. Fix issues
-4. Re-run affected iterations and gates
-5. Make GO decision again
-6. DO NOT proceed to S6 with NO-GO
+A: Follow the escalation protocol:
+1. Review which dimensions are failing repeatedly
+2. Fix issues immediately (zero deferred issues)
+3. Re-run validation round
+4. Track rounds in VALIDATION_LOOP_LOG.md
+5. If exceeded 10 rounds, escalate to user
+6. DO NOT proceed to S6 without 3 consecutive clean rounds
 
-**Q: What's the difference between the 3 mandatory gates?**
+**Q: What are the key S5 v2 validation checkpoints?**
 
 A:
-- **Gate 4a (Iteration 4a):** TODO Specification Audit - basic quality check (after Round 1)
-- **Gate 23a (Iteration 20):** Pre-Implementation Spec Audit - evidence-based verification (4 PARTS, 100% metrics required)
-- **Gate 25 (Iteration 21):** Spec Validation Against Validated Documents - prevents catastrophic bugs (three-way validation)
+- **Dimension 4:** Task Specification Quality - ensures all tasks have acceptance criteria and implementation location
+- **Dimension 11:** Spec Alignment & Cross-Validation - prevents catastrophic bugs (implementation_plan.md must match spec.md 100%)
+- **Dimension 10:** Implementation Readiness - final verification before S6 (confidence >= MEDIUM, all dimensions passing)
 
-All three must PASS before S6.
+All 11 dimensions must PASS for 3 consecutive rounds before S6.
 
 **Q: How long should Round 3 take?**
 
@@ -458,10 +458,10 @@ Need to fix something
          → RESTART S9
 ```
 
-### Decision Tree 3: "GO vs NO-GO Decision (Iteration 22)"
+### Decision Tree 3: "GO vs NO-GO Decision (Validation Loop complete)"
 
 ```text
-Iteration 22: GO/NO-GO Decision
+Validation Loop complete: GO/NO-GO Decision
          ↓
     [Review all criteria]
          ↓
@@ -636,10 +636,10 @@ Context window limit reached → Session compacted
 - Create issue in debugging/ISSUES_CHECKLIST.md
 - Use investigation rounds to systematically identify cause
 
-### Stuck 3: "Iteration 22 says NO-GO but I don't know what to fix"
+### Stuck 3: "Validation Loop complete says NO-GO but I don't know what to fix"
 
 **Solution:**
-1. **Read the failure message** from Iteration 22 decision
+1. **Read the failure message** from Validation Loop complete decision
 2. **Identify specific criteria that failed:**
    - Confidence < MEDIUM → Need more planning (return to Round 3 Part 1)
    - Gate 4a failed → TODO quality issues (return to Round 1)
@@ -832,11 +832,11 @@ Would you like to:
 
 ## Quick Reference: Common Error Messages
 
-### Error: "Cannot proceed to S6 - Iteration 22 = NO-GO"
+### Error: "Cannot proceed to S6 - Validation Loop complete = NO-GO"
 
 **Meaning:** GO/NO-GO decision failed, implementation not ready
 
-**Fix:** See "Stuck 3: Iteration 22 NO-GO" protocol above
+**Fix:** See "Stuck 3: Validation Loop complete NO-GO" protocol above
 
 ---
 
@@ -860,7 +860,7 @@ Would you like to:
 1. Re-read spec.md completely
 2. Identify missing requirements
 3. Add TODO tasks for missing requirements
-4. Re-run Iteration 20 Part 1 (Completeness Audit)
+4. Re-run Validation Round Part 1 (Completeness Audit)
 5. Achieve 100% before proceeding
 
 ---
@@ -895,7 +895,7 @@ Note: It's acceptable to fix pre-existing test failures from other epics during 
 - Feature breakdown looks correct? (S1)
 - Spec requirements clear? (S2)
 - How to resolve spec conflicts? (S3)
-- Iteration 21 found discrepancies - which approach to take? (S5)
+- Dimension 11 found discrepancies - which approach to take? (S5)
 - Scope growing >35 items - split feature? (S2)
 - Bug fix vs missed requirement (if ambiguous)
 

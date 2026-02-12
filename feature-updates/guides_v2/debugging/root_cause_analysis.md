@@ -160,11 +160,11 @@ WHY #5: Why didn't Iteration 9 catch it?
 **For each stage, ask: "Could this guide have caught this bug?"**
 
 **S5 (Implementation Planning):**
-- Round 1, Iteration 4 (Algorithm Traceability): Should algorithm have included this?
-- Round 1, Iteration 7 (Integration Gap Check): Should integration point have been verified?
-- Round 2, Iteration 9 (Edge Case Analysis): Should edge case have been identified?
-- Round 2, Iteration 15 (Test Coverage): Should test have covered this?
-- Round 3, Iteration 20 (Spec Audit): Should spec have included this requirement?
+- Validation Round, Dimension 3 (Algorithm Traceability): Should algorithm have included this?
+- Validation Round, Dimension 7 (Integration & Compatibility): Should integration point have been verified?
+- Validation Round, Dimension 6 (Error Handling & Edge Cases): Should edge case have been identified?
+- Validation Round, Dimension 8 (Test Coverage Quality): Should test have covered this?
+- Validation Round, Dimension 11 (Spec Alignment): Should spec have included this requirement?
 
 **S6 (Implementation Execution):**
 - Mini-QC checkpoints: Should QC have caught this?

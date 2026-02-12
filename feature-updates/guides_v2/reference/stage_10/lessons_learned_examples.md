@@ -96,7 +96,7 @@ S10.P1 (Guide Update from Lessons Learned) requires finding ALL lessons learned 
 **What Went Well:**
 - 22 verification iterations caught interface mismatches before implementation
 - Iteration 4a audit revealed ambiguous spec sections
-- Iteration 20 spec audit prevented wrong implementation approach
+- Validation Loop (multiple dimensions) spec audit prevented wrong implementation approach
 
 **What Could Be Improved:**
 - Round 2 test coverage iterations could include integration test examples
@@ -172,7 +172,7 @@ S10.P1 (Guide Update from Lessons Learned) requires finding ALL lessons learned 
 
 **What Went Well:**
 - Algorithm traceability matrix revealed missing validation step
-- Iteration 20 caught spec ambiguity about ADP missing data
+- Validation Loop (multiple dimensions) caught spec ambiguity about ADP missing data
 
 **What Could Be Improved:**
 - None - S5 worked well

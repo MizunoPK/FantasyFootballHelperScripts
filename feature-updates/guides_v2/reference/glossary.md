@@ -307,11 +307,11 @@ Mandatory checkpoint that must PASS before proceeding.
 ---
 
 ### GO Decision
-Iteration 22 outcome indicating readiness to proceed to S6 implementation.
+S5 v2 Phase 2 complete - indicates readiness to proceed to S6 implementation after achieving 3 consecutive clean validation rounds across all 11 dimensions.
 
-**See:** Iteration 22, NO-GO, Gates
+**See:** S5 v2 Validation Loop, Phase 2, NO-GO, 3 Consecutive Clean Rounds
 
-**Guide:** s5_v2_validation_loop.md (Dimensions 10, 11: Gates 24, 25)
+**Guide:** s5_v2_validation_loop.md (Dimension 10: Implementation Readiness)
 
 ---
 
@@ -450,18 +450,18 @@ Functionality that was NOT in spec.md but should have been.
 ### Mock
 Test double that simulates real object behavior.
 
-**See:** Integration Test, Iteration 21
+**See:** Integration Test, Dimension 11
 
 **Guide:** s5_v2_validation_loop.md (Validation Loop Round 3)
 
 ---
 
 ### NO-GO Decision
-Iteration 22 outcome indicating NOT ready to proceed to S6.
+S5 v2 Validation Loop not converging - indicates NOT ready to proceed to S6. Occurs when unable to achieve 3 consecutive clean rounds within 10 rounds, or when critical dimensions repeatedly fail.
 
-**See:** GO Decision, Iteration 22
+**See:** GO Decision, S5 v2 Validation Loop, Escalation Protocol
 
-**Guide:** s5_v2_validation_loop.md (Dimensions 10, 11: Gates 24, 25)
+**Guide:** s5_v2_validation_loop.md (Special Cases: "If Validation Loop Exceeds 10 Rounds")
 
 ---
 
@@ -664,11 +664,11 @@ Specification document in each feature folder containing all requirements.
 
 ### Spec Validation
 
-**[Gate 25 Iteration 21]** Three-way validation of spec.md against validated documents.
+**[Gate 25 Dimension 11]** Three-way validation of spec.md against validated documents.
 
 1. Epic notes (user's original request in {epic_name}.txt)
 
-**See:** Gate 25, Iteration 21
+**See:** Gate 25, Dimension 11
 
 **Guide:** s5_v2_validation_loop.md (Dimensions 10, 11: Gates 24, 25), spec_validation.md
 
@@ -736,7 +736,7 @@ S10 mandatory testing by the user before commit.
 
 **[Data Validation]** Iteration 7 - planning data validation strategies
 
-**[Output Validation]** Iteration 22 - verify outputs match consumer expectations
+**[Output Validation]** Validation Loop complete - verify outputs match consumer expectations
 
 **See:** Spec Validation, Gates
 

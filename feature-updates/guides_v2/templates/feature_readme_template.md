@@ -60,14 +60,15 @@
 - [ ] README.md created (this file)
 - [ ] S2 complete: {✅/◻️}
 
-**S5 - Implementation Planning:**
-- [ ] 22 verification iterations complete
-- [ ] Iteration 4a: TODO Specification Audit PASSED
-- [ ] Iteration 20: Pre-Implementation Spec Audit (ALL 4 PARTS PASSED)
-- [ ] Iteration 22: Implementation Readiness PASSED
-- [ ] `implementation_plan.md` created and user-approved
+**S5 v2 - Implementation Planning:**
+- [ ] Phase 1: Draft Creation complete (~70% quality baseline)
+- [ ] Phase 2: Validation Loop complete (3 consecutive clean rounds)
+  - [ ] All 11 S5-specific dimensions validated
+  - [ ] All 7 master dimensions validated
+  - [ ] Total validation rounds executed: {count}
+- [ ] `implementation_plan.md` created and user-approved (Gate 5)
 - [ ] `questions.md` created (or documented "no questions")
-- [ ] S5 complete: {✅/◻️}
+- [ ] S5 v2 complete: {✅/◻️}
 
 **S6 - Implementation Execution:**
 - [ ] All implementation tasks complete

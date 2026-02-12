@@ -16,15 +16,15 @@ This template is used during S5 v2 (Implementation Planning) created through Dra
 ```markdown
 ## Implementation Plan: {feature_name}
 
-**Created:** {YYYY-MM-DD} S5 - Round 1, Iteration 1
+**Created:** {YYYY-MM-DD} S5 v2 - Phase 1 (Draft Creation)
 **Last Updated:** {YYYY-MM-DD HH:MM}
-**Status:** {Round 1 / Round 2 / Round 3 / Complete}
+**Status:** {Draft / Validation Loop / Complete}
 **Version:** {v1.0 / v2.0 / v3.0}
 
 ---
 
 ## Implementation Tasks
-*Added during iterations 1-7*
+*Created during Phase 1 (Draft Creation)*
 
 ### Task 1: {task_name}
 
@@ -67,7 +67,7 @@ This template is used during S5 v2 (Implementation Planning) created through Dra
 ---
 
 ## Algorithm Traceability Matrix
-*Added during iteration 4, verified in iterations 11 and 19*
+*Created during Phase 1, validated during Phase 2*
 
 Maps every algorithm in spec.md to exact code location for quick reference during implementation.
 
@@ -82,7 +82,7 @@ Maps every algorithm in spec.md to exact code location for quick reference durin
 ---
 
 ## Component Dependencies
-*Added during iteration 2*
+*Created during Phase 1 (Draft Creation)*
 
 **Direct Dependencies:**
 - **{Component 1}** ({path/to/file.py})
@@ -103,7 +103,7 @@ Maps every algorithm in spec.md to exact code location for quick reference durin
 ---
 
 ## Test Strategy
-*Added during iterations 8-10*
+*Created during Phase 1, refined during Phase 2*
 
 ### Unit Tests
 
@@ -137,7 +137,7 @@ Maps every algorithm in spec.md to exact code location for quick reference durin
 ---
 
 ## Edge Cases
-*Added during iteration 9*
+*Created during Phase 1, refined during Phase 2*
 
 **Total Identified:** {count} edge cases
 
@@ -163,7 +163,7 @@ Maps every algorithm in spec.md to exact code location for quick reference durin
 ---
 
 ## Performance Considerations
-*Added during iteration 20*
+*Validated during Phase 2 (Validation Loop)*
 
 **Analysis:**
 - {Performance factor 1}: {Description and measurement}
@@ -178,7 +178,7 @@ Maps every algorithm in spec.md to exact code location for quick reference durin
 ---
 
 ## Mock Audit
-*Added during iteration 21*
+*Validated during Phase 2 (Validation Loop)*
 
 **External Dependencies Requiring Mocks:** {List or "None"}
 
@@ -190,7 +190,7 @@ Maps every algorithm in spec.md to exact code location for quick reference durin
 ---
 
 ## Implementation Phasing
-*Added during iterations 17-18*
+*Added during Draft Creation (Phase 1)*
 
 **Step 1: {Phase Name} (Tasks {X-Y})**
 - Duration: ~{time estimate}
@@ -208,97 +208,72 @@ Maps every algorithm in spec.md to exact code location for quick reference durin
 
 ---
 
-## Pre-Implementation Audit (Iteration 20)
-*Added during iteration 20 - MANDATORY GATE*
+## S5 v2 Validation Loop Completion
+*Completed during Phase 2 (Validation Loop) - MANDATORY GATE*
 
-**Part 1: Completeness Audit**
+**Phase 1 Status:**
+- [ ] Draft Creation complete (~70% quality baseline)
+- [ ] All 11 dimension sections created
+- [ ] Requirements mapping tables complete
+- [ ] Algorithm traceability matrix drafted
+
+**Phase 2 Status:**
+- [ ] Validation Loop complete (3 consecutive clean rounds)
+- [ ] Total validation rounds executed: {count}
+- [ ] All 7 master dimensions validated: ✅
+- [ ] All 11 S5-specific dimensions validated: ✅
+
+**11 Dimension Validation Summary:**
+1. Requirements Completeness: ✅
+2. Interface & Dependency Verification: ✅
+3. Algorithm Traceability: ✅
+4. Task Specification Quality: ✅
+5. Data Flow & Consumption: ✅
+6. Error Handling & Edge Cases: ✅
+7. Integration & Compatibility: ✅
+8. Test Coverage Quality: ✅
+9. Performance & Dependencies: ✅
+10. Implementation Readiness: ✅
+11. Spec Alignment & Cross-Validation: ✅
+
+**Completeness Metrics:**
 - Requirements in spec.md: {count}
 - Requirements with implementation tasks: {count}
-- Coverage: {count}/{total} = {percentage}% {✅/❌}
+- Coverage: {count}/{total} = {percentage}% (Must be 100%)
+- Algorithm mappings: {count}
+- External dependencies verified: {count}/{count} = 100%
 
-**Part 2: Specificity Audit**
-- Total implementation tasks: {count}
-- Tasks with acceptance criteria: {count}
-- Tasks with implementation location: {count}
-- Tasks with test coverage: {count}
-- Specificity: {min}/{total} = {percentage}% {✅/❌}
-
-**Part 3: Interface Contracts Audit**
-- Total external dependencies: {count}
-- Dependencies verified from source code: {count}
-- Verification: {count}/{total} = {percentage}% {✅/❌}
-
-**Part 4: Integration Evidence Audit**
-- Total new methods added: {count}
-- Methods with identified callers: {count}
-- Integration: {count}/{total} = {percentage}% {✅/❌}
-
-**GATE STATUS:** {✅ PASSED / ❌ FAILED} - {Summary}
-
----
-
-## Implementation Readiness (Iteration 22)
-*Added during iteration 22 - GO/NO-GO DECISION*
-
-**Spec Verification:**
-- [x/  ] Spec.md complete and validated
-- [x/  ] Spec validated against epic notes (Iteration 21)
-- [x/  ] Spec validated against epic ticket (Iteration 21)
-- [x/  ] Spec validated against spec summary (Iteration 21)
-
-**Implementation Task Verification:**
-- [x/  ] All requirements have implementation tasks (100%)
-- [x/  ] All tasks have acceptance criteria (100%)
-- [x/  ] All tasks have implementation location (100%)
-- [x/  ] All tasks have test coverage (100%)
-
-**Iteration Completion:**
-- [ ] Draft Creation complete (Phase 1)
-- [ ] Validation Loop complete (Phase 2: 3 consecutive clean rounds, all 11 dimensions passing)
-- [x/  ] Round 1: Iterations 1-7 + 4a ✅
-- [x/  ] Round 2: Iterations 8-13 ✅
-- [x/  ] Round 3: Iterations 14-19 ✅
-- [x/  ] Mandatory gates: 4a ✅, 23a ✅, 25 ✅
-
-**Mandatory Gates:**
-- [x/  ] Iteration 4a (TODO Audit): {PASSED/FAILED}
-- [x/  ] Iteration 20 (Pre-Implementation Audit): {PASSED/FAILED}
-- [x/  ] Iteration 21 (Spec Validation): {PASSED/FAILED}
+**Quality Metrics:**
+- Tasks with acceptance criteria: {count}/{total} = {percentage}%
+- Tasks with implementation location: {count}/{total} = {percentage}%
+- Tasks with test coverage: {count}/{total} = {percentage}%
+- Edge cases identified: {count}
 
 **Confidence Assessment:**
-- [x/  ] Confidence level: {HIGH/MEDIUM/LOW}
-- [x/  ] No blockers identified
-- [x/  ] No open questions
+- [ ] Confidence level: {HIGH/MEDIUM/LOW}
+- [ ] No blockers identified
+- [ ] No open questions
+- [ ] No deferred issues
 
-**Integration Verification:**
-- [x/  ] Algorithm traceability: {percentage}%
-- [x/  ] Integration gaps: {count}
-- [x/  ] Interface contracts: {percentage}%
-- [x/  ] Mock audit: {Complete/Incomplete}
-
-**Quality Gates:**
-- [x/  ] Test coverage: {percentage}%
-- [x/  ] Edge cases: {count} identified, all handled
-- [x/  ] Performance: {Analyzed/Not analyzed}
-
-**DECISION:** {✅ GO / ❌ NO-GO} - {Brief explanation}
+**Gate 5 Ready:** {✅ YES / ❌ NO} - {Brief explanation}
 
 ---
 
 ## Version History
 
-**v1.0 ({YYYY-MM-DD HH:MM}) - Round 1 Complete:**
-- {Summary of Round 1 additions}
-- Iteration 4a GATE: {✅/❌} {PASSED/FAILED}
+**v1.0 ({YYYY-MM-DD HH:MM}) - Phase 1 Complete (Draft Creation):**
+- Initial draft created (~70% quality baseline)
+- All 11 dimension sections included
+- Requirements mapping and algorithm traceability drafted
 
-**v2.0 ({YYYY-MM-DD HH:MM}) - Round 2 Complete:**
-- {Summary of Round 2 additions}
+**v2.0+ ({YYYY-MM-DD HH:MM}) - Phase 2 Validation Loop:**
+- Validation Round {N}: {Summary of issues found and fixed}
+- {Continue tracking validation rounds until 3 consecutive clean rounds}
 
-**v3.0 ({YYYY-MM-DD HH:MM}) - Round 3 Complete (FINAL):**
-- {Summary of Round 3 additions}
-- Iteration 20 GATE: {✅/❌} {PASSED/FAILED}
-- Iteration 21 GATE: {✅/❌} {PASSED/FAILED}
-- Iteration 22: {✅ GO / ❌ NO-GO}
+**v{Final} ({YYYY-MM-DD HH:MM}) - Validation Loop Complete:**
+- 3 consecutive clean validation rounds achieved
+- All 18 dimensions validated (7 master + 11 S5-specific)
+- Ready for Gate 5 (User Approval)
 
 ---
 
@@ -309,7 +284,7 @@ Maps every algorithm in spec.md to exact code location for quick reference durin
 
 **Approved By:** {User}
 **Approval Date:** {YYYY-MM-DD HH:MM}
-**Approved Version:** v3.0
+**Approved Version:** v{Final}
 
 **User Comments:** {Any comments or conditions from user, or "None - approved as-is"}
 
@@ -328,14 +303,14 @@ Maps every algorithm in spec.md to exact code location for quick reference durin
 
 ## Usage Notes
 
-**When to create:** Start of S5, Iteration 1
+**When to create:** Start of S5 v2, Phase 1 (Draft Creation)
 
 **How it grows:**
-- After Round 1 (iteration 7): ~150 lines (tasks, matrix, dependencies)
-- After Round 2 (iteration 16): ~300 lines (+ tests, edge cases)
-- After Round 3 (iteration 22): ~400 lines (+ performance, audits, readiness)
+- After Phase 1 (Draft Creation): ~300-400 lines (~70% quality baseline)
+- During Phase 2 (Validation Loop): Incremental refinement through validation rounds
+- After Validation Loop complete: ~400-500 lines (99%+ quality, ready for Gate 5)
 
-**User approval:** Show complete plan after iteration 22, before S6
+**User approval:** Show complete plan after Phase 2 validation complete (Gate 5), before S6
 
 **File location:** `feature_XX_{name}/implementation_plan.md`
 

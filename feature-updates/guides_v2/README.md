@@ -108,13 +108,11 @@ STAGE 4: Epic Testing Strategy
 
 STAGES 5-8: Feature Loop (Repeat for each feature)
    ↓
-STAGE 5: Implementation Planning
-   ├─ 22 verification iterations across 3 rounds
-   ├─ Gate 4a: TODO Specification Audit (Round 1)
-   ├─ Gate 7a: Backward Compatibility Check (Round 1)
-   ├─ Gate 23a: Pre-Implementation Spec Audit (Round 3)
-   ├─ Gate 24: GO/NO-GO Decision (Round 3)
-   └─ Gate 25: Spec Validation Check (Round 3)
+STAGE 5: Implementation Planning (S5 v2)
+   ├─ Phase 1: Draft Creation (60-90 min, ~70% quality)
+   ├─ Phase 2: Validation Loop (11 dimensions, 3 consecutive clean rounds)
+   ├─ Typical: 6-8 validation rounds, max 10 rounds
+   └─ Gate 5: User Approval (implementation_plan.md)
    ↓
 STAGE 6: Implementation Execution
    ├─ Create implementation_checklist.md

@@ -96,23 +96,23 @@ Audit Dimension D13 (Documentation Quality) checks for "## Prerequisites" and "#
     - Exit Criteria: Inherited from s5_v2_validation_loop.md (Round 3 section)
     - Design: Focused single-iteration guide
 
-12. **stages/s5/s5_p3_i1_iter20_performance.md**
-    - Type: Iteration 20 - Performance
+12. **stages/s5/s5_p3_i1_iter20_performance.md** (DEPRECATED - S5 v1)
+    - Type: S5 v1 Iteration 20 - Performance (now Dimension 9)
     - Prerequisites: Inline statement
-    - Exit Criteria: Inherited from s5_v2_validation_loop.md (Round 3 section)
-    - Design: Focused single-iteration guide
+    - Exit Criteria: Inherited from s5_v2_validation_loop.md
+    - Design: Focused single-iteration guide (S5 v1 only)
 
-13. **stages/s5/s5_p3_i1_iter21_mockaudit.md**
-    - Type: Iteration 21 - Mock Audit
+13. **stages/s5/s5_p3_i1_iter21_mockaudit.md** (DEPRECATED - S5 v1)
+    - Type: S5 v1 Iteration 21 - Mock Audit (now part of Dimension 11)
     - Prerequisites: Inline statement
-    - Exit Criteria: Inherited from s5_v2_validation_loop.md (Round 3 section)
-    - Design: Focused single-iteration guide
+    - Exit Criteria: Inherited from s5_v2_validation_loop.md
+    - Design: Focused single-iteration guide (S5 v1 only)
 
-14. **stages/s5/s5_p3_i1_iter22_consumers.md**
-    - Type: Iteration 22 - Consumers
+14. **stages/s5/s5_p3_i1_iter22_consumers.md** (DEPRECATED - S5 v1)
+    - Type: S5 v1 Iteration 22 - Consumers (now Dimension 10)
     - Prerequisites: Inline statement
-    - Exit Criteria: Inherited from s5_v2_validation_loop.md (Round 3 section)
-    - Design: Focused single-iteration guide
+    - Exit Criteria: Inherited from s5_v2_validation_loop.md
+    - Design: Focused single-iteration guide (S5 v1 only)
 
 **Audit Action:** SKIP these files when checking D13 (Documentation Quality) - Prerequisites/Exit Criteria
 

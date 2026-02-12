@@ -576,7 +576,7 @@ A: Yes. The original guide is backed up as `STAGE_2_feature_deep_dive_guide_ORIG
 
 **Purpose:** Historical reference only. Do NOT use for workflow.
 
-The original guide has been preserved for reference but is deprecated. All S2 work should use the new split guides (2a, 2b, 2c).
+The original guide has been preserved for reference but is deprecated. All S2 work should use the new phase guides (S2.P1, S2.P2, S2.P3).
 
 ---
 

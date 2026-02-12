@@ -221,10 +221,10 @@ This document tracks the feedback loop from implementation â†’ lessons learned â
 
 **Epic:** KAI-1-improve_draft_helper
 **Priority:** P0
-**Lesson:** "Iteration 21 (Spec Validation Against Validated Documents) caught that spec.md misinterpreted epic notes about week_N+1 folder logic. Epic said 'create week folders' but spec said 'no code changes needed for folders.' Gate prevented week+ of rework."
+**Lesson:** "S5 Dimension 11 (Spec Alignment & Cross-Validation) caught that spec.md misinterpreted epic notes about week_N+1 folder logic. Epic said 'create week folders' but spec said 'no code changes needed for folders.' Validation dimension prevented week+ of rework."
 **Guide Updated:** `reference/mandatory_gates.md`
 **Changes Made:**
-- Added historical context to Gate 3 (Iteration 21)
+- Added historical context to Dimension 11 validation
 - Emphasized importance of three-way comparison (epic notes, epic ticket, spec summary)
 - Added example of spec misinterpretation caught by this gate
 **Date Applied:** 2026-01-10
