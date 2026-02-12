@@ -583,7 +583,7 @@ class SimulatedLeague:
                 losses += 1
             total_points += result.points_scored
 
-        self.logger.info(f"DraftHelperTeam final results: {wins}W-{losses}L, {total_points:.2f} total points")
+        self.logger.debug(f"DraftHelperTeam final results: {wins}W-{losses}L, {total_points:.2f} total points")
 
         return wins, losses, total_points
 

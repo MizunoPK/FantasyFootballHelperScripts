@@ -150,7 +150,7 @@ class ParallelLeagueRunner:
         self.lock = threading.Lock()
 
         executor_type = "ProcessPoolExecutor" if use_processes else "ThreadPoolExecutor"
-        self.logger.info(f"ParallelLeagueRunner initialized with {max_workers} workers ({executor_type})")
+        self.logger.debug(f"ParallelLeagueRunner initialized with {max_workers} workers ({executor_type})")
 
     def set_data_folder(self, data_folder: Path) -> None:
         """
@@ -276,7 +276,7 @@ class ParallelLeagueRunner:
             >>> # Returns num_simulations results: [(10, 7, 1404.62), (12, 5, 1523.45), ...]
         """
         executor_type = "processes" if self.use_processes else "threads"
-        self.logger.info(
+        self.logger.debug(
             f"Running {num_simulations} simulations with {self.max_workers} {executor_type}"
         )
 
@@ -441,7 +441,7 @@ class ParallelLeagueRunner:
             >>> results = runner.run_multiple_configs(configs, 100)
             >>> # Returns {'config_0001': [(10, 7, 1404.62), ...], 'config_0002': [...]}
         """
-        self.logger.info(
+        self.logger.debug(
             f"Running {len(config_dicts)} configs with {simulations_per_config} "
             f"simulations each (total: {len(config_dicts) * simulations_per_config})"
         )
@@ -451,7 +451,7 @@ class ParallelLeagueRunner:
         for idx, config_dict in enumerate(config_dicts, 1):
             config_name = config_dict.get('config_name', f'config_{idx:04d}')
 
-            self.logger.info(
+            self.logger.debug(
                 f"[{idx}/{len(config_dicts)}] Running simulations for {config_name}"
             )
 
@@ -459,7 +459,7 @@ class ParallelLeagueRunner:
             results = self.run_simulations_for_config(config_dict, simulations_per_config)
             all_results[config_name] = results
 
-        self.logger.info(f"All {len(config_dicts)} configs completed")
+        self.logger.debug(f"All {len(config_dicts)} configs completed")
         return all_results
 
     def test_single_run(self, config_dict: dict) -> Tuple[int, int, float]:
@@ -477,5 +477,5 @@ class ParallelLeagueRunner:
             >>> wins, losses, points = runner.test_single_run(config)
             >>> print(f"Result: {wins}W-{losses}L, {points:.2f} pts")
         """
-        self.logger.info("Running single test simulation")
+        self.logger.debug("Running single test simulation")
         return self.run_single_simulation(config_dict, simulation_id=0)

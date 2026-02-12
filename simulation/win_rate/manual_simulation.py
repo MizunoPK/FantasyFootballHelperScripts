@@ -206,7 +206,7 @@ def main() -> None:
     print("INITIALIZING LEAGUE")
     print("="*80)
     league = SimulatedLeague(config_dict, data_folder)
-    logger.info("SimulatedLeague created")
+    logger.debug("SimulatedLeague created")
 
     # Run draft
     print(f"\n{'='*80}")

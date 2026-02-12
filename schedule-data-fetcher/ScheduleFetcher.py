@@ -12,7 +12,7 @@ import asyncio
 import csv
 from pathlib import Path
 from typing import Dict, Optional, Set
-from utils.LoggingManager import setup_logger
+from utils.LoggingManager import get_logger
 import httpx
 
 
@@ -32,7 +32,7 @@ class ScheduleFetcher:
             output_path: Path where season_schedule.csv will be written
         """
         self.output_path = output_path
-        self.logger = setup_logger(name="ScheduleFetcher", level="INFO")
+        self.logger = get_logger()
         self.client: Optional[httpx.AsyncClient] = None
 
     async def _create_client(self):
@@ -135,7 +135,7 @@ class ScheduleFetcher:
                             week_schedule[team2] = team1
 
                     except Exception as e:
-                        self.logger.debug(f"Error parsing event in week {week}: {e}")
+                        self.logger.warning(f"Error parsing event in week {week}: {e}")
                         continue
 
                 full_schedule[week] = week_schedule

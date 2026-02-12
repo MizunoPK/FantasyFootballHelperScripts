@@ -404,15 +404,17 @@ class TestWinRateSimulationDEBUGQualityUnit:
         ]
 
     def test_manual_simulation_debug_quality(self):
-        """R2.7.1: Verify DEBUG quality in manual_simulation.py (0 debug calls)
+        """R2.7.1: Verify DEBUG quality in manual_simulation.py (1 debug call)
 
-        manual_simulation.py has no DEBUG calls - this verifies it stays that way.
+        manual_simulation.py has 1 DEBUG call (SimulatedLeague created - internal detail).
         """
         # Import the module's source file directly
         module_path = project_root / 'simulation' / 'win_rate' / 'manual_simulation.py'
         source = module_path.read_text()
 
-        assert 'logger.debug' not in source and 'self.logger.debug' not in source
+        # Count debug calls (should be exactly 1)
+        debug_count = source.count('logger.debug(')
+        assert debug_count == 1, f"Expected 1 DEBUG call, found {debug_count}"
 
     def test_all_debug_calls_audited(self):
         """R2.AC6: Verify all DEBUG calls across 7 modules were audited
@@ -432,14 +434,15 @@ class TestWinRateSimulationDEBUGQualityUnit:
             total_debug_calls += count
             files_checked.append((py_file.name, count))
 
-        # After audit: should be significantly reduced from original ~60
-        # Current expected: ~30 calls across all files
-        assert total_debug_calls <= 35, (
+        # After Phase 2 (DEBUG audit): ~26 calls kept from original ~60
+        # After Phase 3 (INFO audit): +13 INFO calls downgraded to DEBUG
+        # Current expected: ~45 calls across all files
+        assert total_debug_calls <= 50, (
             f"Too many DEBUG calls remaining ({total_debug_calls}): "
             + ", ".join(f"{name}={count}" for name, count in files_checked if count > 0)
         )
         # Should still have some debug logging (not all removed)
-        assert total_debug_calls >= 15, (
+        assert total_debug_calls >= 40, (
             f"Too few DEBUG calls ({total_debug_calls}) - may have over-removed"
         )
 
