@@ -2,7 +2,7 @@
 
 **Part of Epic:** KAI-8-logging_refactoring
 **Created:** 2026-02-06
-**Last Updated:** 2026-02-06 (S2.P1.I2 - All questions answered)
+**Last Updated:** 2026-02-11 (S8.P1 - Feature 06 alignment: error parsing promoted to WARNING)
 **Status:** ✅ ALL QUESTIONS ANSWERED
 
 ---
@@ -102,7 +102,13 @@ This checklist contains **questions and decisions that require user input**.
 **INFO logs:** 3 calls, all appropriate (major phases, outcomes, completion)
 **ERROR logs:** 4 calls, all appropriate (exception capturing)
 
-**Assessment:** Current log quality meets discovery criteria. No changes needed.
+**Assessment (Initial S2):** Current log quality meets discovery criteria. No changes needed.
+
+**S8.P1 Update (Feature 06 alignment - 2026-02-11):**
+Feature 06 established pattern: error parsing should use WARNING level (not DEBUG) for operational issues affecting data quality. Update required:
+- Line 138: Change `self.logger.debug(f"Error parsing event...")` to `self.logger.warning(f"Error parsing event...")`
+- Rationale: Parsing errors are operational issues users should be aware of
+- **Updated Assessment:** One log level change needed (line 138 DEBUG → WARNING)
 
 ---
 
@@ -131,6 +137,8 @@ This checklist contains **questions and decisions that require user input**.
 **Resolved:** 2026-02-06
 
 **Spec Changes:** None needed (all answers confirmed spec's current approach)
+
+**S8.P1 Update (2026-02-11):** Feature 05 actual implementation revealed cleaner logger setup pattern. Spec updated to align with Feature 05: entry script calls setup_logger() ONCE, ScheduleFetcher calls get_logger() instead. This removes enable_log_file parameter from ScheduleFetcher constructor entirely, making TQ1 obsolete (tests remain unchanged, even simpler than original "implicit" approach).
 
 **Next Step:** Proceed to S2.P1.I3 (Refinement & Alignment) → Validation Loop → Gate 3 (User Approval)
 

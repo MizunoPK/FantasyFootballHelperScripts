@@ -3,7 +3,7 @@
 **Part of Epic:** KAI-8-logging_refactoring
 **Feature Number:** 07
 **Created:** 2026-02-06
-**Last Updated:** 2026-02-06 (S2.P1.I1 - Draft complete)
+**Last Updated:** 2026-02-11 (S8.P1 - Feature 06 alignment: error parsing promoted to WARNING)
 
 ---
 
@@ -82,7 +82,7 @@ Add `--enable-log-file` CLI flag to `run_schedule_fetcher.py` to control file lo
 - ✅ Logger name: "schedule_fetcher" (lowercase with underscore, per naming convention)
 - ✅ Pass log_to_file=args.enable_log_file to setup_logger()
 - ✅ Pass log_file_path=None to setup_logger() (let LoggingManager generate path)
-- ✅ Pass enable_log_file=args.enable_log_file to ScheduleFetcher constructor
+- ✅ ScheduleFetcher instantiation unchanged: `ScheduleFetcher(output_path)` (no enable_log_file parameter - updated in S8.P1)
 - ✅ Works with asyncio.run(main()) pattern (no async/await conflicts with argparse)
 
 **Example:**
@@ -96,7 +96,7 @@ async def main():
         print(f"Fetching NFL season schedule for {NFL_SEASON}...")
         # ... rest of logic ...
 
-# After:
+# After (S8.P1 updated to match Feature 05 pattern):
 import argparse
 from utils.LoggingManager import setup_logger
 
@@ -111,7 +111,7 @@ async def main():
     )
     args = parser.parse_args()
 
-    # Setup logger
+    # Setup logger (ONCE in entry script)
     logger = setup_logger(
         name="schedule_fetcher",
         level="INFO",
@@ -122,7 +122,7 @@ async def main():
 
     try:
         output_path = Path(__file__).parent / "data" / "season_schedule.csv"
-        fetcher = ScheduleFetcher(output_path, enable_log_file=args.enable_log_file)
+        fetcher = ScheduleFetcher(output_path)  # No enable_log_file parameter (S8.P1 update)
         logger.info(f"Fetching NFL season schedule for {NFL_SEASON}...")
         # ... rest of logic ...
 ```
@@ -174,25 +174,26 @@ self.logger = setup_logger(
 
 ---
 
-### Requirement 3: ScheduleFetcher Parameter Addition
+### Requirement 3: ScheduleFetcher Logger Setup (UPDATED in S8.P1)
 
-**Source:** Epic requirement "CLI toggle per script" + RESEARCH_NOTES.md
+**Source:** Epic requirement "improved logging" + Feature 05 actual implementation pattern
 
 **Description:**
-Add `enable_log_file` parameter to ScheduleFetcher.__init__() to accept CLI flag value and pass it to setup_logger(). Default to False for backward compatibility with existing callers.
+Update ScheduleFetcher.__init__() to use `get_logger()` instead of `setup_logger()` to retrieve the logger configured in main(). Change logger name from "ScheduleFetcher" to "schedule_fetcher" for naming consistency. This follows Feature 05's proven pattern: entry script calls setup_logger() ONCE, modules call get_logger().
 
 **Acceptance Criteria:**
-- ✅ Add enable_log_file parameter to __init__() signature (line 27)
-- ✅ Parameter type: bool
-- ✅ Parameter default: False (backward compatibility)
-- ✅ Pass enable_log_file to setup_logger(log_to_file=enable_log_file)
-- ✅ Add log_file_path=None parameter to setup_logger() call
-- ✅ Add log_format="standard" parameter to setup_logger() call
-- ✅ Update docstring with new parameter description
+- ✅ Change logger setup from setup_logger() to get_logger()
+- ✅ Update logger name from "ScheduleFetcher" to "schedule_fetcher" (snake_case)
+- ✅ NO enable_log_file parameter added to __init__() signature (cleaner interface)
+- ✅ Add import: `from utils.LoggingManager import get_logger` (if not already present)
+- ✅ Remove setup_logger import if only used in __init__()
+- ✅ Simplifies interface: ScheduleFetcher doesn't need CLI flag parameter
 
 **Example:**
 ```python
 # Before (ScheduleFetcher.py lines 27-36):
+from utils.LoggingManager import setup_logger
+
 def __init__(self, output_path: Path):
     """
     Initialize the ScheduleFetcher.
@@ -204,27 +205,28 @@ def __init__(self, output_path: Path):
     self.logger = setup_logger(name="ScheduleFetcher", level="INFO")
     self.client: Optional[httpx.AsyncClient] = None
 
-# After:
-def __init__(self, output_path: Path, enable_log_file: bool = False):
+# After (S8.P1 alignment with Feature 05 pattern):
+from utils.LoggingManager import get_logger
+
+def __init__(self, output_path: Path):
     """
     Initialize the ScheduleFetcher.
 
     Args:
         output_path: Path where season_schedule.csv will be written
-        enable_log_file: Enable logging to file (default: False)
     """
     self.output_path = output_path
-    self.logger = setup_logger(
-        name="schedule_fetcher",
-        level="INFO",
-        log_to_file=enable_log_file,
-        log_file_path=None,
-        log_format="standard"
-    )
+    self.logger = get_logger()  # Retrieves logger configured in main()
     self.client: Optional[httpx.AsyncClient] = None
 ```
 
-**User Answer:** Epic requirement (CLI control per script)
+**Rationale (S8.P1):**
+- Feature 05 uses this pattern: setup_logger() in entry script, get_logger() in modules
+- Cleaner separation: entry script configures, modules consume
+- Simpler interface: ScheduleFetcher doesn't need enable_log_file parameter
+- Single source of truth for logger configuration
+
+**User Answer:** Epic requirement (improved logging infrastructure)
 
 ---
 
@@ -272,33 +274,43 @@ logger.info(f"  Weeks: {len(schedule)}, Season: {NFL_SEASON}")
 
 ---
 
-### Requirement 5: Log Quality - DEBUG Level
+### Requirement 5: Log Quality - DEBUG Level (UPDATED in S8.P1 - Feature 06 alignment)
 
-**Source:** Discovery Iteration 3 (log quality criteria) + RESEARCH_NOTES.md
+**Source:** Discovery Iteration 3 (log quality criteria) + RESEARCH_NOTES.md + Feature 06 actual implementation
 
 **Description:**
-Review existing DEBUG-level logs in ScheduleFetcher.py and ensure they meet discovery criteria: function entry/exit with parameters (complex flows only), data transformations, conditional branches. Current DEBUG logs already meet criteria - no changes required.
+Review existing DEBUG-level logs in ScheduleFetcher.py and ensure they meet discovery criteria: function entry/exit with parameters (complex flows only), data transformations, conditional branches. Feature 06 established pattern: error parsing should use WARNING level (not DEBUG) for operational issues affecting data quality.
 
 **Acceptance Criteria:**
-- ✅ Line 94: "Fetching schedule for week {week}/18" - Progress tracking (KEEP)
-- ✅ Line 138: "Error parsing event in week {week}: {e}" - Error detail (KEEP)
+- ✅ Line 94: "Fetching schedule for week {week}/18" - Progress tracking (KEEP as DEBUG)
+- ✅ Line 138: "Error parsing event in week {week}: {e}" - Error detail (CHANGE to WARNING)
 - ✅ No excessive DEBUG logs (e.g., every variable assignment)
 - ✅ No DEBUG logs inside tight loops without throttling
 - ✅ DEBUG logs provide useful debugging information
-- ✅ No functionality changes (log review only)
+- ✅ Parsing errors promoted to WARNING for user awareness
 
-**Current DEBUG Logs (All Good ✅):**
+**Current DEBUG Logs:**
 ```python
-# Line 94 - Progress tracking (appropriate for async loop):
+# Line 94 - Progress tracking (KEEP as DEBUG):
 self.logger.debug(f"Fetching schedule for week {week}/18")
 
-# Line 138 - Error detail for debugging:
+# Line 138 - Error detail (CHANGE to WARNING per Feature 06 pattern):
+# BEFORE:
 self.logger.debug(f"Error parsing event in week {week}: {e}")
+
+# AFTER (aligned with Feature 06 schedule_fetcher.py:124):
+self.logger.warning(f"Error parsing event in week {week}: {e}")
 ```
 
-**Assessment:** Current DEBUG logs meet criteria. No changes needed.
+**Rationale (Feature 06 alignment):**
+- Parsing errors are operational issues affecting data quality
+- Users should be aware of parsing failures (WARNING level)
+- Consistent with Feature 06's schedule_fetcher.py pattern
+- Error detail still captured, but at appropriate severity level
 
-**User Answer:** Discovery Iteration 3 (DEBUG criteria)
+**Assessment:** One DEBUG log needs promotion to WARNING (line 138). Progress tracking log remains DEBUG (line 94).
+
+**User Answer:** Discovery Iteration 3 (DEBUG criteria) + Feature 06 implementation pattern
 
 ---
 
@@ -336,31 +348,33 @@ self.logger.info(f"Schedule exported to {self.output_path}")
 
 ---
 
-### Requirement 7: Test Updates
+### Requirement 7: Test Updates (UPDATED in S8.P1)
 
-**Source:** RESEARCH_NOTES.md (test file analysis)
+**Source:** RESEARCH_NOTES.md (test file analysis) + S8.P1 alignment with Feature 05
 
 **Description:**
-Update test_ScheduleFetcher.py to handle new enable_log_file parameter. No caplog tests needed (per discovery, focus on functionality not log messages).
+No test changes needed for test_ScheduleFetcher.py. S8.P1 update removed enable_log_file parameter from ScheduleFetcher constructor, so tests remain unchanged. No caplog tests needed (per discovery, focus on functionality not log messages).
 
 **Acceptance Criteria:**
-- ✅ No test instantiation changes needed (enable_log_file defaults to False)
+- ✅ NO test instantiation changes needed (S8.P1 removed enable_log_file parameter)
 - ✅ Line 33 assertion unchanged: `assert fetcher.logger is not None`
-- ✅ All existing tests pass with new parameter (backward compatible)
+- ✅ All existing tests pass unchanged (backward compatible)
 - ✅ No caplog tests added (not required per discovery)
-- ✅ Optional: Add explicit enable_log_file=False to test instantiations for clarity
+- ✅ Tests instantiate ScheduleFetcher unchanged: `ScheduleFetcher(output_path)`
 
 **Example:**
 ```python
-# Before (test_ScheduleFetcher.py line 30):
+# Before and After (NO CHANGES - S8.P1 update):
+# test_ScheduleFetcher.py line 30:
 fetcher = ScheduleFetcher(output_path)
 
-# After (optional, for explicitness):
-fetcher = ScheduleFetcher(output_path, enable_log_file=False)
-
-# OR (same result, using default):
-fetcher = ScheduleFetcher(output_path)
+# Tests remain unchanged because enable_log_file parameter removed in S8.P1 alignment
 ```
+
+**Rationale (S8.P1):**
+- Simpler: No parameter to add to test instantiations
+- Cleaner: Tests don't need to know about CLI flag
+- Backward compatible: Existing test code works unchanged
 
 **User Answer:** Discovery Q8 (test coverage focused on functionality)
 
@@ -372,44 +386,49 @@ fetcher = ScheduleFetcher(output_path)
 
 ### File Modifications
 
-**Files to modify:**
+**Files to modify (UPDATED in S8.P1):**
 1. `run_schedule_fetcher.py` (lines 16-59)
    - Add argparse import
    - Add setup_logger import
    - Add argument parsing
-   - Add logger setup
+   - Add logger setup (ONCE - Feature 05 pattern)
    - Replace print() statements with logger calls
-   - Pass enable_log_file to ScheduleFetcher
+   - ScheduleFetcher instantiation unchanged: `ScheduleFetcher(output_path)` (S8.P1 update)
 
-2. `schedule-data-fetcher/ScheduleFetcher.py` (lines 27-36)
-   - Add enable_log_file parameter to __init__()
+2. `schedule-data-fetcher/ScheduleFetcher.py` (lines 27-36, 138)
+   - Change setup_logger() to get_logger() (S8.P1 alignment with Feature 05)
    - Update logger name from "ScheduleFetcher" to "schedule_fetcher"
-   - Add log_to_file, log_file_path, log_format parameters to setup_logger()
-   - Update docstring
+   - Update imports: add get_logger, optionally remove setup_logger if unused elsewhere
+   - NO enable_log_file parameter added (S8.P1 update - simpler interface)
+   - Docstring unchanged (no new parameters)
+   - Line 138: Change error parsing log from DEBUG to WARNING (Feature 06 alignment)
 
-3. `tests/schedule-data-fetcher/test_ScheduleFetcher.py` (optional)
-   - Add enable_log_file=False to test instantiations for clarity
-   - No assertion changes needed
+3. `tests/schedule-data-fetcher/test_ScheduleFetcher.py`
+   - NO CHANGES needed (S8.P1 update - no new parameters)
 
 **Files NOT modified:**
 - ScheduleFetcher.py methods (lines 38-240) - log quality already meets criteria
 
 ---
 
-### Import Dependencies
+### Import Dependencies (UPDATED in S8.P1)
 
 ```python
 # run_schedule_fetcher.py additions:
 import argparse
 from utils.LoggingManager import setup_logger
 
-# ScheduleFetcher.py (existing imports - no changes):
-from utils.LoggingManager import setup_logger  # Already imported
+# ScheduleFetcher.py (S8.P1 update - change import):
+# BEFORE:
+from utils.LoggingManager import setup_logger
+
+# AFTER (Feature 05 pattern):
+from utils.LoggingManager import get_logger
 ```
 
 ---
 
-### Data Flow
+### Data Flow (UPDATED in S8.P1)
 
 ```
 User runs script with --enable-log-file flag
@@ -420,9 +439,9 @@ main() calls setup_logger(name="schedule_fetcher", log_to_file=True, ...)
   ↓
 Logger configured with LineBasedRotatingHandler (from Feature 01)
   ↓
-main() instantiates ScheduleFetcher(output_path, enable_log_file=True)
+main() instantiates ScheduleFetcher(output_path)
   ↓
-ScheduleFetcher.__init__() calls setup_logger(name="schedule_fetcher", log_to_file=True, ...)
+ScheduleFetcher.__init__() calls get_logger() → retrieves configured logger
   ↓
 Logger writes to logs/schedule_fetcher/schedule_fetcher-{timestamp}.log
   ↓
@@ -430,6 +449,8 @@ Logger writes to logs/schedule_fetcher/schedule_fetcher-{timestamp}.log
   ↓
 Max 50 files enforced (cleanup automatic)
 ```
+
+**Key Update (S8.P1):** Aligned with Feature 05 pattern - setup_logger() called ONCE in main(), ScheduleFetcher uses get_logger()
 
 ---
 
@@ -665,15 +686,17 @@ No open questions currently - to be identified during checklist creation.
 - No async/await needed for argparse operations
 - Standard pattern used in other async CLI tools
 
-**Logger Setup:**
-- Call setup_logger() ONCE in main() (line-level logger)
-- Call setup_logger() ONCE in ScheduleFetcher.__init__() (class-level logger)
-- Both use same logger name "schedule_fetcher" for consistency
+**Logger Setup (UPDATED in S8.P1):**
+- Call setup_logger() ONCE in main() to configure logger (Feature 05 pattern)
+- Call get_logger() in ScheduleFetcher.__init__() to retrieve configured logger
+- Single source of truth: main() owns logger configuration
+- Simpler interface: ScheduleFetcher doesn't need CLI flag parameter
 
-**Parameter Threading:**
+**Parameter Flow (S8.P1 simplified):**
 - main() receives args.enable_log_file from argparse
-- main() passes enable_log_file to ScheduleFetcher constructor
-- ScheduleFetcher passes enable_log_file to setup_logger(log_to_file=...)
+- main() passes args.enable_log_file to setup_logger(log_to_file=...)
+- ScheduleFetcher instantiation unchanged: `ScheduleFetcher(output_path)`
+- ScheduleFetcher retrieves logger via get_logger()
 
 **Testing:**
 - Run existing test suite WITHOUT changes first (verify backward compatibility)
@@ -694,10 +717,10 @@ No open questions currently - to be identified during checklist creation.
 - **Impact:** Need to pass args as parameter or global variable
 - **Mitigation:** Call parse_args() INSIDE async main() function
 
-**Gotcha 3: Two Loggers with Same Name**
-- **Issue:** Both main() and ScheduleFetcher call setup_logger(name="schedule_fetcher")
-- **Impact:** Python logging module reuses existing logger (same instance)
-- **Mitigation:** Feature, not bug (both use same logger, same config)
+**Gotcha 3: Logger Setup Pattern (RESOLVED in S8.P1)**
+- **Previous Approach:** Both main() and ScheduleFetcher call setup_logger(name="schedule_fetcher")
+- **S8.P1 Update:** Aligned with Feature 05 pattern - main() calls setup_logger() ONCE, ScheduleFetcher calls get_logger()
+- **Benefit:** Single source of truth for logger configuration, simpler module interface
 
 ---
 
@@ -712,14 +735,18 @@ tests/schedule-data-fetcher/
 └── test_ScheduleFetcher.py     # OPTIONAL: Add enable_log_file=False to instantiations
 ```
 
-**Import Dependencies:**
+**Import Dependencies (UPDATED in S8.P1):**
 ```python
 # run_schedule_fetcher.py (additions):
 import argparse
 from utils.LoggingManager import setup_logger
 
-# ScheduleFetcher.py (no new imports needed):
-from utils.LoggingManager import setup_logger  # Already imported
+# ScheduleFetcher.py (S8.P1 change import):
+# BEFORE:
+from utils.LoggingManager import setup_logger
+
+# AFTER (Feature 05 pattern):
+from utils.LoggingManager import get_logger
 ```
 
 ---
@@ -747,6 +774,7 @@ All functional requirements map to acceptance criteria:
 | 2026-02-06 | Agent | Initial spec created with Discovery Context | S1 Step 5 (Epic Structure Creation) |
 | 2026-02-06 | Agent (Secondary-F) | Complete spec draft with all requirements, technical details, integration points, error handling, and implementation notes | S2.P1.I1 (Feature-Level Discovery - research complete) |
 | 2026-02-08 12:25 | Agent | Updated setup_logger() signature, type hints, return type, filename formats based on Feature 01 actual implementation | S8.P1 (Cross-Feature Alignment - Feature 01 complete) |
+| 2026-02-11 | Agent | **ALIGNMENT UPDATE:** S8.P1 review against Feature 05 actual implementation revealed logger setup pattern misalignment. UPDATED: Requirement 3 to remove enable_log_file parameter from ScheduleFetcher constructor (simplifies interface). ScheduleFetcher.__init__() should call get_logger() instead of setup_logger() (matches Feature 05 pattern: entry script calls setup_logger() ONCE, modules call get_logger()). REMOVED: Gotcha 3 (no longer applies with single setup_logger() call). This aligns Feature 07 with proven Feature 05 pattern for cleaner separation of concerns. | S8.P1 (Cross-Feature Alignment after Feature 05 S7 complete) |
 
 ---
 
