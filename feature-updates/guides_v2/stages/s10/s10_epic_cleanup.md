@@ -111,11 +111,11 @@ Epic cleanup typically takes 15-30 minutes.
 │    - Create PR using gh CLI with epic summary                   │
 │    - User reviews PR and merges when satisfied                  │
 │                                                                  │
-│ 7. ⚠️ UPDATE EPIC_TRACKER.md AFTER USER MERGES PR              │
+│ 7. ⚠️ UPDATE EPIC_TRACKER.md BEFORE CREATING PR                │
 │    - Move epic from Active to Completed table                   │
 │    - Add epic detail section with commits                       │
 │    - Increment "Next Available Number"                          │
-│    - Commit and push EPIC_TRACKER.md update                     │
+│    - Commit and push EPIC_TRACKER.md update as part of PR       │
 │                                                                  │
 │ 8. ⚠️ MOVE ENTIRE EPIC FOLDER (NOT INDIVIDUAL FEATURES)         │
 │    - Move: feature-updates/{epic}/                              │
@@ -208,15 +208,11 @@ STAGE 10: Epic Cleanup
 │   ├─ Update CLAUDE.md if workflow changed
 │   └─ Verify ALL lessons applied
 │
-├─> STEP 5: Final Commit and PR Creation
+├─> STEP 5: Final Commit (Epic Implementation)
 │   ├─ Review all changes with git status and git diff
 │   ├─ Stage all epic-related changes
 │   ├─ Create commit with clear message
-│   ├─ Verify commit successful
-│   ├─ Push branch to remote
-│   ├─ Create Pull Request for user review
-│   ├─ Wait for user to merge PR
-│   └─ Update EPIC_TRACKER.md (after user merges)
+│   └─ Verify commit successful
 │
 ├─> STEP 6: Move Epic to done/ Folder
 │   ├─ Create done/ folder if doesn't exist
@@ -224,9 +220,21 @@ STAGE 10: Epic Cleanup
 │   ├─ Move entire epic folder to done/
 │   ├─ Verify move successful (folder structure intact)
 │   ├─ Verify done/ has 10 or fewer epics
-│   └─ Leave original epic request (.txt) in root for reference
+│   ├─ Leave original epic request (.txt) in root for reference
+│   └─ Commit the epic folder move
 │
-└─> STEP 7: Final Verification & Completion
+├─> STEP 7: Update EPIC_TRACKER.md
+│   ├─ Move epic from Active to Completed table
+│   ├─ Add epic detail section with full description
+│   ├─ Increment "Next Available Number"
+│   └─ Commit the EPIC_TRACKER.md update
+│
+├─> STEP 8: Push Branch and Create Pull Request
+│   ├─ Push all commits to remote branch
+│   ├─ Create Pull Request for user review
+│   └─ Wait for user to merge PR
+│
+└─> STEP 9: Final Verification & Completion
     ├─ Verify epic in done/ folder
     ├─ Verify original request still in root
     ├─ Verify git shows clean state
@@ -243,7 +251,7 @@ STAGE 10: Epic Cleanup
 
 ## Quick Navigation
 
-**S10 has 7 main steps. Jump to any step:**
+**S10 has 9 main steps. Jump to any step:**
 
 | Step | Focus Area | Time | Mandatory Gate? | Go To |
 |------|-----------|------|-----------------|-------|
@@ -252,11 +260,13 @@ STAGE 10: Epic Cleanup
 | **Step 2b** | Investigate Anomalies | 10-30 min | Optional | [Jump](#step-2b-investigate-user-reported-anomalies-if-applicable) |
 | **Step 3** | Documentation Verification | 10 min | No | [Jump](#step-3-documentation-verification) |
 | **Step 4** | Update Guides (Apply Lessons) | 20-45 min | No | [Jump](#step-4-update-guides-if-needed) |
-| **Step 5** | Final Commit | 10 min | No | [Jump](#step-5-final-commit) |
+| **Step 5** | Final Commit (Epic Work) | 10 min | No | [Jump](#step-5-final-commit-epic-implementation) |
 | **Step 6** | Move Epic to done/ | 5 min | No | [Jump](#step-6-move-epic-to-done-folder) |
-| **Step 7** | Final Verification & Completion | 5 min | No | [Jump](#step-7-final-verification--completion) |
+| **Step 7** | Update EPIC_TRACKER.md | 5 min | No | [Jump](#step-7-update-epic_trackermd) |
+| **Step 8** | Push and Create PR | 5 min | No | [Jump](#step-8-push-branch-and-create-pull-request) |
+| **Step 9** | Final Verification | 5 min | No | [Jump](#step-9-final-verification--completion) |
 
-**Total Time:** 70-115 minutes (including S10.5 guide updates)
+**Total Time:** 85-130 minutes (including S10.P1 guide updates)
 
 **Reference Files (Extracted for Quick Access):**
 
@@ -471,9 +481,9 @@ stages/s10/s10_p1_guide_update_workflow.md
 
 ---
 
-### STEP 5: Final Commit
+### STEP 5: Final Commit (Epic Implementation)
 
-**Objective:** Commit all epic changes to git with clear, descriptive message.
+**Objective:** Commit all epic implementation work (code changes, tests, documentation) with clear, descriptive message. This is the main epic commit - epic folder move and EPIC_TRACKER.md update will be separate commits in Steps 6-7.
 
 **Actions:**
 
@@ -549,35 +559,7 @@ git log -1 --stat
 
 Verify commit message clear, all epic files included, file change counts reasonable.
 
-**5e. Push Branch to Remote**
-
-**CRITICAL:** Push the epic branch to remote for user review via Pull Request.
-
-Push epic branch:
-```bash
-git push origin {work_type}/KAI-{number}
-```
-
-**Create Pull Request:**
-
-Use GitHub CLI to create PR:
-```bash
-gh pr create --base main --head {work_type}/KAI-{number}   --title "{commit_type}/KAI-{number}: Complete {epic_name} epic"   --body "See EPIC_README.md for details. All tests passing, ready for review."
-```
-
-**Or use GitHub Web UI:**
-- Navigate to repository on GitHub
-- Click "Pull requests" → "New pull request"
-- Select base: `main`, compare: `{work_type}/KAI-{number}`
-- Fill in title and description
-- Click "Create pull request"
-
-**After PR Created:**
-- User reviews changes in GitHub UI
-- User approves and merges (or requests changes)
-- **DO NOT merge yourself** - user must merge
-
-**See:** `reference/stage_10/pr_creation_guide.md` for detailed PR templates and review workflows (if exists)
+**Note:** Do NOT push yet - Steps 6-7 will create additional commits (epic folder move, EPIC_TRACKER.md update) that should all be part of the same PR.
 
 ---
 
@@ -717,79 +699,168 @@ ls -d feature-updates/done/*/ | wc -l
 
 **6f. Leave Original Epic Request in Root**
 
-**IMPORTANT:** Do NOT move the original {epic_name}.txt file.
+**IMPORTANT:** Do NOT move the original {epic_name}.txt file (if it exists in root).
 
 **Why:** Original request stays in feature-updates/ root for reference.
 
-Verify:
+**Note:** If the original request file was inside the epic folder (e.g., `KAI-8-logging_refactoring/logging_refactoring_notes.txt`), it will move with the epic folder to done/, which is acceptable.
+
+**6g. Commit the Epic Folder Move**
+
+Stage and commit the folder move:
 ```bash
-ls feature-updates/{epic_name}.txt
+git add feature-updates/done/{epic_name}/
+git commit -m "chore/KAI-{N}: Move completed epic to done/ folder
+
+Epic KAI-{N} ({epic_name}) is complete:
+- All {N} features implemented and tested
+- {X}/{X} tests passing
+- Epic moved to done/ for clean PR state
+
+No further changes needed after merge.
+
+Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>"
 ```
 
-**Expected:** File still exists in root.
+Verify commit successful:
+```bash
+git log -1 --oneline
+```
 
 ---
 
-### STEP 7: Final Verification & Completion
+### STEP 7: Update EPIC_TRACKER.md
+
+**Objective:** Update EPIC_TRACKER.md to move epic from Active to Completed and add detailed epic information.
+
+**Actions:**
+
+**7a. Move Epic from Active to Completed Table**
+
+Edit `feature-updates/EPIC_TRACKER.md`:
+
+1. Remove the epic's row from the "Active Epics" table
+2. Add the epic's row to the "Completed Epics" table with completion date and done/ location
+
+**7b. Add Epic Detail Section**
+
+Add a detailed section below "## Epic Details" with complete epic information (see Epic Detail Template in EPIC_TRACKER.md or KAI-6/KAI-8 examples for format):
+
+Required information:
+- Type, branch, dates, location
+- Description (1-2 paragraphs)
+- Features implemented (list)
+- Key changes (bullet points)
+- Commit history (hashes + messages)
+- Testing results (test counts, smoke testing, QC rounds, user testing)
+- Lessons learned (summary + link to epic_lessons_learned.md)
+- Related documentation (links)
+
+**7c. Increment Next Available Number**
+
+Update "Next Available Number" field to KAI-{N+1}
+
+**7d. Commit the EPIC_TRACKER.md Update**
+
+Stage and commit:
+```bash
+git add feature-updates/EPIC_TRACKER.md
+git commit -m "chore/KAI-{N}: Update EPIC_TRACKER with completed epic
+
+Move KAI-{N} from Active to Completed:
+- {brief epic summary}
+- {key achievement}
+- {key achievement}
+
+Increment Next Available Number to KAI-{N+1}.
+
+Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>"
+```
+
+Verify commit successful:
+```bash
+git log -1 --oneline
+```
+
+---
+
+### STEP 8: Push Branch and Create Pull Request
+
+**Objective:** Push all commits to remote and create PR for user review.
+
+**Actions:**
+
+**8a. Push Branch to Remote**
+
+Push all commits (epic work + folder move + EPIC_TRACKER update):
+```bash
+git push origin {work_type}/KAI-{number}
+```
+
+**8b. Create Pull Request**
+
+Use GitHub CLI to create PR:
+```bash
+gh pr create --base main --head {work_type}/KAI-{number} \
+  --title "{commit_type}/KAI-{number}: Complete {epic_name} epic" \
+  --body "See EPIC_README.md for details. All tests passing, ready for review."
+```
+
+**Or use GitHub Web UI:**
+- Navigate to repository on GitHub
+- Click "Pull requests" → "New pull request"
+- Select base: `main`, compare: `{work_type}/KAI-{number}`
+- Fill in title and description
+- Click "Create pull request"
+
+**8c. Wait for User to Merge PR**
+
+- User reviews changes in GitHub UI
+- User approves and merges (or requests changes)
+- **DO NOT merge yourself** - user must merge
+
+**Important:** The PR includes ALL final cleanup (epic work, folder move, EPIC_TRACKER update). No further changes needed after merge.
+
+**See:** `reference/stage_10/pr_creation_guide.md` for detailed PR templates (if exists)
+
+---
+
+### STEP 9: Final Verification & Completion
 
 **Objective:** Verify epic cleanup complete and celebrate completion!
 
 **Actions:**
 
-**7a. Verify Epic in done/ Folder**
+**9a. Verify All Commits Pushed**
 
-Confirm epic moved successfully:
+Check that all commits are on remote:
 ```bash
-ls feature-updates/done/
+git log --oneline origin/{work_type}/KAI-{number}..HEAD
 ```
 
-**7b. Verify Original Request Still in Root**
+**Expected:** No output (all commits pushed)
 
-Confirm original request accessible:
+**9b. Verify PR Created**
+
+If using `gh` CLI:
 ```bash
-ls feature-updates/{epic_name}.txt
+gh pr view
 ```
 
-**7c. Verify Git Shows Clean State**
+Or check GitHub web UI to confirm PR exists.
+
+**9c. Verify Git Working Tree Clean**
 
 Check git status:
 ```bash
 git status
 ```
 
-**Expected:** "Your branch is up to date with 'origin/main'", "nothing to commit, working tree clean" (or folder rename not staged - this is optional)
+**Expected:** "Your branch is up to date with 'origin/{work_type}/KAI-{number}'", "nothing to commit, working tree clean"
 
-**7d. Update EPIC_README.md One Final Time**
+**9d. Celebrate Epic Completion! 🎉**
 
-Update the EPIC_README.md in done/ folder with epic completion summary.
-
-**Reference:** See `reference/stage_10/epic_completion_template.md` for detailed template and instructions.
-
-**Template:**
-```markdown
-## Agent Status
-
-**Last Updated:** {YYYY-MM-DD HH:MM}
-**Current Stage:** S10 - Epic Cleanup
-**Status:** ✅ COMPLETE
-
-**Epic Completion Summary:**
-- Start Date: {YYYY-MM-DD}
-- End Date: {YYYY-MM-DD}
-- Duration: {N} days
-- Total Features: {N}
-- Bug Fixes Created: {N}
-- Final Test Pass Rate: 100% ({total_tests}/{total_tests} tests)
-
-**Epic Moved To:** feature-updates/done/KAI-{N}-{epic_name}/
-**Original Request:** feature-updates/{epic_name}.txt
-
-**Next Steps:** None - epic complete! 🎉
-```
-
-**7e. Celebrate Epic Completion! 🎉**
-
-The epic is now complete!
+The epic is now complete and ready for user review!
 
 **What was accomplished:**
 - ✅ Epic planned with {N} features
@@ -849,21 +920,30 @@ The epic is now complete!
 - [ ] If bugs found: All fixed, restart S9 from S9.P1 (smoke testing), user re-tested
 - [ ] Epic PR review passed (all categories)
 
-### Git Commit and Pull Request
-- [ ] All changes reviewed with git status and git diff
-- [ ] All epic changes staged
-- [ ] Commit created with clear, descriptive message
+### Git Commits
+- [ ] All epic changes reviewed with git status and git diff
+- [ ] Epic implementation commit created with clear message
 - [ ] Commit successful (verified with git log)
-- [ ] Branch pushed to remote
-- [ ] Pull Request created with epic summary
-- [ ] User reviewed and merged PR
-- [ ] EPIC_TRACKER.md updated (after PR merge)
 
 ### Epic Move
 - [ ] done/ folder exists
+- [ ] done/ folder cleaned up (max 10 epics maintained)
 - [ ] Entire epic folder moved to done/
 - [ ] Epic folder structure intact in done/
-- [ ] Original epic request (.txt) still in root
+- [ ] Epic folder move committed
+
+### EPIC_TRACKER.md Update
+- [ ] Epic moved from Active to Completed table in EPIC_TRACKER.md
+- [ ] Epic detail section added with full description
+- [ ] Next Available Number incremented
+- [ ] EPIC_TRACKER.md update committed
+
+### Pull Request
+- [ ] All commits pushed to remote branch
+- [ ] Pull Request created with epic summary
+- [ ] PR includes all final cleanup (epic work + folder move + EPIC_TRACKER)
+- [ ] User reviewed and merged PR
+- [ ] No further changes needed after merge
 
 ### Final Verification
 - [ ] Epic visible in done/ folder
@@ -883,22 +963,24 @@ The epic is now complete!
 1. Run unit tests (100% pass required)
 2. Verify all documentation complete
 3. Apply ALL lessons learned to guides (systematic search, 100% application)
-4. Commit all changes to git with clear message
-5. Push branch to remote and create Pull Request
-6. Wait for user to review and merge PR
-7. Update EPIC_TRACKER.md after PR merge
-8. Move entire epic folder to done/ (max 10 epics, delete oldest if needed)
-9. Leave original epic request in root for reference
+4. Commit epic implementation work with clear message
+5. Move entire epic folder to done/ (max 10 epics, delete oldest if needed) and commit
+6. Update EPIC_TRACKER.md (move to Completed, add details, increment number) and commit
+7. Push all commits to remote branch
+8. Create Pull Request for user review
+9. User reviews and merges PR (no further changes needed after merge)
 10. Celebrate epic completion! 🎉
 
 **Critical Success Factors:**
 - 100% test pass rate before committing
 - Complete documentation (README, lessons learned, test plan)
 - ALL lessons applied (epic + features + bugfixes + debugging)
-- User testing already passed in S9 Step 6 (prerequisite)
-- Clear, descriptive commit message
-- Entire epic folder moved (not individual features)
+- User testing already passed in S9.P3 (prerequisite)
+- Clear, descriptive commit messages (separate commits for epic work, folder move, EPIC_TRACKER)
+- Entire epic folder moved to done/ (not individual features)
 - Max 10 epics in done/ folder maintained
+- EPIC_TRACKER.md updated BEFORE creating PR
+- PR includes all final cleanup (no post-merge changes needed)
 
 **Common Pitfalls:**
 - Committing without running tests
