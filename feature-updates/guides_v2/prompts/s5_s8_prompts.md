@@ -32,7 +32,13 @@
 **Agent MUST respond:**
 
 ```markdown
-I'm reading `stages/s5/s5_v2_validation_loop.md` to ensure I follow the 2-phase validation loop approach...
+I'm beginning S5 (Implementation Planning) for {feature_name}.
+
+**Guide I'm following:** stages/s5/s5_v2_validation_loop.md (from CLAUDE.md Stage Workflow table)
+**Prerequisites verified:**
+- [x] Prior stage (S4) fully complete - test_strategy.md approved by user (Gate 4.5)
+- [x] Guide path matches CLAUDE.md Stage Workflow table
+- [x] Read ENTIRE guide using Read tool
 
 **The guide requires:**
 

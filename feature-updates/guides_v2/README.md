@@ -183,6 +183,7 @@ STAGE 10: Epic Cleanup
 | Need term definition | `reference/glossary.md` | Complete glossary of workflow terms (alphabetical index) |
 | Avoiding mistakes | `reference/common_mistakes.md` | Summary of anti-patterns across all stages |
 | Creating/updating guides | `reference/naming_conventions.md` | Hierarchical notation rules, file naming, header formatting |
+| S2 parallelization decision | `reference/s2_parallelization_decision_tree.md` | Reference guide for dependency analysis and group assignment |
 
 ---
 

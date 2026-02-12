@@ -250,6 +250,36 @@ Prerequisites Met?
 
 ---
 
+## S9.P2 Validation Overlap Awareness
+
+**If S9.P2 achieved 3 consecutive clean rounds:**
+
+S9.P2's 12-dimension validation provides strong coverage of many PR review categories. The following have significant overlap:
+
+**Categories with High S9.P2 Coverage (trust but verify):**
+- **Category 1 (Correctness):** S9.P2 Dimension 1 (Empirical Verification) validated all integrations
+- **Category 2 (Code Quality):** S9.P2 Dimension 5 (Clarity & Specificity) validated naming, structure
+- **Category 5 (Testing):** S9.P2 Dimension 12 (Success Criteria) required 100% test pass
+- **Category 8 (Error Handling):** S9.P2 Dimension 10 (Error Handling Consistency) validated patterns
+- **Category 9 (Architecture):** S9.P2 Dimensions 8 & 11 (Integration, Alignment) validated design
+
+**Categories with Lower S9.P2 Coverage (focus review here):**
+- **Category 6 (Security):** Not heavily covered in S9.P2 dimensions
+- **Category 7 (Performance):** Not heavily covered in S9.P2 dimensions
+- **Category 10 (Backwards Compatibility):** Not covered in S9.P2 dimensions
+- **Category 11 (Scope & Changes):** Validate against ORIGINAL user request (not just specs)
+- **Category 4 (Comments & Documentation):** Epic-level documentation only
+
+**Approach:**
+- **Still review ALL 11 categories** (no skipping)
+- **For high-overlap categories:** Quick verification, trust S9.P2 findings
+- **For low-overlap categories:** Thorough review, these are new checks
+- **Defense in depth:** Redundancy is acceptable for critical categories (Correctness, Architecture)
+
+**Note:** This guidance applies ONLY when S9.P2 achieved 3 consecutive clean rounds. If S9.P2 had issues or was shortened, review all 11 categories thoroughly.
+
+---
+
 ## STEP 6: Epic PR Review (Multi-Round with Fresh Eyes)
 
 **🚨 MANDATORY: READ PR REVIEW PROTOCOL**

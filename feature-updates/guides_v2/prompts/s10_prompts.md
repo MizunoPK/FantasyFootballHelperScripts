@@ -14,7 +14,14 @@
 **Agent MUST respond:**
 
 ```markdown
-I'm reading `stages/s10/s10_epic_cleanup.md` to ensure I properly finalize and archive the epic...
+I'm beginning S10 (Epic Cleanup).
+
+**Guide I'm following:** stages/s10/s10_epic_cleanup.md (from CLAUDE.md Stage Workflow table)
+**Prerequisites verified:**
+- [x] Prior stage (S9) fully complete in EPIC_README.md Epic Completion Checklist - all 4 phases complete
+- [x] User testing passed with ZERO bugs (S9.P3 gate)
+- [x] Guide path matches CLAUDE.md Stage Workflow table
+- [x] Read ENTIRE guide using Read tool
 
 **The guide requires:**
 - **Run Unit Tests** (100% pass required):

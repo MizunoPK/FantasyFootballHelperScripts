@@ -180,6 +180,29 @@ Guides contain mandatory checkpoints marked with 🛑 or "CHECKPOINT".
 
 **🚨 READ THE FULL GUIDE** before starting each stage - this is navigation only.
 
+### 🚨 Guide Selection Protocol
+
+**CLAUDE.md Stage Workflow table is the authoritative source for guide paths.**
+
+When transitioning between stages:
+1. ✅ Check EPIC_README.md Epic Completion Checklist - is current stage FULLY complete?
+2. ✅ Read CLAUDE.md Stage Workflow table - which guide for next stage?
+3. ✅ Use Read tool on EXACT guide listed in CLAUDE.md (ignore other files)
+4. ❌ Do NOT glob for guides and pick one - always use CLAUDE.md reference
+5. ❌ Do NOT skip phase/iteration checks within stages
+
+**If you find multiple guides in a stage folder:**
+- Trust CLAUDE.md Stage Workflow table (source of truth)
+- Old guides may exist temporarily during refactors
+- When in doubt, ask user which guide to use
+
+**If CLAUDE.md and filesystem conflict:**
+- CLAUDE.md wins (user updates CLAUDE.md first during refactors)
+- Report discrepancy to user
+- Use the guide path from CLAUDE.md
+
+---
+
 | Stage | Trigger | Guide | Key Actions | Next |
 |-------|---------|-------|-------------|------|
 | **S1** | "Help me develop {epic}" | `stages/s1/s1_epic_planning.md` | KAI number, git branch, **Discovery Phase (MANDATORY)**, folder structure | S2 |

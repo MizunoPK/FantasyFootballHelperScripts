@@ -14,7 +14,13 @@
 **Agent MUST respond:**
 
 ```python
-I'm reading `stages/s9/s9_p1_epic_smoke_testing.md` to ensure I validate the entire epic end-to-end...
+I'm beginning S9 (Epic Final QC).
+
+**Guide I'm following:** stages/s9/s9_epic_final_qc.md (from CLAUDE.md Stage Workflow table)
+**Prerequisites verified:**
+- [x] Prior stage (S8) fully complete in EPIC_README.md Epic Completion Checklist - all features done S8.P2
+- [x] Guide path matches CLAUDE.md Stage Workflow table
+- [x] Read ENTIRE guide using Read tool
 
 **The guide requires:**
 - **Epic Smoke Testing** (distinct from feature-level testing):
