@@ -93,6 +93,63 @@ Begin S2.P1 now.
 - Feature assignment: Which feature you own
 - Agent ID: Your identifier (Secondary-A, Secondary-B, etc.)
 - Coordination paths: Where to check inbox, write messages, etc.
+- **Dependency Group:** Which group you belong to (if applicable)
+- **Group Context:** Which previous groups you depend on (if applicable)
+
+### Step 2.5: Understand Group Context (If Applicable)
+
+**Check if handoff package includes group information:**
+
+**Indicators:**
+- "Dependency Group: Group 2" (or Group 3, Group 4, etc.)
+- "Group Dependencies: Group 2 depends on Group 1 completing S2 first"
+- "Why You're Starting Now" section explaining previous group completion
+- "Group N Specs Available" with file paths to reference
+
+**If group context present:**
+
+**What it means:**
+- Your feature is in Group N (dependent group)
+- Group N-1 has already completed S2
+- Your feature depends on Group N-1's specs to write its own spec
+- You should reference Group N-1 spec.md files during your research
+
+**Example:**
+```markdown
+**Dependency Group:** Group 2
+**Group Dependencies:** Group 2 depends on Group 1 completing S2 first
+
+**Why You're Starting Now:**
+- Group 1 has completed S2 (Feature 01: core_logging_infrastructure)
+- Group 1's specs are available for reference
+- Your feature depends on Group 1's spec to write its own spec
+
+**Group 1 Specs Available:**
+- Feature 01: feature_01_core_logging_infrastructure/spec.md
+- **Key content:** LineBasedRotatingHandler API, setup_logger() function
+```
+
+**How to use group context:**
+
+1. **During S2.P1.I1 (Discovery):**
+   - Read Group N-1 spec.md files listed in handoff
+   - Understand APIs/interfaces your feature will use
+   - Reference these in your RESEARCH_NOTES.md
+
+2. **During S2.P1.I2 (Checklist Resolution):**
+   - Answer checklist questions with knowledge of Group N-1 APIs
+   - Reference Group N-1 decisions for consistency
+
+3. **During S2.P1.I3 (Refinement):**
+   - Write your spec.md assuming Group N-1 APIs exist
+   - Add traceability references to Group N-1 specs
+
+**If NO group context present:**
+- Your feature is in Group 1 OR all features are independent
+- No dependencies on other features' specs
+- Research and specify independently
+
+**Group context only matters for S2** - after S2 complete, groups are irrelevant.
 
 ### Step 3: Verify Epic Exists
 
@@ -120,39 +177,30 @@ fi
 echo "✅ Feature folder verified: $FEATURE_FOLDER"
 ```
 
-### Step 5: Create Coordination Infrastructure
+### Step 5: Create Your Coordination Files (NOT Directories)
+
+**🚨 CRITICAL:** Primary agent already created directories. You ONLY create your own files.
+
+**DO NOT create directories:**
+- ❌ `mkdir agent_comms` - Primary already did this
+- ❌ `mkdir agent_checkpoints` - Primary already did this
+- ❌ `mkdir agent_comms/inboxes` - Prohibited structure
+- ❌ `mkdir parallel_work` - Prohibited structure
+
+**If directories don't exist, Primary setup is incomplete. Stop and notify user.**
+
+**ONLY create your own files:**
 
 ```bash
-# Create communication channels
-mkdir -p "$EPIC_PATH/agent_comms"
+# Verify directories exist (created by Primary)
+if [ ! -d "$EPIC_PATH/agent_comms" ] || [ ! -d "$EPIC_PATH/agent_checkpoints" ]; then
+    echo "❌ ERROR: Coordination directories missing. Primary setup incomplete."
+    exit 1
+fi
 
-# Create inbox (Primary writes, I read)
-cat > "$EPIC_PATH/agent_comms/primary_to_secondary_a.md" <<EOF
-# Messages: Primary → Secondary-A
-
-(No messages yet)
-EOF
-
-# Create outbox (I write, Primary reads)
-cat > "$EPIC_PATH/agent_comms/secondary_a_to_primary.md" <<EOF
-# Messages: Secondary-A → Primary
-
-(No messages yet)
-EOF
-
-echo "✅ Communication channels created"
-```
-
-### Step 6: Create Checkpoint File
-
-```bash
-# Create checkpoints directory
-mkdir -p "$EPIC_PATH/agent_checkpoints"
-
-# Generate session ID
+# 1. Create your checkpoint file (.json format, NOT .md)
 SESSION_ID=$(uuidgen)  # Or: $(date +%s)
 
-# Create initial checkpoint
 cat > "$EPIC_PATH/agent_checkpoints/secondary_a.json" <<EOF
 {
   "agent_id": "Secondary-A",
@@ -189,13 +237,18 @@ cat > "$EPIC_PATH/agent_checkpoints/secondary_a.json" <<EOF
 }
 EOF
 
-echo "✅ Checkpoint file created"
+echo "✅ Checkpoint file created (.json format)"
 ```
 
-### Step 7: Create STATUS File
+**Rule:** Checkpoint files MUST use `.json` extension.
+- ✅ CORRECT: `agent_checkpoints/secondary_a.json`
+- ❌ WRONG: `agent_checkpoints/secondary_a.md`
+- ❌ WRONG: `agent_checkpoints/secondary_a_checkpoint.json`
+
+### Step 6: Create Your STATUS File
 
 ```bash
-# Create STATUS file
+# 2. Create your STATUS file
 cat > "$EPIC_PATH/$FEATURE_FOLDER/STATUS" <<EOF
 STAGE: S2.P1
 PHASE: Research Phase
@@ -211,6 +264,16 @@ EOF
 
 echo "✅ STATUS file created"
 ```
+
+**Summary of files you create:**
+- ✅ `agent_checkpoints/secondary_a.json` - Your checkpoint (you write, Primary reads)
+- ✅ `feature_XX_{name}/STATUS` - Your status (you write, Primary reads)
+
+**Files Primary creates that you use:**
+- `agent_comms/primary_to_secondary_a.md` - Inbox (Primary writes, you read)
+- `agent_comms/secondary_a_to_primary.md` - Outbox (you write, Primary reads)
+
+**Note:** If communication files don't exist when you start, Primary will create them. Don't create them yourself.
 
 ### Step 8: Update EPIC_README.md
 
@@ -286,7 +349,7 @@ release_lock "epic_readme"
 
 🚀 Starting S2.P1 (Feature Deep Dive - Research Phase)
 
-Reading guide: stages/s2/s2_p1_research.md...
+Reading guide: stages/s2/s2_p1_spec_creation_refinement.md...
 ```
 
 ---
@@ -295,7 +358,7 @@ Reading guide: stages/s2/s2_p1_research.md...
 
 ### S2.P1: Research Phase
 
-**Follow guide:** `stages/s2/s2_p1_research.md`
+**Follow guide:** `stages/s2/s2_p1_spec_creation_refinement.md`
 
 **Additional coordination steps:**
 

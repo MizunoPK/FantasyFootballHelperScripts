@@ -2,11 +2,11 @@
 # Pre-Audit Automated Checks
 # Runs before manual audit to catch common structural issues
 #
-# Coverage: 7 of 16 dimensions (D1, D8, D10, D11, D13, D14, D16)
-# Estimated: 40-50% of typical issues (based on KAI-7 Round 1-2 data)
+# Coverage: 10 of 17 dimensions (D1, D3, D8, D9, D10, D11, D13, D14, D16, D17)
+# Estimated: 45-55% of typical issues (based on KAI-7 Round 1-2 data)
 # NOT Checked: D2 (Terminology - requires pattern-specific search, see dimension guide)
 #
-# Last Updated: 2026-02-05 (Meta-Audit)
+# Last Updated: 2026-02-06 (D17 Addition)
 # Changes:
 #   - Round 3: Simplified file size threshold from 3-tier (600/800/1000) to 1000-line baseline
 #   - Round 3: Added 17 known exceptions for Prerequisites/Exit Criteria checks
@@ -344,6 +344,87 @@ else
   ((CRITICAL_ISSUES++))
   ((TOTAL_ISSUES++))
 fi
+
+echo ""
+
+# ============================================================================
+# CHECK 9: Workflow Description Consistency (D3, D17)
+# ============================================================================
+
+echo -e "${BLUE}=== Workflow Description Consistency (D3, D17) ===${NC}"
+echo ""
+
+# Find all workflow sequence claims
+echo "Checking workflow sequence claims..."
+SEQUENCE_CLAIMS=$(grep -rn "S[0-9].*->.*S[0-9]" stages 2>/dev/null | wc -l)
+
+if [ "$SEQUENCE_CLAIMS" -gt 0 ]; then
+  echo "Found $SEQUENCE_CLAIMS workflow sequence claims"
+  echo "(First 5 examples:)"
+  grep -rn "S[0-9].*->.*S[0-9]" stages 2>/dev/null | head -5
+  echo ""
+  echo -e "${YELLOW}Review above for contradictions (different stages describing same workflow differently)${NC}"
+else
+  echo -e "${GREEN}✅ No workflow sequence claims to verify${NC}"
+fi
+
+echo ""
+
+# ============================================================================
+# CHECK 10: Prerequisite-Content Consistency (D9)
+# ============================================================================
+
+echo -e "${BLUE}=== Prerequisite-Content Consistency (D9) ===${NC}"
+echo ""
+
+PREREQ_CONFLICTS=0
+
+for file in stages/**/*.md stages/*/*.md; do
+  if [ -f "$file" ]; then
+    prereq_all=$(grep -A 10 "^## Prerequisites" "$file" 2>/dev/null | grep -i "ALL features\|all.*complete\|every feature")
+    content_group=$(grep -i "Round [0-9]:.*Group\|Group [0-9].*only\|per group" "$file" 2>/dev/null)
+
+    if [ -n "$prereq_all" ] && [ -n "$content_group" ]; then
+      echo -e "${YELLOW}⚠️  POTENTIAL CONFLICT:${NC} $file"
+      echo "   Prerequisites: $(echo $prereq_all | head -c 80)..."
+      echo "   Content: $(echo $content_group | head -c 80)..."
+      ((PREREQ_CONFLICTS++))
+      ((WARNING_ISSUES++))
+      ((TOTAL_ISSUES++))
+    fi
+  fi
+done
+
+if [ $PREREQ_CONFLICTS -eq 0 ]; then
+  echo -e "${GREEN}✅ No prerequisite-content conflicts detected${NC}"
+else
+  echo ""
+  echo "Found $PREREQ_CONFLICTS potential prerequisite-content conflicts"
+fi
+
+echo ""
+
+# ============================================================================
+# CHECK 11: Stage Flow Consistency (D17)
+# ============================================================================
+
+echo -e "${BLUE}=== Stage Flow Consistency (D17) ===${NC}"
+echo ""
+
+echo "Checking S1 parallelization modes vs S2 router handling..."
+echo ""
+
+# Check what modes S1 can produce
+echo "S1 parallelization modes:"
+grep -n "sequential\|parallel\|group" stages/s1/*.md 2>/dev/null | grep -i "mode\|option\|scenario" | head -5
+
+echo ""
+echo "S2 router handles:"
+grep -n "Sequential\|Parallel\|Group" stages/s2/s2_feature_deep_dive.md 2>/dev/null | head -5
+
+echo ""
+echo -e "${YELLOW}Verify all S1 modes are handled in S2 router${NC}"
+echo "(Full D17 validation required in manual audit)"
 
 echo ""
 

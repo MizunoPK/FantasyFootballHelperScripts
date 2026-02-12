@@ -12,7 +12,7 @@
 ## Template
 
 ```markdown
-# Epic Lessons Learned: {epic_name}
+## Epic Lessons Learned: {epic_name}
 
 **Epic Overview:** {Brief description of epic}
 **Date Range:** {start_date} - {end_date}
@@ -144,7 +144,7 @@ This document captures:
 **S5 (TODO Creation):**
 - What went well: {Observation}
 - What could improve: {Improvement}
-- 22 iterations experience: {Any issues with specific iterations}
+- Validation Loop experience: {Any issues with specific dimensions or validation rounds}
 
 **S6 (Implementation):**
 - What went well: {Observation}
@@ -223,7 +223,7 @@ This document captures:
 ### Guide Improvements Needed from S5
 
 **From Feature 01:**
-- `stages/s5/s5_p1_planning_round1.md`: {Specific improvement}
+- `stages/s5/s5_v2_validation_loop.md`: {Specific improvement}
 - `stages/s7/s7_p1_smoke_testing.md`: {Specific improvement}
 
 **From Feature 01 Debugging (if occurred):**

@@ -36,6 +36,7 @@
 5. **Reference Consistency** - Internal file references are accurate
 6. **Tone Consistency** - Maintains consistent voice/style throughout
 7. **Example Consistency** - Examples demonstrate principles stated in text
+8. **Prerequisite-Content Consistency** - Prerequisites section doesn't contradict file's body content
 
 **Coverage:**
 - All workflow guides in stages/
@@ -402,7 +403,7 @@ This section covers...
 **Search Commands:**
 ```bash
 # Check if all major sections have same subsections
-file="stages/s5/s5_p1_planning_round1.md"
+file="stages/s5/s5_v2_validation_loop.md"
 
 # Extract section headers
 sections=$(grep "^## " "$file" | sed 's/^## //')
@@ -636,6 +637,95 @@ For Stage 5a Phase 2...  ← ERROR: Example violates the rule it demonstrates
 
 ---
 
+### Type 8: Prerequisite-Content Consistency
+
+**What to Check:**
+A file's prerequisites section must not contradict its own body content.
+
+**Why This Matters:**
+Prerequisites set expectations for what must be true before the stage runs. If content describes behavior that contradicts prerequisites, agents receive conflicting guidance.
+
+**Common Contradiction Pattern:**
+
+**Prerequisites say:**
+```markdown
+## Prerequisites
+
+- [ ] ALL features must complete S2 before starting S3
+```
+
+**Content says:**
+```markdown
+## Dependency Groups Section
+
+S3 runs ONCE PER ROUND (not just once at end):
+- **Round 1 S3:** Validate Group 1 features only
+- **Round 2 S3:** Validate Group 2 features + Group 1
+```
+
+**CONTRADICTION:**
+- Prerequisites: "ALL features complete S2 first" (epic-level)
+- Content: "Round 1: Group 1 features only" (implies group-level, not all features)
+
+**Search Commands:**
+
+```bash
+# Step 1: Find files with "ALL" in prerequisites
+for file in stages/**/*.md; do
+  has_all=$(grep -A 15 "^## Prerequisites" "$file" 2>/dev/null | grep -i "ALL\|all features\|every feature")
+  if [ -n "$has_all" ]; then
+    echo "=== $file ==="
+    echo "Prerequisites: $has_all"
+
+    # Step 2: Check for group/round-based content
+    has_groups=$(grep -i "Round [0-9]:.*Group\|Group [0-9].*only\|per group" "$file")
+    if [ -n "$has_groups" ]; then
+      echo "Content: $has_groups"
+      echo "POTENTIAL CONTRADICTION"
+    fi
+  fi
+done
+```
+
+**Validation Checklist:**
+
+For each stage guide:
+- [ ] If prerequisites say "ALL features/stages complete" then content doesn't describe per-group execution
+- [ ] If prerequisites say "per feature" then content doesn't assume epic-level context
+- [ ] Scope in prerequisites matches scope in content
+- [ ] Timing in prerequisites matches timing described in content
+
+**Example Issue (KAI-8):**
+
+**File:** `stages/s3/s3_epic_planning_approval.md`
+
+**Prerequisites (Line 46):**
+```markdown
+- ALL features have completed S2 (Feature Deep Dives)
+```
+
+**Content (Lines 67-71):**
+```markdown
+S3 runs ONCE PER ROUND (not just once at end):
+- **Round 1 S3:** Validate Group 1 features against each other
+- **Round 2 S3:** Validate Group 2 features against ALL Group 1 features
+```
+
+**Analysis:**
+- Prerequisites say "ALL features complete S2 first"
+- Content says "Round 1 S3: Group 1 features" (implies S3 starts before all features complete S2)
+- **CONTRADICTION** within same file
+
+**Red Flags:**
+- "ALL" in prerequisites + "Round/Group X only" in content
+- "Per feature" in prerequisites + "epic-level" in content
+- Different timing assumptions between sections
+- Scope language conflicts (epic vs group vs feature)
+
+**Automated:** Partial - Can find keyword patterns, requires semantic validation
+
+---
+
 ## How Errors Happen
 
 ### Root Cause 1: Incremental Editing Without Full File Review
@@ -829,7 +919,7 @@ grep -oi "stage\|phase\|step\|iteration" "$file" | sort | uniq -c
 
 ```bash
 # Check if all sections have same structure
-file="stages/s5/s5_p1_planning_round1.md"
+file="stages/s5/s5_v2_validation_loop.md"
 
 # List all section headers
 grep "^## \|^### " "$file"
@@ -968,7 +1058,7 @@ The agent must wait for user approval before proceeding.
 
 **Issue Found During KAI-7 Audit Round 3:**
 
-**File:** `stages/s5/s5_p1_planning_round1.md`
+**File:** `stages/s5/s5_v2_validation_loop.md`
 
 **Mixed Content:**
 ```markdown
@@ -1230,6 +1320,7 @@ For detailed testing patterns, see Section 7: Advanced Testing Techniques.
 5. ⚠️ Internal reference accuracy
 6. ❌ Tone and style consistency (manual)
 7. ❌ Example-to-principle consistency (manual)
+8. ⚠️ Prerequisite-content consistency (prerequisites don't contradict body)
 
 **Automation: ~80%**
 - Highly automated for notation, terminology, structure
@@ -1244,6 +1335,6 @@ For detailed testing patterns, see Section 7: Advanced Testing Techniques.
 
 ---
 
-**Last Updated:** 2026-02-04
-**Version:** 1.0
+**Last Updated:** 2026-02-06
+**Version:** 1.1
 **Status:** ✅ Fully Implemented

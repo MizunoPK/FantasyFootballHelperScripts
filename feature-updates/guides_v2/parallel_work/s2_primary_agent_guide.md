@@ -86,9 +86,55 @@ Wave Assignment                                     Run S3 when all complete
 
 ---
 
-## Phase 2: Offer Parallel Work to User
+## Phase 2: Determine Parallelization Mode
 
-**After S1 complete:**
+**After S1 complete, check EPIC_README.md for dependency groups:**
+
+### Mode A: Group-Based Parallelization
+
+**Check for group-based mode indicators:**
+- EPIC_README.md has "Feature Dependency Groups (S2 Only)" section
+- Multiple dependency groups documented (Group 1, Group 2, etc.)
+- Groups organized by spec-level dependencies
+
+**If group-based mode detected:**
+
+**→ Stop here and switch to:** `parallel_work/s2_primary_agent_group_wave_guide.md`
+
+**That guide handles:**
+- Wave 1: Execute S2 for Group 1 features (solo or parallel within group)
+- Wave Transition: Generate handoffs for Group 2 after Group 1 S2 complete
+- Wave 2: Coordinate Group 2 parallel work
+- Additional Waves: Repeat for Group 3+ if needed
+- Wave Completion: Final S2.P2 across ALL features, transition to S3
+
+**Do NOT continue with this guide** if you're in group-based mode. This guide assumes all features can parallelize simultaneously (no dependency groups).
+
+---
+
+### Mode B: Full Parallelization (No Groups)
+
+**Check for full parallelization indicators:**
+- All features independent (no spec-level dependencies)
+- OR EPIC_README.md says "All features independent - Single S2 wave"
+- OR EPIC_README.md has "Feature Dependency Groups (S2 Only)" section with ONLY Group 1
+
+**If full parallelization mode confirmed:**
+
+**→ Continue with this guide** (rest of the phases below)
+
+**This guide handles:**
+- Generate handoffs for all features immediately (no waves)
+- All features execute S2 in parallel simultaneously
+- Coordinate all secondary agents together
+- Run S2.P2 after all features complete
+- Transition to S3
+
+---
+
+## Phase 3: Offer Parallel Work to User
+
+**After S1 complete and Mode B (full parallelization) confirmed:**
 
 ### Step 1: Prepare Offering Message
 
@@ -169,20 +215,62 @@ Would you like to:
 
 ---
 
-## Phase 3: Generate Handoff Packages
+## Phase 4: Generate Handoff Packages
 
 **When user accepts parallel work:**
 
-### Step 1: Create Coordination Infrastructure
+### Step 1: Create Coordination Infrastructure (Primary Only)
+
+**🚨 CRITICAL:** Primary agent creates ALL coordination infrastructure. Secondaries ONLY create their own checkpoint/STATUS files.
 
 ```bash
-# Create coordination directories
+# Create ALL coordination directories (Primary only)
 mkdir -p .epic_locks
 mkdir -p agent_comms
 mkdir -p agent_checkpoints
 
-echo "Coordination infrastructure created"
+echo "✅ Coordination infrastructure created (Primary)"
 ```
+
+**Rules:**
+- ✅ Primary creates directories
+- ✅ Secondaries create FILES (their checkpoint.json and STATUS)
+- ❌ DO NOT create subdirectories under agent_comms/ or agent_checkpoints/
+- ❌ DO NOT create parallel_work/ or agent_comms/inboxes/ or agent_comms/coordination/
+
+### Step 1.5: Validate Structure
+
+```bash
+# Run validation script to ensure structure is correct
+bash feature-updates/guides_v2/parallel_work/scripts/validate_structure.sh .
+
+# Expected output: ✅ PASSED - structure valid
+# If errors found, fix before proceeding
+```
+
+### Step 1.6: Create Your Own STATUS File
+
+**🚨 CRITICAL:** Feature 01 (Primary's feature) needs a STATUS file too.
+
+```bash
+# Create STATUS file for Feature 01
+cat > "feature_01_{name}/STATUS" <<EOF
+STAGE: S2.P1
+PHASE: Research Phase
+AGENT: Primary
+AGENT_ID: $(uuidgen)
+UPDATED: $(date -u +"%Y-%m-%dT%H:%M:%SZ")
+STATUS: IN_PROGRESS
+BLOCKERS: none
+NEXT_ACTION: Begin S2.P1 Research Phase
+READY_FOR_SYNC: false
+ESTIMATED_COMPLETION: $(date -u -d "+2 hours" +"%Y-%m-%dT%H:%M:%SZ")
+EOF
+
+echo "✅ STATUS file created for Feature 01"
+```
+
+**Rule:** ALL features need STATUS files, including Feature 01 (Primary's feature).
 
 ### Step 2: Determine Secondary Agent Assignments
 
@@ -195,29 +283,51 @@ echo "Coordination infrastructure created"
 - Use alphabetical: Secondary-A, Secondary-B, Secondary-C, etc.
 - Lowercase for filenames: secondary_a, secondary_b, etc.
 
-### Step 3: Generate Handoff Packages
+### Step 3: Generate and Save Handoff Packages
 
 **Use template from `templates/handoff_package_s2_template.md`:**
 
+**For each secondary feature:**
+
+1. Generate handoff content
+2. **Save to feature folder** (not agent_comms/)
+3. Present simplified startup instruction to user
+
+**Example for 3-feature epic:**
+
 ```bash
 # For Secondary-A (Feature 02)
-generate_s2_handoff_package \
-  "KAI-6-nfl_team_penalty" \
-  "C:/Users/kmgam/code/FantasyFootballHelperScripts/feature-updates/KAI-6-nfl_team_penalty" \
-  "feature_02_team_penalty" \
-  "Agent-Primary-abc123" \
-  "Secondary-A"
+# Generate handoff content (use template)
+# Then save to feature folder:
+cat > "feature_02_{name}/HANDOFF_PACKAGE.md" <<EOF
+═══════════════════════════════════════════════════════════
+HANDOFF PACKAGE - Secondary Agent A
+═══════════════════════════════════════════════════════════
+
+**Epic:** KAI-6-nfl_team_penalty
+**Feature Assignment:** feature_02_team_penalty
+**Primary Agent ID:** Agent-Primary-abc123
+**Your Agent ID:** Secondary-A
+**Starting Stage:** S2.P1 (Feature Deep Dive - Research Phase)
+
+[... full handoff content from template ...]
+EOF
 
 # For Secondary-B (Feature 03)
-generate_s2_handoff_package \
-  "KAI-6-nfl_team_penalty" \
-  "C:/Users/kmgam/code/FantasyFootballHelperScripts/feature-updates/KAI-6-nfl_team_penalty" \
-  "feature_03_scoring_update" \
-  "Agent-Primary-abc123" \
-  "Secondary-B"
+cat > "feature_03_{name}/HANDOFF_PACKAGE.md" <<EOF
+[... handoff content for Secondary-B ...]
+EOF
+
+echo "✅ Handoff packages saved to feature folders"
 ```
 
-### Step 4: Present Handoff Packages to User
+**Rule:** Handoff packages saved in feature folders, NOT in `agent_comms/`.
+
+**Benefit:** Secondary agents can find them automatically by reading `feature_XX_{name}/HANDOFF_PACKAGE.md`
+
+### Step 4: Present Simplified Startup Instructions to User
+
+**NEW SIMPLIFIED PROCESS:** Handoff packages are pre-saved in feature folders. User just spawns agents with one-line instructions.
 
 ```markdown
 Great! I'll set up parallel work for S2.
@@ -230,37 +340,47 @@ You'll need to open 2 new Claude Code sessions (one for each secondary agent).
 1. Open a new terminal/window
 2. Navigate to the project: cd /path/to/project
 3. Start Claude Code in the new window
-4. Copy-paste the handoff package below
+4. Enter the one-line startup command below
 
 ---
 
-🚀 SECONDARY AGENT A - HANDOFF PACKAGE
+🚀 SECONDARY AGENT A STARTUP
 
-Copy the entire block below and paste into NEW Claude Code session #1:
+In NEW Claude Code session #1, enter:
 
-═══════════════════════════════════════════════════════════
-[Handoff package for Secondary-A]
-═══════════════════════════════════════════════════════════
+```text
+You are a secondary agent for Feature 02
+```
 
----
-
-🚀 SECONDARY AGENT B - HANDOFF PACKAGE
-
-Copy the entire block below and paste into NEW Claude Code session #2:
-
-═══════════════════════════════════════════════════════════
-[Handoff package for Secondary-B]
-═══════════════════════════════════════════════════════════
+The agent will automatically read `feature_02_{name}/HANDOFF_PACKAGE.md` and self-configure.
 
 ---
 
-**After pasting both packages:**
-- Secondary agents will self-configure and begin S2
+🚀 SECONDARY AGENT B STARTUP
+
+In NEW Claude Code session #2, enter:
+
+```text
+You are a secondary agent for Feature 03
+```text
+
+The agent will automatically read `feature_03_{name}/HANDOFF_PACKAGE.md` and self-configure.
+
+---
+
+**Benefits:**
+- ✅ No copy-paste errors
+- ✅ Scalable (works for 2 or 20 features)
+- ✅ Consistent startup for all secondaries
+- ✅ Handoff packages stored in feature folders for audit trail
+
+**After secondary agents start:**
+- They'll self-configure and begin S2
 - I'll monitor their progress via STATUS files and checkpoints
 - All agents will work on S2 simultaneously
 - When all complete S2, I'll run S3
 
-Ready to start? Please paste the handoff packages in the new sessions.
+Ready to start? Please enter the startup commands in the new sessions.
 ```
 
 ### Step 5: Wait for Secondary Agents to Start
@@ -285,7 +405,7 @@ done
 
 ---
 
-## Phase 4: Parallel S2 Work
+## Phase 5: Parallel S2 Work
 
 **You now have dual responsibilities:**
 
@@ -294,7 +414,7 @@ done
 **Work on your feature (S2.P1 → S2.P2 → S2.P3):**
 
 1. **Execute S2.P1 for Feature 01:**
-   - Follow guide: `stages/s2/s2_p1_research.md`
+   - Follow guide: `stages/s2/s2_p1_spec_creation_refinement.md`
    - Complete research phase
    - Update checkpoint every 15 min
    - Update EPIC_README.md progress section
@@ -434,7 +554,7 @@ Total: 2.5 hours
 
 ---
 
-## Phase 5: Sync Point - All Features Complete S2
+## Phase 6: Sync Point - All Features Complete S2
 
 **When all features complete S2.P3:**
 
@@ -508,11 +628,11 @@ I'll review all 3 specs for conflicts, overlaps, and gaps...
 
 ---
 
-## Phase 6: S3 Cross-Feature Sanity Check (Solo)
+## Phase 7: S3 Cross-Feature Sanity Check (Solo)
 
 **Run S3 alone (no parallel work):**
 
-1. **Follow guide:** `stages/s3/s3_cross_feature_sanity_check.md`
+1. **Follow guide:** `stages/s3/s3_epic_planning_approval.md`
 
 2. **Review all specs:**
    - Read spec.md for all 3 features
@@ -533,7 +653,7 @@ I'll review all 3 specs for conflicts, overlaps, and gaps...
 
 ---
 
-## Phase 7: S4 Epic Testing Strategy (Solo)
+## Phase 8: S4 Epic Testing Strategy (Solo)
 
 **Run S4 alone:**
 
@@ -549,7 +669,7 @@ I'll review all 3 specs for conflicts, overlaps, and gaps...
 
 ---
 
-## Phase 8: Notify Secondary Agents of S3/S4 Completion
+## Phase 9: Notify Secondary Agents of S3/S4 Completion
 
 **Send final message to secondaries:**
 

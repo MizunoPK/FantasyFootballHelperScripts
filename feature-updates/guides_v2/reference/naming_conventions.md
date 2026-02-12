@@ -80,8 +80,10 @@ The Epic-Driven Development Workflow v2 uses a **3-level hierarchical S#.P#.I# n
 | Level | Pattern | Example Filename |
 |-------|---------|------------------|
 | **Stage** | `s{N}_{name}.md` | `s1_epic_planning.md` |
-| **Phase** | `s{N}_p{M}_{name}.md` | `s5_p1_planning_round1.md` |
-| **Iteration** | `s{N}_p{M}_i{K}_{name}.md` | `s5_p1_i2_algorithms.md` |
+| **Phase** | `s{N}_p{M}_{name}.md` | `s2_p2_specification.md` |
+| **Iteration** | `s{N}_p{M}_i{K}_{name}.md` | *(deprecated - S5 v2 uses single comprehensive file)* |
+
+**Note:** S5 v2 replaces the iteration-based structure with a single comprehensive Validation Loop guide (`s5_v2_validation_loop.md`). See `reference/stage_5/s5_v2_quick_reference.md` for details.
 
 ### Specific Rules
 
@@ -91,14 +93,15 @@ The Epic-Driven Development Workflow v2 uses a **3-level hierarchical S#.P#.I# n
 - **Why:** Lowercase 's' prefix is concise and consistent
 
 **Rule 2: Phase files (Level 2) - Stage + Phase prefix**
-- ✅ Correct: `s5_p1_planning_round1.md`, `s2_p2_specification.md`
+- ✅ Correct: `s5_v2_validation_loop.md`, `s2_p2_specification.md`
 - ❌ Wrong: `s5_planning_round1.md` (missing p1), `phase_5.1_planning.md` (old notation)
 - **Why:** Shows exactly where in hierarchy (S5, Phase 1)
 
-**Rule 3: Iteration files (Level 3) - Stage + Phase + Iteration prefix**
-- ✅ Correct: `s5_p1_i2_algorithms.md`, `s5_p3_i1_preparation.md`
-- ❌ Wrong: `s5_algorithms.md` (missing p and i), `s5_p1_2_algorithms.md` (wrong format)
-- **Why:** Full hierarchy visible in filename
+**Rule 3: Iteration files (Level 3) - Stage + Phase + Iteration prefix** *(deprecated)*
+- **Note:** S5 v2 no longer uses iteration files. For historical reference:
+  - ✅ Was correct: `s5_p1_i2_algorithms.md`, `s5_p3_i1_preparation.md`
+  - ❌ Was wrong: `s5_algorithms.md` (missing p and i), `s5_p1_2_algorithms.md` (wrong format)
+- **Current:** See `reference/stage_5/s5_v2_quick_reference.md`
 
 **Rule 4: Descriptive names use snake_case**
 - ✅ Correct: `epic_smoke_testing.md`, `cross_feature_sanity_check.md`
@@ -106,8 +109,8 @@ The Epic-Driven Development Workflow v2 uses a **3-level hierarchical S#.P#.I# n
 - **Why:** Consistent with project-wide file naming standards
 
 **Rule 5: Use underscores to separate parts**
-- ✅ Correct: `s5_p1_i2_algorithms.md`
-- ❌ Wrong: `s5-p1-i2-algorithms.md`, `s5p1i2_algorithms.md`
+- ✅ Correct: `s2_p2_specification.md`
+- ❌ Wrong: `s2-p2-specification.md`, `s2p2_specification.md`
 - **Why:** Clear visual separation between notation and description
 
 **Rule 6: Special case - Phase number variants**
@@ -128,30 +131,19 @@ feature-updates/guides_v2/
 │   │   └── s1_epic_planning.md                    (Level 1: Stage)
 │   ├── s2/
 │   │   ├── s2_feature_deep_dive.md                (Level 1: Stage, router)
-│   │   ├── s2_p1_research.md                      (Level 2: Phase)
+│   │   ├── s2_p1_spec_creation_refinement.md                      (Level 2: Phase)
 │   │   ├── s2_p2_specification.md                 (Level 2: Phase)
 │   │   ├── s2_p2_5_spec_validation.md             (Level 2: Phase variant)
 │   │   └── s2_p3_refinement.md                    (Level 2: Phase)
 │   ├── s3/
-│   │   └── s3_cross_feature_sanity_check.md       (Level 1: Stage)
+│   │   └── s3_epic_planning_approval.md       (Level 1: Stage)
 │   ├── s4/
 │   │   └── s4_epic_testing_strategy.md            (Level 1: Stage)
 │   ├── s5/
-│   │   ├── feature_implementation.md              (Level 1: Stage, router)
-│   │   ├── s5_p1_planning_round1.md               (Level 2: Phase, router)
-│   │   ├── s5_p1_i1_requirements.md               (Level 3: Iteration)
-│   │   ├── s5_p1_i2_algorithms.md                 (Level 3: Iteration)
-│   │   ├── s5_p1_i3_integration.md                (Level 3: Iteration)
-│   │   ├── s5_p2_planning_round2.md               (Level 2: Phase, router)
-│   │   ├── s5_p2_i1_test_strategy.md              (Level 3: Iteration)
-│   │   ├── s5_p2_i2_reverification.md             (Level 3: Iteration)
-│   │   ├── s5_p2_i3_final_checks.md               (Level 3: Iteration)
-│   │   ├── s5_p3_planning_round3.md               (Level 2: Phase, router)
-│   │   ├── s5_p3_i1_preparation.md                (Level 3: Iteration)
-│   │   ├── s5_p3_i2_gates_part1.md                (Level 3: Iteration)
-│   │   ├── s5_p3_i3_gates_part2.md                (Level 3: Iteration)
-│   │   ├── s5_pr_review_protocol.md               (Support doc)
-│   │   └── s5_bugfix_workflow.md                  (Support doc)
+│   │   ├── s5_v2_validation_loop.md               (Level 2: Primary guide - Draft + Validation Loop)
+│   │   ├── validation_loop_qc_pr.md               (Support doc - QC/PR template)
+│   │   ├── s5_bugfix_workflow.md                  (Support doc - Bugfix workflow)
+│   │   └── s5_update_notes.md                     (Archive - Update tracking)
 │   ├── s6/
 │   │   └── s6_execution.md                         (Level 1: Stage)
 │   ├── s7/
@@ -181,7 +173,7 @@ feature-updates/guides_v2/
 
 **Rule 2: Flat structure within stage directories**
 - All files for a stage (including phases and iterations) go directly in `s{N}/` directory
-- ✅ Example: `stages/s5/s5_p1_i2_algorithms.md` (not nested)
+- ✅ Example: `stages/s5/s5_v2_validation_loop.md` (not nested)
 - **Why:** Keeps structure simple, file names show full hierarchy
 
 **Rule 3: No subdirectories within stage folders**
@@ -209,7 +201,7 @@ feature-updates/guides_v2/
 **All guide files MUST start with this header structure:**
 
 ```markdown
-# S{N}: {Stage Name}
+## S{N}: {Stage Name}
 ## S{N}.P{M}: {Phase Name}  (if Level 2)
 ### S{N}.P{M}.I{K}: {Iteration Name}  (if Level 3)
 
@@ -226,7 +218,7 @@ feature-updates/guides_v2/
 
 **Level 1 (Stage) Header:**
 ```markdown
-# S1: Epic Planning
+## S1: Epic Planning
 
 **File:** `s1_epic_planning.md`
 
@@ -239,32 +231,34 @@ feature-updates/guides_v2/
 
 **Level 2 (Phase) Header:**
 ```markdown
-# S5: Feature Implementation
+## S5: Feature Implementation
 ## S5.P1: Planning Round 1
 
-**File:** `s5_p1_planning_round1.md`
+**File:** `s5_v2_validation_loop.md`
 
 **Purpose:** Execute iterations 1-7 with requirement reviews and algorithm design
 **Prerequisites:** S2-S4 complete (spec, alignment, test strategy approved)
-**Next Guide:** `stages/s5/s5_p2_planning_round2.md`
+**Next Guide:** `stages/s5/s5_v2_validation_loop.md`
 
 ---
 ```
 
-**Level 3 (Iteration) Header:**
+**Level 3 (Iteration) Header:** *(deprecated - no longer used in v2 workflow)*
+
+**Note:** The iteration-based structure (S#.P#.I#) was deprecated with S5 v2. Historical example:
+
 ```markdown
-# S5: Feature Implementation
+## S5: Feature Implementation (HISTORICAL - S5 v1)
 ## S5.P1: Planning Round 1
-### S5.P1.I2: Algorithms (Iterations 4-6 + Gate 4a)
+### S5.P1.I2: Algorithms
 
 **File:** `s5_p1_i2_algorithms.md`
-
-**Purpose:** Design core algorithms and execute Gate 4a (TODO specification audit)
-**Prerequisites:** S5.P1.I1 complete (Requirements iterations 1-3)
+**Purpose:** Design core algorithms
+**Prerequisites:** S5.P1.I1 complete
 **Next Guide:** `stages/s5/s5_p1_i3_integration.md`
-
----
 ```
+
+**Current S5 v2:** Uses single comprehensive `s5_v2_validation_loop.md` file. See `reference/stage_5/s5_v2_quick_reference.md`.
 
 ### Header Rules
 
@@ -273,12 +267,12 @@ feature-updates/guides_v2/
 - **Why:** Provides context when file is read in isolation
 
 **Rule 2: File field must match actual filename**
-- ✅ Correct: `**File:** s5_p1_planning_round1.md`
+- ✅ Correct: `**File:** s5_v2_validation_loop.md`
 - ❌ Wrong: `**File:** planning_round1.md`
 
 **Rule 3: Use relative paths for Next Guide**
-- ✅ Correct: `stages/s5/s5_p2_planning_round2.md`
-- ❌ Wrong: `s5_p2_planning_round2.md` (missing directory)
+- ✅ Correct: `stages/s5/s5_v2_validation_loop.md`
+- ❌ Wrong: `s5_v2_validation_loop.md` (missing directory)
 
 **Rule 4: Separator line `---` required after header**
 - Separates metadata from content
@@ -304,7 +298,7 @@ See `stages/s6/s6_execution.md` for execution details.
 ```markdown
 | Current Phase | Guide to Read | Time |
 |---------------|---------------|------|
-| S5.P1 | `stages/s5/s5_p1_planning_round1.md` | 90 min |
+| S5.P1 | `stages/s5/s5_v2_validation_loop.md` | 90 min |
 ```
 
 ### Reference Rules
@@ -314,16 +308,16 @@ See `stages/s6/s6_execution.md` for execution details.
 - ❌ Wrong: `S5 Phase 1`, `S5.P1`, `5.1` (without prefix)
 
 **Rule 2: File paths are relative to guides_v2/ directory**
-- ✅ Correct: `stages/s5/s5_p1_planning_round1.md`
-- ❌ Wrong: `feature-updates/guides_v2/stages/s5/s5_p1_planning_round1.md`
+- ✅ Correct: `stages/s5/s5_v2_validation_loop.md`
+- ❌ Wrong: `feature-updates/guides_v2/stages/s5/s5_v2_validation_loop.md`
 
 **Rule 3: Use backticks for file paths**
-- ✅ Correct: `See \`stages/s5/s5_p1_planning_round1.md\``
-- ❌ Wrong: `See stages/s5/s5_p1_planning_round1.md`
+- ✅ Correct: `See \`stages/s5/s5_v2_validation_loop.md\``
+- ❌ Wrong: `See stages/s5/s5_v2_validation_loop.md`
 
 **Rule 4: When referencing a guide, include full path**
-- ✅ Correct: `READ: \`stages/s5/s5_p1_planning_round1.md\``
-- ❌ Wrong: `READ: s5_p1_planning_round1.md`
+- ✅ Correct: `READ: \`stages/s5/s5_v2_validation_loop.md\``
+- ❌ Wrong: `READ: s5_v2_validation_loop.md`
 
 ---
 
@@ -367,7 +361,7 @@ See `stages/s6/s6_execution.md` for execution details.
 **File:** `stages/s1/s1_epic_planning.md`
 
 ```markdown
-# S1: Epic Planning
+## S1: Epic Planning
 
 **File:** `s1_epic_planning.md`
 
@@ -387,17 +381,17 @@ S1 is the initial planning section where you:
 
 ### Example 2: Phase File (Level 2)
 
-**File:** `stages/s5/s5_p1_planning_round1.md`
+**File:** `stages/s5/s5_v2_validation_loop.md`
 
 ```markdown
-# S5: Feature Implementation
+## S5: Feature Implementation
 ## S5.P1: Planning Round 1 (Iterations 1-7)
 
-**File:** `s5_p1_planning_round1.md`
+**File:** `s5_v2_validation_loop.md`
 
 **Purpose:** Execute iterations 1-7 with requirement reviews and algorithm design
 **Prerequisites:** S2-S4 complete (spec, alignment, test strategy approved)
-**Next Guide:** `stages/s5/s5_p2_planning_round2.md`
+**Next Guide:** `stages/s5/s5_v2_validation_loop.md`
 
 ---
 
@@ -410,27 +404,23 @@ S5.P1 is split into 3 iteration groups:
 ...
 ```
 
-### Example 3: Iteration File (Level 3)
+### Example 3: Iteration File (Level 3) - DEPRECATED
 
-**File:** `stages/s5/s5_p1_i2_algorithms.md`
+**Note:** Iteration files (Level 3) are no longer used in v2 workflow. This example is historical only.
 
+**Historical S5 v1 Example:**
 ```markdown
-# S5: Feature Implementation
+## S5: Feature Implementation
 ## S5.P1: Planning Round 1
-### S5.P1.I2: Algorithms (Iterations 4-6 + Gate 4a)
+### S5.P1.I2: Algorithms
 
 **File:** `s5_p1_i2_algorithms.md`
-
-**Purpose:** Design core algorithms and execute Gate 4a (TODO specification audit)
-**Prerequisites:** S5.P1.I1 complete (Requirements iterations 1-3)
+**Purpose:** Design core algorithms
+**Prerequisites:** S5.P1.I1 complete
 **Next Guide:** `stages/s5/s5_p1_i3_integration.md`
-
----
-
-## Iteration 4: Algorithm Design
-
-**Purpose:** Design core algorithms and data structures...
 ```
+
+**Current S5 v2:** Uses comprehensive Validation Loop (`s5_v2_validation_loop.md`). See `reference/stage_5/s5_v2_quick_reference.md`.
 
 ---
 
@@ -447,7 +437,7 @@ See `stages/s5/phase_5.1_implementation_planning.md` for details.
 **Correct:**
 ```markdown
 After completing S5.P1, proceed to S5.P2.
-See `stages/s5/s5_p1_planning_round1.md` for details.
+See `stages/s5/s5_v2_validation_loop.md` for details.
 ```
 
 **Why:** Old notation (S5, S5.P1) is deprecated.
@@ -458,13 +448,13 @@ See `stages/s5/s5_p1_planning_round1.md` for details.
 
 **Wrong:**
 ```markdown
-# S5: Feature Implementation
+## S5: Feature Implementation
 ## Phase 1: Planning Round 1  (missing S5)
 ```
 
 **Correct:**
 ```markdown
-# S5: Feature Implementation
+## S5: Feature Implementation
 ## S5.P1: Planning Round 1
 ```
 
@@ -483,7 +473,7 @@ s5-p1-planning.md                (hyphens instead of underscores)
 
 **Correct:**
 ```markdown
-s5_p1_planning_round1.md
+s5_v2_validation_loop.md
 ```
 
 **Why:** Must follow s{N}_p{M}_{name}.md pattern.
@@ -494,13 +484,13 @@ s5_p1_planning_round1.md
 
 **Wrong:**
 ```markdown
-See `C:\Users\...\feature-updates\guides_v2\stages\s5\s5_p1_planning_round1.md`
-See `feature-updates/guides_v2/stages/s5/s5_p1_planning_round1.md`
+See `C:\Users\...\feature-updates\guides_v2\stages\s5\s5_v2_validation_loop.md`
+See `feature-updates/guides_v2/stages/s5/s5_v2_validation_loop.md`
 ```
 
 **Correct:**
 ```markdown
-See `stages/s5/s5_p1_planning_round1.md`
+See `stages/s5/s5_v2_validation_loop.md`
 ```
 
 **Why:** Paths are relative to `guides_v2/` directory.
@@ -529,13 +519,13 @@ See `stages/s5/s5_p1_planning_round1.md`
 
 **Wrong:**
 ```markdown
-# S5: Feature Implementation
+## S5: Feature Implementation
 ### S5.P1.I2: Algorithms  (skipped Level 2)
 ```
 
 **Correct:**
 ```markdown
-# S5: Feature Implementation
+## S5: Feature Implementation
 ## S5.P1: Planning Round 1
 ### S5.P1.I2: Algorithms
 ```
@@ -551,23 +541,23 @@ See `stages/s5/s5_p1_planning_round1.md`
 | Level | Term | Notation | Filename Pattern | Header Format | Example |
 |-------|------|----------|------------------|---------------|---------|
 | **1** | Stage | S# | `s{N}_{name}.md` | `# S{N}:` | `s1_epic_planning.md` |
-| **2** | Phase | S#.P# | `s{N}_p{M}_{name}.md` | `## S{N}.P{M}:` | `s5_p1_planning_round1.md` |
-| **3** | Iteration | S#.P#.I# | `s{N}_p{M}_i{K}_{name}.md` | `### S{N}.P{M}.I{K}:` | `s5_p1_i2_algorithms.md` |
+| **2** | Phase | S#.P# | `s{N}_p{M}_{name}.md` | `## S{N}.P{M}:` | `s2_p2_specification.md` |
+| **3** | Iteration | S#.P#.I# | `s{N}_p{M}_i{K}_{name}.md` | `### S{N}.P{M}.I{K}:` | *(deprecated)* |
 
 ### File Location Patterns
 
 | Level | Directory Location | Example |
 |-------|-------------------|---------|
 | **Stage** | `stages/s{N}/` | `stages/s1/s1_epic_planning.md` |
-| **Phase** | `stages/s{N}/` | `stages/s5/s5_p1_planning_round1.md` |
-| **Iteration** | `stages/s{N}/` | `stages/s5/s5_p1_i2_algorithms.md` |
+| **Phase** | `stages/s{N}/` | `stages/s2/s2_p2_specification.md` |
+| **Iteration** | `stages/s{N}/` | *(deprecated - no longer used)* |
 
 ### Cross-Reference Format Quick Reference
 
 | Reference Type | Format | Example |
 |---------------|--------|---------|
 | **Notation only** | `S{N}.P{M}` | `S5.P1` |
-| **File path** | `` `stages/s{N}/s{N}_p{M}_{name}.md` `` | `` `stages/s5/s5_p1_planning_round1.md` `` |
+| **File path** | `` `stages/s{N}/s{N}_p{M}_{name}.md` `` | `` `stages/s5/s5_v2_validation_loop.md` `` |
 | **Descriptive** | `S{N}.P{M} ({Name})` | `S5.P1 (Planning Round 1)` |
 
 ---

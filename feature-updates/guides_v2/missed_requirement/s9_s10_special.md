@@ -55,7 +55,7 @@
 ## Workflow Overview
 
 ```text
-Discovery (S9.P2: Epic QC Round 1)
+Discovery (S9.P2: Epic QC Validation Loop)
     ↓
 PHASE 1: Discovery & User Decision (normal)
     ↓
@@ -134,7 +134,7 @@ Actions needed:
 **When new/updated feature's turn comes in sequence:**
 
 **Run full S5:**
-- S5: TODO Creation (3 rounds, 22 iterations)
+- S5 v2: Implementation Planning (2 phases: Draft + Validation Loop with 11 dimensions)
 - S6: Implementation Execution
 - S7: Post-Implementation (smoke testing, QC rounds, final review)
 - S8.P1: Cross-Feature Spec Alignment
@@ -173,7 +173,7 @@ Actions needed:
 
 **Restarting Epic Testing:**
 - Reason: feature_05 added during previous epic testing
-- Previous epic test progress: S9.P2 Round 1 (discarded)
+- Previous epic test progress: S9.P2 Validation Loop (discarded)
 - Restarting from: S9.P1 Step 1 (Epic Smoke Testing)
 
 **Next Action:** Execute epic smoke test plan with ALL 5 features
@@ -192,10 +192,10 @@ Actions needed:
    - Part 3: E2E Execution Test
    - Part 4: Cross-Feature Integration Test ← **Includes new feature**
 
-2. **S9.P2:** Epic QC Rounds (Round 1-3)
-   - Round 1: Cross-Feature Integration
-   - Round 2: Epic Cohesion & Consistency
-   - Round 3: End-to-End Success Criteria
+2. **S9.P2:** Epic QC Validation Loop
+   - Check ALL 12 dimensions every round (7 master + 5 epic)
+   - Continue until 3 consecutive clean rounds
+   - Fix issues immediately, reset counter, continue
 
 3. **S9.P3:** Epic Final Review
    - Code review
@@ -211,12 +211,12 @@ Actions needed:
 
 ## Examples
 
-### Example 1: Discovery During S9.P2 (Epic QC Round 1)
+### Example 1: Discovery During S9.P2 (Epic QC Validation Loop)
 
 ```markdown
 **Context:**
 - Epic: Fantasy Football Helpers
-- Stage: S9.P2 (Epic QC Round 1)
+- Stage: S9.P2 (Epic QC Validation Loop)
 - Features complete: feature_01, feature_02, feature_03
 - Features not started: feature_04
 - Discovery: Missing caching layer needed for feature_02/feature_03 integration
@@ -242,8 +242,9 @@ Actions needed:
    - S9.P1 Part 2 (Entry Point Test)
    - S9.P1 Part 3 (E2E Test)
    - S9.P1 Part 4 (Cross-Feature Integration) - includes caching layer
-   - S9.P2 (QC Rounds)
-   - S9.P3 (Final Review)
+   - S9.P2 (Validation Loop - 3 consecutive clean rounds)
+   - S9.P3 (User Testing)
+   - S9.P4 (Final Review)
    - S10 (Cleanup & User Testing)
 ```
 
@@ -276,8 +277,9 @@ Actions needed:
 
 4. **Restart epic testing:**
    - S9.P1 (Epic Smoke Testing) - feature_03 now includes PDF export
-   - S9.P2 (Epic QC Rounds)
-   - S9.P3 (Epic Final Review)
+   - S9.P2 (Epic QC Validation Loop - 3 consecutive clean rounds)
+   - S9.P3 (User Testing)
+   - S9.P4 (Epic Final Review)
    - S10 (User Testing) - user tests again with PDF export
 
 **Note:** Even though discovered in S10, loop back to S9.P1 (not S10)
@@ -302,7 +304,7 @@ Actions needed:
 
 ### ❌ Anti-Pattern 1: Resuming Epic Testing Mid-Stream
 
-**Mistake:** After implementing new feature, resume S9.P2 Round 1 (where left off)
+**Mistake:** After implementing new feature, resume S9.P2 Validation Loop (where left off)
 
 **Why wrong:** Previous epic test results invalid with new feature
 
@@ -358,7 +360,7 @@ Actions needed:
 
 **Epic Testing Restart:**
 - [x] S9.P1 complete (Epic Smoke Testing with new feature)
-- [x] S9.P2 complete (Epic QC Rounds)
+- [x] S9.P2 complete (Epic QC Validation Loop - 3 consecutive clean rounds)
 - [x] S9.P3 complete (Epic Final Review)
 - [x] Ready for S10 (User Testing with new feature)
 

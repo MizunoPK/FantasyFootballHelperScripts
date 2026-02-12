@@ -70,7 +70,7 @@
 
 **Example Failure (Hypothetical):**
 ```markdown
-Guide: stages/s5/s5_p3_i2_gates_part1.md
+Guide: stages/s5/s5_v2_validation_loop.md (D11: Gate 23a)
 
 ## Gate 23a: Pre-Implementation Spec Audit
 
@@ -370,7 +370,7 @@ Coming soon
 
 **After refactoring:**
 ```markdown
-# s5_p1_planning_round1.md (new file)
+# s5_v2_validation_loop.md (new file)
 
 ## Creating Plan
 See examples below.
@@ -663,7 +663,7 @@ Coming Soon
 
 **1. Stub Sections in Published Guides:**
 ```markdown
-File: stages/s5/s5_p3_i2_gates_part1.md (published guide)
+File: stages/s5/s5_v2_validation_loop.md (D11: Gate 23a) (published guide)
 
 ## Gate 23a Checklist
 Coming Soon
@@ -712,7 +712,7 @@ Follow template. See examples below.
 
 **Issue Found:**
 ```markdown
-File: stages/s5/s5_p1_planning_round1.md
+File: stages/s5/s5_v2_validation_loop.md
 
 ## Table of Contents
 
@@ -750,7 +750,7 @@ File: stages/s5/s5_p1_planning_round1.md
 
 **Issue Found:**
 ```markdown
-File: stages/s5/s5_p3_i2_gates_part1.md
+File: stages/s5/s5_v2_validation_loop.md (D11: Gate 23a)
 
 ## Gate 23a: Pre-Implementation Spec Audit
 
@@ -760,7 +760,7 @@ File: stages/s5/s5_p3_i2_gates_part1.md
 Coming Soon - will add after testing this gate in practice
 
 ## Next
-Continue to [Gate 24](s5_p3_i3_gates_part2.md)
+Continue to [Gate 24](s5_v2_validation_loop.md#gate-24)
 ```markdown
 
 **Analysis:**
@@ -889,7 +889,7 @@ $ grep "### S10:" EPIC_WORKFLOW_USAGE.md
 
 **Phases:**
 - S9.P1: Epic Smoke Testing (30-45 min)
-- S9.P2: Epic QC Rounds (3 rounds, 90-135 min)
+- S9.P2: Epic Validation Loop (3 consecutive clean rounds, 90-135 min)
 - S9.P3: User Testing (variable)
 - S9.P4: Epic Final Review (20-30 min)
 

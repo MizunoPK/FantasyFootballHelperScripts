@@ -268,7 +268,7 @@
 
 **New Data Structures:**
 ```python
-# Example data structure
+## Example data structure
 class FeatureDataModel:
     def __init__(self, ...):
         self.field1 = ...

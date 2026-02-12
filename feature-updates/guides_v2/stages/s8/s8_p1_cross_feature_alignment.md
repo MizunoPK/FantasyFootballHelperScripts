@@ -86,7 +86,7 @@ Post-Feature Alignment is complete when all remaining feature specs are updated 
    - Don't defer updates to "we'll figure it out during implementation"
 
 4. ⚠️ MARK FEATURES NEEDING SIGNIFICANT REWORK
-   - Use clear criteria (see rework_criteria_examples.md)
+   - Use clear criteria (see below)
    - If feature needs >3 new implementation tasks → return to S5
    - If spec assumptions fundamentally wrong → return to S2
    - If feature should be split/removed → return to S1
@@ -189,7 +189,7 @@ Post-Feature Alignment is complete when all remaining feature specs are updated 
 **From S7 (Testing & Review) (Post-Implementation):**
 - [ ] S7 (Testing & Review) completed for current feature
 - [ ] All smoke tests passed
-- [ ] All QC rounds passed (3 rounds)
+- [ ] S7 Validation Loop passed (3 consecutive clean rounds)
 - [ ] PR review complete
 - [ ] lessons_learned.md updated
 - [ ] Feature is production-ready
@@ -216,7 +216,7 @@ Post-Feature Alignment is complete when all remaining feature specs are updated 
 
 ```text
 ┌──────────────────────────────────────────────────────────────┐
-│          STAGE 5d: CROSS-FEATURE ALIGNMENT WORKFLOW          │
+│          S8.P1: CROSS-FEATURE ALIGNMENT WORKFLOW              │
 │                    (4 Major Steps)                            │
 └──────────────────────────────────────────────────────────────┘
 
@@ -258,6 +258,57 @@ STEP 4: Final Verification
   - 2f: Mark Feature for Rework if Significant Changes
 - Step 3: Handle Features Needing Rework
 - Step 4: Final Verification
+- Step 5: Alignment Validation Loop (MANDATORY)
+
+---
+
+## Step 5: Alignment Validation Loop (MANDATORY)
+
+**After updating remaining feature specs, validate changes with iterative loop.**
+
+**Goal:** Achieve 2 consecutive clean loops with ZERO issues in updated specs
+
+**When to run:**
+- After EACH feature completes implementation (S6-S7)
+- After S8.P1 updates remaining feature specs
+
+**Loop Process:**
+1. Review ALL specs updated in S8.P1
+2. Use focused validation perspective:
+   - **Loop 1 - Alignment Checker:** Verify remaining specs align with implemented feature's patterns
+   - **Loop 2 - Implementation Consistency:** Check for contradictions between specs and implementation
+3. Find issues (misalignments, contradictions, missing updates)
+4. Resolve ALL issues (zero tolerance standard)
+5. **Exit condition:** 2 consecutive clean loops (ZERO issues found)
+
+**Differences from S3 Validation Loop:**
+- **S3:** 3 loops, ALL specs, BEFORE implementation (comprehensive)
+- **S8.P1:** 2 loops, UPDATED specs, AFTER each feature (incremental)
+- **Both:** Zero tolerance for issues (all severities must be resolved)
+
+**Why this matters:**
+- S8.P1 updates can introduce new inconsistencies
+- Issues caught immediately instead of after all features complete
+- Prevents cascading alignment problems across remaining features
+- Maintains consistency throughout implementation (not just at S3)
+
+**Time Investment:**
+- 2 loops: ~15-30 minutes per feature
+- Prevents downstream rework: Saves 1-2 hours
+
+**Documentation:**
+Create `S8_ALIGNMENT_VALIDATION_{feature_NN}.md` with:
+- Loop 1 results (perspective, issues found, resolutions)
+- Loop 2 results (should be 0 issues if Loop 1 was thorough)
+- Exit confirmation: 2 consecutive clean loops achieved
+
+**Example from KAI-7:**
+After Feature 01 implementation:
+- S8.P1: Updated Features 02-07 specs
+- Validation Loop 1: Found 2 issues (missing error handling pattern, old logging approach)
+- Resolved issues
+- Validation Loop 2: 0 issues found
+- Proceed to S8.P2 with confirmed alignment
 
 ---
 
@@ -331,56 +382,6 @@ STEP 4: Final Verification
 
 ---
 
-## Phase 4: Alignment Validation Loop (MANDATORY)
-
-**After updating remaining feature specs, validate changes with iterative loop.**
-
-**Goal:** Achieve 2 consecutive clean loops with ZERO issues in updated specs
-
-**When to run:**
-- After EACH feature completes implementation (S6-S7)
-- After S8.P1 updates remaining feature specs
-
-**Loop Process:**
-1. Review ALL specs updated in S8.P1
-2. Use focused validation perspective:
-   - **Loop 1 - Alignment Checker:** Verify remaining specs align with implemented feature's patterns
-   - **Loop 2 - Implementation Consistency:** Check for contradictions between specs and implementation
-3. Find issues (misalignments, contradictions, missing updates)
-4. Resolve ALL issues (zero tolerance standard)
-5. **Exit condition:** 2 consecutive clean loops (ZERO issues found)
-
-**Differences from S3 Validation Loop:**
-- **S3:** 3 loops, ALL specs, BEFORE implementation (comprehensive)
-- **S8.P1:** 2 loops, UPDATED specs, AFTER each feature (incremental)
-- **Both:** Zero tolerance for issues (all severities must be resolved)
-
-**Why this matters:**
-- S8.P1 updates can introduce new inconsistencies
-- Issues caught immediately instead of after all features complete
-- Prevents cascading alignment problems across remaining features
-- Maintains consistency throughout implementation (not just at S3)
-
-**Time Investment:**
-- 2 loops: ~15-30 minutes per feature
-- Prevents downstream rework: Saves 1-2 hours
-
-**Documentation:**
-Create `S8_ALIGNMENT_VALIDATION_{feature_NN}.md` with:
-- Loop 1 results (perspective, issues found, resolutions)
-- Loop 2 results (should be 0 issues if Loop 1 was thorough)
-- Exit confirmation: 2 consecutive clean loops achieved
-
-**Example from KAI-7:**
-After Feature 01 implementation:
-- S8.P1: Updated Features 02-07 specs
-- Validation Loop 1: Found 2 issues (missing error handling pattern, old logging approach)
-- Resolved issues
-- Validation Loop 2: 0 issues found ✅
-- Proceed to S8.P2 with confirmed alignment
-
----
-
 ## Prerequisites for Next Stage
 
 **Before transitioning to S8.P2, verify:**
@@ -447,4 +448,18 @@ After Feature 01 implementation:
 
 ---
 
-**END OF STAGE 5d GUIDE**
+## Next Phase
+
+**After S8.P1 complete:** Proceed to `stages/s8/s8_p2_epic_testing_update.md`
+
+**S8.P1 Completion Checklist:**
+- [ ] All remaining feature specs reviewed
+- [ ] Specs updated based on implemented features
+- [ ] Features needing rework marked and routed
+- [ ] Epic documentation current
+
+**📖 READ NEXT:** `stages/s8/s8_p2_epic_testing_update.md` - Update epic testing plan
+
+---
+
+*End of s8_p1_cross_feature_alignment.md*

@@ -4,13 +4,26 @@
 
 ---
 
-## Stage Overview
+## Prerequisites
+
+**Before starting S4:**
+
+- [ ] S3 complete (Epic Planning Approval - Gate 4.5 passed)
+- [ ] spec.md finalized and user-approved (Gate 3 passed)
+- [ ] Feature README.md exists with Agent Status section
+- [ ] All feature requirements documented in spec.md
+
+---
+
+## Overview
 
 **Purpose:** Test-driven development - plan ALL tests BEFORE implementation
+
 **Structure:** 4 iterations (S4.I1, I2, I3, I4)
+
 **Time:** 45-60 minutes per feature
+
 **Output:** test_strategy.md with >90% coverage
-**Prerequisites:** S3 complete (Gate 4.5 passed), spec.md finalized (Gate 3 passed)
 
 ---
 
@@ -152,11 +165,11 @@
 
 **Current Stage:** S4 (Feature Testing Strategy)
 **Previous:** S3 (Cross-Feature Sanity Check + Gate 4.5)
-**Next:** S5 (Implementation Planning - 22 iterations across 3 rounds)
+**Next:** S5 v2 (Implementation Planning - 2 phases with 11-dimension Validation Loop)
 
 **Start S5:**
 1. Use phase transition prompt from `prompts_reference_v2.md`
-2. Read `stages/s5/s5_p1_planning_round1.md`
+2. Read `stages/s5/s5_v2_validation_loop.md`
 3. S5.P1.I1 will verify test_strategy.md exists (MANDATORY)
 
 ---

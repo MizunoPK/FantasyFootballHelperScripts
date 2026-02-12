@@ -12,7 +12,7 @@
 ## Template
 
 ```markdown
-# Feature: {feature_name}
+## Feature: {feature_name}
 
 **Created:** {YYYY-MM-DD}
 **Status:** {Stage X complete}
@@ -41,7 +41,7 @@
 
 **Last Updated:** {YYYY-MM-DD HH:MM}
 **Current Phase:** {PLANNING / IMPLEMENTATION_PLANNING / IMPLEMENTATION / POST_IMPLEMENTATION / COMPLETE}
-**Current Step:** {Specific step - e.g., "Iteration 12/24", "QC Round 2"}
+**Current Step:** {Specific step - e.g., "Iteration 12/24", "Validation Round 2"}
 **Current Guide:** `{guide_name}.md`
 **Guide Last Read:** {YYYY-MM-DD HH:MM}
 
@@ -60,14 +60,15 @@
 - [ ] README.md created (this file)
 - [ ] S2 complete: {✅/◻️}
 
-**S5 - Implementation Planning:**
-- [ ] 22 verification iterations complete
-- [ ] Iteration 4a: TODO Specification Audit PASSED
-- [ ] Iteration 20: Pre-Implementation Spec Audit (ALL 4 PARTS PASSED)
-- [ ] Iteration 22: Implementation Readiness PASSED
-- [ ] `implementation_plan.md` created and user-approved
+**S5 v2 - Implementation Planning:**
+- [ ] Phase 1: Draft Creation complete (~70% quality baseline)
+- [ ] Phase 2: Validation Loop complete (3 consecutive clean rounds)
+  - [ ] All 11 S5-specific dimensions validated
+  - [ ] All 7 master dimensions validated
+  - [ ] Total validation rounds executed: {count}
+- [ ] `implementation_plan.md` created and user-approved (Gate 5)
 - [ ] `questions.md` created (or documented "no questions")
-- [ ] S5 complete: {✅/◻️}
+- [ ] S5 v2 complete: {✅/◻️}
 
 **S6 - Implementation Execution:**
 - [ ] All implementation tasks complete
@@ -77,9 +78,8 @@
 
 **S7 - Implementation Testing & Review:**
 - [ ] Smoke testing (3 parts) passed
-- [ ] QC Round 1 passed
-- [ ] QC Round 2 passed
-- [ ] QC Round 3 passed
+- [ ] Validation Loop passed (3 consecutive clean rounds)
+- [ ] All 11 dimensions checked every round
 - [ ] PR Review (11 categories) passed
 - [ ] `lessons_learned.md` updated with S7 insights
 - [ ] S7 complete: {✅/◻️}

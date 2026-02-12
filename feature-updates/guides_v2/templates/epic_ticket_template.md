@@ -12,7 +12,7 @@
 ## Template
 
 ```markdown
-# Epic Ticket: {epic_name}
+## Epic Ticket: {epic_name}
 
 **Created:** {YYYY-MM-DD}
 **Status:** {VALIDATED / DRAFT}
@@ -131,7 +131,7 @@ This epic integrates JSON player data files into both the win rate simulation an
 ## Notes
 
 **Why this ticket matters:**
-This ticket serves as the source of truth for epic-level outcomes. It's created BEFORE folder structure to ensure agent understands WHAT the epic achieves. During Iteration 21 (Spec Validation Against Validated Documents), spec.md will be validated against this ticket to catch misinterpretation.
+This ticket serves as the source of truth for epic-level outcomes. It's created BEFORE folder structure to ensure agent understands WHAT the epic achieves. During S5 v2 Validation Loop (Dimension 11: Spec Alignment & Cross-Validation), implementation_plan.md will be validated against spec.md, which was validated against this ticket to catch misinterpretation.
 
 **Historical context:**
 Feature 02 catastrophic bug - agent misinterpreted epic notes line 8, stating "no code changes needed" when epic required week_N+1 folder logic. If epic ticket had existed with "All 18 weeks accessible" criterion, misinterpretation would have been obvious.

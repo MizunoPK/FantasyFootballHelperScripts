@@ -5,7 +5,7 @@
 **This is a routing guide.** The complete S9 workflow is now split across four focused guides:
 
 - **S9.P1**: Epic Smoke Testing
-- **S9.P2**: Epic QC Rounds
+- **S9.P2**: Epic QC Validation Loop
 - **S9.P3**: User Testing
 - **S9.P4**: Epic Final Review
 
@@ -20,7 +20,7 @@
 3. [Overview](#overview)
 4. [Sub-Stage Breakdown](#sub-stage-breakdown)
 5. [Workflow Through Sub-Stages](#workflow-through-sub-stages)
-6. [Mandatory Restart Protocol](#mandatory-restart-protocol)
+6. [Issue Handling Protocol](#issue-handling-protocol)
 7. [Critical Rules (Same Across All Sub-Stages)](#critical-rules-same-across-all-sub-stages)
 8. [How to Use This Router Guide](#how-to-use-this-router-guide)
 9. [Exit Criteria](#exit-criteria)
@@ -57,7 +57,7 @@
 |---------------|---------------|---------------|
 | Starting S9 | `stages/s9/s9_p1_epic_smoke_testing.md` | 60-90 min |
 | S9.P1: Epic Smoke Testing | `stages/s9/s9_p1_epic_smoke_testing.md` | 45-75 min |
-| S9.P2: QC Rounds | `stages/s9/s9_p2_epic_qc_rounds.md` | 2-3 hours |
+| S9.P2: Validation Loop | `stages/s9/s9_p2_epic_qc_rounds.md` | 2-4 hours |
 | S9.P3: User Testing | `stages/s9/s9_p3_user_testing.md` | Variable |
 | S9.P4: Epic Final Review | `stages/s9/s9_p4_epic_final_review.md` | 1.5-2 hours |
 
@@ -66,11 +66,11 @@
 ## Overview
 
 **What is S9?**
-Epic-Level Final QC is where you validate the ENTIRE epic as a cohesive whole after ALL features are implemented. This includes epic smoke testing, 3 QC rounds, and epic-level PR review.
+Epic-Level Final QC is where you validate the ENTIRE epic as a cohesive whole after ALL features are implemented. This includes epic smoke testing, validation loop QC (12 dimensions, 3 consecutive clean rounds), user testing, and epic-level PR review.
 
-**Total Time Estimate:** 4-7 hours (9 steps across 4 guides, 1 mandatory restart protocol)
+**Total Time Estimate:** 4-7 hours (4 phases across 4 guides, validation loop approach)
 
-**Exit Condition:** S9 is complete when epic smoke testing passed, all 3 QC rounds passed, user testing passed (no bugs found), epic PR review passed (all 11 categories), and all issues resolved (no pending bug fixes)
+**Exit Condition:** S9 is complete when epic smoke testing passed, validation loop achieved 3 consecutive clean rounds, user testing passed (no bugs found), epic PR review passed (all 11 categories), and all issues resolved (no pending bug fixes)
 
 ---
 
@@ -101,30 +101,30 @@ Epic-Level Final QC is where you validate the ENTIRE epic as a cohesive whole af
 
 ---
 
-### S9.P2: Epic QC Rounds
+### S9.P2: Epic QC Validation Loop
 
 **Read:** `stages/s9/s9_p2_epic_qc_rounds.md`
 
 **What it covers:**
-- **Step 3:** QC Round 1 - Cross-Feature Integration (integration points, data flow, interfaces, error propagation)
-- **Step 4:** QC Round 2 - Epic Cohesion & Consistency (code style, naming, error handling, architectural patterns)
-- **Step 5:** QC Round 3 - End-to-End Success Criteria (original goals, success criteria, UX flow, performance)
+- **Validation Loop:** Check ALL 12 dimensions every round (7 master + 5 epic-specific)
+- **Exit Criteria:** 3 consecutive clean rounds with ZERO issues
+- **Issue Handling:** Fix immediately, reset clean counter, continue (no restart for minor issues)
 
 **Key Outputs:**
-- QC Round 1 findings (integration issues identified and resolved)
-- QC Round 2 findings (consistency issues identified and resolved)
-- QC Round 3 validation (ALL success criteria met 100%)
+- VALIDATION_LOOP_LOG.md tracking all rounds
+- All issues identified and resolved immediately
+- 3 consecutive clean rounds documented
 - Documented in epic_lessons_learned.md
 
-**Time Estimate:** 2-3 hours (45-60 min per round)
+**Time Estimate:** 2-4 hours (typically 5-8 validation rounds)
 
 **When complete:** Transition to S9.P3 (User Testing)
 
 **Why this sub-stage exists:**
-- Deep validation of epic quality (not just functionality)
-- 3 distinct focus areas (integration, consistency, success criteria)
-- Each round has specific validation checklists
-- Systematic approach to epic-level quality assurance
+- Deep validation of epic quality using systematic validation loop
+- ALL 12 dimensions checked EVERY round (comprehensive)
+- Fix-and-continue approach (no restart overhead for minor issues)
+- 3 consecutive clean rounds ensures thorough validation
 
 ---
 
@@ -187,55 +187,55 @@ Epic-Level Final QC is where you validate the ENTIRE epic as a cohesive whole af
 
 ```text
 ┌──────────────────────────────────────────────────────────────┐
-│                   S9 Workflow                           │
+│                   S9 Workflow (Validation Loop Approach)     │
 └──────────────────────────────────────────────────────────────┘
 
 Start Epic Final QC
           │
           ▼
     ┌─────────────┐
-    │  STAGE_6a   │  Epic Smoke Testing
-    │  (60-90min) │  • Step 1: Pre-QC Verification
-    └─────────────┘  • Step 2: Epic Smoke Testing (4 parts)
+    │   S9.P1     │  Epic Smoke Testing
+    │  (60-90min) │  • Pre-QC Verification
+    └─────────────┘  • Epic Smoke Testing (4 parts)
           │
     [Smoke Testing Passed?]
           │
           ▼
     ┌─────────────┐
-    │  STAGE_6b   │  Epic QC Rounds
-    │  (2-3 hours)│  • Step 3: QC Round 1 (Integration)
-    └─────────────┘  • Step 4: QC Round 2 (Consistency)
-          │          • Step 5: QC Round 3 (Success Criteria)
+    │   S9.P2     │  Epic QC Validation Loop
+    │  (2-4 hours)│  • Check ALL 12 dimensions every round
+    └─────────────┘  • Until 3 consecutive clean rounds
+          │          • Fix issues immediately, continue
           │
-    [All QC Rounds Passed?]
+    [3 Consecutive Clean?]
           │
           ▼
     ┌─────────────┐
-    │  STAGE_6c   │  User Testing
-    │  (Variable) │  • Step 6: User Testing & Bug Fix Protocol
-    └─────────────┘
+    │   S9.P3     │  User Testing
+    │  (Variable) │  • User tests with real data
+    └─────────────┘  • If bugs found → Fix → Restart S9.P1
           │
     [User Reports Bugs?]
      │           │
     YES         NO
      │           │
      ▼           ▼
-  Bug Fix   Proceed to
-  Workflow   STAGE_6d
+  Fix Bugs   Proceed to
+  (Debug     S9.P4
+  Protocol)      │
      │           │
      ▼           │
-  RESTART       │
-  STAGE_6       │
-  (6a→6b→6c)   │
+  Restart       │
+  from S9.P1    │
      │           │
      └───────────┘
           │
           ▼
     ┌─────────────┐
-    │  STAGE_6d   │  Epic Final Review
-    │  (60-90min) │  • Step 7: Epic PR Review (11 Categories)
-    └─────────────┘  • Step 8: Validate Against Epic Request
-          │          • Step 9: Final Verification
+    │   S9.P4     │  Epic Final Review
+    │  (60-90min) │  • Epic PR Review (11 Categories)
+    └─────────────┘  • Validate Against Epic Request
+          │          • Final Verification
           │
     [All Complete?]
           │
@@ -249,24 +249,38 @@ Start Epic Final QC
 
 ---
 
-## Mandatory Restart Protocol
+## Issue Handling Protocol
 
-**CRITICAL:** If ANY issues are found during S9, you MUST:
+**S9.P2 (Validation Loop) - Fix and Continue:**
 
-1. **Create bug fixes** using bug fix workflow (S2 → S5 → S6 → S7)
-2. **RESTART S9 from STAGE_6a** (cannot partially continue)
-3. **Re-run ALL steps:**
-   - STAGE_6a: Epic Smoke Testing (all 4 parts)
-   - STAGE_6b: QC Rounds 1, 2, 3
-   - STAGE_6c: Epic PR Review (all 11 categories)
-4. **Document restart** in epic_lessons_learned.md
+During S9.P2 Epic QC Validation Loop:
+1. **Fix ALL issues immediately** (no deferring)
+2. **Reset clean round counter** to 0
+3. **Continue validation** until 3 consecutive clean rounds
+4. **Document in VALIDATION_LOOP_LOG.md**
 
-**Why COMPLETE restart?**
-- Bug fixes may have affected areas already checked
-- Cannot assume previous QC results still valid
-- Ensures epic-level quality maintained
+**Why fix and continue?**
+- Faster than restarting entire S9 process
+- Each fix is verified in subsequent rounds
+- 3 consecutive clean rounds ensures quality
+- 60-180 min saved per issue vs restart approach
 
-**Cannot proceed to S10 without passing S9 restart.**
+---
+
+**S9.P3 (User Testing) - Restart Required:**
+
+When user reports bugs during S9.P3:
+1. **Document bugs** using debugging protocol
+2. **Fix ALL user-reported bugs**
+3. **RESTART from S9.P1** (user bugs require full re-validation)
+4. **Re-run S9.P1, S9.P2, return to S9.P3** for re-testing
+
+**Why restart for user bugs?**
+- User-reported bugs indicate real-world issues
+- Bug fixes may have affected validated areas
+- Full re-validation ensures fixes are complete
+
+**Cannot proceed to S10 until user reports "No bugs found".**
 
 ---
 
@@ -289,14 +303,14 @@ Start Epic Final QC
    - Feature-level validation done in S7 (Testing & Review)
    - Focus: Cross-feature workflows, integration points, cohesion
 
-4. ⚠️ ALL 3 QC rounds are MANDATORY (cannot skip)
-   - Round 1: Integration (data flow, interfaces)
-   - Round 2: Consistency (code style, patterns)
-   - Round 3: Success Criteria (original goals met)
+4. ⚠️ S9.P2 uses VALIDATION LOOP (12 dimensions, 3 consecutive clean)
+   - Check ALL 12 dimensions every round (7 master + 5 epic-specific)
+   - 3 consecutive clean rounds required to exit
+   - Fix issues immediately, continue (no restart for S9.P2)
 
-5. ⚠️ If ANY issues found → create bug fix → RESTART S9
-   - No inline fixes (use bug fix workflow)
-   - COMPLETE restart from STAGE_6a (not partial)
+5. ⚠️ Issue handling differs by phase:
+   - S9.P2: Fix immediately, reset counter, continue (validation loop)
+   - S9.P3: User bugs require restart from S9.P1
 
 6. ⚠️ Epic PR review has 11 categories (all mandatory)
    - Architecture category (Step 6.9) is MOST IMPORTANT
@@ -361,22 +375,22 @@ Ready to begin Step 1: Pre-QC Verification.
 
 ### If you're transitioning between sub-stages:
 
-**After completing STAGE_6a:**
-- Update EPIC_README.md Agent Status: "STAGE_6a complete, starting STAGE_6b"
+**After completing S9.P1:**
+- Update EPIC_README.md Agent Status: "S9.P1 complete, starting S9.P2"
 - **READ:** `stages/s9/s9_p2_epic_qc_rounds.md` (full guide)
 - Use phase transition prompt from `prompts_reference_v2.md`
 
-**After completing STAGE_6b:**
-- Update EPIC_README.md Agent Status: "STAGE_6b complete, starting STAGE_6c (User Testing)"
+**After completing S9.P2:**
+- Update EPIC_README.md Agent Status: "S9.P2 complete (3 consecutive clean rounds), starting S9.P3 (User Testing)"
 - **READ:** `stages/s9/s9_p3_user_testing.md` (full guide)
 - Use phase transition prompt from `prompts_reference_v2.md`
 
-**After completing STAGE_6c:**
-- Update EPIC_README.md Agent Status: "STAGE_6c complete (User Testing PASSED), starting STAGE_6d"
+**After completing S9.P3:**
+- Update EPIC_README.md Agent Status: "S9.P3 complete (User Testing PASSED), starting S9.P4"
 - **READ:** `stages/s9/s9_p4_epic_final_review.md` (full guide)
 - Use phase transition prompt from `prompts_reference_v2.md`
 
-**After completing STAGE_6d:**
+**After completing S9.P4:**
 - S9 is COMPLETE
 - Update EPIC_README.md Epic Progress Tracker
 - Proceed to S10 (Epic Cleanup)
@@ -387,16 +401,14 @@ Ready to begin Step 1: Pre-QC Verification.
 
 **S9 is complete when ALL of these are true:**
 
-□ **All 9 steps complete:**
-  - Step 1: Pre-QC Verification complete
-  - Step 2: Epic Smoke Testing PASSED (all 4 parts)
-  - Step 3: QC Round 1 PASSED (Cross-Feature Integration)
-  - Step 4: QC Round 2 PASSED (Epic Cohesion & Consistency)
-  - Step 5: QC Round 3 PASSED (End-to-End Success Criteria)
-  - Step 6: User Testing PASSED (user reports "No bugs found")
-  - Step 7: Epic PR Review PASSED (all 11 categories)
-  - Step 8: Validate Against Epic Request PASSED
-  - Step 9: Final Verification complete
+□ **All phases complete:**
+  - S9.P1: Pre-QC Verification complete
+  - S9.P1: Epic Smoke Testing PASSED (all 4 parts)
+  - S9.P2: Epic QC Validation Loop PASSED (3 consecutive clean rounds, 12 dimensions)
+  - S9.P3: User Testing PASSED (user reports "No bugs found")
+  - S9.P4: Epic PR Review PASSED (all 11 categories)
+  - S9.P4: Validate Against Epic Request PASSED
+  - S9.P4: Final Verification complete
 
 □ **Epic Smoke Testing:**
   - Part 1 (Import Tests): ✅ PASSED
@@ -404,10 +416,11 @@ Ready to begin Step 1: Pre-QC Verification.
   - Part 3 (E2E Execution Tests): ✅ PASSED with correct data values
   - Part 4 (Cross-Feature Integration Tests): ✅ PASSED
 
-□ **QC Rounds:**
-  - QC Round 1 (Cross-Feature Integration): ✅ PASSED
-  - QC Round 2 (Epic Cohesion & Consistency): ✅ PASSED
-  - QC Round 3 (End-to-End Success Criteria): ✅ PASSED (100% of criteria met)
+□ **Epic QC Validation Loop (S9.P2):**
+  - 3 consecutive clean rounds achieved: ✅ PASSED
+  - All 12 dimensions checked every round (7 master + 5 epic): ✅ PASSED
+  - VALIDATION_LOOP_LOG.md complete: ✅ PASSED
+  - All issues fixed immediately (no deferred issues): ✅ PASSED
 
 □ **Epic PR Review:**
   - All 11 categories reviewed: ✅ PASSED
@@ -419,9 +432,9 @@ Ready to begin Step 1: Pre-QC Verification.
   - EPIC_README.md Epic Progress Tracker shows S9 complete
   - EPIC_README.md Agent Status shows S9.P3 complete
 
-□ **Bug Fixes (if any):**
+**Bug Fixes (if any):**
   - All bug fixes created and completed (S7 (Testing & Review))
-  - S9 RESTARTED after bug fixes (from STAGE_6a)
+  - S9 RESTARTED after bug fixes (from S9.P1)
   - All steps re-run and passed
 
 □ **Quality Gates:**
@@ -457,9 +470,9 @@ Ready to begin Step 1: Pre-QC Verification.
 ### Benefits of Split Guides:
 
 1. **50-70% token reduction per step:**
-   - STAGE_6a: ~829 lines vs 1,644 lines (50% reduction)
-   - STAGE_6b: ~1,000 lines vs 1,644 lines (39% reduction)
-   - STAGE_6c: ~950 lines vs 1,644 lines (42% reduction)
+   - S9.P1: ~829 lines vs 1,644 lines (50% reduction)
+   - S9.P2: ~1,000 lines vs 1,644 lines (39% reduction)
+   - S9.P3/P4: ~950 lines vs 1,644 lines (42% reduction)
 
 2. **Clear step boundaries:**
    - Natural breakpoints at workflow transitions
@@ -480,8 +493,8 @@ Ready to begin Step 1: Pre-QC Verification.
 
 ## Frequently Asked Questions
 
-**Q: Do I need to read all three sub-stage guides?**
-A: Yes, but sequentially. Read STAGE_6a first, complete it, then read STAGE_6b, complete it, then read STAGE_6c.
+**Q: Do I need to read all four sub-stage guides?**
+A: Yes, but sequentially. Read S9.P1 first, complete it, then read S9.P2, complete it, then read S9.P3, then S9.P4.
 
 **Q: Can I skip a step?**
 A: No. All 8 steps are mandatory. The split doesn't change workflow, just organization.
@@ -489,30 +502,20 @@ A: No. All 8 steps are mandatory. The split doesn't change workflow, just organi
 **Q: What if I'm resuming mid-stage?**
 A: Check EPIC_README.md Agent Status for current step, then read the guide for that step.
 
-**Q: What if I find issues during S9?**
-A: Create bug fixes using bug fix workflow (S2 → S5 → S6 → S7), then RESTART S9 from STAGE_6a.
+**Q: What if I find issues during S9.P2 (QC Validation Loop)?**
+A: Fix issues immediately, reset clean counter to 0, and continue validation. No restart needed for S9.P2. Continue until 3 consecutive clean rounds.
 
-**Q: Can I partially continue S9 after bug fixes?**
-A: No. You MUST COMPLETELY RESTART S9 from STAGE_6a (smoke testing) after ANY bug fixes.
+**Q: What if user finds bugs during S9.P3 (User Testing)?**
+A: User-reported bugs require restart from S9.P1. Fix bugs using debugging protocol, then restart from S9.P1 (smoke testing) through S9.P2 (validation loop) and return to S9.P3.
 
-**Q: What's the difference between feature-level testing (5c) and epic-level testing (6)?**
-A: Feature-level testing (5c) validates features in ISOLATION. Epic-level testing (6) validates features working TOGETHER as a cohesive system.
+**Q: What's the difference between feature-level testing (S7) and epic-level testing (S9)?**
+A: Feature-level testing (S7) validates features in ISOLATION. Epic-level testing (S9) validates features working TOGETHER as a cohesive system.
 
 **Q: Can I use the original epic_smoke_test_plan.md from S1?**
 A: No. You MUST use the EVOLVED epic_smoke_test_plan.md (updated in S4 and S8.P2 (Epic Testing Update)). The original plan is outdated.
 
-**Q: Can I reference the original guide?**
-A: Yes. The original guide is backed up as `STAGE_6_epic_final_qc_guide_ORIGINAL_BACKUP.md` for reference, but use the new split guides for workflow.
-
----
-
-## Original Guide Location
-
-**Backup:** `STAGE_6_epic_final_qc_guide_ORIGINAL_BACKUP.md`
-
-**Purpose:** Historical reference only. Do NOT use for workflow.
-
-The original guide has been preserved for reference but is deprecated. All S9 work should use the new split guides (6a, 6b, 6c).
+**Q: Was there an original monolithic guide?**
+A: Yes, S9 was originally a single 1,644-line guide. It has been split into four focused sub-stage guides (S9.P1, P2, P3, P4) for better token efficiency and navigation.
 
 ---
 
@@ -520,20 +523,20 @@ The original guide has been preserved for reference but is deprecated. All S9 wo
 
 **S9 is now split into four focused guides:**
 
-1. **stages/s9/s9_p1_epic_smoke_testing.md** - Epic Smoke Testing (Steps 1-2)
-2. **stages/s9/s9_p2_epic_qc_rounds.md** - Epic QC Rounds (Steps 3-5)
-3. **stages/s9/s9_p3_user_testing.md** - User Testing (Step 6)
-4. **stages/s9/s9_p4_epic_final_review.md** - Epic Final Review (Steps 7-9)
+1. **stages/s9/s9_p1_epic_smoke_testing.md** - Epic Smoke Testing (4 parts)
+2. **stages/s9/s9_p2_epic_qc_rounds.md** - Epic QC Validation Loop (12 dimensions, 3 consecutive clean)
+3. **stages/s9/s9_p3_user_testing.md** - User Testing & Bug Fix Protocol
+4. **stages/s9/s9_p4_epic_final_review.md** - Epic Final Review (11 categories)
 
-**Workflow updated:** 9 steps (added User Testing), 1 mandatory restart protocol, enhanced completion criteria
+**Workflow:** Validation loop approach in S9.P2 (fix and continue, 3 consecutive clean rounds)
 
-**Improvement:** 50-70% reduction in guide size per step, clearer navigation, better step focus
+**Issue handling:**
+- S9.P2: Fix immediately, continue (no restart)
+- S9.P3: User bugs require restart from S9.P1
 
 **Start here:** `stages/s9/s9_p1_epic_smoke_testing.md` (unless resuming mid-stage)
 
 **Critical distinction:** Epic-level validation focuses on integration, cohesion, and cross-feature quality (NOT feature-level testing)
-
-**Mandatory restart:** If ANY issues found → bug fix → RESTART from STAGE_6a
 
 ---
 

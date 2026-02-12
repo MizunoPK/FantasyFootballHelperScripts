@@ -67,7 +67,7 @@
 
 **Example Failure (Hypothetical):**
 ```bash
-File: stages/s5/s5_p1_planning_round1.md (800 lines, no TOC)
+File: stages/s5/s5_v2_validation_loop.md (800 lines, no TOC)
 
 Agent task: "Find Gate 4a requirements"
 Problem: No TOC, must scan 800 lines manually
@@ -199,7 +199,7 @@ grep -rn "^\`\`\`$" stages templates prompts reference
 ```
 # S5.P1.I1: Requirements Analysis
 
-**Parent:** [S5.P1: Planning Round 1](s5_p1_planning_round1.md)
+**Parent:** [S5.P1: Planning Round 1](s5_v2_validation_loop.md)
 
 [Content]
 
@@ -209,7 +209,7 @@ Continue to [S5.P1.I2: Algorithm Design](s5_p1_i2_algorithms.md)
 
 ## See Also
 
-- [S5.P1: Round 1 Overview](s5_p1_planning_round1.md) - Router to all iterations
+- [S5.P1: Round 1 Overview](s5_v2_validation_loop.md) - Router to all iterations
 - [S4: Testing Strategy](../../stages/s4/s4_feature_testing_strategy.md) - Inputs to this iteration
 ```markdown
 
@@ -512,7 +512,7 @@ Verdict: ✅ TOC Optional (straightforward navigation)
 
 **1. Long Files (>500 lines):**
 ```
-File: stages/s5/s5_p1_planning_round1.md (850 lines)
+File: stages/s5/s5_v2_validation_loop.md (850 lines)
 Verdict: ❌ TOC REQUIRED (too long to scan)
 ```text
 
@@ -568,10 +568,10 @@ git commit -m "message"
 
 **Issue Found:**
 ```
-$ wc -l stages/s5/s5_p1_planning_round1.md
-685 stages/s5/s5_p1_planning_round1.md
+$ wc -l stages/s5/s5_v2_validation_loop.md
+685 stages/s5/s5_v2_validation_loop.md
 
-$ grep -i "table of contents" stages/s5/s5_p1_planning_round1.md
+$ grep -i "table of contents" stages/s5/s5_v2_validation_loop.md
 [No results]
 ```text
 
@@ -640,7 +640,7 @@ File: stages/s5/s5_p1_i1_requirements.md
 [Extensive content about iteration I1]
 
 ## See Also
-- [S5.P1 Overview](s5_p1_planning_round1.md)
+- [S5.P1 Overview](s5_v2_validation_loop.md)
 - [S4: Testing Strategy](../../stages/s4/s4_feature_testing_strategy.md)
 
 # MISSING: What comes after I1?
@@ -722,7 +722,7 @@ round to ensure no new issues were introduced.
 - `../stages/stage_4_verification.md` - Re-verify accessibility after fixes
 
 **Reference:**
-- `../reference/file_size_reduction_guide.md` - Why usability matters (user directive)
+- `reference/file_size_reduction_guide.md` - Why usability matters (user directive)
 
 **Scripts:**
 - `../scripts/pre_audit_checks.sh` - Automated accessibility validation (CHECK 5, CHECK 7)

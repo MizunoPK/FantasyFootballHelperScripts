@@ -35,6 +35,7 @@
 4. **Workflow Completeness** - All stages (S1-S10) correctly linked in sequence
 5. **Phase Dependencies** - Phases within stages have correct ordering
 6. **Gate Placement** - Quality gates appear at correct stage boundaries
+7. **Workflow Description Consistency** - Text descriptions of workflow behavior agree across all guides
 
 **Coverage:**
 - All 10 stages (S1-S10) in `stages/` directory
@@ -256,7 +257,7 @@ done
 
 **If more features remain:**
 - Repeat S5-S8 loop for next feature
-- Read `stages/s5/s5_p1_planning_round1.md`
+- Read `stages/s5/s5_v2_validation_loop.md`
 
 **If all features complete:**
 - Proceed to S9: Epic-Level Final QC
@@ -359,7 +360,7 @@ S5.P3: Planning Round 3 (I14-I22)
 ```text
 S7.P1: Smoke Testing (MANDATORY GATE)
   ↓ Must pass before
-S7.P2: QC Rounds (3 rounds)
+S7.P2: Validation Loop (3 consecutive clean rounds)
   ↓ Must complete before
 S7.P3: Final Review
 ```
@@ -467,6 +468,83 @@ grep -rn "Gate 5" stages/s2/ stages/s3/ stages/s4/  # Should only be in S5
 - Gate reference uses old numbering (Gate 4 instead of Gate 4.5)
 
 **Automated:** ✅ Yes (can validate gate numbers and locations)
+
+---
+
+### Type 6: Workflow Description Cross-Validation
+
+**What to Check:**
+Text descriptions of workflow behavior must be consistent across all guides.
+
+**Why This Matters:**
+Different guides may describe the same workflow differently, creating confusion:
+- S1 says "groups complete S2->S3->S4 cycle"
+- S2 says "groups complete S2 only, then S3"
+- **CONTRADICTION** - agents receive conflicting instructions
+
+**Common Patterns to Search:**
+
+**Pattern 6.1: Stage Sequence Descriptions**
+```bash
+# Find text that describes stage sequences
+grep -rn "S[0-9].*->.*S[0-9]\|S[0-9].*then.*S[0-9]\|S[0-9].*before.*S[0-9]" stages/
+
+# Examples found:
+# "groups complete S2->S3->S4 cycle"
+# "S2 then S3 then S4"
+# "complete S2 before S3"
+```
+
+**Pattern 6.2: Group/Parallel Workflow Descriptions**
+```bash
+# Find text describing when groups matter
+grep -rn "group.*complete\|complete.*cycle\|group.*S[0-9]\|parallel.*S[0-9]" stages/
+
+# Cross-validate: Do all findings agree on when groups matter?
+```
+
+**Pattern 6.3: Scope Transition Descriptions**
+```bash
+# Find text describing scope changes (epic/feature/group level)
+grep -rn "epic.level\|feature.level\|group.level\|all features\|per feature" stages/
+```
+
+**Validation Process:**
+
+1. **Extract all workflow descriptions:**
+   ```bash
+   # Collect all workflow claims
+   grep -rn "S[0-9].*->.*S[0-9]\|complete.*S[0-9].*cycle\|group.*complete" stages/ > /tmp/workflow_claims.txt
+   ```
+
+2. **Group by topic:**
+   - Stage sequence claims
+   - Group handling claims
+   - Scope transition claims
+
+3. **Compare for consistency:**
+   - All claims about same topic must agree
+   - Flag contradictions for manual review
+
+4. **Create contradiction matrix:**
+   | Topic | S1 Says | S2 Says | S3 Says | Consistent? |
+   |-------|---------|---------|---------|-------------|
+   | When groups matter | S2->S3->S4 | S2 only | Unclear | NO |
+
+**Red Flags:**
+- S1 says "groups do X" but S2 describes different behavior
+- Multiple stages describe same workflow differently
+- Scope descriptions contradict each other
+
+**Example Issue (KAI-8):**
+```text
+S1 Line 600: "Each group completes full S2->S3->S4 cycle"
+S2.P2: "After all groups complete S2 -> Proceed to S3"
+
+CONTRADICTION: S1 says groups matter for S3/S4, S2 says groups only matter for S2
+```
+
+**Automated:** Partial - Can find workflow descriptions, requires manual consistency check
 
 ---
 
@@ -825,7 +903,7 @@ fi
 ```markdown
 ## Next Stage
 
-Proceed to S5: Implementation Planning (`stages/s5/s5_implementation_planning.md`)
+Proceed to S5: Implementation Planning (`stages/s5/s5_v2_validation_loop.md`)
 ```
 
 **Problem:**
@@ -837,7 +915,7 @@ Proceed to S5: Implementation Planning (`stages/s5/s5_implementation_planning.md
 ```diff
 ## Next Stage
 
--Proceed to S5: Implementation Planning (`stages/s5/s5_implementation_planning.md`)
+-Proceed to S5: Implementation Planning (`stages/s5/s5_v2_validation_loop.md`)
 +Proceed to S4: Feature Testing Strategy (`stages/s4/s4_feature_testing_strategy.md`)
 ```markdown
 
@@ -955,7 +1033,7 @@ Proceed to S9: Epic-Level Final QC (`stages/s9/s9_epic_final_qc.md`)
 
 **If more features remain:**
 - Repeat S5-S8 loop for next feature
-- Read `stages/s5/s5_p1_planning_round1.md`
+- Read `stages/s5/s5_v2_validation_loop.md`
 
 **If all features complete:**
 - Proceed to S9: Epic-Level Final QC
@@ -1016,7 +1094,7 @@ Proceed to S9: Epic-Level Final QC (`stages/s9/s9_epic_final_qc.md`)
 - **Division:** D1 = technical correctness, D3 = workflow logic correctness
 
 **Example:**
-- D1 checks: `stages/s5/s5_implementation_planning.md` exists ✅
+- D1 checks: `stages/s5/s5_v2_validation_loop.md` exists ✅
 - D3 checks: S4 should point to S5 (not S6) ✅
 
 ---
@@ -1075,6 +1153,21 @@ Proceed to S9: Epic-Level Final QC (`stages/s9/s9_epic_final_qc.md`)
 
 ---
 
+### D17: Stage Flow Consistency
+
+**Overlap:**
+- D3 validates workflow descriptions are internally consistent
+- D17 validates workflow behavior is consistent across stage transitions
+- **Division:** D3 = within-stage workflow validation, D17 = across-stage boundary validation
+
+**Example:**
+- D3 checks: S2 workflow descriptions don't contradict each other ✅
+- D17 checks: S2's exit behavior matches S3's entry expectations ✅
+
+**Recommendation:** Run D3 and D17 together (D3 for within-stage, D17 for cross-stage)
+
+---
+
 ## Summary
 
 **D3: Workflow Integration validates the workflow forms a coherent, sequential process.**
@@ -1085,6 +1178,7 @@ Proceed to S9: Epic-Level Final QC (`stages/s9/s9_epic_final_qc.md`)
 3. ✅ Output files from Stage A match input requirements of Stage B
 4. ✅ Phase dependencies within stages are correct
 5. ✅ Quality gates appear at correct stage boundaries
+6. ⚠️ Workflow descriptions consistent across all guides (no contradictions)
 
 **Automation: ~40%**
 - Automated: Stage sequence, file existence, gate numbers
@@ -1099,6 +1193,6 @@ Proceed to S9: Epic-Level Final QC (`stages/s9/s9_epic_final_qc.md`)
 
 ---
 
-**Last Updated:** 2026-02-04
-**Version:** 1.0
+**Last Updated:** 2026-02-06
+**Version:** 1.1
 **Status:** ✅ Fully Implemented

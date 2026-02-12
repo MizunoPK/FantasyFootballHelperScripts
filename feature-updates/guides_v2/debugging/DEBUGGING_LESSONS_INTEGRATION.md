@@ -69,7 +69,7 @@ feature_XX_{name}/debugging/
 
 **Location:** `{epic_name}/debugging/`
 
-**Created During:** S9.P1 (Epic Smoke Testing) or S9.P2 (Epic QC Rounds) or S10 (User Testing)
+**Created During:** S9.P1 (Epic Smoke Testing) or S9.P2 (Epic Validation Loop) or S10 (User Testing)
 
 **Workflow:** Same as feature-level but for epic integration issues
 

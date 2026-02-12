@@ -8,7 +8,7 @@
 ```text
 S5 (Implementation Planning) → S6 (Implementation Execution) →
 → [YOU ARE HERE: S7.P1 - Smoke Testing] →
-→ S7.P2 (QC Rounds) → S7.P3 (Final Review) →
+→ S7.P2 (Validation Loop) → S7.P3 (Final Review) →
 → S8 (Post-Feature Alignment)
 ```
 
@@ -47,7 +47,7 @@ S5 (Implementation Planning) → S6 (Implementation Execution) →
    - Study common mistakes to avoid
 
 2. **Use the phase transition prompt** from `prompts/s5_s8_prompts.md`
-   - Find "Starting S7 (Testing & Review) (Phase 1): Smoke Testing" prompt
+   - Find "Starting S7.P1: Smoke Testing" prompt
    - Speak it out loud (acknowledge requirements)
    - List critical requirements from this guide
 
@@ -87,7 +87,7 @@ Feature-level smoke testing validates that your individual feature works end-to-
 15-30 minutes
 
 **Exit Condition:**
-Smoke Testing is complete when ALL 3 parts pass (including data value verification in Part 3), output files are inspected and confirmed correct, and you're ready to proceed to QC Rounds
+Smoke Testing is complete when ALL 3 parts pass (including data value verification in Part 3), output files are inspected and confirmed correct, and you're ready to proceed to Validation Loop
 
 ---
 
@@ -109,7 +109,7 @@ Smoke Testing is complete when ALL 3 parts pass (including data value verificati
 
 2. ⚠️ If smoke testing fails → Fix issues, restart from Part 1
    - After fixing → Re-run ALL 3 parts
-   - Do NOT proceed to QC Rounds (S7.P2) until all parts pass
+   - Do NOT proceed to Validation Loop (S7.P2) until all parts pass
 
 3. ⚠️ Document results in feature README
    - Update feature README.md Agent Status
@@ -656,7 +656,7 @@ for p in raw_data:
 3. [ ] Verify data VALUES inspected (not just "file exists") for all 3 parts
 4. [ ] Update feature README Agent Status:
    - Current Guide: "stages/s7/s7_p2_qc_rounds.md"
-   - Current Step: "S7.P1 complete, ready to start S7.P2 QC Round 1"
+   - Current Step: "S7.P1 complete, ready to start S7.P2 Validation Loop"
    - Last Updated: [timestamp]
 5. [ ] Output acknowledgment: "✅ CHECKPOINT 1 COMPLETE: Re-read Critical Rules and Pattern File, verified data values inspected"
 
@@ -674,12 +674,12 @@ for p in raw_data:
 **If ALL 3 parts PASSED:**
 - ✅ Document smoke test results in feature README
 - ✅ Update Agent Status: "Smoke Testing COMPLETE"
-- ✅ Proceed to **S7.P2: QC Rounds**
+- ✅ Proceed to **S7.P2: Validation Loop**
 
 **If ANY part FAILED:**
 - ❌ Fix ALL issues identified
 - ❌ RE-RUN ALL 3 PARTS from Part 1
-- ❌ Do NOT proceed to QC Rounds until clean pass
+- Do NOT proceed to Validation Loop until clean pass
 
 ---
 
@@ -693,7 +693,7 @@ for p in raw_data:
 **Key Differences from Epic-Level:**
 - Tests feature in ISOLATION (not with other features)
 - 3 parts only (no Part 4 cross-feature integration)
-- Next stage: QC Rounds for THIS feature (S7.P2)
+- Next stage: Validation Loop for THIS feature (S7.P2)
 
 **Critical Success Factors:**
 - Use REAL data (not test fixtures)

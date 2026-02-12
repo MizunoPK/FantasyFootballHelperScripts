@@ -89,11 +89,11 @@ Step 6: Document Fix Order
 
 **❌ WRONG: Group by File**
 ```markdown
-Group 1: Fix s5_p1_planning_round1.md
+Group 1: Fix s5_v2_validation_loop.md
   - Issue #5: "5a" → "S5.P1"
   - Issue #12: "stages/s5/round1/" → "stages/s5/s5_p1_"
 
-Group 2: Fix s5_p2_planning_round2.md
+Group 2: Fix s5_v2_validation_loop.md
   - Issue #6: "5a" → "S5.P1"
   - Issue #13: "stages/s5/round2/" → "stages/s5/s5_p2_"
 ```
@@ -102,13 +102,13 @@ Group 2: Fix s5_p2_planning_round2.md
 **✅ CORRECT: Group by Pattern**
 ```markdown
 Group 1: Old Notation "5a/5b/5c" → "S5.P1/P2/P3"
-  - Issue #5: s5_p1_planning_round1.md:45
-  - Issue #6: s5_p2_planning_round2.md:78
+  - Issue #5: s5_v2_validation_loop.md:45
+  - Issue #6: s5_v2_validation_loop.md:78
   - Issue #18: s5_bugfix_workflow.md:123
   [20 instances across 8 files]
 
 Group 2: Old Paths "stages/s5/round1/" → "stages/s5/s5_p1_"
-  - Issue #12: s5_p1_planning_round1.md:155
+  - Issue #12: s5_v2_validation_loop.md:155
   - Issue #19: s5_p1_i1_requirements.md:67
   [15 instances across 6 files]
 ```markdown
@@ -454,8 +454,8 @@ Read files, analyze context (15-30 min)
 - Reduction potential: [Can split without harming usability?]
 
 **Planned Reduction Approach:**
-1. [Step 1: e.g., "Extract Round 2 content to s5_p2_planning_round2.md"]
-2. [Step 2: e.g., "Extract Round 3 content to s5_p3_planning_round3.md"]
+1. [Step 1: e.g., "Extract Round 2 content to s5_v2_validation_loop.md"]
+2. [Step 2: e.g., "Extract Round 3 content to s5_v2_validation_loop.md"]
 3. [Step 3: e.g., "Convert original to router file with TOC"]
 4. [Step 4: e.g., "Update all cross-references"]
 
@@ -632,7 +632,7 @@ Read files, analyze context (15-30 min)
 - `stage_3_apply_fixes.md` - Execute the fix plan incrementally
 
 **Reference:**
-- `../reference/verification_commands.md` - More verification examples
+- `reference/verification_commands.md` - More verification examples
 - `../templates/fix_plan_template.md` - Use this template for fix plan output
 
 **Dimensions:**

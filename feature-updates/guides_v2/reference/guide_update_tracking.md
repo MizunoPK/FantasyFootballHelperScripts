@@ -30,20 +30,20 @@ This document tracks the feedback loop from implementation â†’ lessons learned â
 | Epic | Priority | Lesson Summary | Guide(s) Updated | Date Applied | Commit |
 |------|----------|----------------|------------------|--------------|--------|
 | KAI-1 (external) | P0 | Code Inspection Protocol - agents rushed through QC without reading actual code | s7_p2_qc_rounds.md | 2026-01-30 | dd10778 |
-| KAI-1 (external) | P1 | External Dependency Verification - assumed libraries work without testing | s1_p3_discovery_phase.md, s2_p1_research.md, s5_p1_i3_integration.md | 2026-01-30 | dd10778 |
+| KAI-1 (external) | P1 | External Dependency Verification - assumed libraries work without testing | s1_p3_discovery_phase.md, s2_p1_spec_creation_refinement.md, s5_v2_validation_loop.md (D2: Interface & Dependency Verification) | 2026-01-30 | dd10778 |
 | KAI-1 (external) | P3 | Shell Script Best Practices - missing set -e caused silent failures | reference/shell_script_best_practices.md (NEW) | 2026-01-30 | dd10778 |
 | KAI-7-improve_debugging_runs | P0 | Debugging Active Detection - new agents missed active debugging | CLAUDE.md, debugging_protocol.md, epic_readme_template.md | 2026-01-23 | pending |
 | KAI-7-improve_debugging_runs | P0 | Zero Tolerance for Errors - agent marked errors as "environment issue" | smoke_testing_pattern.md | 2026-01-23 | pending |
 | KAI-7-improve_debugging_runs | P1 | Make implementation_checklist.md creation first step in S6 | s6_execution.md | 2026-01-23 | pending |
 | KAI-7-improve_debugging_runs | P2 | Windows File Locking in logging tests | s7_p1_smoke_testing.md | 2026-01-23 | pending |
-| KAI-7-improve_configurability_of_scripts | P0 | Blocking Checkpoint Format - checkpoints feel optional without forcing functions | s1_epic_planning.md (5), s1_p3_discovery_phase.md (3), s5_p1_i3_integration.md (1), s5_p2_planning_round2.md (1), s7_p1_smoke_testing.md (1), s7_p2_qc_rounds.md (1), s7_p3_final_review.md (1), s8_p1_cross_feature_alignment.md (1), s8_p2_epic_testing_update.md (1), s9_p1_epic_smoke_testing.md (1), s9_p2_epic_qc_rounds.md (1) | 2026-02-01 | a25fa1a |
+| KAI-7-improve_configurability_of_scripts | P0 | Blocking Checkpoint Format - checkpoints feel optional without forcing functions | s1_epic_planning.md (5), s1_p3_discovery_phase.md (3), s5_v2_validation_loop.md (D2: Interface & Dependency Verification) (1), s5_v2_validation_loop.md (1), s7_p1_smoke_testing.md (1), s7_p2_qc_rounds.md (1), s7_p3_final_review.md (1), s8_p1_cross_feature_alignment.md (1), s8_p2_epic_testing_update.md (1), s9_p1_epic_smoke_testing.md (1), s9_p2_epic_qc_rounds.md (1) | 2026-02-01 | a25fa1a |
 | KAI-7-improve_configurability_of_scripts | P0 | S1 Phase Structure Warning - agents skip S1.P3 Discovery Phase (Step 2 â†’ Step 3 jump) | CLAUDE.md | 2026-02-01 | a25fa1a |
 | KAI-7-improve_configurability_of_scripts | P0 | Checkpoint Requirements Section - no definition of what checkpoint means | CLAUDE.md | 2026-02-01 | a25fa1a |
 | KAI-7-improve_configurability_of_scripts | P0 | Agent Status Updates Mandatory - updates mentioned but not enforced | CLAUDE.md | 2026-02-01 | a25fa1a |
-| KAI-7-improve_configurability_of_scripts | P0 | Zero-Tolerance Consistency Standard - agents defer LOW severity issues | s3_cross_feature_sanity_check.md | 2026-02-01 | a25fa1a |
+| KAI-7-improve_configurability_of_scripts | P0 | Zero-Tolerance Consistency Standard - agents defer LOW severity issues | s3_epic_planning_approval.md | 2026-02-01 | a25fa1a |
 | KAI-7-improve_configurability_of_scripts | P1 | S4 Validation Loop - one-pass updates miss test coverage gaps | s4_epic_testing_strategy.md | 2026-02-01 | a25fa1a |
 | KAI-7-improve_configurability_of_scripts | P1 | S8.P1 Validation Loop - S8 updates can introduce inconsistencies | s8_p1_cross_feature_alignment.md | 2026-02-01 | a25fa1a |
-| KAI-7-improve_configurability_of_scripts | P1 | Dependency Group Workflow - agents batch S2 then S3 instead of per-round cycles | s1_epic_planning.md, s3_cross_feature_sanity_check.md, s4_epic_testing_strategy.md | 2026-02-01 | a25fa1a |
+| KAI-7-improve_configurability_of_scripts | P1 | Dependency Group Workflow - agents batch S2 then S3 instead of per-round cycles | s1_epic_planning.md, s3_epic_planning_approval.md, s4_epic_testing_strategy.md | 2026-02-01 | a25fa1a |
 | KAI-7-improve_configurability_of_scripts | P1 | Cross-Feature Agent Messaging - distributed validation during S2.P3 Phase 5 | s2_p3_refinement.md, communication_protocol.md | 2026-02-01 | a25fa1a |
 | KAI-7-improve_configurability_of_scripts | P2 | Pre-Made Handoff Packages - file-based handoffs vs copy/paste | s2_secondary_agent_guide.md | 2026-02-01 | a25fa1a |
 | KAI-7-improve_configurability_of_scripts | P2 | S2.P2 Prior Group Review - checklist questions re-ask already-answered questions | s2_p2_specification.md | 2026-02-01 | a25fa1a |
@@ -63,7 +63,7 @@ This document tracks the feedback loop from implementation â†’ lessons learned â
 | Epic | Priority | Lesson Summary | Proposed Guide(s) | Status | Reason Pending |
 |------|----------|----------------|-------------------|--------|----------------|
 | {Example - delete after use} |
-| KAI-2-example | P2 | Add example of integration gap | s5_p1_planning_round1.md | User Discuss | Needs clarification on example format |
+| KAI-2-example | P2 | Add example of integration gap | s5_v2_validation_loop.md | User Discuss | Needs clarification on example format |
 
 **Instructions:**
 - Add lessons where user marked "Discuss" and hasn't yet approved
@@ -148,7 +148,7 @@ This document tracks the feedback loop from implementation â†’ lessons learned â
 | CLAUDE.md | 4 | 2026-02-01 | Project-level instructions - S1 visibility, checkpoint protocol, Agent Status requirements |
 | s1_p3_discovery_phase.md | 2 | 2026-02-01 | Discovery Phase - external dependency verification, blocking checkpoints |
 | s1_epic_planning.md | 2 | 2026-02-01 | Epic Planning - feature dependency analysis, blocking checkpoints |
-| s5_p1_i3_integration.md | 2 | 2026-02-01 | Integration planning - external verification, blocking checkpoints |
+| s5_v2_validation_loop.md (D2: Interface & Dependency Verification) | 2 | 2026-02-01 | Integration planning - external verification, blocking checkpoints |
 | s7_p1_smoke_testing.md | 2 | 2026-02-01 | Smoke testing - Windows file locking, blocking checkpoints |
 | s7_p2_qc_rounds.md | 2 | 2026-01-30 | QC rounds - code inspection protocol, blocking checkpoints |
 
@@ -156,11 +156,11 @@ This document tracks the feedback loop from implementation â†’ lessons learned â
 
 | Lesson Type | Typical Guide(s) Updated | Count |
 |-------------|--------------------------|-------|
-| Spec misinterpretation | s5_p3_i3_gates_part2.md (Iteration 21) | {N} |
-| Interface verification missed | s5_p1_planning_round1.md (Iteration 2) | {N} |
-| Algorithm traceability incomplete | s5_p1_planning_round1.md (Iteration 4) | {N} |
-| Integration gap not identified | s5_p1_planning_round1.md (Iteration 7) | {N} |
-| Test coverage insufficient | s5_p2_planning_round2.md (Iterations 8-10) | {N} |
+| Spec misinterpretation | s5_v2_validation_loop.md (D10, D11: Gates 24, 25) | {N} |
+| Interface verification missed | s5_v2_validation_loop.md (Iteration 2) | {N} |
+| Algorithm traceability incomplete | s5_v2_validation_loop.md (Iteration 4) | {N} |
+| Integration gap not identified | s5_v2_validation_loop.md (Iteration 7) | {N} |
+| Test coverage insufficient | s5_v2_validation_loop.md (Iterations 8-10) | {N} |
 | Gate not enforced | mandatory_gates.md | {N} |
 | QC round missed issue | qc_rounds.md | {N} |
 
@@ -221,16 +221,16 @@ This document tracks the feedback loop from implementation â†’ lessons learned â
 
 **Epic:** KAI-1-improve_draft_helper
 **Priority:** P0
-**Lesson:** "Iteration 21 (Spec Validation Against Validated Documents) caught that spec.md misinterpreted epic notes about week_N+1 folder logic. Epic said 'create week folders' but spec said 'no code changes needed for folders.' Gate prevented week+ of rework."
+**Lesson:** "S5 Dimension 11 (Spec Alignment & Cross-Validation) caught that spec.md misinterpreted epic notes about week_N+1 folder logic. Epic said 'create week folders' but spec said 'no code changes needed for folders.' Validation dimension prevented week+ of rework."
 **Guide Updated:** `reference/mandatory_gates.md`
 **Changes Made:**
-- Added historical context to Gate 3 (Iteration 21)
+- Added historical context to Dimension 11 validation
 - Emphasized importance of three-way comparison (epic notes, epic ticket, spec summary)
 - Added example of spec misinterpretation caught by this gate
 **Date Applied:** 2026-01-10
 **Commit Hash:** abc1234
 
-**Guide Updated:** `stages/s5/s5_p3_i3_gates_part2.md`
+**Guide Updated:** `stages/s5/s5_v2_validation_loop.md (D10, D11: Gates 24, 25)`
 **Changes Made:**
 - Added emphasis to "close spec.md and implementation_plan.md" step
 - Added "ask critical questions" examples specific to folder/file operations

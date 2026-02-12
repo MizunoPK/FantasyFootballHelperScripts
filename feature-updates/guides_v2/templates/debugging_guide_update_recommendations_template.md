@@ -45,7 +45,7 @@
 
 **Should have been caught at:**
 - **Stage:** {S5 / S6 / S10.P1 / S10.P2 / 2 / etc.}
-- **Step:** {Iteration X / QC Round X / etc.}
+- **Step:** {Iteration X / Validation Round X / etc.}
 - **Guide:** `{guide name}`
 - **Why missed:** {specific gap}
 
@@ -214,7 +214,7 @@
 ## Recommendation #1: Add Entity Status Field Check to Iteration 9
 
 **Source Issue:** Issue #1 - player_scoring_returns_null
-**Affected Guide:** `stages/s5/s5_p2_planning_round2.md`
+**Affected Guide:** `stages/s5/s5_v2_validation_loop.md`
 **Section:** Iteration 9: Edge Case Analysis
 **Priority:** P1 (High)
 **User Confirmed:** ✅ YES (Date: 2026-01-15 14:30)
@@ -228,7 +228,7 @@ Bug occurred because player injury status wasn't checked, causing null pointer w
 2. **Implementation Gap:** Missing null check for injured players
 3. **Planning Gap:** Edge case not identified in implementation_plan.md Iteration 9
 4. **Process Gap:** Iteration 9 (Edge Case Analysis) didn't consider injury status
-5. **Guide Gap:** s5_p2_planning_round2.md Iteration 9 doesn't mention entity status fields ← ROOT CAUSE
+5. **Guide Gap:** s5_v2_validation_loop.md Iteration 9 doesn't mention entity status fields ← ROOT CAUSE
 
 **Root Cause Category:** A (Missing guide section)
 
@@ -237,7 +237,7 @@ Bug occurred because player injury status wasn't checked, causing null pointer w
 **Should have been caught at:**
 - **Stage:** S5 Round 2
 - **Step:** Iteration 9 (Edge Case Analysis)
-- **Guide:** `stages/s5/s5_p2_planning_round2.md`
+- **Guide:** `stages/s5/s5_v2_validation_loop.md`
 - **Why missed:** Guide doesn't explicitly mention checking entity status fields
 
 ### Current State (BEFORE)

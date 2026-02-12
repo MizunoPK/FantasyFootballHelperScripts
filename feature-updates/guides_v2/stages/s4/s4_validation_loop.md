@@ -61,7 +61,7 @@ Validate test strategy completeness using systematic Validation Loop validation 
 
 ## Validation Loop Process
 
-**Follow master protocol:** `validation_loop_protocol.md`
+**Follow master protocol:** `validation_loop_master_protocol.md`
 **Context-specific guide:** `validation_loop_test_strategy.md`
 
 **Exit Criteria:** 3 consecutive rounds with ZERO issues found
@@ -195,7 +195,7 @@ Validate test strategy completeness using systematic Validation Loop validation 
 - Continue with next round
 - Repeat until 3 consecutive rounds with ZERO issues
 
-**Maximum rounds:** 10 (see `validation_loop_protocol.md` for escalation if exceeded)
+**Maximum rounds:** 10 (see `validation_loop_master_protocol.md` for escalation if exceeded)
 
 ---
 
@@ -219,7 +219,7 @@ Validate test strategy completeness using systematic Validation Loop validation 
 Create `feature_{N}_{name}/test_strategy.md` with:
 
 ```markdown
-# Test Strategy: {Feature Name}
+## Test Strategy: {Feature Name}
 
 **Purpose:** Define testing approach for {feature name} feature
 
@@ -364,14 +364,19 @@ ls feature_{N}_{name}/test_strategy.md
 
 **After completing S4.I4:**
 
-📖 **READ:** `stages/s5/s5_p1_planning_round1.md` (Round 1)
-🎯 **GOAL:** Create implementation plan (22 verification iterations across 3 rounds)
-⏱️ **ESTIMATE:** 2-3 hours per feature (split across 3 rounds)
+📖 **READ:** `stages/s5/s5_v2_validation_loop.md`
+🎯 **GOAL:** Create implementation plan (S5 v2: Draft Creation + Validation Loop with 11 dimensions)
+⏱️ **ESTIMATE:** 4.5-7 hours per feature (60-90 min draft + 3.5-6 hours Validation Loop)
 
-**S5.P1.I1 will:**
+**S5.P1 (Draft Creation) will:**
 - Verify test_strategy.md exists (MANDATORY check)
 - Merge test strategy into implementation_plan.md
-- Continue with 22 verification iterations
+- Create comprehensive 400-line implementation plan draft
+
+**S5.P2 (Validation Loop) will:**
+- Validate all 11 dimensions each round
+- Fix all issues immediately (zero deferred issues)
+- Exit after 3 consecutive clean rounds
 
 **Remember:** Use phase transition prompt from `prompts_reference_v2.md` when starting S5.
 

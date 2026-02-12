@@ -4,7 +4,7 @@
 **Category:** Content Quality Dimensions
 **Automation Level:** 70% automated
 **Priority:** HIGH
-**Last Updated:** 2026-02-04
+**Last Updated:** 2026-02-06
 
 **Focus:** Ensure guide content matches reality (file counts, iteration counts, freshness, claims validation)
 **Typical Issues Found:** 10-20 per audit
@@ -52,6 +52,11 @@
 - "Version 2.0" matches actual workflow version
 - Deprecated content marked as such
 - Historical references clearly labeled
+
+✅ **Cross-Guide Claim Consistency:**
+- Claims about same topic agree across all guides
+- No contradictory workflow descriptions
+- Scope language (epic/feature/group) used consistently
 
 ---
 
@@ -245,6 +250,94 @@ grep -rn "minimum [0-9]\+\|required.*[0-9]\+\|enforced" \
 - **Manual review** - Check if code actually enforces claim
 - **Example:** "100% test pass rate enforced" → Verify S7, S9, S10 actually check exit codes
 - **Example:** "Minimum 3 rounds" → Verify S5 guides don't allow early exit
+
+### Type 5: Cross-Guide Claim Consistency
+
+**What to Check:**
+Claims about the same topic made in different guides must agree with each other.
+
+**Why This Matters:**
+Different guides may make incompatible claims about the same workflow:
+- Guide A claims X works one way
+- Guide B claims X works differently
+- Both can't be correct
+
+**This differs from D14's other checks:**
+- Types 1-4: Claims vs implementation (do claims match reality?)
+- Type 5: Claims vs claims (do guides agree with each other?)
+
+**Common Topics to Cross-Validate:**
+
+| Topic | Guides to Compare | What Must Agree |
+|-------|-------------------|-----------------|
+| Group workflow | S1, S2, S3, S4 | When do groups matter? |
+| Parallel work | S1, S2, parallel_work/ | How does parallelization work? |
+| Stage sequence | All stage guides | S1->S2->...->S10 |
+| Gate requirements | Stage guides, mandatory_gates.md | Gate numbers and locations |
+
+**Search Commands:**
+
+```bash
+# Find all claims about group workflow
+grep -rn "group.*S[0-9]\|S[0-9].*group\|group.*complete\|complete.*cycle" stages/ > /tmp/group_claims.txt
+
+# Review for consistency
+cat /tmp/group_claims.txt | sort
+
+# Expected: All claims describe same workflow
+# Error: Different claims describe different workflows
+```
+
+**Validation Process:**
+
+1. **Identify high-value topics:**
+   - Group-based parallelization
+   - Stage sequence
+   - Gate placement
+   - Scope transitions
+
+2. **For each topic, extract all claims:**
+   ```bash
+   grep -rn "[topic pattern]" stages/ reference/
+   ```
+
+3. **Compare claims:**
+   - Do all claims agree?
+   - If not, which is correct?
+   - Flag contradictions
+
+4. **Document in validation matrix:**
+   | Topic | File | Claim | Consistent? |
+   |-------|------|-------|-------------|
+   | Group workflow | s1_epic_planning.md:600 | "groups do S2->S3->S4" | |
+   | Group workflow | s2_feature_deep_dive.md:157 | "groups do S2 only" | NO |
+
+**Example Issue (KAI-8):**
+
+**Topic:** When do groups matter?
+
+**S1 Claim (Line 600):**
+```markdown
+Each group completes full S2->S3->S4 cycle before next group starts
+```
+
+**S2 Claim (Lines 150-157):**
+```markdown
+After S2.P2:
+- If all groups done -> Proceed to S3
+```
+
+**Analysis:**
+- S1 says groups matter for S2, S3, AND S4
+- S2 says groups only matter for S2, then S3 is epic-level
+- **CONTRADICTION**
+
+**Red Flags:**
+- Different guides describe same workflow differently
+- Claims use different scope (epic vs feature vs group)
+- Timing claims conflict
+
+**Automated:** Partial - Can extract claims, requires manual consistency check
 
 ---
 
@@ -601,7 +694,7 @@ find templates -name "*.md" -o -name "*.txt" | wc -l
 
 **Issue Found:**
 ```markdown
-File: stages/s5/s5_p1_planning_round1.md
+File: stages/s5/s5_v2_validation_loop.md
 Line: 12
 Content: "Round 1 has 7 iterations (I1-I7)"
 Actual: Round 1 has 7 iterations, but guide splits them across 3 sub-files
@@ -687,7 +780,7 @@ grep -rn "automat.*[0-9]\+%\|Checks [0-9] of [0-9]" guides_v2/ -i
 - `../stages/stage_4_verification.md` - Re-verify counts after fixes
 
 **Reference:**
-- `../reference/file_size_reduction_guide.md` - Why stale large files are problematic
+- `reference/file_size_reduction_guide.md` - Why stale large files are problematic
 - `../_internal/DIMENSION_IMPLEMENTATION_STATUS.md` - Current dimension implementation status
 
 ---

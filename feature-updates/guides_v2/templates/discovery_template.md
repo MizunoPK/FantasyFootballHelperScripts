@@ -11,7 +11,7 @@
 ## Template
 
 ```markdown
-# Discovery Phase: {epic_name}
+## Discovery Phase: {epic_name}
 
 **Epic:** KAI-{N}-{epic_name}
 **Created:** {YYYY-MM-DD}

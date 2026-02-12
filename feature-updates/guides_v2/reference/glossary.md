@@ -46,9 +46,9 @@ Terms are organized alphabetically. Terms with multiple context-specific meaning
 
 ## A
 ### Acceptance Criteria
-Requirements that define when a feature or task is considered complete. Documented in spec.md and used to verify implementation in S7 QC rounds.
+Requirements that define when a feature or task is considered complete. Documented in spec.md and used to verify implementation in S7 Validation Loop.
 
-**See:** Spec.md, QC Rounds
+**See:** Spec.md, Validation Loop
 
 ---
 
@@ -78,7 +78,7 @@ Table mapping algorithm requirements from spec.md to implementation_plan.md task
 
 **See:** implementation_plan.md, Iteration
 
-**Guide:** s5_p1_planning_round1.md, s5_p3_planning_round3.md
+**Guide:** s5_v2_validation_loop.md, s5_v2_validation_loop.md (Validation Loop Round 3)
 
 ---
 
@@ -87,7 +87,7 @@ Process of ensuring consistency across features (S3) or updating specs after imp
 
 **See:** Cross-Feature Sanity Check, Post-Feature Alignment
 
-**Guide:** s3_cross_feature_sanity_check.md, post_feature_alignment.md
+**Guide:** s3_epic_planning_approval.md, post_feature_alignment.md
 
 ---
 
@@ -169,7 +169,7 @@ S3 process of systematic pairwise comparison of all feature specs.
 
 **See:** S3, Alignment
 
-**Guide:** s3_cross_feature_sanity_check.md
+**Guide:** s3_epic_planning_approval.md
 
 ---
 
@@ -243,7 +243,7 @@ Testing complete workflow from start to finish with real data.
 ### Edge Case
 Unusual input or scenario that tests boundaries of implementation.
 
-**See:** QC Rounds
+**See:** Validation Loop
 
 ---
 
@@ -302,16 +302,16 @@ Mandatory checkpoint that must PASS before proceeding.
 
 **See:** Mandatory Gates (reference/mandatory_gates.md), Iteration
 
-**Guide:** s5_p1_planning_round1.md, s5_p3_i2_gates_part1.md, s5_p3_i3_gates_part2.md
+**Guide:** s5_v2_validation_loop.md, s5_v2_validation_loop.md (Dimension 11: Gate 23a), s5_v2_validation_loop.md (Dimensions 10, 11: Gates 24, 25)
 
 ---
 
 ### GO Decision
-Iteration 22 outcome indicating readiness to proceed to S6 implementation.
+S5 v2 Phase 2 complete - indicates readiness to proceed to S6 implementation after achieving 3 consecutive clean validation rounds across all 11 dimensions.
 
-**See:** Iteration 22, NO-GO, Gates
+**See:** S5 v2 Validation Loop, Phase 2, NO-GO, 3 Consecutive Clean Rounds
 
-**Guide:** s5_p3_i3_gates_part2.md
+**Guide:** s5_v2_validation_loop.md (Dimension 10: Implementation Readiness)
 
 ---
 
@@ -345,7 +345,7 @@ Iteration 17 process of breaking implementation into incremental phases for vali
 
 **See:** Iteration 17, S6
 
-**Guide:** s5_p3_planning_round3.md
+**Guide:** s5_v2_validation_loop.md (Validation Loop Round 3)
 
 ---
 
@@ -361,7 +361,7 @@ Process ensuring all new methods/functions have identified callers (no orphan co
 
 **See:** Iteration 23
 
-**Guide:** s5_p3_i2_gates_part1.md
+**Guide:** s5_v2_validation_loop.md (Dimension 11: Gate 23a)
 
 ---
 
@@ -370,7 +370,7 @@ Agreements defining method signatures, parameters, return types.
 
 **See:** Hands-On Data Inspection
 
-**Guide:** s5_p2_planning_round2.md, s5_p3_i2_gates_part1.md
+**Guide:** s5_v2_validation_loop.md, s5_v2_validation_loop.md (Dimension 11: Gate 23a)
 
 ---
 
@@ -385,13 +385,15 @@ Central tracking file for all discovered issues during debugging.
 
 ### Iteration
 
-**[S5]** Single verification step in TODO Creation process.
+**[S5]** Not used in S5 v2 (replaced by Validation Loop dimensions).
 
-- **Round 1:** Iterations 1-7 (7 iterations, includes Gates 4a, 7a)
+**Historical Context (S5 v1):**
+- S5 v1 had 22 iterations across 3 rounds
+- S5 v2 uses 11 dimensions in Validation Loop instead
 
-**See:** Round, S5, Gate
+**See:** Dimension, Validation Loop, S5
 
-**Guide:** s5_p1_planning_round1.md, s5_p2_planning_round2.md, s5_p3_planning_round3.md, s5_p3_i2_gates_part1.md, s5_p3_i3_gates_part2.md
+**Guide:** s5_v2_validation_loop.md, s5_v2_validation_loop.md, s5_v2_validation_loop.md (Validation Loop Round 3), s5_v2_validation_loop.md (Dimension 11: Gate 23a), s5_v2_validation_loop.md (Dimensions 10, 11: Gates 24, 25)
 
 ---
 
@@ -448,18 +450,18 @@ Functionality that was NOT in spec.md but should have been.
 ### Mock
 Test double that simulates real object behavior.
 
-**See:** Integration Test, Iteration 21
+**See:** Integration Test, Dimension 11
 
-**Guide:** s5_p3_planning_round3.md
+**Guide:** s5_v2_validation_loop.md (Validation Loop Round 3)
 
 ---
 
 ### NO-GO Decision
-Iteration 22 outcome indicating NOT ready to proceed to S6.
+S5 v2 Validation Loop not converging - indicates NOT ready to proceed to S6. Occurs when unable to achieve 3 consecutive clean rounds within 10 rounds, or when critical dimensions repeatedly fail.
 
-**See:** GO Decision, Iteration 22
+**See:** GO Decision, S5 v2 Validation Loop, Escalation Protocol
 
-**Guide:** s5_p3_i3_gates_part2.md
+**Guide:** s5_v2_validation_loop.md (Special Cases: "If Validation Loop Exceeds 10 Rounds")
 
 ---
 
@@ -610,17 +612,17 @@ Process of continuing work after session compaction.
 
 **[Two contexts]**
 
-**[S5 TODO Creation]** Collection of iterations:
+**[S5 v2]** Not used (replaced by Phase 1: Draft Creation, Phase 2: Validation Loop)
 
-- Round 1: Iterations 1-7 (7 iterations, includes Gate 4a) - Initial TODO
+**[Validation Loop]** Iterative quality control validation:
 
-- Round 2: Iterations 8-13 (6 iterations) - Integration Verification
+- Check ALL dimensions every round until 3 consecutive clean rounds
 
-**[QC Rounds]** Quality control verification rounds:
+**Historical Context (S5 v1):**
+- S5 v1 had "rounds" (Round 1: I1-I7, Round 2: I8-I13, Round 3: I14-I22)
+- S5 v2 uses phases (Phase 1: Draft Creation, Phase 2: Validation Loop)
 
-- Round 1: Algorithm Verification
-
-**See:** Iteration, Phase, QC Rounds
+**See:** Iteration, Phase, Validation Loop
 
 ---
 
@@ -662,13 +664,13 @@ Specification document in each feature folder containing all requirements.
 
 ### Spec Validation
 
-**[Gate 25 Iteration 21]** Three-way validation of spec.md against validated documents.
+**[Gate 25 Dimension 11]** Three-way validation of spec.md against validated documents.
 
 1. Epic notes (user's original request in {epic_name}.txt)
 
-**See:** Gate 25, Iteration 21
+**See:** Gate 25, Dimension 11
 
-**Guide:** s5_p3_i3_gates_part2.md, spec_validation.md
+**Guide:** s5_v2_validation_loop.md (Dimensions 10, 11: Gates 24, 25), spec_validation.md
 
 ---
 
@@ -695,7 +697,7 @@ Implementation plan (~400 lines) in each feature folder containing comprehensive
 
 **See:** S5, Implementation Execution, implementation_checklist.md
 
-**Guide:** s5_p1_planning_round1.md, s5_p2_planning_round2.md, round3 guides
+**Guide:** s5_v2_validation_loop.md, s5_v2_validation_loop.md, round3 guides
 
 ---
 
@@ -734,7 +736,7 @@ S10 mandatory testing by the user before commit.
 
 **[Data Validation]** Iteration 7 - planning data validation strategies
 
-**[Output Validation]** Iteration 22 - verify outputs match consumer expectations
+**[Output Validation]** Validation Loop complete - verify outputs match consumer expectations
 
 **See:** Spec Validation, Gates
 

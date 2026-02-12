@@ -12,7 +12,7 @@
 ## Template
 
 ```markdown
-# Epic: {epic_name}
+## Epic: {epic_name}
 
 **Created:** {YYYY-MM-DD}
 **Status:** {IN PROGRESS / COMPLETE}
@@ -57,12 +57,12 @@ Plan  Deep Dive  Check  Strategy  (per feature)   QC
 **Last Updated:** {YYYY-MM-DD HH:MM}
 **Current Stage:** Stage {X} - {stage name}
 **Current Phase:** {PLANNING / IMPLEMENTATION / QC}
-**Current Step:** {Specific step name - e.g., "QC Round 2 (Consistency)"}
+**Current Step:** {Specific step name - e.g., "Validation Round 2 (clean counter: 1)"}
 **Current Guide:** `{guide_file_name}.md`
 **Guide Last Read:** {YYYY-MM-DD HH:MM}
 
 **Critical Rules from Guide:**
-- {Rule 1 - e.g., "22 iterations mandatory, no skipping"}
+- {Rule 1 - e.g., "11 dimensions mandatory, complete Validation Loop required (3 consecutive clean rounds)"}
 - {Rule 2 - e.g., "Update Agent Status after each round"}
 - {Rule 3 - e.g., "STOP if confidence < Medium"}
 - {Rule 4 - e.g., "RESTART Post-Implementation if ANY issues found"}
@@ -142,11 +142,64 @@ Plan  Deep Dive  Check  Strategy  (per feature)   QC
 {Continue for all features...}
 
 
+## Feature Dependency Groups (S2 Only)
+
+**Skip this section if:**
+- All features are independent (no spec-level dependencies)
+- OR user declined parallel work
+
+**Use this section to track group-based S2 parallelization waves**
+
+### Group Structure
+
+**Group 1 (Foundation - S2 Wave 1):**
+- Feature {N}: {name}
+- Spec Dependencies: None
+- S2 Workflow: Completes S2 alone FIRST
+
+**Group 2 (Dependent - S2 Wave 2):**
+- Features {N}-{M}: {names}
+- Spec Dependencies: Need Group 1's spec (API reference)
+- S2 Workflow: After Group 1 completes S2, all features do S2 in parallel
+
+**Group 3+ (if needed - S2 Wave 3+):**
+- Features {N}-{M}: {names}
+- Spec Dependencies: Need Group 2's spec
+- S2 Workflow: After Group 2 completes S2, all features do S2 in parallel
+
+### S2 Wave Execution
+
+**After S2 Complete:**
+- Groups no longer matter
+- S3: Epic-level (all features together)
+- S4: Per-feature sequential
+- S5-S8: Per-feature sequential (implementation dependencies checked separately)
+- S9-S10: Epic-level
+
+### Time Savings Calculation
+
+**S2 Time Savings:**
+- Sequential S2: {N} features × 2h = {total}h
+- Group-based S2: Wave 1 ({M}h) + Wave 2 parallel ({M}h) + Wave 3 parallel ({M}h) = {total}h
+- Savings: {X}h ({percent}% reduction)
+
+**Example (7 features, 2 groups):**
+- Sequential: 7 × 2h = 14h
+- Group-based: Wave 1 (2h) + Wave 2 parallel (2h) = 4h
+- Savings: 10h (71% reduction)
+
+---
+
 ## 🔀 Parallel Work Configuration (If Applicable)
 
 **Skip this section if working sequentially (single agent)**
 
-**This section tracks parallel work during S2 (Feature Deep Dives)**
+**This section tracks parallel work coordination during S2**
+
+**Parallelization Mode:** {Group-Based / Full Parallelization / Sequential}
+- **Group-Based:** Features have spec-level dependencies, execute S2 in waves
+- **Full Parallelization:** All features independent, execute S2 simultaneously
+- **Sequential:** Single agent, features one-by-one
 
 ### Agent Assignments
 

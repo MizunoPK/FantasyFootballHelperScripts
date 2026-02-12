@@ -237,9 +237,9 @@ s5_planning.md (1200 lines) ← Direct concatenation
 **Better Approach:**
 ```text
 s5_planning.md (200 lines) ← Router to sub-guides
-s5_p1_planning_round1.md (400 lines)
-s5_p2_planning_round2.md (350 lines)
-s5_p3_planning_round3.md (450 lines)
+s5_v2_validation_loop.md (400 lines)
+s5_v2_validation_loop.md (350 lines)
+s5_v2_validation_loop.md (450 lines)
 ```markdown
 
 ### Root Cause 3: Detailed Examples Added Inline
@@ -386,7 +386,7 @@ STEP 4: Decision
 - [ ] CONSOLIDATE: Remove duplicate content
 ```
 
-**See:** `../reference/file_size_reduction_guide.md` for complete reduction protocols
+**See:** `reference/file_size_reduction_guide.md` for complete reduction protocols
 
 ### Manual Validation Process
 
@@ -459,7 +459,7 @@ Verdict: ✅ ACCEPTABLE (reference material, not sequential reading)
 
 **2. Pattern Libraries:**
 ```markdown
-File: reference/pattern_library.md (650 lines)
+File: audit/reference/pattern_library.md (650 lines)
 Content: Search patterns organized by category
 Verdict: ✅ ACCEPTABLE (lookup reference, not read start-to-finish)
 ```
@@ -475,7 +475,7 @@ Verdict: ✅ ACCEPTABLE (copied then edited, not read repeatedly)
 
 **1. Sequential Workflow Guides:**
 ```markdown
-File: stages/s5/s5_implementation_planning.md (1400 lines)
+File: stages/s5/s5_v2_validation_loop.md (1400 lines)
 Content: Step-by-step instructions for S5
 Verdict: ❌ ERROR (agents must read sequentially, too long)
 Fix: Split into s5_p1, s5_p2, s5_p3 (400-500 lines each)
@@ -494,7 +494,7 @@ Fix: Extract to EPIC_WORKFLOW_USAGE.md, keep quick reference
 File: stages/s2/s2_feature_deep_dive.md (950 lines)
 Content: Research + Specification + Refinement (3 phases)
 Verdict: ⚠️ LARGE (should split into phase files)
-Fix: Create s2_p1_research.md, s2_p2_specification.md, s2_p3_refinement.md
+Fix: Create s2_p1_spec_creation_refinement.md, s2_p2_specification.md, s2_p3_refinement.md
 ```
 
 ---
@@ -571,13 +571,13 @@ $ wc -l stages/s1/s1_p3_discovery_phase.md
 **Issue Found:**
 ```bash
 # Git history analysis
-$ git log --oneline --all -- stages/s5/s5_p1_planning_round1.md | wc -l
+$ git log --oneline --all -- stages/s5/s5_v2_validation_loop.md | wc -l
 47  # 47 commits to this file
 
-$ git show HEAD~40:stages/s5/s5_p1_planning_round1.md | wc -l
+$ git show HEAD~40:stages/s5/s5_v2_validation_loop.md | wc -l
 420 lines (6 months ago)
 
-$ wc -l stages/s5/s5_p1_planning_round1.md
+$ wc -l stages/s5/s5_v2_validation_loop.md
 685 lines (current)
 
 Growth: +265 lines (+63%) over 6 months
@@ -594,8 +594,8 @@ Growth: +265 lines (+63%) over 6 months
 
 **Result:**
 ```bash
-$ wc -l stages/s5/s5_p1_planning_round1.md
-180 stages/s5/s5_p1_planning_round1.md (router)
+$ wc -l stages/s5/s5_v2_validation_loop.md
+180 stages/s5/s5_v2_validation_loop.md (router)
 
 $ wc -l stages/s5/s5_p1_i*.md
 220 stages/s5/s5_p1_i1_requirements.md
@@ -637,7 +637,7 @@ $ wc -l templates/epic_readme_template.md
 
 This dimension guide focuses on **detection and evaluation**. For **reduction execution**, see:
 
-**`../reference/file_size_reduction_guide.md`** provides:
+**`reference/file_size_reduction_guide.md`** provides:
 - Detailed reduction strategies (4 methods)
 - CLAUDE.md reduction protocol (step-by-step)
 - Workflow guide reduction protocol
@@ -736,7 +736,7 @@ This dimension guide focuses on **detection and evaluation**. For **reduction ex
 - `../stages/stage_4_verification.md` - Verifying size compliance
 
 **Reference:**
-- `../reference/file_size_reduction_guide.md` - Complete reduction protocols
+- `reference/file_size_reduction_guide.md` - Complete reduction protocols
 
 **Scripts:**
 - `../scripts/pre_audit_checks.sh` - Automated size validation (CHECK 1, CHECK 1b)

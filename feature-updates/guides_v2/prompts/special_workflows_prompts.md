@@ -53,7 +53,7 @@ I'm reading `stages/s5/s5_bugfix_workflow.md` to ensure I follow the bug fix wor
   - Save current work state in README
 - PHASE 2: Bug Fix Implementation
   - S2: Deep Dive (adapted for bug fix)
-  - S5: TODO Creation (22 iterations)
+  - S5 v2: Implementation Planning (Validation Loop with 11 dimensions)
   - S6: Implementation
   - S7: Post-Implementation
   - SKIP: S1, S3, S4, S8, S9, S10 (epic-level stages)
@@ -139,7 +139,7 @@ Presenting to user...
 **When to use:** Issues discovered during QC/Smoke Testing with unknown root cause
 
 **Prerequisites:**
-- Issues found during Smoke Testing or QC Rounds
+- Issues found during Smoke Testing or Validation Loop
 - Root cause is unknown - requires investigation
 - May have multiple related issues
 
@@ -200,7 +200,7 @@ I'm reading `debugging/debugging_protocol.md` to ensure I follow the complete de
 - Current Phase: DEBUGGING_PROTOCOL
 - Current Guide: debugging/debugging_protocol.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
-- Testing Stage Paused: {S7.P1 Smoke Part 3 / S7.P2 QC Round 1 / etc}
+- Testing Stage Paused: {S7.P1 Smoke Part 3 / S7.P2 Validation Round 1 / etc}
 - Issues Found: {count}
 - Loop Back To: {Testing stage to return to}
 - Critical Rules: "Issue checklist workflow", "Loop back to testing after resolution", "User verification required"

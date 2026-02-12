@@ -16,7 +16,7 @@ Feature Workflow (Single Feature Journey)
 
 S5: TODO Creation COMPLETE
          ↓
-         ✅ GO Decision from Iteration 22
+         ✅ GO Decision from S5 v2 Validation Loop complete
          ↓
 ┌─────────────────────────────────────────┐
 │ S6: Implementation Execution      │
@@ -67,7 +67,7 @@ S5: TODO Creation COMPLETE
 Write the feature code following the implementation plan created in S5.
 
 ### Entry Conditions
-- [ ] S5 Round 3 complete (Iteration 22 = GO)
+- [ ] S5 v2 Phase 2 complete (S5 v2 Validation Loop complete = GO)
 - [ ] implementation_plan.md ready and user-approved
 - [ ] All mandatory gates passed (4a, 23a, 25, 24)
 
@@ -120,10 +120,10 @@ Validate the implemented feature through smoke testing, QC rounds, and PR review
 2. Entry Point Test - Main entry points work
 3. E2E Execution Test - End-to-end workflow succeeds (MANDATORY GATE)
 
-**Step 2: QC Rounds (3 rounds)**
-1. Round 1: Algorithm Verification
-2. Round 2: Consistency & Standards
-3. Round 3: Integration & Edge Cases
+**Step 2: Validation Loop (3 consecutive clean rounds)**
+1. Check ALL 11 dimensions every round
+2. Fix issues immediately, reset clean counter
+3. Exit after 3 consecutive clean rounds
 
 **Step 3: Final Review**
 1. PR Review (7 categories)
@@ -138,8 +138,8 @@ Validate the implemented feature through smoke testing, QC rounds, and PR review
 
 ### Exit Conditions
 - [ ] Smoke testing PASSED (all 3 parts)
-- [ ] All 3 QC rounds PASSED
-- [ ] PR review PASSED (all 7 categories)
+- [ ] Validation Loop PASSED (3 consecutive clean rounds)
+- [ ] PR review PASSED (all 11 categories)
 - [ ] Lessons learned documented
 - [ ] Feature is production-ready
 
@@ -149,11 +149,11 @@ Validate the implemented feature through smoke testing, QC rounds, and PR review
 
 **Update Agent Status:**
 ```markdown
-# If more features remaining:
+## If more features remaining:
 Current Stage: S8.P1 - Post-Feature Alignment
 Next Action: Read stages/s8/s8_p1_cross_feature_alignment.md
 
-# If NO more features:
+## If NO more features:
 Current Stage: S9 - Epic Final QC
 Next Action: Read stages/s9/s9_epic_final_qc.md
 ```
@@ -267,12 +267,12 @@ Update epic_smoke_test_plan.md to reflect ACTUAL implementation discoveries and 
 
 **Update Agent Status:**
 ```markdown
-# If more features remaining:
+## If more features remaining:
 Current Stage: S5 - TODO Creation (Next Feature)
 Next Feature: feature_0X_{name}
-Next Action: Read stages/s5/s5_p1_planning_round1.md for next feature
+Next Action: Read stages/s5/s5_v2_validation_loop.md for next feature
 
-# If NO more features:
+## If NO more features:
 Current Stage: S9 - Epic Final QC
 Next Action: Read stages/s9/s9_epic_final_qc.md
 ```
@@ -383,7 +383,7 @@ Mark next column as 🔄 (in progress)
 **Use this to determine current position:**
 
 **If you just completed:**
-- [x] S5 (Iteration 22 = GO) → **Next:** S6 (Implementation)
+- [x] S5 (S5 v2 Validation Loop complete = GO) → **Next:** S6 (Implementation)
 - [x] S6 (code written, tests pass) → **Next:** S7 (Post-Implementation)
 - [x] S7 (all QC passed) → **Check:** Features remaining?
   - YES → **Next:** S8.P1 (Alignment)

@@ -268,7 +268,6 @@ class StarterHelperModeManager:
         """
         self.config = config
         self.logger = get_logger()
-        self.logger.debug("Initializing Starter Helper Mode Manager")
         self.set_managers(player_manager, team_data_manager)
 
     # ========================================================================

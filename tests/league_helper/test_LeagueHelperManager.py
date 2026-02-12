@@ -152,7 +152,8 @@ class TestLeagueHelperManagerInit:
         logger = mock_managers['logger_instance']
 
         # Check for key log messages
-        assert logger.debug.call_count >= 4  # Multiple debug messages
+        # Note: After log quality improvements (KAI-8), redundant initialization logs were removed
+        assert logger.debug.call_count >= 2  # Initialization debug messages (data folder, player reload)
         assert logger.info.call_count >= 2   # Config loaded, mode managers initialized
 
 

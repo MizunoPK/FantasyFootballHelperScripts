@@ -116,7 +116,7 @@ Begin S2.P1 now.
 EOF
 }
 
-# Usage:
+## Usage:
 generate_s2_handoff_package \
   "KAI-6-nfl_team_penalty" \
   "C:/Users/kmgam/code/FantasyFootballHelperScripts/feature-updates/KAI-6-nfl_team_penalty" \
@@ -170,14 +170,14 @@ generate_s2_handoff_package \
 
    # Create inbox file
    cat > "$EPIC_PATH/agent_comms/primary_to_secondary_a.md" <<EOF
-# Messages: Primary → Secondary-A
+## Messages: Primary → Secondary-A
 
 (No messages yet)
 EOF
 
    # Create outbox file
    cat > "$EPIC_PATH/agent_comms/secondary_a_to_primary.md" <<EOF
-# Messages: Secondary-A → Primary
+## Messages: Secondary-A → Primary
 
 (No messages yet)
 EOF
@@ -226,7 +226,7 @@ EOF
    ```
 
 8. **Begin S2.P1:**
-   - Read guide: `stages/s2/s2_p1_research.md`
+   - Read guide: `stages/s2/s2_p1_spec_creation_refinement.md`
    - Follow guide steps
    - Update checkpoint every 15 min
    - Check inbox every 15 min

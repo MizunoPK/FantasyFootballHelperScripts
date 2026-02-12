@@ -567,10 +567,10 @@ File: stages/s5/round1_planning.md
 **Fix:**
 ```bash
 # Rename file
-git mv stages/s5/round1_planning.md stages/s5/s5_p1_planning_round1.md
+git mv stages/s5/round1_planning.md stages/s5/s5_v2_validation_loop.md
 
 # Update all references
-sed -i 's|stages/s5/round1_planning\.md|stages/s5/s5_p1_planning_round1.md|g' \
+sed -i 's|stages/s5/round1_planning\.md|stages/s5/s5_v2_validation_loop.md|g' \
   stages/**/*.md
 ```
 
@@ -670,8 +670,8 @@ grep -rn "stages/s6/\|stages/s7/"
 - `../stages/stage_3_apply_fixes.md` - Bulk notation replacement strategies
 
 **Reference:**
-- `../reference/pattern_library.md` - Comprehensive search patterns
-- `../reference/context_analysis_guide.md` - Determining intentional vs error
+- `reference/pattern_library.md` - Comprehensive search patterns
+- `reference/context_analysis_guide.md` - Determining intentional vs error
 
 ---
 

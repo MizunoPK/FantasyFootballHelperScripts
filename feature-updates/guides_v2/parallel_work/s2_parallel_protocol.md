@@ -122,6 +122,10 @@ After S2 complete → Sync → Primary runs S3 alone
 
 ### Directory Structure
 
+**🚨 CRITICAL STRUCTURE REQUIREMENTS**
+
+This structure is **MANDATORY**. Deviations will cause validation failures and coordination issues.
+
 ```markdown
 feature-updates/KAI-N-epic_name/
 ├── EPIC_README.md                 # Sectioned (agents own sections)
@@ -132,32 +136,69 @@ feature-updates/KAI-N-epic_name/
 │   ├── epic_readme.lock
 │   └── epic_smoke_test_plan.lock
 │
-├── agent_comms/                   # NEW - Communication channels
+├── agent_comms/                   # NEW - Communication FILES (no subdirs)
 │   ├── primary_to_secondary_a.md
 │   ├── secondary_a_to_primary.md
 │   ├── primary_to_secondary_b.md
 │   └── secondary_b_to_primary.md
 │
-├── agent_checkpoints/             # NEW - Checkpoint files
+├── agent_checkpoints/             # NEW - Checkpoint .json FILES (no subdirs)
 │   ├── primary.json
 │   ├── secondary_a.json
 │   └── secondary_b.json
 │
 ├── feature_01_player_json/        # Primary's feature
-│   ├── STATUS                     # NEW - Quick status
+│   ├── STATUS                     # NEW - Quick status (REQUIRED for ALL features)
+│   ├── HANDOFF_PACKAGE.md         # NEW - Handoff for secondaries (if applicable)
 │   ├── README.md
 │   ├── spec.md
 │   ├── checklist.md
 │   └── lessons_learned.md
 │
 ├── feature_02_team_penalty/       # Secondary-A's feature
-│   ├── STATUS                     # NEW
+│   ├── STATUS                     # REQUIRED
+│   ├── HANDOFF_PACKAGE.md         # Handoff for this secondary
 │   └── [same structure]
 │
 └── feature_03_scoring_update/     # Secondary-B's feature
-    ├── STATUS                     # NEW
+    ├── STATUS                     # REQUIRED
+    ├── HANDOFF_PACKAGE.md         # Handoff for this secondary
     └── [same structure]
 ```
+
+### Prohibited Structures
+
+**❌ DO NOT create these directories:**
+
+```markdown
+❌ parallel_work/                    # Use agent_comms/ and agent_checkpoints/ instead
+❌ agent_comms/coordination/         # Coordination files go directly in agent_comms/
+❌ agent_comms/agent_checkpoints/    # Checkpoints go in top-level agent_checkpoints/
+❌ agent_comms/inboxes/              # Communication files go directly in agent_comms/
+❌ agent_comms/parallel_work/        # No subdirectories under agent_comms/
+```
+
+**Rule:** Only THREE top-level coordination directories allowed:
+1. `.epic_locks/` - Lock files
+2. `agent_comms/` - Communication FILES only (no subdirectories)
+3. `agent_checkpoints/` - Checkpoint .json FILES only (no subdirectories)
+
+### File Format Requirements
+
+**Checkpoint files:**
+- ✅ MUST use `.json` extension: `secondary_a.json`
+- ❌ NOT `.md`: `secondary_a.md` or `secondary_a_checkpoint.md`
+- Format: JSON with defined schema (see checkpoint_protocol.md)
+
+**Communication files:**
+- ✅ MUST be individual `.md` files: `primary_to_secondary_a.md`
+- ❌ NOT directories: `inboxes/from_primary/`
+- Format: Markdown with message structure
+
+**STATUS files:**
+- ✅ MUST be plain text key-value format
+- ✅ REQUIRED for ALL features (including Feature 01 - Primary's feature)
+- Location: `feature_XX_{name}/STATUS`
 
 ### Coordination Infrastructure
 
@@ -1223,6 +1264,76 @@ You can close this session or keep open to monitor.
 
 ---
 
+## Structure Validation
+
+### Validation Script
+
+**Location:** `parallel_work/scripts/validate_structure.sh`
+
+**Purpose:** Validates coordination infrastructure for parallel S2 work
+
+**Usage:**
+```bash
+# From project root
+bash feature-updates/guides_v2/parallel_work/scripts/validate_structure.sh \
+  feature-updates/KAI-N-epic_name/
+
+# Output:
+# ✅ PASSED - structure valid
+# ⚠️  PASSED WITH WARNINGS - functional but has style issues
+# ❌ FAILED - critical issues found
+```text
+
+**When to run:**
+1. **After Primary creates infrastructure** (Phase 3, Step 1)
+2. **Before generating handoff packages** (Phase 3, Step 3)
+3. **After all secondaries start** (Phase 4, start)
+4. **If coordination issues occur** (troubleshooting)
+
+**What it checks:**
+- ✅ Required directories exist (.epic_locks, agent_comms, agent_checkpoints)
+- ❌ Prohibited directories don't exist (parallel_work, nested dirs)
+- ✅ Checkpoint files use .json extension
+- ✅ Checkpoint files follow naming convention (primary.json, secondary_a.json)
+- ❌ No subdirectories under agent_comms/
+- ✅ Communication files follow naming convention
+- ✅ All features have STATUS files
+- ✅ Lock files use .lock extension
+
+**Example output:**
+```text
+==================================================
+Parallel S2 Structure Validation
+==================================================
+Epic Path: feature-updates/KAI-8-logging_refactoring
+
+📁 Checking Required Directories...
+✅ Required directory exists: .epic_locks
+✅ Required directory exists: agent_comms
+✅ Required directory exists: agent_checkpoints
+
+🚫 Checking Prohibited Directories...
+❌ ERROR: Prohibited directory found: parallel_work
+
+📄 Checking Checkpoint Files...
+❌ ERROR: Checkpoint file not .json format: secondary_a.md
+
+💬 Checking Communication Files...
+❌ ERROR: Subdirectory in agent_comms/: inboxes
+
+📋 Checking Feature STATUS Files...
+❌ ERROR: Missing STATUS file: feature_01/STATUS
+
+==================================================
+Validation Summary
+==================================================
+❌ FAILED
+Errors: 10
+Warnings: 8
+```
+
+---
+
 **See Also:**
 - `lock_file_protocol.md` - Lock system details
 - `communication_protocol.md` - Messaging details
@@ -1231,3 +1342,4 @@ You can close this session or keep open to monitor.
 - `s2_secondary_agent_guide.md` - Secondary workflow
 - `stale_agent_protocol.md` - Failure handling
 - `sync_timeout_protocol.md` - Sync timeout handling
+- `scripts/validate_structure.sh` - Structure validation script

@@ -10,6 +10,44 @@
 
 ---
 
+## Table of Contents
+
+1. [Triggered When](#triggered-when)
+1. [Step 1: Verify All Issues Resolved](#step-1-verify-all-issues-resolved)
+   - [Checklist](#checklist)
+1. [All Issues Resolution Verification](#all-issues-resolution-verification)
+1. [Step 2: Final Code Review](#step-2-final-code-review)
+   - [2.1: Check for leftover artifacts](#21-check-for-leftover-artifacts)
+   - [2.3: Run full test suite](#23-run-full-test-suite)
+1. [Step 3: Cross-Bug Pattern Analysis (MANDATORY)](#step-3-cross-bug-pattern-analysis-mandatory)
+   - [3.1: Review Per-Bug Analyses from Phase 4b](#31-review-per-bug-analyses-from-phase-4b)
+   - [3.2: Cross-Bug Pattern Analysis](#32-cross-bug-pattern-analysis)
+1. [Summary of All Issues](#summary-of-all-issues)
+1. [Cross-Bug Patterns (NEW FOCUS)](#cross-bug-patterns-new-focus)
+   - [Pattern #1: {Pattern Name - e.g., "Missing Entity Status Checks"}](#pattern-1-pattern-name-eg-missing-entity-status-checks)
+1. [High-Priority Guide Updates (Cross-Pattern)](#high-priority-guide-updates-cross-pattern)
+1. [Systemic Process Gaps](#systemic-process-gaps)
+   - [3.3: Update guide_update_recommendations.md with Patterns](#33-update-guideupdaterecommendationsmd-with-patterns)
+1. [CROSS-PATTERN RECOMMENDATIONS (Added from Phase 5 Step 3)](#cross-pattern-recommendations-added-from-phase-5-step-3)
+1. [Pattern-Based Recommendation #{next_number}: {Pattern Name}](#pattern-based-recommendation-nextnumber-pattern-name)
+1. [Affected Guides](#affected-guides)
+1. [Why This Matters](#why-this-matters)
+1. [4: Loop Back to Testing Stage](#4-loop-back-to-testing-stage)
+   - [4.1: Determine Return Point](#41-determine-return-point)
+   - [4.2: Update Agent Status](#42-update-agent-status)
+   - [4.3: Clean Up Debugging Artifacts](#43-clean-up-debugging-artifacts)
+   - [4.4: Resume Testing from Checkpoint](#44-resume-testing-from-checkpoint)
+1. [Exit Criteria](#exit-criteria)
+1. [Common Questions](#common-questions)
+   - [Q: "Do I need to re-run ALL tests from the beginning?"](#q-do-i-need-to-re-run-all-tests-from-the-beginning)
+   - [Q: "What if user finds NEW issues during re-testing?"](#q-what-if-user-finds-new-issues-during-re-testing)
+   - [Q: "Can I skip cross-pattern analysis if only 1 bug?"](#q-can-i-skip-cross-pattern-analysis-if-only-1-bug)
+   - [Q: "What if no cross-patterns found?"](#q-what-if-no-cross-patterns-found)
+   - [Q: "Should I commit code before or after looping back?"](#q-should-i-commit-code-before-or-after-looping-back)
+1. [See Also](#see-also)
+
+---
+
 ## Triggered When
 
 ALL issues in ISSUES_CHECKLIST.md meet these criteria:
@@ -53,15 +91,15 @@ ALL issues in ISSUES_CHECKLIST.md meet these criteria:
 **Search codebase for debug artifacts:**
 
 ```bash
-# Search for diagnostic logging statements
+## Search for diagnostic logging statements
 grep -r "logger.debug.*DEBUG" .
 grep -r "print.*DEBUG" .
 
-# Search for TODO comments added during debugging
+## Search for TODO comments added during debugging
 grep -r "TODO.*debug" .
 grep -r "FIXME.*debug" .
 
-# Search for commented-out diagnostic code
+## Search for commented-out diagnostic code
 grep -r "#.*logger.info.*diagnostic" .
 ```
 
@@ -115,8 +153,8 @@ python tests/run_all_tests.py
 **FIRST: Check if Phase 4b was completed for ALL issues:**
 
 ```bash
-# Check ISSUES_CHECKLIST.md "Root Cause?" column
-# Should show ✅ YES or ⏭️ SKIP for every 🟢 FIXED issue
+## Check ISSUES_CHECKLIST.md "Root Cause?" column
+## Should show ✅ YES or ⏭️ SKIP for every 🟢 FIXED issue
 ```
 
 **If any issue missing root cause analysis:**
@@ -137,7 +175,7 @@ python tests/run_all_tests.py
 **Create or update file:** `debugging/process_failure_analysis.md`
 
 ```markdown
-# Process Failure Analysis - {Feature/Epic Name}
+## Process Failure Analysis - {Feature/Epic Name}
 
 **Purpose:** Identify PATTERNS across multiple bugs and aggregate guide improvements
 
@@ -155,9 +193,9 @@ python tests/run_all_tests.py
 
 **Issues by Discovery Stage:**
 - Smoke Testing (Part 3): {count}
-- QC Round 1: {count}
-- QC Round 2: {count}
-- QC Round 3: {count}
+- Validation Round 1: {count}
+- Validation Round 2: {count}
+- Validation Round 3+: {count}
 - Epic Testing: {count}
 - User Testing: {count}
 
@@ -175,15 +213,15 @@ python tests/run_all_tests.py
 
 **Common Root Cause:**
 {What's the common process/guide gap across these bugs?}
-Example: "All three bugs involved missing checks for entity status fields (injured, active, etc.) because s5_p2_planning_round2.md Iteration 9 (Edge Case Analysis) doesn't explicitly mention status field edge cases"
+Example: "All three bugs involved missing checks for entity status fields (injured, active, etc.) because s5_v2_validation_loop.md Iteration 9 (Edge Case Analysis) doesn't explicitly mention status field edge cases"
 
 **Common Prevention Point:**
 {Which stage/iteration should have caught all these bugs?}
-Example: "S5 Round 2, Iteration 9 (Edge Case Analysis)"
+Example: "S5 v2 Validation Round 4, Dimension 6 (Error Handling & Edge Cases)"
 
 **Pattern-Based Guide Improvement:**
 {What ONE guide change prevents ALL these bugs?}
-Example: "Add to s5_p2_planning_round2.md Iteration 9 checklist: '[ ] Entity status fields (active, injured, suspended, bye week, etc.)'"
+Example: "Add to s5_v2_validation_loop.md Iteration 9 checklist: '[ ] Entity status fields (active, injured, suspended, bye week, etc.)'"
 
 **Impact:**
 - Bugs prevented: {count} similar bugs in future epics
@@ -331,7 +369,7 @@ Example: "Add to s5_p2_planning_round2.md Iteration 9 checklist: '[ ] Entity sta
 **Template:**
 
 ```markdown
-# Debugging Lessons Learned - {Feature/Epic Name}
+## Debugging Lessons Learned - {Feature/Epic Name}
 
 **Feature/Epic:** {name}
 **Testing Stage:** {S7.P1 Smoke Testing / S7.P2 QC / S9 Epic Testing / S10 User Testing}
@@ -462,13 +500,13 @@ This document captures technical lessons from debugging. For process improvement
 
 **Common Code Pattern:**
 ```
-# Example of problematic pattern
+## Example of problematic pattern
 {code snippet}
 ```markdown
 
 **Recommended Solution:**
 ```
-# Example of fix pattern
+## Example of fix pattern
 {code snippet}
 ```markdown
 
@@ -750,18 +788,18 @@ Looping back to smoke testing...
 
 **If issues discovered during S7.P2:**
 
-Loop back to: **S7.P1 Step 1** (NOT back to QC Round directly)
+Loop back to: **S7.P1 Step 1** (NOT back to Validation Loop directly)
 
-**Why loop back to smoke testing instead of QC?**
-- QC restart protocol: Always restart from smoke testing after fixes
+**Why loop back to smoke testing instead of Validation Loop?**
+- After debugging fixes, always restart from smoke testing
 - Ensures foundational smoke tests still pass
-- Comprehensive validation before QC rounds
+- Comprehensive validation before Validation Loop resumes
 
 **Actions:**
 1. Update README Agent Status
 2. Return to smoke testing guide
 3. Run all 3 parts of smoke testing
-4. Then run all QC rounds (1, 2, 3) again
+4. Then run Validation Loop again (3 consecutive clean rounds)
 5. If issues found → back to debugging
 6. If zero issues → proceed to S7.P3
 
@@ -778,7 +816,7 @@ Loop back to: **S9.P1 Step 1** (Epic Smoke Testing start)
 2. Return to epic smoke testing guide
 3. Run all epic smoke test steps
 4. If new issues found → back to epic debugging
-5. If zero issues → proceed to S9.P2 (Epic QC Rounds)
+5. If zero issues → proceed to S9.P2 (Epic Validation Loop)
 
 **EPIC_README Agent Status update:**
 
@@ -807,7 +845,7 @@ Looping back to epic smoke testing...
 
 ---
 
-**If issues discovered during S9.P2 (Epic QC Rounds):**
+**If issues discovered during S9.P2 (Epic Validation Loop):**
 
 Loop back to: **S9.P1 Step 1** (Epic Smoke Testing)
 
@@ -829,7 +867,7 @@ Loop back to: **S9.P1 Step 1** (Epic Smoke Testing)
 1. Update EPIC_README Agent Status
 2. Inform user: "Fixing bugs, will return to S9 for re-validation"
 3. Return to S9.P1 (Epic Smoke Testing)
-4. Run epic smoke testing and QC rounds
+4. Run epic smoke testing and Validation Loop
 5. If passes: Inform user fixes are ready, request new user testing session
 6. If fails: Back to debugging
 
@@ -875,17 +913,17 @@ Re-running epic testing now...
    - Loop back to Part 1 again
    - Repeat until zero issues
 
-**S7.P2: QC Rounds**
+**S7.P2: Validation Loop**
 
-1. **Run all 3 rounds:**
-   - Round 1: Basic Validation
-   - Round 2: Deep Verification
-   - Round 3: Skeptical Review
+1. **Run Validation Loop:**
+   - Check ALL 11 dimensions every round
+   - Fix issues immediately, reset clean counter
+   - Continue until 3 consecutive clean rounds
 
 2. **Outcome possibilities:**
 
-   **✅ All rounds pass, zero issues:**
-   - QC complete
+   **✅ 3 consecutive clean rounds achieved:**
+   - Validation Loop complete
    - Proceed to S7.P3
 
    **❌ Issues found:**
@@ -907,7 +945,7 @@ Re-running epic testing now...
 
    **✅ All steps pass, zero issues:**
    - Epic smoke testing complete
-   - Proceed to S9.P2 (Epic QC Rounds)
+   - Proceed to S9.P2 (Epic Validation Loop)
 
    **❌ New issues found:**
    - Add to epic_name/debugging/ISSUES_CHECKLIST.md
@@ -916,14 +954,17 @@ Re-running epic testing now...
    - Loop back to S9.P1 Step 1 again
    - Repeat until zero issues
 
-**S9.P2: Epic QC Rounds**
+**S9.P2: Epic Validation Loop**
 
-1. **Run all 3 rounds**
+1. **Run Validation Loop:**
+   - Check ALL 12 dimensions every round (7 master + 5 epic-specific)
+   - Fix issues immediately, reset clean counter
+   - Continue until 3 consecutive clean rounds
 
 2. **Outcome possibilities:**
 
-   **✅ All rounds pass, zero issues:**
-   - Epic QC complete
+   **✅ 3 consecutive clean rounds achieved:**
+   - Epic Validation Loop complete
    - Proceed to S9.P3 (Epic Final Review)
 
    **❌ Issues found:**
@@ -977,17 +1018,19 @@ Re-running epic testing now...
 
 ---
 
-### S7.P2: QC Rounds Integration
+### S7.P2: Validation Loop Integration
 
 **Add to qc_rounds.md after each round:**
 
 ```markdown
-### Round {N} Result Handling
+### Validation Round Result Handling
 
-**If Round {N} PASSES:**
-- Proceed to Round {N+1} / Final Review
+**If round is CLEAN (zero issues):**
+- Increment clean round counter
+- If 3 consecutive clean rounds → proceed to Final Review
+- Otherwise continue to next round
 
-**If Round {N} FAILS (issues found):**
+**If round has ISSUES:**
 
 1. **Add issues to debugging/ISSUES_CHECKLIST.md**
 
@@ -996,11 +1039,11 @@ Re-running epic testing now...
    - Resolve all issues
 
 3. **Loop back to Smoke Testing Part 1:**
-   - NOT back to QC Round {N}
+   - NOT back to Validation Loop directly
    - Must re-run smoke tests after fixes
-   - Then re-run all QC rounds from Round 1
+   - Then re-run Validation Loop
 
-**Critical:** QC restart protocol applies - always loop back to smoke testing after fixes
+**Critical:** After debugging fixes, always loop back to smoke testing before resuming Validation Loop
 ```
 
 ---
@@ -1094,9 +1137,9 @@ Re-running epic testing now...
 
 **Loop-Back Destinations:**
 - **Feature Smoke Testing (S7.P1)** → Loop back to Part 1
-- **Feature QC Rounds (S7.P2)** → Loop back to S7.P1 Step 1
+- **Feature Validation Loop (S7.P2)** → Loop back to S7.P1 Step 1
 - **Epic Smoke Testing (S9.P1)** → Loop back to Step 1
-- **Epic QC Rounds (S9.P2)** → Loop back to S9.P1 Step 1
+- **Epic Validation Loop (S9.P2)** → Loop back to S9.P1 Step 1
 - **User Testing (S10)** → Loop back to S9.P1 Step 1
 
 **Key Principle:** Always loop back to START of testing stage (not to where issues were found)

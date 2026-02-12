@@ -84,8 +84,8 @@ Before starting S2.5:
 
 **Method:**
 ```bash
-# Physically close the file in your editor
-# Work ONLY from epic notes during Steps 2-4
+## Physically close the file in your editor
+## Work ONLY from epic notes during Steps 2-4
 ```
 
 ---
@@ -149,19 +149,19 @@ Code Investigation:
 
 **Method:**
 ```python
-# Open Python REPL
+## Open Python REPL
 import json
 from pathlib import Path
 
-# Load REAL data files (not test fixtures)
+## Load REAL data files (not test fixtures)
 week_01 = json.load(open('simulation/sim_data/2021/weeks/week_01/qb_data.json'))
 week_02 = json.load(open('simulation/sim_data/2021/weeks/week_02/qb_data.json'))
 
-# Print ACTUAL values (not just check "exists")
+## Print ACTUAL values (not just check "exists")
 print(f"Week 1 actuals in week_01: {week_01[0]['actual_points'][0]}")
 print(f"Week 1 actuals in week_02: {week_02[0]['actual_points'][0]}")
 
-# Compare multiple weeks to understand pattern
+## Compare multiple weeks to understand pattern
 week_03 = json.load(open('simulation/sim_data/2021/weeks/week_03/qb_data.json'))
 print(f"Week 2 actuals in week_03: {week_03[0]['actual_points'][1]}")
 ```

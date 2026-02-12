@@ -93,22 +93,22 @@ This could have caused weeks of debugging if not caught.
 
 ### 2. Part 3 MUST Verify DATA VALUES
 ```python
-# ❌ NOT SUFFICIENT:
+## ❌ NOT SUFFICIENT:
 assert Path("output.csv").exists()  # Just checks file exists
 
-# ✅ REQUIRED:
+## ✅ REQUIRED:
 output_file = Path("output.csv")
 assert output_file.exists()
 
-# Actually READ and VERIFY data
+## Actually READ and VERIFY data
 df = pd.read_csv(output_file)
 
-# Verify data quality
+## Verify data quality
 assert len(df) > 0, "Output file is empty"
 assert not df['projected_points'].isnull().all(), "All projected_points are null"
 assert df['projected_points'].sum() > 0, "All projected_points are zero"
 
-# Verify data makes sense
+## Verify data makes sense
 top_player = df.iloc[0]
 assert top_player['projected_points'] > 100, "Top player has unreasonably low score"
 assert top_player['player_name'] != "", "Player name is empty"
@@ -216,7 +216,7 @@ assert top_player['player_name'] != "", "Player name is empty"
 
 **Example verification:**
 ```python
-# Feature updates 6 position files
+## Feature updates 6 position files
 positions = ['QB', 'RB', 'WR', 'TE', 'K', 'DST']
 
 for pos in positions:
@@ -308,10 +308,10 @@ WHY complete restart?
 
 ### ❌ Mistake 1: Checking Structure Instead of Values
 ```python
-# WRONG - only checks file exists
+## WRONG - only checks file exists
 assert Path("output.csv").exists()
 
-# CORRECT - verifies data values
+## CORRECT - verifies data values
 df = pd.read_csv("output.csv")
 assert df['score'].between(0, 500).all()
 assert df['projected_points'].sum() > 0
@@ -319,28 +319,28 @@ assert df['projected_points'].sum() > 0
 
 ### ❌ Mistake 2: Using Test Fixtures for Part 3
 ```python
-# WRONG - test fixtures hide integration issues
+## WRONG - test fixtures hide integration issues
 test_data = create_mock_players()  # Mocked data
 
-# CORRECT - use real production-like data
+## CORRECT - use real production-like data
 real_data = pd.read_csv("data/real_players.csv")  # Real data
 ```
 
 ### ❌ Mistake 3: Partial Re-run After Failure
 ```python
-# WRONG - only re-running failed Part 3
-# (skipping Parts 1 & 2)
+## WRONG - only re-running failed Part 3
+## (skipping Parts 1 & 2)
 
-# CORRECT - re-running ALL 3 parts from Part 1
-# Fixes can affect earlier parts
+## CORRECT - re-running ALL 3 parts from Part 1
+## Fixes can affect earlier parts
 ```
 
 ### ❌ Mistake 4: Accepting Placeholder/Zero Data
 ```python
-# WRONG - data exists but values are wrong
+## WRONG - data exists but values are wrong
 assert len(df) > 0  # File has rows, but all zeros
 
-# CORRECT - verify data values are reasonable
+## CORRECT - verify data values are reasonable
 assert df['projected_points'].sum() > 0  # Not all zeros
 assert df['adp'].min() > 0  # Not placeholder values
 ```
@@ -360,7 +360,7 @@ assert df['adp'].min() > 0  # Not placeholder values
 - **Scope:** ALL features working together
 - **Parts:** 4 parts (Import, Entry Point, E2E, Cross-Feature Integration)
 - **Data:** Epic-level workflows with multiple features
-- **Next Stage:** S9.P2 (Epic QC Rounds) if passed
+- **Next Stage:** S9.P2 (Epic Validation Loop) if passed
 - **Restart Destination:** S9.P1 Step 1 (complete epic smoke testing)
 
 ---

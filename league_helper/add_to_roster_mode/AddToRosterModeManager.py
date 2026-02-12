@@ -77,7 +77,6 @@ class AddToRosterModeManager:
         """
         self.config = config
         self.logger = get_logger()
-        self.logger.debug("Initializing Add to Roster Mode Manager")
         self.set_managers(player_manager, team_data_manager)
 
     # ========================================================================

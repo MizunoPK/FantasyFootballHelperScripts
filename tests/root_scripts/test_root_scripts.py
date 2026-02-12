@@ -27,6 +27,7 @@ sys.path.append(str(project_root))
 class TestRunLeagueHelper:
     """Test run_league_helper.py"""
 
+    @patch('sys.argv', ['run_league_helper.py'])
     @patch('subprocess.run')
     def test_run_league_helper_success(self, mock_run):
         """Test successful league helper execution"""
@@ -41,11 +42,13 @@ class TestRunLeagueHelper:
         mock_run.assert_called_once()
 
         # Verify correct script path and arguments
+        # Note: Data folder is NOT passed as argument - LeagueHelperManager constructs it internally
         call_args = mock_run.call_args[0][0]
         assert call_args[0] == sys.executable
         assert "LeagueHelperManager.py" in call_args[1]
-        assert "./data" in call_args
+        assert len(call_args) == 2  # Only python executable and script path
 
+    @patch('sys.argv', ['run_league_helper.py'])
     @patch('subprocess.run')
     def test_run_league_helper_handles_subprocess_error(self, mock_run):
         """Test handling of subprocess errors"""
@@ -57,6 +60,7 @@ class TestRunLeagueHelper:
 
         assert exit_code == 1
 
+    @patch('sys.argv', ['run_league_helper.py'])
     @patch('subprocess.run')
     def test_run_league_helper_handles_general_exception(self, mock_run):
         """Test handling of general exceptions"""
@@ -68,16 +72,20 @@ class TestRunLeagueHelper:
 
         assert exit_code == 1
 
+    @patch('sys.argv', ['run_league_helper.py', '--enable-log-file'])
     @patch('subprocess.run')
     def test_run_league_helper_uses_correct_data_folder(self, mock_run):
-        """Test that correct data folder is passed"""
+        """Test that CLI arguments are forwarded correctly"""
+        # Note: Data folder is NOT passed as argument - LeagueHelperManager constructs it internally
+        # This test now verifies CLI argument forwarding (KAI-8 feature)
         mock_run.return_value = Mock(returncode=0)
 
         from run_league_helper import run_league_helper
         run_league_helper()
 
         call_args = mock_run.call_args[0][0]
-        assert "./data" == call_args[2]
+        assert len(call_args) == 3  # python, script, --enable-log-file
+        assert "--enable-log-file" in call_args
 
 
 # ============================================================================
@@ -273,9 +281,8 @@ class TestRunSimulation:
         import run_win_rate_simulation
 
         assert hasattr(run_win_rate_simulation, 'LOGGING_LEVEL')
-        assert hasattr(run_win_rate_simulation, 'LOGGING_TO_FILE')
         assert hasattr(run_win_rate_simulation, 'LOG_NAME')
-        assert run_win_rate_simulation.LOG_NAME == "simulation"
+        assert run_win_rate_simulation.LOG_NAME == "win_rate_simulation"
 
     def test_default_arguments_defined(self):
         """Test that default argument values are reasonable"""

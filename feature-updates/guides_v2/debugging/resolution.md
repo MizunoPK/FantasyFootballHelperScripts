@@ -10,6 +10,37 @@
 
 ---
 
+## Table of Contents
+
+1. [PHASE 3: Solution Design & Implementation](#phase-3-solution-design-implementation)
+   - [Step 1: Update Status](#step-1-update-status)
+1. [Completed Investigations](#completed-investigations)
+1. [Active Investigations](#active-investigations)
+   - [Step 2: Design Solution](#step-2-design-solution)
+1. [Solution Implementation](#solution-implementation)
+   - [Solution Design ({YYYY-MM-DD HH:MM})](#solution-design-yyyy-mm-dd-hhmm)
+   - [Step 3: Implement Solution](#step-3-implement-solution)
+   - [Implementation ({YYYY-MM-DD HH:MM})](#implementation-yyyy-mm-dd-hhmm)
+1. [PHASE 4: User Verification - MANDATORY](#phase-4-user-verification-mandatory)
+   - [Step 1: Present to User](#step-1-present-to-user)
+1. [User Verification Required: Issue #{number}](#user-verification-required-issue-number)
+   - [Before State (BROKEN)](#before-state-broken)
+   - [After State (FIXED)](#after-state-fixed)
+   - [Test Results](#test-results)
+   - [Verification Steps for You](#verification-steps-for-you)
+1. [Question](#question)
+   - [Step 2: Process User Response](#step-2-process-user-response)
+1. [User Verification](#user-verification)
+1. [User Verification - Attempt 1](#user-verification-attempt-1)
+   - [Investigation Round 4 (or Revised Solution)](#investigation-round-4-or-revised-solution)
+1. [Common Resolution Patterns](#common-resolution-patterns)
+   - [Pattern 1: Data Validation Fix](#pattern-1-data-validation-fix)
+   - [Pattern 2: Null Handling Fix](#pattern-2-null-handling-fix)
+   - [Pattern 3: Integration Interface Fix](#pattern-3-integration-interface-fix)
+1. [Next Steps](#next-steps)
+
+---
+
 ## PHASE 3: Solution Design & Implementation
 
 **Goal:** Design and implement fix based on confirmed root cause
@@ -110,7 +141,7 @@ Normalize names in code to handle both formats - most flexible, no external depe
 **Example implementation:**
 
 ```python
-# utils/FantasyPlayer.py
+- utils/FantasyPlayer.py
 
 def _normalize_player_name(self, name):
     """Convert full name to CSV format (abbreviated first name).
@@ -149,7 +180,7 @@ def _load_stats(self, csv_path):
 **Add new tests for the fix:**
 
 ```python
-# tests/utils/test_FantasyPlayer.py
+- tests/utils/test_FantasyPlayer.py
 
 def test_normalize_player_name():
     """Test that player names are normalized correctly."""
@@ -178,11 +209,11 @@ def test_load_stats_with_abbreviated_name():
 #### 3.3: Run tests
 
 ```bash
-# Run full test suite
+- Run full test suite
 python tests/run_all_tests.py
 
-# Expected: 100% pass rate
-# If tests fail: Fix issues before proceeding
+- Expected: 100% pass rate
+- If tests fail: Fix issues before proceeding
 ```
 
 **If tests fail:**
@@ -198,11 +229,11 @@ python tests/run_all_tests.py
 **Remove all diagnostic logging added during investigation:**
 
 ```python
-# REMOVE these lines added during investigation:
-# logger.info(f"Loading stats from: {csv_path}")
-# logger.info(f"CSV columns: {df.columns.tolist()}")
-# logger.info(f"Looking for player: {self.name}")
-# etc.
+- REMOVE these lines added during investigation:
+- logger.info(f"Loading stats from: {csv_path}")
+- logger.info(f"CSV columns: {df.columns.tolist()}")
+- logger.info(f"Looking for player: {self.name}")
+- etc.
 ```
 
 **Why remove diagnostic logging?**
@@ -238,14 +269,14 @@ python tests/run_all_tests.py
 ```
 player = PlayerManager.load_player("Patrick Mahomes")
 score = player.calculate_score(week=1)
-# Returns: None ❌
+- Returns: None ❌
 ```markdown
 
 **After State:**
 ```
 player = PlayerManager.load_player("Patrick Mahomes")
 score = player.calculate_score(week=1)
-# Returns: 24.5 ✅
+- Returns: 24.5 ✅
 ```markdown
 
 **Diagnostic Logging Removed:** Yes (lines 156-162 in FantasyPlayer.py)
@@ -301,7 +332,7 @@ score = player.calculate_score(week=1)
 **Example:**
 ```
 {code example showing bug}
-# Result: {wrong output} ❌
+- Result: {wrong output} ❌
 ```markdown
 
 **Error:** {error message if any}
@@ -315,7 +346,7 @@ score = player.calculate_score(week=1)
 **Example:**
 ```
 {same code example}
-# Result: {correct output} ✅
+- Result: {correct output} ✅
 ```markdown
 
 ---
@@ -497,11 +528,11 @@ If different root cause:
 **Solution:** Add validation at boundary (input, API, file load)
 
 ```python
-# Before
+- Before
 def load_data(filepath):
     return pd.read_csv(filepath)
 
-# After
+- After
 def load_data(filepath):
     df = pd.read_csv(filepath)
     required_columns = ['PlayerName', 'StatValue']
@@ -519,11 +550,11 @@ def load_data(filepath):
 **Solution:** Add null checks with appropriate defaults or errors
 
 ```python
-# Before
+- Before
 def calculate_score(stats):
     return stats['points'] * stats['multiplier']
 
-# After
+- After
 def calculate_score(stats):
     if stats.get('points') is None or stats.get('multiplier') is None:
         raise ValueError("Cannot calculate score: missing points or multiplier")
@@ -538,11 +569,11 @@ def calculate_score(stats):
 **Solution:** Align interfaces or add adapter layer
 
 ```python
-# Before: ComponentA sends dict, ComponentB expects object
+- Before: ComponentA sends dict, ComponentB expects object
 def component_b_method(player_obj):
     return player_obj.name
 
-# After: Add adapter
+- After: Add adapter
 def component_b_method(player_data):
     if isinstance(player_data, dict):
         player_obj = Player.from_dict(player_data)

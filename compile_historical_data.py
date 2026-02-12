@@ -87,6 +87,11 @@ Output will be written to:
         help="Enable verbose logging"
     )
     parser.add_argument(
+        "--enable-log-file",
+        action="store_true",
+        help="Enable file logging to logs/historical_data_compiler/"
+    )
+    parser.add_argument(
         "--output-dir",
         type=Path,
         default=None,
@@ -257,8 +262,14 @@ def main() -> int:
 
     # Set up logging
     log_level = "DEBUG" if args.verbose else "INFO"
-    setup_logger(name="historical_data_compiler", level=log_level)
+    setup_logger(
+        name="historical_data_compiler",
+        level=log_level,
+        log_to_file=args.enable_log_file,
+        log_file_path=None
+    )
     logger = get_logger()
+    logger.info(f"Output format: CSV={GENERATE_CSV}, JSON={GENERATE_JSON}")
 
     try:
         validate_year(args.year)

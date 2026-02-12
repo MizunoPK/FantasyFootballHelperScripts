@@ -169,22 +169,22 @@ EOF
 **❌ DON'T DO THIS:**
 
 ```bash
-# Too vague
+## Too vague
 git commit -m "updates"
 git commit -m "changes"
 git commit -m "fixes"
 
-# No context
+## No context
 git commit -m "updated PlayerManager"
 
-# Emojis and subjective language
+## Emojis and subjective language
 git commit -m "✨ Amazing new feature! 🎉"
 git commit -m "Fixed super annoying bug"
 
-# Missing testing information
+## Missing testing information
 git commit -m "Complete epic"  # No mention of test status
 
-# Wrong format (not using KAI numbering)
+## Wrong format (not using KAI numbering)
 git commit -m "feat: Complete epic"  # Missing KAI-{number}
 git commit -m "epic/KAI-1: Complete epic"  # Wrong prefix (should be feat or fix)
 ```
@@ -192,7 +192,7 @@ git commit -m "epic/KAI-1: Complete epic"  # Wrong prefix (should be feat or fix
 **✅ DO THIS INSTEAD:**
 
 ```bash
-# Clear, descriptive, includes testing
+## Clear, descriptive, includes testing
 git commit -m "$(cat <<'EOF'
 feat/KAI-5: Complete player_comparison epic
 

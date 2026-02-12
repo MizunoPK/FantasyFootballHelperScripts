@@ -1,8 +1,16 @@
-# Validation Loop: Cross-Feature Alignment Context
+# Validation Loop: Cross-Feature Alignment
 
-**Master Protocol:** See `validation_loop_protocol.md`
+**Extends:** Master Validation Loop Protocol
+**See:** `reference/validation_loop_master_protocol.md`
 
-**Context:** S2.P1.I1 per-feature alignment, S2.P1.I3 per-feature alignment, S2.P2 group alignment
+**Applicable Stages:**
+- S2.P1.I1: Per-Feature Alignment (during spec refinement)
+- S2.P1.I3: Per-Feature Final Alignment Check
+- S2.P2: Cross-Feature Group Alignment
+- S8.P1: Cross-Feature Alignment (after feature implementation)
+
+**Version:** 2.0 (Updated to extend master protocol)
+**Last Updated:** 2026-02-10
 
 ---
 

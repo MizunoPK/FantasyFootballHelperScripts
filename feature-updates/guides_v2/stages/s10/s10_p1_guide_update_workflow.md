@@ -138,7 +138,7 @@ S10.5 is complete when all proposals have been reviewed by user, approved change
 
 1.1. **Read epic-level lessons:**
 ```bash
-# Read epic lessons
+## Read epic lessons
 cat {epic_folder}/epic_lessons_learned.md
 ```
 
@@ -149,7 +149,7 @@ Note:
 
 1.2. **Read all feature-level lessons:**
 ```bash
-# Read each feature's lessons
+## Read each feature's lessons
 cat {epic_folder}/feature_01_{name}/lessons_learned.md
 cat {epic_folder}/feature_02_{name}/lessons_learned.md
 ...
@@ -190,15 +190,15 @@ Note:
 | Lesson Pattern | Likely Affected Guide(s) |
 |----------------|--------------------------|
 | Missed requirement in spec | stages/s2/s2_p2_specification.md |
-| Wrong interface assumed | stages/s5/s5_p1_planning_round1.md (Iteration 2) |
-| Algorithm traceability incomplete | stages/s5/s5_p1_planning_round1.md (Iteration 4) |
-| Integration gap not identified | stages/s5/s5_p1_planning_round1.md (Iteration 7) |
-| Test coverage insufficient | stages/s5/s5_p2_planning_round2.md (Iterations 8-10) |
+| Wrong interface assumed | stages/s5/s5_v2_validation_loop.md (Dimension 2) |
+| Algorithm traceability incomplete | stages/s5/s5_v2_validation_loop.md (Dimension 3) |
+| Integration gap not identified | stages/s5/s5_v2_validation_loop.md (Dimension 7) |
+| Test coverage insufficient | stages/s5/s5_v2_validation_loop.md (Dimension 8) |
 | Gate not enforced | reference/mandatory_gates.md |
 | QC round missed issue | stages/s7/s7_p2_qc_rounds.md |
 | Smoke test didn't catch bug | stages/s7/s7_p1_smoke_testing.md |
 | Epic integration issue | stages/s9/s9_p2_epic_qc_rounds.md |
-| Spec misinterpretation | stages/s5/s5_p3_i3_gates_part2.md (Iteration 21) |
+| Spec misinterpretation | stages/s5/s5_v2_validation_loop.md (D11: Gate 23a - Spec Alignment) |
 | Checklist question unclear | templates/feature_checklist_template.md |
 | Implementation plan vague | templates/implementation_plan_template.md |
 | Prompt not followed | prompts/{stage}_prompts.md |
@@ -256,7 +256,7 @@ Note:
 
 3.1. **Create file using template:**
 ```bash
-# Copy template
+## Copy template
 cp feature-updates/guides_v2/templates/guide_update_proposal_template.md \
    {epic_folder}/GUIDE_UPDATE_PROPOSAL.md
 ```
@@ -501,8 +501,8 @@ Check:
 
 7.1. **Open tracking file:**
 ```bash
-# Edit tracking file
-# Add entries to Applied Lessons Log, Rejected Lessons, and Metrics
+## Edit tracking file
+## Add entries to Applied Lessons Log, Rejected Lessons, and Metrics
 ```
 
 7.2. **Add to Applied Lessons Log:**
@@ -689,51 +689,51 @@ Use prompt from prompts/guide_update_prompts.md "After Applying Changes" section
 ### Proposal P0-1: Add Spec Validation Historical Context to Mandatory Gates
 
 **Lesson Learned:**
-> "Iteration 21 (Spec Validation Against Validated Documents) caught that spec.md misinterpreted epic notes about week_N+1 folder logic. Epic said 'create week folders' but spec said 'no code changes needed for folders.' This gate prevented a week+ of rework implementing the wrong solution."
+> "S5 Validation Loop Dimension 11 (Spec Alignment & Cross-Validation) caught that implementation_plan.md misinterpreted spec.md about week_N+1 folder logic. Spec said 'create week folders' but implementation plan said 'no code changes needed for folders.' This validation dimension prevented a week+ of rework implementing the wrong solution."
 
 **Source File:** `epic_lessons_learned.md` - Lesson #3
 
 **Root Cause:**
-Agent rushed through S2 spec creation and made assumptions about folder handling instead of carefully reading epic notes. Iteration 21's three-way comparison (epic notes, epic ticket, spec summary) caught the discrepancy before implementation.
+Agent rushed through S5 Phase 1 (Draft Creation) and made assumptions about folder handling instead of carefully reading spec.md. Dimension 11's cross-validation (spec.md, test_strategy.md, epic context) caught the discrepancy during Validation Loop.
 
 **Affected Guide(s):**
-- `reference/mandatory_gates.md` - Section: "Gate 3: Iteration 21 - Spec Validation Against Validated Documents" (Lines 281-327)
+- `stages/s5/s5_v2_validation_loop.md` - Section: "Dimension 11: Spec Alignment & Cross-Validation" (Lines 725-750)
 
 **Current State (BEFORE):**
 ```markdown
-### Gate 3: Iteration 21 - Spec Validation Against Validated Documents (CRITICAL)
+### Dimension 11: Spec Alignment & Cross-Validation (CRITICAL)
 
-**What it checks:**
-- Spec.md matches ALL three user-validated sources:
-  1. Epic notes (user's original request)
-  2. Epic ticket (user-validated outcomes from S1)
-  3. Spec summary (user-validated feature outcomes from S2)
+**What to Check:**
+- [ ] Implementation plan matches spec.md requirements
+- [ ] All spec.md sections referenced in implementation tasks
+- [ ] No spec.md requirements missing from plan
+- [ ] Test strategy aligns with spec.md test requirements
 ```
 
 **Proposed Change (AFTER):**
 ```markdown
-### Gate 3: Iteration 21 - Spec Validation Against Validated Documents (CRITICAL)
+### Dimension 11: Spec Alignment & Cross-Validation (CRITICAL)
 
 **Historical Context:**
-- Feature 02 catastrophic bug: spec.md misinterpreted epic notes
-- Spec stated "no code changes needed" when epic actually required week_N+1 folder logic
-- Iteration 21 specifically designed to prevent this type of bug
-- Three-way comparison catches spec misinterpretations before implementation
+- Feature 02 catastrophic bug: implementation_plan.md misinterpreted spec.md
+- Plan stated "no code changes needed" when spec actually required week_N+1 folder logic
+- Dimension 11 specifically designed to prevent this type of bug
+- Cross-validation catches spec misinterpretations before implementation
 
-**What it checks:**
-- Spec.md matches ALL three user-validated sources:
-  1. Epic notes (user's original request)
-  2. Epic ticket (user-validated outcomes from S1)
-  3. Spec summary (user-validated feature outcomes from S2)
+**What to Check:**
+- [ ] Implementation plan matches spec.md requirements
+- [ ] All spec.md sections referenced in implementation tasks
+- [ ] No spec.md requirements missing from plan
+- [ ] Test strategy aligns with spec.md test requirements
 ```
 
 **Rationale:**
-Adding historical context shows future agents WHY this gate exists and what happens if it's skipped. Real example makes the importance concrete instead of abstract.
+Adding historical context shows future agents WHY this dimension exists and what happens if it's skipped. Real example makes the importance concrete instead of abstract.
 
 **Impact Assessment:**
-- **Who benefits:** All agents doing S5 Round 3 (Iteration 21)
-- **When it helps:** When validating spec.md against user-approved documents
-- **Severity if unfixed:** Critical - agents may skip or rush through Iteration 21 without understanding its importance, leading to week+ of rework from spec misinterpretation
+- **Who benefits:** All agents doing S5 v2 Validation Loop (Dimension 11)
+- **When it helps:** When validating implementation_plan.md against spec.md
+- **Severity if unfixed:** Critical - agents may skip or rush through Dimension 11 without understanding its importance, leading to week+ of rework from spec misinterpretation
 
 **User Decision:** [ ] Approve  [ ] Modify  [ ] Reject  [ ] Discuss
 
@@ -743,5 +743,20 @@ Adding historical context shows future agents WHY this gate exists and what happ
 ```
 
 ---
+
+## Return to Parent Guide
+
+**This is a sub-workflow of S10 (Epic Cleanup).**
+
+**After completing S10.P1 (Guide Updates):** Return to `stages/s10/s10_epic_cleanup.md` to continue with:
+- S10.P2: Create PR
+- S10.P3: Update EPIC_TRACKER.md
+- S10.P4: Move epic to done/
+
+**📖 RETURN TO:** `stages/s10/s10_epic_cleanup.md`
+
+---
+
+*End of s10_p1_guide_update_workflow.md*
 
 **Last Updated:** 2026-01-11

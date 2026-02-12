@@ -54,7 +54,7 @@ Before proceeding, you must have:
 
 ### What is this sub-stage?
 
-**STAGE_6c - Epic Final Review** is the final validation phase of S9, where you apply an epic-level PR review checklist, handle any discovered issues through bug fixes, and perform final verification before declaring the epic complete.
+**S9.P4 - Epic Final Review** is the final validation phase of S9, where you apply an epic-level PR review checklist, handle any discovered issues through bug fixes, and perform final verification before declaring the epic complete.
 
 **This is NOT feature-level review** - S7 (Testing & Review) already reviewed individual features. This focuses on:
 - Epic-wide architectural consistency
@@ -65,15 +65,15 @@ Before proceeding, you must have:
 ### When do you use this guide?
 
 **Use this guide when:**
-- STAGE_6b is complete (all 3 QC rounds passed)
-- Epic smoke testing passed (STAGE_6a)
+- S9.P2 complete (validation loop achieved 3 consecutive clean rounds)
+- S9.P1 epic smoke testing passed (all 4 parts)
+- S9.P3 user testing passed (user reports "No bugs found")
 - Ready for final epic-level PR review and validation
-- All features completed S8.P2 (Epic Testing Update)
 
 **Do NOT use this guide if:**
-- STAGE_6a smoke testing not complete
-- STAGE_6b QC rounds not complete
-- Any features still in S6 implementation
+- S9.P1 smoke testing not complete
+- S9.P2 validation loop not complete (3 consecutive clean rounds required)
+- S9.P3 user testing not complete
 - Pending bug fixes not yet completed
 
 ### What are the key outputs?
@@ -106,12 +106,12 @@ Before proceeding, you must have:
 ### Workflow overview
 
 ```bash
-STAGE_6c Workflow (Steps 6-8)
+S9.P4 Workflow (Epic Final Review)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 Prerequisites Met?
-  ├─ STAGE_6b complete (3 QC rounds passed)
-  ├─ No pending issues
+  ├─ S9.P2 complete (3 consecutive clean rounds)
+  ├─ S9.P3 complete (user testing passed)
   └─ All tests passing (100%)
          │
          ▼
@@ -173,9 +173,9 @@ Prerequisites Met?
    - All categories must PASS (no exceptions)
    - If ANY category fails → create bug fix
 
-3. ⚠️ If issues found, you MUST RESTART S9
+3. If issues found, you MUST RESTART S9
    - After bug fixes complete
-   - RESTART from STAGE_6a (smoke testing)
+   - RESTART from S9.P1 (smoke testing)
    - Cannot partially continue S9
 
 4. ⚠️ Validate against ORIGINAL epic request
@@ -209,19 +209,24 @@ Prerequisites Met?
 
 ## Prerequisites
 
-**Before starting S9.P3, verify ALL of these are true:**
+**Before starting S9.P4, verify ALL of these are true:**
 
-### From STAGE_6b (QC Rounds)
-- [ ] QC Round 1 (Cross-Feature Integration): ✅ PASSED
-- [ ] QC Round 2 (Epic Cohesion & Consistency): ✅ PASSED
-- [ ] QC Round 3 (End-to-End Success Criteria): ✅ PASSED
-- [ ] STAGE_6b completion documented in EPIC_README.md
+### From S9.P2 (Epic QC Validation Loop)
+- [ ] 3 consecutive clean rounds achieved
+- [ ] All 12 dimensions checked every round (7 master + 5 epic)
+- [ ] VALIDATION_LOOP_LOG.md complete
+- [ ] S9.P2 completion documented in EPIC_README.md
 
-### From STAGE_6a (Smoke Testing)
-- [ ] Epic smoke testing Part 1 (Import Tests): ✅ PASSED
-- [ ] Epic smoke testing Part 2 (Entry Point Tests): ✅ PASSED
-- [ ] Epic smoke testing Part 3 (E2E Execution Tests): ✅ PASSED
-- [ ] Epic smoke testing Part 4 (Cross-Feature Integration Tests): ✅ PASSED
+### From S9.P1 (Epic Smoke Testing)
+- [ ] Epic smoke testing Part 1 (Import Tests): PASSED
+- [ ] Epic smoke testing Part 2 (Entry Point Tests): PASSED
+- [ ] Epic smoke testing Part 3 (E2E Execution Tests): PASSED
+- [ ] Epic smoke testing Part 4 (Cross-Feature Integration Tests): PASSED
+
+### From S9.P3 (User Testing)
+- [ ] User testing completed
+- [ ] User reports "No bugs found"
+- [ ] No pending bug fixes
 
 ### Feature Completion
 - [ ] All features completed S8.P2 (Epic Testing Update) (Post-Feature Testing Update)
@@ -235,13 +240,43 @@ Prerequisites Met?
 
 ### Documentation
 - [ ] epic_lessons_learned.md exists and accessible
-- [ ] EPIC_README.md shows STAGE_6b complete
+- [ ] EPIC_README.md shows S9.P1, S9.P2, S9.P3 complete
 - [ ] Original {epic_name}.txt file located
 
 **If ANY prerequisite not met:**
-- STOP - Do not proceed with S9.P3
+- STOP - Do not proceed with S9.P4
 - Complete missing prerequisites first
-- Return to appropriate stage (6a or 6b)
+- Return to appropriate phase (S9.P1, S9.P2, or S9.P3)
+
+---
+
+## S9.P2 Validation Overlap Awareness
+
+**If S9.P2 achieved 3 consecutive clean rounds:**
+
+S9.P2's 12-dimension validation provides strong coverage of many PR review categories. The following have significant overlap:
+
+**Categories with High S9.P2 Coverage (trust but verify):**
+- **Category 1 (Correctness):** S9.P2 Dimension 1 (Empirical Verification) validated all integrations
+- **Category 2 (Code Quality):** S9.P2 Dimension 5 (Clarity & Specificity) validated naming, structure
+- **Category 5 (Testing):** S9.P2 Dimension 12 (Success Criteria) required 100% test pass
+- **Category 8 (Error Handling):** S9.P2 Dimension 10 (Error Handling Consistency) validated patterns
+- **Category 9 (Architecture):** S9.P2 Dimensions 8 & 11 (Integration, Alignment) validated design
+
+**Categories with Lower S9.P2 Coverage (focus review here):**
+- **Category 6 (Security):** Not heavily covered in S9.P2 dimensions
+- **Category 7 (Performance):** Not heavily covered in S9.P2 dimensions
+- **Category 10 (Backwards Compatibility):** Not covered in S9.P2 dimensions
+- **Category 11 (Scope & Changes):** Validate against ORIGINAL user request (not just specs)
+- **Category 4 (Comments & Documentation):** Epic-level documentation only
+
+**Approach:**
+- **Still review ALL 11 categories** (no skipping)
+- **For high-overlap categories:** Quick verification, trust S9.P2 findings
+- **For low-overlap categories:** Thorough review, these are new checks
+- **Defense in depth:** Redundancy is acceptable for critical categories (Correctness, Architecture)
+
+**Note:** This guidance applies ONLY when S9.P2 achieved 3 consecutive clean rounds. If S9.P2 had issues or was shortened, review all 11 categories thoroughly.
 
 ---
 
@@ -250,7 +285,7 @@ Prerequisites Met?
 **🚨 MANDATORY: READ PR REVIEW PROTOCOL**
 
 **Before proceeding, you MUST:**
-1. **READ:** `stages/s5/s5_pr_review_protocol.md`
+1. **READ:** `reference/validation_loop_qc_pr.md`
 2. **Follow the complete hybrid approach:**
    - Round 1: 4 specialized reviews (fresh agent for each)
    - Rounds 2-5: Repeated comprehensive reviews (fresh agent for each)
@@ -372,7 +407,7 @@ Prerequisites Met?
 
 **Objective:** Create bug fixes for any epic-level integration issues discovered during Step 6.
 
-**Critical Rule:** After bug fixes, you MUST COMPLETELY RESTART S9 from STAGE_6a.
+**Critical Rule:** After bug fixes, you MUST COMPLETELY RESTART S9 from S9.P1.
 
 **Why RESTART?** Bug fixes may have affected areas already checked. Cannot assume previous QC results still valid.
 
@@ -427,9 +462,9 @@ For EACH issue:
 
 **Restart Protocol:**
 1. Mark all S9 steps as "incomplete" in EPIC_README.md
-2. Re-run STAGE_6a (Epic Smoke Testing - all 4 parts)
-3. Re-run STAGE_6b (Epic QC Rounds 1, 2, 3)
-4. Re-run STAGE_6c (Epic PR Review - all 11 categories)
+2. Re-run S9.P1 (Epic Smoke Testing - all 4 parts)
+3. Re-run S9.P2 (Epic QC Validation Loop - until 3 consecutive clean rounds)
+4. Re-run S9.P4 (Epic Final Review - all 11 categories)
 5. Document restart in epic_lessons_learned.md
 
 ---
@@ -455,10 +490,10 @@ For EACH issue:
 **See:** Template 7 (Final Verification Checklist)
 
 **Verification Checklist:**
-- [ ] Epic smoke testing passed (all 4 parts)
-- [ ] QC Round 1 passed (no integration issues)
-- [ ] QC Round 2 passed (no consistency issues)
-- [ ] QC Round 3 passed (success criteria met)
+- [ ] S9.P1 Epic smoke testing passed (all 4 parts)
+- [ ] S9.P2 Epic QC Validation Loop passed (3 consecutive clean rounds)
+- [ ] All 12 dimensions validated (7 master + 5 epic)
+- [ ] S9.P3 User testing passed (no bugs found)
 - [ ] Epic PR review passed (all 11 categories)
 - [ ] NO pending issues or bug fixes
 - [ ] ALL tests passing (100% pass rate)
@@ -466,7 +501,7 @@ For EACH issue:
 **Run all tests to confirm:**
 ```bash
 python tests/run_all_tests.py
-# Expected: 100% pass rate, exit code 0
+## Expected: 100% pass rate, exit code 0
 ```
 
 **If ANY item unchecked:** STOP - Address remaining issues, re-run affected steps
@@ -476,7 +511,7 @@ python tests/run_all_tests.py
 **See:** Template 8 (Epic Progress Tracker Update)
 
 Mark S9 complete, including:
-- STAGE_6a, 6b, 6c completion status
+- S9.P1, P2, P3, P4 completion status
 - Issues found and resolved
 - Bug fixes completed
 - S9 restarts (if any)
@@ -536,8 +571,8 @@ Mark S9.P3 complete and prepare for S10:
 ### 2. After Creating Bug Fixes
 - Bug fixes created during Step 7
 - Re-read "STEP 7: Handle Issues" section
-- Remember: MUST RESTART S9 after bug fixes (from STAGE_6a)
-- Re-read STAGE_6a and STAGE_6b guides for restart
+- Remember: MUST RESTART S9 after bug fixes (from S9.P1)
+- Re-read S9.P1 and S9.P2 guides for restart
 
 ### 3. After Extended Break (>24 hours)
 - Returning to epic after break
@@ -597,10 +632,11 @@ Mark S9.P3 complete and prepare for S10:
 - [ ] EPIC_README.md Agent Status shows S9.P3 complete
 
 ### Overall S9 Completion
-- [ ] STAGE_6a complete (Epic Smoke Testing passed)
-- [ ] STAGE_6b complete (QC Rounds 1, 2, 3 passed)
-- [ ] STAGE_6c complete (Epic PR Review passed, issues resolved)
-- [ ] Original epic goals validated and achieved (from STAGE_6b QC Round 3)
+- [ ] S9.P1 complete (Epic Smoke Testing passed)
+- [ ] S9.P2 complete (Epic QC Validation Loop - 3 consecutive clean rounds)
+- [ ] S9.P3 complete (User Testing passed - no bugs found)
+- [ ] S9.P4 complete (Epic Final Review passed, issues resolved)
+- [ ] Original epic goals validated and achieved (from S9.P2 dimension 12)
 - [ ] Ready to proceed to S10
 
 **DO NOT proceed to S10 until ALL completion criteria are met.**
@@ -639,9 +675,10 @@ Mark S9.P3 complete and prepare for S10:
 - [ ] STEP 8 (Final Verification) complete: All verification items checked
 
 ### Overall S9 Completion
-- [ ] STAGE_6a complete (Epic Smoke Testing passed)
-- [ ] STAGE_6b complete (QC Rounds 1, 2, 3 passed)
-- [ ] STAGE_6c complete (Epic PR Review passed, issues resolved)
+- [ ] S9.P1 complete (Epic Smoke Testing passed)
+- [ ] S9.P2 complete (Epic QC Validation Loop - 3 consecutive clean rounds)
+- [ ] S9.P3 complete (User Testing passed - no bugs found)
+- [ ] S9.P4 complete (Epic Final Review passed, issues resolved)
 - [ ] No pending issues or bug fixes
 - [ ] All bug fix folders (if any) show S7 (Testing & Review) complete
 
@@ -653,7 +690,7 @@ Mark S9.P3 complete and prepare for S10:
 
 ### Quality Gates Passed
 - [ ] All unit tests passing (100% pass rate)
-- [ ] Original epic goals validated (from STAGE_6b QC Round 3)
+- [ ] Original epic goals validated (from S9.P2 dimension 12)
 - [ ] Epic success criteria met
 - [ ] End-to-end workflows validated
 
@@ -677,7 +714,7 @@ Mark S9.P3 complete and prepare for S10:
 2. **Handle Issues (Step 7):** Create bug fixes for any discovered issues
    - Document all issues comprehensively
    - Create bug fixes using bug fix workflow
-   - RESTART S9 from STAGE_6a after fixes
+   - RESTART S9 from S9.P1 after fixes
 
 3. **Final Verification (Step 8):** Confirm S9 complete
    - Verify all issues resolved
@@ -725,4 +762,17 @@ Mark S9.P3 complete and prepare for S10:
 ---
 ---
 
-**END OF STAGE 6c GUIDE**
+## Next Stage
+
+**After S9.P4 complete:** Proceed to `stages/s10/s10_epic_cleanup.md`
+
+**S9 Complete Checklist Before S10:**
+- [ ] All 4 phases of S9 complete (Smoke Test, QC Rounds, User Testing, Final Review)
+- [ ] ZERO bugs remaining (100% test pass, user approved)
+- [ ] Epic documentation verified and complete
+
+**📖 READ NEXT:** `stages/s10/s10_epic_cleanup.md` - Guide updates, PR creation, archival
+
+---
+
+*End of s9_p4_epic_final_review.md*

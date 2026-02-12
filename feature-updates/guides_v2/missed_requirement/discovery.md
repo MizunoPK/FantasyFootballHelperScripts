@@ -18,7 +18,7 @@
 - S5 (TODO creation): Realize missing scope while planning implementation
 - S6 (Implementation): Discover forgotten functionality while coding
 - S7 (Smoke Testing): Find missing requirement during Part 1/2/3 tests
-- S7 (QC Rounds): Discover missing scope during Round 1/2/3
+- S7 (Validation Loop): Discover missing scope during validation rounds
 
 **During Debugging:**
 - While investigating issues: Realize root cause is missing functionality
@@ -26,7 +26,7 @@
 
 **During Epic-Level Work (S9/7):**
 - S9.P1 (Epic Smoke Testing): Find missing integration between features
-- S9.P2 (Epic QC Rounds): Discover missing epic-level functionality
+- S9.P2 (Epic Validation Loop): Discover missing epic-level functionality
 - S10 (User Testing): User reports missing functionality that was in original intent
 
 **User Reports:**
@@ -51,7 +51,7 @@ Discovery: We forgot to include player injury status tracking
 
 ### Example 2: Discovered during QA
 ```text
-Currently: feature_03_performance_tracker (S7 - QC Round 2)
+Currently: feature_03_performance_tracker (S7 - Validation Round 2)
 
 Discovery: We forgot to add export functionality
 - Users need to export performance reports to CSV
@@ -71,7 +71,7 @@ Discovery: Root cause is missing validation layer
 
 ### Example 4: Discovered during epic testing
 ```text
-Currently: Epic QC Round 1 (S9.P2)
+Currently: Epic Validation Round 1 (S9.P2)
 
 Discovery: Missing integration between features
 - feature_02 and feature_04 need shared caching layer

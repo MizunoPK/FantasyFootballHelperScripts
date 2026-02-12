@@ -37,7 +37,6 @@ class SeasonScheduleManager:
             Use is_schedule_available() to check if schedule data loaded successfully.
         """
         self.logger = get_logger()
-        self.logger.debug("Initializing Season Schedule Manager")
 
         # Load season_schedule.csv
         self.schedule_file = data_folder / 'season_schedule.csv'

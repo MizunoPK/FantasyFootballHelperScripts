@@ -18,7 +18,7 @@ Audit Dimension D13 (Documentation Quality) checks for "## Prerequisites" and "#
 **Design Rationale:**
 - Iteration files are sequential steps within S5 rounds (Round 1, Round 2, Round 3)
 - Prerequisites are simple: "Previous iteration complete" (stated inline)
-- Exit criteria defined at round level (s5_p1_planning_round1.md, s5_p2_planning_round2.md, s5_p3_planning_round3.md)
+- Exit criteria defined at round level (s5_v2_validation_loop.md consolidates all rounds)
 - Formal sections would be redundant
 - Files follow "router + detailed iteration" pattern for focused reference
 
@@ -31,43 +31,43 @@ Audit Dimension D13 (Documentation Quality) checks for "## Prerequisites" and "#
 1. **stages/s5/s5_p1_i3_integration.md**
    - Type: Router for Iterations 5-7
    - Prerequisites: Line 8 - "**Prerequisites:** Iterations 1-4 + Gate 4a complete"
-   - Exit Criteria: Inherited from s5_p1_planning_round1.md
+   - Exit Criteria: Inherited from s5_v2_validation_loop.md
    - Design: Navigation hub to 6 sub-iteration files
 
 2. **stages/s5/s5_p1_i3_iter5_dataflow.md**
    - Type: Iteration 5 - End-to-End Data Flow
    - Prerequisites: Line 6 - "**Prerequisites:** Previous iterations complete"
-   - Exit Criteria: Inherited from s5_p1_planning_round1.md
+   - Exit Criteria: Inherited from s5_v2_validation_loop.md
    - Design: Focused single-iteration guide (109 lines)
 
 3. **stages/s5/s5_p1_i3_iter5a_downstream.md**
    - Type: Iteration 5a - Downstream Data Consumption Tracing
    - Prerequisites: Line 6 - "**Prerequisites:** Previous iterations complete"
-   - Exit Criteria: Inherited from s5_p1_planning_round1.md
+   - Exit Criteria: Inherited from s5_v2_validation_loop.md
    - Design: Focused single-iteration guide (352 lines)
 
 4. **stages/s5/s5_p1_i3_iter6_errorhandling.md**
    - Type: Iteration 6 - Error Handling Scenarios
    - Prerequisites: Line 6 - "**Prerequisites:** Previous iterations complete"
-   - Exit Criteria: Inherited from s5_p1_planning_round1.md
+   - Exit Criteria: Inherited from s5_v2_validation_loop.md
    - Design: Focused single-iteration guide (132 lines)
 
 5. **stages/s5/s5_p1_i3_iter6a_dependencies.md**
    - Type: Iteration 6a - External Dependency Final Verification
    - Prerequisites: Line 6 - "**Prerequisites:** Previous iterations complete"
-   - Exit Criteria: Inherited from s5_p1_planning_round1.md
+   - Exit Criteria: Inherited from s5_v2_validation_loop.md
    - Design: Focused single-iteration guide (157 lines)
 
 6. **stages/s5/s5_p1_i3_iter7_integration.md**
    - Type: Iteration 7 - Integration Gap Check
    - Prerequisites: Inline statement
-   - Exit Criteria: Inherited from s5_p1_planning_round1.md
+   - Exit Criteria: Inherited from s5_v2_validation_loop.md
    - Design: Focused single-iteration guide
 
 7. **stages/s5/s5_p1_i3_iter7a_compatibility.md**
    - Type: Iteration 7a - Backward Compatibility Check
    - Prerequisites: Inline statement
-   - Exit Criteria: Inherited from s5_p1_planning_round1.md
+   - Exit Criteria: Inherited from s5_v2_validation_loop.md
    - Design: Focused single-iteration guide
 
 #### S5.P3 (Round 3) Iteration Files (7 files)
@@ -75,50 +75,76 @@ Audit Dimension D13 (Documentation Quality) checks for "## Prerequisites" and "#
 8. **stages/s5/s5_p3_i1_preparation.md**
    - Type: Round 3 Part 1 - Preparation
    - Prerequisites: Inline statement
-   - Exit Criteria: Inherited from s5_p3_planning_round3.md
+   - Exit Criteria: Inherited from s5_v2_validation_loop.md (Round 3 section)
    - Design: Preparation phase guide for Round 3
 
 9. **stages/s5/s5_p3_i1_iter17_phasing.md**
    - Type: Iteration 17 - Phasing
    - Prerequisites: Inline statement
-   - Exit Criteria: Inherited from s5_p3_planning_round3.md
+   - Exit Criteria: Inherited from s5_v2_validation_loop.md (Round 3 section)
    - Design: Focused single-iteration guide
 
 10. **stages/s5/s5_p3_i1_iter18_rollback.md**
     - Type: Iteration 18 - Rollback
     - Prerequisites: Inline statement
-    - Exit Criteria: Inherited from s5_p3_planning_round3.md
+    - Exit Criteria: Inherited from s5_v2_validation_loop.md (Round 3 section)
     - Design: Focused single-iteration guide
 
 11. **stages/s5/s5_p3_i1_iter19_traceability.md**
     - Type: Iteration 19 - Traceability
     - Prerequisites: Inline statement
-    - Exit Criteria: Inherited from s5_p3_planning_round3.md
+    - Exit Criteria: Inherited from s5_v2_validation_loop.md (Round 3 section)
     - Design: Focused single-iteration guide
 
-12. **stages/s5/s5_p3_i1_iter20_performance.md**
-    - Type: Iteration 20 - Performance
+12. **stages/s5/s5_p3_i1_iter20_performance.md** (DEPRECATED - S5 v1)
+    - Type: S5 v1 Iteration 20 - Performance (now Dimension 9)
     - Prerequisites: Inline statement
-    - Exit Criteria: Inherited from s5_p3_planning_round3.md
-    - Design: Focused single-iteration guide
+    - Exit Criteria: Inherited from s5_v2_validation_loop.md
+    - Design: Focused single-iteration guide (S5 v1 only)
 
-13. **stages/s5/s5_p3_i1_iter21_mockaudit.md**
-    - Type: Iteration 21 - Mock Audit
+13. **stages/s5/s5_p3_i1_iter21_mockaudit.md** (DEPRECATED - S5 v1)
+    - Type: S5 v1 Iteration 21 - Mock Audit (now part of Dimension 11)
     - Prerequisites: Inline statement
-    - Exit Criteria: Inherited from s5_p3_planning_round3.md
-    - Design: Focused single-iteration guide
+    - Exit Criteria: Inherited from s5_v2_validation_loop.md
+    - Design: Focused single-iteration guide (S5 v1 only)
 
-14. **stages/s5/s5_p3_i1_iter22_consumers.md**
-    - Type: Iteration 22 - Consumers
+14. **stages/s5/s5_p3_i1_iter22_consumers.md** (DEPRECATED - S5 v1)
+    - Type: S5 v1 Iteration 22 - Consumers (now Dimension 10)
     - Prerequisites: Inline statement
-    - Exit Criteria: Inherited from s5_p3_planning_round3.md
-    - Design: Focused single-iteration guide
+    - Exit Criteria: Inherited from s5_v2_validation_loop.md
+    - Design: Focused single-iteration guide (S5 v1 only)
 
 **Audit Action:** SKIP these files when checking D13 (Documentation Quality) - Prerequisites/Exit Criteria
 
 ---
 
-### Category B: Optional/Auxiliary Files (3 files)
+### Category B: S5 Design and Migration Documents (2 files)
+
+**Pattern:** Design plans and migration guides (not workflow execution guides)
+
+**Design Rationale:**
+- These are reference documents for understanding S5 v1→v2 transition
+- Not part of active workflow execution path
+- Provide historical context and design decisions
+- Prerequisites/Exit Criteria not applicable to reference documentation
+
+**Missing Sections:** Prerequisites, Exit Criteria
+
+**Files:**
+
+   - Type: Migration guide
+   - Purpose: Help agents understand transition from S5 v1 (22 iterations) to S5 v2 (Validation Loop)
+   - Design: Comparison tables, side-by-side workflows, FAQ format
+
+   - Type: Design plan document
+   - Purpose: Document architectural decisions for S5 v2 design
+   - Design: Architecture, dimension definitions, validation loop design
+
+**Audit Action:** SKIP these files when checking D13 (Documentation Quality) - Prerequisites/Exit Criteria
+
+---
+
+### Category C: Optional/Auxiliary Files (3 files)
 
 **Pattern:** Support guides used conditionally or as reference material, not standard sequential workflows
 
@@ -227,19 +253,21 @@ wc -l real_violations.txt  # Should be low count
 
 ## Summary Statistics
 
-**Total Known Exceptions:** 17 files
+**Total Known Exceptions:** 19 files
 
 **By Category:**
 - Category A (S5 Iteration Files): 14 files
-- Category B (Optional/Auxiliary): 3 files
+- Category B (S5 Design/Migration Documents): 2 files
+- Category C (Optional/Auxiliary): 3 files
 
 **Missing Sections:**
 - Missing Prerequisites only: 5 files (s5 iterations 5, 5a, 6, 6a, 7 with inline statements)
 - Missing Exit Criteria only: 3 files (s3_parallel_work_sync, s4_feature_testing_card, s4_test_strategy_development)
-- Missing BOTH: 9 files (remaining s5 iteration files)
+- Missing BOTH: 11 files (remaining s5 iteration files + 2 design docs)
 
 **Design Patterns:**
 - Router + Iteration: 14 files (S5 structure)
+- Design/Migration Reference: 2 files (S5 v1→v2 documentation)
 - Optional/Conditional: 1 file (s3_parallel_work_sync)
 - Reference Material: 2 files (s4_feature_testing_card, s4_test_strategy_development)
 

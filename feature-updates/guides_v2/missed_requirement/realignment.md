@@ -10,6 +10,47 @@
 
 ---
 
+## Table of Contents
+
+1. [Overview](#overview)
+1. [PHASE 3: S3 - Cross-Feature Sanity Check](#phase-3-s3-cross-feature-sanity-check)
+   - [Critical: Re-align ALL Features](#critical-re-align-all-features)
+   - [Step 1: Systematic Pairwise Comparison](#step-1-systematic-pairwise-comparison)
+   - [Step 2: Identify Conflicts](#step-2-identify-conflicts)
+   - [Step 3: Resolve Conflicts](#step-3-resolve-conflicts)
+   - [Step 4: User Sign-Off on Complete Aligned Plan](#step-4-user-sign-off-on-complete-aligned-plan)
+1. [PHASE 4: S4 - Epic Testing Strategy Update](#phase-4-s4-epic-testing-strategy-update)
+   - [Update epic_smoke_test_plan.md](#update-epicsmoketestplanmd)
+   - [Step 1: Add Scenarios for New/Updated Feature](#step-1-add-scenarios-for-newupdated-feature)
+1. [Epic Integration Test: Player Scoring with Injury Status](#epic-integration-test-player-scoring-with-injury-status)
+   - [Step 2: Update Existing Scenarios](#step-2-update-existing-scenarios)
+1. [Epic Integration Test: Draft Recommendations (UPDATED)](#epic-integration-test-draft-recommendations-updated)
+   - [Step 3: Identify Integration Points](#step-3-identify-integration-points)
+1. [Integration Points](#integration-points)
+1. [PHASE 5: Resume Previous Work](#phase-5-resume-previous-work)
+   - [Step 1: Mark Planning Complete](#step-1-mark-planning-complete)
+1. [Missed Requirement Tracking](#missed-requirement-tracking)
+1. [Current Status](#current-status)
+   - [Step 2: Verify No Spec Changes Affect Paused Feature](#step-2-verify-no-spec-changes-affect-paused-feature)
+   - [Step 3: Resume from Saved State](#step-3-resume-from-saved-state)
+1. [Agent Status (PAUSED - Missed Requirement Handling)](#agent-status-paused-missed-requirement-handling)
+1. [Agent Status (RESUMED)](#agent-status-resumed)
+   - [Step 4: New/Updated Feature Implementation (Later)](#step-4-newupdated-feature-implementation-later)
+1. [Completion Criteria](#completion-criteria)
+1. [Common Scenarios](#common-scenarios)
+   - [Scenario 1: New Feature - No Conflicts Found](#scenario-1-new-feature-no-conflicts-found)
+   - [Scenario 2: New Feature - Minor Conflicts](#scenario-2-new-feature-minor-conflicts)
+   - [Scenario 3: New Feature - Major Conflicts](#scenario-3-new-feature-major-conflicts)
+   - [Scenario 4: Update Unstarted Feature](#scenario-4-update-unstarted-feature)
+1. [Anti-Patterns to Avoid](#anti-patterns-to-avoid)
+   - [❌ Anti-Pattern 1: Only Check New/Updated Feature](#-anti-pattern-1-only-check-newupdated-feature)
+   - [❌ Anti-Pattern 2: Skip S4](#-anti-pattern-2-skip-s4)
+   - [❌ Anti-Pattern 3: Implementing Immediately](#-anti-pattern-3-implementing-immediately)
+   - [❌ Anti-Pattern 4: Not Checking Paused Feature's Spec](#-anti-pattern-4-not-checking-paused-features-spec)
+1. [Next Steps](#next-steps)
+
+---
+
 ## Overview
 
 **PHASE 3 & 4 ensures epic coherence after adding/updating a feature:**
@@ -27,7 +68,7 @@
 
 **🚨 FIRST ACTION:** Use "Starting S3" prompt from `prompts/s3_prompts.md`
 
-**READ:** `stages/s3/s3_cross_feature_sanity_check.md`
+**READ:** `stages/s3/s3_epic_planning_approval.md`
 
 **IMPORTANT:** Don't just check the new/updated feature - check ALL feature pairs
 

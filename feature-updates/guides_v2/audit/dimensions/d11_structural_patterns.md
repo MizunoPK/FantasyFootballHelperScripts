@@ -187,7 +187,7 @@ done
 ```
 
 **Examples:**
-- `stages/s5/s5_p1_planning_round1.md` (router to I1, I2, I3)
+- `stages/s5/s5_v2_validation_loop.md` (router to I1, I2, I3)
 - `stages/s2/s2_feature_deep_dive.md` (router to P1, P2, P3)
 
 **Validation:**
@@ -209,7 +209,7 @@ done
 **Stage guides:**
 ```text
 s#_stage_name.md          (e.g., s1_epic_planning.md)
-s#_p#_phase_name.md       (e.g., s2_p1_research.md)
+s#_p#_phase_name.md       (e.g., s2_p1_spec_creation_refinement.md)
 s#_p#_i#_iteration_name.md (e.g., s5_p1_i1_requirements.md)
 ```
 
@@ -557,7 +557,7 @@ STEP 3: Verify router doesn't have regular guide sections
 
 **1. Router Files (Intentional Special Structure):**
 ```markdown
-File: stages/s5/s5_p1_planning_round1.md
+File: stages/s5/s5_v2_validation_loop.md
 Structure: Sub-Guide Table, Navigation (no Prerequisites)
 Verdict: ✅ ACCEPTABLE (router pattern)
 ```
@@ -588,7 +588,7 @@ Verdict: ❌ ERROR (not a router, must have all required sections)
 **2. File Name Doesn't Match Convention:**
 ```markdown
 File: stages/s5/planning-round-1.md (ERROR: hyphens instead of underscores)
-Should be: stages/s5/s5_p1_planning_round1.md
+Should be: stages/s5/s5_v2_validation_loop.md
 Verdict: ❌ ERROR (violates naming convention)
 ```
 
@@ -633,7 +633,7 @@ $ grep -l "## Prerequisites" stages/s7/s7_p2_qc_rounds.md
 - All smoke test failures resolved
 - implementation_checklist.md fully checked off
 
-**Before Starting QC Rounds:**
+**Before Starting Validation Loop:**
 - Commit your latest changes
 - Clean working directory
 - Tests passing locally
@@ -657,12 +657,12 @@ stages/s5/planning-round-2.md
 
 **Fix:**
 ```bash
-git mv stages/s5/planning-round-1.md stages/s5/s5_p1_planning_round1.md
-git mv stages/s5/planning-round-2.md stages/s5/s5_p2_planning_round2.md
+git mv stages/s5/planning-round-1.md stages/s5/s5_v2_validation_loop.md
+git mv stages/s5/planning-round-2.md stages/s5/s5_v2_validation_loop.md
 
 # Update all references
-sed -i 's|planning-round-1\.md|s5_p1_planning_round1.md|g' stages/**/*.md
-sed -i 's|planning-round-2\.md|s5_p2_planning_round2.md|g' stages/**/*.md
+sed -i 's|planning-round-1\.md|s5_v2_validation_loop.md|g' stages/**/*.md
+sed -i 's|planning-round-2\.md|s5_v2_validation_loop.md|g' stages/**/*.md
 ```markdown
 
 ### Example 3: Sections in Wrong Order

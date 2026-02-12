@@ -57,8 +57,6 @@ class SaveCalculatedPointsManager:
         self.player_manager = player_manager
         self.data_folder = data_folder
 
-        self.logger.debug("Initialized Save Calculated Points Mode Manager")
-
     def execute(self) -> None:
         """
         Main entry point - collect projected points for all players and save to historical data.

@@ -256,9 +256,9 @@ For S5 planning details, see: `stages/s5/s5_planning.md`
 **After:**
 ```markdown
 For S5 planning details, see:
-- `stages/s5/s5_p1_planning_round1.md` - Round 1 (Iterations 1-7)
-- `stages/s5/s5_p2_planning_round2.md` - Round 2 (Iterations 8-13)
-- `stages/s5/s5_p3_planning_round3.md` - Round 3 (Iterations 14-22)
+- `stages/s5/s5_v2_validation_loop.md` - Round 1 (Iterations 1-7)
+- `stages/s5/s5_v2_validation_loop.md` - Round 2 (Iterations 8-13)
+- `stages/s5/s5_v2_validation_loop.md` - Round 3 (Iterations 14-22)
 ```
 
 **File:** prompts_reference_v2.md:234

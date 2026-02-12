@@ -66,7 +66,7 @@ file1.md:67:stages/s5/round1/algorithms.md
 
 **Expected After:**
 ```text
-file1.md:45:stages/s5/s5_p1_planning_round1.md
+file1.md:45:stages/s5/s5_v2_validation_loop.md
 file1.md:67:stages/s5/s5_p1_i2_algorithms.md
 ```
 

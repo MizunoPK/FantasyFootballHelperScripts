@@ -2,7 +2,7 @@
 
 **Purpose:** Pre-built search patterns organized by category for efficient audit discovery
 **Audience:** Agents conducting quality audits
-**Last Updated:** 2026-02-05
+**Last Updated:** 2026-02-06
 
 ---
 
@@ -18,6 +18,9 @@
 8. [Documentation Patterns (D13)](#documentation-patterns-d13)
 9. [Content Accuracy Patterns (D14)](#content-accuracy-patterns-d14)
 10. [Navigation Patterns (D16)](#navigation-patterns-d16)
+11. [Workflow Description Patterns (D3, D17)](#workflow-description-patterns-d3-d17)
+12. [Contradiction Detection Patterns (D15, D17)](#contradiction-detection-patterns-d15-d17)
+13. [Stage Flow Consistency Patterns (D17)](#stage-flow-consistency-patterns-d17)
 
 ---
 
@@ -213,8 +216,8 @@ grep -rn "[0-9]+ files\|[0-9]+ stages\|[0-9]+ iterations\|[0-9]+ rounds" --inclu
 ### Pattern 4.2: Dimension Count Claims
 
 ```bash
-# Should be 16 dimensions
-grep -rn "16 dimensions\|all 16\|16 critical" --include="*.md" .
+# Should be 17 dimensions
+grep -rn "17 dimensions\|all 17\|17 critical" --include="*.md" .
 
 # Check for old counts (if previously different)
 grep -rn "14 dimensions\|15 dimensions" --include="*.md" .
@@ -458,6 +461,142 @@ grep -rn "\bstage [0-9]\b" --include="*.md" .
 
 # Best - with context
 grep -rn -i "next.*stage [0-9]" --include="*.md" .
+```
+
+---
+
+---
+
+## Workflow Description Patterns (D3, D17)
+
+### Pattern W1: Stage Sequence Descriptions
+
+```bash
+# Find text describing stage sequences
+grep -rn "S[0-9].*->.*S[0-9]\|S[0-9].*then.*S[0-9]" --include="*.md" ../stages/
+
+# Find cycle/loop descriptions
+grep -rn "complete.*cycle\|cycle.*complete" --include="*.md" ../stages/
+```
+
+### Pattern W2: Group Workflow Descriptions
+
+```bash
+# Find text about when groups matter
+grep -rn "group.*complete\|group.*S[0-9]\|S[0-9].*group" --include="*.md" ../stages/
+
+# Find parallel work descriptions
+grep -rn "parallel.*S[0-9]\|S[0-9].*parallel\|wave" --include="*.md" ../stages/
+```
+
+### Pattern W3: Scope Descriptions
+
+```bash
+# Find scope language
+grep -rn "epic.level\|feature.level\|group.level\|all features\|per feature" --include="*.md" ../stages/
+
+# Find scope transitions
+grep -rn "proceed to.*level\|transition to.*level" --include="*.md" ../stages/
+```
+
+### Pattern W4: Cross-Stage Comparison
+
+```bash
+# Extract workflow claims for comparison
+for stage in {1..10}; do
+  echo "=== S$stage workflow claims ==="
+  grep -n "group\|parallel\|scope\|level" ../stages/s$stage/*.md | head -10
+done
+```
+
+---
+
+## Contradiction Detection Patterns (D15, D17)
+
+### Pattern C1: Find Contradictory Keywords
+
+```bash
+# Find "ALL" claims
+grep -rn "ALL features\|all.*complete\|every feature" --include="*.md" ../stages/
+
+# Find "per group" claims
+grep -rn "Group [0-9]\|per group\|Round [0-9]:.*Group" --include="*.md" ../stages/
+
+# If both exist for same topic -> potential contradiction
+```
+
+### Pattern C2: Prerequisite-Content Conflicts
+
+```bash
+# For each file, check prerequisite scope vs content scope
+for file in ../stages/**/*.md; do
+  prereq=$(grep -A 10 "^## Prerequisites" "$file" 2>/dev/null | grep -i "ALL\|every\|all features")
+  content=$(grep -i "Round [0-9]:.*Group\|Group [0-9].*only\|per group" "$file" 2>/dev/null)
+
+  if [ -n "$prereq" ] && [ -n "$content" ]; then
+    echo "POTENTIAL CONFLICT: $file"
+  fi
+done
+```
+
+### Pattern C3: Stage Transition Consistency
+
+```bash
+# Compare exit descriptions with entry prerequisites
+for stage in {1..9}; do
+  echo "=== S$stage -> S$((stage+1)) ==="
+  echo "S$stage exit:"
+  grep -A 5 "^## Next" ../stages/s$stage/*.md | head -5
+  echo "S$((stage+1)) entry:"
+  grep -A 5 "^## Prerequisites" ../stages/s$((stage+1))/*.md | head -5
+done
+```
+
+---
+
+## Stage Flow Consistency Patterns (D17)
+
+### Pattern D17.1: Handoff Promise Validation
+
+```bash
+# Extract what Stage N promises
+grep -A 15 "^## Next Stage\|^## Outputs\|^## Exit Criteria" ../stages/sN/*.md
+
+# Extract what Stage N+1 expects
+grep -A 15 "^## Prerequisites\|^## Inputs\|^## Entry" ../stages/s(N+1)/*.md
+```
+
+### Pattern D17.2: Workflow Behavior Alignment
+
+```bash
+# Extract workflow descriptions from all stages
+grep -rn "proceed\|after.*complete\|when.*done\|workflow" --include="*.md" ../stages/
+
+# Compare: Do connected stages describe same workflow?
+```
+
+### Pattern D17.3: Conditional Logic Coverage
+
+```bash
+# Find all conditional logic
+grep -rn "if\|when\|scenario\|mode\|option" --include="*.md" ../stages/
+
+# Check S1 modes vs S2 router handling
+echo "=== S1 parallelization modes ==="
+grep -n "sequential\|parallel\|group" ../stages/s1/*.md | grep -i "mode\|option\|scenario"
+
+echo "=== S2 router handling ==="
+grep -n "Sequential\|Parallel\|Group" ../stages/s2/s2_feature_deep_dive.md
+```
+
+### Pattern D17.4: Scope Alignment Validation
+
+```bash
+# Check scope at each stage exit
+for stage in {1..9}; do
+  echo "=== S$stage exit scope ==="
+  grep -n "proceed.*S$((stage+1))\|epic.level\|feature.level\|all features" ../stages/s$stage/*.md | head -3
+done
 ```
 
 ---

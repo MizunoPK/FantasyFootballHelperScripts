@@ -13,8 +13,8 @@
 
 **Agent MUST respond:**
 
-```bash
-I'm reading `stages/s4/s4_epic_testing_strategy.md` to ensure I create a comprehensive epic testing strategy...
+```markdown
+I'm reading `stages/s4/s4_feature_testing_strategy.md` to ensure I create a comprehensive epic testing strategy...
 
 **The guide requires:**
 - Review initial epic_smoke_test_plan.md (created in S1)
@@ -39,7 +39,7 @@ I'm reading `stages/s4/s4_epic_testing_strategy.md` to ensure I create a compreh
 
 **Updating EPIC_README.md Agent Status:**
 - Current Stage: S4 - Epic Testing Strategy
-- Current Guide: stages/s4/s4_epic_testing_strategy.md
+- Current Guide: stages/s4/s4_feature_testing_strategy.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
 - Critical Rules: "Update test plan (don't recreate)", "Hybrid test scenarios", "Measurable success criteria", "Plan will evolve in S8.P2"
 - Next Action: Review current epic_smoke_test_plan.md and identify updates needed
@@ -51,7 +51,7 @@ Starting test plan update...
 
 ## Gate 4.5: Epic Test Plan Approval (MANDATORY)
 
-**Trigger:** Agent completes Step 6.1 of s4_epic_testing_strategy.md (test plan updated)
+**Trigger:** Agent completes S4 test plan update (s4_feature_testing_strategy.md)
 
 **Agent MUST present to user:**
 
@@ -76,7 +76,7 @@ I've updated the epic testing strategy in `epic_smoke_test_plan.md` based on the
 **Why approval is needed now:**
 - I need to know EXACTLY how to test this work BEFORE creating implementation plans (S5)
 - Test requirements will guide how I structure implementation tasks and test strategy
-- Changes to test plan are cheap now, expensive after 22 verification iterations
+- Changes to test plan are cheap now, expensive after S5 validation loop completes
 
 **Please review `epic_smoke_test_plan.md` and:**
 - ✅ Approve if test strategy looks correct
@@ -109,7 +109,7 @@ I've updated the epic testing strategy in `epic_smoke_test_plan.md` based on the
 
 Now that I know EXACTLY how to test this work (user-approved test plan), I'll transition to S5 to begin implementation planning for the first feature.
 
-Following `stages/s5/s5_p1_planning_round1.md` (Round 1) to create comprehensive implementation plan with 22 verification iterations across 3 rounds.
+Following `stages/s5/s5_v2_validation_loop.md` to create comprehensive implementation plan using 2-phase validation loop approach (Draft Creation + Validation Loop with 18 dimensions).
 ```
 
 ---

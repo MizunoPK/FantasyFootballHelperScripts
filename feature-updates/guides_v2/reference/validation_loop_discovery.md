@@ -1,8 +1,14 @@
-# Validation Loop: Discovery Context
+# Validation Loop: Discovery
 
-**Master Protocol:** See `validation_loop_protocol.md`
+**Extends:** Master Validation Loop Protocol
+**See:** `reference/validation_loop_master_protocol.md`
 
-**Context:** S1.P3 Discovery Phase, S2.P1.I1 Feature Discovery
+**Applicable Stages:**
+- S1.P3: Epic Discovery Phase
+- S2.P1.I1: Feature Discovery (initial research)
+
+**Version:** 2.0 (Updated to extend master protocol)
+**Last Updated:** 2026-02-10
 
 ---
 

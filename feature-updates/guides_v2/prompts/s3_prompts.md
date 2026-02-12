@@ -14,7 +14,13 @@
 **Agent MUST respond:**
 
 ```markdown
-I'm reading `stages/s3/s3_cross_feature_sanity_check.md` to ensure I perform systematic cross-feature validation...
+I'm beginning S3 (Cross-Feature Sanity Check).
+
+**Guide I'm following:** stages/s3/s3_epic_planning_approval.md (from CLAUDE.md Stage Workflow table)
+**Prerequisites verified:**
+- [x] Prior stage (S2) fully complete in EPIC_README.md Epic Completion Checklist - all features done S2
+- [x] Guide path matches CLAUDE.md Stage Workflow table
+- [x] Read ENTIRE guide using Read tool
 
 **The guide requires:**
 - Systematic pairwise comparison of ALL feature specs
@@ -37,7 +43,7 @@ I'm reading `stages/s3/s3_cross_feature_sanity_check.md` to ensure I perform sys
 
 **Updating EPIC_README.md Agent Status:**
 - Current Stage: S3 - Cross-Feature Sanity Check
-- Current Guide: stages/s3/s3_cross_feature_sanity_check.md
+- Current Guide: stages/s3/s3_epic_planning_approval.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
 - Critical Rules: "Pairwise comparison mandatory", "User sign-off required", "No skipping comparisons"
 - Next Action: Create Feature Comparison Matrix and begin pairwise validation

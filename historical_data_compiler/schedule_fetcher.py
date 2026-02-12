@@ -121,7 +121,7 @@ class ScheduleFetcher:
                     week_schedule[team2] = team1
 
             except Exception as e:
-                self.logger.debug(f"Error parsing event in week {week}: {e}")
+                self.logger.warning(f"Error parsing event in week {week}: {e}")
                 continue
 
         return week_schedule

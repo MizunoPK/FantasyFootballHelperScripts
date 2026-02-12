@@ -38,10 +38,12 @@
 ### Q: What's the difference between a "round", "iteration", and "phase"?
 
 **A:**
-- **Round:** Collection of iterations (S5 has 3 rounds)
-- **Iteration:** Single verification step (Round 1 has 7 iterations: I1-I7, includes Gates 4a, 7a)
-- **Phase:** Distinct workflow section (S7 has 3 phases: Smoke Testing, QC Rounds, Final Review)
+- **Round:** Validation Loop cycle (check all dimensions, fix issues, repeat until 3 consecutive clean rounds)
+- **Iteration:** Historical term from S5 v1 (not used in S5 v2)
+- **Phase:** Distinct workflow section (S5 has 2 phases: Draft Creation + Validation Loop; S7 has 3 phases: Smoke Testing, QC Rounds, Final Review)
 - **Stage:** Top-level workflow division (10 stages total: S1-S10)
+
+**Note:** S5 v2 uses "dimensions" (11 dimensions validated each round), not "iterations" (which were used in S5 v1).
 
 ### Q: When do I update EPIC_README.md vs feature README.md?
 
@@ -208,29 +210,29 @@ A: Make best predictions in S4:
 
 **Q: Can I skip iterations if they don't seem relevant?**
 
-A: NO - All 22 iterations are mandatory:
+A: NO - All 11 dimensions and the Validation Loop are mandatory (3 consecutive clean rounds):
 - Designed based on historical bugs and missed requirements
 - Each iteration catches specific issue types
 - Skipping iterations = high risk of bugs in S7
 
-**Q: What if Iteration 22 (GO/NO-GO) says NO-GO?**
+**Q: What if S5 v2 Validation Loop isn't converging (not getting 3 consecutive clean rounds)?**
 
-A: Follow the guidance in the NO-GO section:
-1. Review which criteria failed
-2. Determine which iteration to return to
-3. Fix issues
-4. Re-run affected iterations and gates
-5. Make GO decision again
-6. DO NOT proceed to S6 with NO-GO
+A: Follow the escalation protocol:
+1. Review which dimensions are failing repeatedly
+2. Fix issues immediately (zero deferred issues)
+3. Re-run validation round
+4. Track rounds in VALIDATION_LOOP_LOG.md
+5. If exceeded 10 rounds, escalate to user
+6. DO NOT proceed to S6 without 3 consecutive clean rounds
 
-**Q: What's the difference between the 3 mandatory gates?**
+**Q: What are the key S5 v2 validation checkpoints?**
 
 A:
-- **Gate 4a (Iteration 4a):** TODO Specification Audit - basic quality check (after Round 1)
-- **Gate 23a (Iteration 20):** Pre-Implementation Spec Audit - evidence-based verification (4 PARTS, 100% metrics required)
-- **Gate 25 (Iteration 21):** Spec Validation Against Validated Documents - prevents catastrophic bugs (three-way validation)
+- **Dimension 4:** Task Specification Quality - ensures all tasks have acceptance criteria and implementation location
+- **Dimension 11:** Spec Alignment & Cross-Validation - prevents catastrophic bugs (implementation_plan.md must match spec.md 100%)
+- **Dimension 10:** Implementation Readiness - final verification before S6 (confidence >= MEDIUM, all dimensions passing)
 
-All three must PASS before S6.
+All 11 dimensions must PASS for 3 consecutive rounds before S6.
 
 **Q: How long should Round 3 take?**
 
@@ -285,12 +287,13 @@ A: YES - Complete restart protocol:
 3. Re-run Part 1 → Part 2 → Part 3
 4. Only proceed to QC rounds if all 3 parts pass
 
-**Q: QC Round 2 found issues - do I restart from Round 1?**
+**Q: Validation Round 2 found issues - do I restart?**
 
-A: NO - Restart from Smoke Testing Part 1:
-- Any issues in ANY QC round = restart entire S7
-- Restart from smoke testing (not QC Round 1)
-- Zero tolerance for incomplete validation
+A: NO - Use fix-and-continue approach:
+- Fix ALL issues immediately
+- Reset clean counter to 0
+- Continue validation until 3 consecutive clean rounds
+- No restart needed (validation loop approach)
 
 **Q: What if issues found are "minor" like missing type hint?**
 
@@ -455,10 +458,10 @@ Need to fix something
          → RESTART S9
 ```
 
-### Decision Tree 3: "GO vs NO-GO Decision (Iteration 22)"
+### Decision Tree 3: "GO vs NO-GO Decision (Validation Loop complete)"
 
 ```text
-Iteration 22: GO/NO-GO Decision
+Validation Loop complete: GO/NO-GO Decision
          ↓
     [Review all criteria]
          ↓
@@ -534,7 +537,7 @@ Context window limit reached → Session compacted
 
 **Use for:**
 - Issues found during Smoke Testing (S7 Part 3)
-- Issues found during QC Rounds (S7 Phase 2)
+- Issues found during Validation Loop (S7 Phase 2)
 - Issues found during Epic Testing (S9)
 - Issues found during User Testing (S10)
 - Root cause is UNKNOWN (requires investigation)
@@ -633,10 +636,10 @@ Context window limit reached → Session compacted
 - Create issue in debugging/ISSUES_CHECKLIST.md
 - Use investigation rounds to systematically identify cause
 
-### Stuck 3: "Iteration 22 says NO-GO but I don't know what to fix"
+### Stuck 3: "Validation Loop complete says NO-GO but I don't know what to fix"
 
 **Solution:**
-1. **Read the failure message** from Iteration 22 decision
+1. **Read the failure message** from Validation Loop complete decision
 2. **Identify specific criteria that failed:**
    - Confidence < MEDIUM → Need more planning (return to Round 3 Part 1)
    - Gate 4a failed → TODO quality issues (return to Round 1)
@@ -829,11 +832,11 @@ Would you like to:
 
 ## Quick Reference: Common Error Messages
 
-### Error: "Cannot proceed to S6 - Iteration 22 = NO-GO"
+### Error: "Cannot proceed to S6 - Validation Loop complete = NO-GO"
 
 **Meaning:** GO/NO-GO decision failed, implementation not ready
 
-**Fix:** See "Stuck 3: Iteration 22 NO-GO" protocol above
+**Fix:** See "Stuck 3: Validation Loop complete NO-GO" protocol above
 
 ---
 
@@ -857,7 +860,7 @@ Would you like to:
 1. Re-read spec.md completely
 2. Identify missing requirements
 3. Add TODO tasks for missing requirements
-4. Re-run Iteration 20 Part 1 (Completeness Audit)
+4. Re-run Validation Round Part 1 (Completeness Audit)
 5. Achieve 100% before proceeding
 
 ---
@@ -892,7 +895,7 @@ Note: It's acceptable to fix pre-existing test failures from other epics during 
 - Feature breakdown looks correct? (S1)
 - Spec requirements clear? (S2)
 - How to resolve spec conflicts? (S3)
-- Iteration 21 found discrepancies - which approach to take? (S5)
+- Dimension 11 found discrepancies - which approach to take? (S5)
 - Scope growing >35 items - split feature? (S2)
 - Bug fix vs missed requirement (if ambiguous)
 

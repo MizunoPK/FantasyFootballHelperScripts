@@ -66,7 +66,6 @@ class TeamDataManager:
             - Calculates rankings based on MIN_WEEKS rolling window
         """
         self.logger = get_logger()
-        self.logger.debug("Initializing Team Data Manager")
 
         self.data_folder = Path(data_folder)
         self.config_manager = config_manager

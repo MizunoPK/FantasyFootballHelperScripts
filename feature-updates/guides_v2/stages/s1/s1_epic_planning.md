@@ -81,7 +81,7 @@ S1 is complete when you have Discovery approved, a validated epic ticket, comple
 
 1. CREATE GIT BRANCH BEFORE ANY CHANGES (Step 1.0)
    - Verify on main, pull latest
-   - Assign KAI number from EPIC_TRACKER.md
+   - Ask user: use next available KAI number or specify custom number
    - Create branch: {work_type}/KAI-{number}
    - Update EPIC_TRACKER.md and commit immediately
 
@@ -264,13 +264,33 @@ Step 6: Transition to S2
 **Steps:**
 1. Verify you're on main branch (`git checkout main`)
 2. Pull latest changes (`git pull origin main`)
-3. Assign KAI number from EPIC_TRACKER.md
-4. Determine work type (epic/feat/fix)
-5. Create and checkout branch (`git checkout -b {work_type}/KAI-{number}`)
-6. Update EPIC_TRACKER.md (add to Active table, increment next number)
-7. Commit EPIC_TRACKER.md update immediately
+3. Read EPIC_TRACKER.md to identify "Next Available Number"
+4. **Ask user for KAI number preference** (use AskUserQuestion):
+   - Option A: Use next available number (e.g., KAI-9) - Recommended
+   - Option B: Specify custom KAI number (user provides number)
+   - **Rationale:** Allows user control over epic numbering for organizational purposes
+5. Determine work type (epic/feat/fix) - typically "epic" for multi-feature work
+6. Create and checkout branch (`git checkout -b {work_type}/KAI-{number}`)
+7. Update EPIC_TRACKER.md (add to Active table, increment next number if using next available)
+8. Commit EPIC_TRACKER.md update immediately
 
 **Why branch first:** Keeps main clean, allows parallel work, enables rollback
+
+**Example: Asking for KAI number preference**
+
+After reading EPIC_TRACKER.md showing "Next Available Number: KAI-9", use AskUserQuestion:
+
+```
+Question: "Which KAI number should I use for this epic?"
+Header: "KAI Number"
+Options:
+  - Option A: "Use next available (KAI-9)" (Recommended)
+    Description: "Uses the next sequential number from EPIC_TRACKER.md"
+  - Option B: "Specify custom number"
+    Description: "You provide a specific KAI number (e.g., for organizational grouping)"
+```
+
+If user selects Option B, they will provide the custom number in "Other" text input.
 
 ---
 
@@ -474,7 +494,7 @@ I've created an epic ticket to validate my understanding of the epic's goals and
 2. Epic ticket is now **immutable reference** (like epic notes)
 3. Proceed to Step 5
 
-**Critical:** Epic ticket becomes source of truth for outcomes. During Iteration 21 (S5.P3.I3), spec.md will be validated against both epic notes AND epic ticket.
+**Critical:** Epic ticket becomes source of truth for outcomes. During S5 v2 Validation Loop (Dimension 11: Spec Alignment), implementation_plan.md will be validated against spec.md, which was validated against both epic notes AND epic ticket.
 
 ---
 
@@ -502,7 +522,7 @@ For EACH approved feature, create folder: `feature-updates/KAI-{N}-{epic_name}/f
 Each feature's spec.md starts with Discovery Context section:
 
 ```markdown
-# Feature Spec: {feature_name}
+## Feature Spec: {feature_name}
 
 ## Discovery Context
 
@@ -575,31 +595,77 @@ Update Agent Status: Progress 5/6, Next Action "Step 5.7.5 - Feature Dependency 
 
 ### Step 5.7.5: Analyze Feature Dependencies
 
-**Purpose:** Determine feature dependency groups for S2 execution order
+**Purpose:** Identify spec-level dependencies to determine S2 wave order for group-based parallelization
 
 **For EACH feature:**
-1. **Spec Dependencies:** Does this feature need other features' specs to write its own?
-2. **Implementation Dependencies:** Does this feature need other features' code before implementation?
-3. **No Dependencies:** Feature is completely independent
+
+1. **Spec Dependencies (matters for S2 parallelization):**
+   - Does this feature need other features' SPECS to write its own spec?
+   - Example: Feature B needs to know Feature A's API to write integration spec
+   - → Creates S2 dependency (Feature A must complete S2 before Feature B starts)
+
+2. **Implementation Dependencies (matters for S5-S8, NOT S2):**
+   - Does this feature need other features' CODE to build its implementation?
+   - Example: Feature B calls Feature A's functions
+   - → Creates S5 dependency (Feature A must complete S5-S8 before Feature B starts)
+   - → Does NOT affect S2 parallelization (both can research/specify in parallel)
+
+**Decision Criteria for Grouping:**
+- **Spec-level dependency → Different group** (affects S2 parallelization)
+- **Implementation dependency only → Same group** (doesn't affect S2)
+- **No dependencies → Group 1** (can parallelize freely)
+
+**Organize into Groups:**
+
+**Group 1 (Foundation - S2 Wave 1):**
+- Features with NO spec-level dependencies
+- Can research and specify independently
+- Will complete S2 first (provides API reference for dependent features)
+
+**Group 2 (Dependent - S2 Wave 2):**
+- Features that need Group 1's specs as reference
+- Must wait for Group 1 to complete S2
+- Will do S2 in parallel with each other once Group 1 done
+
+**Group 3+ (if needed):**
+- Features that need Group 2's specs
+- Continue wave pattern (each wave waits for previous wave's S2 completion)
 
 **Document in EPIC_README.md:**
 
 ```markdown
-## Feature Dependency Groups
+## Feature Dependency Groups (S2 Only)
 
-**Group 1 (Independent - Round 1):**
-- Feature 01-07: {list independent features}
+**Group 1 (Foundation - S2 Wave 1):**
+- Feature 01: {name}
+- Spec Dependencies: None
+- S2 Workflow: Completes S2 alone FIRST
 
-**Group 2 (Depends on Group 1 - Round 2):**
-- Feature 08: {name} - Depends on: Features 01-07 specs
+**Group 2 (Dependent - S2 Wave 2):**
+- Features 02-07: {names}
+- Spec Dependencies: Need Group 1's spec (API reference)
+- S2 Workflow: After Group 1 completes S2, all features do S2 in parallel
 
-**Group 3 (Depends on Group 2 - Round 3):**
-- Feature 09: {name} - Depends on: Features 01-08 specs
+**After S2:**
+- Groups no longer matter
+- S3: Epic-level (all features together)
+- S4: Per-feature sequential
+- S5-S8: Per-feature sequential (implementation dependencies checked separately)
+- S9-S10: Epic-level
+
+**S2 Workflow:**
+- **Wave 1:** Group 1 completes S2 (S2.P1 + S2.P2)
+- **Wave 2:** Group 2 does S2 in parallel (after Group 1 S2 complete)
+- **Wave 3+:** Continue pattern if more groups exist
+- **After all waves:** Groups no longer matter, proceed to S3
+
+**S2 Time Savings:**
+- Sequential S2: {N} features × 2h = {total}h
+- Group-based S2: Wave 1 ({M}h) + Wave 2 parallel ({M}h) = {total}h
+- Savings: {X}h ({percent}% reduction)
 ```
 
-**Workflow:** Each group completes full S2->S3->S4 cycle before next group starts
-
-**If all features independent:** Note "All features independent - Single group"
+**If all features independent:** Note "All features independent - Single S2 wave" and place all features in Group 1
 
 ---
 
@@ -647,29 +713,98 @@ Before proceeding to Step 6, you MUST complete Steps 5.8-5.9.
 
 **Prerequisites:** Analysis shows 2+ features, decision made to offer parallelization
 
-**Offering Template:**
+**Determine Offering Type:**
+- **Group-Based:** Epic has dependency groups (check EPIC_README.md "Feature Dependency Groups (S2 Only)" section)
+- **All Independent:** All features in single group OR no spec-level dependencies
+
+---
+
+#### Offering Template A: Group-Based Parallelization
+
+**Use when:** Epic has multiple dependency groups (Group 1, Group 2, etc.)
 
 ```markdown
-S1 Complete! I've identified {N} features.
+🚀 PARALLEL WORK OPPORTUNITY
 
-PARALLEL WORK OPPORTUNITY
+I've identified {N} features organized into {M} dependency groups:
 
-**Sequential:** {N} features x 2 hours S2 each = {total} hours
-**Parallel:** All {N} features simultaneously = 2 hours
-**Savings:** {savings} hours ({percent}% reduction)
+**Group 1 (Foundation):**
+- Feature {X}: {name}
+- No dependencies, completes S2 first
 
-**Coordination:** You'll open {N-1} additional sessions, I'll coordinate via files
+**Group 2 (Dependent):**
+- Features {Y}-{Z}: {names}
+- Depend on Group 1's spec (need API reference)
+- Can parallelize with each other once Group 1 done
+
+**Sequential approach:**
+- All {N} features one-by-one: {total} hours
+
+**Group-based parallel approach:**
+- Group 1 completes S2: {M} hours
+- Group 2 does S2 in parallel ({K} features): {M} hours
+- Total: {total} hours
+
+**TIME SAVINGS: {X} hours ({percent}% reduction in S2 time)**
+
+**Workflow:**
+1. I complete S2 for Group 1 (Feature {X})
+2. After Group 1 done → I spawn {K} secondary agents for Group 2
+3. All {K} Group 2 features do S2 simultaneously
+4. After all S2 complete → I run S3 (epic-level)
+
+**Coordination:**
+- You'll open {K} additional Claude Code sessions (when Group 1 done)
+- I'll coordinate all agents via files
+- Group 1 completes before Group 2 starts (dependency requirement)
 
 Would you like to:
-1. Enable parallel work for S2 (I'll provide setup)
-2. Continue sequential (I'll do features one by one)
-3. Discuss parallelization approach
+1. ✅ Enable group-based parallel work (I'll coordinate)
+2. ❌ Continue sequential (I'll do all {N} one-by-one)
+3. ❓ Discuss approach
 ```
 
+---
+
+#### Offering Template B: All Features Independent
+
+**Use when:** All features have no dependencies OR single group
+
+```markdown
+🚀 PARALLEL WORK OPPORTUNITY
+
+I've identified {N} features with no dependencies - all can parallelize!
+
+**Sequential approach:**
+- All {N} features one-by-one: {total} hours
+
+**Parallel approach:**
+- All {N} features simultaneously: 2 hours
+
+**TIME SAVINGS: {X} hours ({percent}% reduction in S2 time)**
+
+**Workflow:**
+1. I spawn {N-1} secondary agents immediately
+2. I work on Feature 01, secondaries work on Features 02-{N}
+3. All {N} features do S2 simultaneously
+4. After all S2 complete → I run S3 (epic-level)
+
+**Coordination:**
+- You'll open {N-1} additional Claude Code sessions
+- I'll coordinate all agents via files
+
+Would you like to:
+1. ✅ Enable parallel work (I'll coordinate)
+2. ❌ Continue sequential (I'll do all {N} one-by-one)
+3. ❓ Discuss approach
+```
+
+---
+
 **Handle User Response:**
-- **Option 1 (Enable):** Skip Step 6, go to `parallel_work/s2_primary_agent_guide.md`
+- **Option 1 (Enable):** Skip Step 6, go to `parallel_work/s2_primary_agent_guide.md` (groups) or standard parallel guide (no groups)
 - **Option 2 (Sequential):** Proceed to Step 6 (standard transition)
-- **Option 3 (Discuss):** Answer questions, then re-present options 1-2
+- **Option 3 (Discuss):** Answer questions, clarify groups/workflow, then re-present options 1-2
 
 **Notes:** Parallel work is OPTIONAL, user chooses, default to sequential if unclear
 
@@ -681,17 +816,96 @@ Would you like to:
 
 Check all S1 items in EPIC_README.md Epic Completion Checklist.
 
-### Step 6.2: Update Agent Status for S2
+### Step 6.2: Determine S2 Workflow Mode
 
-Update Agent Status: Current Phase "DEEP_DIVE", Current Guide "stages/s2/s2_p1_research.md", Next Action "Read S2.P1 guide and begin research for feature_01_{name}".
+**Check EPIC_README.md for parallelization decision:**
 
-### Step 6.3: Announce Transition to User
+**Scenario A: Group-Based Parallel S2** (epic has dependency groups, user accepted parallel work)
+- Epic has "Feature Dependency Groups (S2 Only)" section with multiple groups
+- User selected "Enable group-based parallel work"
+- → Group wave workflow
 
-Announce S1 completion to user:
-- Discovery Phase complete with user approval
-- List features created
-- List epic-level files created
-- Announce transition to S2.P1 (Research Phase) for Feature 1
+**Scenario B: All Features Independent Parallel** (no dependency groups, user accepted parallel work)
+- All features in single group OR no spec-level dependencies
+- User selected "Enable parallel work"
+- → Full parallelization workflow
+
+**Scenario C: Sequential S2** (user declined parallel work OR only 1-2 features)
+- User selected "Continue sequential"
+- OR epic has only 1-2 features (parallel not offered)
+- → Sequential workflow
+
+### Step 6.3: Update Agent Status for S2
+
+**For Scenario A (Group-Based Parallel):**
+
+Update Agent Status:
+- Current Phase: "DEEP_DIVE_GROUP_1"
+- Current Guide: "stages/s2/s2_feature_deep_dive.md" (will route to group wave guide)
+- Next Action: "Read S2 router guide and begin Group 1 S2 execution"
+- Groups: "Group 1 first, Group 2 after Group 1 S2 complete"
+
+**For Scenario B (All Independent Parallel):**
+
+Update Agent Status:
+- Current Phase: "DEEP_DIVE_PARALLEL"
+- Current Guide: "parallel_work/s2_primary_agent_guide.md"
+- Next Action: "Generate handoff packages for {N-1} secondary agents"
+
+**For Scenario C (Sequential):**
+
+Update Agent Status:
+- Current Phase: "DEEP_DIVE"
+- Current Guide: "stages/s2/s2_feature_deep_dive.md"
+- Next Action: "Read S2.P1 guide and begin research for feature_01_{name}"
+
+### Step 6.4: Announce Transition to User
+
+**For Group-Based Parallel:**
+
+```markdown
+✅ S1 Complete! Transitioning to S2 with group-based parallelization.
+
+**Groups:**
+- Group 1 (Foundation): Feature {X}
+- Group 2 (Dependent): Features {Y}-{Z}
+
+**Workflow:**
+1. Starting with Group 1 (Feature {X})
+2. I'll complete S2 for Feature {X} first (S2.P1 + S2.P2)
+3. After Group 1 S2 complete → I'll spawn {K} secondary agents
+4. Group 2 ({K} features) will do S2 in parallel
+5. After all S2 complete → I'll run S3
+
+**Estimated Time:**
+- Group 1 S2: 2 hours
+- Group 2 S2 (parallel): 2 hours
+- Total: 4 hours (vs {X} hours sequential)
+
+**Next Action:** Reading S2 router guide and beginning Group 1 S2
+```
+
+**For All Independent Parallel:**
+
+```markdown
+✅ S1 Complete! Transitioning to S2 with full parallelization.
+
+**All {N} features are independent - can parallelize immediately!**
+
+I'll now generate handoff packages for {N-1} secondary agents...
+
+**Next Action:** Generating handoff packages
+```
+
+**For Sequential:**
+
+```markdown
+✅ S1 Complete! Transitioning to S2 (sequential mode).
+
+I'll work through all {N} features one-by-one, starting with Feature 01.
+
+**Next Action:** Beginning S2.P1 for Feature 01
+```
 
 ---
 
@@ -958,7 +1172,7 @@ If you cannot answer these questions without re-reading the guide, you haven't r
 
 **After completing S1:**
 
-**READ:** `stages/s2/s2_p1_research.md` (Research Phase - first of three phases)
+**READ:** `stages/s2/s2_p1_spec_creation_refinement.md` (Research Phase - first of three phases)
 **GOAL:** Review Discovery Context, conduct feature-specific research, pass research audit
 **ESTIMATE:** 45-60 minutes (then continue with S2.P2 and S2.P3)
 

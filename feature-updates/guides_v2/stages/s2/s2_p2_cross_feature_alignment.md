@@ -55,9 +55,12 @@
 
 ### Step 1: Verify Group Completion (5 min)
 
+**If sequential mode (not parallel):**
 - Check all features in current group completed S2.P1
-- Verify all STATUS files show READY_FOR_SYNC = true
-- If parallel mode: Verify all secondary agents reported completion
+- Verify all feature README.md files show "S2.P1 Complete"
+
+**If parallel mode:**
+- Skip (already verified in Step 0)
 
 ### Step 2: Pairwise Comparison (20-40 min)
 
@@ -79,7 +82,7 @@
 Create `epic/research/S2_P2_COMPARISON_MATRIX_GROUP_{N}.md`
 
 ```markdown
-# S2.P2 Comparison Matrix - Group {N}
+## S2.P2 Comparison Matrix - Group {N}
 
 **Date:** {YYYY-MM-DD}
 **Group:** {N}

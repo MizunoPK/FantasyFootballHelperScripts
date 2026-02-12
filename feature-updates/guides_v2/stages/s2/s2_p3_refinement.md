@@ -39,23 +39,6 @@
 
 ---
 
-## Table of Contents
-
-1. [Overview](#overview)
-2. [Critical Rules](#critical-rules)
-3. [Critical Decisions Summary](#critical-decisions-summary)
-4. [Prerequisites Checklist](#prerequisites-checklist)
-5. [Parallel Work Coordination (If Applicable)](#parallel-work-coordination-if-applicable)
-6. [Phase 3: Interactive Question Resolution](#phase-3-interactive-question-resolution)
-7. [Phase 4: Dynamic Scope Adjustment](#phase-4-dynamic-scope-adjustment)
-8. [Phase 5: Cross-Feature Alignment](#phase-5-cross-feature-alignment)
-9. [Phase 6: Acceptance Criteria & User Approval](#phase-6-acceptance-criteria--user-approval)
-10. [S2 Complete Checklist (Per Feature)](#s2-complete-checklist-per-feature)
-11. [Exit Criteria](#exit-criteria)
-12. [Next Steps](#next-steps)
-
----
-
 ## Overview
 
 **What is this phase?**
@@ -86,57 +69,17 @@ Refinement Phase is complete when all checklist questions are resolved, scope is
 
 ## Critical Rules
 
-```text
-┌─────────────────────────────────────────────────────────────┐
-│ CRITICAL RULES - These MUST be copied to README Agent Status │
-└─────────────────────────────────────────────────────────────┘
+**📖 See:** `reference/critical_workflow_rules.md` for complete rules
 
-1. ⚠️ ONE question at a time (NEVER batch questions)
-   - Ask question
-   - Wait for user answer
-   - Update spec/checklist IMMEDIATELY
-   - Evaluate for new questions
-   - Then ask next question
+**Key Rules Summary:**
+1. ⚠️ ONE question at a time (NEVER batch)
+2. ⚠️ Investigation complete ≠ Question resolved (user approval required)
+3. ⚠️ Update spec/checklist IMMEDIATELY
+4. ⚠️ Cross-feature alignment MANDATORY
+5. ⚠️ Acceptance criteria require USER APPROVAL
+6. ⚠️ Every answer creates requirement with traceability
 
-1.5. ⚠️ INVESTIGATION COMPLETE ≠ QUESTION RESOLVED
-   - Agent investigates → Status: PENDING USER APPROVAL
-   - User explicitly approves → Status: RESOLVED
-   - NEVER mark questions as resolved without explicit approval
-   - Research findings ≠ User approval
-
-   WRONG: Investigate → Mark RESOLVED → Add requirement
-   CORRECT: Investigate → Mark PENDING → User approves →
-            Mark RESOLVED → Add requirement
-
-2. ⚠️ Update spec.md and checklist.md IMMEDIATELY after each answer
-   - Do NOT batch updates
-   - Keep files current in real-time
-   - Document user's exact answer or paraphrase
-
-3. ⚠️ If checklist grows >35 items, STOP and propose split
-   - Trigger: More than 35 checklist items
-   - Action: Propose splitting into multiple features
-   - Requirement: Get user approval before splitting
-   - If approved: Return to S1 to create new features
-
-4. ⚠️ Cross-feature alignment is MANDATORY (not optional)
-   - Compare to ALL features with "S2 Complete"
-   - Look for: Conflicts, duplicates, incompatible assumptions
-   - Resolve conflicts before proceeding
-   - Document alignment verification
-
-5. ⚠️ Acceptance criteria require USER APPROVAL (mandatory gate)
-   - Create "Acceptance Criteria" section in spec.md
-   - List EXACT files, structures, behaviors
-   - Present to user for approval
-   - Wait for explicit approval
-   - Document approval timestamp
-
-6. ⚠️ Every user answer creates new requirement with traceability
-   - Source: "User Answer to Question N (checklist.md)"
-   - Add to spec.md immediately
-   - Update checklist to mark question resolved
-```
+**Copy full rules from reference file to README Agent Status before starting this phase.**
 
 ---
 
@@ -155,9 +98,9 @@ Refinement Phase is complete when all checklist questions are resolved, scope is
 
 ## Prerequisites Checklist
 
-**Before starting Refinement Phase (STAGE_2c), verify:**
+**Before starting Refinement Phase (S2.P3), verify:**
 
-□ **STAGE_2b complete:**
+□ **S2.P2 complete:**
   - Phase 2 complete: spec.md has Discovery Context section, requirements with traceability
   - Phase 2 complete: checklist.md exists with open questions
   - Phase 2.5 complete: Spec-to-Epic Alignment Check PASSED
@@ -179,7 +122,7 @@ Refinement Phase is complete when all checklist questions are resolved, scope is
 **If any prerequisite fails:**
 - ❌ Do NOT start Refinement Phase
 - Complete missing prerequisites first
-- Return to STAGE_2b if Phase 2.5 not passed
+- Return to S2.P2 if Phase 2.5 not passed
 
 ## 🔄 Parallel Work Coordination (If Applicable)
 
@@ -771,7 +714,7 @@ Acceptance Criteria includes: behavior changes, files modified, data structures,
 
 If yes: I'll mark approval and proceed to next feature/S3
 If changes needed: Let me know what to modify
-```
+```text
 
 **Examples:** See `reference/stage_2/refinement_examples.md` → Phase 6 Examples
 
@@ -834,7 +777,7 @@ If changes needed: Let me know what to modify
 
 ## S2 Complete Checklist (Per Feature)
 
-**Refinement Phase (STAGE_2c) is COMPLETE when ALL of these are true:**
+**Refinement Phase (S2.P3) is COMPLETE when ALL of these are true:**
 
 ### Phase Completion
 - [ ] Phase 3: Interactive Question Resolution complete
@@ -894,7 +837,7 @@ If changes needed: Let me know what to modify
 
 ## Exit Criteria
 
-**STAGE_2c (Refinement Phase) is complete when:**
+**S2.P3 (Refinement Phase) is complete when:**
 
 1. **All phases complete:**
    - Step 3: All questions resolved
@@ -916,7 +859,7 @@ If changes needed: Let me know what to modify
    - Approval checkbox marked [x]
    - Approval timestamp documented
 
-**Next Stage:** Either next feature's Research Phase (stages/s2/s2_p1_research.md) OR Cross-Feature Sanity Check (stages/s3/s3_cross_feature_sanity_check.md) if all features complete
+**Next Stage:** Either next feature's Research Phase (stages/s2/s2_p1_spec_creation_refinement.md) OR Cross-Feature Sanity Check (stages/s3/s3_epic_planning_approval.md) if all features complete
 
 ---
 
@@ -926,13 +869,13 @@ If changes needed: Let me know what to modify
 
 **If more features remain:**
 - Begin S2 for next feature
-- Start with STAGE_2a (Research Phase)
+- Start with S2.P1 (Research Phase)
 - Repeat all phases (0 through 6)
 
 **If ALL features complete S2:**
 - Transition to S3 (Cross-Feature Sanity Check)
 
-📖 **READ:** `stages/s3/s3_cross_feature_sanity_check.md`
+📖 **READ:** `stages/s3/s3_epic_planning_approval.md`
 🎯 **GOAL:** Systematic comparison of all feature specs, final epic-level validation
 ⏱️ **ESTIMATE:** 30-60 minutes (for entire epic)
 

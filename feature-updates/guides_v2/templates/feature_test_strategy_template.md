@@ -232,7 +232,7 @@
 - [ ] No failing tests
 - [ ] No test warnings
 
-**Testing Phase:** S7.P1 (Smoke Testing) and S7.P2 (QC Rounds)
+**Testing Phase:** S7.P1 (Smoke Testing) and S7.P2 (Validation Loop)
 
 ---
 

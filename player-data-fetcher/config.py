@@ -49,10 +49,9 @@ ENABLE_GAME_DATA_FETCH = True  # Enable game data fetching during player data co
 # =============================================================================
 
 LOGGING_LEVEL = 'INFO'      # ← DEBUG, INFO, WARNING, ERROR, CRITICAL (WARNING+ to reduce spam)
-LOGGING_TO_FILE = False        # ← Console vs file logging
 LOG_NAME = "player_data_fetcher"
-LOGGING_FILE = './data/log.txt'
 LOGGING_FORMAT = 'standard'     # detailed / standard / simple
+# Note: File logging is now controlled via --enable-log-file CLI flag (not config constants)
 
 # Progress Tracking Configuration (FREQUENTLY MODIFIED)
 PROGRESS_UPDATE_FREQUENCY = 10         # ← Show progress every N players processed

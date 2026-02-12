@@ -284,14 +284,14 @@ Discovered during S9 or S10?
 
 ---
 
-### Scenario 2: Discovered During QC Rounds (S7.P2)
+### Scenario 2: Discovered During Validation Loop (S7.P2)
 
 **Actions:**
 1. Use discovery.md to present options to user
 2. User decides: Update unstarted feature_03
 3. Use planning.md to update feature_03 spec
 4. Use realignment.md for S3/4 + resume
-5. Resume QC rounds where left off
+5. Resume Validation Loop where left off
 6. feature_03 implemented later with added scope
 
 ---

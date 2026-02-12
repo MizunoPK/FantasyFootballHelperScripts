@@ -15,7 +15,7 @@
 
 **Implementation review reveals:**
 ```python
-# File: league_helper/util/PlayerManager.py
+## File: league_helper/util/PlayerManager.py
 
 def calculate_total_score(self, player: FantasyPlayer) -> float:
     """Calculate final player score with all multipliers."""
@@ -134,7 +134,7 @@ def calculate_total_score(self, player: FantasyPlayer) -> float:
 
 **Implementation review reveals:**
 ```python
-# File: league_helper/util/ConfigManager.py
+## File: league_helper/util/ConfigManager.py
 
 def get_adp_multiplier(self, adp_value: float) -> Tuple[float, int]:
     """Calculate ADP multiplier."""

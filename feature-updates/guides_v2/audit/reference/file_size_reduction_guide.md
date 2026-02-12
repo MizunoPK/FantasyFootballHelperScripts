@@ -91,7 +91,7 @@
 
 **From Pre-Audit Script Output:**
 ```bash
-❌ TOO LARGE: stages/s5/s5_p1_planning_round1.md (1400 lines)
+❌ TOO LARGE: stages/s5/s5_v2_validation_loop.md (1400 lines)
 ❌ POLICY VIOLATION: CLAUDE.md (45786 chars) exceeds 40,000
 ```markdown
 
@@ -277,7 +277,7 @@ s1_p3_discovery_phase.md (1006 lines):
 
 **Examples Already in System:**
 - S5: Split into S5.P1 (Round 1), S5.P2 (Round 2), S5.P3 (Round 3)
-- S7: Split into S7.P1 (Smoke), S7.P2 (QC Rounds), S7.P3 (Final Review)
+- S7: Split into S7.P1 (Smoke), S7.P2 (Validation Loop), S7.P3 (Final Review)
 - S1: Extracted S1.P3 (Discovery Phase) as separate guide
 
 **When to Use This Strategy:**
@@ -377,16 +377,16 @@ s1_p3_structure_creation.md (~400 lines)
 **Example:**
 ```text
 Before:
-stages/s5/s5_implementation_planning.md (1200 lines)
+stages/s5/s5_v2_validation_loop.md (1200 lines)
   - Round 1 (400 lines)
   - Round 2 (400 lines)
   - Round 3 (400 lines)
 
 After:
-stages/s5/s5_implementation_planning.md (200 lines - router)
-stages/s5/s5_p1_planning_round1.md (400 lines)
-stages/s5/s5_p2_planning_round2.md (400 lines)
-stages/s5/s5_p3_planning_round3.md (400 lines)
+stages/s5/s5_v2_validation_loop.md (200 lines - router)
+stages/s5/s5_v2_validation_loop.md (400 lines)
+stages/s5/s5_v2_validation_loop.md (400 lines)
+stages/s5/s5_v2_validation_loop.md (400 lines)
 ```
 
 **Process:**
@@ -626,12 +626,12 @@ wc -c CLAUDE.md
 
 **Option A: Split by Phase/Iteration**
 ```text
-Before: s5_implementation_planning.md (1200 lines)
+Before: s5_v2_validation_loop.md (1200 lines)
 After:
-  - s5_implementation_planning.md (200 lines router)
-  - s5_p1_planning_round1.md (400 lines)
-  - s5_p2_planning_round2.md (400 lines)
-  - s5_p3_planning_round3.md (400 lines)
+  - s5_v2_validation_loop.md (200 lines router)
+  - s5_v2_validation_loop.md (400 lines)
+  - s5_v2_validation_loop.md (400 lines)
+  - s5_v2_validation_loop.md (400 lines)
 ```
 
 **Option B: Split by Concept**

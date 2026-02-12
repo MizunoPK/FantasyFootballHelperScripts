@@ -48,14 +48,14 @@
 - **Approver:** Agent self-validates using checklists
 - **Purpose:** Verification checkpoints during planning
 - **⚠️ CRITICAL:** These ARE iterations, not additional steps
-  - Gate 4a = Iteration 4a (same thing, counted as 1 iteration)
-  - Gate 23a = Iteration 20 (same thing, counted as 1 iteration)
+  - Gate 4a = Dimension 4 validation (same thing, counted as 1 iteration)
+  - Gate 23a = Validation Round (multiple dimensions) (same thing, counted as 1 iteration)
   - Don't count gates separately from iterations
 
 **Logic:**
-- Gate 4a = Occurs at Iteration 4a in S5 Round 1
-- Gate 23a = Occurs at Iteration 20 in S5 Round 3
-- Gate 24 = Occurs at Iteration 22 in S5 Round 3
+- Gate 4a = Occurs at Dimension 4 validation in S5 Round 1
+- Gate 23a = Occurs at Validation Round (multiple dimensions) in S5 v2 Phase 2
+- Gate 24 = Occurs at Validation Loop complete (3 consecutive clean rounds) in S5 v2 Phase 2
 
 **Example:** Round 1 has 9 iterations total:
 - Iterations: 1, 2, 3, 4, 5, 5a, 6, 7
@@ -80,16 +80,15 @@
 | 2a | Gate 1: Research Audit | S2.P1 | All 4 categories with evidence | Yes (Redo research) |
 | 2b | Gate 2: Spec Alignment | S2.P2 | Zero scope creep + zero missing | Yes (Revise spec) |
 | **3** | **Gate 3: Checklist Approval (NEW)** | **S2.P2** | **User answers ALL questions (100%)** | **Yes (Revise/Re-present)** |
-| 4 | Gate 4: User Approval | S2.P3 | User explicitly approves | Yes (Revise criteria) |
-| 4.5 | User Sign-Off | S3 | User approves complete plan | Yes (S3) |
+| 4.5 | Gate 4.5: Epic Plan Approval | S3.P3 | User approves complete plan | Yes (S3) |
 | **5** | **Gate 5: Epic Test Plan Approval (NEW)** | **After S4** | **User approves epic_smoke_test_plan.md** | **Yes (Revise test plan)** |
-| 5aa | Iteration 4a | Round 1 | All tasks have acceptance criteria | Yes (Iteration 4) |
-| 5ac | Iteration 20 | Part 2 | ALL 4 PARTS pass with 100% | Yes (Iteration 20) |
-| 5ac | Iteration 21 | Part 2 | Spec matches validated docs | Yes (User decides) |
-| 5ac | Iteration 22 | Part 2 | GO decision (confidence >= MEDIUM) | Yes (Fix + redo) |
+| 5aa | Dimension 4 validation | Round 1 | All tasks have acceptance criteria | Yes (Iteration 4) |
+| 5ac | Validation Round (multiple dimensions) | Part 2 | ALL 4 PARTS pass with 100% | Yes (Validation Round (multiple dimensions)) |
+| 5ac | Dimension 11 validation | Part 2 | Spec matches validated docs | Yes (User decides) |
+| 5ac | Validation Loop complete (3 consecutive clean rounds) | Part 2 | GO decision (confidence >= MEDIUM) | Yes (Fix + redo) |
 | S5 | Gate 5: Implementation Plan Approval | After S5 | User approves implementation_plan.md | Yes (Revise plan) |
 | S7.P1 | Smoke Part 3 | Smoke Testing | Data values verified | Yes (Part 1) |
-| S7.P2 | QC Round 3 | QC Rounds | ZERO issues found | Yes (Smoke Part 1) |
+| S7.P2 | Validation Loop | Validation Loop | 3 consecutive clean rounds | Yes (Smoke Part 1) |
 | 7 | Unit Tests | Cleanup | 100% test pass (exit code 0) | Yes (Fix tests) |
 | 7 | User Testing | Cleanup | ZERO bugs found by user | Yes (S9) |
 
@@ -112,7 +111,7 @@
 
 ### Gate 1: Phase 1.5 - Research Completeness Audit
 
-**Location:** stages/s2/s2_p1_research.md
+**Location:** stages/s2/s2_p1_spec_creation_refinement.md
 **When:** After completing targeted research (Phase 1)
 
 **What it checks:**
@@ -236,7 +235,7 @@
 
 ### Gate 1: User Sign-Off on Complete Epic Plan
 
-**Location:** stages/s3/s3_cross_feature_sanity_check.md
+**Location:** stages/s3/s3_epic_planning_approval.md
 **When:** After all features planned and conflicts resolved
 
 **What it checks:**
@@ -293,10 +292,10 @@
 **Why it matters:**
 - Addresses guide-updates.txt #10: "Have the testing plan be presented to the user and confirmed for each feature and the epic as a whole. Do this EARLY so that the agent knows how to test the work itself."
 - Agent knows EXACTLY how to test work BEFORE creating implementation plans
-- User can adjust test strategy early (S4 vs S5 Round 3)
+- User can adjust test strategy early (S4 vs S5 v2 Phase 2)
 - Prevents creating implementation plans without knowing testing requirements
 - Separates test WHAT (S4) from implement HOW (S5)
-- Earlier feedback loop (S4 approval vs S5 Round 3 approval)
+- Earlier feedback loop (S4 approval vs S5 v2 Phase 2 approval)
 
 **Benefits:**
 - Agent creates better implementation plans knowing exact testing requirements
@@ -309,11 +308,30 @@
 
 ---
 
-## S5: Implementation Planning (5 gates per feature)
+## S5 v2: Implementation Planning (Validation Loop Approach)
 
-### Gate 1: Iteration 4a - Implementation Plan Specification Audit
+**NOTE:** S5 v2 uses Validation Loop approach. Former gates (4a, 7a, 23a, 24, 25) are now embedded as validation dimensions. Gate 5 (User Approval) remains separate.
 
-**Location:** stages/s5/s5_p1_planning_round1.md (Round 1)
+**Embedded Gates (now validation dimensions):**
+- Gate 4a → Embedded in Dimension 4: Task Specification Quality
+- Gate 7a → Embedded in Dimension 7: Integration & Compatibility
+- Gate 23a → Embedded in Dimension 11: Spec Alignment & Cross-Validation
+- Gate 24 → Embedded in Dimension 10: Implementation Readiness (confidence check)
+- Gate 25 → Embedded in Dimension 11: Spec Alignment & Cross-Validation
+
+**How it works:**
+- Draft Creation Phase (60-90 min): Create initial implementation_plan.md
+- Validation Loop Phase (3.5-6 hours): Validate against 11 dimensions each round
+- Exit when 3 consecutive rounds find zero issues
+- Present to user for Gate 5 approval
+
+---
+
+## S5 v2 Embedded Gates (formerly S5 v1 gates)
+
+### Gate 1: Dimension 4 validation - Implementation Plan Specification Audit
+
+**Location:** Embedded in S5 v2 Dimension 4 (Task Specification Quality), validated every round
 **When:** After creating initial implementation_plan.md (Iteration 4)
 
 **What it checks:**
@@ -333,7 +351,7 @@
 
 **If FAIL:**
 - Add missing acceptance criteria to tasks
-- Re-run Iteration 4a
+- Re-run Dimension 4 validation
 - Must PASS before proceeding to Iteration 5
 
 **Why it matters:** Ensures every task has clear definition of "done" before deep verification begins
@@ -342,7 +360,7 @@
 
 ### Gate 7a: Iteration 7a - Backward Compatibility Analysis
 
-**Location:** stages/s5/s5_p1_i3_iter7a_compatibility.md (Round 1)
+**Location:** Embedded in S5 v2 Dimension 7 (Integration & Compatibility), validated every round
 **When:** After completing Iteration 7 (Integration Gap Check)
 
 **What it checks:**
@@ -384,9 +402,9 @@
 
 ---
 
-### Gate 2: Iteration 20 - Pre-Implementation Spec Audit (5 PARTS)
+### Gate 2: Validation Round (multiple dimensions) - Pre-Implementation Spec Audit (5 PARTS)
 
-**Location:** stages/s5/s5_p3_i2_gates_part1.md (Round 3 Part 2a)
+**Location:** Embedded in S5 v2 Dimension 11 (Spec Alignment & Cross-Validation), validated every round
 **When:** After preparation iterations (Iterations 14-19)
 
 **ALL 5 PARTS must PASS:**
@@ -432,17 +450,17 @@
 
 **If FAIL:**
 - Fix the failing part(s)
-- Re-run Iteration 20 (all 5 parts)
-- Must PASS before proceeding to Iteration 21
+- Re-run Validation Round (multiple dimensions) (all 5 parts)
+- Must PASS before proceeding to Dimension 11 validation
 
 **Why it matters:** Final verification that implementation_plan.md is complete and correct before validating against user-approved documents
 
 ---
 
-### Gate 3: Iteration 21 - Spec Validation Against Validated Documents (CRITICAL)
+### Gate 3: Dimension 11 validation - Spec Validation Against Validated Documents (CRITICAL)
 
-**Location:** stages/s5/s5_p3_i3_gates_part2.md (Round 3 Part 2b)
-**When:** After Iteration 20 passes
+**Location:** Embedded in S5 v2 Dimension 11 (Spec Alignment & Cross-Validation), validated every round
+**When:** Checked in every validation round
 
 **What it checks:**
 - Spec.md matches ALL three user-validated sources:
@@ -477,26 +495,26 @@
 **If FAIL (discrepancies found):**
 - User chooses Option A, B, or C
 - Follow user's decision
-- Cannot proceed to Iteration 22 until resolved
+- Cannot proceed to Validation Loop complete (3 consecutive clean rounds) until resolved
 
 **Historical Context:**
 - Feature 02 catastrophic bug: spec.md misinterpreted epic notes
 - Spec stated "no code changes needed" when epic actually required week_N+1 folder logic
-- Iteration 21 specifically designed to prevent this type of bug
+- Dimension 11 validation specifically designed to prevent this type of bug
 
 **Why it matters:** Prevents implementing the wrong solution based on misinterpreted spec (most critical gate)
 
 ---
 
-### Gate 4: Iteration 22 - Implementation Readiness Protocol (GO/NO-GO)
+### Gate 4: Validation Loop complete (3 consecutive clean rounds) - Implementation Readiness Protocol (GO/NO-GO)
 
-**Location:** stages/s5/s5_p3_i3_gates_part2.md (Round 3 Part 2b)
-**When:** After Iteration 21 passes
+**Location:** Embedded in S5 v2 Dimension 10 (Implementation Readiness), validated every round
+**When:** Checked in every validation round
 
 **What it checks (comprehensive checklist):**
 - Spec Verification: Complete, validated
 - Implementation Plan Verification: All requirements have tasks, specificity 100%
-- Iteration Completion: All 22 iterations complete
+- Iteration Completion: S5 v2 Validation Loop complete (all 11 dimensions validated, 3 consecutive clean rounds)
 - Mandatory Gates: Iterations 4a, 23a (ALL 4 PARTS), 25 all PASSED
 - Confidence Assessment: >= MEDIUM
 - Integration Verification: Algorithm traceability, integration gaps, interfaces, mocks
@@ -512,7 +530,7 @@
 **If NO-GO:**
 - Address concerns/blockers
 - Fix failing items
-- Re-evaluate Iteration 22
+- Re-evaluate Validation Loop complete (3 consecutive clean rounds)
 - Cannot proceed to S6 without GO decision
 
 **Why it matters:** Final checkpoint before writing code (prevents implementing with incomplete/incorrect planning)
@@ -521,33 +539,37 @@
 
 ### Gate 5: User Approval of Implementation Plan (MANDATORY CHECKPOINT)
 
-**Location:** Between S5 and S6
-**When:** After Iteration 22 returns GO decision
+**Location:** Between S5 v2 and S6
+**When:** After S5 v2 Validation Loop achieves 3 consecutive clean rounds
 
 **What it checks:**
-- User reviews implementation_plan.md (~400 lines)
+- User reviews implementation_plan.md (~400 lines) validated through S5 v2 loop
 - User approves implementation approach before coding begins
 
 **Pass Criteria:**
-- User reviews implementation_plan.md containing:
+- User reviews implementation_plan.md containing (validated by 11 dimensions):
   - Implementation tasks with acceptance criteria
-  - Component dependencies matrix
-  - Algorithm traceability matrix
+  - Component dependencies matrix with file:line references
+  - Algorithm traceability matrix (40+ mappings)
   - Test strategy (>90% coverage)
-  - Edge cases and error handling
-  - Implementation phasing (5-6 checkpoints)
+  - Edge cases and error handling (enumerated)
+  - Implementation phasing (4-6 checkpoints)
   - Performance considerations
-  - Mock audit results
+  - Mock audit results (verified against real interfaces)
+  - Integration test plan (3+ real-object tests)
 - User explicitly approves proceeding to S6
 - User says "approved" or "looks good" or equivalent
 
 **If FAIL (user requests changes):**
 - Revise implementation_plan.md based on user feedback
-- Re-run affected iterations from S5 if needed
+- If minor changes: Fix and present again (no re-validation needed)
+- If major changes: Re-run validation loop from affected dimension(s)
 - Get user approval before proceeding
 - Cannot proceed to S6 without user approval
 
 **Why it matters:** Gives user visibility and control over implementation approach before code is written. User can request changes to phasing, test strategy, or approach without wasting implementation effort.
+
+**S5 v2 Improvement:** implementation_plan.md quality guaranteed by 3 consecutive clean validation rounds (99%+ quality) before user review.
 
 **Benefits:**
 - User sees full implementation plan before coding
@@ -593,34 +615,33 @@
 - **Restart from S10.P1 Step 1** (Import Test)
 - Must re-run all 3 parts
 
-**Why it matters:** Ensures feature actually works end-to-end with real data before QC rounds
+**Why it matters:** Ensures feature actually works end-to-end with real data before Validation Loop
 
 ---
 
-### Gate 6: S7.P2 QC Round 3 - ZERO Issues Required
+### Gate 6: S7.P2 Validation Loop - 3 Consecutive Clean Rounds
 
 **Location:** stages/s7/s7_p2_qc_rounds.md
-**When:** After QC Rounds 1 and 2 pass
+**When:** During Validation Loop (S7.P2)
 
 **What it checks:**
-- ZERO issues found (critical, major, OR minor)
-- Complete skeptical review of entire feature
+- Check ALL 11 dimensions every round
+- 3 consecutive rounds with ZERO issues
 
 **Pass Criteria:**
-- QC Round 1: <3 critical issues, >80% requirements met, no unfixable architecture
-- QC Round 2: All Round 1 issues resolved, zero new critical issues
-- QC Round 3: ZERO issues (critical, major, or minor)
+- 3 consecutive clean rounds achieved
+- Zero issues deferred (fix immediately, reset counter, continue)
 
-**If FAIL (ANY issues found in Round 3):**
-- Fix ALL issues
-- **Restart from S7.P1 Step 1** (smoke testing)
-- Re-run smoke testing → QC Round 1 → QC Round 2 → QC Round 3
-- ZERO tolerance for issues
+**If issues found during a round:**
+- Fix ALL issues immediately
+- Reset clean round counter to 0
+- Continue validation (fix-and-continue approach)
+- No restart needed - fix issues and keep going
 
-**QC Restart Protocol:**
-- Any code change invalidates QC rounds
-- Must re-verify entire feature works end-to-end
-- Cannot defer issues to "later"
+**Validation Loop Protocol:**
+- Check all 11 dimensions every round (not different focuses per round)
+- Fix issues immediately when found
+- Only exit after 3 CONSECUTIVE clean rounds
 
 **Why it matters:** Ensures feature is production-ready with zero known issues before final review
 
@@ -641,7 +662,7 @@
 
 **Requirements:**
 - Epic smoke testing passes
-- QC Round 3 passes with zero issues
+- Validation Loop passes (3 consecutive clean rounds)
 - If ANY issues → restart S9
 
 ---
@@ -701,17 +722,17 @@
 - Gate 2 (S2.P1.I3): Spec-to-Epic Alignment
 - Gate 3 (S2.P1.I3): User Checklist Approval
 - Gate 4.5 (S3.P3): Epic Plan Approval
-- Gate 5 (S5.P3): Implementation Plan Approval
-- Gate 4a (S5.P1.I2): TODO Specification Audit
-- Gate 7a (S5.P1.I3): Backward Compatibility Check
-- Gate 23a (S5.P3.I2): Pre-Implementation Spec Audit (5 parts)
-- Gate 24 (S5.P3.I3): GO/NO-GO Decision
-- Gate 25 (S5.P3.I3): Spec Validation Check
+- Gate 5 (S5 v2): Implementation Plan Approval (after validation loop)
+- Gate 4a (S5 v2): Embedded in Dimension 4 - Task Specification Quality
+- Gate 7a (S5 v2): Embedded in Dimension 7 - Integration & Compatibility
+- Gate 23a (S5 v2): Embedded in Dimension 11 - Spec Alignment & Cross-Validation
+- Gate 24 (S5 v2): Embedded in Dimension 10 - Implementation Readiness
+- Gate 25 (S5 v2): Embedded in Dimension 11 - Spec Alignment & Cross-Validation
 
 **Additional Stage Checkpoints (documented in this file but not formally numbered gates):**
 - S2.P3: User Approval of Acceptance Criteria (referenced as "Gate 4" in this file for completeness)
 - S7.P1: Smoke Part 3 - E2E Data Validation (referenced as "Gate 5" in this file)
-- S7.P2: QC Round 3 - Zero Issues Required (referenced as "Gate 6" in this file)
+- S7.P2: Validation Loop - 3 Consecutive Clean Rounds (referenced as "Gate 6" in this file)
 - S10: Unit Tests 100% Pass (referenced as "Gate 7.1" in this file)
 - S10: User Testing Zero Bugs (referenced as "Gate 7.2" in this file)
 
@@ -720,32 +741,32 @@
 - S2: 3 formal gates per feature (Gates 1, 2, 3)
 - S3: 1 formal gate (Gate 4.5)
 - S4: 0 formal gates (test plan approval happens at Gate 4.5 in S3)
-- S5: 5 formal gates per feature (Gate 5, 4a, 7a, 23a, 24, 25)
+- S5 v2: 1 formal user gate (Gate 5 - User Approval), 5 embedded validation gates (4a, 7a, 23a, 24, 25 now embedded in 11 validation dimensions)
 - S6-S8: 0 formal gates
 - S9: 0 formal gates (but restart protocol applies)
 - S10: 0 formal gates (but checkpoints 7.1 and 7.2 are critical)
 
 **Gates with Evidence Requirements:** 7
 - Phase 1.5: File paths, line numbers
-- Iteration 4a: Task count, criteria count
-- Iteration 20: 4 parts with specific numbers
-- Iteration 21: Three-way comparison results
+- Dimension 4 validation: Task count, criteria count
+- Validation Round (multiple dimensions): 4 parts with specific numbers
+- Dimension 11 validation: Three-way comparison results
 - Smoke Part 3: Data values
-- QC Round 3: Zero issues count
+- Validation Loop: 3 consecutive clean rounds
 
 **Gates with Restart Protocol:** 6
 - Phase 1.5 → Phase 1
 - Phase 2.5 → Phase 2
-- Iteration 4a → Iteration 4
-- Iteration 20 → Iteration 20
+- Dimension 4 validation → Iteration 4
+- Validation Round (multiple dimensions) → Validation Round (multiple dimensions)
 - Smoke Part 3 → Smoke Part 1
-- QC Round 3 → Smoke Part 1
+- Validation Loop issues → Fix and continue (no restart)
 
 **Formal Gates Requiring User Input:** 3
 - Gate 3: User Checklist Approval (S2.P1.I3)
 - Gate 4.5: Epic Plan Approval (S3.P3) - includes test plan approval
 - Gate 5: Implementation Plan Approval (S5.P3)
-- Gate 25 (Iteration 21): User decision if discrepancies found
+- Gate 25 (Dimension 11 validation): User decision if discrepancies found
 
 **Stage Checkpoints Requiring User Input:** 2
 - S2.P3 Checkpoint: User approval of acceptance criteria

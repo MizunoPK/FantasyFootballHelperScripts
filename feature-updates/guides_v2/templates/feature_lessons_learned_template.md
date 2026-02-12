@@ -12,7 +12,7 @@
 ## Template
 
 ```markdown
-# Feature Lessons Learned: {feature_name}
+## Feature Lessons Learned: {feature_name}
 
 **Part of Epic:** {epic_name}
 **Feature Number:** {N}
@@ -98,16 +98,17 @@ This document captures lessons specific to THIS feature's development. This is s
 - Part 2 (Entry Point): {PASSED / Issues found and fixed}
 - Part 3 (E2E Execution): {PASSED / Issues found and fixed}
 
-**QC Rounds Results:**
-- QC Round 1: {PASSED / Issues found and fixed}
-- QC Round 2: {PASSED / Issues found and fixed}
-- QC Round 3: {PASSED / Issues found and fixed}
+**Validation Loop Results:**
+- Total Rounds: {N}
+- Consecutive Clean Rounds: 3 (exit criteria met)
+- Issues Found & Fixed: {count}
+- All 11 dimensions validated: YES
 
 **PR Review Results:**
 - Categories with issues: {List or "None"}
 - Key improvements made: {List}
 
-**QC Restart Count:** {N} (if > 0, explain why restart was needed)
+**Issues Found During Validation:** {N} (if > 0, list what was fixed)
 
 **What Went Well:**
 - {Positive observation}
@@ -155,11 +156,8 @@ This document captures lessons specific to THIS feature's development. This is s
 
 {Specific improvements needed for guides_v2/ based on THIS feature's experience}
 
-**S5 TODO Creation:**
-- stages/s5/s5_p1_planning_round1.md: {Improvement 1 or "None"}
-- stages/s5/s5_p2_planning_round2.md: {Improvement 1 or "None"}
-- stages/s5/s5_p3_planning_round3.md: {Improvement 1 or "None"}
-- stages/s5/s5_p3_i3_gates_part2.md: {Improvement 1 or "None"}
+**S5 Implementation Planning:**
+- stages/s5/s5_v2_validation_loop.md: {Improvement 1 or "None"}
 
 **stages/s6/s6_execution.md:**
 - {Improvement 1 or "None"}

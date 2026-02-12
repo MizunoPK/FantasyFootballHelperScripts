@@ -84,7 +84,7 @@ grep -rn "Stage 5\|S5" --include="*.md" ../../ | \
 **Example Issue:**
 **File:** s4_feature_testing_strategy.md:234
 **Link:** `[S5 Planning](../s5/s5_planning.md)`
-**Problem:** s5_planning.md doesn't exist (was split into s5_p1_planning_round1.md, s5_p2_planning_round2.md, s5_p3_planning_round3.md)
+**Problem:** s5_planning.md doesn't exist (was split into s5_v2_validation_loop.md, s5_v2_validation_loop.md, s5_v2_validation_loop.md)
 
 **8 similar issues found across files**
 
@@ -209,9 +209,9 @@ See [S5 Planning](../s5/s5_planning.md) for implementation details.
 **After:**
 ```markdown
 See S5 Planning guides for implementation details:
-- [Round 1](../s5/s5_p1_planning_round1.md) - Iterations 1-7
-- [Round 2](../s5/s5_p2_planning_round2.md) - Iterations 8-13
-- [Round 3](../s5/s5_p3_planning_round3.md) - Iterations 14-22
+- [Round 1](../s5/s5_v2_validation_loop.md) - Iterations 1-7
+- [Round 2](../s5/s5_v2_validation_loop.md) - Iterations 8-13
+- [Round 3](../s5/s5_v2_validation_loop.md) - Iterations 14-22
 ```
 
 ---

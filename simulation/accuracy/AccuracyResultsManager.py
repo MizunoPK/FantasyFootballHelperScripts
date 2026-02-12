@@ -559,7 +559,13 @@ class AccuracyResultsManager:
                 else:
                     self.logger.warning(f"  Baseline file NOT found: {baseline_file}")
 
-        self.logger.info(f"Saved optimal configs to: {optimal_folder}")
+        # Count configs saved (1 league_config.json + 4 weekly configs)
+        configs_saved = len(file_mapping) + 1  # 4 weekly + 1 league config = 5 total
+        self.logger.info(
+            f"Saved {configs_saved} optimal config files "
+            f"(1 league config + {len(file_mapping)} weekly configs). "
+            f"Location: {optimal_folder}"
+        )
         self.logger.info("=" * 60)
         return optimal_folder
 

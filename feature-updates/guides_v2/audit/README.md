@@ -2,7 +2,7 @@
 
 **Version:** 3.0 (Modular)
 **Purpose:** Navigate the audit process for ensuring guides_v2 consistency and accuracy
-**Last Updated:** 2026-02-04
+**Last Updated:** 2026-02-06
 
 ---
 
@@ -79,7 +79,7 @@ Round N:
   │   S1: Discovery → S2: Planning → S3: Apply → S4: Verify → S5: Loop Decision
   │   If 0 issues → Sub-Round N.4 | If issues → Fix & Re-run N.3
   │
-  └─> Sub-Round N.4: Advanced (D7, D15, D16)
+  └─> Sub-Round N.4: Advanced (D7, D15, D16, D17)
       S1: Discovery → S2: Planning → S3: Apply → S4: Verify → S5: Loop Decision
       If 0 issues → Round N complete | If issues → Fix & Re-run N.4
 
@@ -89,10 +89,10 @@ Round N complete → Round N+1 (fresh eyes) → EXIT when all criteria met
 ### Sub-Round Benefits
 
 1. **Dependency Management:** Core fixes (broken references) applied before Structural checks
-2. **Focused Discovery:** Check 4-5 related dimensions per sub-round, not all 16 at once
+2. **Focused Discovery:** Check 4-5 related dimensions per sub-round, not all 17 at once
 3. **Incremental Verification:** Verify fixes before moving to next category
 4. **Mental Clarity:** Fresh mental model between dimension categories
-5. **Complete Coverage:** ALL 16 dimensions checked systematically every round
+5. **Complete Coverage:** ALL 17 dimensions checked systematically every round
 6. **No Blind Spots:** Can't skip dimensions accidentally
 
 ---
@@ -124,8 +124,8 @@ Round N complete → Round N+1 (fresh eyes) → EXIT when all criteria met
 | **N.1: Core** | D1, D2, D3, D8 | 4 | File paths, terminology, workflow, CLAUDE.md | 60-90 min |
 | **N.2: Content** | D4, D5, D6, D13, D14 | 5 | Counts, completeness, templates, documentation | 75-120 min |
 | **N.3: Structural** | D9, D10, D11, D12 | 4 | File consistency, size, patterns, dependencies | 60-90 min |
-| **N.4: Advanced** | D7, D15, D16 | 3 | Context-sensitive, duplication, accessibility | 45-75 min |
-| **TOTAL** | All 16 dimensions | 16 | Complete coverage | 4-6 hours |
+| **N.4: Advanced** | D7, D15, D16, D17 | 4 | Context-sensitive, duplication, accessibility, flow | 60-90 min |
+| **TOTAL** | All 17 dimensions | 17 | Complete coverage | 4.5-6.5 hours |
 
 **Execution Order:**
 1. **Core first** - Fixes broken references and inconsistent notation that affect all other checks
@@ -143,7 +143,7 @@ Round N complete → Round N+1 (fresh eyes) → EXIT when all criteria met
 
 ## Navigation by Audit Dimension
 
-The audit evaluates guides across **16 critical dimensions**:
+The audit evaluates guides across **17 critical dimensions**:
 
 ### Core Dimensions (Always Check)
 
@@ -180,6 +180,7 @@ The audit evaluates guides across **16 critical dimensions**:
 | **D7: Context-Sensitive Validation** | `dimensions/d7_context_sensitive_validation.md` | Intentional exceptions | 20% automated |
 | **D15: Duplication Detection** | `dimensions/d15_duplication_detection.md` | DRY principle | 50% automated |
 | **D16: Accessibility** | `dimensions/d16_accessibility_usability.md` | Navigation, UX | 80% automated |
+| **D17: Stage Flow Consistency** | `dimensions/d17_stage_flow_consistency.md` | Cross-stage behavior | 30% automated |
 
 **Usage:** Read dimension guides as needed during discovery. Not all dimensions apply to every audit.
 
@@ -358,25 +359,25 @@ bash scripts/pre_audit_checks.sh
 - Spot-check commands
 
 ### Context Analysis Guide ✅ COMPLETE
-`reference/context_analysis_guide.md` - How to determine if pattern match is error or intentional
+`audit/reference/context_analysis_guide.md` - How to determine if pattern match is error or intentional
 - Decision trees
 - Example analyses
 - File-specific exception rules
 
 ### User Challenge Protocol ✅ COMPLETE
-`reference/user_challenge_protocol.md` - How to respond when user challenges findings
+`audit/reference/user_challenge_protocol.md` - How to respond when user challenges findings
 - "Are you sure?" response
 - "Did you actually make fixes?" response
 - "Assume everything is wrong" response
 
 ### Confidence Calibration ✅ COMPLETE
-`reference/confidence_calibration.md` - Scoring system for audit completeness
+`audit/reference/confidence_calibration.md` - Scoring system for audit completeness
 - Confidence score calculation
 - Exit criteria thresholds
 - Red flags indicating more work needed
 
 ### Issue Classification ✅ COMPLETE
-`reference/issue_classification.md` - Severity levels and prioritization
+`audit/reference/issue_classification.md` - Severity levels and prioritization
 - Critical: Breaks workflow
 - High: Causes confusion
 - Medium: Cosmetic but important
@@ -430,8 +431,8 @@ Learn from actual audit rounds:
 
 ### Pre-Audit Checks
 `scripts/pre_audit_checks.sh` - Run before manual audit begins
-- Checks 7 of 16 dimensions (D1, D8, D10, D11, D13, D14, D16)
-- Catches common structural issues (estimated 40-50% of typical issues)
+- Checks 10 of 17 dimensions (D1, D3, D8, D9, D10, D11, D13, D14, D16, D17)
+- Catches common structural issues (estimated 45-55% of typical issues)
 - Fast execution (5 minutes)
 - Generates initial report
 - **NOT checked:** D2 Terminology (most common - requires manual pattern search)
@@ -521,7 +522,7 @@ Issue discovered → Can I fix with confidence?
 1. Read `audit_overview.md` for philosophy and principles
 2. Check relevant dimension guide for specific checks
 3. Review `examples/` for similar situations
-4. Use `reference/user_challenge_protocol.md` if user challenges findings
+4. Use `audit/reference/user_challenge_protocol.md` if user challenges findings
 5. Remember: Better to over-audit than under-audit
 
 **Key Principle:** If you're unsure whether to continue auditing, continue auditing.

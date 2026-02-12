@@ -699,7 +699,6 @@ class SimulationManager:
                 for folder in intermediate_folders:
                     try:
                         shutil.rmtree(folder)
-                        self.logger.debug(f"  Deleted: {folder.name}")
                     except Exception as e:
                         self.logger.warning(f"  Failed to delete {folder.name}: {e}")
                 self.logger.info("✓ Cleanup complete")
@@ -710,8 +709,6 @@ class SimulationManager:
             base_config, week_configs = self._initialize_configs_from_baseline()
             start_idx = 0
 
-        self.logger.info("=" * 80)
-
         # Iterate through each parameter (starting from start_idx if resuming)
         for param_idx, param_name in enumerate(param_order[start_idx:], start=start_idx + 1):
             self.logger.info("=" * 80)
@@ -721,7 +718,6 @@ class SimulationManager:
             is_week_specific = self.config_generator.is_week_specific_param(param_name)
             param_type = "WEEK-SPECIFIC" if is_week_specific else "BASE"
             self.logger.info(f"  Type: {param_type}")
-            self.logger.info("=" * 80)
 
             # Generate test values for this parameter
             test_values_dict = self.config_generator.generate_horizon_test_values(param_name)
@@ -751,7 +747,7 @@ class SimulationManager:
                 # For each horizon, get config with this test value
                 for horizon_idx, horizon in enumerate(horizons):
                     sims_for_horizon = len(self.available_seasons) * self.num_simulations_per_config
-                    self.logger.info(f"    Horizon {horizon_idx + 1}/{len(horizons)} (Week {horizon}): Running {sims_for_horizon} simulations...")
+                    self.logger.debug(f"    Horizon {horizon_idx + 1}/{len(horizons)} (Week {horizon}): Running {sims_for_horizon} simulations...")
 
                     config = self.config_generator.get_config_for_horizon(horizon, param_name, test_idx)
                     config_id = f"{param_name}_{test_idx}_horizon_{horizon}"
@@ -769,7 +765,7 @@ class SimulationManager:
                     for week_results in week_results_list:
                         self.results_manager.record_week_results(config_id, week_results)
 
-                    self.logger.info(f"    Horizon {horizon_idx + 1}/{len(horizons)} (Week {horizon}): Completed {sims_for_horizon} simulations")
+                    self.logger.debug(f"    Horizon {horizon_idx + 1}/{len(horizons)} (Week {horizon}): Completed {sims_for_horizon} simulations")
 
                 self.logger.info(f"  Test value {test_idx + 1}/{len(test_values)}: Completed {total_sims_for_value} simulations")
 
@@ -810,7 +806,7 @@ class SimulationManager:
                         best_config = self.config_generator.get_config_for_horizon(horizon, param_name, best_test_idx)
                         self.config_generator.update_baseline_for_horizon(horizon, best_config)
 
-                    self.logger.info(f"  Updated all horizon baselines with test value at index {best_test_idx}")
+                    self.logger.debug(f"  Updated all horizon baselines with test value at index {best_test_idx}")
 
                 # Also update legacy base_config and week_configs for intermediate folder saving
                 # These are maintained for backward compatibility with save logic
@@ -853,7 +849,7 @@ class SimulationManager:
                 overall_performance=overall_performance,
                 week_range_performance=week_range_performance
             )
-            self.logger.info(f"  Saved intermediate folder: intermediate_{param_idx:02d}_{param_name}/")
+            self.logger.debug(f"  Saved intermediate folder: intermediate_{param_idx:02d}_{param_name}/")
 
         # Calculate elapsed time
         elapsed = time.time() - start_time
@@ -946,7 +942,7 @@ class SimulationManager:
         # Clean up intermediate folders now that optimization is complete
         deleted_count = cleanup_intermediate_folders(self.output_dir)
         if deleted_count > 0:
-            self.logger.info(f"✓ Cleaned up {deleted_count} intermediate folders")
+            self.logger.debug(f"✓ Cleaned up {deleted_count} intermediate folders")
 
         # Update data/configs folder (per Q5: update folder)
         if self.auto_update_league_config:
@@ -959,10 +955,6 @@ class SimulationManager:
 
             # Restore signal handlers now that we're done
             self._restore_signal_handlers()
-
-        self.logger.info("=" * 80)
-        self.logger.info("ITERATIVE OPTIMIZATION COMPLETE")
-        self.logger.info("=" * 80)
 
         return final_folder
 

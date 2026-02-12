@@ -2,7 +2,7 @@
 
 **Purpose:** Structured investigation-centric protocol for resolving bugs discovered during QC/Smoke Testing. Integrated into feature and epic testing with loop-back mechanism.
 
-**When to Use:** Issues discovered during Smoke Testing or QC Rounds with unknown root cause
+**When to Use:** Issues discovered during Smoke Testing or Validation Loop with unknown root cause
 
 **Integration Point:** Called from S7.P1 or S7.P2 when issues are found
 
@@ -59,7 +59,7 @@ Debugging Protocol is an investigation-centric process integrated into QC/Smoke 
 
 **When do you use this protocol?**
 - During Smoke Testing (S7.P1): Issues discovered in Part 3 E2E test
-- During QC Rounds (S7.P2): Issues discovered in any round
+- During Validation Loop (S7.P2): Issues discovered in any round
 - During Epic Testing (S9): Issues discovered during epic smoke/QC
 - Issues have UNKNOWN root cause requiring investigation
 

@@ -1,13 +1,16 @@
-# S9.P2: Epic QC Rounds
+# S9.P2: Epic QC Validation Loop
 
-**Purpose:** Validate the epic as a cohesive whole through 3 systematic quality checks focusing on cross-feature integration and epic-wide consistency.
+**Purpose:** Validate the epic as a cohesive whole through systematic validation loop checking ALL 12 dimensions every round until 3 consecutive clean rounds achieved.
 
 **File:** `s9_p2_epic_qc_rounds.md`
+
+**Version:** 2.0 (Updated to use validation loop approach)
+**Last Updated:** 2026-02-10
 
 **Stage Flow Context:**
 ```text
 S9.P1 (Epic Smoke Testing) →
-→ [YOU ARE HERE: S9.P2 - Epic QC Rounds] →
+→ [YOU ARE HERE: S9.P2 - Epic QC Validation Loop] →
 → S9.P3 (User Testing) → S9.P4 (Epic Final Review) → S10
 ```
 
@@ -16,128 +19,144 @@ S9.P1 (Epic Smoke Testing) →
 
 ## Table of Contents
 
-1. [S9.P2: Epic QC Rounds](#s9p2-epic-qc-rounds)
-2. [🚨 MANDATORY READING PROTOCOL](#-mandatory-reading-protocol)
+1. [S9.P2: Epic QC Validation Loop](#s9p2-epic-qc-validation-loop)
+2. [MANDATORY READING PROTOCOL](#-mandatory-reading-protocol)
 3. [Overview](#overview)
-4. [🛑 Critical Rules (Epic-Specific)](#-critical-rules-epic-specific)
+4. [Critical Rules (Epic-Specific)](#-critical-rules-epic-specific)
 5. [Prerequisites Checklist](#prerequisites-checklist)
 6. [Workflow Overview](#workflow-overview)
-7. [QC Round 1: Cross-Feature Integration](#qc-round-1-cross-feature-integration)
-8. [Integration Points (example from test plan)](#integration-points-example-from-test-plan)
-9. [QC Round 2: Epic Cohesion & Consistency](#qc-round-2-epic-cohesion--consistency)
-10. [QC Round 3: End-to-End Success Criteria](#qc-round-3-end-to-end-success-criteria)
-11. [Original Epic Request (example)](#original-epic-request-example)
-12. [Epic Success Criteria (example from S4)](#epic-success-criteria-example-from-s4)
-13. [Epic Issue Handling Protocol](#epic-issue-handling-protocol)
-14. [Issues Found in S9.P2 QC](#issues-found-in-s9p2-qc)
-15. [🛑 MANDATORY CHECKPOINT 1](#-mandatory-checkpoint-1)
-16. [Next Steps](#next-steps)
-17. [Summary](#summary)
-18. [Exit Criteria](#exit-criteria)
+7. [12 Dimensions Checklist](#12-dimensions-checklist)
+8. [Dimension 8: Cross-Feature Integration](#dimension-8-cross-feature-integration)
+9. [Dimension 9: Epic Cohesion](#dimension-9-epic-cohesion)
+10. [Dimension 10: Error Handling Consistency](#dimension-10-error-handling-consistency)
+11. [Dimension 11: Architectural Alignment](#dimension-11-architectural-alignment)
+12. [Dimension 12: Success Criteria Completion](#dimension-12-success-criteria-completion)
+13. [Issue Handling: Fix and Continue](#issue-handling-fix-and-continue)
+14. [MANDATORY CHECKPOINT 1](#-mandatory-checkpoint-1)
+15. [Next Steps](#next-steps)
+16. [Summary](#summary)
+17. [Exit Criteria](#exit-criteria)
 
 ---
-## 🚨 MANDATORY READING PROTOCOL
+## MANDATORY READING PROTOCOL
 
-**BEFORE starting Epic QC Rounds, you MUST:**
+**BEFORE starting Epic QC Validation Loop, you MUST:**
 
-1. **Read the QC rounds pattern:** `reference/qc_rounds_pattern.md`
-   - Understand universal 3-round QC workflow
-   - Review critical rules that apply to ALL QC rounds
-   - Study restart protocol and common mistakes
+1. **Read the validation loop guides:**
+   - `reference/validation_loop_master_protocol.md` - Core validation loop principles
+   - `reference/validation_loop_qc_pr.md` - QC-specific validation patterns
+   - Understand 12 dimensions (7 master + 5 epic-specific)
+   - Review 3 consecutive clean rounds exit criteria
 
 2. **Use the phase transition prompt** from `prompts/s9_prompts.md`
-   - Find "Starting S9: Epic Final QC" prompt (covers both 6a and 6b)
-   - Acknowledge requirements
+   - Find "Starting S9: Epic Final QC" prompt
+   - Acknowledge validation loop requirements
    - List critical requirements from this guide
 
 3. **Update EPIC_README.md Agent Status** with:
-   - Current Phase: S9.P2 - Epic QC Rounds
+   - Current Phase: S9.P2 - Epic QC Validation Loop
    - Current Guide: `stages/s9/s9_p2_epic_qc_rounds.md`
    - Guide Last Read: {YYYY-MM-DD HH:MM}
-   - Critical Rules: "3 rounds MANDATORY", "If critical issues → RESTART S6", "Minor issues can be fixed inline"
-   - Next Action: QC Round 1 - Cross-Feature Integration
+   - Critical Rules: "12 dimensions checked every round", "3 consecutive clean rounds required", "Fix issues immediately (no restart)", "100% tests passing"
+   - Next Action: Validation Round 1 - Sequential Review
 
 4. **Verify all prerequisites** (see checklist below)
 
-5. **THEN AND ONLY THEN** begin epic QC rounds
+5. **Create VALIDATION_LOOP_LOG.md** in epic folder
 
-**This is NOT optional.** Reading both the pattern and this guide ensures epic-wide validation.
+6. **THEN AND ONLY THEN** begin validation loop
+
+**This is NOT optional.** Reading the validation loop guides ensures systematic epic-wide validation.
 
 ---
 
 ## Overview
 
 **What is this guide?**
-Epic-level QC Rounds validate the epic as a cohesive whole through 3 systematic quality checks: Cross-Feature Integration (Round 1), Epic Cohesion & Consistency (Round 2), and End-to-End Success Criteria (Round 3). Unlike feature-level QC (S10.P2), these rounds focus on epic-wide patterns and architectural consistency. See `reference/qc_rounds_pattern.md` for universal workflow.
+Epic-level QC Validation Loop validates the epic as a cohesive whole by checking ALL 12 dimensions (7 master + 5 epic-specific) every round until 3 consecutive clean rounds achieved. Unlike the old 3-round approach with different focuses, this validation loop checks ALL concerns EVERY round. See `reference/validation_loop_master_protocol.md` for core principles.
 
 **When do you use this guide?**
-- After STAGE_6a complete (Epic Smoke Testing passed)
+- After S9.P1 complete (Epic Smoke Testing passed all 4 parts)
 - Ready to perform deep QC validation on epic
 - All cross-feature integration verified at basic level
 
 **Key Outputs:**
-- ✅ QC Round 1 complete (cross-feature integration validated)
-- ✅ QC Round 2 complete (epic cohesion and consistency verified)
-- ✅ QC Round 3 complete (success criteria met, original goals achieved)
-- ✅ All findings documented in epic_lessons_learned.md
-- ✅ Any issues fixed or bug fixes created
+- VALIDATION_LOOP_LOG.md tracking all rounds
+- All 12 dimensions validated every round
+- 3 consecutive clean rounds achieved (zero issues found)
+- 100% tests passing (verified every round)
+- All findings documented in epic_lessons_learned.md
+- Ready for S9.P3 (User Testing)
 
 **Time Estimate:**
-30-60 minutes (10-20 minutes per round)
+2-4 hours (typically 5-8 validation rounds)
 
 **Exit Condition:**
-Epic QC Rounds are complete when all 3 rounds pass with zero critical issues, all findings documented, and epic validated against original request
+Epic QC Validation Loop is complete when 3 consecutive validation rounds find ZERO issues across all 12 dimensions, all tests passing (100%), and epic is validated for user testing
 
 ---
 
-## 🛑 Critical Rules (Epic-Specific)
+## Critical Rules
 
-**📖 See `reference/qc_rounds_pattern.md` for universal critical rules.**
+**See `reference/validation_loop_master_protocol.md` for universal validation loop principles.**
 
 **Epic-specific rules for S9.P2:**
 
 ```text
 ┌─────────────────────────────────────────────────────────────┐
-│ EPIC-SPECIFIC RULES - Add to EPIC_README Agent Status       │
+│ CRITICAL RULES - Copy to EPIC_README Agent Status            │
 └─────────────────────────────────────────────────────────────┘
 
-1. ⚠️ Epic Issue Handling (Different from feature-level)
-   - Critical issues → Follow epic debugging protocol → RESTART S6
-   - Minor issues → Fix immediately, document, continue (no restart)
-   - Epic issues go to: epic_name/debugging/ISSUES_CHECKLIST.md
+1. ⚠️ ALL 12 DIMENSIONS CHECKED EVERY ROUND
+   - 7 master dimensions (universal)
+   - 5 epic-specific dimensions
+   - Cannot skip any dimension
+   - Re-read entire epic codebase each round (no working from memory)
 
-2. ⚠️ QC RESTART PROTOCOL (Epic-specific)
-   - If Round 1: Critical integration issues → RESTART from S6
-   - If Round 2: Critical consistency issues → RESTART from S6
-   - If Round 3: Critical success criteria failures → RESTART from S6
-   - Minor issues: Fix inline, document, continue
-   - Restart destination: S6 (Epic Smoke Testing)
+2. ⚠️ 3 CONSECUTIVE CLEAN ROUNDS REQUIRED
+   - Clean = ZERO issues found across all 12 dimensions
+   - Counter resets if ANY issue found
+   - Cannot exit early (must achieve 3 consecutive)
+   - Typical: 5-8 rounds total to achieve 3 consecutive clean
 
-3. ⚠️ Focus on EPIC-LEVEL validation (not feature-level)
-   - Feature-level QC done in S10.P2
-   - Epic-level focuses on: Integration, consistency, cohesion
+3. ⚠️ FIX ISSUES IMMEDIATELY (NO RESTART PROTOCOL)
+   - If issues found → Fix ALL immediately
+   - Re-run tests after fixes (must pass 100%)
+   - Continue validation from current round (no restart needed)
+   - New approach: Fix and continue vs old: Fix and restart from S9.P1
+
+4. ⚠️ 100% TESTS PASSING MANDATORY
+   - Run ALL tests EVERY validation round
+   - Must achieve 100% pass rate
+   - Any test failure = issue (must fix before next round)
+   - Verify tests still pass after code changes
+
+5. ⚠️ FOCUS ON EPIC-LEVEL VALIDATION
+   - Feature-level QC done in S7.P2
+   - Epic-level focuses on: Integration, consistency, cohesion, success criteria
    - Compare ACROSS ALL features (not individual features)
 
-4. ⚠️ Document findings for EACH round
-   - Update epic_lessons_learned.md after each round
-   - Include: Issues found, fixes applied, status
-   - Serves as evidence of thorough QC
+6. ⚠️ FRESH EYES EVERY ROUND
+   - Take 2-5 minute break between rounds
+   - Re-read ENTIRE epic codebase using Read tool
+   - Use different reading patterns each round
+   - Assume everything is wrong (skeptical fresh perspective)
 ```
 
-**Universal rules (from pattern file):**
-- All 3 rounds mandatory
-- Each round has unique focus
-- Verify DATA VALUES (not just structure)
-- Re-reading checkpoints mandatory
-- See `reference/qc_rounds_pattern.md` for complete list
+**Validation Loop Principles (from master protocol):**
+- Assume everything is wrong (start each round skeptical)
+- Fresh eyes required (break + re-read between rounds)
+- Zero deferred issues (fix ALL before next round)
+- Exit only after 3 consecutive clean rounds
+- See `reference/validation_loop_master_protocol.md` for complete principles
 
 ---
 
 ## Prerequisites Checklist
 
-**Before starting Epic QC Rounds (STAGE_6b), verify:**
+**Before starting Epic QC Validation Loop, verify:**
 
-**STAGE_6a complete:**
+**S9.P1 complete:**
 - [ ] Epic smoke testing PASSED (all 4 parts)
 - [ ] Epic smoke test results documented
 - [ ] No smoke testing failures
@@ -149,7 +168,7 @@ Epic QC Rounds are complete when all 3 rounds pass with zero critical issues, al
 - [ ] All cross-feature integration tests passed
 
 **Agent Status updated:**
-- [ ] EPIC_README.md shows STAGE_6a complete
+- [ ] EPIC_README.md shows S9.P1 complete
 - [ ] Current guide: stages/s9/s9_p2_epic_qc_rounds.md
 
 **Original epic request available:**
@@ -157,66 +176,98 @@ Epic QC Rounds are complete when all 3 rounds pass with zero critical issues, al
 - [ ] Can reference original goals for Round 3
 
 **If any prerequisite fails:**
-- ❌ Do NOT start Epic QC Rounds
-- Return to STAGE_6a to complete smoke testing
+- Do NOT start Epic QC Validation Loop
+- Return to S9.P1 to complete smoke testing
 - Verify all prerequisites met before proceeding
 
 ---
 
 ## Workflow Overview
 
-**📖 See `reference/qc_rounds_pattern.md` for universal workflow details.**
+**See `reference/validation_loop_master_protocol.md` for universal validation loop details.**
 
 **Epic-specific workflow for S9.P2:**
 
 ```text
 ┌─────────────────────────────────────────────────────────────┐
-│           EPIC-LEVEL QC ROUNDS (3 Rounds)                   │
+│     S9.P2 EPIC QC VALIDATION LOOP (Until 3 Clean)           │
 └─────────────────────────────────────────────────────────────┘
 
-Round 1: Cross-Feature Integration (10-20 min)
-   ↓ Integration points, data flow, interface compatibility
-   ↓ Pass: Zero critical integration issues
-   ↓
-   If PASS → Round 2
-   If CRITICAL ISSUES → Fix, RESTART from S6
+PREPARATION
+   ↓ Read validation_loop_master_protocol.md
+   ↓ Create VALIDATION_LOOP_LOG.md
+   ↓ Run ALL tests (must pass 100%)
 
-Round 2: Epic Cohesion & Consistency (10-20 min)
-   ↓ Code style, naming, error handling, architectural patterns
-   ↓ Pass: Zero critical consistency issues
+ROUND 1: Sequential Review + Test Verification
+   ↓ Check ALL 12 dimensions (7 master + 5 epic)
+   ↓ Run tests, read code sequentially, verify integration
    ↓
-   If PASS → Round 3
-   If CRITICAL ISSUES → Fix, RESTART from S6
-   If MINOR ISSUES → Fix inline, continue
+   If issues found → Fix ALL immediately → Re-run tests → Round 2
+   If clean → Round 2 (count = 1)
 
-Round 3: End-to-End Success Criteria (10-20 min)
-   ↓ Validate against original epic request
-   ↓ Verify epic success criteria met
-   ↓ Pass: All criteria met
+ROUND 2: Reverse Review + Consistency Focus
+   ↓ Check ALL 12 dimensions again (fresh eyes)
+   ↓ Run tests, read code in reverse, focus on consistency
    ↓
-   If PASS → Epic QC complete, proceed to S9.P3
-   If CRITICAL FAILURES → Fix, RESTART from S6
+   If issues found → Fix ALL immediately → Re-run tests → Round 3
+   If clean → Round 3 (count = 2 or 1 depending on previous)
+
+ROUND 3+: Continue Until 3 Consecutive Clean
+   ↓ Check ALL 12 dimensions (different reading patterns)
+   ↓ Run tests, spot-checks, success criteria verification
+   ↓
+   Continue until 3 consecutive rounds with ZERO issues
+   ↓
+VALIDATION COMPLETE → Proceed to S9.P3 (User Testing)
 ```
+
+**Key Difference from Old Approach:**
+- **Old:** 3 sequential rounds checking different concerns → Any issue → Restart from S9.P1
+- **New:** N rounds checking ALL concerns → Fix issues immediately → Continue until 3 consecutive clean
+
+**VALIDATION_LOOP_LOG.md:** Create this file at the start of S9.P2 in the epic folder. Log each round's findings, issues fixed, and clean round counter.
+
+**Time Savings:** 60-180 min per issue (no restart overhead)
 
 ---
 
-## QC Round 1: Cross-Feature Integration
+## 12 Dimensions Checklist
 
-**📖 See `reference/qc_rounds_pattern.md` for universal Round 1 patterns.**
-**📖 See `reference/validation_loop_qc_pr.md` for Validation Loop QC approach.**
+**Check ALL 12 dimensions EVERY validation round.**
+
+**See `reference/validation_loop_master_protocol.md` for master dimension details.**
+
+---
+
+### Master Dimensions (7) - Universal
+
+1. **Empirical Verification** - All interfaces verified from source code
+2. **Completeness** - All requirements implemented across epic
+3. **Internal Consistency** - No contradictions between features
+4. **Traceability** - All code traces to requirements
+5. **Clarity & Specificity** - Clear naming, specific errors
+6. **Upstream Alignment** - Matches specs and implementation plans
+7. **Standards Compliance** - Follows project standards
+
+### Epic-Specific Dimensions (5)
+
+8. **Cross-Feature Integration** - Integration points work correctly
+9. **Epic Cohesion** - Consistent patterns across all features
+10. **Error Handling Consistency** - Same error patterns across features
+11. **Architectural Alignment** - Features use compatible architectures
+12. **Success Criteria Completion** - Original epic goals achieved
+
+---
+
+## Dimension 8: Cross-Feature Integration
 
 **Objective:** Validate integration points between features work correctly.
 
-**Validation Loop Approach:**
-- **Assume everything is wrong:** Skeptically analyze all features together
-- **Fresh eyes:** Sequential reading (feature by feature integration)
-- **Integration focus:** Test feature interactions
-- **No deferred issues:** ALL issues across ALL features must be fixed before Round 2
-- **Exit criteria:** Zero critical integration issues
-
-**Time Estimate:** 10-20 minutes
-
-**Pass Criteria:** Zero critical integration issues
+**What to check:**
+- Integration points function correctly
+- Data flows correctly between features
+- Interfaces are compatible
+- Error propagation works across boundaries
 
 ---
 
@@ -339,53 +390,36 @@ except ValueError as e:
 
 ---
 
-### Round 1 Checkpoint
+### Dimension 8 Issue Examples
 
-**Count critical integration issues:**
-
-**Critical integration issues:**
+**Common issues to look for:**
 - Integration point fails (data doesn't flow)
 - Interface incompatibilities (type mismatches)
 - Data loss during integration
 - Error propagation failures
-
-**Minor issues (can fix inline):**
 - Suboptimal error messages
 - Missing validation at boundaries
-- Documentation gaps
 
-**If Round 1 has CRITICAL issues:**
-1. Document ALL critical issues
-2. Follow epic debugging protocol
-3. **RESTART from S6 (epic smoke testing)**
+**If ANY issues found:**
+- Fix ALL immediately
+- Re-run tests
+- Continue validation (counter resets to 0)
 
-**If Round 1 has only MINOR issues:**
-- Fix immediately
-- Document in epic_lessons_learned.md
-- Continue to Round 2
-
-**If Round 1 has ZERO issues:**
+**If ZERO issues found in this dimension:**
 - Document clean pass in epic_lessons_learned.md
 - Proceed to Round 2
 
 ---
 
-## QC Round 2: Epic Cohesion & Consistency
-
-**📖 See `reference/qc_rounds_pattern.md` for universal Round 2 patterns.**
-**📖 See `reference/validation_loop_qc_pr.md` for Validation Loop QC approach.**
+## Dimension 9: Epic Cohesion
 
 **Objective:** Validate epic cohesion and consistency across all features.
 
-**Validation Loop Approach:**
-- **Different patterns than Round 1:** Reverse order (last feature to first)
-- **Cross-feature focus:** Verify integration points AND consistency
-- **No deferred issues:** ALL new issues must be fixed before Round 3
-- **Exit criteria:** Zero critical consistency issues
-
-**Time Estimate:** 10-20 minutes
-
-**Pass Criteria:** Zero critical consistency issues
+**What to check:**
+- Code style consistent across ALL features
+- Naming conventions consistent
+- Docstring style consistent
+- Import patterns consistent
 
 ---
 
@@ -436,7 +470,9 @@ from feature_03.RecommendationEngine import RecommendationEngine
 
 ---
 
-### Validation 2.3: Error Handling Consistency
+## Dimension 10: Error Handling Consistency
+
+**Objective:** Validate error handling is consistent across all features.
 
 **Check error handling is consistent:**
 
@@ -469,7 +505,9 @@ except FileNotFoundError:
 
 ---
 
-### Validation 2.4: Architectural Pattern Consistency
+## Dimension 11: Architectural Alignment
+
+**Objective:** Validate architectural patterns are consistent across features.
 
 **Check architectural patterns are consistent:**
 
@@ -485,52 +523,33 @@ except FileNotFoundError:
 
 ---
 
-### Round 2 Checkpoint
+### Dimensions 9-11 Issue Examples
 
-**Count consistency issues:**
-
-**Critical consistency issues:**
+**Common issues to look for:**
 - Conflicting architectural patterns
 - Incompatible error handling
-- Major naming inconsistencies that confuse
+- Major naming inconsistencies
+- Style variations between features
 
-**Minor issues:**
-- Style variations
-- Minor naming differences
-- Documentation format variations
+**If ANY issues found:**
+- Fix ALL immediately
+- Re-run tests
+- Continue validation (counter resets to 0)
 
-**If Round 2 has CRITICAL issues:**
-1. Document ALL critical issues
-2. Follow epic debugging protocol
-3. **RESTART from S6**
-
-**If Round 2 has MINOR issues:**
-- Fix immediately
-- Document in epic_lessons_learned.md
-- Continue to Round 3
-
-**If Round 2 has ZERO issues:**
-- Document clean pass
-- Proceed to Round 3
+**If ZERO issues found in dimensions 9-11:**
+- Continue checking remaining dimensions
 
 ---
 
-## QC Round 3: End-to-End Success Criteria
-
-**📖 See `reference/qc_rounds_pattern.md` for universal Round 3 patterns.**
-**📖 See `reference/validation_loop_qc_pr.md` for Validation Loop QC approach.**
+## Dimension 12: Success Criteria Completion
 
 **Objective:** Validate epic meets all success criteria and original goals.
 
-**Validation Loop Approach:**
-- **Final validation:** Random spot-checks and thematic review
-- **Requirement:** ZERO issues across entire epic
-- **Exit criteria:** 3 consecutive clean rounds (epic is defect-free)
-- **If ANY issues found:** Fix ALL immediately, restart from S9.P1 (epic smoke testing)
-
-**Time Estimate:** 10-20 minutes
-
-**Pass Criteria:** All success criteria met, original goals achieved
+**What to check:**
+- Original epic request goals achieved
+- Epic success criteria from S4 met
+- User experience flow works correctly
+- Performance meets expectations
 
 ---
 
@@ -624,135 +643,162 @@ print(f"✅ Epic workflow completed in {elapsed:.2f}s")
 
 ---
 
-### Round 3 Checkpoint
+### Dimension 12 Issue Examples
 
-**Verify ALL success criteria:**
+**Common issues to look for:**
+- Success criteria not met
+- Original goals not achieved
+- User experience flow problems
+- Performance below expectations
 
-**If ANY success criteria not met:**
-- Document which criteria failed
-- Determine if critical (can't achieve epic goals)
-- If critical → Create bug fixes, RESTART S6
-- If acceptable → Get user approval, document
+**If ANY issues found:**
+- Fix ALL immediately
+- Re-run tests
+- Continue validation (counter resets to 0)
 
-**If ALL criteria met:**
-- ✅ Epic QC Rounds COMPLETE
-- ✅ Document completion in EPIC_README.md
-- ✅ Update epic_lessons_learned.md
-- ✅ Update Agent Status: "Epic QC Rounds COMPLETE"
-- ✅ Proceed to **Step 6: User Testing & Bug Fix Protocol**
+**If ZERO issues found in dimension 12:**
+- Check if this completes a clean round
 
 ---
 
-## Epic Issue Handling Protocol
+## Issue Handling: Fix and Continue
 
-**If critical issues found during QC rounds:**
+**When issues are found during validation loop:**
 
-### Step 1: Create Epic Debugging Folder
+### Step 1: Document Issue in VALIDATION_LOOP_LOG.md
 
 ```markdown
-epic_name/debugging/ISSUES_CHECKLIST.md
+## Round {N}
 
-## Issues Found in S9.P2 QC
+### Issues Found:
+1. Issue 1: Feature 02 → Feature 03 integration fails with large datasets
+2. Issue 2: Inconsistent error handling in Feature 01 vs Feature 03
 
-- [ ] Issue 1: Feature 02 → Feature 03 integration fails with large datasets
-- [ ] Issue 2: Inconsistent error handling in Feature 01 vs Feature 03
+### Fixes Applied:
+1. Fixed data chunking in Feature 02 output method
+2. Standardized error handling using DataProcessingError
+
+### Tests After Fix: PASSED (100%)
+### Clean Counter: 0 (reset due to issues found)
 ```
 
-### Step 2: Enter Debugging Protocol
+### Step 2: Fix ALL Issues Immediately
 
-See `debugging/debugging_protocol.md` for complete protocol
+- Fix each issue before proceeding
+- Re-run ALL tests (must pass 100%)
+- Do NOT defer any issues
 
-### Step 3: After ALL Issues Resolved
+### Step 3: Continue Validation
 
-**RESTART S6 (Epic Smoke Testing) from Step 1:**
-- Re-run ALL 4 smoke test parts
-- Verify fixes didn't break anything
-- Return to S9.P2 after smoke testing passes
+- Reset clean counter to 0
+- Continue to next validation round
+- Check ALL 12 dimensions again with fresh eyes
 
-**Critical:** Loop back to Epic Smoke (NOT back to QC round), ensures clean validation
+**Key difference from old approach:**
+- **Old:** Any issue → Restart from S9.P1 (smoke testing)
+- **New:** Fix immediately → Reset counter → Continue validation
+
+**When restart IS required:**
+- User testing (S9.P3) finds bugs → Restart from S9.P1 after bug fixes
+- Major architectural issues requiring significant rework → May warrant restart
 
 ---
 
-## 🛑 MANDATORY CHECKPOINT 1
+## MANDATORY CHECKPOINT 1
 
-**You have completed all 3 Epic QC rounds**
+**You have achieved 3 consecutive clean validation rounds**
 
-⚠️ STOP - DO NOT PROCEED TO S9.P3 YET
+STOP - DO NOT PROCEED TO S9.P3 YET
 
 **REQUIRED ACTIONS:**
 1. [ ] Use Read tool to re-read "Critical Rules" section of this guide
-2. [ ] Use Read tool to re-read `reference/qc_rounds_pattern.md` (ALL Critical Rules)
+2. [ ] Use Read tool to re-read `reference/validation_loop_master_protocol.md` (7 principles)
 3. [ ] Use Read tool to re-read original epic request ({epic_name}.txt)
-4. [ ] Verify ALL success criteria met from original epic request
-5. [ ] Update epic_lessons_learned.md with QC findings
-6. [ ] Update EPIC_README.md Agent Status:
+4. [ ] Verify 3 consecutive clean rounds documented in VALIDATION_LOOP_LOG.md
+5. [ ] Verify ALL 12 dimensions checked every round
+6. [ ] Update epic_lessons_learned.md with validation findings
+7. [ ] Update EPIC_README.md Agent Status:
    - Current Guide: "stages/s9/s9_p3_user_testing.md"
-   - Current Step: "S9.P2 complete (3/3 rounds passed), ready to start S9.P3"
+   - Current Step: "S9.P2 complete (3 consecutive clean rounds), ready to start S9.P3"
    - Last Updated: [timestamp]
-7. [ ] Output acknowledgment: "✅ CHECKPOINT 1 COMPLETE: Re-read Critical Rules and original request, verified all success criteria met"
+8. [ ] Output acknowledgment: "CHECKPOINT 1 COMPLETE: Re-read validation loop protocol, verified 3 consecutive clean rounds, ZERO issues"
 
 **Why this checkpoint exists:**
-- 90% of agents skip re-reading original epic request
-- Missing original success criteria causes 60% of user rejections
-- 5 minutes of re-reading prevents days of epic rework
+- Ensures validation loop was properly executed
+- Confirms all 12 dimensions checked every round
+- 3 minutes of verification prevents hours of rework
 
-**ONLY after completing ALL 7 actions above, proceed to Next Steps section**
+**ONLY after completing ALL 8 actions above, proceed to Next Steps section**
 
 ---
 
 ## Next Steps
 
-**If ALL 3 rounds PASSED:**
-- ✅ Document epic QC results in EPIC_README.md
-- ✅ Update Agent Status: "Epic QC Rounds COMPLETE (3/3 rounds passed)"
-- ✅ Update epic_lessons_learned.md with QC findings
-- ✅ Proceed to **Step 6: User Testing & Bug Fix Protocol**
+**If 3 consecutive clean rounds achieved:**
+- Document epic QC results in EPIC_README.md
+- Update Agent Status: "S9.P2 COMPLETE (3 consecutive clean rounds, zero issues)"
+- Update epic_lessons_learned.md with validation findings
+- Proceed to **S9.P3: User Testing**
 
-**If ANY round had CRITICAL issues:**
-- ❌ Fix ALL critical issues
-- ❌ Follow epic debugging protocol
-- ❌ **RESTART from S6 (epic smoke testing)**
-- ❌ Re-run smoke testing → QC Round 1 → QC Round 2 → QC Round 3
-- ❌ Do NOT proceed to PR Review until clean pass
+**If still finding issues:**
+- Fix ALL issues immediately (no deferring)
+- Re-run tests (must pass 100%)
+- Reset clean counter to 0
+- Continue validation loop until 3 consecutive clean rounds
+- Do NOT proceed to User Testing until validation complete
 
 ---
 
 ## Summary
 
-**Epic-Level QC Rounds validate:**
-- Round 1: Cross-feature integration (do features work together?)
-- Round 2: Epic cohesion & consistency (is epic architecturally sound?)
-- Round 3: End-to-end success criteria (does epic achieve goals?)
+**Epic-Level QC Validation Loop validates:**
+- ALL 12 dimensions checked EVERY round (7 master + 5 epic-specific)
+- Continue until 3 consecutive clean rounds achieved
+- Fix issues immediately (no restart protocol for S9.P2)
 
-**Key Differences from Feature-Level:**
+**12 Dimensions Checked:**
+1. Empirical Verification (master)
+2. Completeness (master)
+3. Internal Consistency (master)
+4. Traceability (master)
+5. Clarity & Specificity (master)
+6. Upstream Alignment (master)
+7. Standards Compliance (master)
+8. Cross-Feature Integration (epic)
+9. Epic Cohesion (epic)
+10. Error Handling Consistency (epic)
+11. Architectural Alignment (epic)
+12. Success Criteria Completion (epic)
+
+**Key Differences from Feature-Level (S7.P2):**
 - Focus on epic-wide patterns (not individual features)
-- Minor issues can be fixed inline (epic-level more flexible)
-- Critical issues require epic debugging protocol
-- Restart destination: S6 (epic smoke testing)
-- Validation against original epic request (Round 3)
+- Cross-feature integration and architectural consistency
+- Validation against original epic request
+- 5 epic-specific dimensions vs 5 S7-specific dimensions
 
 **Critical Success Factors:**
-- All 3 rounds mandatory
-- Focus on integration and consistency (not individual features)
-- Minor vs critical issue classification
-- Epic debugging protocol for critical issues
-- Validation against original user goals
+- 3 consecutive clean rounds required (exit criteria)
+- Fix issues immediately and continue (no restart)
+- Fresh eyes through breaks + re-reading
+- 100% tests passing every round
 
-**📖 For universal patterns and detailed validation techniques, see:**
-`reference/qc_rounds_pattern.md`
+**For complete validation loop protocol, see:**
+`reference/validation_loop_master_protocol.md`
 
 
 ## Exit Criteria
 
-**Epic QC Rounds (S9.P2) is complete when ALL of these are true:**
+**Epic QC Validation Loop (S9.P2) is complete when ALL of these are true:**
 
-- [ ] All steps in this phase complete as specified
-- [ ] Agent Status updated with phase completion
-- [ ] Ready to proceed to next phase
+- [ ] 3 consecutive clean rounds achieved (ZERO issues across all 12 dimensions)
+- [ ] All 12 dimensions checked every round (7 master + 5 epic)
+- [ ] All tests passing (100% pass rate verified every round)
+- [ ] VALIDATION_LOOP_LOG.md complete with all rounds documented
+- [ ] Agent Status updated with validation loop completion
+- [ ] Ready to proceed to S9.P3 (User Testing)
 
-**If any criterion unchecked:** Complete missing items before proceeding
+**If any criterion unchecked:** Continue validation loop until complete
 
 ---
----
 
-**END OF STAGE 6b GUIDE**
+**END OF S9.P2 GUIDE**

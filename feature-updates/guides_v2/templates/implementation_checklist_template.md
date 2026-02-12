@@ -14,7 +14,7 @@ This template is used during S6 (Implementation Execution) to track progress thr
 ## Template
 
 ```markdown
-# Implementation Progress Checklist
+## Implementation Progress Checklist
 
 **Feature:** {feature_name}
 **Started:** {YYYY-MM-DD HH:MM}
@@ -103,7 +103,7 @@ This template is used during S6 (Implementation Execution) to track progress thr
 ## Example (Simple Feature)
 
 ```markdown
-# Implementation Progress Checklist
+## Implementation Progress Checklist
 
 **Feature:** Add K and DST Support to Ranking Metrics
 **Started:** 2026-01-08 20:00

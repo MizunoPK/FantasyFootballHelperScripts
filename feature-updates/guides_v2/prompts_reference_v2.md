@@ -53,13 +53,13 @@
 - Starting S4: Epic Testing Strategy
 
 **[S5-S8: Feature Loop](prompts/s5_s8_prompts.md)**
-- Starting S5: Implementation Planning (Round 1)
-- Starting S5: Implementation Planning (Round 2)
-- Starting S5 Round 3 Part 1: Implementation Planning (Preparation)
-- Starting S5 Round 3 Part 2: Implementation Planning (Final Gates)
+- Starting S5 v2: Implementation Planning (Draft Creation)
+- Starting S5 v2: Validation Loop Phase
+- Reporting S5 v2: Validation Round Results
+- Exiting S5 v2: Validation Loop Complete
 - Starting S6: Implementation Execution
 - Starting S7.P1: Smoke Testing
-- Starting S7.P2: QC Rounds
+- Starting S7.P2: Validation Loop
 - Starting S7.P3: Final Review
 - Starting S8.P1: Cross-Feature Alignment
 - Starting S8.P2: Epic Testing Plan Update
@@ -148,8 +148,8 @@ Document guide read, critical rules, next action
 
 **✅ CORRECT:**
 ```text
-I'm reading `stages/s5/s5_p1_planning_round1.md` to ensure I follow all 7 iterations in Round 1...
-{List critical requirements for Round 1}
+I'm reading `stages/s5/s5_v2_validation_loop.md` to ensure I follow the 2-phase validation loop approach...
+{List critical requirements for S5 v2}
 ```
 
 ---
@@ -189,9 +189,9 @@ I'm reading `stages/s7/s7_p1_smoke_testing.md`...
 **✅ CORRECT:**
 ```bash
 **Prerequisites I'm verifying:**
-✅ S5 complete (22 iterations done)
-✅ Iteration 22: Implementation Readiness = PASSED
-✅ implementation_plan.md v3.0 exists and user-approved
+✅ S5 v2 complete (Validation Loop passed: 3 consecutive clean rounds)
+✅ Phase 2 complete: All 11 dimensions validated
+✅ implementation_plan.md exists and user-approved (Gate 5)
 {Verify ALL prerequisites}
 ```
 

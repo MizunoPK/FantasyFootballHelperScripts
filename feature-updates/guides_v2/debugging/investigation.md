@@ -10,6 +10,48 @@
 
 ---
 
+## Table of Contents
+
+1. [Overview](#overview)
+1. [Before Starting Investigation](#before-starting-investigation)
+   - [Step 1: Update ISSUES_CHECKLIST.md](#step-1-update-issueschecklistmd)
+   - [Step 2: Create issue_{number}_{name}.md file](#step-2-create-issuenumbernamemd-file)
+   - [Step 3: Create/Update investigation_rounds.md](#step-3-createupdate-investigationroundsmd)
+1. [Active Investigations](#active-investigations)
+1. [Completed Investigations](#completed-investigations)
+1. [Investigation Statistics](#investigation-statistics)
+1. [Issue File Template: issue_{number}_{name}.md](#issue-file-template-issuenumbernamemd)
+1. [Issue Description](#issue-description)
+1. [Investigation Rounds](#investigation-rounds)
+1. [Solution Implementation](#solution-implementation)
+1. [User Verification](#user-verification)
+1. [Related Issues](#related-issues)
+1. [Code Locations](#code-locations)
+1. [Round 1: Code Tracing & Root Cause Analysis](#round-1-code-tracing-root-cause-analysis)
+   - [Steps](#steps)
+   - [Round 1: Code Tracing & Root Cause Analysis ({YYYY-MM-DD HH:MM})](#round-1-code-tracing-root-cause-analysis-yyyy-mm-dd-hhmm)
+1. [Active Investigations](#active-investigations)
+1. [Round 2: Hypothesis Formation](#round-2-hypothesis-formation)
+   - [Steps](#steps)
+   - [Round 2: Hypothesis Formation ({YYYY-MM-DD HH:MM})](#round-2-hypothesis-formation-yyyy-mm-dd-hhmm)
+1. [Active Investigations](#active-investigations)
+1. [Round 3: Diagnostic Testing](#round-3-diagnostic-testing)
+   - [Steps](#steps)
+   - [Round 3: Diagnostic Testing ({YYYY-MM-DD HH:MM})](#round-3-diagnostic-testing-yyyy-mm-dd-hhmm)
+1. [Round Limits & Escalation](#round-limits-escalation)
+   - [If root cause NOT found after Round 3](#if-root-cause-not-found-after-round-3)
+   - [After 5 rounds without confirming root cause](#after-5-rounds-without-confirming-root-cause)
+1. [Investigation Summary](#investigation-summary)
+1. [Current Understanding](#current-understanding)
+1. [Recommended Next Steps](#recommended-next-steps)
+1. [Common Investigation Patterns](#common-investigation-patterns)
+   - [Pattern 1: Data Format Mismatch](#pattern-1-data-format-mismatch)
+   - [Pattern 2: Null/None Propagation](#pattern-2-nullnone-propagation)
+   - [Pattern 3: Integration Mismatch](#pattern-3-integration-mismatch)
+1. [Next Steps](#next-steps)
+
+---
+
 ## Overview
 
 **This process uses repeated rounds:** Repeat Rounds 1-3 until root cause confirmed (max 5 rounds total)
@@ -59,7 +101,7 @@ Use template below (populated during investigation).
 Create `debugging/investigation_rounds.md`:
 
 ```markdown
-# Investigation Rounds Tracker
+## Investigation Rounds Tracker
 
 **Feature/Epic:** {name}
 **Created:** {YYYY-MM-DD HH:MM}
@@ -95,7 +137,7 @@ Add new issue to "Active Investigations" table.
 ## Issue File Template: issue_{number}_{name}.md
 
 ```markdown
-# Issue #1: Player scoring returns None
+## Issue #1: Player scoring returns None
 
 **Created:** {YYYY-MM-DD HH:MM}
 **Status:** INVESTIGATING
@@ -116,8 +158,8 @@ S7.P1 Smoke Testing Part 3 - E2E test execution
 ```
 player = PlayerManager.load_player("Patrick Mahomes")
 score = player.calculate_score(week=1)
-# Expected: 24.5 (float)
-# Actual: None
+## Expected: 24.5 (float)
+## Actual: None
 ```markdown
 
 **Impact:**
@@ -366,7 +408,7 @@ CSV not loading correctly, leaving self.stats empty
 
 **Diagnostic Logging Plan:**
 ```
-# Add to utils/FantasyPlayer.py:156 (_load_stats method)
+## Add to utils/FantasyPlayer.py:156 (_load_stats method)
 logger.info(f"Loading stats from: {csv_path}")
 logger.info(f"CSV columns: {df.columns.tolist()}")
 logger.info(f"CSV shape: {df.shape}")
@@ -434,10 +476,10 @@ Execute the test scenarios from Round 2:
 #### 3. Collect and save log output
 
 ```bash
-# Save to debugging/diagnostic_logs/
+## Save to debugging/diagnostic_logs/
 cp output.log debugging/diagnostic_logs/issue_01_round3.log
 
-# Or capture programmatically
+## Or capture programmatically
 python run_simulation.py --mode accuracy 2>&1 | tee debugging/diagnostic_logs/issue_01_round3.log
 ```
 

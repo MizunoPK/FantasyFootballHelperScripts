@@ -7,7 +7,7 @@
 
 **Stage Flow Context:**
 ```text
-S9.P1 (Epic Smoke) → S9.P2 (QC Rounds) →
+S9.P1 (Epic Smoke) → S9.P2 (Epic QC Validation Loop) →
 → [YOU ARE HERE: S9.P3 - User Testing] →
 → S9.P4 (Epic Final Review) → S10
 ```
@@ -38,9 +38,9 @@ S9.P1 (Epic Smoke) → S9.P2 (QC Rounds) →
 **BEFORE starting User Testing, you MUST:**
 
 1. **Verify Prerequisites:**
-   - Epic QC Rounds (Steps 3-5) COMPLETE
-   - All 3 rounds PASSED
-   - EPIC_README.md shows "Epic QC Rounds: ✅ COMPLETE"
+   - S9.P2 Epic QC Validation Loop COMPLETE
+   - 3 consecutive clean rounds achieved
+   - EPIC_README.md shows "S9.P2: COMPLETE (3 consecutive clean rounds)"
 
 2. **This is a MANDATORY GATE**
    - You CANNOT skip user testing
@@ -53,9 +53,9 @@ S9.P1 (Epic Smoke) → S9.P2 (QC Rounds) →
 
 **Before starting S9.P3 (User Testing):**
 
-- [ ] S9.P1 complete (Epic Smoke Testing passed)
-- [ ] S9.P2 complete (All 3 QC rounds passed)
-- [ ] EPIC_README.md shows "Epic QC Rounds: ✅ COMPLETE"
+- [ ] S9.P1 complete (Epic Smoke Testing passed all 4 parts)
+- [ ] S9.P2 complete (Validation loop achieved 3 consecutive clean rounds)
+- [ ] EPIC_README.md shows "S9.P2: COMPLETE (3 consecutive clean rounds)"
 - [ ] All features tested and validated
 - [ ] No pending bug fixes or debugging sessions
 - [ ] Epic is ready for end-user testing
@@ -72,9 +72,9 @@ S9.P1 (Epic Smoke) → S9.P2 (QC Rounds) →
 User Testing is where the actual user tests the complete epic with real data and realistic workflows to catch issues that automated testing and agent QC might miss.
 
 **When do you use this step?**
-- After Epic QC Rounds (Steps 3-5) complete
-- All 3 QC rounds PASSED
-- Before Epic PR Review (Step 7)
+- After S9.P2 Epic QC Validation Loop complete
+- 3 consecutive clean rounds achieved
+- Before S9.P4 Epic Final Review
 
 **Key Outputs:**
 - ✅ User testing request presented to user
@@ -114,11 +114,12 @@ User testing passes with ZERO bugs reported by user
    - Fix ALL bugs user reports
 
 4. ⚠️ RESTART S9.P1 AFTER BUG FIXES
-   - After fixing user-reported bugs → RESTART S9.P1
+   - After fixing user-reported bugs → RESTART from S9.P1 (not S9.P2)
    - Re-run smoke testing (4 parts)
-   - Re-run QC rounds (3 rounds)
+   - Re-run validation loop (until 3 consecutive clean rounds)
    - Re-run user testing
    - Repeat until user reports "No bugs found"
+   - Note: This is different from S9.P2 which uses fix-and-continue
 
 5. ⚠️ DOCUMENT USER TESTING RESULTS
    - Update EPIC_README.md with results
@@ -260,7 +261,7 @@ feature-updates/KAI-{N}-{epic_name}/bugfix_{priority}_{short_name}/
 In each bugfix folder, create `notes.txt`:
 
 ```markdown
-# Bug Fix: {short_name}
+## Bug Fix: {short_name}
 
 **Priority:** {high/medium/low}
 **Reported By:** User (during S9 user testing)
@@ -369,13 +370,13 @@ Update EPIC_README.md:
    - Part 4: Cross-Feature Integration Test
 3. Verify all parts PASS
 
-**3b. Proceed to S9.P2 (Epic QC Rounds)**
+**3b. Proceed to S9.P2 (Epic QC Validation Loop)**
 1. Read `stages/s9/s9_p2_epic_qc_rounds.md` again
-2. Execute all 3 QC rounds:
-   - Round 1: Cross-Feature Integration
-   - Round 2: Epic Cohesion & Consistency
-   - Round 3: End-to-End Success Criteria
-3. Verify all rounds PASS
+2. Execute validation loop:
+   - Check ALL 12 dimensions every round (7 master + 5 epic)
+   - Fix issues immediately, reset counter, continue
+   - Continue until 3 consecutive clean rounds
+3. Verify 3 consecutive clean rounds achieved
 
 **3c. If S9 finds MORE bugs:**
 - Create new bug fix folders
@@ -426,9 +427,9 @@ Update EPIC_README.md:
 - Date completed: {YYYY-MM-DD}
 - Results: All 4 parts passed
 
-**S9.P2 - Epic QC Rounds:** ✅ COMPLETE
+**S9.P2 - Epic QC Validation Loop:** ✅ COMPLETE
 - Date completed: {YYYY-MM-DD}
-- Results: All 3 rounds passed
+- Results: 3 consecutive clean rounds achieved (12 dimensions checked)
 
 **Step 6 - User Testing:** ✅ COMPLETE
 - Date completed: {YYYY-MM-DD}
@@ -524,10 +525,15 @@ User-reported bugs follow the epic debugging protocol:
    - RESTART epic smoke testing from beginning
    - Proceed through S9.P1 → 6b → Step 6 again
 
-**Why loop back to S9.P1 (not Step 6)?**
+**Why loop back to S9.P1 (not continue validation loop)?**
+- User-reported bugs indicate real-world issues missed by agent validation
 - Bug fixes might affect epic-level integration
 - Must re-validate entire epic before returning to user
 - Comprehensive validation prevents new issues
+
+**Note on S9.P2 vs S9.P3 restart distinction:**
+- S9.P2 (Validation Loop): Fix issues immediately, continue (no restart)
+- S9.P3 (User Testing): User bugs require restart from S9.P1
 
 ---
 

@@ -36,6 +36,7 @@
 5. **Copied Sections** - Entire sections duplicated across files
 6. **Maintenance Burden** - Content that must be updated in multiple places
 7. **Consolidation Opportunities** - Content that should be in one place with references
+8. **Contradictory Content** - Different claims about same topic across files (incompatible, not just duplicate)
 
 **Coverage:**
 - All workflow guides in stages/
@@ -152,7 +153,7 @@ Same content appears verbatim in multiple files.
 
 **Common Pattern:**
 
-**File A (stages/s5/s5_p1_planning_round1.md):**
+**File A (stages/s5/s5_v2_validation_loop.md):**
 ```markdown
 ## Critical Rules
 
@@ -588,6 +589,125 @@ common_sections=$(grep -rh "^## Common Pitfalls" feature-updates/KAI-*/feature_*
 - Content is reference material, not feature-specific
 
 **Automated:** ⚠️ Partial (can detect identical content across instances, requires judgment on acceptability)
+
+---
+
+### Type 8: Contradictory Content Detection
+
+**What to Check:**
+Multiple files describing the same concept must not contradict each other.
+
+**Key Distinction from Duplication:**
+- **Duplication (Types 1-7):** Same content copied -> maintenance burden
+- **Contradiction (Type 8):** Different claims about same topic -> confusion
+
+**Why This Belongs in D15:**
+Both duplication and contradiction involve multiple files describing the same thing:
+- Duplication: Same thing, same words (redundant)
+- Contradiction: Same thing, incompatible words (incorrect)
+
+**Common Contradiction Patterns:**
+
+**Pattern 8.1: Workflow Sequence Contradictions**
+```text
+File A: "Groups complete S2->S3->S4 cycle before next group starts"
+File B: "After all groups complete S2, proceed to S3 (epic-level)"
+
+Same topic (group workflow), incompatible claims
+```
+
+**Pattern 8.2: Scope Contradictions**
+```text
+File A: "S3 runs at epic-level (all features together)"
+File B: "Round 1 S3: Group 1 features only"
+
+Same topic (S3 scope), incompatible claims
+```
+
+**Pattern 8.3: Timing Contradictions**
+```text
+File A: "ALL features must complete S2 before S3 starts"
+File B: "S3 Round 1 runs after Group 1 completes S2"
+
+Same topic (S3 timing), incompatible claims
+```
+
+**Search Strategy:**
+
+```bash
+# Step 1: Identify topic clusters
+topics=(
+  "group.*workflow\|workflow.*group"
+  "S3.*scope\|scope.*S3"
+  "parallel.*S2\|S2.*parallel"
+)
+
+# Step 2: For each topic, extract all claims
+for topic in "${topics[@]}"; do
+  echo "=== Topic: $topic ==="
+  grep -rn "$topic" stages/ | head -20
+done
+
+# Step 3: Manual review for contradictions
+```
+
+**Validation Process:**
+
+1. **Identify topic to validate** (e.g., "group workflow")
+
+2. **Extract all claims about topic:**
+   ```bash
+   grep -rn "group.*complete\|complete.*group\|group.*S[0-9]" stages/
+   ```
+
+3. **Categorize claims:**
+   - Claim A: Groups do X
+   - Claim B: Groups do Y
+   - Are X and Y compatible?
+
+4. **Determine correct claim:**
+   - Which matches intended workflow?
+   - Which should be updated?
+
+5. **Flag contradictions:**
+   ```markdown
+   CONTRADICTION FOUND:
+   - File: s1_epic_planning.md:600
+   - Claim: "groups complete S2->S3->S4 cycle"
+   - Contradicts: s2_feature_deep_dive.md:157 ("groups complete S2 only")
+   - Resolution: [Determine correct behavior]
+   ```
+
+**Example Issue (KAI-8):**
+
+**Topic:** Group workflow
+
+**Claims Found:**
+
+| File | Line | Claim |
+|------|------|-------|
+| s1_epic_planning.md | 600 | "Each group completes full S2->S3->S4 cycle" |
+| s2_feature_deep_dive.md | 157 | "After all groups done -> Proceed to S3" |
+| s3_epic_planning_approval.md | 46 | "ALL features complete S2" (prerequisite) |
+| s3_epic_planning_approval.md | 67 | "Round 1 S3: Group 1 features" (content) |
+
+**Contradiction Matrix:**
+
+| Claim | S2->S3->S4 per group | S2 only, then S3 epic |
+|-------|---------------------|----------------------|
+| S1:600 | YES | |
+| S2:157 | | YES |
+| S3:46 | | YES |
+| S3:67 | Partial (implies per-group S3) | |
+
+**Resolution:** S2:157 and S3:46 are correct (groups matter for S2 only). S1:600 and S3:67 need updating.
+
+**Red Flags:**
+- Multiple claims about same workflow feature
+- Claims describe incompatible behaviors
+- One "ALL" claim contradicted by "per group" claim
+
+**Automated:** Partial - Can cluster claims by topic, requires manual contradiction detection
 
 ---
 
@@ -1222,6 +1342,7 @@ See `reference/standard_prerequisites.md`
 5. ⚠️ Section duplication detection
 6. ✅ Reference list duplication
 7. ⚠️ Template propagation evaluation
+8. ⚠️ Contradictory content detection (same topic, incompatible claims)
 
 **Automation: ~50%**
 - Automated for exact duplicates, instruction counts
@@ -1237,6 +1358,6 @@ See `reference/standard_prerequisites.md`
 
 ---
 
-**Last Updated:** 2026-02-04
-**Version:** 1.0
+**Last Updated:** 2026-02-06
+**Version:** 1.1
 **Status:** ✅ Fully Implemented

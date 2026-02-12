@@ -23,10 +23,10 @@
 - ✅ WAIT for explicit user approval at gates
 - **Why:** Wastes hours of work if user wants changes
 
-### Skipping Iterations
-- ❌ "Iteration 7 seems obvious, I'll skip it"
-- ✅ ALL 22 iterations in S5 are MANDATORY
-- **Why:** Each iteration catches specific bug categories
+### Skipping Validation Dimensions
+- ❌ "Dimension 7 seems obvious, I'll skip it in this round"
+- ✅ ALL 11 dimensions in S5 v2 are MANDATORY every validation round, and the Validation Loop must be completed (3 consecutive clean rounds)
+- **Why:** Each dimension catches specific bug categories
 
 ### Committing Without Tests
 - ❌ Committing code without running full test suite
@@ -57,10 +57,10 @@
 - ✅ Update after EACH major checkpoint
 - **Why:** Breaks resumability after session compaction
 
-### Skipping QC Restart
-- ❌ "I fixed the bug, I'll just continue from QC Round 2"
-- ✅ Loop back to START of testing (smoke testing Part 1)
-- **Why:** Fixes might introduce new bugs
+### Not Following Validation Loop Protocol
+- ❌ "I fixed the bug, I'll just continue from where I left off"
+- ✅ Fix issue immediately, reset clean counter to 0, continue validation
+- **Why:** Validation Loop uses fix-and-continue approach (3 consecutive clean rounds required)
 
 ---
 
@@ -162,7 +162,7 @@
 ### Agent Status
 - ❌ Not updating after major checkpoints
 - ❌ Generic next actions ("continue working")
-- ✅ Specific next actions ("Begin Round 2 Iteration 8")
+- ✅ Specific next actions ("Begin Validation Round 4 - Dimension 6")
 
 ### Commit Messages
 - ❌ Vague messages ("fixed stuff", "updates")

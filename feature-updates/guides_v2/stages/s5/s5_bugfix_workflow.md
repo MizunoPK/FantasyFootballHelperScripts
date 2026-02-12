@@ -91,7 +91,7 @@ Bug Fix Workflow is a streamlined process for handling bugs discovered during ep
 Varies by bug complexity (30 minutes to 2 hours typical)
 
 **Exit Condition:**
-Bug Fix is complete when the bug is fixed through the full workflow (including all 22 iterations and QC rounds), bug fix folder remains in epic directory, and epic README documents where to resume previous work
+Bug Fix is complete when the bug is fixed through the full workflow (including complete S5 v2 Validation Loop and QC rounds), bug fix folder remains in epic directory, and epic README documents where to resume previous work
 
 ---
 
@@ -118,7 +118,7 @@ Bug Fix is complete when the bug is fixed through the full workflow (including a
 4. ⚠️ FOLLOW SIMPLIFIED WORKFLOW
    - Bug fixes: S2 → S5 → S6 → S7
    - SKIP: Stages 1, 3, 4, S8, S9, S10
-   - Same rigor as features (22 iterations, QC rounds)
+   - Same rigor as features (S5 v2 Validation Loop, QC rounds)
    - No shortcuts
 
 5. ⚠️ PRIORITY DETERMINES INTERRUPTION
@@ -240,7 +240,7 @@ What's wrong:
 - {Symptom 3}
 
 How discovered:
-- {How the issue was found - e.g., "QC Round 2 revealed...", "User reported..."}
+- {How the issue was found - e.g., "Validation Loop revealed...", "User reported..."}
 
 Impact:
 - {What doesn't work because of this bug}
@@ -329,7 +329,7 @@ Once you've reviewed, let me know and I'll proceed with the bug fix workflow.
 
 **Active Bug Fixes:**
 - bugfix_high_authentication_error (S2 - Deep Dive)
-  - Discovered: During feature_01 QC Round 2
+  - Discovered: During feature_01 Validation Loop
   - Priority: high (blocks feature_02 implementation)
   - Currently: Creating spec.md for bug fix
 
@@ -350,17 +350,16 @@ Once you've reviewed, let me know and I'll proceed with the bug fix workflow.
 
 **Last Updated:** 2025-12-30 18:00
 **Status:** PAUSED for bugfix_high_authentication_error
-**Paused At:** S7 (Testing & Review) - QC Round 2 (found bug, creating fix)
+**Paused At:** S7 (Testing & Review) - Validation Loop (found bug, creating fix)
 
 **Resume Instructions:**
 When bug fix complete:
-1. Re-run S7 (Testing & Review) QC Round 2 (verify bug fix didn't affect this feature)
-2. If passes: Continue to QC Round 3
+1. Re-run S7 (Testing & Review) Validation Loop (verify bug fix didn't affect this feature)
+2. If passes: Continue to Final Review (S7.P3)
 3. If fails: Investigate interaction with bug fix
 
 **Context at Pause:**
-- QC Round 1: PASSED
-- QC Round 2: In progress - found authentication bug that affects this feature
+- Validation Loop in progress - found authentication bug that affects this feature
 - Bug discovered: ConfigManager.get_adp_multiplier() crashes on null ADP
 - This feature calls get_adp_multiplier() - need to verify fix works correctly
 ```
@@ -411,7 +410,7 @@ DONE (return to previous work)
 
 **Keep spec.md focused:**
 ```markdown
-# Bug Fix: Authentication Error
+## Bug Fix: Authentication Error
 
 ### Root Cause
 
@@ -455,21 +454,21 @@ Integration test:
 
 ### S5: Implementation Planning
 
-**Read guides in order:**
-1. stages/s5/s5_p1_planning_round1.md - Round 1 (iterations 1-7 + 4a)
-2. stages/s5/s5_p2_planning_round2.md - Round 2 (iterations 8-13)
-3. stages/s5/s5_p3_i1_preparation.md - Round 3 Part 1 (iterations 14-19)
-4. stages/s5/s5_p3_i3_gates_part2.md - Round 3 Part 2 (iterations 23, 23a, 25, 24)
+**Guide:** `stages/s5/s5_v2_validation_loop.md` (comprehensive)
+
+**Process:**
+1. Phase 1: Draft Creation (30-60 min for bug fixes)
+2. Phase 2: Validation Loop (2-4 hours, typically 4-6 rounds)
 
 **Same rigor as features:**
-- Complete ALL 24 verification iterations
-- Algorithm Traceability Matrix
-- Mock Audit
-- Pre-Implementation Spec Audit
+- Complete validation across all 11 dimensions
+- Algorithm Traceability (Dimension 3)
+- Spec Alignment & Cross-Validation (Dimension 11, includes Gates 23a, 25)
+- Exit with 3 consecutive clean validation rounds
 
 **Bug fix TODOs usually shorter:**
 ```markdown
-# Bug Fix TODO: Authentication Error
+## Bug Fix TODO: Authentication Error
 
 ### Phase 1: Fix Implementation
 - [ ] Add null check to ConfigManager.get_adp_multiplier()
@@ -509,28 +508,28 @@ Integration test:
 
 **Read guides in order:**
 1. stages/s7/s7_p1_smoke_testing.md - Smoke Testing (3 parts - MANDATORY GATE)
-2. stages/s7/s7_p2_qc_rounds.md - QC Round 1, 2, 3 (with restart protocol)
+2. stages/s7/s7_p2_qc_rounds.md - Validation Loop (3 consecutive clean rounds)
 3. stages/s7/s7_p3_final_review.md - PR Review (11 categories) + lessons learned
 
 **Same validation as features:**
 - Smoke Testing (3 parts)
-- QC Round 1, 2, 3
+- Validation Loop (3 consecutive clean rounds)
 - PR Review (11 categories)
-- QC Restart Protocol if issues found
+- Fix-and-continue approach if issues found
 
 **Bug fix smoke testing:**
 ```bash
-# Part 1: Import test
+## Part 1: Import test
 python -c "from league_helper.util.ConfigManager import ConfigManager"
 
-# Part 2: Entry point test (if applicable)
+## Part 2: Entry point test (if applicable)
 python run_league_helper.py --help
 
-# Part 3: E2E test
-# Run scenario that triggered bug
-# Verify bug no longer occurs
+## Part 3: E2E test
+## Run scenario that triggered bug
+## Verify bug no longer occurs
 python run_league_helper.py --mode draft
-# Check: Players with missing ADP work correctly
+## Check: Players with missing ADP work correctly
 ```
 
 ---
@@ -558,8 +557,8 @@ python run_league_helper.py --mode draft
 
 **Resuming Work:**
 - feature_01_adp_integration: Resuming S7 (Testing & Review) (post-implementation)
-  - Resume from: QC Round 2 (re-run after bug fix)
-  - Next action: Complete QC Round 2, then Round 3
+  - Resume from: Validation Loop (re-run after bug fix)
+  - Next action: Complete Validation Loop (3 consecutive clean rounds)
 ```
 
 ---
@@ -581,7 +580,7 @@ Impact check:
 - feature_01 calls get_adp_multiplier() → AFFECTED
 - Need to re-run feature_01's QC to verify fix didn't break it
 
-Action: Re-run feature_01 S7 (Testing & Review) QC Round 2 before continuing
+Action: Re-run feature_01 S7 (Testing & Review) Validation Loop before continuing
 ```
 
 ---
@@ -594,8 +593,8 @@ Action: Re-run feature_01 S7 (Testing & Review) QC Round 2 before continuing
 
 **Resume Instructions:**
 When bug fix complete:
-1. Re-run S7 (Testing & Review) QC Round 2 (verify bug fix didn't affect this feature)
-2. If passes: Continue to QC Round 3
+1. Re-run S7 (Testing & Review) Validation Loop (verify bug fix didn't affect this feature)
+2. If passes: Continue to Final Review (S7.P3)
 3. If fails: Investigate interaction with bug fix
 ```
 
@@ -606,11 +605,11 @@ When bug fix complete:
 ### Step 4: Update README Agent Status
 
 ```markdown
-**Current Phase:** POST_IMPLEMENTATION_QC_ROUNDS (Resumed)
+**Current Phase:** POST_IMPLEMENTATION_VALIDATION_LOOP (Resumed)
 **Current Guide:** stages/s7/s7_p2_qc_rounds.md
 **Guide Last Read:** 2025-12-30 19:15
 **Resumed After:** bugfix_high_authentication_error completion
-**Next Action:** Re-run QC Round 2 to verify bug fix compatibility
+**Next Action:** Re-run Validation Loop to verify bug fix compatibility
 ```
 
 ---
@@ -667,7 +666,7 @@ Action:
 
 **Example:**
 ```text
-Currently: feature_03 S7 (Testing & Review) (QC Round 2)
+Currently: feature_03 S7 (Testing & Review) (Validation Loop)
 Bug discovered: Typo in output message
 Priority: low
 
@@ -686,7 +685,7 @@ Action:
 - [x] notes.txt created and user-verified
 - [x] spec.md created (root cause, solution)
 - [x] checklist.md created
-- [x] S5 complete (22 iterations, implementation_plan.md)
+- [x] S5 v2 complete (Validation Loop passed, implementation_plan.md)
 - [x] S6 complete (implementation, tests pass)
 - [x] S7 (Testing & Review) complete (smoke tests, QC rounds, PR review)
 - [x] lessons_learned.md updated
@@ -714,7 +713,7 @@ Action:
 
 **Why wrong:** Small bugs can have big impacts. Same rigor required.
 
-**Correct:** Full S7 (Testing & Review) validation (smoke tests + 3 QC rounds + PR review)
+**Correct:** Full S7 (Testing & Review) validation (smoke tests + Validation Loop (3 consecutive clean rounds) + PR review)
 
 ---
 
@@ -746,7 +745,7 @@ Action:
 - [ ] bugfix_{priority}_{name}/ folder created with complete structure
 - [ ] notes.txt created and user-verified
 - [ ] Bug fix workflow followed (S2 → S5 → S6 → S7 with full rigor)
-- [ ] All 22 iterations completed in S5 (no shortcuts)
+- [ ] Complete Validation Loop in S5 v2 (all 11 dimensions, 3 clean rounds, no shortcuts)
 - [ ] QC rounds passed (S7)
 - [ ] Bug fix tested and verified
 - [ ] Epic documentation updated for resumability
@@ -764,7 +763,7 @@ Action:
 1. **Get approval** - User decides priority and timing
 2. **Document thoroughly** - notes.txt user-verified
 3. **Follow simplified workflow** - S2 → S5 → S6 → S7
-4. **Same rigor** - 22 iterations, QC rounds, no shortcuts
+4. **Same rigor** - S5 v2 Validation Loop (11 dimensions, 3 clean rounds), QC rounds, no shortcuts
 5. **Resume cleanly** - Return to paused work, verify compatibility
 
 **Critical:**

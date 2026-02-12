@@ -39,7 +39,7 @@
 
 ### Dimension Focus by Sub-Round
 
-**🚨 CRITICAL:** Only check dimensions assigned to your current sub-round. Do NOT check all 16 dimensions in one discovery phase.
+**🚨 CRITICAL:** Only check dimensions assigned to your current sub-round. Do NOT check all 17 dimensions in one discovery phase.
 
 #### Sub-Round N.1: Core Dimensions
 **Focus on:** D1, D2, D3, D8 (4 dimensions)
@@ -128,7 +128,7 @@ Output: Discovery report with D1, D2, D3, D8 issues ONLY
 ```diff
 
 **Do NOT:**
-- ❌ Check all 16 dimensions in Sub-Round N.1
+- ❌ Check all 17 dimensions in Sub-Round N.1
 - ❌ Check D10 (file size) during Sub-Round N.1 (save for N.3)
 - ❌ Mix dimensions from different sub-rounds
 - ❌ Skip dimensions assigned to current sub-round
@@ -266,7 +266,7 @@ Changes:
 - Stage 5b → S5.P2
 - Stage 6 → S9
 - Stage 7 → S10
-- File: stage_5a_planning.md → s5_p1_planning_round1.md
+- File: stage_5a_planning.md → s5_v2_validation_loop.md
 ```diff
 
 **If general maintenance audit:**

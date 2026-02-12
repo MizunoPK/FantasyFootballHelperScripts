@@ -18,6 +18,7 @@ Author: Kai Mizuno
 
 from pathlib import Path
 import sys
+import argparse
 import constants
 from util.ConfigManager import ConfigManager
 from util.PlayerManager import PlayerManager
@@ -68,7 +69,7 @@ class LeagueHelperManager:
             ValueError: If configuration is invalid
         """
         self.logger = get_logger()
-        self.logger.debug("Initializing League Helper Manager")
+        self.logger.debug(f"Initializing League Helper Manager with data folder: {data_folder}")
 
         # Create config manager for week-specific predictions (used by most modes)
         self.logger.debug(f"Loading configuration from {data_folder}")
@@ -76,20 +77,16 @@ class LeagueHelperManager:
         self.logger.info(f"Configuration loaded: {self.config.config_name} (Week {self.config.current_nfl_week})")
 
         # Initialize Season Schedule Manager first (needed by TeamDataManager)
-        self.logger.debug("Initializing Season Schedule Manager")
         self.season_schedule_manager = SeasonScheduleManager(data_folder)
 
         # Initialize Team Data Manager with config and schedule manager
-        self.logger.debug("Initializing Team Data Manager")
         self.team_data_manager = TeamDataManager(data_folder, self.config, self.season_schedule_manager, self.config.current_nfl_week)
 
         # Initialize Player Manager for week-specific scoring (most modes)
-        self.logger.debug("Initializing Player Manager")
         self.player_manager = PlayerManager(data_folder, self.config, self.team_data_manager, self.season_schedule_manager)
         self.logger.info(f"Player data loaded: {len(self.player_manager.players)} total players")
 
         # Initialize all mode managers with necessary dependencies
-        self.logger.debug("Initializing mode managers")
         # Add to Roster Mode uses regular config/player manager with is_draft_mode flag
         self.add_to_roster_mode_manager = AddToRosterModeManager(self.config, self.player_manager, self.team_data_manager)
         # Other modes use week-specific config for in-season predictions
@@ -121,8 +118,8 @@ class LeagueHelperManager:
 
         while True:
             # Reload player data from CSV before showing menu to ensure latest changes
-            self.logger.debug("Reloading player data before menu display")
             self.player_manager.reload_player_data()
+            self.logger.debug(f"Reloading player data: {len(self.player_manager.players)} players refreshed")
 
             choice = show_list_selection("MAIN MENU", ["Add to Roster", "Starter Helper", "Trade Simulator", "Modify Player Data", "Save Calculated Projected Points"], "Quit")
             self.logger.debug(f"User selected menu option: {choice}")
@@ -201,8 +198,31 @@ def main():
     - players.csv
     - team_data/
     - season_schedule.csv
+
+    Command-line arguments:
+        --enable-log-file: Enable file logging to logs/league_helper/ with 500-line
+                          rotation and max 50 files (default: OFF)
     """
-    setup_logger(constants.LOG_NAME, constants.LOGGING_LEVEL, constants.LOGGING_TO_FILE, constants.LOGGING_FILE, constants.LOGGING_FORMAT)
+    # Parse command-line arguments
+    parser = argparse.ArgumentParser(description="Fantasy Football League Helper")
+    parser.add_argument(
+        '--enable-log-file',
+        action='store_true',
+        default=False,
+        help='Enable file logging (logs written to logs/league_helper/ with 500-line rotation, max 50 files)'
+    )
+    args = parser.parse_args()
+
+    # Setup logger with CLI flag integration (Feature 01 infrastructure)
+    # log_to_file controlled by --enable-log-file flag (default: OFF)
+    # log_file_path=None lets Feature 01 auto-generate path (logs/league_helper/)
+    logger = setup_logger(
+        constants.LOG_NAME,
+        constants.LOGGING_LEVEL,
+        log_to_file=args.enable_log_file,
+        log_file_path=None,
+        log_format=constants.LOGGING_FORMAT
+    )
 
     base_path = Path(__file__).parent.parent
     data_path = base_path / "data"

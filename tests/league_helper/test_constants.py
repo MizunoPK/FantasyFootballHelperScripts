@@ -25,19 +25,10 @@ class TestLoggingConstants:
         valid_levels = ['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']
         assert constants.LOGGING_LEVEL in valid_levels
 
-    def test_logging_to_file_is_boolean(self):
-        """Test that LOGGING_TO_FILE is a boolean."""
-        assert isinstance(constants.LOGGING_TO_FILE, bool)
-
     def test_log_name_is_non_empty(self):
         """Test that LOG_NAME is a non-empty string."""
         assert isinstance(constants.LOG_NAME, str)
         assert len(constants.LOG_NAME) > 0
-
-    def test_logging_file_is_valid_path(self):
-        """Test that LOGGING_FILE is a valid file path string."""
-        assert isinstance(constants.LOGGING_FILE, str)
-        assert len(constants.LOGGING_FILE) > 0
 
     def test_logging_format_is_valid(self):
         """Test that LOGGING_FORMAT is a valid format type."""
