@@ -17,7 +17,7 @@
 
 | KAI # | Epic Name | Type | Branch | Status | Date Started |
 |-------|-----------|------|--------|--------|--------------|
-| 8 | logging_refactoring | epic | epic/KAI-8 | In Progress | 2026-02-06 |
+| (none) | - | - | - | - | - |
 
 ---
 
@@ -27,6 +27,7 @@
 
 | KAI # | Epic Name | Type | Branch | Date Completed | Location |
 |-------|-----------|------|--------|----------------|----------|
+| 8 | logging_refactoring | epic | epic/KAI-8 | 2026-02-12 | feature-updates/done/KAI-8-logging_refactoring/ |
 | 7 | improve_configurability_of_scripts | epic | epic/KAI-7 | 2026-02-01 | feature-updates/done/KAI-7-improve_configurability_of_scripts/ |
 | 6 | nfl_team_penalty | epic | epic/KAI-6 | 2026-01-15 | feature-updates/done/KAI-6-nfl_team_penalty/ |
 | 5 | add_k_dst_ranking_metrics_support | epic | epic/KAI-5 | 2026-01-09 | feature-updates/done/KAI-5-add_k_dst_ranking_metrics_support/ |
@@ -39,6 +40,74 @@
 ## Epic Details
 
 <!-- Each epic gets a detailed section below once completed -->
+
+---
+
+### KAI-8: logging_refactoring
+
+**Type:** epic
+**Branch:** epic/KAI-8
+**Date Started:** 2026-02-06
+**Date Completed:** 2026-02-12
+**Location:** feature-updates/done/KAI-8-logging_refactoring/
+
+**Description:**
+Improved logging infrastructure across all major scripts with centralized log management, automated rotation, quality improvements to Debug/Info logs, and CLI toggle for file logging. The epic introduced a centralized LoggingHelper utility that manages log files across all 4 root scripts (run_league_helper.py, run_simulation.py, run_player_fetcher.py, run_scores_fetcher.py) with automatic rotation by both date and size (50MB max, 30-day retention). Each script gained a --no-log-file CLI flag to disable file logging while preserving console output, addressing a critical simulation performance bottleneck where sequential league runs generated 50MB+ log files in <1 minute. The epic systematically audited and improved 939 logger calls across 60 files, upgrading console clarity (more Info-level contextual messages) and file diagnostic detail (more Debug-level technical data). Group-based S2 parallelization enabled completion of 7 features in 6 days with zero bugs during epic testing.
+
+**Features Implemented:**
+1. feature_01_core_logging_infrastructure - Created LoggingHelper utility with file rotation (date + size), log directory management, and automated cleanup
+2. feature_02_league_helper_logging - Integrated LoggingHelper into run_league_helper.py, audited 4 module logger calls, added --no-log-file flag
+3. feature_03_player_data_fetcher_logging - Integrated LoggingHelper into run_player_fetcher.py, preserved existing error.log file, added --no-log-file flag
+4. feature_04_accuracy_sim_logging - Integrated LoggingHelper into accuracy simulation with --no-log-file flag, audited 214 logger calls across 4 files
+5. feature_05_win_rate_sim_logging - Integrated LoggingHelper into win rate simulation with --no-log-file flag, audited 277 logger calls across 5 files
+6. feature_06_historical_data_compiler_logging - Integrated LoggingHelper into compile_historical_data.py, audited 120 logger calls across 2 files
+7. feature_07_schedule_fetcher_logging - Integrated LoggingHelper into schedule fetcher, audited 73 logger calls across 2 files
+
+**Key Changes:**
+- utils/logging_helper.py: Created 180-line LoggingHelper utility with RotatingFileHandler (50MB max, 30-day retention), automated log directory setup, graceful failure handling
+- run_league_helper.py: Integrated LoggingHelper, added --no-log-file CLI flag, updated 10 logger calls (3 Info, 7 Debug)
+- run_simulation.py: Integrated LoggingHelper into both accuracy and win rate simulations with --no-log-file flag
+- run_player_fetcher.py: Integrated LoggingHelper while preserving existing error.log behavior
+- compile_historical_data.py: Integrated LoggingHelper with performance-critical --no-log-file support
+- historical_data_compiler/game_data_fetcher.py: Audited 81 logger calls (19 Info, 62 Debug)
+- historical_data_compiler/schedule_fetcher.py: Audited 73 logger calls (22 Info, 51 Debug)
+- simulation/accuracy/: Audited 214 logger calls across AccuracySimulationManager, AccuracyCalculator, AccuracyResultsManager
+- simulation/win_rate/: Audited 277 logger calls across SimulationManager, ParallelLeagueRunner, SimulatedLeague, DraftHelperTeam
+- tests/: Updated 3 test files for new run_league_helper behavior, all tests passing (2661/2661)
+- feature-updates/guides_v2/: Applied 3 S10.P1 guide improvements + comprehensive S5 v1→v2 terminology migration (17 files)
+
+**Commit History:**
+- `08f3c11` - `docs/KAI-8: Update EPIC_README with completion summary`
+- `35cb011` - `chore/KAI-8: Add S5 terminology migration proposal to epic folder`
+- `3767d21` - `chore/KAI-8: Move completed epic to done/ folder`
+- `265e2fa` - `docs/guides: Migrate S5 v1→v2 terminology across reference files`
+- `4198be8` - `feat/KAI-8: Complete logging_refactoring epic`
+- `014cdd6` - `docs/KAI-8: Apply S10.P1 guide improvements from lessons learned`
+- `21401cf` - `feat/KAI-8: Complete S9.P2 Epic QC Validation Loop`
+- `1b29b0c` - `feat/KAI-8: Complete S8.P2 - All 7 features reviewed`
+- Plus 12 additional feature implementation commits (20 total)
+
+**Testing Results:**
+- Unit tests: 2,661/2,661 passing (100%)
+- Epic smoke testing: Passed (4 parts, zero issues)
+- Epic QC Validation Loop: Passed (3 consecutive clean rounds, zero issues)
+- User testing: Approved (zero bugs found in S9.P3)
+- S10.P1 Guide updates: 3 proposals applied (P0, P2, P3)
+- Guide audits: 2 comprehensive audits (initial + fresh validation post-migration)
+
+**Lessons Learned:**
+See feature-updates/done/KAI-8-logging_refactoring/epic_lessons_learned.md - Key success factors: Group-based S2 parallelization enabled 71% time reduction (14h sequential → 4h group-based), systematic logger call auditing (939 calls across 60 files) found zero implementation bugs, CLI flag approach (--no-log-file) solved performance without architectural changes, S5 v2 Validation Loop (11 dimensions, 3 consecutive clean rounds) prevented all bugs before implementation. Critical process lessons: S2 parallelization requires dependency analysis (Group 1: foundation, Group 2: dependents), reactive coordination model (not proactive monitoring), handoff packages should reference file paths (not paste 300+ lines). Generated comprehensive guide improvements including group-based parallelization workflow, S5 v1→v2 terminology migration across 17 reference files, and 2 new reference guides (s2_parallelization_decision_tree.md, s2_primary_agent_group_wave_guide.md planned).
+
+**Related Documentation:**
+- Epic README: feature-updates/done/KAI-8-logging_refactoring/EPIC_README.md
+- Epic Test Plan: feature-updates/done/KAI-8-logging_refactoring/epic_smoke_test_plan.md
+- Epic Lessons Learned: feature-updates/done/KAI-8-logging_refactoring/epic_lessons_learned.md
+- Guide Update Proposals:
+  - feature-updates/done/KAI-8-logging_refactoring/GUIDE_UPDATE_PROPOSAL.md (3 proposals)
+  - feature-updates/done/KAI-8-logging_refactoring/GUIDE_UPDATE_PROPOSAL_S5_TERMINOLOGY.md (17-file migration)
+- Research Analysis:
+  - feature-updates/done/KAI-8-logging_refactoring/research/GROUP_BASED_S2_PARALLELIZATION_INTENDED_FLOW.md
+  - feature-updates/done/KAI-8-logging_refactoring/research/PARALLEL_S2_STRUCTURE_INCONSISTENCY_ANALYSIS.md
 
 ---
 
