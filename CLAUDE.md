@@ -205,7 +205,7 @@ When transitioning between stages:
 
 | Stage | Trigger | Guide | Key Actions | Next |
 |-------|---------|-------|-------------|------|
-| **S1** | "Help me develop {epic}" | `stages/s1/s1_epic_planning.md` | KAI number, git branch, **Discovery Phase (MANDATORY)**, folder structure | S2 |
+| **S1** | "Help me develop {epic}" | `stages/s1/s1_epic_planning.md` | KAI number (ask user: next available or custom), git branch, **Discovery Phase (MANDATORY)**, folder structure | S2 |
 | **S2** | Complete S1 | `stages/s2/s2_feature_deep_dive.md` | spec.md, checklist.md, RESEARCH_NOTES.md (Gate 3: User approval) | S3 |
 | **S3** | All features done S2 | `stages/s3/s3_epic_planning_approval.md` | Epic testing strategy, documentation (Gate 4.5: User approval) | S4 |
 | **S4** | S3 approved | `stages/s4/s4_feature_testing_strategy.md` | test_strategy.md (4 iterations, Validation Loop) | S5 |

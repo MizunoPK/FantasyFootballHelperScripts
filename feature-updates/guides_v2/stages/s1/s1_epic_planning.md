@@ -81,7 +81,7 @@ S1 is complete when you have Discovery approved, a validated epic ticket, comple
 
 1. CREATE GIT BRANCH BEFORE ANY CHANGES (Step 1.0)
    - Verify on main, pull latest
-   - Assign KAI number from EPIC_TRACKER.md
+   - Ask user: use next available KAI number or specify custom number
    - Create branch: {work_type}/KAI-{number}
    - Update EPIC_TRACKER.md and commit immediately
 
@@ -264,13 +264,33 @@ Step 6: Transition to S2
 **Steps:**
 1. Verify you're on main branch (`git checkout main`)
 2. Pull latest changes (`git pull origin main`)
-3. Assign KAI number from EPIC_TRACKER.md
-4. Determine work type (epic/feat/fix)
-5. Create and checkout branch (`git checkout -b {work_type}/KAI-{number}`)
-6. Update EPIC_TRACKER.md (add to Active table, increment next number)
-7. Commit EPIC_TRACKER.md update immediately
+3. Read EPIC_TRACKER.md to identify "Next Available Number"
+4. **Ask user for KAI number preference** (use AskUserQuestion):
+   - Option A: Use next available number (e.g., KAI-9) - Recommended
+   - Option B: Specify custom KAI number (user provides number)
+   - **Rationale:** Allows user control over epic numbering for organizational purposes
+5. Determine work type (epic/feat/fix) - typically "epic" for multi-feature work
+6. Create and checkout branch (`git checkout -b {work_type}/KAI-{number}`)
+7. Update EPIC_TRACKER.md (add to Active table, increment next number if using next available)
+8. Commit EPIC_TRACKER.md update immediately
 
 **Why branch first:** Keeps main clean, allows parallel work, enables rollback
+
+**Example: Asking for KAI number preference**
+
+After reading EPIC_TRACKER.md showing "Next Available Number: KAI-9", use AskUserQuestion:
+
+```
+Question: "Which KAI number should I use for this epic?"
+Header: "KAI Number"
+Options:
+  - Option A: "Use next available (KAI-9)" (Recommended)
+    Description: "Uses the next sequential number from EPIC_TRACKER.md"
+  - Option B: "Specify custom number"
+    Description: "You provide a specific KAI number (e.g., for organizational grouping)"
+```
+
+If user selects Option B, they will provide the custom number in "Other" text input.
 
 ---
 
