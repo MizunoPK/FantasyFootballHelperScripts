@@ -17,13 +17,13 @@
 
 | KAI # | Epic Name | Type | Branch | Status | Date Started |
 |-------|-----------|------|--------|--------|--------------|
-| (none) | - | - | - | - | - |
+| 9 | remove_player_fetcher_legacy_features | epic | epic/KAI-9 | In Progress | 2026-02-13 |
 
 ---
 
 ## Completed Epics
 
-### Next Available Number: KAI-9
+### Next Available Number: KAI-10
 
 | KAI # | Epic Name | Type | Branch | Date Completed | Location |
 |-------|-----------|------|--------|----------------|----------|
