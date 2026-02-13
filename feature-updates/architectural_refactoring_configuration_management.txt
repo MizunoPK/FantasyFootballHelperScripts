@@ -1,13 +1,20 @@
 # Epic Request: Architectural Refactoring of Configuration Management
 
+**Last Validated**: 2026-02-13
+**Baseline Git Commit**: f5a54d7 (before KAI-9 merge)
+**Post-KAI-9 Status**: Scope reduced by ~20% due to legacy export removal
+
 ## Executive Summary
 
 Perform a comprehensive architectural refactoring of all 7 runner scripts to establish a consistent, maintainable configuration management pattern. This includes migrating from hardcoded/scattered configuration to CLI-based configuration with dependency injection, implementing fast E2E test modes for integration testing, adding comprehensive debug support, and creating a robust integration test framework.
 
+**Post-KAI-9 Update**: Scope reduced by ~20% due to KAI-9's removal of 9 config constants and ~900 lines of legacy export code from player-data-fetcher. Estimated effort reduced from 40-60 hours to 30-50 hours. Feature 01 (player_fetcher) scope reduced from 23 arguments to 14 arguments.
+
 ## Background & Problem Statement
 
 **Current State:**
-- 4 of 7 runner scripts have NO command-line argument support (league_helper, player_fetcher, schedule_fetcher, and partially others)
+- 3 of 7 runner scripts have MINIMAL command-line argument support (only --enable-log-file): league_helper, player_fetcher, schedule_fetcher
+- 4 of 7 runner scripts have comprehensive argument support: game_data_fetcher, accuracy_simulation, win_rate_simulation, compile_historical_data
 - Configuration is scattered across module-level constants in config.py/constants.py files
 - Some scripts use config override patterns (runtime modification of imported constants)
 - No consistent E2E test modes for integration testing
@@ -60,10 +67,12 @@ Perform a comprehensive architectural refactoring of all 7 runner scripts to est
 - `--log-level`: Set logging level [DEBUG, INFO, WARNING, ERROR, CRITICAL]
 
 **Script-specific arguments (based on each script's configurable constants):**
-- **player_fetcher** (~23 args): --week, --season, --output-dir, --create-csv, --create-json, --create-excel, --create-position-json, --enable-historical-save, --enable-game-data, --preserve-locked, --progress-frequency, --espn-player-limit, --sleeper-player-limit, etc.
-- **schedule_fetcher** (~5 args): --season, --output-path, --data-folder, --create-csv, --create-json
+- **player_fetcher** (~14 args): --week, --season, --position-json-output, --enable-historical-save, --enable-game-data, --load-drafted-data, --drafted-data-path, --my-team-name, --team-data-folder, --game-data-csv, --progress-frequency, --espn-player-limit, --request-timeout, --rate-limit-delay, etc.
+
+  **NOTE**: KAI-9 (completed 2026-02-13) removed 9 arguments: --create-csv, --create-json, --create-excel, --preserve-locked, --output-dir, --excel-position-sheets, --export-columns, --default-file-caps. Scope reduced from 23 args to ~14 args.
+- **schedule_fetcher** (~5 args): --season, --output-path, --data-folder, --output-format (CSV/JSON/both)
 - **game_data_fetcher** (~7 args): --season, --current-week, --output, --weeks, --data-folder, --validate, --clean
-- **historical_compiler** (~8 args): --year, --weeks, --validate, --clean, --timeout, --rate-limit-delay, --skip-backups, --data-folder
+- **historical_compiler** (~8 args): --year, --weeks, --validate, --clean, --timeout, --rate-limit-delay, --skip-backups, --data-folder, --verbose, --output-dir (currently has 4 args: --year, --verbose, --enable-log-file, --output-dir)
 - **win_rate_simulation** (enhance existing ~10 args): --mode, --sims, --baseline, --workers, --output, --data, --test-values, --projection-type, --stat-calculator
 - **accuracy_simulation** (enhance existing ~8 args): --baseline, --test-values, --max-workers, --output, --data, --horizons, --projection-type
 - **league_helper** (~12 args): --mode, --config-path, --data-folder, --recommendation-count, --min-waiver-improvement, --min-trade-improvement, --logging-to-file, --logging-file, --league-id, --week, --season, --team-id
@@ -259,7 +268,7 @@ class ESPNClient:
 - ✅ 3-5 argument combinations tested per script
 
 ### 6. Regression Prevention
-- ✅ All 2,500+ existing unit tests pass (100% pass rate)
+- ✅ All 2,750+ existing unit tests pass (100% pass rate) [2,754 tests as of 2026-02-13]
 - ✅ Zero functionality regressions introduced
 - ✅ Backward compatibility preserved where applicable (e.g., game_data_fetcher --output, historical_compiler --verbose)
 
@@ -273,11 +282,12 @@ class ESPNClient:
 ## Feature Breakdown (10 Features)
 
 ### Feature 01: player_fetcher
-- Add comprehensive argparse (23 arguments)
-- Remove CLI constants from config.py
+- Add argparse (14 arguments) - REDUCED from 23 due to KAI-9
+- Remove CLI constants from config.py - PARTIALLY COMPLETE (9 constants removed by KAI-9, 11 remain)
 - Refactor to constructor parameter pattern
 - Add debug mode + E2E test mode
-- Status: NEEDS REFACTORING (Feature 10)
+- Status: PARTIALLY COMPLETE (KAI-9 removed legacy export code), NEEDS DEPENDENCY INJECTION REFACTORING
+- Dependencies: KAI-9 (completed 2026-02-13)
 
 ### Feature 02: schedule_fetcher
 - Add argparse (5 arguments)
@@ -332,22 +342,27 @@ class ESPNClient:
 - Status: DEPENDS ON FEATURES 01-08
 
 ### Feature 10: refactor_player_fetcher (CRITICAL)
-- Refactor Feature 01 from config override to constructor pattern
-- Remove importlib config override code
+- Refactor Feature 01 from direct config imports to constructor pattern
+- Replace direct imports with parameter passing (verified: uses `from config import ...`, not importlib)
 - Implement create_settings_dict() factory function
 - Modify main() to accept settings_dict parameter
-- Refactor 4 internal modules (espn_client, player_data_exporter, game_data_fetcher, fantasy_points_calculator)
-- Remove CLI constants from config.py
+- Refactor remaining internal modules (KAI-9 already updated player_data_exporter.py)
+- Remove remaining CLI constants from config.py (11 constants remain after KAI-9)
 - Preserve 100% behavioral equivalence
 - Status: ESTABLISHES ARCHITECTURAL PATTERN
+- Dependencies: KAI-9 (completed 2026-02-13)
+- Note: KAI-9 removed 6 export methods from player_data_exporter.py, simplifying refactoring scope
 
 ## Implementation Order & Dependencies
 
 **Critical Path:**
-1. Feature 10 (refactor_player_fetcher) - MUST BE FIRST - Establishes correct architectural pattern
-2. Features 02-07 (remaining scripts) - Follow Feature 10 pattern
-3. Feature 08 (integration_test_framework) - After all scripts complete
-4. Feature 09 (documentation) - Final
+1. **Feature 10 (refactor_player_fetcher)** - MUST BE FIRST - Establishes correct architectural pattern
+   - Benefits from KAI-9 pre-work (9 constants already removed, export code simplified)
+2. **Features 02-07 (remaining scripts)** - Follow Feature 10 pattern
+3. **Feature 08 (integration_test_framework)** - After all scripts complete
+4. **Feature 09 (documentation)** - Final
+
+**Note**: KAI-9 is a prerequisite for this epic (already completed 2026-02-13)
 
 **Dependency Graph:**
 ```
@@ -379,21 +394,23 @@ Feature 10 (refactor F01) → Feature 02 (schedule_fetcher)
 
 ## Estimated Effort
 
-**Total Epic Size:** VERY LARGE
-- Feature 10: LARGE (refactoring with 4 internal modules)
+**Total Epic Size:** LARGE (reduced from VERY LARGE due to KAI-9 pre-work)
+- Feature 10: MEDIUM-LARGE (refactoring scope reduced by KAI-9 cleanup of player_data_exporter.py)
 - Feature 07: LARGE (45+ mode manager references)
 - Features 02-06: SMALL-MEDIUM each
 - Feature 08: MEDIUM (7 test runners)
 - Feature 09: SMALL (documentation)
 
 **Total Features:** 10
-**Estimated Duration:** 40-60 hours of development time (assuming sequential implementation with proper testing)
+**Estimated Duration:** 30-50 hours of development time (reduced from 40-60h due to KAI-9 pre-work removing ~900 lines and 9 config constants)
+
+**KAI-9 Savings:** ~10-15 hours of work already completed
 
 ## Definition of Done
 
 Epic is complete when:
 1. ✅ All 10 features implemented and tested
-2. ✅ All 2,500+ unit tests pass (100% pass rate)
+2. ✅ All 2,750+ unit tests pass (100% pass rate) [2,754 tests as of 2026-02-13]
 3. ✅ All 7 integration test runners pass (exit code 0)
 4. ✅ Master integration test runner passes (7/7 scripts)
 5. ✅ All 60+ CLI arguments documented accurately
@@ -403,10 +420,93 @@ Epic is complete when:
 9. ✅ User testing confirms zero regressions
 10. ✅ Epic lessons learned documented in guide updates
 
+---
+
+## Impact of KAI-9 (Completed 2026-02-13)
+
+**Epic**: KAI-9 - Remove legacy player fetcher export formats
+
+**Work Completed**:
+- ✅ Removed 9 config constants from player-data-fetcher/config.py
+- ✅ Removed 6 export methods from player_data_exporter.py
+- ✅ Updated Settings class (removed 4 fields)
+- ✅ Fixed/removed 32 tests
+- ✅ Deleted ~900 lines of legacy code
+
+**Constants REMOVED by KAI-9** (no longer need CLI args):
+1. `PRESERVE_LOCKED_VALUES`
+2. `OUTPUT_DIRECTORY`
+3. `CREATE_CSV`
+4. `CREATE_JSON`
+5. `CREATE_EXCEL`
+6. `DEFAULT_FILE_CAPS`
+7. `EXCEL_POSITION_SHEETS`
+8. `EXPORT_COLUMNS`
+9. Settings field removals (4 fields)
+
+**Constants REMAINING in config.py** (need CLI args - 11 total):
+1. `CURRENT_NFL_WEEK` (--week)
+2. `NFL_SEASON` (--season)
+3. `LOAD_DRAFTED_DATA_FROM_FILE` (--load-drafted-data)
+4. `DRAFTED_DATA` (--drafted-data-path)
+5. `MY_TEAM_NAME` (--my-team-name)
+6. `POSITION_JSON_OUTPUT` (--position-json-output)
+7. `TEAM_DATA_FOLDER` (--team-data-folder)
+8. `GAME_DATA_CSV` (--game-data-csv)
+9. `ENABLE_HISTORICAL_DATA_SAVE` (--enable-historical-save)
+10. `ENABLE_GAME_DATA_FETCH` (--enable-game-data)
+11. `ESPN_PLAYER_LIMIT` (--espn-player-limit)
+
+Plus 3 optional args: `REQUEST_TIMEOUT` (--request-timeout), `RATE_LIMIT_DELAY` (--rate-limit-delay), `PROGRESS_UPDATE_FREQUENCY` (--progress-frequency)
+
+**Impact on This Epic**:
+- Feature 01 scope reduced by ~35% (23 args → 14 args)
+- Feature 10 refactoring simplified (fewer export code paths)
+- Estimated time savings: 10-15 hours
+- Total epic duration reduced: 40-60h → 30-50h
+
+---
+
 ## Questions for User
 
-1. **Priority order**: Should Feature 10 (refactoring) be implemented first to establish the pattern, or should we proceed with Features 02-09 and do Feature 10 last?
-2. **Backward compatibility**: For Feature 01, should we maintain the OLD config override pattern alongside the NEW constructor pattern during transition, or do a clean break?
-3. **Testing strictness**: Should integration tests fail if E2E mode takes >180 seconds, or just warn?
-4. **Documentation format**: Should the new INTEGRATION_TESTING_GUIDE.md follow the same format as existing testing docs, or create a new format?
+1. **Priority order**: Should Feature 10 (refactoring) be implemented first to establish the pattern, or should we proceed with Features 02-09 and do Feature 10 last? **RECOMMENDATION**: Feature 10 first (establishes pattern for others)
+2. **Backward compatibility**: For Feature 01, should we maintain the OLD config import pattern alongside the NEW constructor pattern during transition, or do a clean break? **RECOMMENDATION**: Clean break (simpler, fewer bugs)
+3. **Testing strictness**: Should integration tests fail if E2E mode takes >180 seconds, or just warn? **RECOMMENDATION**: Warn only (network variability)
+4. **Documentation format**: Should the new INTEGRATION_TESTING_GUIDE.md follow the same format as existing testing docs, or create a new format? **RECOMMENDATION**: Follow existing format (consistency)
 5. **Scope confirmation**: Are there any additional scripts or configurations not covered in this epic request that should be included?
+
+---
+
+## Validation History
+
+### 2026-02-13 - Comprehensive Validation
+
+**Validator**: Claude Sonnet 4.5
+**Validation Report**: `feature-updates/VALIDATION_REPORT_architectural_refactoring_config_management.md`
+
+**Key Findings**:
+- ✅ Core architecture and vision remain sound
+- ❌ 3 inaccurate claims corrected (CLI support, test count, Feature 01 scope)
+- 🔴 Major currency issue: KAI-9 removed 9 constants, reducing Feature 01 by 35%
+- ✅ Verified: player_data_fetcher_main.py uses direct config imports (not importlib)
+- ✅ Verified: Current test count is 2,754 (not "2,500+")
+
+**Updates Applied**:
+1. Corrected CLI support statement (3 minimal, 4 comprehensive)
+2. Updated Feature 01 scope (23 args → 14 args)
+3. Updated test count (2,500+ → 2,754)
+4. Added KAI-9 impact section
+5. Updated effort estimate (40-60h → 30-50h)
+6. Changed Feature 01 status to "PARTIALLY COMPLETE"
+7. Changed Feature 10 description to reflect direct imports (not importlib)
+8. Added remaining constants list (11 CLI-configurable)
+
+**Validation Status**: ✅ APPROVED - Proposal updated to reflect current codebase state
+
+**Next Steps**: Ready for S1 Discovery Phase with corrected baseline
+
+---
+
+**Document Version**: 2.0 (Post-KAI-9)
+**Last Updated**: 2026-02-13
+**Original Proposal Date**: ~2025 (pre-KAI-9)
