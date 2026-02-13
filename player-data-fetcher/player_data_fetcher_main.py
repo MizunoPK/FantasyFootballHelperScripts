@@ -134,8 +134,8 @@ class NFLProjectionsCollector:
         self.position_defense_rankings = {}
         self.team_weekly_data = {}
 
-        # Initialize exporter with path relative to script location
-        output_path = self.script_dir / self.settings.output_directory
+        # Initialize exporter with hardcoded path (OUTPUT_DIRECTORY config removed)
+        output_path = self.script_dir / "data"
         self.exporter = DataExporter(
             output_dir=str(output_path),
             create_latest_files=self.settings.create_latest_files
