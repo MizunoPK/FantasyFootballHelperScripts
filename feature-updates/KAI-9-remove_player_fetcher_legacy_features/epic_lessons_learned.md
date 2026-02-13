@@ -51,12 +51,30 @@ This file captures epic-level lessons learned for improving future epic workflow
 
 ## Testing & QC Insights
 
-{Will be filled in S10}
+### S7 Feature Testing
+- S7.P2 validation: 5 rounds, 5 issues found (incomplete test cleanup, missed NFLProjectionsCollector init, test mock not updated)
+- Root cause: Incomplete grep coverage across tests/ directory after config/method deletions
 
-**Smoke testing results:** TBD
-**QC rounds required:** TBD
-**Issues found:** TBD
-**Resolution approaches:** TBD
+### S9 Epic Final QC
+**S9.P1 Epic Smoke Testing:** PASSED (all 8 scenarios, 4 parts)
+- Part 1 (Import): All modules import cleanly
+- Part 2 (Entry Point): --help exits with code 0
+- Part 3 (E2E): All 8 scenarios passed
+- Part 4 (Cross-Feature): N/A (single feature epic)
+
+**S9.P2 Epic QC Validation Loop:** 5 rounds total, 7 issues fixed
+- Round 1: 5 issues (unused imports: datetime, csv, pandas, NFL_TEAMS, duplicate Path; orphaned _create_dataframe method)
+- Round 2: 2 issues (stale module docstring, stale class docstring)
+- Rounds 3-5: Clean (3 consecutive clean rounds achieved)
+
+**S9.P3 User Testing:** PASSED - no bugs reported
+
+**S9.P4 Epic PR Review:** 3 rounds, 2 consecutive clean rounds
+- Round 1 (4 specialized agents): 2 issues (stale export_data() docstring, stale print_summary() reference)
+- Round 2 (comprehensive): Clean - all 11 categories PASS
+- Round 3 (verification): Clean - confirmed
+
+**Key pattern:** Docstring/comment staleness is the primary residual issue after deletion epics. Code deletions are verified by tests and imports, but stale documentation survives because tests don't validate docstrings.
 
 ---
 
