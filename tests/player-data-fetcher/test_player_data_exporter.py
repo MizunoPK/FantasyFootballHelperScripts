@@ -3,7 +3,6 @@
 Tests for Player Data Exporter Module
 
 Basic smoke tests for data export functionality.
-Tests export to CSV, JSON, and Excel formats.
 
 Author: Kai Mizuno
 """
@@ -12,7 +11,6 @@ import pytest
 import asyncio
 from unittest.mock import Mock, patch, AsyncMock
 from pathlib import Path
-import pandas as pd
 import sys
 
 # Add project root and player-data-fetcher to path
@@ -69,47 +67,6 @@ class TestSetTeamData:
         exporter.set_current_week_schedule(schedule)
 
         assert exporter.current_week_schedule == schedule
-
-
-class TestCreateDataFrame:
-    """Test DataFrame creation from projection data"""
-
-    def test_create_dataframe_with_players(self, tmp_path):
-        """Test _create_dataframe converts projection data to DataFrame"""
-        exporter = DataExporter(output_dir=str(tmp_path))
-
-        projection_data = ProjectionData(
-            season=2024,
-            scoring_format='PPR',
-            total_players=2,
-            players=[
-                PlayerProjection(id="1", name="Player 1", position="QB", team="KC", fantasy_points=300.0),
-                PlayerProjection(id="2", name="Player 2", position="RB", team="SF", fantasy_points=250.0)
-            ]
-        )
-
-        df = exporter._create_dataframe(projection_data)
-
-        assert isinstance(df, pd.DataFrame)
-        assert len(df) == 2
-        assert 'name' in df.columns
-        assert 'position' in df.columns
-
-    def test_create_dataframe_with_empty_data(self, tmp_path):
-        """Test _create_dataframe handles empty player list"""
-        exporter = DataExporter(output_dir=str(tmp_path))
-
-        projection_data = ProjectionData(
-            season=2024,
-            scoring_format='PPR',
-            total_players=0,
-            players=[]
-        )
-
-        df = exporter._create_dataframe(projection_data)
-
-        assert isinstance(df, pd.DataFrame)
-        assert len(df) == 0
 
 
 class TestGetFantasyPlayers:

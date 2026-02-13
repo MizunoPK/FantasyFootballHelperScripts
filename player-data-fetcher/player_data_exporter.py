@@ -2,29 +2,25 @@
 """
 Data Export Module for NFL Fantasy Football Data
 
-This module handles all data export operations (CSV, JSON, Excel) with
-async file I/O for better performance.
+This module handles position-based JSON export and team data export
+with async file I/O for better performance.
 
 Author: Kai Mizuno
 """
 
 import asyncio
-from datetime import datetime
 from pathlib import Path
 from typing import List, Dict, Optional
-import csv
 import json
+import sys
 
 import aiofiles
-import pandas as pd
 
 from player_data_models import ProjectionData, ESPNPlayerData
 
-import sys
-from pathlib import Path
 sys.path.append(str(Path(__file__).parent.parent))
 from utils.FantasyPlayer import FantasyPlayer
-from utils.TeamData import save_team_weekly_data, NFL_TEAMS
+from utils.TeamData import save_team_weekly_data
 from utils.data_file_manager import DataFileManager
 from utils.LoggingManager import get_logger
 from utils.DraftedRosterManager import DraftedRosterManager
@@ -32,7 +28,7 @@ from config import POSITION_JSON_OUTPUT, CURRENT_NFL_WEEK, TEAM_DATA_FOLDER, LOA
 
 
 class DataExporter:
-    """Handles exporting projection data to various formats with async I/O"""
+    """Handles exporting projection data to position JSON and team CSV formats with async I/O"""
 
     # ============================================================================
     # INITIALIZATION & CONFIGURATION
@@ -78,20 +74,6 @@ class DataExporter:
         self.team_weekly_data = data
         self.logger.info(f"Team weekly data set for {len(data)} teams")
 
-    # ============================================================================
-    # FORMAT-SPECIFIC EXPORTS (JSON, CSV, Excel)
-    # ============================================================================
-
-    # ============================================================================
-    # DATAFRAME PREPARATION & HELPERS
-    # ============================================================================
-
-    def _create_dataframe(self, data: ProjectionData) -> pd.DataFrame:
-        """Convert ProjectionData to pandas DataFrame"""
-        return pd.DataFrame([player.model_dump() for player in data.players])
-
-    # ============================================================================
-    # DATA LOADING (Existing drafted/locked values)
     # ============================================================================
     # PLAYER CONVERSION (ESPN → FantasyPlayer)
     # ============================================================================
