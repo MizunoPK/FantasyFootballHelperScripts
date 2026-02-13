@@ -17,13 +17,13 @@
 
 | KAI # | Epic Name | Type | Branch | Status | Date Started |
 |-------|-----------|------|--------|--------|--------------|
-| (none) | | | | | |
+| 10 | architectural_refactoring_configuration_management | epic | epic/KAI-10 | In Progress | 2026-02-13 |
 
 ---
 
 ## Completed Epics
 
-### Next Available Number: KAI-10
+### Next Available Number: KAI-11
 
 | KAI # | Epic Name | Type | Branch | Date Completed | Location |
 |-------|-----------|------|--------|----------------|----------|
