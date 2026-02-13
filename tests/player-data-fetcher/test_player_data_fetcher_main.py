@@ -36,9 +36,6 @@ class TestSettings:
         assert settings.season > 0
         assert settings.current_nfl_week >= 1
         assert settings.current_nfl_week <= 18
-        assert isinstance(settings.create_csv, bool)
-        assert isinstance(settings.create_json, bool)
-        assert isinstance(settings.create_excel, bool)
 
     def test_settings_custom_values(self):
         """Test Settings can be initialized with custom values"""
@@ -370,11 +367,13 @@ class TestExportData:
         """Test export_data calls exporter methods"""
         # Mock exporter instance
         mock_exporter = AsyncMock()
-        mock_exporter.export_all_formats_with_teams.return_value = ['file1.csv']
-        mock_exporter.export_to_data.return_value = 'file2.csv'
-        mock_exporter.export_projected_points_data.return_value = 'file3.csv'
+        # Mock the preserved export methods (legacy formats removed in KAI-9)
+        mock_exporter.export_position_json_files.return_value = ['qb_data.json', 'rb_data.json']
+        mock_exporter.export_teams_to_data.return_value = '../data/team_data'
         mock_exporter.set_team_rankings = Mock()
         mock_exporter.set_current_week_schedule = Mock()
+        mock_exporter.set_position_defense_rankings = Mock()
+        mock_exporter.set_team_weekly_data = Mock()
         mock_exporter_class.return_value = mock_exporter
 
         settings = Settings()
@@ -394,6 +393,9 @@ class TestExportData:
 
             assert isinstance(output_files, list)
             assert len(output_files) > 0
+            # Verify the new export methods were called
+            mock_exporter.export_position_json_files.assert_called_once()
+            mock_exporter.export_teams_to_data.assert_called_once()
 
 
 class TestHistoricalDataSave:

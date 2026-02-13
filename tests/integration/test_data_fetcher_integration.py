@@ -39,11 +39,7 @@ class TestPlayerDataFetcherIntegration:
         """Create Settings object for NFLProjectionsCollector"""
         return Settings(
             scoring_format=ScoringFormat.PPR,
-            season=2024,
-            output_directory=str(tmp_path),
-            create_csv=True,
-            create_json=False,
-            create_excel=False
+            season=2024
         )
 
     def test_player_collector_initialization(self, collector_settings):
@@ -51,7 +47,6 @@ class TestPlayerDataFetcherIntegration:
         collector = NFLProjectionsCollector(collector_settings)
 
         assert collector is not None
-        assert collector.settings.output_directory == str(collector_settings.output_directory)
         assert collector.settings.scoring_format == ScoringFormat.PPR
 
     @pytest.mark.asyncio

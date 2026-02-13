@@ -36,10 +36,6 @@ class TestNFLConfiguration:
 class TestDataPreservationSettings:
     """Test data preservation configuration"""
 
-    def test_preserve_locked_values_is_boolean(self):
-        """Test PRESERVE_LOCKED_VALUES is boolean"""
-        assert isinstance(config.PRESERVE_LOCKED_VALUES, bool)
-
     def test_load_drafted_data_from_file_is_boolean(self):
         """Test LOAD_DRAFTED_DATA_FROM_FILE is boolean"""
         assert isinstance(config.LOAD_DRAFTED_DATA_FROM_FILE, bool)
@@ -52,36 +48,6 @@ class TestDataPreservationSettings:
     def test_my_team_name_is_string(self):
         """Test MY_TEAM_NAME is a string"""
         assert isinstance(config.MY_TEAM_NAME, str)
-
-
-class TestOutputSettings:
-    """Test output configuration"""
-
-    def test_output_directory_is_string(self):
-        """Test OUTPUT_DIRECTORY is a string"""
-        assert isinstance(config.OUTPUT_DIRECTORY, str)
-        assert len(config.OUTPUT_DIRECTORY) > 0
-
-    def test_create_csv_is_boolean(self):
-        """Test CREATE_CSV is boolean"""
-        assert isinstance(config.CREATE_CSV, bool)
-
-    def test_create_json_is_boolean(self):
-        """Test CREATE_JSON is boolean"""
-        assert isinstance(config.CREATE_JSON, bool)
-
-    def test_create_excel_is_boolean(self):
-        """Test CREATE_EXCEL is boolean"""
-        assert isinstance(config.CREATE_EXCEL, bool)
-
-    def test_default_file_caps_is_dict(self):
-        """Test DEFAULT_FILE_CAPS is a dictionary"""
-        assert isinstance(config.DEFAULT_FILE_CAPS, dict)
-        # Should have some file type entries
-        assert len(config.DEFAULT_FILE_CAPS) > 0
-        # All values should be integers
-        for value in config.DEFAULT_FILE_CAPS.values():
-            assert isinstance(value, int)
 
 
 class TestLoggingConfiguration:
@@ -143,33 +109,6 @@ class TestESPNAPIConfiguration:
         """Test RATE_LIMIT_DELAY is non-negative number"""
         assert isinstance(config.RATE_LIMIT_DELAY, (int, float))
         assert config.RATE_LIMIT_DELAY >= 0
-
-
-class TestExportConfiguration:
-    """Test export configuration"""
-
-    def test_excel_position_sheets_is_list(self):
-        """Test EXCEL_POSITION_SHEETS is a list"""
-        assert isinstance(config.EXCEL_POSITION_SHEETS, list)
-        assert len(config.EXCEL_POSITION_SHEETS) > 0
-
-    def test_excel_position_sheets_contains_valid_positions(self):
-        """Test EXCEL_POSITION_SHEETS contains valid position strings"""
-        valid_positions = ['QB', 'RB', 'WR', 'TE', 'K', 'DST', 'D/ST', 'DEF']
-        for position in config.EXCEL_POSITION_SHEETS:
-            assert isinstance(position, str)
-            assert position in valid_positions
-
-    def test_export_columns_is_list(self):
-        """Test EXPORT_COLUMNS is a list"""
-        assert isinstance(config.EXPORT_COLUMNS, list)
-        assert len(config.EXPORT_COLUMNS) > 0
-
-    def test_export_columns_contains_required_fields(self):
-        """Test EXPORT_COLUMNS contains required player fields"""
-        required_fields = ['id', 'name', 'position', 'team']
-        for field in required_fields:
-            assert field in config.EXPORT_COLUMNS
 
 
 class TestTeamDataConfiguration:
