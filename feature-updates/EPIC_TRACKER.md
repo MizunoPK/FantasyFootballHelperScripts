@@ -17,7 +17,7 @@
 
 | KAI # | Epic Name | Type | Branch | Status | Date Started |
 |-------|-----------|------|--------|--------|--------------|
-| 9 | remove_player_fetcher_legacy_features | epic | epic/KAI-9 | In Progress | 2026-02-13 |
+| (none) | | | | | |
 
 ---
 
@@ -27,6 +27,7 @@
 
 | KAI # | Epic Name | Type | Branch | Date Completed | Location |
 |-------|-----------|------|--------|----------------|----------|
+| 9 | remove_player_fetcher_legacy_features | epic | epic/KAI-9 | 2026-02-13 | feature-updates/done/KAI-9-remove_player_fetcher_legacy_features/ |
 | 8 | logging_refactoring | epic | epic/KAI-8 | 2026-02-12 | feature-updates/done/KAI-8-logging_refactoring/ |
 | 7 | improve_configurability_of_scripts | epic | epic/KAI-7 | 2026-02-01 | feature-updates/done/KAI-7-improve_configurability_of_scripts/ |
 | 6 | nfl_team_penalty | epic | epic/KAI-6 | 2026-01-15 | feature-updates/done/KAI-6-nfl_team_penalty/ |
@@ -40,6 +41,52 @@
 ## Epic Details
 
 <!-- Each epic gets a detailed section below once completed -->
+
+---
+
+### KAI-9: remove_player_fetcher_legacy_features
+
+**Type:** epic
+**Branch:** epic/KAI-9
+**Date Started:** 2026-02-13
+**Date Completed:** 2026-02-13
+**Location:** feature-updates/done/KAI-9-remove_player_fetcher_legacy_features/
+
+**Description:**
+Simplified the player data fetcher by removing legacy features no longer needed: locked player preservation, multiple output format support (CSV/Excel/JSON), Excel position sheets, configurable export columns, and file caps management. Streamlined the codebase to support only position-based JSON output and team data CSV export, reducing complexity and maintenance burden. Used atomic removal approach (single feature containing all deletions) to prevent broken intermediate states. Import-driven cleanup strategy (delete config, fix imports, remove dependent code) ensured complete and consistent removal.
+
+**Features Implemented:**
+1. feature_01_remove_legacy_player_fetcher_features - Atomic removal of all legacy export formats, locked player preservation, file caps management, and associated config/imports/tests
+
+**Key Changes:**
+- player-data-fetcher/config.py: Deleted 9 legacy config values + dataclass import (PRESERVE_LOCKED_VALUES, OUTPUT_DIRECTORY, CREATE_CSV/JSON/EXCEL, DEFAULT_FILE_CAPS, EXCEL_POSITION_SHEETS, EXPORT_COLUMNS)
+- player-data-fetcher/player_data_exporter.py: Removed 6 export methods + 2 helpers, locked preservation logic, cleaned unused imports, updated docstrings
+- player-data-fetcher/player_data_fetcher_main.py: Removed 4 Settings fields, updated export_data() integration point, cleaned stale docstrings
+- tests/player-data-fetcher/: Deleted 5 test classes for removed methods, cleaned orphaned tests, updated mocks and fixtures
+- ARCHITECTURE.md, README.md: Updated to remove references to deleted features
+
+**Commit History:**
+- `b204da2` - `feat/KAI-9: Initialize epic tracking for remove_player_fetcher_legacy_features`
+- `a0ce75e` - `feat/KAI-9: Remove legacy player fetcher export formats`
+- `99b9576` - `fix/KAI-9: S7.P2 validation fixes and S7.P3 completion`
+- `dc52024` - `fix/KAI-9: S9.P2 QC cleanup - remove orphaned code and stale references`
+- `a219909` - `fix/KAI-9: S9.P4 PR review - update stale docstrings in main module`
+- Plus 4 documentation commits (9 total)
+
+**Testing Results:**
+- Unit tests: 308/308 player-data-fetcher tests passing (100%)
+- Epic smoke testing: Passed (8 scenarios, 4 parts, zero issues)
+- Epic QC Validation Loop: Passed (5 rounds, 7 issues found and fixed, 3 consecutive clean rounds)
+- Epic PR Review: Passed (3 rounds, 2 issues found and fixed, all 11 categories PASS)
+- User testing: Approved (zero bugs found)
+
+**Lessons Learned:**
+See feature-updates/done/KAI-9-remove_player_fetcher_legacy_features/epic_lessons_learned.md - Key success factors: Atomic removal approach prevented broken intermediate states, import-driven cleanup strategy provided immediate feedback on missed dependencies, validation loop caught all orphaned code and stale references. Key pattern: Docstring staleness is the primary residual issue after deletion epics (tests catch code issues but not documentation drift). Comprehensive grep coverage across entire tests/ directory is critical for test cleanup in deletion epics.
+
+**Related Documentation:**
+- Epic README: feature-updates/done/KAI-9-remove_player_fetcher_legacy_features/EPIC_README.md
+- Epic Test Plan: feature-updates/done/KAI-9-remove_player_fetcher_legacy_features/epic_smoke_test_plan.md
+- Epic Lessons Learned: feature-updates/done/KAI-9-remove_player_fetcher_legacy_features/epic_lessons_learned.md
 
 ---
 
