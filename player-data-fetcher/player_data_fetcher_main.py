@@ -298,22 +298,11 @@ class NFLProjectionsCollector:
 
     async def export_data(self, projection_data: Dict[str, ProjectionData]) -> List[str]:
         """
-        Export all collected data to configured output formats.
+        Export all collected data to position JSON and team data formats.
 
         Exports to multiple destinations:
-        1. Timestamped files in player-data-fetcher/data/ (CSV/JSON/Excel)
-        2. Shared data/players.csv (for draft helper integration) [configured via PLAYERS_CSV]
-        3. Shared data/team_data/ folder (per-team historical rankings)
-        4. Shared data/players_projected.csv (week-by-week projections for performance tracking)
-
-        File organization:
-        - player-data-fetcher/data/nfl_projections_season_PPR_20241018_120000.csv (timestamped)
-        - player-data-fetcher/data/nfl_projections_season_PPR_latest.csv (latest version)
-        - player-data-fetcher/data/teams_20241018_120000.csv (timestamped team data)
-        - player-data-fetcher/data/teams_latest.csv (latest team data)
-        - data/players.csv (shared with draft helper - full player data) [path: PLAYERS_CSV in config.py]
-        - data/team_data/*.csv (shared with league helper - per-team historical data)
-        - data/players_projected.csv (shared with league helper - week-by-week projections)
+        1. Position JSON files in data/player_data/ (qb_data.json, rb_data.json, etc.)
+        2. Team data folder in data/team_data/ (per-team historical rankings as CSV)
 
         Args:
             projection_data: Dict containing ProjectionData objects to export
@@ -607,7 +596,7 @@ async def main():
             print(f"\nFantasyPlayer Integration:")
             print(f"   Converted {len(season_players)} players to FantasyPlayer objects")
             print(f"   Available for import: from fantasy_player import FantasyPlayer")
-            print(f"   Load from CSV: FantasyPlayer.from_csv_file('data/nfl_projections/nfl_projections_latest_season.csv')")
+            print(f"   Load from JSON: See data/player_data/ for position-specific JSON files")
 
             # Check if ESPN is returning placeholder ADP data (all players have same value)
             adp_values = [p.average_draft_position for p in season_players if p.average_draft_position is not None]
