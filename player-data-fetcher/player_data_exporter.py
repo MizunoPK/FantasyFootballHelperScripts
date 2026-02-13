@@ -28,8 +28,7 @@ from utils.TeamData import save_team_weekly_data, NFL_TEAMS
 from utils.data_file_manager import DataFileManager
 from utils.LoggingManager import get_logger
 from utils.DraftedRosterManager import DraftedRosterManager
-from config import DEFAULT_FILE_CAPS, CREATE_POSITION_JSON, POSITION_JSON_OUTPUT, CURRENT_NFL_WEEK
-from config import EXCEL_POSITION_SHEETS, EXPORT_COLUMNS, PRESERVE_LOCKED_VALUES, TEAM_DATA_FOLDER, LOAD_DRAFTED_DATA_FROM_FILE, DRAFTED_DATA, MY_TEAM_NAME
+from config import POSITION_JSON_OUTPUT, CURRENT_NFL_WEEK, TEAM_DATA_FOLDER, LOAD_DRAFTED_DATA_FROM_FILE, DRAFTED_DATA, MY_TEAM_NAME
 
 
 class DataExporter:
@@ -46,18 +45,13 @@ class DataExporter:
         self.logger = get_logger()
 
         # Initialize file manager for automatic file caps
-        self.file_manager = DataFileManager(str(self.output_dir), DEFAULT_FILE_CAPS)
+        self.file_manager = DataFileManager(str(self.output_dir), None)
 
         # Initialize team rankings and schedule data (will be set by data collector)
         self.team_rankings = {}
         self.current_week_schedule = {}
         self.position_defense_rankings = {}
         self.team_weekly_data = {}  # Per-team, per-week data for new format
-
-        # Load existing locked values if preservation is enabled
-        self.existing_locked_values = {}
-        if PRESERVE_LOCKED_VALUES:
-            self._load_existing_locked_values()
 
         # Initialize drafted roster manager if enabled
         self.drafted_roster_manager = DraftedRosterManager(DRAFTED_DATA, MY_TEAM_NAME)
@@ -88,94 +82,6 @@ class DataExporter:
     # FORMAT-SPECIFIC EXPORTS (JSON, CSV, Excel)
     # ============================================================================
 
-    async def export_json(self, data: ProjectionData) -> str:
-        """Export data to JSON format asynchronously"""
-        try:
-            # Convert to JSON-serializable format
-            json_data = {
-                "season": data.season,
-                "scoring_format": data.scoring_format,
-                "total_players": data.total_players,
-                "generated_at": data.generated_at.isoformat(),
-                "players": [player.model_dump() for player in data.players]
-            }
-
-            # Use enhanced file manager for consistent JSON export
-            prefix = f"nfl_projections_season_{data.scoring_format}"
-            timestamped_path, latest_path = self.file_manager.save_json_data(
-                json_data, prefix, create_latest=self.create_latest_files
-            )
-
-            return str(timestamped_path)
-
-        except PermissionError as e:
-            self.logger.error(f"Permission denied writing JSON file: {e}")
-            raise
-        except OSError as e:
-            self.logger.error(f"OS error writing JSON file: {e}")
-            raise
-        except (TypeError, ValueError) as e:
-            self.logger.error(f"JSON serialization error: {e}")
-            raise
-        except Exception as e:
-            self.logger.error(f"Unexpected error exporting JSON file: {e}")
-            raise
-    
-    async def export_csv(self, data: ProjectionData) -> str:
-        """Export data to CSV format asynchronously"""
-        try:
-            # Prepare DataFrame with standard column ordering
-            df = self._prepare_export_dataframe(data)
-
-            # Use enhanced file manager for consistent CSV export
-            prefix = f"nfl_projections_season_{data.scoring_format}"
-            timestamped_path, latest_path = await self.file_manager.save_dataframe_csv(
-                df, prefix, create_latest=self.create_latest_files
-            )
-
-            return str(timestamped_path)
-
-        except PermissionError as e:
-            self.logger.error(f"Permission denied writing CSV file: {e}")
-            raise
-        except OSError as e:
-            self.logger.error(f"OS error writing CSV file: {e}")
-            raise
-        except ValueError as e:
-            self.logger.error(f"Data validation error for CSV export: {e}")
-            raise
-        except Exception as e:
-            self.logger.error(f"Unexpected error exporting CSV file: {e}")
-            raise
-    
-    async def export_excel(self, data: ProjectionData) -> str:
-        """Export data to Excel format with position sheets asynchronously"""
-        # Prepare DataFrame with standard column ordering
-        df = self._prepare_export_dataframe(data)
-
-        # Use enhanced file manager, but we need custom Excel writing for position sheets
-        prefix = f"nfl_projections_season_{data.scoring_format}"
-        timestamped_path = self.file_manager.get_timestamped_path(prefix, 'xlsx')
-
-        # Create Excel writer and write sheets asynchronously
-        await asyncio.get_event_loop().run_in_executor(
-            None, self._write_excel_sheets, df, str(timestamped_path)
-        )
-
-        # Create latest version if requested
-        if self.create_latest_files:
-            latest_path = self.file_manager.get_latest_path(prefix, 'xlsx')
-            await asyncio.get_event_loop().run_in_executor(
-                None, self._write_excel_sheets, df, str(latest_path)
-            )
-
-        # Enforce file caps after successful export
-        deleted_files = self.file_manager.enforce_file_caps(str(timestamped_path))
-        if deleted_files:
-            self.logger.info(f"File caps enforced for Excel: {deleted_files}")
-
-        return str(timestamped_path)
-
     # ============================================================================
     # DATAFRAME PREPARATION & HELPERS
     # ============================================================================
@@ -183,77 +89,9 @@ class DataExporter:
     def _create_dataframe(self, data: ProjectionData) -> pd.DataFrame:
         """Convert ProjectionData to pandas DataFrame"""
         return pd.DataFrame([player.model_dump() for player in data.players])
-    
-    def _prepare_export_dataframe(self, data: ProjectionData) -> pd.DataFrame:
-        """Create and prepare DataFrame with standard column ordering for export"""
-        # Use converted FantasyPlayer objects to ensure drafted values are preserved
-        fantasy_players = self.get_fantasy_players(data)
-        df = pd.DataFrame([player.to_dict() for player in fantasy_players])
-        
-        # Ensure all required columns exist, add missing ones with default values
-        for col in EXPORT_COLUMNS:
-            if col not in df.columns:
-                df[col] = None
-
-        # Replace NaN values in weekly projection columns with 0.0
-        weekly_columns = [col for col in EXPORT_COLUMNS if col.startswith('week_') and col.endswith('_points')]
-        for col in weekly_columns:
-            if col in df.columns:
-                df[col] = df[col].fillna(0.0).infer_objects(copy=False)
-
-        # Return DataFrame with standardized column order
-        return df[EXPORT_COLUMNS]
-    
-    def _write_excel_sheets(self, df: pd.DataFrame, filepath: str):
-        """Write Excel file with multiple sheets (sync helper)"""
-        with pd.ExcelWriter(filepath, engine='openpyxl') as writer:
-            # Write "All Players" sheet
-            df_sorted = df.sort_values('fantasy_points', ascending=False)
-            df_sorted.to_excel(writer, sheet_name='All Players', index=False)
-            
-            # Write position-specific sheets
-            for position in EXCEL_POSITION_SHEETS:
-                position_df = df[df['position'] == position].copy()
-                if not position_df.empty:
-                    position_df = position_df.sort_values('fantasy_points', ascending=False)
-                    position_df.to_excel(writer, sheet_name=position, index=False)
 
     # ============================================================================
     # DATA LOADING (Existing drafted/locked values)
-    # ============================================================================
-
-    def _load_existing_locked_values(self) -> None:
-        """Load existing locked values from position JSON files"""
-        # Load locked values from all position JSON files
-        player_data_dir = Path(__file__).parent.parent / 'data' / 'player_data'
-        position_files = ['qb_data.json', 'rb_data.json', 'wr_data.json',
-                         'te_data.json', 'k_data.json', 'dst_data.json']
-
-        try:
-            for json_file in position_files:
-                json_path = player_data_dir / json_file
-                if not json_path.exists():
-                    continue
-
-                with open(json_path, 'r', encoding='utf-8') as f:
-                    data = json.load(f)
-
-                # Handle both dict format {position_data: [...]} and list format [...]
-                players = data.get(json_file.replace('.json', ''), data) if isinstance(data, dict) else data
-
-                for player in players:
-                    player_id = str(player.get('id', ''))
-                    locked_value = player.get('locked', False)
-                    # Convert boolean to int (True -> 1, False -> 0) for backwards compatibility
-                    locked_int = 1 if locked_value else 0
-                    if player_id:
-                        self.existing_locked_values[player_id] = locked_int
-
-            self.logger.info(f"Loaded {len(self.existing_locked_values)} existing locked values from position JSON files")
-
-        except Exception as e:
-            self.logger.error(f"Error loading existing locked values: {e}. All locked values will be set to 0.")
-
     # ============================================================================
     # PLAYER CONVERSION (ESPN → FantasyPlayer)
     # ============================================================================
@@ -264,10 +102,8 @@ class DataExporter:
         # Get drafted_by value from ESPN data (initialized as empty string)
         drafted_by_value = player_data.drafted_by  # DraftedRosterManager will populate team names in post-processing
 
-        # Use existing locked value if preservation is enabled, otherwise use default (0)
-        locked_value = 0  # Default
-        if PRESERVE_LOCKED_VALUES and player_data.id in self.existing_locked_values:
-            locked_value = self.existing_locked_values[player_data.id]
+        # Locked value defaults to 0 (user can modify in exported files)
+        locked_value = 0
 
         # Build projected_points and actual_points arrays from weekly data
         # (UPDATED for Sub-feature 2: Weekly Data Migration)
@@ -313,37 +149,6 @@ class DataExporter:
     # HIGH-LEVEL EXPORT ORCHESTRATION
     # ============================================================================
 
-    async def export_all_formats(self, data: ProjectionData, 
-                                create_csv: bool = True, 
-                                create_json: bool = True, 
-                                create_excel: bool = True) -> List[str]:
-        """Export data to all requested formats concurrently"""
-        tasks = []
-        
-        if create_json:
-            tasks.append(self.export_json(data))
-        if create_csv:
-            tasks.append(self.export_csv(data))
-        if create_excel:
-            tasks.append(self.export_excel(data))
-        
-        if not tasks:
-            return []
-        
-        # Run all exports concurrently
-        results = await asyncio.gather(*tasks, return_exceptions=True)
-        
-        # Filter out exceptions and log them with more detail
-        output_files = []
-        for i, result in enumerate(results):
-            if isinstance(result, Exception):
-                export_type = ['JSON', 'CSV', 'Excel'][i] if i < 3 else f'Export {i+1}'
-                self.logger.error(f"{export_type} export failed: {result.__class__.__name__}: {result}")
-            else:
-                output_files.append(result)
-
-        return output_files
-
     async def export_position_json_files(self, data: ProjectionData) -> List[str]:
         """
         Export position-based JSON files concurrently.
@@ -357,20 +162,15 @@ class DataExporter:
             data: ProjectionData containing player data
 
         Returns:
-            List of file paths created (empty if CREATE_POSITION_JSON=False)
+            List of file paths created
         """
-        # Check config toggle (Spec: Decision 1)
-        if not CREATE_POSITION_JSON:
-            self.logger.info("Position JSON export disabled (CREATE_POSITION_JSON=False)")
-            return []
-
         # Ensure output folder exists and create dedicated file manager (Spec: specs.md output location)
         output_path = Path(POSITION_JSON_OUTPUT)
         output_path.mkdir(parents=True, exist_ok=True)
 
         # Create dedicated DataFileManager for position JSON exports
         # This ensures files are saved to POSITION_JSON_OUTPUT, not OUTPUT_DIRECTORY
-        position_file_manager = DataFileManager(str(output_path), DEFAULT_FILE_CAPS)
+        position_file_manager = DataFileManager(str(output_path), None)
 
         # Create tasks for parallel export (Spec: Reusable Pattern 1 - asyncio.gather)
         positions = ['QB', 'RB', 'WR', 'TE', 'K', 'DST']
@@ -783,38 +583,6 @@ class DataExporter:
     # TEAM DATA EXPORTS
     # ============================================================================
 
-    async def export_teams_csv(self, data: ProjectionData) -> str:
-        """
-        Export team data to local data directory in team_data folder format.
-
-        Creates individual CSV files for each NFL team containing weekly data.
-
-        Args:
-            data: ProjectionData containing player information
-
-        Returns:
-            str: Path to the team_data folder
-        """
-        try:
-            # Create team_data folder in output directory
-            team_data_folder = self.output_dir / "team_data"
-            team_data_folder.mkdir(exist_ok=True)
-
-            # Get team weekly data from ESPN client (should be set by caller)
-            if not hasattr(self, 'team_weekly_data') or not self.team_weekly_data:
-                self.logger.warning("No team weekly data available for export")
-                return ""
-
-            # Save to team_data folder
-            save_team_weekly_data(str(team_data_folder), self.team_weekly_data)
-
-            self.logger.info(f"Exported team data for {len(self.team_weekly_data)} teams to: {team_data_folder}")
-            return str(team_data_folder)
-
-        except Exception as e:
-            self.logger.error(f"Error exporting team data: {e}")
-            raise
-
     async def export_teams_to_data(self, data: ProjectionData) -> str:
         """
         Export team data to shared data directory for consumption by other modules.
@@ -844,45 +612,4 @@ class DataExporter:
 
         except Exception as e:
             self.logger.error(f"Error exporting team data to shared folder: {e}")
-            raise
-
-    async def export_all_formats_with_teams(self, data: ProjectionData,
-                                           create_csv: bool = True,
-                                           create_json: bool = True,
-                                           create_excel: bool = True) -> List[str]:
-        """
-        Export projection data and team data to all formats concurrently.
-
-        Args:
-            data: ProjectionData to export
-            create_csv: Whether to create CSV files
-            create_json: Whether to create JSON files
-            create_excel: Whether to create Excel files
-
-        Returns:
-            List of file paths created
-        """
-        try:
-            tasks = []
-
-            # Player data exports (same as original)
-            if create_json:
-                tasks.append(self.export_json(data))
-            if create_csv:
-                tasks.append(self.export_csv(data))
-            if create_excel:
-                tasks.append(self.export_excel(data))
-
-            # Team data exports (new functionality)
-            if create_csv:  # Only export teams CSV if CSV creation is enabled
-                tasks.append(self.export_teams_csv(data))
-            tasks.append(self.export_teams_to_data(data))
-
-            results = await asyncio.gather(*tasks)
-
-            # Filter out None results and return list of paths
-            return [path for path in results if path]
-
-        except Exception as e:
-            self.logger.error(f"Error in concurrent export with teams: {e}")
             raise

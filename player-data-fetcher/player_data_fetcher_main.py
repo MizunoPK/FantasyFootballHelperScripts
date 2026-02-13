@@ -37,7 +37,6 @@ from player_data_exporter import DataExporter
 # Import NFL season configuration
 from config import (
     NFL_SEASON, CURRENT_NFL_WEEK,
-    OUTPUT_DIRECTORY, CREATE_CSV, CREATE_JSON, CREATE_EXCEL,
     REQUEST_TIMEOUT, RATE_LIMIT_DELAY, LOGGING_LEVEL,
     LOG_NAME, LOGGING_FORMAT,
     ENABLE_HISTORICAL_DATA_SAVE, ENABLE_GAME_DATA_FETCH
@@ -56,10 +55,6 @@ class Settings(BaseSettings):
         scoring_format: Fantasy scoring format (PPR, Half-PPR, or Standard)
         season: NFL season year
         current_nfl_week: Current NFL week (1-18)
-        output_directory: Directory for output files
-        create_csv: Whether to create CSV output
-        create_json: Whether to create JSON output
-        create_excel: Whether to create Excel output
     """
     model_config = SettingsConfigDict(
         env_file_encoding='utf-8',
@@ -91,11 +86,7 @@ class Settings(BaseSettings):
         if self.rate_limit_delay < 0.1:
             logger.warning(f"Rate limit delay {self.rate_limit_delay}s may be too aggressive.")
     
-    # Output Configuration (from config)
-    output_directory: str = OUTPUT_DIRECTORY  # Output directory (from config)
-    create_csv: bool = CREATE_CSV  # Whether to create CSV output (from config)
-    create_json: bool = CREATE_JSON  # Whether to create JSON output (from config)
-    create_excel: bool = CREATE_EXCEL  # Whether to create Excel output (from config)
+    # Output Configuration
     create_latest_files: bool = True  # Whether to create latest versions
 
     # API Settings (from config)
@@ -343,31 +334,26 @@ class NFLProjectionsCollector:
 
         # Export each projection type (typically just 'season')
         for data_type, data in projection_data.items():
-            # Export to all configured formats (CSV/JSON/Excel)
-            # Also creates timestamped and latest versions
-            # Also creates team_data folder with per-team historical data
-            files = await self.exporter.export_all_formats_with_teams(
-                data,
-                create_csv=self.settings.create_csv,
-                create_json=self.settings.create_json,
-                create_excel=self.settings.create_excel
-            )
-            output_files.extend(files)
-            self.logger.info(f"Exported {data_type} projections to configured formats")
-
-            # Export position-based JSON files (if enabled via config)
-            # Creates 6 files: new_qb_data.json, new_rb_data.json, new_wr_data.json,
-            # new_te_data.json, new_k_data.json, new_dst_data.json
-            # Spec: specs.md lines 10-19, USER_DECISIONS_SUMMARY.md Decision 1
+            # Export position-based JSON files (primary export format)
+            # Creates 6 files: qb_data.json, rb_data.json, wr_data.json,
+            # te_data.json, k_data.json, dst_data.json
             try:
                 position_json_files = await self.exporter.export_position_json_files(data)
                 if position_json_files:
                     output_files.extend(position_json_files)
                     self.logger.info(f"Exported {len(position_json_files)} position-based JSON files")
             except Exception as e:
-                # Error exporting position JSON
-                # Log error but don't fail entire export - this is a supplementary feature
                 self.logger.error(f"Error exporting position JSON files: {e}")
+
+            # Export team data to shared data directory
+            # Creates team_data folder with 32 CSV files (one per NFL team)
+            try:
+                team_data_path = await self.exporter.export_teams_to_data(data)
+                if team_data_path:
+                    output_files.append(team_data_path)
+                    self.logger.info(f"Exported team data to: {team_data_path}")
+            except Exception as e:
+                self.logger.error(f"Error exporting team data: {e}")
 
         return output_files
 
