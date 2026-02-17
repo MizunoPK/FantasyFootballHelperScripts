@@ -604,6 +604,29 @@ Update Agent Status: Progress 5/6, Next Action "Step 5.7.5 - Feature Dependency 
    - Example: Feature B needs to know Feature A's API to write integration spec
    - → Creates S2 dependency (Feature A must complete S2 before Feature B starts)
 
+   **🚨 Use the DEEP CHECK, not the shallow check:**
+   - ❌ Shallow check (WRONG): "Can I identify WHAT to build from Discovery?"
+   - ✅ Deep check (CORRECT): "Can I write a COMPLETE spec without knowing upstream's output structure?"
+
+   **Ask for EACH feature:**
+   - a. What is the output/interface that the upstream feature will define in S2?
+   - b. Does MY spec need to describe how I use that interface?
+   - c. Is that interface fully defined in Discovery, or will it be defined in upstream's S2?
+   - d. **If the interface will be defined in upstream's S2 → spec-level dependency exists**
+
+   **Common patterns that indicate spec-level dependency:**
+   - "My feature wires CLI args into [upstream's refactored constructors/APIs]" → SPEC DEP
+   - "My feature calls [upstream's functions/endpoints] that don't exist yet" → SPEC DEP
+   - "My feature's behavior depends on decisions upstream is making in S2" → SPEC DEP
+
+   **⚠️ Special Cases — Almost Always Have Spec Dependencies:**
+   - **Integration features** (e.g., "integrate X with Y") — need both X and Y specs
+   - **Test/framework features** (e.g., "integration test framework", "test runner") — need specs of what they test
+   - **Orchestration features** (e.g., "master runner", "pipeline coordinator") — need specs of what they orchestrate
+   - **Wrapper/adapter features** (e.g., "CLI wrapper for existing API") — need the upstream API spec
+
+   For these feature types, default assumption is **SPEC DEPENDENCY EXISTS** unless you can prove otherwise.
+
 2. **Implementation Dependencies (matters for S5-S8, NOT S2):**
    - Does this feature need other features' CODE to build its implementation?
    - Example: Feature B calls Feature A's functions
@@ -614,6 +637,9 @@ Update Agent Status: Progress 5/6, Next Action "Step 5.7.5 - Feature Dependency 
 - **Spec-level dependency → Different group** (affects S2 parallelization)
 - **Implementation dependency only → Same group** (doesn't affect S2)
 - **No dependencies → Group 1** (can parallelize freely)
+
+**Historical Warning (KAI-10):**
+Features 02-08 were placed in the same group as Feature 01. They could identify WHAT CLI args to add (from Discovery) but could NOT write a complete spec for HOW those args wire through Feature 01's refactored constructors — because Feature 01 was actively defining those constructors in its own S2. All 7 secondary agents had to be paused mid-S2 and the epic restructured into 3 waves. Use the deep check above to prevent this.
 
 **Organize into Groups:**
 
@@ -1101,6 +1127,10 @@ X "I'll number features 1, 2, 3 (no zero-padding)"
 
 X "I'll skip seeding spec.md with Discovery Context"
   --> STOP - Every spec.md MUST start with Discovery Context section
+
+X "I'll create a documentation feature to update README/ARCHITECTURE"
+  --> STOP - Documentation is handled in S7.P3 (per-feature) and S10 (epic-level), NOT as separate feature
+  --> EXCEPTION: Only create documentation feature if user EXPLICITLY requests it
 ```
 
 **📖 See:** `reference/stage_1/epic_planning_examples.md` for:
