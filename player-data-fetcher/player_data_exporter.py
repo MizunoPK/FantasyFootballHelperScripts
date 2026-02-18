@@ -226,9 +226,8 @@ class DataExporter:
         root_key = f"{position.lower()}_data"
         output_data = {root_key: players_json}
 
-        # Save to data/player_data/ folder with fixed filename (no timestamps, no prefix)
-        # Matches pattern of players.csv export - each run overwrites previous file
-        file_path = Path(__file__).parent / f'../data/player_data/{position.lower()}_data.json'
+        # Save to configured output folder (respects E2E temp dir override via settings)
+        file_path = Path(self.position_json_output) / f'{position.lower()}_data.json'
 
         try:
             # Ensure the directory exists

@@ -15,6 +15,7 @@ Author: Kai Mizuno
 import argparse
 import asyncio
 import sys
+import tempfile
 from pathlib import Path
 
 # Add player-data-fetcher to path so we can import it directly
@@ -153,6 +154,18 @@ def create_settings_dict(args) -> dict:
     # E2E override: cap ESPN player limit to 100 for fast test runs
     espn_player_limit = 100 if args.e2e_test else args.espn_player_limit
 
+    # E2E override: redirect all output paths to a temp directory so real
+    # data files are never overwritten during test runs
+    if args.e2e_test:
+        tmp_dir = tempfile.mkdtemp(prefix='player_fetcher_e2e_')
+        position_json_output = str(Path(tmp_dir) / 'player_data')
+        team_data_folder = str(Path(tmp_dir) / 'team_data')
+        game_data_csv = str(Path(tmp_dir) / 'game_data.csv')
+    else:
+        position_json_output = args.position_json_output
+        team_data_folder = args.team_data_folder
+        game_data_csv = args.game_data_csv
+
     return {
         'e2e_test': args.e2e_test,
         'log_level': args.log_level,
@@ -162,9 +175,9 @@ def create_settings_dict(args) -> dict:
         'my_team_name': args.my_team_name,
         'load_drafted_data': args.load_drafted_data,
         'drafted_data_path': args.drafted_data_path,
-        'position_json_output': args.position_json_output,
-        'team_data_folder': args.team_data_folder,
-        'game_data_csv': args.game_data_csv,
+        'position_json_output': position_json_output,
+        'team_data_folder': team_data_folder,
+        'game_data_csv': game_data_csv,
         'enable_historical_save': args.enable_historical_save,
         'enable_game_data': args.enable_game_data,
         'espn_player_limit': espn_player_limit,

@@ -479,9 +479,8 @@ class NFLProjectionsCollector:
 
             self.logger.info("Fetching game data (venue, weather, scores)...")
 
-            # Determine output path
-            data_folder = self.script_dir.parent / "data"
-            output_path = data_folder / "game_data.csv"
+            # Determine output path — use settings path (respects E2E temp dir override)
+            output_path = Path(self.settings.game_data_csv)
 
             # Fetch game data
             result_path = do_fetch_game_data(
