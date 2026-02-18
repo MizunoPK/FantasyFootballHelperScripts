@@ -23,8 +23,9 @@ Plan  Deep Dive  Check  Strategy  (per feature)   QC
 **You are here:** ➜ Stage 2 (S2.P1 — Wave 1, Feature 01)
 
 **S2 Wave Status**
-- [x] Wave 1: Feature 01 S2 ✅ COMPLETE (spec approved, all 4 checklist Qs answered — 2026-02-18)
+- [x] Wave 1: Feature 01 S2 ✅ COMPLETE (spec approved, all 4 checklist Qs answered — 2026-02-18; spec updated 2026-02-18 per user correction)
   - Design precedents set: @dataclass Settings, create_settings_from_dict(), direct import, graceful E2E file handling
+  - ⚠️ CORRECTION (2026-02-18): NO separate --debug flag. Universal args are --e2e-test + --log-level only (2, not 3). --e2e-test serves both E2E testing and debugging purposes.
 - [ ] Wave 2: Features 02-07 S2 🚀 READY (handoff packages generated, awaiting agent spawn)
   - Feature 02 (Secondary-A): ⏳ not started
   - Feature 03 (Secondary-B): ⏳ not started

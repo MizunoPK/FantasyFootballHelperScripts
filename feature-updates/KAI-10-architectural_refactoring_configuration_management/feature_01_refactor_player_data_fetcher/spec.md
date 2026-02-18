@@ -11,15 +11,14 @@
 
 ### This Feature's Scope (from Discovery)
 
-Wave 1 (solo) — Internal dependency injection refactoring (5 modules) + 14+ CLI args + debug/E2E modes. Sets design precedents for all other scripts.
+Wave 1 (solo) — Internal dependency injection refactoring (5 modules) + 14+ CLI args + E2E mode. Sets design precedents for all other scripts.
 
 **Key scope items:**
 - Refactor 5 internal modules from direct config imports to constructor parameters: player_data_fetcher_main.py, espn_client.py, game_data_fetcher.py, fantasy_points_calculator.py, player_data_exporter.py
 - Add 14+ CLI args to run_player_fetcher.py (replacing 11 constants + LOGGING_LEVEL + 3 optional args)
-- Add universal args: --debug, --e2e-test, --log-level
+- Add universal args: --e2e-test, --log-level (NO separate --debug flag — --e2e-test serves both purposes)
 - Remove all CLI-configurable constants from player-data-fetcher/config.py
-- Implement --e2e-test mode completing in ≤180 seconds
-- Implement --debug mode (DEBUG logging + reduced data scope)
+- Implement --e2e-test mode completing in ≤180 seconds (used for both E2E testing and debugging)
 
 ### Relevant Discovery Decisions
 
@@ -49,8 +48,7 @@ Add the following CLI arguments to `run_player_fetcher.py` via argparse:
 **Universal arguments (all 7 scripts):**
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `--debug` | flag | False | Enable debug mode (DEBUG logging + reduced data scope) |
-| `--e2e-test` | flag | False | E2E test mode: completes in ≤180 seconds |
+| `--e2e-test` | flag | False | E2E test mode: reduces data scope to complete in ≤180 seconds; also used for debugging |
 | `--log-level` | str | 'INFO' | Logging level: DEBUG, INFO, WARNING, ERROR, CRITICAL |
 
 **Script-specific arguments:**
@@ -76,7 +74,7 @@ Add the following CLI arguments to `run_player_fetcher.py` via argparse:
 |----------|------|---------|------|
 | `--enable-log-file` | flag | False | Pre-existing arg — preserved as-is |
 
-**Total: 18 CLI arguments** (14 script-specific + 3 universal + 1 preserved)
+**Total: 17 CLI arguments** (14 script-specific + 2 universal + 1 preserved)
 
 **NOTE:** Current runner uses subprocess pattern. **RESOLVED (Q1):** Replace subprocess with direct import — `run_player_fetcher.py` adds `player-data-fetcher/` to `sys.path`, imports `player_data_fetcher_main`, and calls `asyncio.run(main(settings_dict))`. Remove `subprocess.run()` and `os.chdir()`.
 
@@ -123,7 +121,6 @@ The `Settings` dataclass must include ALL fields:
 - `my_team_name: str = 'Sea Sharp'`
 - `progress_frequency: int = 10`
 - `log_level: str = 'INFO'`
-- `debug: bool = False`
 - `e2e_test: bool = False`
 - `logging_to_file: bool = False`
 
@@ -334,17 +331,13 @@ When `--e2e-test` flag is set:
 
 ---
 
-### REQ-12: Debug Mode (--debug)
+### REQ-12: No separate debug flag — --e2e-test serves both purposes
 
-**Source:** Epic Request (Section 4: Debug Mode Support)
+**Source:** User decision (2026-02-18)
 
-When `--debug` flag is set:
-- Set logging level to DEBUG (overrides `--log-level`)
-- Set `espn_player_limit = 100` (reduce data scope)
+There is **no separate `--debug` flag**. The `--e2e-test` flag is the single flag used for both E2E testing and debugging. When a developer wants to debug the script, they use `--e2e-test` to get a fast, data-limited run.
 
-**Precedence rule (Source: Epic Request — "Precedence rules"):**
-- `--debug` forces DEBUG logging (overrides `--log-level`)
-- `--e2e-test` takes precedence for data limits (not --debug)
+For verbose log output during debugging, developers use `--log-level DEBUG` alongside `--e2e-test`.
 
 ---
 
@@ -354,7 +347,7 @@ When `--debug` flag is set:
 
 - `--log-level` accepts: DEBUG, INFO, WARNING, ERROR, CRITICAL
 - Default: INFO
-- `--debug` overrides this to DEBUG
+- No flag overrides this — log level is always user-controlled via `--log-level`
 
 ---
 
@@ -391,9 +384,9 @@ When `--debug` flag is set:
 
 ## Acceptance Criteria
 
-- [ ] `python run_player_fetcher.py --help` displays all 18 arguments
-- [ ] `python run_player_fetcher.py --week 1 --espn-player-limit 100 --e2e-test` exits 0 in ≤180s
-- [ ] `python run_player_fetcher.py --debug` enables DEBUG logging and sets espn_player_limit to 100
+- [ ] `python run_player_fetcher.py --help` displays all 17 arguments
+- [ ] `python run_player_fetcher.py --week 1 --e2e-test` exits 0 in ≤180s
+- [ ] `python run_player_fetcher.py --e2e-test --log-level DEBUG` enables DEBUG logging and limits data scope
 - [ ] `python run_player_fetcher.py` (no args) behavior identical to current
 - [ ] `grep -r "CURRENT_NFL_WEEK\|NFL_SEASON\|ESPN_PLAYER_LIMIT" player-data-fetcher/config.py` returns empty
 - [ ] `grep -r "from pydantic_settings" player-data-fetcher/player_data_fetcher_main.py` returns empty

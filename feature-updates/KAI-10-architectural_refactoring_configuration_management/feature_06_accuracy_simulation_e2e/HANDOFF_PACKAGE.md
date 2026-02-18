@@ -6,6 +6,19 @@ I'm joining as a secondary agent for the KAI-10 epic (architectural_refactoring_
 
 ---
 
+## ⚠️ DESIGN CORRECTION (2026-02-18): No Separate --debug Flag
+
+**After Wave 1 (Feature 01) spec was approved, the user clarified a design change:**
+- There is **NO separate `--debug` flag** in this epic
+- Universal args are: **`--e2e-test`** and **`--log-level`** only (2 universal args, not 3)
+- `--e2e-test` serves both purposes: fast E2E test mode AND debugging during development
+- For verbose logging during debugging, developers use: `--e2e-test --log-level DEBUG`
+- **Feature 01 spec has been updated** to reflect this — always treat it as the authoritative design reference
+
+**Do NOT include a `--debug` flag in your spec.** Any mention of `--debug` below this notice is outdated and should be ignored.
+
+---
+
 ## Agent Configuration
 
 **My Agent ID:** Secondary-E
