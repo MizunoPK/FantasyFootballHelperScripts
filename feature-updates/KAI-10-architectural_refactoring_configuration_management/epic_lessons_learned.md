@@ -109,6 +109,39 @@ The secondary agent should be able to derive everything from that alone:
 
 ---
 
+**Checklist question presentation — always provide a recommended answer.**
+
+When agents present checklist questions to the user during S2.P1.I2 (Checklist Resolution), they frequently omit a recommendation and instead present all options neutrally. This forces the user to make a decision without the agent's analysis of the tradeoffs.
+
+**The correct pattern:**
+- Agent researches the options and evaluates tradeoffs
+- Agent presents all options with pros/cons
+- Agent explicitly states which option they recommend and why
+- Agent asks the user to make the final decision (never autonomous resolution)
+
+**Example of wrong behavior:**
+> Q1: Should we use direct import or subprocess?
+> - Option A: Direct import
+> - Option B: Subprocess
+> Which do you prefer?
+
+**Example of correct behavior:**
+> Q1: Should we use direct import or subprocess?
+> - **Option A (Recommended):** Direct import — matches DISCOVERY.md pattern, simpler code, no working directory issues
+> - Option B: Subprocess — keeps runner isolated but adds complexity and subprocess overhead
+> I recommend Option A. What is your decision?
+
+**Why this matters:**
+- The agent has already done the research; withholding a recommendation wastes the user's time
+- A recommendation doesn't remove user agency — the user still makes the call
+- Agents that present options without a recommendation are not fully completing their analysis work
+
+**Required guide update (S10.P1):**
+- Update `s2_p1_spec_creation_refinement.md` S2.P1.I2 step: explicitly require agents to state a recommendation with rationale for EACH checklist question before asking for user decision
+- Update checklist.md template to include a "Recommendation:" field under each question
+
+---
+
 ## S3 Lessons Learned (Cross-Feature Sanity Check)
 
 **What Went Well:**
