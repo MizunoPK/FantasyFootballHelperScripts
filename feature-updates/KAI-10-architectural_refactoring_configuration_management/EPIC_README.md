@@ -22,15 +22,17 @@ Plan  Deep Dive  Check  Strategy  (per feature)   QC
 
 **You are here:** ➜ Stage 2 (S2.P1 — Wave 1, Feature 01)
 
-**S1 Complete ✅ — S2 Wave 1 Starting**
-- [x] Read guide: `guides_v2/stages/s1/s1_epic_planning.md`
-- [x] All S1 deliverables created and user-approved
-- [x] Group-based parallel work selected (3 waves)
-- [x] S1 work committed to git
-- [ ] S2 Wave 1: Feature 01 S2.P1 complete
-- [ ] S2 Wave 1: Feature 01 S2 complete (S2.P2 trivial for 1 feature)
-- [ ] S2 Wave 2: Features 02-07 parallel (after Wave 1 complete)
-- [ ] S2 Wave 3: Feature 08 (after S3+S4)
+**S2 Wave Status**
+- [x] Wave 1: Feature 01 S2 ✅ COMPLETE (spec approved, all 4 checklist Qs answered — 2026-02-18)
+  - Design precedents set: @dataclass Settings, create_settings_from_dict(), direct import, graceful E2E file handling
+- [ ] Wave 2: Features 02-07 S2 🚀 READY (handoff packages generated, awaiting agent spawn)
+  - Feature 02 (Secondary-A): ⏳ not started
+  - Feature 03 (Secondary-B): ⏳ not started
+  - Feature 04 (Secondary-C): ⏳ not started
+  - Feature 05 (Secondary-D): ⏳ not started
+  - Feature 06 (Secondary-E): ⏳ not started
+  - Feature 07 (Secondary-F): ⏳ not started
+- [ ] Wave 3: Feature 08 S2 ⏳ BLOCKED (needs Wave 2 complete + S3 + S4)
 
 ---
 
@@ -38,22 +40,21 @@ Plan  Deep Dive  Check  Strategy  (per feature)   QC
 
 **Debugging Active:** NO
 **Last Updated:** 2026-02-18
-**Current Stage:** S2 — Wave 1 (Feature 01 solo)
-**Current Phase:** DEEP_DIVE
-**Current Step:** S1 complete — S2.P1 starting for Feature 01 (Wave 1)
-**Current Guide:** `stages/s2/s2_p1_spec_creation_refinement.md`
+**Current Stage:** S2 — Wave 2 (Features 02-07 parallel)
+**Current Phase:** WAVE_TRANSITION → awaiting user to spawn 6 secondary agents
+**Current Step:** Wave 1 ✅ complete → handoff packages generated → Wave 2 ready to start
+**Current Guide:** `stages/s2/s2_primary_agent_group_wave_guide.md`
 **Guide Last Read:** 2026-02-18
 
-**Critical Rules from Guide:**
-- Wave 1 = Feature 01 solo — execute S2.P1 (3 iterations), then S2.P2 (trivial for 1 feature)
-- After Wave 1 complete → generate handoff packages for Wave 2 (Features 02-07)
-- Coordination dirs: `.epic_locks/`, `agent_comms/`, `agent_checkpoints/` (per CLAUDE.md)
-- Research docs go in epic `research/` folder (not feature folder)
-- Phase 1.5 Research Audit is MANDATORY GATE before spec writing
+**Critical Rules:**
+- Wave 2: 6 secondary agents execute S2.P1 in parallel (Features 02-07)
+- Secondary agents stop after S2.P1.I3 — Primary (me) runs S2.P2 for Wave 2
+- After Wave 2 S2.P2 → Final S2.P2 across ALL features (cross-group alignment)
+- Feature 01 spec.md is design reference for all Wave 2 features
 
-**Progress:** S1 ✅ complete — S2 Wave 1 starting
-**Next Action:** Read `s2_p1_spec_creation_refinement.md` and execute Phase 0 (Discovery Context Review) for Feature 01
-**Blockers:** None
+**Progress:** Wave 1 ✅ S2 complete | Wave 2 🚀 ready to start (handoff packages in feature folders)
+**Next Action:** User spawns 6 secondary agents (one per Feature 02-07) with handoff packages
+**Blockers:** None — waiting for user to spawn Wave 2 agents
 
 ---
 
@@ -130,12 +131,12 @@ Comprehensive architectural refactoring of all 7 runner scripts to establish con
 - [x] S1 complete / transitioned to S2 (Step 6)
 
 **S2 - Feature Deep Dives:**
-- [ ] Wave 1: Feature 01 S2 complete (spec.md + checklist.md user-approved)
-- [ ] Wave 2: Features 02-07 S2 all complete (parallel execution)
+- [x] Wave 1: Feature 01 S2 complete (spec.md + checklist.md user-approved — 2026-02-18)
+- [ ] Wave 2: Features 02-07 S2 all complete (parallel execution — 6 secondary agents)
 - [ ] Wave 3: Feature 08 S2 complete
 - [ ] ALL features have spec.md complete
 - [ ] ALL features have checklist.md resolved
-- [ ] ALL feature README.md files created
+- [x] ALL feature README.md files created
 
 **S3 - Cross-Feature Sanity Check:**
 - [ ] All specs compared systematically
