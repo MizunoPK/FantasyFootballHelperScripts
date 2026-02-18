@@ -1,0 +1,67 @@
+# Epic Request: Validate and Close Out Player Fetcher Refactoring
+
+**Context**: KAI-10 (architectural_refactoring_configuration_management) was partially completed.
+Feature 01 (refactor_player_data_fetcher) was implemented and passed S7 testing, but the epic was
+abandoned before the remaining 7 features were built. This epic validates the F01 work and closes
+it out properly.
+
+## Background
+
+KAI-10 Feature 01 refactored run_player_fetcher.py and its 5 internal modules
+(player_data_fetcher_main.py, espn_client.py, game_data_fetcher.py, fantasy_points_calculator.py,
+player_data_exporter.py) to use constructor parameter pattern (dependency injection) and expose
+all configurable constants as CLI arguments via argparse.
+
+Completed work (per KAI-10 S7 results):
+- 15/15 requirements implemented
+- 17 CLI args exposed (14 script-specific + 2 universal + 1 preserved)
+- All 5 internal modules refactored to constructor parameters
+- 15 CLI-configurable constants removed from player-data-fetcher/config.py
+- pydantic_settings replaced with @dataclass Settings
+- subprocess replaced with direct import
+- --e2e-test mode verified: completes in ~13 seconds, writes to /tmp only
+- 2711 tests passing, 0 skipped, 0 failures
+- Two bugs were fixed during S7: hardcoded game_data path and hardcoded position JSON path
+
+**Existing spec**: feature-updates/KAI-10-architectural_refactoring_configuration_management/
+feature_01_refactor_player_data_fetcher/spec.md (full requirements reference)
+
+## Goals
+
+1. Verify the KAI-10 F01 implementation is correct and complete
+2. Confirm all 17 CLI args are present and function as specified
+3. Confirm the --e2e-test mode writes exclusively to /tmp (never to data/)
+4. Confirm all acceptance criteria from the F01 spec are satisfied
+5. Ensure unit test suite remains at 100% pass rate (0 skipped, 0 failures)
+6. Close out this feature properly with appropriate documentation
+
+## Scope
+
+### In Scope
+
+- Smoke testing the player fetcher refactoring (run_player_fetcher.py --help, --e2e-test)
+- Verifying all 17 CLI args are present and have correct defaults
+- Verifying the @dataclass Settings pattern is implemented correctly
+- Verifying all 5 internal modules no longer import CLI-configurable constants from config.py
+- Verifying --e2e-test writes to /tmp, not to data/
+- Verifying backward compatibility: python run_player_fetcher.py (no args) works as before
+- Running the full test suite and confirming 0 failures, 0 skipped
+
+### Out of Scope
+
+- Implementing any new features beyond what was specified in KAI-10 F01
+- Refactoring any other runner scripts (those are separate epics)
+- Documentation updates to README.md or ARCHITECTURE.md (those belong with the integration test framework epic)
+
+## Success Criteria
+
+- [ ] python run_player_fetcher.py --help shows all 17 arguments
+- [ ] python run_player_fetcher.py --e2e-test completes in ≤180s with exit code 0
+- [ ] python run_player_fetcher.py --e2e-test writes all output to /tmp (not data/)
+- [ ] python run_player_fetcher.py --week 1 --e2e-test exits 0 in ≤180s
+- [ ] python run_player_fetcher.py --e2e-test --log-level DEBUG enables DEBUG logging
+- [ ] python run_player_fetcher.py (no args) behavior identical to pre-KAI-10
+- [ ] grep -r "subprocess" run_player_fetcher.py returns empty
+- [ ] grep -r "CURRENT_NFL_WEEK\|NFL_SEASON\|ESPN_PLAYER_LIMIT" player-data-fetcher/config.py returns empty
+- [ ] grep -r "from pydantic_settings" player-data-fetcher/player_data_fetcher_main.py returns empty
+- [ ] pytest tests/ reports 2711+ passed, 0 skipped, 0 failed

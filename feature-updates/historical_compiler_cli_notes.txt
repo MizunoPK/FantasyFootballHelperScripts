@@ -1,0 +1,71 @@
+# Epic Request: Historical Compiler CLI Arguments and E2E Mode
+
+**Context**: This is one of 7 runner script refactoring features originally designed in
+KAI-10 (architectural_refactoring_configuration_management) but never implemented. The
+full specification was completed in KAI-10 S2 and can be referenced directly.
+
+**Existing spec**: feature-updates/KAI-10-architectural_refactoring_configuration_management/
+feature_04_historical_compiler_cli/spec.md (all requirements, acceptance criteria, files to modify)
+
+## Background
+
+compile_historical_data.py already has 4 args (--year, --verbose/-v, --enable-log-file,
+--output-dir), but is missing the universal args (--e2e-test, --log-level) and two
+script-specific args for network constants currently in historical_data_compiler/constants.py:
+- REQUEST_TIMEOUT = 30.0 (line 98)
+- RATE_LIMIT_DELAY = 0.3 (line 101)
+
+These two constants need to move from constants.py to argparse defaults.
+
+The BaseHTTPClient already accepts timeout and rate_limit_delay via constructor params
+(historical_data_compiler/http_client.py lines 62-82) — no refactoring needed there.
+
+## Goals
+
+1. Add universal args: --e2e-test, --log-level
+2. Add script-specific args: --timeout, --rate-limit-delay
+3. Remove REQUEST_TIMEOUT and RATE_LIMIT_DELAY from historical_data_compiler/constants.py
+4. Wire timeout/rate_limit_delay from CLI through compile_season_data() to BaseHTTPClient()
+5. Implement --e2e-test mode: 1 season, player_limit=100, output to system temp dir (not sim_data/)
+6. Preserve --verbose flag backward compatibility (maps to DEBUG logging)
+
+## Design Decisions (from KAI-10 S2)
+
+- No --debug flag: --e2e-test serves both purposes
+- Direct params pattern (no @dataclass Settings): values flow through compile_season_data() signature
+- E2E data limiting: pass player_limit=100 to fetch_player_data() (add param to that function)
+- E2E output: use tempfile.TemporaryDirectory() — temp dir auto-cleaned, never touches sim_data/
+- --verbose preserved (pre-existing backward compat): equivalent to --log-level DEBUG
+- Additional args (--weeks, --validate, --clean, --skip-backups) are out of scope
+
+## Files to Modify (4 files)
+
+1. compile_historical_data.py — Add 4 new CLI args, wire to BaseHTTPClient, E2E temp dir logic
+2. historical_data_compiler/constants.py — Remove REQUEST_TIMEOUT and RATE_LIMIT_DELAY
+3. historical_data_compiler/http_client.py — Remove constants import, use inline defaults (30.0/0.3)
+4. historical_data_compiler/player_data_fetcher.py — Add player_limit param to fetch_player_data()
+
+## CLI Arguments (8 total)
+
+| Argument | Type | Default | Notes |
+|----------|------|---------|-------|
+| --e2e-test | flag | False | 1 season, player_limit=100, /tmp output; also for debugging |
+| --log-level | str | 'INFO' | choices: DEBUG/INFO/WARNING/ERROR/CRITICAL |
+| --timeout | float | 30.0 | Replaces REQUEST_TIMEOUT in constants.py |
+| --rate-limit-delay | float | 0.3 | Replaces RATE_LIMIT_DELAY in constants.py |
+| --year | int | None | Existing — preserved |
+| --verbose / -v | flag | False | Existing — preserved (maps to DEBUG logging) |
+| --enable-log-file | flag | False | Existing — preserved |
+| --output-dir | Path | None | Existing — preserved |
+
+## Success Criteria
+
+- [ ] python compile_historical_data.py --help shows all 8 arguments
+- [ ] python compile_historical_data.py --year 2024 --e2e-test exits 0 in ≤180s
+- [ ] python compile_historical_data.py --e2e-test writes to /tmp (not simulation/sim_data/)
+- [ ] python compile_historical_data.py --e2e-test --log-level DEBUG enables DEBUG logging
+- [ ] python compile_historical_data.py (no args) behavior identical to current
+- [ ] python compile_historical_data.py --verbose behavior identical to current (DEBUG logging)
+- [ ] python compile_historical_data.py --year 2024 --timeout 60.0 --rate-limit-delay 0.5 uses those values
+- [ ] grep "REQUEST_TIMEOUT\|RATE_LIMIT_DELAY" historical_data_compiler/constants.py returns empty
+- [ ] pytest tests/ reports 100% passed, 0 skipped, 0 failed

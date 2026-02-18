@@ -1,0 +1,71 @@
+# Epic Request: Win Rate Simulation E2E Mode and Log Level
+
+**Context**: This is one of 7 runner script refactoring features originally designed in
+KAI-10 (architectural_refactoring_configuration_management) but never implemented. The
+full specification was completed in KAI-10 S2 and can be referenced directly.
+
+**Existing spec**: feature-updates/KAI-10-architectural_refactoring_configuration_management/
+feature_05_win_rate_simulation_e2e/spec.md (all requirements, acceptance criteria, files to modify)
+
+## Background
+
+run_win_rate_simulation.py already has comprehensive argparse with 9 unique args across
+subparsers (single/full/iterative), but is missing:
+- --e2e-test flag (E2E test mode)
+- --log-level arg (currently uses LOGGING_LEVEL = 'INFO' module constant at line 33)
+
+This is the simplest of the 7 refactoring features — only 2 new args, no internal module
+changes needed (no config.py exists for this script).
+
+## Goals
+
+1. Add --e2e-test flag to run_win_rate_simulation.py (main parser only)
+2. Add --log-level arg to replace LOGGING_LEVEL module constant
+3. Remove LOGGING_LEVEL = 'INFO' from module level (non-CLI constants LOG_NAME, LOGGING_FORMAT stay)
+4. Implement --e2e-test mode: forces mode=single, sims=1, workers=1; exits 0 in ≤180s
+5. Add graceful skip: exit 0 if simulation data or baseline config is missing in E2E mode
+
+## Design Decisions (from KAI-10 S2)
+
+- No --debug flag: --e2e-test serves both purposes
+- E2E mode overrides: args.mode='single', args.sims=1, args.workers=1 (set before SimulationManager)
+- Graceful skip: exit 0 + info message if baseline config folder or sim_data folder not found
+- Season stays hardcoded 2025 in single mode (matches existing single mode behavior)
+- --log-level uses uppercase choices: DEBUG/INFO/WARNING/ERROR/CRITICAL (consistent with F01)
+- Existing 28 tests in test_run_win_rate_simulation.py must all continue to pass (no deletions)
+- Add new tests for --log-level and --e2e-test behavior
+
+## Files to Modify (2 files)
+
+1. run_win_rate_simulation.py — Add 2 universal args, remove LOGGING_LEVEL, apply E2E override logic
+2. tests/root_scripts/test_run_win_rate_simulation.py — Add tests for new args (all 28 existing preserved)
+
+## CLI Arguments (11 total)
+
+| Argument | Type | Default | Notes |
+|----------|------|---------|-------|
+| --e2e-test | flag | False | Forces single/sims=1/workers=1; also for debugging |
+| --log-level | str | 'INFO' | Replaces LOGGING_LEVEL = 'INFO' constant |
+| mode (positional) | str | 'iterative' | Existing — preserved |
+| --enable-log-file | flag | False | Existing — preserved |
+| --sims | int | 5 | Existing — preserved |
+| --baseline | str | '' | Existing — preserved |
+| --output | str | 'simulation/simulation_configs' | Existing — preserved |
+| --workers | int | 8 | Existing — preserved |
+| --data | str | 'simulation/sim_data' | Existing — preserved |
+| --test-values | int | 5 | Existing — preserved |
+| --use-processes | flag | False | Existing — preserved |
+
+## Success Criteria
+
+- [ ] python run_win_rate_simulation.py --help shows --e2e-test and --log-level
+- [ ] python run_win_rate_simulation.py --log-level DEBUG sets DEBUG logging
+- [ ] python run_win_rate_simulation.py --log-level INVALID exits with argparse error
+- [ ] python run_win_rate_simulation.py --e2e-test exits 0 in ≤180s (when sim data present)
+- [ ] python run_win_rate_simulation.py --e2e-test exits 0 with info message when no baseline config
+- [ ] python run_win_rate_simulation.py --e2e-test exits 0 with info message when sim_data missing
+- [ ] python run_win_rate_simulation.py (no args) behavior identical to current
+- [ ] python run_win_rate_simulation.py single --sims 5 preserves existing behavior
+- [ ] grep "LOGGING_LEVEL" run_win_rate_simulation.py returns empty
+- [ ] grep "LOG_NAME" run_win_rate_simulation.py returns LOG_NAME = "win_rate_simulation" (stays)
+- [ ] pytest tests/ reports 100% passed, 0 skipped, 0 failed

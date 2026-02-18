@@ -1,0 +1,101 @@
+# Epic Request: CLI Integration Test Framework
+
+**Context**: This is the final feature from KAI-10 (architectural_refactoring_configuration_management)
+that was never implemented. It depends on all 7 runner scripts having been refactored first (the 7
+preceding epics in this series). The full specification was completed in KAI-10 S2.
+
+**Existing spec**: feature-updates/KAI-10-architectural_refactoring_configuration_management/
+feature_08_integration_test_framework/spec.md (all requirements, acceptance criteria, files to create)
+
+**DEPENDENCY**: All 7 refactoring epics must be completed before this one:
+1. validate_player_fetcher_refactoring
+2. schedule_fetcher_cli
+3. game_data_fetcher_cli
+4. historical_compiler_cli
+5. win_rate_simulation_e2e
+6. accuracy_simulation_e2e
+7. league_helper_cli
+
+## Background
+
+After all 7 runner scripts are refactored with --e2e-test support, this feature creates
+an automated CLI integration test framework that validates each script end-to-end using
+subprocess invocation. Tests assert exit codes and specific outcomes (not just that the
+script ran — but that it produced expected output).
+
+## Goals
+
+1. Create 5 new CLI test files in tests/integration/ (one per fetcher/helper script)
+2. Enhance 2 existing simulation integration test files (add new test classes)
+3. Create master runner: run_all_integration_tests.py in project root
+4. Create INTEGRATION_TESTING_GUIDE.md in docs/testing/
+
+## Test Pattern (for all 7 test runners)
+
+```python
+result = subprocess.run(
+    [sys.executable, str(project_root / "run_SCRIPT.py"), "--e2e-test"],
+    capture_output=True, text=True, timeout=180
+)
+assert result.returncode == 0
+assert "Traceback" not in result.stderr
+```
+
+Timeout handling: tests warn but do not fail on >180s (network variability).
+3-5 argument combinations tested per script.
+
+## Files to Create/Modify (9 files)
+
+**New files (5):**
+1. tests/integration/test_player_fetcher_cli.py — TestPlayerFetcherCLI (5 test methods)
+2. tests/integration/test_schedule_fetcher_cli.py — TestScheduleFetcherCLI (5 test methods)
+3. tests/integration/test_game_data_fetcher_cli.py — TestGameDataFetcherCLI (5 test methods)
+4. tests/integration/test_historical_compiler_cli.py — TestHistoricalCompilerCLI (5 test methods)
+5. tests/integration/test_league_helper_cli.py — TestLeagueHelperCLI (5 test methods)
+
+**Modified files (2 — append classes only, no changes to existing classes):**
+6. tests/integration/test_simulation_integration.py — Append TestWinRateSimulationCLI class
+7. tests/integration/test_accuracy_simulation_integration.py — Append TestAccuracySimulationCLI class
+
+**New files (2):**
+8. run_all_integration_tests.py — Master runner (project root)
+9. docs/testing/INTEGRATION_TESTING_GUIDE.md — ~300 lines, 5 sections
+
+## Argument Combinations to Test Per Script
+
+- test_player_fetcher_cli.py: --e2e-test, --e2e-test --log-level DEBUG, --e2e-test --week 1,
+  --e2e-test (no drafted_data.csv graceful skip), --help (verify all 17 args)
+- test_schedule_fetcher_cli.py: --e2e-test, --e2e-test --log-level DEBUG, --e2e-test --season 2024,
+  --e2e-test --output-path /tmp/test_sched.csv, --help
+- test_game_data_fetcher_cli.py: --e2e-test, --e2e-test --log-level DEBUG,
+  --e2e-test --request-timeout 60, --e2e-test --historical-season 2024, --help
+- test_historical_compiler_cli.py: --e2e-test, --e2e-test --log-level DEBUG,
+  --e2e-test --year 2024, --e2e-test --timeout 120, --help
+- test_league_helper_cli.py: --e2e-test, --e2e-test --log-level DEBUG,
+  --e2e-test --my-team-name "Test Team", --e2e-test --data-folder /tmp/nonexistent (graceful skip), --help
+- TestWinRateSimulationCLI: --e2e-test, --e2e-test --log-level DEBUG,
+  --e2e-test --log-level WARNING, --help
+- TestAccuracySimulationCLI: --e2e-test, --e2e-test --log-level DEBUG,
+  --e2e-test --log-level debug (lowercase normalization), --help
+
+## Integration Testing Guide Sections (docs/testing/INTEGRATION_TESTING_GUIDE.md)
+
+1. Overview — what integration tests validate vs unit tests, when to run
+2. Running Individual Tests — pytest commands per script with expected output
+3. Running the Master Runner — python run_all_integration_tests.py, 7/7 pass meaning
+4. Understanding Test Outputs — exit codes, graceful skip behavior, network-dependent scripts
+5. Troubleshooting — API unavailable, missing data files, timeout warnings vs failures
+
+## Success Criteria
+
+- [ ] python run_all_integration_tests.py exits 0 (7/7 pass)
+- [ ] pytest tests/integration/test_player_fetcher_cli.py -v runs 5 tests
+- [ ] pytest tests/integration/test_schedule_fetcher_cli.py -v runs 5 tests
+- [ ] pytest tests/integration/test_game_data_fetcher_cli.py -v runs 5 tests
+- [ ] pytest tests/integration/test_historical_compiler_cli.py -v runs 5 tests
+- [ ] pytest tests/integration/test_league_helper_cli.py -v runs 5 tests
+- [ ] pytest tests/integration/test_simulation_integration.py::TestWinRateSimulationCLI -v runs 4 tests
+- [ ] pytest tests/integration/test_accuracy_simulation_integration.py::TestAccuracySimulationCLI -v runs 4 tests
+- [ ] No existing tests in modified integration files are broken
+- [ ] docs/testing/INTEGRATION_TESTING_GUIDE.md exists (~300 lines, 5 sections)
+- [ ] pytest tests/ (full suite) passes 100% (all existing tests unaffected)

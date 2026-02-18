@@ -1,0 +1,62 @@
+# Epic Request: Accuracy Simulation E2E Mode and Log Level Normalization
+
+**Context**: This is one of 7 runner script refactoring features originally designed in
+KAI-10 (architectural_refactoring_configuration_management) but never implemented. The
+full specification was completed in KAI-10 S2 and can be referenced directly.
+
+**Existing spec**: feature-updates/KAI-10-architectural_refactoring_configuration_management/
+feature_06_accuracy_simulation_e2e/spec.md (all requirements, acceptance criteria, files to modify)
+
+## Background
+
+run_accuracy_simulation.py already has comprehensive argparse (10 existing args including
+--log-level), but:
+- --log-level currently uses lowercase choices (['debug', 'info', 'warning', 'error']) — missing
+  'critical', and inconsistent with the universal standard established by the player fetcher refactoring
+- --e2e-test flag is missing entirely
+- AccuracySimulationManager already uses constructor parameter pattern — no internal module changes needed
+- No config module imports in the runner — no config cleanup required
+
+## Goals
+
+1. Add --e2e-test flag to run_accuracy_simulation.py
+2. Normalize --log-level to uppercase choices with type=str.upper (backward compatible)
+3. Add 'CRITICAL' to --log-level choices (was missing)
+4. Implement --e2e-test mode: 1 parameter (NORMALIZATION_MAX_SCALE), 1 test value, exits 0 in ≤180s
+5. Add graceful skip: exit 0 if sim_data/ or baseline config is missing in E2E mode
+
+## Design Decisions (from KAI-10 S2)
+
+- No --debug flag: --e2e-test serves both purposes
+- type=str.upper on --log-level: accepts lowercase input (--log-level debug) and normalizes to uppercase
+  before choice validation — zero breaking changes for existing users of lowercase
+- E2E parameter reduction: parameter_order=['NORMALIZATION_MAX_SCALE'], num_test_values=1
+- Graceful skip: exit 0 + info message if sim_data/ or baseline not found (E2E mode only)
+- Normal mode retains existing hard-failure behavior for missing data
+- Remove .upper() call from setup_logger() invocation (no longer needed with type=str.upper)
+
+## Files to Modify (2 files)
+
+1. run_accuracy_simulation.py — Add --e2e-test, normalize --log-level (type=str.upper + uppercase choices)
+2. tests/root_scripts/test_run_accuracy_simulation.py — Add ~7 new tests, update ~2 log-level tests
+
+## CLI Arguments (11 total — 10 existing + 1 new)
+
+| Argument | Type | Default | Notes |
+|----------|------|---------|-------|
+| --e2e-test | flag | False | 1 param/1 test value; also for debugging (NEW) |
+| --log-level | str | 'INFO' | Normalized to uppercase; adds CRITICAL; type=str.upper (MODIFIED) |
+| (9 existing args) | — | — | All preserved as-is |
+
+## Success Criteria
+
+- [ ] python run_accuracy_simulation.py --help shows --e2e-test flag
+- [ ] python run_accuracy_simulation.py --e2e-test (with data present) exits 0 in ≤180s
+- [ ] python run_accuracy_simulation.py --e2e-test (without sim_data/) exits 0 with info message
+- [ ] python run_accuracy_simulation.py --e2e-test (without baseline) exits 0 with info message
+- [ ] python run_accuracy_simulation.py --e2e-test --log-level DEBUG exits 0 with DEBUG logging
+- [ ] python run_accuracy_simulation.py --log-level debug accepted (lowercase → normalized to DEBUG)
+- [ ] python run_accuracy_simulation.py --log-level CRITICAL accepted (new choice)
+- [ ] python run_accuracy_simulation.py (no args) behavior identical to current
+- [ ] python run_accuracy_simulation.py --log-level warning (previously worked) still works
+- [ ] pytest tests/ reports 100% passed, 0 skipped, 0 failed

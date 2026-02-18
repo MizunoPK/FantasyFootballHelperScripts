@@ -1,0 +1,71 @@
+# Epic Request: Game Data Fetcher CLI Arguments and E2E Mode
+
+**Context**: This is one of 7 runner script refactoring features originally designed in
+KAI-10 (architectural_refactoring_configuration_management) but never implemented. The
+full specification was completed in KAI-10 S2 and can be referenced directly.
+
+**Existing spec**: feature-updates/KAI-10-architectural_refactoring_configuration_management/
+feature_03_game_data_fetcher_cli/spec.md (all requirements, acceptance criteria, files to modify)
+
+**IMPORTANT DEPENDENCY**: The player-data-fetcher/game_data_fetcher.py module was already
+refactored in KAI-10 Feature 01 (REQ-09). The validate_player_fetcher_refactoring epic should
+be completed before this one to confirm the internal module changes are in place.
+
+## Background
+
+run_game_data_fetcher.py already has 4 CLI args (--season, --output, --weeks, --current-week),
+but is missing the universal args (--e2e-test, --log-level) and has two anti-patterns:
+1. Uses os.chdir() to change working directory before imports
+2. Falls back to config.NFL_SEASON and config.CURRENT_NFL_WEEK when args are not provided
+
+The internal game_data_fetcher.py module was refactored by KAI-10 F01 (REQ-09) to accept
+request_timeout and rate_limit_delay as constructor parameters.
+
+## Goals
+
+1. Add universal args --e2e-test and --log-level to run_game_data_fetcher.py
+2. Add script-specific args: --request-timeout, --historical-season
+3. Remove config import from runner (NFL_SEASON, CURRENT_NFL_WEEK)
+4. Remove os.chdir() — use sys.path.insert only (like player_fetcher pattern)
+5. Wire --log-level to setup_logger() (currently hardcoded "INFO")
+6. Implement --e2e-test mode: Week 1 data only, exits 0 in ≤180s
+
+## Design Decisions (from KAI-10 S2)
+
+- No --debug flag: --e2e-test serves both purposes
+- E2E mode: fetch Week 1 only (weeks=[1]) — deterministic, reliable historical data
+- --historical-season flag: explicit flag replaces implicit year-comparison logic
+- --request-timeout exposed as CLI arg; --rate-limit-delay is unused in code (not added)
+- --data-folder, --validate, --clean: out of scope (follow DISCOVERY scope strictly)
+- argparse defaults replace config fallbacks: --season defaults to 2025, --current-week to 17
+
+## Files to Modify (1 file)
+
+1. run_game_data_fetcher.py — Add 4 new args, remove os.chdir, fix defaults, remove config import
+
+Note: player-data-fetcher/game_data_fetcher.py was modified by the player fetcher refactoring
+epic (Feature 01 REQ-09), not this feature.
+
+## CLI Arguments (8 total)
+
+| Argument | Type | Default | Notes |
+|----------|------|---------|-------|
+| --e2e-test | flag | False | Limits to Week 1; also used for debugging |
+| --log-level | str | 'INFO' | choices: DEBUG/INFO/WARNING/ERROR/CRITICAL |
+| --request-timeout | int | 30 | HTTP timeout in seconds (NEW) |
+| --historical-season | flag | False | Fetch full past season (sets current_week=18) (NEW) |
+| --season | int | 2025 | Existing — now with hardcoded default (was config fallback) |
+| --output | str | 'data/game_data.csv' | Existing — preserved |
+| --weeks | list | all | Existing — preserved |
+| --current-week | int | 17 | Existing — now with hardcoded default (was config fallback) |
+
+## Success Criteria
+
+- [ ] python run_game_data_fetcher.py --help shows all 8 arguments
+- [ ] python run_game_data_fetcher.py --e2e-test exits 0 in ≤180s
+- [ ] python run_game_data_fetcher.py --e2e-test --log-level DEBUG exits 0 with DEBUG output
+- [ ] python run_game_data_fetcher.py (no args) behavior identical to current (season=2025, week=17)
+- [ ] python run_game_data_fetcher.py --season 2024 --historical-season sets current_week to 18
+- [ ] grep "from config import" run_game_data_fetcher.py returns empty
+- [ ] grep "os.chdir" run_game_data_fetcher.py returns empty
+- [ ] pytest tests/ reports 100% passed, 0 skipped, 0 failed

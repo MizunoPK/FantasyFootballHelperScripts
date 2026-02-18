@@ -1,3 +1,4 @@
 - make a standardization for update request txt files
 - make a standalone version of the guides that can be copied into other projects
 - Set up a system such that projects using the master version create a changelog of updates they make to the guides on their end. Those changelogs can be put in a folder in the master version and any other versions for it to use to update its own guides.
+- When importing into new projects, there needs to be a standardized way of initializing the guides. I.e. analyzing code base and selecting a epic tag like KAI

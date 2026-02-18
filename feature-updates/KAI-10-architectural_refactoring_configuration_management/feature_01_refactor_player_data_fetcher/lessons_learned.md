@@ -67,7 +67,8 @@
 
 ### Guide Improvements Identified
 
-**No guide gaps identified.** The existing guides adequately covered this refactoring feature. The workflow was well-structured and all phases completed without needing to return to earlier stages.
+**One guide gap identified:**
+- **Epic size limit recommendation:** KAI-10 with 8 features proved too large and unwieldy to manage effectively across multiple sessions and agents. The S1 epic planning guide should include a check: if an epic is scoped to more than 5 features, the agent should proactively suggest breaking it into smaller epics. Smaller epics are easier to track, complete faster, and reduce session compaction risk.
 
 **One minor note for future agent sessions:**
 - After session compaction, always read the current implementation_checklist.md before adding new tests/code. This prevents duplicate additions (like the test_config.py duplicate class issue above).
@@ -77,7 +78,9 @@
 
 ### Recommendations for Future Features
 
-1. **Run test_root_scripts.py after any runner script refactoring.** When `run_*.py` scripts change their internal pattern (subprocess→import), test_root_scripts.py tests may become invalid and fail silently or succeed incorrectly.
+1. **Keep epics to 5 features or fewer.** KAI-10 with 8 features was too large — it became unwieldy across sessions, made context compaction more disruptive, and made it harder to track overall epic progress. If scoping an epic reveals more than 5 features, split into two smaller epics (e.g., "Wave 1" and "Wave 2") before S1 is complete.
+
+2. **Run test_root_scripts.py after any runner script refactoring.** When `run_*.py` scripts change their internal pattern (subprocess→import), test_root_scripts.py tests may become invalid and fail silently or succeed incorrectly.
 
 2. **For large espn_client.py edits:** Use `replace_all=True` when the same pattern appears exactly twice; use individual edits when patterns are unique. Verify with `grep -c` after each change.
 

@@ -1,0 +1,88 @@
+# Epic Request: League Helper CLI Arguments and E2E Mode
+
+**Context**: This is one of 7 runner script refactoring features originally designed in
+KAI-10 (architectural_refactoring_configuration_management) but never implemented. The
+full specification was completed in KAI-10 S2 and can be referenced directly.
+
+**Existing spec**: feature-updates/KAI-10-architectural_refactoring_configuration_management/
+feature_07_league_helper_cli/spec.md (all requirements, acceptance criteria, files to modify)
+
+## Background
+
+run_league_helper.py currently uses subprocess to invoke the league helper (not direct import).
+It has only --enable-log-file. Six configurable constants live in league_helper/constants.py
+that should be exposed as CLI args:
+- FANTASY_TEAM_NAME, LOGGING_LEVEL, RECOMMENDATION_COUNT, MIN_WAIVER_IMPROVEMENT,
+  NUM_TRADE_RUNNERS_UP, MIN_TRADE_IMPROVEMENT
+
+This is the largest refactoring scope of all 7 scripts (~10 files). It follows the same
+@dataclass Settings + create_settings_from_dict() pattern as the player fetcher refactoring.
+
+## Goals
+
+1. Replace subprocess with direct import (same pattern as player fetcher)
+2. Add comprehensive argparse: 12 total args (10 new + 2 universal + 1 preserved)
+3. Create @dataclass Settings in LeagueHelperManager.py and create_settings_from_dict() function
+4. Remove 6 CLI-configurable constants from league_helper/constants.py
+5. Refactor internal modules to accept parameters instead of importing constants
+   (PlayerManager, ModifyPlayerDataModeManager, FantasyTeam, TradeSimulatorModeManager,
+    trade_analyzer, AddToRosterModeManager)
+6. Implement --e2e-test mode: run all 5 modes via execute_e2e() methods, ≤180s total
+7. Add graceful skip: exit 0 if league_config.json not found in E2E mode
+
+## Design Decisions (from KAI-10 S2)
+
+- No --debug flag: --e2e-test serves both purposes
+- @dataclass Settings pattern (same as player fetcher) — not direct params
+- settings_dict flow: run_league_helper.py → create_settings_dict() → LeagueHelperManager.main()
+  → create_settings_from_dict() → Settings dataclass
+- --week and --season default to None: use league_config.json values when not provided
+- No --config-path: ConfigManager auto-resolves from --data-folder
+- E2E implementation: each of 5 mode managers gets an execute_e2e() method (no user prompts)
+- Graceful skip: if league_config.json not at data_folder path, exit 0 with info message
+- --my-team-name consistent with player_fetcher naming (not --team-name)
+
+## Files to Modify (~10 files)
+
+1. run_league_helper.py — Replace subprocess with direct import, add argparse
+2. league_helper/LeagueHelperManager.py — Settings dataclass, main() signature, settings flow
+3. league_helper/constants.py — Remove 6 CLI-configurable constants
+4. league_helper/util/PlayerManager.py — Add my_team_name constructor param
+5. league_helper/modify_player_data_mode/ModifyPlayerDataModeManager.py — Add my_team_name param
+6. league_helper/util/FantasyTeam.py — Add my_team_name param (used in draft_player())
+7. league_helper/trade_simulator_mode/TradeSimulatorModeManager.py — Add 3 constructor params
+8. league_helper/trade_simulator_mode/trade_analyzer.py — Add 2 params (12+ changes)
+9. league_helper/add_to_roster_mode/AddToRosterModeManager.py — Add recommendation_count param
+10. tests/league_helper/test_LeagueHelperManager.py — Update constructor calls
+
+## CLI Arguments (12 total)
+
+| Argument | Type | Default | Notes |
+|----------|------|---------|-------|
+| --e2e-test | flag | False | Runs all 5 modes via execute_e2e(); also for debugging |
+| --log-level | str | 'INFO' | choices: DEBUG/INFO/WARNING/ERROR/CRITICAL |
+| --my-team-name | str | 'Sea Sharp' | Replaces FANTASY_TEAM_NAME |
+| --recommendation-count | int | 5 | Replaces RECOMMENDATION_COUNT |
+| --min-waiver-improvement | float | 0 | Replaces MIN_WAIVER_IMPROVEMENT |
+| --num-runners-up | int | 9 | Replaces NUM_TRADE_RUNNERS_UP |
+| --min-trade-improvement | float | 0 | Replaces MIN_TRADE_IMPROVEMENT |
+| --data-folder | str | '../data' | Path to data directory |
+| --mode | str | None | Mode to run (non-E2E): add-to-roster, starter-helper, etc. |
+| --week | int | None | Override league_config.json CURRENT_NFL_WEEK |
+| --season | int | None | Override league_config.json NFL_SEASON |
+| --enable-log-file | flag | False | Pre-existing — preserved as-is |
+
+## Success Criteria
+
+- [ ] python run_league_helper.py --help shows all 12 arguments
+- [ ] python run_league_helper.py --e2e-test runs all 5 modes and exits 0 in ≤180s
+- [ ] python run_league_helper.py --e2e-test --data-folder /tmp/nonexistent exits 0 (graceful skip)
+- [ ] python run_league_helper.py --e2e-test --log-level DEBUG enables DEBUG logging
+- [ ] python run_league_helper.py --my-team-name "My Team" uses that name throughout
+- [ ] python run_league_helper.py --week 10 overrides league_config.json CURRENT_NFL_WEEK with 10
+- [ ] python run_league_helper.py --recommendation-count 3 shows 3 recommendations
+- [ ] python run_league_helper.py (no args) behavior identical to current
+- [ ] python league_helper/LeagueHelperManager.py (direct invocation, no args) still works
+- [ ] grep -r "subprocess" run_league_helper.py returns empty
+- [ ] grep "FANTASY_TEAM_NAME\|RECOMMENDATION_COUNT\|MIN_WAIVER_IMPROVEMENT\|NUM_TRADE_RUNNERS_UP\|MIN_TRADE_IMPROVEMENT\|LOGGING_LEVEL" league_helper/constants.py returns empty
+- [ ] pytest tests/ reports 100% passed, 0 skipped, 0 failed
