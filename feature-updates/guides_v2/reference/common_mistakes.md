@@ -70,6 +70,9 @@
 - ❌ Creating folders before user approves feature breakdown
 - ❌ Skipping KAI number assignment
 - ❌ Making epic_smoke_test_plan.md too detailed (should be placeholder)
+- ❌ Creating a documentation feature (handled in S7.P3 + S10, unless user explicitly requests it)
+- ❌ Using shallow check for spec dependencies in Step 5.7.5: "Can I identify WHAT to build from Discovery?" → Use deep check: "Can I write a COMPLETE spec without knowing upstream's output structure?" (KAI-10: 7 agents paused mid-S2 from this mistake)
+- ❌ Assuming integration/test/framework/orchestration/wrapper features have no spec dependencies — they almost always do (they describe HOW to interact with other features, which requires knowing those features' specs)
 
 ### S2: Feature Deep Dives
 - ❌ Marking checklist.md items resolved autonomously (agents create QUESTIONS, users provide ANSWERS)

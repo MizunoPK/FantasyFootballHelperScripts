@@ -1,0 +1,8 @@
+FEATURE: 08_integration_test_framework
+WAVE: 3 (Group 3)
+STAGE: S2
+STATUS: BLOCKED
+READY_FOR_SYNC: false
+ISSUES: 0
+BLOCKER: Wave 2 (Features 02-07) must complete S2 first
+LAST_UPDATED: 2026-02-18

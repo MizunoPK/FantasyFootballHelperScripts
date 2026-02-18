@@ -175,25 +175,6 @@ class TestAccuracySimulationFeature01Integration:
                 # If setup_logger is called, verify parameter 4 (log_file_path) is None
                 # This test validates the calling convention
 
-    @pytest.mark.integration
-    def test_log_file_created_when_flag_provided(self):
-        """Test 2.4: Verify log file created in logs/accuracy_simulation/ when flag provided"""
-        # This is a full integration test - requires real execution
-        # Mark as integration test to run separately
-        pytest.skip("Full integration test - requires real simulation data")
-
-    @pytest.mark.integration
-    def test_no_log_file_created_when_flag_omitted(self):
-        """Test 2.5: Verify no log file created when flag omitted (default behavior)"""
-        # This is a full integration test - requires real execution
-        pytest.skip("Full integration test - requires real simulation data")
-
-    @pytest.mark.integration
-    def test_console_logging_always_active(self):
-        """Test 2.6: Verify console logging works regardless of --enable-log-file flag"""
-        # This is a full integration test - requires capturing console output
-        pytest.skip("Full integration test - requires real simulation data")
-
 
 # ============================================================================
 # TEST CATEGORY 3: DEBUG LOG QUALITY (R3) - 15 TESTS
@@ -201,31 +182,6 @@ class TestAccuracySimulationFeature01Integration:
 
 class TestAccuracySimulationDEBUGLogQuality:
     """Test Category 3: DEBUG Log Quality (Requirement R3)"""
-
-    @pytest.mark.integration
-    def test_debug_logs_show_method_entry_exit(self):
-        """Test 3.1: Verify complex methods log entry/exit"""
-        pytest.skip("Integration test - requires log output analysis")
-
-    @pytest.mark.integration
-    def test_debug_logs_show_data_transformations(self):
-        """Test 3.2: Verify data transformations log before/after values"""
-        pytest.skip("Integration test - requires log output analysis")
-
-    @pytest.mark.integration
-    def test_debug_logs_show_conditional_branches(self):
-        """Test 3.3: Verify conditional logic logs path taken"""
-        pytest.skip("Integration test - requires log output analysis")
-
-    @pytest.mark.integration
-    def test_parallel_worker_activity_tracing(self):
-        """Test 3.4: Verify parallel worker activity traced with throttling"""
-        pytest.skip("Integration test - requires parallel execution with 100 configs")
-
-    @pytest.mark.integration
-    def test_worker_progress_logged_every_10_configs(self):
-        """Test 3.5: Verify progress logged every 10 configs evaluated"""
-        pytest.skip("Integration test - requires parallel execution with 50 configs")
 
     def test_queue_depth_logged_with_worker_activity(self):
         """Test 3.6: Verify worker messages include queue depth info"""
@@ -361,11 +317,6 @@ class TestAccuracySimulationDEBUGLogQuality:
 class TestAccuracySimulationINFOLogQuality:
     """Test Category 4: INFO Log Quality (Requirement R4)"""
 
-    @pytest.mark.integration
-    def test_info_logs_show_script_start(self):
-        """Test 4.1: Verify script start logged with configuration summary"""
-        pytest.skip("Integration test - requires log output analysis")
-
     def test_info_logs_show_major_phase_transitions(self):
         """Test 4.2: Verify major phases logged (initialization, baseline load, simulation, results)"""
         from simulation.accuracy.AccuracySimulationManager import AccuracySimulationManager
@@ -387,26 +338,6 @@ class TestAccuracySimulationINFOLogQuality:
         # Check for completion INFO messages (Task 4.2)
         assert 'logger.info' in source
         assert 'saved' in source.lower() or 'complete' in source.lower()
-
-    @pytest.mark.integration
-    def test_info_logs_no_implementation_details(self):
-        """Test 4.4: Verify INFO logs don't include implementation details (use DEBUG for that)"""
-        pytest.skip("Integration test - requires log output review")
-
-    @pytest.mark.integration
-    def test_info_logs_show_parallel_progress(self):
-        """Test 4.5: Verify parallel execution progress visible at INFO level"""
-        pytest.skip("Integration test - requires parallel execution")
-
-    @pytest.mark.integration
-    def test_info_logs_show_error_summary(self):
-        """Test 4.6: Verify errors summarized at INFO level (details at ERROR level)"""
-        pytest.skip("Integration test - requires error scenario")
-
-    @pytest.mark.integration
-    def test_info_logs_appropriate_frequency(self):
-        """Test 4.7: Verify INFO logs not too frequent (user awareness, not spam)"""
-        pytest.skip("Integration test - requires counting INFO messages in run")
 
     def test_info_logs_show_completion_summary(self):
         """Test 4.8: Verify completion summary logged (total time, configs evaluated, best result)"""
@@ -448,11 +379,6 @@ class TestAccuracySimulationERRORLogQuality:
         assert 'logger.error' in source
         assert 'folder' in source.lower() or 'directory' in source.lower()
 
-    @pytest.mark.integration
-    def test_error_log_projected_data_load_failure(self):
-        """Test 5.3: Verify ERROR logged when projected data load fails (corrupted file)"""
-        pytest.skip("Integration test - requires corrupting data file")
-
     def test_error_log_configuration_validation_failure(self):
         """Test 5.4: Verify ERROR logged when config validation fails"""
         with open(project_root / 'run_accuracy_simulation.py', 'r') as f:
@@ -470,11 +396,6 @@ class TestAccuracySimulationERRORLogQuality:
 
         # Verify error handling exists
         assert 'except' in source or 'try' in source
-
-    @pytest.mark.integration
-    def test_error_log_results_save_failure(self):
-        """Test 5.6: Verify ERROR logged when results save fails (I/O error)"""
-        pytest.skip("Integration test - requires I/O error simulation")
 
     def test_error_logs_include_exc_info(self):
         """Test 5.7: Verify ERROR logs include exception info (exc_info=True) for debugging"""
@@ -495,46 +416,6 @@ class TestAccuracySimulationERRORLogQuality:
 class TestAccuracySimulationEdgeCases:
     """Test Category 6: Edge Cases"""
 
-    @pytest.mark.integration
-    def test_script_runs_without_any_flags(self):
-        """Test 6.1: Verify script runs with default behavior (no flags provided)"""
-        pytest.skip("Integration test - requires real simulation data")
-
-    @pytest.mark.integration
-    def test_script_runs_with_only_enable_log_file(self):
-        """Test 6.2: Verify script runs with only --enable-log-file flag"""
-        pytest.skip("Integration test - requires real simulation data")
-
-    @pytest.mark.integration
-    def test_log_directory_created_if_missing(self):
-        """Test 6.3: Verify logs/accuracy_simulation/ created if doesn't exist"""
-        pytest.skip("Integration test - requires file system operations")
-
-    @pytest.mark.integration
-    def test_zero_configs_to_evaluate(self):
-        """Test 6.4: Verify graceful handling when no configs to evaluate"""
-        pytest.skip("Integration test - requires empty config scenario")
-
-    @pytest.mark.integration
-    def test_single_config_evaluation(self):
-        """Test 6.5: Verify script works with only 1 config (no parallel needed)"""
-        pytest.skip("Integration test - requires single config run")
-
-    @pytest.mark.integration
-    def test_parallel_execution_with_1_worker(self):
-        """Test 6.6: Verify parallel execution works with single worker"""
-        pytest.skip("Integration test - requires 1 worker configuration")
-
-    @pytest.mark.integration
-    def test_all_configs_fail_evaluation(self):
-        """Test 6.7: Verify graceful handling when all configs fail"""
-        pytest.skip("Integration test - requires invalid config scenario")
-
-    @pytest.mark.integration
-    def test_log_file_permissions_error(self):
-        """Test 6.8: Verify ERROR logged if log file can't be created (permissions)"""
-        pytest.skip("Integration test - requires file permission manipulation")
-
 
 # ============================================================================
 # TEST CATEGORY 7: CONFIGURATION TESTS - 6 TESTS
@@ -542,36 +423,6 @@ class TestAccuracySimulationEdgeCases:
 
 class TestAccuracySimulationConfiguration:
     """Test Category 7: Configuration Tests"""
-
-    @pytest.mark.integration
-    def test_enable_log_file_with_debug_level(self):
-        """Test 7.1: Verify --enable-log-file works with --log-level debug"""
-        pytest.skip("Integration test - requires log file analysis")
-
-    @pytest.mark.integration
-    def test_enable_log_file_with_info_level(self):
-        """Test 7.2: Verify --enable-log-file works with --log-level info"""
-        pytest.skip("Integration test - requires log file analysis")
-
-    @pytest.mark.integration
-    def test_enable_log_file_with_warning_level(self):
-        """Test 7.3: Verify --enable-log-file works with --log-level warning"""
-        pytest.skip("Integration test - requires log file analysis")
-
-    @pytest.mark.integration
-    def test_console_logging_respects_log_level(self):
-        """Test 7.4: Verify console logging respects --log-level regardless of --enable-log-file"""
-        pytest.skip("Integration test - requires console output capture")
-
-    @pytest.mark.integration
-    def test_log_file_rotation_occurs_after_500_lines(self):
-        """Test 7.5: Verify log file rotates after 500 lines (Feature 01 behavior)"""
-        pytest.skip("Integration test - requires generating >500 log lines")
-
-    @pytest.mark.integration
-    def test_multiple_script_runs_create_separate_files(self):
-        """Test 7.6: Verify each script run creates new timestamped file"""
-        pytest.skip("Integration test - requires multiple script executions")
 
 
 # ============================================================================

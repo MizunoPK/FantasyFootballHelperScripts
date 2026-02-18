@@ -2,61 +2,192 @@
 """
 Runner Script for Player Data Fetcher
 
-This script runs the player data fetcher from the parent directory.
+This script runs the player data fetcher directly (no subprocess).
 
 Usage:
     python run_player_fetcher.py
-    python run_player_fetcher.py --enable-log-file
+    python run_player_fetcher.py --help
+    python run_player_fetcher.py --week 1 --e2e-test
 
 Author: Kai Mizuno
 """
 
 import argparse
-import os
-import subprocess
+import asyncio
 import sys
+import tempfile
 from pathlib import Path
 
+# Add player-data-fetcher to path so we can import it directly
+_fetcher_dir = Path(__file__).parent / "player-data-fetcher"
+sys.path.insert(0, str(_fetcher_dir))
+
+from player_data_fetcher_main import main  # noqa: E402
+
+
+def parse_args(argv=None):
+    """Parse command-line arguments for the player data fetcher runner."""
+    parser = argparse.ArgumentParser(
+        description='Fetch NFL player projection data from ESPN'
+    )
+
+    # E2E / debug flags
+    parser.add_argument(
+        '--e2e-test',
+        action='store_true',
+        default=False,
+        help='Run in end-to-end test mode (limits ESPN player fetch to 100)'
+    )
+    parser.add_argument(
+        '--log-level',
+        type=str,
+        default='INFO',
+        choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
+        help='Logging level (default: INFO)'
+    )
+    parser.add_argument(
+        '--enable-log-file',
+        action='store_true',
+        default=False,
+        help='Enable file logging to logs/player_data_fetcher/'
+    )
+
+    # Season / week
+    parser.add_argument(
+        '--week',
+        type=int,
+        default=17,
+        help='Current NFL week number (default: 17)'
+    )
+    parser.add_argument(
+        '--season',
+        type=int,
+        default=2025,
+        help='NFL season year (default: 2025)'
+    )
+
+    # Team / roster
+    parser.add_argument(
+        '--my-team-name',
+        type=str,
+        default='Sea Sharp',
+        help='Your fantasy team name (default: Sea Sharp)'
+    )
+    parser.add_argument(
+        '--load-drafted-data',
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help='Load drafted roster data (default: enabled)'
+    )
+    parser.add_argument(
+        '--drafted-data-path',
+        type=str,
+        default='../data/drafted_data.csv',
+        help='Path to drafted data CSV (default: ../data/drafted_data.csv)'
+    )
+
+    # Output paths
+    parser.add_argument(
+        '--position-json-output',
+        type=str,
+        default='../data/player_data',
+        help='Output directory for position JSON files (default: ../data/player_data)'
+    )
+    parser.add_argument(
+        '--team-data-folder',
+        type=str,
+        default='../data/team_data',
+        help='Output directory for team data files (default: ../data/team_data)'
+    )
+    parser.add_argument(
+        '--game-data-csv',
+        type=str,
+        default='../data/game_data.csv',
+        help='Output path for game data CSV (default: ../data/game_data.csv)'
+    )
+
+    # Feature flags
+    parser.add_argument(
+        '--enable-historical-save',
+        action='store_true',
+        default=False,
+        help='Save historical snapshot of player data'
+    )
+    parser.add_argument(
+        '--enable-game-data',
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help='Fetch NFL game data (default: enabled)'
+    )
+
+    # Performance tuning
+    parser.add_argument(
+        '--espn-player-limit',
+        type=int,
+        default=2000,
+        help='Maximum number of ESPN players to fetch (default: 2000)'
+    )
+    parser.add_argument(
+        '--request-timeout',
+        type=int,
+        default=30,
+        help='HTTP request timeout in seconds (default: 30)'
+    )
+    parser.add_argument(
+        '--rate-limit-delay',
+        type=float,
+        default=0.2,
+        help='Delay between API requests in seconds (default: 0.2)'
+    )
+    parser.add_argument(
+        '--progress-frequency',
+        type=int,
+        default=10,
+        help='How often to log progress updates (every N players, default: 10)'
+    )
+
+    return parser.parse_args(argv)
+
+
+def create_settings_dict(args) -> dict:
+    """Convert parsed args to a settings dict for player_data_fetcher_main.main()."""
+    # E2E override: cap ESPN player limit to 100 for fast test runs
+    espn_player_limit = 100 if args.e2e_test else args.espn_player_limit
+
+    # E2E override: redirect all output paths to a temp directory so real
+    # data files are never overwritten during test runs
+    if args.e2e_test:
+        tmp_dir = tempfile.mkdtemp(prefix='player_fetcher_e2e_')
+        position_json_output = str(Path(tmp_dir) / 'player_data')
+        team_data_folder = str(Path(tmp_dir) / 'team_data')
+        game_data_csv = str(Path(tmp_dir) / 'game_data.csv')
+    else:
+        position_json_output = args.position_json_output
+        team_data_folder = args.team_data_folder
+        game_data_csv = args.game_data_csv
+
+    return {
+        'e2e_test': args.e2e_test,
+        'log_level': args.log_level,
+        'logging_to_file': args.enable_log_file,
+        'current_nfl_week': args.week,
+        'season': args.season,
+        'my_team_name': args.my_team_name,
+        'load_drafted_data': args.load_drafted_data,
+        'drafted_data_path': args.drafted_data_path,
+        'position_json_output': position_json_output,
+        'team_data_folder': team_data_folder,
+        'game_data_csv': game_data_csv,
+        'enable_historical_save': args.enable_historical_save,
+        'enable_game_data': args.enable_game_data,
+        'espn_player_limit': espn_player_limit,
+        'request_timeout': args.request_timeout,
+        'rate_limit_delay': args.rate_limit_delay,
+        'progress_frequency': args.progress_frequency,
+    }
+
+
 if __name__ == "__main__":
-    # Parse command-line arguments
-    parser = argparse.ArgumentParser(description='Run player data fetcher')
-    parser.add_argument('--enable-log-file', action='store_true',
-                        help='Enable file logging to logs/player_data_fetcher/')
-    # Use parse_known_args to allow future flags to be forwarded without error
-    args, unknown_args = parser.parse_known_args()
-
-    # Get the directory where this script is located (project root)
-    script_dir = Path(__file__).parent
-
-    # Construct path to the player-data-fetcher module directory
-    fetcher_dir = script_dir / "player-data-fetcher"
-
-    # Save current working directory to restore later
-    # We need to change directories because player_data_fetcher_main.py
-    # expects to run from within its own directory
-    original_cwd = os.getcwd()
-
-    try:
-        # Change to fetcher directory so relative paths work correctly
-        os.chdir(fetcher_dir)
-
-        # Run the data fetcher script with the same Python executable
-        # Forward ALL command-line arguments via sys.argv[1:]
-        # check=True raises CalledProcessError if script exits with non-zero code
-        result = subprocess.run([
-            sys.executable,                    # Current Python interpreter path
-            "player_data_fetcher_main.py"      # Main script in fetcher directory
-        ] + sys.argv[1:], check=True)  # Forward all args (Task 2)
-
-    except subprocess.CalledProcessError as e:
-        # Script exited with non-zero code - print error and exit with that code
-        print(f"Error running player data fetcher: {e}")
-        sys.exit(e.returncode)
-    except Exception as e:
-        # Unexpected error (e.g., directory not found, permission denied)
-        print(f"Unexpected error: {e}")
-        sys.exit(1)
-    finally:
-        # Always restore original working directory, even if script fails
-        # This ensures we don't leave the process in an unexpected state
-        os.chdir(original_cwd)
+    args = parse_args()
+    settings_dict = create_settings_dict(args)
+    asyncio.run(main(settings_dict))

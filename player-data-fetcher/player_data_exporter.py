@@ -24,7 +24,6 @@ from utils.TeamData import save_team_weekly_data
 from utils.data_file_manager import DataFileManager
 from utils.LoggingManager import get_logger
 from utils.DraftedRosterManager import DraftedRosterManager
-from config import POSITION_JSON_OUTPUT, CURRENT_NFL_WEEK, TEAM_DATA_FOLDER, LOAD_DRAFTED_DATA_FROM_FILE, DRAFTED_DATA, MY_TEAM_NAME
 
 
 class DataExporter:
@@ -34,10 +33,26 @@ class DataExporter:
     # INITIALIZATION & CONFIGURATION
     # ============================================================================
 
-    def __init__(self, output_dir: str, create_latest_files: bool = True):
+    def __init__(
+        self,
+        output_dir: str,
+        create_latest_files: bool = True,
+        current_nfl_week: int = 17,
+        position_json_output: str = '../data/player_data',
+        team_data_folder: str = '../data/team_data',
+        load_drafted_data: bool = True,
+        drafted_data_path: str = '../data/drafted_data.csv',
+        my_team_name: str = 'Sea Sharp'
+    ):
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(exist_ok=True, parents=True)
         self.create_latest_files = create_latest_files
+        self.current_nfl_week = current_nfl_week
+        self.position_json_output = position_json_output
+        self.team_data_folder = team_data_folder
+        self.load_drafted_data = load_drafted_data
+        self.drafted_data_path = drafted_data_path
+        self.my_team_name = my_team_name
         self.logger = get_logger()
 
         # Initialize file manager for automatic file caps
@@ -50,8 +65,8 @@ class DataExporter:
         self.team_weekly_data = {}  # Per-team, per-week data for new format
 
         # Initialize drafted roster manager if enabled
-        self.drafted_roster_manager = DraftedRosterManager(DRAFTED_DATA, MY_TEAM_NAME)
-        if LOAD_DRAFTED_DATA_FROM_FILE:
+        self.drafted_roster_manager = DraftedRosterManager(self.drafted_data_path, self.my_team_name)
+        if self.load_drafted_data:
             self.drafted_roster_manager.load_drafted_data()
 
     def set_team_rankings(self, team_rankings: dict):
@@ -136,7 +151,7 @@ class DataExporter:
         Export position-based JSON files concurrently.
 
         Creates 6 JSON files (one per position: QB, RB, WR, TE, K, DST)
-        in POSITION_JSON_OUTPUT folder.
+        in position_json_output folder.
 
         Spec: specs.md lines 14-19, USER_DECISIONS_SUMMARY.md Decision 1
 
@@ -147,7 +162,7 @@ class DataExporter:
             List of file paths created
         """
         # Ensure output folder exists and create dedicated file manager (Spec: specs.md output location)
-        output_path = Path(POSITION_JSON_OUTPUT)
+        output_path = Path(self.position_json_output)
         output_path.mkdir(parents=True, exist_ok=True)
 
         # Create dedicated DataFileManager for position JSON exports
@@ -211,9 +226,8 @@ class DataExporter:
         root_key = f"{position.lower()}_data"
         output_data = {root_key: players_json}
 
-        # Save to data/player_data/ folder with fixed filename (no timestamps, no prefix)
-        # Matches pattern of players.csv export - each run overwrites previous file
-        file_path = Path(__file__).parent / f'../data/player_data/{position.lower()}_data.json'
+        # Save to configured output folder (respects E2E temp dir override via settings)
+        file_path = Path(self.position_json_output) / f'{position.lower()}_data.json'
 
         try:
             # Ensure the directory exists
@@ -344,7 +358,7 @@ class DataExporter:
         Extracts actual points from statSourceId=0 (post-game results).
         This should be DIFFERENT from projected_points (which uses statSourceId=1).
 
-        IMPORTANT: Only uses statSourceId=0 data for weeks <= CURRENT_NFL_WEEK.
+        IMPORTANT: Only uses statSourceId=0 data for weeks <= current_nfl_week.
         ESPN pre-populates statSourceId=0 with projection data for future weeks,
         so we filter to only completed weeks to avoid showing "actual" data for
         games that haven't been played yet.
@@ -361,9 +375,9 @@ class DataExporter:
         actual_points = []
         for week in range(1, 18):  # Weeks 1-17
             actual = None
-            # Only use statSourceId=0 for completed weeks (weeks < CURRENT_NFL_WEEK)
+            # Only use statSourceId=0 for completed weeks (weeks < current_nfl_week)
             # ESPN pre-populates statSourceId=0 for current and future weeks with projections
-            if week < CURRENT_NFL_WEEK:
+            if week < self.current_nfl_week:
                 for stat in espn_data.raw_stats:
                     if stat.get('scoringPeriodId') == week and stat.get('statSourceId') == 0:
                         actual = stat.get('appliedTotal')
@@ -380,7 +394,7 @@ class DataExporter:
         - Extract from appliedStats dict using stat_id as string key
         - Return 0.0 if not found
 
-        IMPORTANT: Only extracts stats for weeks <= CURRENT_NFL_WEEK to avoid
+        IMPORTANT: Only extracts stats for weeks <= current_nfl_week to avoid
         showing "actual" stats for games that haven't been played yet.
 
         Args:
@@ -391,9 +405,9 @@ class DataExporter:
         Returns:
             Stat value as float, or 0.0 if not found
         """
-        # Only extract stats for completed weeks (weeks < CURRENT_NFL_WEEK)
+        # Only extract stats for completed weeks (weeks < current_nfl_week)
         # ESPN pre-populates statSourceId=0 for current and future weeks
-        if week >= CURRENT_NFL_WEEK:
+        if week >= self.current_nfl_week:
             return 0.0
 
         for stat in raw_stats:
@@ -578,8 +592,8 @@ class DataExporter:
             str: Path to the team_data folder
         """
         try:
-            # Resolve path to team_data folder (configured in config.py)
-            shared_team_data_folder = Path(__file__).parent / TEAM_DATA_FOLDER
+            # Resolve path to team_data folder (configured via constructor param)
+            shared_team_data_folder = Path(__file__).parent / self.team_data_folder
 
             # Get team weekly data from ESPN client (should be set by caller)
             if not hasattr(self, 'team_weekly_data') or not self.team_weekly_data:

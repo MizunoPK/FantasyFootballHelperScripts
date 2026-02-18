@@ -27,10 +27,7 @@ from utils.LoggingManager import get_logger
 
 from game_data_models import GameData, GAME_DATA_CSV_COLUMNS
 from coordinates_manager import CoordinatesManager
-from config import (
-    CURRENT_NFL_WEEK, NFL_SEASON, GAME_DATA_CSV, COORDINATES_JSON,
-    REQUEST_TIMEOUT, RATE_LIMIT_DELAY
-)
+from config import COORDINATES_JSON
 
 
 class GameDataFetcher:
@@ -52,8 +49,10 @@ class GameDataFetcher:
     def __init__(
         self,
         data_folder: Path,
-        season: int = NFL_SEASON,
-        current_week: int = CURRENT_NFL_WEEK
+        season: int = 2025,
+        current_week: int = 17,
+        request_timeout: int = 30,
+        rate_limit_delay: float = 0.2
     ):
         """
         Initialize the GameDataFetcher.
@@ -62,10 +61,14 @@ class GameDataFetcher:
             data_folder: Path to the data folder for output
             season: NFL season year
             current_week: Current NFL week (1-18)
+            request_timeout: HTTP request timeout in seconds
+            rate_limit_delay: Delay between API requests in seconds
         """
         self.data_folder = Path(data_folder)
         self.season = season
         self.current_week = current_week
+        self.request_timeout = request_timeout
+        self.rate_limit_delay = rate_limit_delay
         self.logger = get_logger()
 
         # Initialize coordinates manager
@@ -170,7 +173,7 @@ class GameDataFetcher:
             response = httpx.get(
                 self.ESPN_SCOREBOARD_URL,
                 params=params,
-                timeout=REQUEST_TIMEOUT
+                timeout=self.request_timeout
             )
             response.raise_for_status()
             return response.json()
@@ -283,7 +286,7 @@ class GameDataFetcher:
                 # Note: Forecast API uses past_days/forecast_days, NOT start_date/end_date
                 # These parameters are mutually exclusive
 
-            response = httpx.get(api_url, params=params, timeout=REQUEST_TIMEOUT)
+            response = httpx.get(api_url, params=params, timeout=self.request_timeout)
             response.raise_for_status()
             data = response.json()
 
@@ -516,9 +519,11 @@ class GameDataFetcher:
 
 def fetch_game_data(
     output_path: Optional[Path] = None,
-    season: int = NFL_SEASON,
-    current_week: int = CURRENT_NFL_WEEK,
-    weeks: Optional[List[int]] = None
+    season: int = 2025,
+    current_week: int = 17,
+    weeks: Optional[List[int]] = None,
+    request_timeout: int = 30,
+    rate_limit_delay: float = 0.2
 ) -> Path:
     """
     Convenience function to fetch game data.
@@ -528,6 +533,8 @@ def fetch_game_data(
         season: NFL season year
         current_week: Current NFL week
         weeks: Specific weeks to fetch (default: 1 to current_week)
+        request_timeout: HTTP request timeout in seconds
+        rate_limit_delay: Delay between API requests in seconds
 
     Returns:
         Path to the saved CSV file
@@ -547,7 +554,9 @@ def fetch_game_data(
     fetcher = GameDataFetcher(
         data_folder=data_folder,
         season=season,
-        current_week=current_week
+        current_week=current_week,
+        request_timeout=request_timeout,
+        rate_limit_delay=rate_limit_delay
     )
 
     # Override output file if custom path provided

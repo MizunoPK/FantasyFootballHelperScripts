@@ -28,21 +28,30 @@ When you join as a Secondary agent, you'll receive a **handoff package** with yo
 
 **NEW SIMPLIFIED PROCESS:**
 
-Handoff packages are pre-generated in feature folders by the Primary agent. User spawns you with a simple one-line command:
+Handoff packages are pre-generated in feature folders by the Primary agent. User spawns you with a minimal one-line instruction:
 
-**User startup command:**
+**User startup command (minimal form):**
+```text
+You are a secondary agent for KAI-10 for feature 02
+```
+
+**Your self-location response (Step 0):**
+
+If given only an epic number and feature number, locate your handoff package automatically:
+1. Search for the epic folder: `Glob pattern="KAI-{N}-*" path="feature-updates/"`
+2. Find your feature handoff: `Glob pattern="feature_{X}_*/HANDOFF_PACKAGE.md" path="feature-updates/KAI-{N}-{epic_name}/"`
+3. Read the HANDOFF_PACKAGE.md — it contains all context and instructions
+4. Extract your assignment and begin S2.P1 as directed
+
+**Alternative startup command (with feature name):**
 ```text
 You are a secondary agent for Feature 02 (schedule_fetcher)
 ```
-
-**Your response:**
-- Detect "secondary agent for Feature 02" instruction
-- Read `feature_02_{name}/HANDOFF_PACKAGE.md` automatically
-- Extract assignment and begin S2.P1
+In this case: Read `feature_02_{name}/HANDOFF_PACKAGE.md` from the active epic folder.
 
 **Benefits:**
-- No copy/paste needed (one-line instruction per agent)
-- No copy/paste errors (agent reads file directly)
+- No copy/paste needed (minimal one-line instruction per agent)
+- No copy/paste errors (agent reads file directly, not from pasted content)
 - Scalable (works identically for 2 or 20 features)
 - Consistent startup pattern for all secondary agents
 

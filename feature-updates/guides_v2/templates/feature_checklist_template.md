@@ -70,11 +70,15 @@ This checklist contains **questions and decisions that require user input**.
 **Example questions:**
 - [ ] **Q1:** Should this feature handle edge case X, or is it out of scope?
   - **Context:** {Explain why this is uncertain}
+  - **Options:** A: {option A description} | B: {option B description}
+  - **Recommendation:** {Agent's recommended option and 1-2 sentence rationale — MANDATORY}
   - **User Answer:** {Leave blank - user will answer}
   - **Impact on spec.md:** {What section will be updated based on answer}
 
 - [ ] **Q2:** When behavior Y happens, should we do A or B?
   - **Context:** {Explain the two approaches}
+  - **Options:** A: {option A} | B: {option B}
+  - **Recommendation:** {Agent's recommended option and rationale — MANDATORY}
   - **User Answer:** {Leave blank}
   - **Impact on spec.md:** {What will change}
 
@@ -89,6 +93,8 @@ This checklist contains **questions and decisions that require user input**.
 **Example questions:**
 - [ ] **Q3:** Should we use approach A (faster but more memory) or approach B (slower but less memory)?
   - **Context:** {Explain trade-offs}
+  - **Options:** A: {faster/more memory} | B: {slower/less memory}
+  - **Recommendation:** {Agent's recommended option and rationale — MANDATORY}
   - **User Answer:** {Leave blank}
   - **Impact on spec.md:** {Algorithm section will specify chosen approach}
 

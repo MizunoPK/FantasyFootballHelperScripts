@@ -433,28 +433,28 @@ I'm joining as a secondary agent to help with S2 parallelization for the {epic_n
 
 ## Instructions for Wave 2
 
-**Please open 6 new Claude Code sessions and paste these handoff packages:**
+**Please open 6 new Claude Code sessions and give each one this minimal startup instruction:**
 
-### Secondary-A: Feature 02 (league_helper_logging)
-
+### Secondary-A: Feature 02
 ```text
-[Full handoff package with group context...]
+You are a secondary agent for KAI-{N} for feature 02
 ```
 
-### Secondary-B: Feature 03 (player_data_fetcher_logging)
-
+### Secondary-B: Feature 03
 ```text
-[Full handoff package with group context...]
-```text
+You are a secondary agent for KAI-{N} for feature 03
+```
 
-[Continue for all 6 Group 2 features...]
+[Continue for all Group 2 features, incrementing the feature number each time...]
+
+Each agent will automatically locate the epic folder, find their `feature_XX_{name}/HANDOFF_PACKAGE.md`, and self-configure. No copy-paste of handoff content needed.
 
 ---
 
 **After spawning all 6 agents:**
-- They'll update checkpoints/ to signal startup
+- They'll update agent_checkpoints/ to signal startup
 - I'll monitor progress every 15 minutes
-- I'll handle any escalations
+- I'll handle any escalations from agent_comms/
 - After all 6 complete S2.P1 → I'll run S2.P2
 - Then we proceed to S3 (groups no longer matter)
 
@@ -467,16 +467,20 @@ I'm joining as a secondary agent to help with S2 parallelization for the {epic_n
 
 1. **Check agent_checkpoints/ for startup signals:**
    ```bash
-   ls -lt parallel_work/coordination/agent_checkpoints/
+   ls -lt agent_checkpoints/
 
-   # Expected files (one per secondary):
-   # secondary_a_checkpoint.md (Feature 02)
-   # secondary_b_checkpoint.md (Feature 03)
-   # secondary_c_checkpoint.md (Feature 04)
-   # secondary_d_checkpoint.md (Feature 05)
-   # secondary_e_checkpoint.md (Feature 06)
-   # secondary_f_checkpoint.md (Feature 07)
+   # Expected files (one per secondary, .json extension):
+   # secondary_a.json (Feature 02)
+   # secondary_b.json (Feature 03)
+   # secondary_c.json (Feature 04)
+   # secondary_d.json (Feature 05)
+   # secondary_e.json (Feature 06)
+   # secondary_f.json (Feature 07)
    ```
+
+   > **Path Note:** All coordination paths are relative to the epic folder (not `parallel_work/coordination/`).
+   > Checkpoint files use `.json` extension. Communication files are flat `.md` files in `agent_comms/`.
+   > See CLAUDE.md "S2 Parallel Work Structure Rules" for canonical structure.
 
 2. **Verify all secondaries initialized:**
    - Each checkpoint file should have "Status: STARTUP" or "Status: IN_PROGRESS"
@@ -522,11 +526,34 @@ Coordinate Group 2 secondary agents executing S2.P1 in parallel.
 
 **Follow:** `parallel_work/s2_primary_agent_guide.md` → "Phase 4: Coordinate Secondary Agents"
 
+**🚨 PRIMARY AGENT MONITORING SCOPE — READ BEFORE MONITORING:**
+
+```
+What to check during Wave 2 monitoring:
+✅ agent_checkpoints/*.json timestamps (is agent active / not stale?)
+✅ STATUS files in each feature folder (is agent making progress?)
+✅ agent_comms/ for escalation messages addressed TO Primary
+
+What NOT to check (these are secondary agent responsibilities):
+❌ feature_XX_*/checklist.md — secondary handles their own Q&A with user
+❌ feature_XX_*/spec.md drafts — secondary writes their own spec
+
+Primary MUST NOT:
+- Read secondary agents' checklist.md files to gather their open questions
+- Present secondary checklist questions to the user on their behalf
+- Intervene in a secondary's Q&A workflow unless the secondary explicitly escalates
+
+Only case where Primary relays a secondary question:
+Secondary sends an escalation message to agent_comms/ (e.g., agent_comms/secondary_a_to_primary.md)
+→ Primary reads it → Primary presents the escalation to the user.
+This is the ONLY permitted relay path.
+```
+
 **Every 15 minutes:**
 
 1. **Check all agent checkpoints:**
    ```bash
-   cat parallel_work/coordination/agent_checkpoints/*.md
+   cat agent_checkpoints/*.json
    ```
 
    **Verify:**
@@ -534,9 +561,10 @@ Coordinate Group 2 secondary agents executing S2.P1 in parallel.
    - Status shows progress (STARTUP → IN_PROGRESS → READY_FOR_SYNC)
    - No blockers reported
 
-2. **Check all inboxes for escalations:**
+2. **Check agent_comms/ for escalations addressed to Primary:**
    ```bash
-   ls parallel_work/coordination/inboxes/from_secondary_*/
+   ls agent_comms/
+   cat agent_comms/secondary_*_to_primary.md
    ```
 
    **If messages found:**

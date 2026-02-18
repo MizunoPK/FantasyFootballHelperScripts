@@ -370,3 +370,44 @@ class TestPositionToPositionId:
         """Test lowercase position (not handled, returns -1)"""
         # Our implementation is case-sensitive
         assert client._position_to_position_id('qb') == -1
+
+
+# ============================================================================
+# KAI-10 Refactoring Tests (Task 11 — Tests 6.1-6.3, I-7, E-17)
+# ============================================================================
+
+class TestESPNClientSettingsKAI10:
+    """
+    Tests verifying KAI-10 refactoring: ESPNClient no longer imports
+    CLI-configurable constants from config; uses self.settings instead.
+    (REQ-06 — 5 tests)
+    """
+
+    def test_espn_player_limit_not_imported_from_config(self):
+        """6.1: espn_client module does not have ESPN_PLAYER_LIMIT from config"""
+        import espn_client
+        assert not hasattr(espn_client, 'ESPN_PLAYER_LIMIT')
+
+    def test_current_nfl_week_not_imported_at_module_level(self):
+        """6.2: espn_client module does not have CURRENT_NFL_WEEK from config at module level"""
+        import espn_client
+        assert not hasattr(espn_client, 'CURRENT_NFL_WEEK')
+
+    def test_espn_user_agent_still_imported(self):
+        """6.3: ESPN_USER_AGENT is still imported in espn_client (non-CLI constant)"""
+        import espn_client
+        assert hasattr(espn_client, 'ESPN_USER_AGENT')
+        assert isinstance(espn_client.ESPN_USER_AGENT, str)
+        assert len(espn_client.ESPN_USER_AGENT) > 0
+
+    def test_espn_client_accepts_settings_with_espn_player_limit(self):
+        """I-7: ESPNClient is initialized with Settings that includes espn_player_limit"""
+        settings = Settings(espn_player_limit=500)
+        client = ESPNClient(settings)
+        assert client.settings.espn_player_limit == 500
+
+    def test_progress_frequency_accessible_via_settings(self):
+        """E-17: ESPNClient.settings.progress_frequency is accessible (not from config)"""
+        settings = Settings(progress_frequency=25)
+        client = ESPNClient(settings)
+        assert client.settings.progress_frequency == 25

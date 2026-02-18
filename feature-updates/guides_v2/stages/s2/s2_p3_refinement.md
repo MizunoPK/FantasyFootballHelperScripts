@@ -214,11 +214,13 @@ C. **{Option C}**
 **What do you prefer?** (or suggest a different approach)
 ```
 
-**Best practices:**
-- Provide 2-4 well-defined options
-- Include pros/cons for each option
-- Give your recommendation with reasoning
-- Allow user to suggest alternative
+**🚨 MANDATORY requirements for every question:**
+- Provide 2-4 well-defined options with pros/cons for each
+- **Always state your recommendation explicitly** ("My recommendation: Option X because...")
+  - You have already done the research — withholding a recommendation forces the user to repeat it
+  - A recommendation does NOT remove user agency; the user still makes the final call
+  - Anti-pattern: listing options with no recommendation ("Which do you prefer?") is incomplete work
+- Allow user to suggest alternative approaches
 - Keep context brief but informative
 
 **Examples:** See `reference/stage_2/refinement_examples.md` → Phase 3 Examples for complete question-answer cycles

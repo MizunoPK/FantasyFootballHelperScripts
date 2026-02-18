@@ -182,16 +182,6 @@ class TestWinRateSimulationCLIFlagIntegration:
         assert args.enable_log_file is True
         assert args.mode == 'iterative'
 
-    @pytest.mark.integration
-    def test_log_rotation_at_500_lines(self):
-        """R1.2.7: Verify log rotation occurs at 500 lines (Feature 01 behavior)"""
-        pytest.skip("Integration test - requires generating >500 log lines")
-
-    @pytest.mark.integration
-    def test_max_50_files_cleanup(self):
-        """R1.2.8: Verify max 50 files cleanup when 51st created (Feature 01 behavior)"""
-        pytest.skip("Integration test - requires generating 51+ log files")
-
 
 # ============================================================================
 # TEST CATEGORY 3: DEBUG LOG QUALITY - UNIT TESTS (R2) - 12 TESTS
@@ -456,25 +446,6 @@ class TestWinRateSimulationDEBUGQualityIntegration:
 
     Behavioral tests verifying DEBUG changes don't break functionality.
     """
-
-    @pytest.mark.integration
-    def test_debug_logging_behavior_preserved(self):
-        """R2.8.1: Verify DEBUG improvements don't break functionality
-
-        Full test suite should pass after DEBUG audit changes.
-        """
-        pytest.skip("Integration test - verified by running full test suite")
-
-    @pytest.mark.integration
-    def test_debug_logs_contain_expected_content(self):
-        """R2.8.2: Verify DEBUG logs contain tracing information
-
-        When run with DEBUG level, logs should include:
-        - Function entry/exit for complex flows
-        - Data transformations with context
-        - Conditional branch selections
-        """
-        pytest.skip("Integration test - requires running simulation with DEBUG level")
 
 
 # ============================================================================

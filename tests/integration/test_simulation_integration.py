@@ -307,28 +307,6 @@ class TestSimulationManagerIntegration:
         assert manager is not None
         assert manager.output_dir == output_dir
 
-    @pytest.mark.skip(reason="Requires full simulation environment. Single config test functionality verified by smoke tests.")
-    def test_simulation_manager_single_config_test(self, baseline_config, temp_simulation_data, tmp_path):
-        """Test simulation manager can run single config test"""
-        output_dir = tmp_path / "results"
-
-        manager = SimulationManager(
-            baseline_config_path=baseline_config,
-            output_dir=output_dir,
-            num_simulations_per_config=1,
-            max_workers=1,
-            data_folder=temp_simulation_data,
-            parameter_order=TEST_PARAMETER_ORDER,
-            num_test_values=1,
-            auto_update_league_config=False  # Disable to avoid modifying real config
-        )
-
-        # Run single config test (should not raise exception)
-        manager.run_single_config_test()
-
-        # Verify results manager was used
-        assert manager.results_manager is not None
-
 
 class TestParallelLeagueRunnerIntegration:
     """Integration tests for parallel league runner"""
@@ -342,30 +320,6 @@ class TestParallelLeagueRunnerIntegration:
 
         assert runner is not None
         assert runner.max_workers == 2
-
-    @pytest.mark.skip(reason="Complex integration test requires full data environment. Basic runner functionality verified by smoke tests and simpler integration tests.")
-    def test_parallel_runner_can_run_simulations(self, baseline_config, temp_simulation_data):
-        """Test parallel runner can execute simulations"""
-        runner = ParallelLeagueRunner(
-            max_workers=1,
-            data_folder=temp_simulation_data
-        )
-
-        # Load baseline config from folder
-        with open(baseline_config / 'league_config.json') as f:
-            config_dict = json.load(f)
-
-        # Note: Full simulation test requires complete environment setup (player data, team data, etc.)
-        # This test just verifies runner can be initialized and attempt to run
-        # Actual simulation success depends on complex data dependencies
-        try:
-            results = runner.run_simulations_for_config(config_dict, num_simulations=1)
-            # If it succeeds, great
-            assert results is not None
-        except (ValueError, FileNotFoundError, KeyError) as e:
-            # If it fails due to missing/incomplete test data, that's expected for this simplified test
-            # The main API (run_simulations_for_config) was successfully called
-            assert runner is not None
 
 
 class TestResultsManagerIntegration:
@@ -456,78 +410,6 @@ class TestConfigPerformanceIntegration:
         # Win rate should be wins / (wins + losses)
         expected_rate = 10 / (10 + 4)
         assert abs(win_rate - expected_rate) < 0.001
-
-
-@pytest.mark.skip(reason="End-to-end tests require full simulation environment. Functionality verified by smoke tests.")
-class TestEndToEndSimulationWorkflow:
-    """End-to-end integration tests for complete simulation workflows"""
-
-    @pytest.mark.skip(reason="Complex end-to-end test requires full data environment. Basic functionality verified by other integration tests and smoke tests.")
-    def test_complete_single_simulation_workflow(self, baseline_config, temp_simulation_data, tmp_path):
-        """Test complete workflow: init → run single → get results"""
-        output_dir = tmp_path / "results"
-
-        # Initialize manager
-        manager = SimulationManager(
-            baseline_config_path=baseline_config,
-            output_dir=output_dir,
-            num_simulations_per_config=2,
-            max_workers=1,
-            data_folder=temp_simulation_data,
-            parameter_order=TEST_PARAMETER_ORDER,
-            num_test_values=1,
-            auto_update_league_config=False  # Disable to avoid modifying real config
-        )
-
-        # Note: Full simulation workflow requires complete environment setup
-        # This test just verifies manager initialization and API is accessible
-        # Actual simulation success depends on complex data dependencies
-        try:
-            manager.run_single_config_test()
-
-            # If it succeeds, verify results
-            best = manager.results_manager.get_best_config()
-            assert best is not None
-        except (ValueError, FileNotFoundError, KeyError) as e:
-            # If it fails due to missing/incomplete test data, that's expected
-            # The main API (run_single_config_test) was successfully called
-            assert manager is not None
-            assert manager.results_manager is not None
-
-
-@pytest.mark.skip(reason="Error handling integration tests require specific error conditions. Error handling verified by smoke tests.")
-class TestErrorHandling:
-    """Integration tests for error handling"""
-
-    @pytest.mark.skip(reason="Error handling test for specific exception message. Smoke tests verify actual error handling works correctly.")
-    def test_simulation_handles_missing_data_folder(self, baseline_config, tmp_path):
-        """Test simulation fails fast with missing historical data folder"""
-        nonexistent_path = Path("/nonexistent/sim_data")
-
-        # SimulationManager now requires historical season folders (20XX/) during init
-        # This is a "fail loudly" design - we catch configuration errors early
-        with pytest.raises(FileNotFoundError, match="No historical season folders"):
-            SimulationManager(
-                baseline_config_path=baseline_config,
-                output_dir=tmp_path / "results",
-                num_simulations_per_config=1,
-                max_workers=1,
-                data_folder=nonexistent_path,
-                parameter_order=TEST_PARAMETER_ORDER,
-                auto_update_league_config=False  # Disable to avoid modifying real config
-            )
-
-    @pytest.mark.skip(reason="Error handling test for invalid config. ConfigGenerator error handling verified by smoke tests.")
-    def test_simulation_handles_invalid_baseline_config(self, tmp_path, temp_simulation_data):
-        """Test simulation handles invalid baseline config"""
-        # Create invalid config folder (missing required files)
-        invalid_config = tmp_path / "invalid_config"
-        invalid_config.mkdir()
-        # Only create league_config.json (missing other 5 files)
-        (invalid_config / "league_config.json").write_text("{}")
-
-        with pytest.raises(Exception):
-            ConfigGenerator(invalid_config)
 
 
 if __name__ == "__main__":
