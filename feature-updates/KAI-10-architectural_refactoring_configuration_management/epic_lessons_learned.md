@@ -61,6 +61,35 @@ This document captures:
 
 ### Guide Improvements Needed
 
+**Wave splitting for design precedent — use a solo Wave 1 feature to establish patterns before parallel Wave 2.**
+
+When an epic contains multiple similar features that share a common implementation pattern, group them so that ONE representative feature completes S2 (and ideally S5-S8) first as a solo wave, before the similar features begin their S2 in parallel.
+
+**Why this works:**
+- The first feature forces concrete decisions (class design, constructor signatures, arg naming, E2E behavior) that would otherwise be made inconsistently across 6 parallel agents
+- Later features reference the Wave 1 spec and inherit those decisions rather than re-inventing them
+- Checklist questions resolved in Wave 1 often don't need to be asked again in Wave 2 (e.g., Q2 "dataclass vs BaseSettings" resolved in Feature 01 applies to all other features)
+- Cross-feature conflicts in S3 are greatly reduced because Wave 2 features already aligned to Wave 1 patterns
+
+**When to apply this pattern:**
+- Epic has 3+ features following the same architectural pattern (e.g., all 7 scripts getting the same DI refactoring approach)
+- The pattern requires upfront decisions with multiple valid options (e.g., dataclass vs pydantic, subprocess vs direct import)
+- Features are otherwise independent (no code-level dependency on each other)
+
+**How to identify the Wave 1 feature:**
+- Pick the most complex or representative example (e.g., Feature 01 had the most internal modules to refactor — 5 modules — making it the best precedent setter)
+- Alternatively, pick the one the user cares most about being "right"
+
+**What to document in Wave 1 handoff packages:**
+- Explicitly list the decisions made (e.g., "dataclass chosen over pydantic", "direct import chosen over subprocess") with the rationale
+- Tell Wave 2 agents to adopt these patterns unless they have a specific reason not to — and if they do, flag it as a checklist question
+
+**Required guide update (S10.P1):**
+- Add this wave-splitting strategy to `s1_epic_planning.md` Step 5 (parallelization assessment) as a named option: "Wave 1 Precedent Pattern" — one representative feature first, then parallel execution of similar features
+- Update `s2_primary_agent_group_wave_guide.md` to note that Wave 2 handoff packages should explicitly reference resolved design decisions from Wave 1 (not just spec file path)
+
+---
+
 **Secondary agent startup UX — handoff packages should be self-locating.**
 
 The current parallel work guides require the Primary to write a verbose one-liner startup instruction containing the full handoff package path. The user wants secondary agents to need only a minimal instruction like:
