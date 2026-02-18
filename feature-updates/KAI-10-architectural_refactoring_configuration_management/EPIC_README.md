@@ -8,9 +8,9 @@
 
 ## 🎯 Quick Reference Card (Always Visible)
 
-**Current Stage:** Stage 3 — S3 Cross-Feature Sanity Check
-**Active Guide:** `guides_v2/stages/s3/s3_epic_planning_approval.md`
-**Last Guide Read:** 2026-02-18 (S2.P2 complete; transitioning to S3)
+**Current Stage:** Stage 5 — S5 Implementation Planning (F01 first)
+**Active Guide:** `guides_v2/stages/s5/s5_v2_validation_loop.md`
+**Last Guide Read:** 2026-02-18 (S4 complete for all F01-F07)
 
 **Stage Workflow:**
 ```
@@ -20,7 +20,7 @@ Epic  Features  Sanity  Testing  Implementation  Epic    Done
 Plan  Deep Dive  Check  Strategy  (per feature)   QC
 ```
 
-**You are here:** ➜ Stage 3 (S3 — Epic Planning Approval)
+**You are here:** ➜ Stage 5 (S5 — Implementation Planning, starting with F01)
 
 **S2 Wave Status**
 - [x] Wave 1: Feature 01 S2 ✅ COMPLETE (spec approved, all 4 checklist Qs answered — 2026-02-18; spec updated 2026-02-18 per user correction)
@@ -39,7 +39,7 @@ Plan  Deep Dive  Check  Strategy  (per feature)   QC
   - Key resolution: F07 REQ-07 updated with graceful skip (C-02)
   - Key note: F03 has implementation dependency on F01 REQ-09 (fetch_game_data signature) — implement F01 before F03
   - Comparison matrix: `research/S2_P2_COMPARISON_MATRIX_GROUP_2.md`
-- [ ] Wave 3: Feature 08 S2 ⏳ BLOCKED (needs S3 + S4 complete)
+- [ ] Wave 3: Feature 08 S2 ⏳ UNBLOCKED (S3 + S4 complete — ready to start)
 
 ---
 
@@ -47,20 +47,20 @@ Plan  Deep Dive  Check  Strategy  (per feature)   QC
 
 **Debugging Active:** NO
 **Last Updated:** 2026-02-18
-**Current Stage:** S3.P3 — Gate 4.5 Epic Plan Approval
-**Current Phase:** S3.P3 (awaiting user approval)
-**Current Step:** S3.P1 (smoke test plan) ✅ + S3.P2 (EPIC_README refinement) ✅ → presenting to user for Gate 4.5
-**Current Guide:** `stages/s3/s3_epic_planning_approval.md`
+**Current Stage:** S4 COMPLETE — transitioning to S5
+**Current Phase:** S5 pending (start with F01)
+**Current Step:** S4 done — all 7 test_strategy.md files created and validated; F08 S2 now unblocked
+**Current Guide:** `stages/s5/s5_v2_validation_loop.md`
 **Guide Last Read:** 2026-02-18
 
 **Critical Rules:**
 - F03 implementation dependency on F01: F01 must be implemented before F03
-- F08 S2 blocked until S4 complete — do NOT start F08 S2 until then
-- Gate 4.5 is MANDATORY — cannot proceed to S4 without user approval
+- F08 S2 now UNBLOCKED (S4 complete for all F01-F07) — can begin F08 S2 before or after S5 starts
+- Gate 5 is MANDATORY — cannot proceed to S6 without user-approved implementation_plan.md
 
-**Progress:** S3.P1 ✅ S3.P2 ✅ | Awaiting Gate 4.5 user approval
-**Next Action:** Present epic summary to user for Gate 4.5 approval
-**Blockers:** None (user approval pending)
+**Progress:** S3 ✅ (Gate 4.5 passed) | S4 ✅ (all 7 test_strategy.md complete)
+**Next Action:** Start S5 for F01 — read s5_v2_validation_loop.md guide
+**Blockers:** None
 
 ---
 
@@ -139,13 +139,13 @@ Comprehensive architectural refactoring of all 7 runner scripts to establish con
 
 | Feature | S2 | S3 | S4 | S5 | S6 | S7 | S8.P1 | S8.P2 | Done |
 |---------|----|----|----|----|----|----|-------|-------|------|
-| F01: refactor_player_data_fetcher | ✅ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ |
-| F02: schedule_fetcher_cli | ✅ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ |
-| F03: game_data_fetcher_cli | ✅ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ |
-| F04: historical_compiler_cli | ✅ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ |
-| F05: win_rate_simulation_e2e | ✅ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ |
-| F06: accuracy_simulation_e2e | ✅ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ |
-| F07: league_helper_cli | ✅ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ |
+| F01: refactor_player_data_fetcher | ✅ | ✅ | ✅ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ |
+| F02: schedule_fetcher_cli | ✅ | ✅ | ✅ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ |
+| F03: game_data_fetcher_cli | ✅ | ✅ | ✅ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ |
+| F04: historical_compiler_cli | ✅ | ✅ | ✅ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ |
+| F05: win_rate_simulation_e2e | ✅ | ✅ | ✅ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ |
+| F06: accuracy_simulation_e2e | ✅ | ✅ | ✅ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ |
+| F07: league_helper_cli | ✅ | ✅ | ✅ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ |
 | F08: integration_test_framework | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ |
 
 **S9 - Epic Final QC:** ◻️ NOT STARTED
@@ -182,12 +182,12 @@ Comprehensive architectural refactoring of all 7 runner scripts to establish con
 **S3 - Cross-Feature Sanity Check:**
 - [x] S3.P1: epic_smoke_test_plan.md updated with concrete scenarios (S3 version — 2026-02-18)
 - [x] S3.P2: EPIC_README.md refined with feature summaries + architecture decisions (2026-02-18)
-- [ ] S3.P3: Gate 4.5 — User approval of epic plan
+- [x] S3.P3: Gate 4.5 — User approval obtained (2026-02-18)
 
 **S4 - Feature Testing Strategy (per feature):**
-- [ ] F01 test_strategy.md created and validated
-- [ ] F02-F07 test_strategy.md files created and validated
-- [ ] F08 S2 complete (unblocked after S4)
+- [x] F01 test_strategy.md created and validated (87 tests — 2026-02-18)
+- [x] F02-F07 test_strategy.md files created and validated (F02: 38, F03: 42, F04: 46, F05: 38, F06: 40, F07: 54 — 2026-02-18)
+- [ ] F08 S2 complete (now UNBLOCKED — ready to start)
 
 **S9 - Epic Final QC:**
 - [ ] Epic smoke testing passed (all 4 parts)
