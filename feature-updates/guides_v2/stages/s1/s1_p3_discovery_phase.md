@@ -862,6 +862,10 @@ X "This section is 'good enough', I'll mark it complete"
 
 X "I found 5 issues, I'll fix 3 now and 2 later"
   --> STOP - Fix ALL issues before proceeding (zero deferred issues)
+
+X "I'll create a documentation feature to update README/ARCHITECTURE"
+  --> STOP - Documentation is handled in S7.P3 (per-feature) and S10 (epic-level), NOT as separate feature
+  --> EXCEPTION: Only create documentation feature if user EXPLICITLY requests it
 ```
 
 ---
