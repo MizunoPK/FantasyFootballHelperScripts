@@ -589,9 +589,10 @@ This is the ONLY permitted relay path.
    ```
 
 4. **Handle escalations as needed:**
-   - User questions: Forward to user, relay response to secondary
+   - Explicit blockers (via agent_comms/): Investigate, ask user if needed, relay resolution to secondary
    - Technical blockers: Investigate, provide guidance
-   - Stale agents: Send warning, escalate to user if no response
+   - Stale agents: Send warning via agent_comms/, escalate to user if no response
+   - **Do NOT relay routine checklist Q&A** — secondaries handle their own user questions
 
 #### Step 3.2: Wait for All Group 2 Features to Complete S2.P1
 
@@ -904,87 +905,87 @@ grep "ISSUES:" feature_*/STATUS | grep -v "ISSUES: 0"
 
 ### File Structure
 
-**Location:** `parallel_work/coordination/`
+**Location:** Epic root folder (alongside `feature_XX_*` folders)
 
 ```text
-parallel_work/
-└── coordination/
-    ├── agent_checkpoints/
-    │   ├── secondary_a_checkpoint.md (Feature 02)
-    │   ├── secondary_b_checkpoint.md (Feature 03)
-    │   ├── secondary_c_checkpoint.md (Feature 04)
-    │   ├── secondary_d_checkpoint.md (Feature 05)
-    │   ├── secondary_e_checkpoint.md (Feature 06)
-    │   └── secondary_f_checkpoint.md (Feature 07)
-    ├── inboxes/
-    │   ├── from_primary/ (Secondary agents read here)
-    │   ├── from_secondary_a/ (Primary reads here)
-    │   ├── from_secondary_b/
-    │   ├── from_secondary_c/
-    │   ├── from_secondary_d/
-    │   ├── from_secondary_e/
-    │   └── from_secondary_f/
-    └── sync_status.md (Primary maintains overall status)
+{epic_root}/                              ← e.g., KAI-10-refactoring/
+├── .epic_locks/                          ← Lock files (Primary creates)
+├── agent_comms/                          ← Flat .md files only (no subdirs)
+│   ├── primary_to_secondary_a.md        ← Primary → Secondary-A messages
+│   ├── secondary_a_to_primary.md        ← Secondary-A → Primary escalations
+│   ├── primary_to_secondary_b.md
+│   └── secondary_b_to_primary.md
+├── agent_checkpoints/                    ← Flat .json files only (no subdirs)
+│   ├── secondary_a.json                 ← Secondary-A status
+│   ├── secondary_b.json                 ← Secondary-B status
+│   └── ...
+├── feature_01_{name}/
+├── feature_02_{name}/
+└── ...
 ```
+
+> **🚨 Structure Rules:**
+> - `agent_comms/` = flat `.md` files only — NO subdirectories
+> - `agent_checkpoints/` = flat `.json` files only — NO subdirectories
+> - Primary creates ALL directories; secondaries create FILES only
 
 ### Checkpoint Format
 
-**File:** `agent_checkpoints/secondary_a_checkpoint.md`
+**File:** `agent_checkpoints/secondary_a.json`
 
-```markdown
-**Agent ID:** Secondary-A
-**Feature:** Feature 02 (league_helper_logging)
-**Group:** Group 2 (Dependent on Group 1)
-**Status:** IN_PROGRESS
-**Current Phase:** S2.P1.I2 (Checklist Resolution)
-**Last Updated:** 2026-02-06 15:30
-**Blocker:** None
-**Next Checkpoint:** 2026-02-06 15:45
+```json
+{
+  "agent_id": "Secondary-A",
+  "feature": "feature_02_league_helper_logging",
+  "group": "Group 2",
+  "status": "IN_PROGRESS",
+  "current_phase": "S2.P1.I2",
+  "last_updated": "2026-02-06T15:30:00",
+  "blocker": null,
+  "next_checkpoint": "2026-02-06T15:45:00"
+}
 ```
 
 **Primary checks:** Every 15 minutes, verify all checkpoints updated within last 20 minutes
 
-### Inbox Format
+### Communication Format
 
-**From Secondary to Primary:** `inboxes/from_secondary_a/escalation_001.md`
+**Secondary escalates to Primary:** `agent_comms/secondary_a_to_primary.md`
 
 ```markdown
 **From:** Secondary-A
 **Feature:** Feature 02 (league_helper_logging)
 **Timestamp:** 2026-02-06 15:35
-**Type:** USER_QUESTION
-**Urgency:** MEDIUM
+**Type:** BLOCKER
+**Urgency:** HIGH
 
-## Escalation
+## Blocker
 
-I need user input for checklist question #3:
+Feature 02 cannot proceed — spec conflict with Group 1 output:
+Feature 01 spec defines the logging API as synchronous,
+but Feature 02 requires async calls for performance.
 
-"Should league_helper logging use the same log level defaults as Feature 01 (core_logging), or different levels?"
-
-**Context:**
-- Feature 01 spec defines default log level as INFO
-- My feature has different verbosity needs
-- User needs to decide alignment
-
-**Requested Action:** Ask user, relay response to my inbox
+**Requested Action:** Clarify with user which approach takes precedence.
 ```
 
-**From Primary to Secondary:** `inboxes/from_primary/response_001.md`
+**Primary responds to Secondary:** `agent_comms/primary_to_secondary_a.md`
 
 ```markdown
 **To:** Secondary-A
 **Feature:** Feature 02 (league_helper_logging)
 **Timestamp:** 2026-02-06 15:40
-**Re:** escalation_001.md
 
-## User Response
+## Response
 
-User says: "Use same defaults as Feature 01 (INFO level) for consistency."
+User decided: Use async logging (Feature 01 spec will be updated).
+Proceed with async approach in Feature 02 spec.
 
-**Action:** Update your checklist with this answer, proceed with S2.P1.I2
-
-**Delete escalation_001.md** once you've read this response.
+**Action:** Update your spec accordingly and resume S2.P1.I2
 ```
+
+> **🚨 RELAY PROHIBITION:** Secondary agents handle their own checklist questions directly with the user.
+> Primary ONLY receives escalations for genuine blockers (spec conflicts, technical ambiguities
+> that block all paths). Do NOT relay routine checklist Q&A through Primary.
 
 ---
 
@@ -1003,24 +1004,31 @@ User says: "Use same defaults as Feature 01 (INFO level) for consistency."
 
 | Type | Response Time | Action |
 |------|--------------|--------|
-| USER_QUESTION | 15 min | Forward to user, relay response |
-| BLOCKER | 15 min | Investigate, provide guidance |
-| STALE_CHECKPOINT | 20 min | Send warning to secondary |
+| BLOCKER | 15 min | Investigate, provide guidance or escalate to user |
+| STALE_CHECKPOINT | 20 min | Send warning to secondary via agent_comms/ |
+| SPEC_CONFLICT | 15 min | Document conflict, get user decision, relay to secondary |
 | ERROR | Immediate | Investigate, escalate to user if needed |
+
+> **Note:** Secondary agents do NOT escalate routine checklist questions — they ask the user directly.
+> Primary only receives escalations for blockers that prevent all paths forward.
 
 ### Secondary Agent Responsibilities
 
 **Every 15 minutes:**
 
-1. **Update checkpoint file** with current status
-2. **Check primary inbox** for messages
-3. **Escalate to primary** if blocked
+1. **Update checkpoint file** (`agent_checkpoints/secondary_X.json`) with current status
+2. **Check agent_comms/** for messages from Primary
+3. **Escalate to Primary** via `agent_comms/secondary_X_to_primary.md` if blocked
 
-**When to escalate:**
-- Need user input (checklist question unclear)
-- Technical blocker (can't proceed with iteration)
-- Confusion about feature scope or dependencies
-- Notice issue in Group 1 spec that affects your work
+**When to escalate to Primary:**
+- Spec conflict with Group 1 feature that blocks your spec
+- Technical ambiguity that prevents ALL paths forward (not just one option)
+- Notice error in Group 1 spec that affects your feature design
+
+**Handle directly with user (do NOT escalate to Primary):**
+- Checklist questions that need user input
+- Clarifications about your specific feature's scope
+- Routine design decisions within your feature
 
 ---
 
@@ -1034,13 +1042,13 @@ User says: "Use same defaults as Feature 01 (INFO level) for consistency."
 
 **Actions:**
 
-1. **Send warning to secondary inbox:**
+1. **Send warning via agent_comms/** (`agent_comms/primary_to_secondary_X.md`):
    ```markdown
    ⚠️ CHECKPOINT STALE WARNING
 
    Your checkpoint hasn't updated in 25 minutes. Are you still working?
 
-   Please update your checkpoint within 5 minutes or I'll escalate to user.
+   Please update agent_checkpoints/secondary_X.json within 5 minutes or I'll escalate to user.
    ```
 
 2. **Wait 5 minutes for response**

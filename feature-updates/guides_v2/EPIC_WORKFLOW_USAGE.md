@@ -321,7 +321,7 @@ feature-updates/KAI-{N}-{epic_name}/
 - Integration points identified
 - Epic success criteria defined
 
-**Guide:** `stages/s4/s4_epic_testing_strategy.md`
+**Guide:** `stages/s4/s4_feature_testing_strategy.md`
 
 **Key Activities:**
 - Update test plan based on deep dive findings
@@ -785,7 +785,7 @@ I'll now proceed with Phase 1: Draft Creation...
 - stages/s1/s1_epic_planning.md
 - stages/s2/s2_feature_deep_dive.md
 - stages/s3/s3_epic_planning_approval.md
-- stages/s4/s4_epic_testing_strategy.md
+- stages/s4/s4_feature_testing_strategy.md
 
 **Implementation Guides (7):**
 - stages/s5/s5_v2_validation_loop.md (S5 v2: Draft + Validation Loop)
@@ -855,7 +855,7 @@ I'll now proceed with Phase 1: Draft Creation...
 | User wants new epic | stages/s1/s1_epic_planning.md |
 | Writing feature spec | stages/s2/s2_feature_deep_dive.md |
 | Checking feature conflicts | stages/s3/s3_epic_planning_approval.md |
-| Planning epic tests | stages/s4/s4_epic_testing_strategy.md |
+| Planning epic tests | stages/s4/s4_feature_testing_strategy.md |
 | Creating implementation plan | S5.P1/S5.P2/S5.P3 (rounds 1-3) |
 | Writing code | stages/s6/s6_execution.md |
 | Testing feature | S7.P1/S7.P2/S7.P3 (smoke/QC/review) |

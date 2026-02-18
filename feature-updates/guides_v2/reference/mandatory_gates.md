@@ -259,7 +259,7 @@
 
 ### Gate 4.5: Epic Test Plan Approval (🚨 NEW MANDATORY GATE)
 
-**Location:** stages/s4/s4_epic_testing_strategy.md
+**Location:** stages/s4/s4_feature_testing_strategy.md
 **When:** After updating epic_smoke_test_plan.md (before S5 begins)
 
 **What it checks:**

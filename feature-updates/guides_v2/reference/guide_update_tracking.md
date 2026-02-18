@@ -43,9 +43,9 @@ This document tracks the feedback loop from implementation â†’ lessons learned â
 | KAI-7-improve_configurability_of_scripts | P0 | Checkpoint Requirements Section - no definition of what checkpoint means | CLAUDE.md | 2026-02-01 | a25fa1a |
 | KAI-7-improve_configurability_of_scripts | P0 | Agent Status Updates Mandatory - updates mentioned but not enforced | CLAUDE.md | 2026-02-01 | a25fa1a |
 | KAI-7-improve_configurability_of_scripts | P0 | Zero-Tolerance Consistency Standard - agents defer LOW severity issues | s3_epic_planning_approval.md | 2026-02-01 | a25fa1a |
-| KAI-7-improve_configurability_of_scripts | P1 | S4 Validation Loop - one-pass updates miss test coverage gaps | s4_epic_testing_strategy.md | 2026-02-01 | a25fa1a |
+| KAI-7-improve_configurability_of_scripts | P1 | S4 Validation Loop - one-pass updates miss test coverage gaps | s4_feature_testing_strategy.md | 2026-02-01 | a25fa1a |
 | KAI-7-improve_configurability_of_scripts | P1 | S8.P1 Validation Loop - S8 updates can introduce inconsistencies | s8_p1_cross_feature_alignment.md | 2026-02-01 | a25fa1a |
-| KAI-7-improve_configurability_of_scripts | P1 | Dependency Group Workflow - agents batch S2 then S3 instead of per-round cycles | s1_epic_planning.md, s3_epic_planning_approval.md, s4_epic_testing_strategy.md | 2026-02-01 | a25fa1a |
+| KAI-7-improve_configurability_of_scripts | P1 | Dependency Group Workflow - agents batch S2 then S3 instead of per-round cycles | s1_epic_planning.md, s3_epic_planning_approval.md, s4_feature_testing_strategy.md | 2026-02-01 | a25fa1a |
 | KAI-7-improve_configurability_of_scripts | P1 | Cross-Feature Agent Messaging - distributed validation during S2.P3 Phase 5 | s2_p3_refinement.md, communication_protocol.md | 2026-02-01 | a25fa1a |
 | KAI-7-improve_configurability_of_scripts | P2 | Pre-Made Handoff Packages - file-based handoffs vs copy/paste | s2_secondary_agent_guide.md | 2026-02-01 | a25fa1a |
 | KAI-7-improve_configurability_of_scripts | P2 | S2.P2 Prior Group Review - checklist questions re-ask already-answered questions | s2_p2_specification.md | 2026-02-01 | a25fa1a |

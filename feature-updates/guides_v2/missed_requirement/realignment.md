@@ -190,7 +190,7 @@ Proceed to S4 (Epic Testing Strategy update)? {User confirms}
 
 **🚨 FIRST ACTION:** Use "Starting S4" prompt from `prompts/s4_prompts.md`
 
-**READ:** `stages/s4/s4_epic_testing_strategy.md`
+**READ:** `stages/s4/s4_feature_testing_strategy.md`
 
 ---
 

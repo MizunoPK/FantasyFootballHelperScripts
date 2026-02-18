@@ -159,7 +159,7 @@ STAGE 10: Epic Cleanup
 | S2.P2 (Specification) | `stages/s2/s2_p2_specification.md` | Spec with traceability, alignment check |
 | S2.P3 (Refinement) | `stages/s2/s2_p3_refinement.md` | Questions, scope, alignment, user approval |
 | All features planned | `stages/s3/s3_epic_planning_approval.md` | Validate alignment, resolve conflicts, get user sign-off |
-| Features aligned | `stages/s4/s4_epic_testing_strategy.md` | Update test plan based on specs |
+| Features aligned | `stages/s4/s4_feature_testing_strategy.md` | Update test plan based on specs |
 | Ready to implement | `stages/s5/s5_v2_validation_loop.md` | Draft Creation + Validation Loop (11 dimensions, 3 consecutive clean rounds required) |
 | S5 v2 complete (Gate 5 approved) | `stages/s6/s6_execution.md` | Implement feature with continuous verification |
 | Implementation done (Smoke Testing) | `stages/s7/s7_p1_smoke_testing.md` | Part 1: Import, Part 2: Entry Point, Part 3: E2E (verify DATA VALUES) |
@@ -324,7 +324,7 @@ feature-updates/
     │   ├── s3/
     │   │   └── s3_epic_planning_approval.md
     │   ├── s4/
-    │   │   └── s4_epic_testing_strategy.md
+    │   │   └── s4_feature_testing_strategy.md
     │   ├── s5/                               ← S5 v2: Implementation Planning (Validation Loop)
     │   │   ├── s5_v2_validation_loop.md         ← S5 v2: 2 Phases with 11 Validation Dimensions
     │   │   ├── s5_bugfix_workflow.md            ← Bug fix workflow

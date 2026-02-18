@@ -657,7 +657,7 @@ I'll review all 3 specs for conflicts, overlaps, and gaps...
 
 **Run S4 alone:**
 
-1. **Follow guide:** `stages/s4/s4_epic_testing_strategy.md`
+1. **Follow guide:** `stages/s4/s4_feature_testing_strategy.md`
 
 2. **Update epic_smoke_test_plan.md:**
    - Add test scenarios for all features

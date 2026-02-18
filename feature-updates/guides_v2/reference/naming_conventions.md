@@ -138,7 +138,7 @@ feature-updates/guides_v2/
 │   ├── s3/
 │   │   └── s3_epic_planning_approval.md       (Level 1: Stage)
 │   ├── s4/
-│   │   └── s4_epic_testing_strategy.md            (Level 1: Stage)
+│   │   └── s4_feature_testing_strategy.md            (Level 1: Stage)
 │   ├── s5/
 │   │   ├── s5_v2_validation_loop.md               (Level 2: Primary guide - Draft + Validation Loop)
 │   │   ├── validation_loop_qc_pr.md               (Support doc - QC/PR template)

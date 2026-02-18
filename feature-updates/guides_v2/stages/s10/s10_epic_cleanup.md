@@ -232,7 +232,9 @@ STAGE 10: Epic Cleanup
 ├─> STEP 8: Push Branch and Create Pull Request
 │   ├─ Push all commits to remote branch
 │   ├─ Create Pull Request for user review
-│   └─ Wait for user to merge PR
+│   ├─ Recommend squash commit message to user
+│   ├─ Wait for user to merge PR
+│   └─ Sync local main (git reset --hard origin/main)
 │
 └─> STEP 9: Final Verification & Completion
     ├─ Verify epic in done/ folder
@@ -991,8 +993,9 @@ The epic is now complete and ready for user review!
 - [ ] All commits pushed to remote branch
 - [ ] Pull Request created with epic summary
 - [ ] PR includes all final cleanup (epic work + folder move + EPIC_TRACKER)
+- [ ] Squash commit message recommended to user
 - [ ] User reviewed and merged PR
-- [ ] No further changes needed after merge
+- [ ] Local main synced after merge (git fetch origin && git reset --hard origin/main)
 
 ### Final Verification
 - [ ] Epic visible in done/ folder
@@ -1016,8 +1019,8 @@ The epic is now complete and ready for user review!
 5. Move entire epic folder to done/ (max 10 epics, delete oldest if needed) and commit
 6. Update EPIC_TRACKER.md (move to Completed, add details, increment number) and commit
 7. Push all commits to remote branch
-8. Create Pull Request for user review
-9. User reviews and merges PR (no further changes needed after merge)
+8. Push branch, create Pull Request, recommend squash commit message to user
+9. User reviews and merges PR; sync local main (git reset --hard origin/main)
 10. Celebrate epic completion! 🎉
 
 **Critical Success Factors:**
