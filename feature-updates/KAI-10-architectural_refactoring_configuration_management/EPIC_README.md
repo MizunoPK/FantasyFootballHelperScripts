@@ -8,9 +8,9 @@
 
 ## 🎯 Quick Reference Card (Always Visible)
 
-**Current Stage:** Stage 2 — S2 Wave 1 (Feature 01 solo)
-**Active Guide:** `guides_v2/stages/s2/s2_p1_spec_creation_refinement.md`
-**Last Guide Read:** 2026-02-18 (read s2_feature_deep_dive.md router + s2_primary_agent_group_wave_guide.md)
+**Current Stage:** Stage 3 — S3 Cross-Feature Sanity Check
+**Active Guide:** `guides_v2/stages/s3/s3_epic_planning_approval.md`
+**Last Guide Read:** 2026-02-18 (S2.P2 complete; transitioning to S3)
 
 **Stage Workflow:**
 ```
@@ -20,20 +20,26 @@ Epic  Features  Sanity  Testing  Implementation  Epic    Done
 Plan  Deep Dive  Check  Strategy  (per feature)   QC
 ```
 
-**You are here:** ➜ Stage 2 (S2.P1 — Wave 1, Feature 01)
+**You are here:** ➜ Stage 3 (S3 — Epic Planning Approval)
 
 **S2 Wave Status**
 - [x] Wave 1: Feature 01 S2 ✅ COMPLETE (spec approved, all 4 checklist Qs answered — 2026-02-18; spec updated 2026-02-18 per user correction)
   - Design precedents set: @dataclass Settings, create_settings_from_dict(), direct import, graceful E2E file handling
   - ⚠️ CORRECTION (2026-02-18): NO separate --debug flag. Universal args are --e2e-test + --log-level only (2, not 3). --e2e-test serves both E2E testing and debugging purposes.
-- [ ] Wave 2: Features 02-07 S2 🚀 READY (handoff packages generated, awaiting agent spawn)
-  - Feature 02 (Secondary-A): ⏳ not started
-  - Feature 03 (Secondary-B): ⏳ not started
-  - Feature 04 (Secondary-C): ⏳ not started
-  - Feature 05 (Secondary-D): ⏳ not started
-  - Feature 06 (Secondary-E): ⏳ not started
-  - Feature 07 (Secondary-F): ⏳ not started
-- [ ] Wave 3: Feature 08 S2 ⏳ BLOCKED (needs Wave 2 complete + S3 + S4)
+- [x] Wave 2: Features 02-07 S2 ✅ COMPLETE (all 6 secondary agents finished — 2026-02-18)
+  - Feature 02 (Secondary-A): ✅ Gate 3 approved — 5 args, 3 files
+  - Feature 03 (Secondary-B): ✅ Gate 3 approved — 8 args, 1 file
+  - Feature 04 (Secondary-C): ✅ Gate 3 approved — 8 args, 4 files
+  - Feature 05 (Secondary-D): ✅ Gate 3 approved — 11 args, 2 files
+  - Feature 06 (Secondary-E): ✅ Gate 3 approved — 11 args, 2 files
+  - Feature 07 (Secondary-F): ✅ Gate 3 approved — 12 args, ~10 files
+- [x] S2.P2 Cross-Feature Alignment ✅ COMPLETE (2026-02-18)
+  - 21 pairwise pairs checked (3 Validation Loop rounds)
+  - 4 conflicts found; all resolved or accepted-by-design
+  - Key resolution: F07 REQ-07 updated with graceful skip (C-02)
+  - Key note: F03 has implementation dependency on F01 REQ-09 (fetch_game_data signature) — implement F01 before F03
+  - Comparison matrix: `research/S2_P2_COMPARISON_MATRIX_GROUP_2.md`
+- [ ] Wave 3: Feature 08 S2 ⏳ BLOCKED (needs S3 + S4 complete)
 
 ---
 
@@ -41,21 +47,20 @@ Plan  Deep Dive  Check  Strategy  (per feature)   QC
 
 **Debugging Active:** NO
 **Last Updated:** 2026-02-18
-**Current Stage:** S2 — Wave 2 (Features 02-07 parallel)
-**Current Phase:** WAVE_TRANSITION → awaiting user to spawn 6 secondary agents
-**Current Step:** Wave 1 ✅ complete → handoff packages generated → Wave 2 ready to start
-**Current Guide:** `stages/s2/s2_primary_agent_group_wave_guide.md`
-**Guide Last Read:** 2026-02-18
+**Current Stage:** S3 — Cross-Feature Sanity Check
+**Current Phase:** Starting S3 (transitioning from S2.P2)
+**Current Step:** S2 fully complete (all waves + S2.P2 alignment) → ready to start S3
+**Current Guide:** `stages/s3/s3_epic_planning_approval.md`
+**Guide Last Read:** 2026-02-18 (will read at S3 start)
 
 **Critical Rules:**
-- Wave 2: 6 secondary agents execute S2.P1 in parallel (Features 02-07)
-- Secondary agents stop after S2.P1.I3 — Primary (me) runs S2.P2 for Wave 2
-- After Wave 2 S2.P2 → Final S2.P2 across ALL features (cross-group alignment)
-- Feature 01 spec.md is design reference for all Wave 2 features
+- S2.P2 complete: 4 conflicts found, all resolved; comparison matrix at research/S2_P2_COMPARISON_MATRIX_GROUP_2.md
+- F03 implementation dependency on F01: F01 must be implemented before F03 (fetch_game_data signature)
+- Feature 08 (integration test framework) still needs S2 — blocked until after S4
 
-**Progress:** Wave 1 ✅ S2 complete | Wave 2 🚀 ready to start (handoff packages in feature folders)
-**Next Action:** User spawns 6 secondary agents (one per Feature 02-07) with handoff packages
-**Blockers:** None — waiting for user to spawn Wave 2 agents
+**Progress:** S2 ✅ fully complete (Wave 1 + Wave 2 + S2.P2) | S3 → next
+**Next Action:** Read S3 guide and begin Cross-Feature Sanity Check
+**Blockers:** None
 
 ---
 
@@ -100,13 +105,13 @@ Comprehensive architectural refactoring of all 7 runner scripts to establish con
 
 | Feature | S2 | S3 | S4 | S5 | S6 | S7 | S8.P1 | S8.P2 | Done |
 |---------|----|----|----|----|----|----|-------|-------|------|
-| F01: refactor_player_data_fetcher | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ |
-| F02: schedule_fetcher_cli | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ |
-| F03: game_data_fetcher_cli | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ |
-| F04: historical_compiler_cli | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ |
-| F05: win_rate_simulation_e2e | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ |
-| F06: accuracy_simulation_e2e | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ |
-| F07: league_helper_cli | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ |
+| F01: refactor_player_data_fetcher | ✅ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ |
+| F02: schedule_fetcher_cli | ✅ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ |
+| F03: game_data_fetcher_cli | ✅ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ |
+| F04: historical_compiler_cli | ✅ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ |
+| F05: win_rate_simulation_e2e | ✅ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ |
+| F06: accuracy_simulation_e2e | ✅ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ |
+| F07: league_helper_cli | ✅ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ |
 | F08: integration_test_framework | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ |
 
 **S9 - Epic Final QC:** ◻️ NOT STARTED
@@ -133,10 +138,11 @@ Comprehensive architectural refactoring of all 7 runner scripts to establish con
 
 **S2 - Feature Deep Dives:**
 - [x] Wave 1: Feature 01 S2 complete (spec.md + checklist.md user-approved — 2026-02-18)
-- [ ] Wave 2: Features 02-07 S2 all complete (parallel execution — 6 secondary agents)
-- [ ] Wave 3: Feature 08 S2 complete
-- [ ] ALL features have spec.md complete
-- [ ] ALL features have checklist.md resolved
+- [x] Wave 2: Features 02-07 S2 all complete (parallel execution — all Gate 3 approved — 2026-02-18)
+- [x] S2.P2 Cross-Feature Alignment complete (21 pairs, 4 conflicts resolved — 2026-02-18)
+- [ ] Wave 3: Feature 08 S2 complete (BLOCKED until after S4)
+- [x] Features 01-07 have spec.md complete and user-approved
+- [x] Features 01-07 have checklist.md resolved
 - [x] ALL feature README.md files created
 
 **S3 - Cross-Feature Sanity Check:**
