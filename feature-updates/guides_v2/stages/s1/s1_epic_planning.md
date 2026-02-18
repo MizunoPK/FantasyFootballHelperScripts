@@ -347,6 +347,29 @@ Conduct quick searches to find which managers/classes/modules will be affected. 
 
 Tag epic as SMALL (1-2 features), MEDIUM (3-5 features), or LARGE (6+ features). Add Initial Scope Assessment to EPIC_README.md with size, complexity, risk level, estimated components.
 
+### 🚨 Epic Size Check (MANDATORY if LARGE)
+
+**If the epic is LARGE (6+ features), pause and recommend splitting to the user before continuing.**
+
+An epic with 6+ features is likely too large to complete reliably in a single epic lifecycle:
+- Sessions run out of context mid-execution, causing continuity problems across agents
+- Coordination overhead grows significantly with feature count
+- Later features frequently don't get implemented before the epic is abandoned
+- Users lose track of overall progress when epics span many weeks
+
+**Recommended conversation with user:**
+> "This epic appears to have {N} features, which exceeds the recommended maximum of 5.
+> I suggest splitting it into two smaller epics:
+> - Epic A: Features 1-{M} (foundational work / Wave 1)
+> - Epic B: Features {M+1}-{N} (extended work / Wave 2)
+>
+> Smaller epics complete faster, are easier to track, and have much higher completion rates.
+> Would you like to split into two epics, or proceed with all {N} features in one epic?"
+
+**If user chooses to split:** Stop S1, help user create two new epic request .txt files, then begin S1 for the first epic.
+
+**If user chooses to proceed with 6+ features:** Document the decision explicitly in EPIC_README.md under the Initial Scope Assessment section: "Note: User chose to proceed with {N} features (exceeds recommended maximum of 5). Increased compaction risk acknowledged."
+
 ### Step 2.4: Update Agent Status
 
 After Step 2:
@@ -827,7 +850,56 @@ Would you like to:
 
 ---
 
+#### Offering Template C: Wave 1 Precedent Pattern
+
+**Use when:** Epic has 3+ features all implementing the SAME architectural pattern, where one representative feature should go first to establish concrete design decisions (class structure, constructor signatures, naming conventions) before others begin.
+
+**When to recognize this pattern:**
+- All features apply the same refactoring approach to different modules (e.g., "add argparse + DI to all 7 runner scripts")
+- Pattern requires upfront decisions with multiple valid options (dataclass vs pydantic, subprocess vs direct import, naming conventions)
+- Features are code-independent from each other (no import chain between them)
+- Getting one feature "right first" would make the remaining features much clearer to spec
+
+```markdown
+🚀 WAVE 1 PRECEDENT OPPORTUNITY
+
+I've identified {N} features that all implement the same architectural pattern.
+I suggest a "Wave 1 Precedent" approach rather than full parallelization:
+
+**Wave 1 (Solo — establishes design decisions):**
+- Feature {X}: {name} — most representative/complex example
+- Completes S2 + S5 + S6 + S7 + S8 FULLY before Wave 2 begins
+- Documents all design decisions as "established precedents"
+
+**Wave 2 (Parallel — uses Wave 1 as template):**
+- Features {Y}-{Z}: {names}
+- Execute S2 in parallel, each referencing Wave 1's spec as starting point
+- Resolved design decisions from Wave 1 carry forward automatically
+
+**Why this over full parallelization:**
+- Prevents {N} agents making different design decisions independently
+- Wave 2 handoffs say "use Feature {X}'s pattern" — much simpler than re-speccing
+- Cross-feature conflicts in S3 are greatly reduced (Wave 2 already aligned)
+
+**Time profile:**
+- Wave 1 solo: ~{M} hours (S2+S5+S6+S7+S8 for Feature {X})
+- Wave 2 parallel S2: ~2 hours
+- Total: ~{M+2} hours (vs {N}×2 hours sequential)
+
+Would you like to:
+1. ✅ Use Wave 1 Precedent approach (Feature {X} first, then parallel Wave 2)
+2. 🔀 Use full parallelization (all features S2 simultaneously — design decisions split)
+3. ❌ Continue sequential (all {N} features one-by-one)
+4. ❓ Discuss approach
+```
+
 **Handle User Response:**
+- **Option 1 (Wave 1 Precedent):** Complete S2-S8 for Wave 1 feature solo, then spawn secondaries for Wave 2 S2 using `s2_primary_agent_group_wave_guide.md`
+- **Options 2-3:** See existing handling above
+
+---
+
+**Handle User Response (Templates A and B):**
 - **Option 1 (Enable):** Skip Step 6, go to `parallel_work/s2_primary_agent_guide.md` (groups) or standard parallel guide (no groups)
 - **Option 2 (Sequential):** Proceed to Step 6 (standard transition)
 - **Option 3 (Discuss):** Answer questions, clarify groups/workflow, then re-present options 1-2
