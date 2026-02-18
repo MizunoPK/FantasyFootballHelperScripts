@@ -813,11 +813,60 @@ gh pr create --base main --head {work_type}/KAI-{number} \
 - Fill in title and description
 - Click "Create pull request"
 
-**8c. Wait for User to Merge PR**
+**8c. Recommend a Squash Commit Message**
+
+Before the user merges, recommend a squash commit message. GitHub squash-merges collapse all branch commits into one, so the message needs to summarize the entire epic.
+
+Provide the user with a ready-to-use message in this format:
+
+```
+{commit_type}/KAI-{number}: {short epic summary}
+
+Features implemented:
+- {feature_01 summary}
+- {feature_02 summary}
+- ...
+
+Key changes:
+- {notable technical change 1}
+- {notable technical change 2}
+- ...
+
+Testing: {test count} tests passing. {any notable test highlights}
+```
+
+**Example output to user:**
+> Here's a recommended squash commit message for the PR:
+> ```
+> feat/KAI-10: Refactor player_data_fetcher — CLI args, DI, E2E mode
+>
+> Features implemented:
+> - F01: Replace hardcoded paths with argparse CLI args (17 args)
+> - F01: Replace subprocess calls with direct imports
+> - F01: Add --e2e-test mode writing to /tmp
+>
+> Key changes:
+> - Eliminated pydantic_settings dependency
+> - PlayerDataFetcher now accepts injected config object
+> - E2E test mode writes to /tmp to avoid contaminating data/
+>
+> Testing: 2,710 tests passing. Full E2E run validated.
+> ```
+
+**8d. Wait for User to Merge PR**
 
 - User reviews changes in GitHub UI
-- User approves and merges (or requests changes)
+- User approves and merges using the recommended squash message (or their own)
 - **DO NOT merge yourself** - user must merge
+
+**8e. Sync Local Main After Merge**
+
+After user confirms the PR is merged, sync local main:
+```bash
+git checkout main
+git fetch origin
+git reset --hard origin/main
+```
 
 **Important:** The PR includes ALL final cleanup (epic work, folder move, EPIC_TRACKER update). No further changes needed after merge.
 
