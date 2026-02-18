@@ -142,6 +142,60 @@ When agents present checklist questions to the user during S2.P1.I2 (Checklist R
 
 ---
 
+**Parallel work guide coordination paths are outdated — do not match CLAUDE.md rules.**
+
+The parallel work guides (`s2_primary_agent_group_wave_guide.md`, `s2_primary_agent_guide.md`) reference a coordination directory structure under `parallel_work/coordination/` with this layout:
+
+```
+parallel_work/coordination/
+├── agent_checkpoints/   (checkpoint .md files)
+└── inboxes/
+    ├── from_primary/
+    ├── from_secondary_a/
+    └── from_secondary_b/
+```
+
+**CLAUDE.md mandates a different structure** (and overrides guide content):
+```
+{epic_folder}/
+├── .epic_locks/          (lock files)
+├── agent_comms/          (flat .md files, NO subdirectories)
+└── agent_checkpoints/    (flat .json files, NO .md extension)
+```
+
+Key conflicts between guide and CLAUDE.md:
+1. Guide uses `parallel_work/coordination/` as base — CLAUDE.md uses epic folder directly
+2. Guide uses per-agent inbox subdirectories (`inboxes/from_secondary_a/`) — CLAUDE.md prohibits subdirectories under `agent_comms/`
+3. Guide checkpoint files use `.md` extension — CLAUDE.md mandates `.json` extension
+
+**In practice during this epic:**
+- Agents used `agent_comms/secondary_a_to_primary.md` (flat file, correct per CLAUDE.md)
+- No checkpoint `.json` files were created by agents (structure existed but wasn't used heavily)
+- The validate_structure.sh script validated the CLAUDE.md-compliant structure
+
+**Required guide update (S10.P1):**
+- Update `s2_primary_agent_guide.md` and `s2_primary_agent_group_wave_guide.md`: replace all `parallel_work/coordination/` path references with correct paths (`.epic_locks/`, `agent_comms/`, `agent_checkpoints/` directly under epic folder)
+- Update checkpoint format examples to use `.json` extension
+- Update inbox examples to show flat files in `agent_comms/` (not nested subdirectory structure)
+- Update the monitoring `ls`/`cat` commands in the guide to use correct paths
+
+---
+
+**Primary agent should NOT relay secondary checklist questions to the user — secondaries handle their own Q&A.**
+
+During Wave 2 monitoring, the Primary agent collected open questions from secondary agents' checklist.md files and began presenting them to the user. This is incorrect behavior.
+
+**The correct pattern:**
+- Secondary agents present their own checklist questions directly to the user during S2.P1.I2
+- Primary agent's job during Wave 2 is to monitor progress (checkpoint freshness), handle escalations, and wait
+- Primary should only relay to the user if a secondary explicitly escalates via `agent_comms/` requesting Primary to forward a question
+- Reading secondary checklists to gather questions and presenting them unprompted bypasses the secondary's own workflow
+
+**Required guide update (S10.P1):**
+- Update `s2_primary_agent_group_wave_guide.md` Phase 3 monitoring section: explicitly state that Primary reads checkpoints for freshness/blockers only, does NOT read checklist.md files to relay questions, and only intervenes when secondary sends an escalation message to `agent_comms/`
+
+---
+
 ## S3 Lessons Learned (Cross-Feature Sanity Check)
 
 **What Went Well:**
