@@ -61,7 +61,22 @@ This document captures:
 
 ### Guide Improvements Needed
 
-{To be filled}
+**Secondary agent startup UX — handoff packages should be self-locating.**
+
+The current parallel work guides require the Primary to write a verbose one-liner startup instruction containing the full handoff package path. The user wants secondary agents to need only a minimal instruction like:
+
+> "You are a secondary agent for epic KAI-10 for feature 02"
+
+The secondary agent should be able to derive everything from that alone:
+1. Look up KAI-10 in `feature-updates/` to find the epic folder
+2. Find the `feature_02_*/HANDOFF_PACKAGE.md` by matching the feature number
+3. Read the handoff package to get full context and instructions
+4. Proceed with S2.P1 as directed
+
+**Required guide update (S10.P1):**
+- Update `parallel_work/s2_primary_agent_guide.md` and `s2_primary_agent_group_wave_guide.md`: the "Present Handoffs to User" step should instruct Primary to give user a SHORT instruction per secondary ("You are a secondary agent for KAI-{N} for feature {X}"), not a full handoff package paste
+- Update `parallel_work/s2_secondary_agent_guide.md`: add "Getting Started" step 0 — if given only minimal startup instruction (epic + feature number), first action is to locate and read `feature_XX_*/HANDOFF_PACKAGE.md` before doing anything else
+- The HANDOFF_PACKAGE.md files (stored in each feature folder) remain the full context document — they just don't need to be pasted verbatim at startup
 
 ---
 
