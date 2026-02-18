@@ -302,17 +302,16 @@ class TestFetchWeatherForGame:
             # Use a date > 5 days ago
             old_date = "2024-09-05T00:20Z"
             fetcher._get_weather_api_endpoint = Mock(return_value=fetcher.OPEN_METEO_HISTORICAL_URL)
+            fetcher.request_timeout = 30
 
-            from config import REQUEST_TIMEOUT
-            with patch('game_data_fetcher.REQUEST_TIMEOUT', 30):
-                weather = fetcher._fetch_weather_for_game(
-                    home_team="KC",
-                    game_date=old_date,
-                    is_indoor=False,
-                    is_international=False,
-                    city="Kansas City",
-                    country="USA"
-                )
+            weather = fetcher._fetch_weather_for_game(
+                home_team="KC",
+                game_date=old_date,
+                is_indoor=False,
+                is_international=False,
+                city="Kansas City",
+                country="USA"
+            )
 
             assert weather["temperature"] is not None
 
@@ -360,9 +359,9 @@ class TestFetchEspnScoreboard:
             fetcher.season = 2024
             fetcher.ESPN_SCOREBOARD_URL = "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard"
             fetcher.logger = Mock()
+            fetcher.request_timeout = 30
 
-            with patch('game_data_fetcher.REQUEST_TIMEOUT', 30):
-                result = fetcher._fetch_espn_scoreboard(1)
+            result = fetcher._fetch_espn_scoreboard(1)
 
             assert "events" in result
             assert len(result["events"]) == 1
@@ -378,9 +377,9 @@ class TestFetchEspnScoreboard:
             fetcher.season = 2024
             fetcher.ESPN_SCOREBOARD_URL = "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard"
             fetcher.logger = Mock()
+            fetcher.request_timeout = 30
 
-            with patch('game_data_fetcher.REQUEST_TIMEOUT', 30):
-                result = fetcher._fetch_espn_scoreboard(1)
+            result = fetcher._fetch_espn_scoreboard(1)
 
             assert result == {"events": []}
 
@@ -636,3 +635,49 @@ class TestIntegrationScenarios:
             assert len(games) == 1
             assert games[0].home_team == "KC"
             assert games[0].home_team_score == 27
+
+
+# ============================================================================
+# KAI-10 Refactoring Tests (Task 11 — Tests 9.1-9.2, I-9, I-16)
+# ============================================================================
+
+class TestGameDataFetcherKAI10:
+    """
+    Tests verifying KAI-10 refactoring: fetch_game_data() accepts request_timeout
+    and rate_limit_delay parameters; GameDataFetcher uses self.request_timeout.
+    (REQ-09 — 4 tests)
+    """
+
+    def test_fetch_game_data_accepts_request_timeout(self, tmp_path):
+        """9.1: fetch_game_data() accepts request_timeout parameter"""
+        import inspect
+        sig = inspect.signature(fetch_game_data)
+        assert 'request_timeout' in sig.parameters
+
+    def test_fetch_game_data_accepts_rate_limit_delay(self, tmp_path):
+        """9.2: fetch_game_data() accepts rate_limit_delay parameter"""
+        import inspect
+        sig = inspect.signature(fetch_game_data)
+        assert 'rate_limit_delay' in sig.parameters
+
+    def test_game_data_fetcher_stores_request_timeout(self, tmp_path):
+        """I-9: GameDataFetcher stores request_timeout as self.request_timeout"""
+        data_folder = tmp_path / "data"
+        data_folder.mkdir()
+        with patch('game_data_fetcher.CoordinatesManager'):
+            fetcher = GameDataFetcher(
+                data_folder=data_folder,
+                request_timeout=45
+            )
+        assert fetcher.request_timeout == 45
+
+    def test_fetch_game_data_signature_has_both_new_params(self):
+        """I-16: fetch_game_data() signature includes both request_timeout and rate_limit_delay"""
+        import inspect
+        sig = inspect.signature(fetch_game_data)
+        params = sig.parameters
+        assert 'request_timeout' in params
+        assert 'rate_limit_delay' in params
+        # Verify defaults match old config values
+        assert params['request_timeout'].default == 30
+        assert params['rate_limit_delay'].default == 0.2

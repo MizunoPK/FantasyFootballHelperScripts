@@ -136,3 +136,63 @@ class TestPositionJSONExport:
         # Verify JSON files were created
         assert len(files) > 0, "Position JSON files should be created"
         assert all(f.endswith('.json') for f in files), "All files should be JSON"
+
+
+# ============================================================================
+# KAI-10 Refactoring Tests (Task 11 — Tests 7.1-7.3, I-8, E-14, E-18)
+# ============================================================================
+
+class TestDataExporterKAI10:
+    """
+    Tests verifying KAI-10 refactoring: DataExporter constructor accepts
+    new parameters and defaults match old config.py values.
+    (REQ-07 — 6 tests)
+    """
+
+    def test_exporter_accepts_my_team_name_parameter(self, tmp_path):
+        """7.1: DataExporter accepts my_team_name constructor parameter"""
+        exporter = DataExporter(
+            output_dir=str(tmp_path),
+            my_team_name='Test Team',
+        )
+        assert exporter.my_team_name == 'Test Team'
+
+    def test_exporter_accepts_current_nfl_week_parameter(self, tmp_path):
+        """7.2: DataExporter accepts current_nfl_week constructor parameter"""
+        exporter = DataExporter(
+            output_dir=str(tmp_path),
+            current_nfl_week=10,
+        )
+        assert exporter.current_nfl_week == 10
+
+    def test_exporter_backward_compat_no_new_params(self, tmp_path):
+        """7.3: DataExporter(output_dir=...) still works without new params (backward compat)"""
+        exporter = DataExporter(output_dir=str(tmp_path))
+        # Defaults should match old config values
+        assert exporter.current_nfl_week == 17
+        assert exporter.my_team_name == 'Sea Sharp'
+        assert exporter.load_drafted_data is True
+
+    def test_exporter_defaults_match_old_config_values(self, tmp_path):
+        """I-8: DataExporter defaults preserve backward compat with old config values"""
+        exporter = DataExporter(output_dir=str(tmp_path))
+        assert exporter.position_json_output == '../data/player_data'
+        assert exporter.team_data_folder == '../data/team_data'
+        assert exporter.drafted_data_path == '../data/drafted_data.csv'
+
+    def test_exporter_custom_team_name_used(self, tmp_path):
+        """E-14: DataExporter with custom my_team_name stores it correctly"""
+        exporter = DataExporter(
+            output_dir=str(tmp_path),
+            my_team_name='My Custom Team',
+        )
+        assert exporter.my_team_name == 'My Custom Team'
+
+    def test_exporter_custom_drafted_data_path(self, tmp_path):
+        """E-18: DataExporter with custom drafted_data_path stores it correctly"""
+        custom_path = str(tmp_path / 'custom_drafted.csv')
+        exporter = DataExporter(
+            output_dir=str(tmp_path),
+            drafted_data_path=custom_path,
+        )
+        assert exporter.drafted_data_path == custom_path

@@ -15,14 +15,15 @@ Author: Kai Mizuno
 
 import argparse
 import asyncio
+import datetime
 import shutil
 import sys
+from dataclasses import dataclass
 from pathlib import Path
 from time import sleep
 from typing import Dict, List
 
 import pandas as pd
-from pydantic_settings import BaseSettings, SettingsConfigDict
 
 # Add parent directory to path for data access BEFORE importing data
 sys.path.append(str(Path(__file__).parent.parent))
@@ -34,64 +35,101 @@ from player_data_models import ScoringFormat, ProjectionData
 from espn_client import ESPNClient
 from player_data_exporter import DataExporter
 
-# Import NFL season configuration
-from config import (
-    NFL_SEASON, CURRENT_NFL_WEEK,
-    REQUEST_TIMEOUT, RATE_LIMIT_DELAY, LOGGING_LEVEL,
-    LOG_NAME, LOGGING_FORMAT,
-    ENABLE_HISTORICAL_DATA_SAVE, ENABLE_GAME_DATA_FETCH
-)
-# Note: LOGGING_TO_FILE and LOGGING_FILE removed - file logging now controlled via CLI flag
+from config import LOG_NAME, LOGGING_FORMAT
 
 
-class Settings(BaseSettings):
+@dataclass
+class Settings:
     """
-    Application settings loaded from environment variables and .env file.
+    Application settings passed via run_player_fetcher.py CLI args.
 
-    Supports configuration via environment variables with NFL_PROJ_ prefix.
-    Falls back to default values if environment variables are not set.
-
-    Attributes:
-        scoring_format: Fantasy scoring format (PPR, Half-PPR, or Standard)
-        season: NFL season year
-        current_nfl_week: Current NFL week (1-18)
+    Defaults match historical config.py values. All CLI-configurable values
+    are managed via argparse in run_player_fetcher.py; these defaults apply
+    only for direct invocation (python player_data_fetcher_main.py).
     """
-    model_config = SettingsConfigDict(
-        env_file_encoding='utf-8',
-        env_prefix='NFL_PROJ_',
-        extra='ignore'  # Ignore extra environment variables
-    )
 
-    # Data Parameters
+    # Scoring configuration
     scoring_format: ScoringFormat = ScoringFormat.PPR
-    season: int = NFL_SEASON  # Current NFL season (from config)
 
-    # Week-by-Week Projection Settings (from config)
-    current_nfl_week: int = CURRENT_NFL_WEEK  # Current NFL week (1-18, from config)
+    # NFL season/week
+    season: int = 2025
+    current_nfl_week: int = 17
+
+    # API settings
+    request_timeout: int = 30
+    rate_limit_delay: float = 0.2
+    espn_player_limit: int = 2000
+
+    # Output paths
+    position_json_output: str = '../data/player_data'
+    team_data_folder: str = '../data/team_data'
+    game_data_csv: str = '../data/game_data.csv'
+    create_latest_files: bool = True
+
+    # Feature flags
+    enable_historical_save: bool = False
+    enable_game_data: bool = True
+
+    # Drafted data
+    load_drafted_data: bool = True
+    drafted_data_path: str = '../data/drafted_data.csv'
+    my_team_name: str = 'Sea Sharp'
+
+    # Logging
+    progress_frequency: int = 10
+    log_level: str = 'INFO'
+    logging_to_file: bool = False
+
+    # E2E testing
+    e2e_test: bool = False
 
     def validate_settings(self) -> None:
         """Validate settings and warn about potential issues"""
-        import datetime
         current_year = datetime.datetime.now().year
         logger = get_logger()
-        
+
         if self.season > current_year:
             logger.warning(f"Season {self.season} is in the future. ESPN may not have this data yet.")
         elif self.season < current_year - 1:
             logger.warning(f"Season {self.season} is quite old. Data may be limited.")
-            
+
         if self.request_timeout < 10:
             logger.warning(f"Request timeout {self.request_timeout}s may be too short for ESPN API.")
-            
+
         if self.rate_limit_delay < 0.1:
             logger.warning(f"Rate limit delay {self.rate_limit_delay}s may be too aggressive.")
-    
-    # Output Configuration
-    create_latest_files: bool = True  # Whether to create latest versions
 
-    # API Settings (from config)
-    request_timeout: int = REQUEST_TIMEOUT  # Request timeout in seconds (from config)
-    rate_limit_delay: float = RATE_LIMIT_DELAY  # Delay between requests (from config)
+
+def create_settings_from_dict(args_dict: dict) -> Settings:
+    """
+    Create Settings from dictionary provided by run_player_fetcher.py.
+
+    Args:
+        args_dict: Dictionary with all required settings keys (from create_settings_dict() in runner)
+
+    Returns:
+        Settings instance with values from args_dict
+    """
+    return Settings(
+        season=args_dict['season'],
+        current_nfl_week=args_dict['current_nfl_week'],
+        request_timeout=args_dict['request_timeout'],
+        rate_limit_delay=args_dict['rate_limit_delay'],
+        espn_player_limit=args_dict['espn_player_limit'],
+        position_json_output=args_dict['position_json_output'],
+        team_data_folder=args_dict['team_data_folder'],
+        game_data_csv=args_dict['game_data_csv'],
+        create_latest_files=True,
+        enable_historical_save=args_dict['enable_historical_save'],
+        enable_game_data=args_dict['enable_game_data'],
+        load_drafted_data=args_dict['load_drafted_data'],
+        drafted_data_path=args_dict['drafted_data_path'],
+        my_team_name=args_dict['my_team_name'],
+        progress_frequency=args_dict['progress_frequency'],
+        log_level=args_dict['log_level'],
+        logging_to_file=args_dict['logging_to_file'],
+        e2e_test=args_dict['e2e_test'],
+    )
 
 
 class NFLProjectionsCollector:
@@ -134,11 +172,17 @@ class NFLProjectionsCollector:
         self.position_defense_rankings = {}
         self.team_weekly_data = {}
 
-        # Initialize exporter with hardcoded path (OUTPUT_DIRECTORY config removed)
+        # Initialize exporter with settings-derived params
         output_path = self.script_dir / "data"
         self.exporter = DataExporter(
             output_dir=str(output_path),
-            create_latest_files=self.settings.create_latest_files
+            create_latest_files=self.settings.create_latest_files,
+            current_nfl_week=self.settings.current_nfl_week,
+            position_json_output=self.settings.position_json_output,
+            team_data_folder=self.settings.team_data_folder,
+            load_drafted_data=self.settings.load_drafted_data,
+            drafted_data_path=self.settings.drafted_data_path,
+            my_team_name=self.settings.my_team_name,
         )
         
         self.logger.info("Using ESPN hidden API - free but unofficial and may change")
@@ -361,21 +405,21 @@ class NFLProjectionsCollector:
             bool: True if files were saved, False if already saved, disabled, or error occurred
         """
         # Check if feature is enabled
-        if not ENABLE_HISTORICAL_DATA_SAVE:
-            self.logger.debug("Historical data auto-save disabled via config")
+        if not self.settings.enable_historical_save:
+            self.logger.debug("Historical data auto-save disabled via settings")
             return False
 
         try:
             # Construct zero-padded week number (e.g., "01", "11")
-            week_number = f"{CURRENT_NFL_WEEK:02d}"
+            week_number = f"{self.settings.current_nfl_week:02d}"
 
             # Construct historical data path: data/historical_data/{Season}/{WeekNumber}/
             # Use parent of script_dir to get project root, then navigate to data folder
-            historical_folder = self.script_dir.parent / "data" / "historical_data" / str(NFL_SEASON) / week_number
+            historical_folder = self.script_dir.parent / "data" / "historical_data" / str(self.settings.season) / week_number
 
             # Check if folder already exists
             if historical_folder.exists():
-                self.logger.info(f"Historical data already saved for Week {CURRENT_NFL_WEEK} (folder {week_number} exists)")
+                self.logger.info(f"Historical data already saved for Week {self.settings.current_nfl_week} (folder {week_number} exists)")
                 return False
 
             # Create folder with parents=True to create season folder if needed
@@ -406,7 +450,7 @@ class NFLProjectionsCollector:
             else:
                 self.logger.warning(f"Team data folder not found: {team_data_source}")
 
-            self.logger.info(f"Successfully saved historical data for Week {CURRENT_NFL_WEEK} to {historical_folder}")
+            self.logger.info(f"Successfully saved historical data for Week {self.settings.current_nfl_week} to {historical_folder}")
             return True
 
         except Exception as e:
@@ -425,8 +469,8 @@ class NFLProjectionsCollector:
             bool: True if game data was fetched successfully, False if disabled or error
         """
         # Check if feature is enabled
-        if not ENABLE_GAME_DATA_FETCH:
-            self.logger.debug("Game data fetching disabled via config")
+        if not self.settings.enable_game_data:
+            self.logger.debug("Game data fetching disabled via settings")
             return False
 
         try:
@@ -443,7 +487,9 @@ class NFLProjectionsCollector:
             result_path = do_fetch_game_data(
                 output_path=output_path,
                 season=self.settings.season,
-                current_week=self.settings.current_nfl_week
+                current_week=self.settings.current_nfl_week,
+                request_timeout=self.settings.request_timeout,
+                rate_limit_delay=self.settings.rate_limit_delay,
             )
 
             self.logger.info(f"Game data saved to: {result_path}")
@@ -515,60 +561,84 @@ class NFLProjectionsCollector:
                 print(f"     {pos}: {count} players (Top: {top_name} - {max_points:.1f} pts, Avg: {avg_points:.1f})")
 
 
-async def main():
-    """Main application entry point"""
+async def main(settings_dict: dict | None = None) -> None:
+    """
+    Main application entry point.
 
-    # Parse command-line arguments
-    parser = argparse.ArgumentParser(description='Collect NFL player projections from ESPN')
-    parser.add_argument('--enable-log-file', action='store_true',
-                        help='Enable file logging to logs/player_data_fetcher/')
-    args = parser.parse_args()
+    Args:
+        settings_dict: Settings dictionary from run_player_fetcher.py CLI args.
+                       If None, runs internal argparse (direct invocation).
+    """
 
-    # Setup logger with CLI flag control (Task 4: Wire flag to setup_logger)
+    if settings_dict is None:
+        # Direct invocation: parse minimal args for backward compatibility
+        parser = argparse.ArgumentParser(description='Collect NFL player projections from ESPN')
+        parser.add_argument('--enable-log-file', action='store_true',
+                            help='Enable file logging to logs/player_data_fetcher/')
+        args = parser.parse_args()
+        settings = Settings(logging_to_file=args.enable_log_file)
+    else:
+        settings = create_settings_from_dict(settings_dict)
+
+    # Setup logger with settings values
     logger = setup_logger(
-        name=LOG_NAME,  # "player_data_fetcher" - creates logs/player_data_fetcher/
-        level=LOGGING_LEVEL,  # From config.py
-        log_to_file=args.enable_log_file,  # From CLI flag (not config.py LOGGING_TO_FILE)
-        log_file_path=None,  # Auto-generated by LoggingManager (Feature 01 contract)
-        log_format=LOGGING_FORMAT  # From config.py
+        name=LOG_NAME,
+        level=settings.log_level,
+        log_to_file=settings.logging_to_file,
+        log_file_path=None,
+        log_format=LOGGING_FORMAT
     )
-    
+
+    # E2E graceful skip: if drafted data file is missing in E2E mode, disable loading
+    if settings.load_drafted_data:
+        drafted_path = Path(settings.drafted_data_path)
+        if not drafted_path.exists():
+            if settings.e2e_test:
+                logger.info(
+                    f"E2E mode: drafted data file not found at {settings.drafted_data_path}, skipping"
+                )
+                settings.load_drafted_data = False
+            else:
+                raise FileNotFoundError(
+                    f"Drafted data file not found: {settings.drafted_data_path}. "
+                    f"Use --no-load-drafted-data to skip or --e2e-test for graceful handling."
+                )
+
     try:
         logger.info("Starting NFL projections collection with ESPN API")
-        
-        # Load and validate settings
-        settings = Settings()
+
+        # Validate settings
         settings.validate_settings()
-        
+
         # Create collector and gather data
         collector = NFLProjectionsCollector(settings)
         projection_data = await collector.collect_all_projections()
-        
+
         if not projection_data:
             print("[ERROR] No projection data collected. Check your configuration.")
             return
-        
+
         # Export data
         output_files = await collector.export_data(projection_data)
 
-        # Fetch game data (venue, weather, scores) - if enabled via config
+        # Fetch game data (venue, weather, scores) - if enabled via settings
         try:
             game_data_fetched = collector.fetch_game_data()
             if game_data_fetched:
                 print(f"\n[INFO] Game data (venue, weather, scores) fetched successfully")
-            elif not ENABLE_GAME_DATA_FETCH:
-                logger.debug("Game data fetching disabled via config")
+            elif not settings.enable_game_data:
+                logger.debug("Game data fetching disabled via settings")
         except Exception as e:
             logger.warning(f"Failed to fetch game data: {e}")
             print(f"\n[WARNING] Could not fetch game data: {e}")
 
-        # Auto-save to historical data folder (if enabled via config)
+        # Auto-save to historical data folder (if enabled via settings)
         try:
             saved = collector.save_to_historical_data()
             if saved:
                 print(f"\n[INFO] Saved weekly data to historical folder")
-            elif not ENABLE_HISTORICAL_DATA_SAVE:
-                logger.debug("Historical data auto-save disabled via config")
+            elif not settings.enable_historical_save:
+                logger.debug("Historical data auto-save disabled via settings")
             else:
                 print(f"\n[INFO] Weekly data already saved for Week {settings.current_nfl_week}")
         except Exception as e:

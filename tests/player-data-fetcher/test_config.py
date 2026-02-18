@@ -2,7 +2,9 @@
 """
 Tests for Config Module
 
-Basic smoke tests for configuration constants and validation.
+Basic smoke tests for configuration constants that remain in config.py
+(non-CLI-configurable values only). CLI-configurable constants have been
+moved to argparse defaults in run_player_fetcher.py.
 
 Author: Kai Mizuno
 """
@@ -18,48 +20,8 @@ sys.path.append(str(Path(__file__).parent.parent.parent / "player-data-fetcher")
 import config
 
 
-class TestNFLConfiguration:
-    """Test NFL season and week configuration"""
-
-    def test_current_nfl_week_is_valid(self):
-        """Test CURRENT_NFL_WEEK is within valid range"""
-        assert isinstance(config.CURRENT_NFL_WEEK, int)
-        assert 1 <= config.CURRENT_NFL_WEEK <= 18
-
-    def test_nfl_season_is_valid(self):
-        """Test NFL_SEASON is a reasonable year"""
-        assert isinstance(config.NFL_SEASON, int)
-        assert config.NFL_SEASON >= 2020  # Reasonable lower bound
-        assert config.NFL_SEASON <= 2030  # Reasonable upper bound
-
-
-class TestDataPreservationSettings:
-    """Test data preservation configuration"""
-
-    def test_load_drafted_data_from_file_is_boolean(self):
-        """Test LOAD_DRAFTED_DATA_FROM_FILE is boolean"""
-        assert isinstance(config.LOAD_DRAFTED_DATA_FROM_FILE, bool)
-
-    def test_drafted_data_path_is_string(self):
-        """Test DRAFTED_DATA is a string path"""
-        assert isinstance(config.DRAFTED_DATA, str)
-        assert len(config.DRAFTED_DATA) > 0
-
-    def test_my_team_name_is_string(self):
-        """Test MY_TEAM_NAME is a string"""
-        assert isinstance(config.MY_TEAM_NAME, str)
-
-
 class TestLoggingConfiguration:
-    """Test logging configuration"""
-
-    def test_logging_level_is_valid(self):
-        """Test LOGGING_LEVEL is a valid log level string"""
-        assert isinstance(config.LOGGING_LEVEL, str)
-        valid_levels = ['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']
-        assert config.LOGGING_LEVEL in valid_levels
-
-    # Note: LOGGING_TO_FILE constant removed - file logging now controlled via --enable-log-file CLI flag
+    """Test logging configuration constants (non-CLI-configurable)"""
 
     def test_log_name_is_string(self):
         """Test LOG_NAME is a string"""
@@ -76,11 +38,6 @@ class TestLoggingConfiguration:
 class TestProgressTrackingConfiguration:
     """Test progress tracking configuration"""
 
-    def test_progress_update_frequency_is_positive(self):
-        """Test PROGRESS_UPDATE_FREQUENCY is positive integer"""
-        assert isinstance(config.PROGRESS_UPDATE_FREQUENCY, int)
-        assert config.PROGRESS_UPDATE_FREQUENCY > 0
-
     def test_progress_eta_window_size_is_positive(self):
         """Test PROGRESS_ETA_WINDOW_SIZE is positive integer"""
         assert isinstance(config.PROGRESS_ETA_WINDOW_SIZE, int)
@@ -88,35 +45,59 @@ class TestProgressTrackingConfiguration:
 
 
 class TestESPNAPIConfiguration:
-    """Test ESPN API configuration"""
+    """Test ESPN API configuration constants (non-CLI-configurable)"""
 
     def test_espn_user_agent_is_string(self):
         """Test ESPN_USER_AGENT is a string"""
         assert isinstance(config.ESPN_USER_AGENT, str)
         assert len(config.ESPN_USER_AGENT) > 0
 
-    def test_espn_player_limit_is_positive(self):
-        """Test ESPN_PLAYER_LIMIT is positive integer"""
-        assert isinstance(config.ESPN_PLAYER_LIMIT, int)
-        assert config.ESPN_PLAYER_LIMIT > 0
 
-    def test_request_timeout_is_positive(self):
-        """Test REQUEST_TIMEOUT is positive number"""
-        assert isinstance(config.REQUEST_TIMEOUT, (int, float))
-        assert config.REQUEST_TIMEOUT > 0
+# ============================================================================
+# KAI-10 Refactoring Tests (Task 11 — Tests C-7, C-8, I-15, C-10)
+# ============================================================================
 
-    def test_rate_limit_delay_is_non_negative(self):
-        """Test RATE_LIMIT_DELAY is non-negative number"""
-        assert isinstance(config.RATE_LIMIT_DELAY, (int, float))
-        assert config.RATE_LIMIT_DELAY >= 0
+class TestKAI10ConfigRefactoring:
+    """
+    Tests verifying KAI-10 refactoring: CLI-configurable constants removed from config.py;
+    non-CLI constants remain accessible.
+    (REQ-10, REQ-15 — 4 tests)
+    """
 
+    def test_removed_cli_constants_not_in_config(self):
+        """C-7: CLI-configurable constants are not accessible in config module"""
+        removed_constants = [
+            'CURRENT_NFL_WEEK', 'NFL_SEASON', 'LOAD_DRAFTED_DATA_FROM_FILE',
+            'DRAFTED_DATA', 'MY_TEAM_NAME', 'POSITION_JSON_OUTPUT',
+            'TEAM_DATA_FOLDER', 'GAME_DATA_CSV', 'ENABLE_HISTORICAL_DATA_SAVE',
+            'ENABLE_GAME_DATA_FETCH', 'ESPN_PLAYER_LIMIT', 'LOGGING_LEVEL',
+            'REQUEST_TIMEOUT', 'RATE_LIMIT_DELAY', 'PROGRESS_UPDATE_FREQUENCY',
+        ]
+        for const in removed_constants:
+            assert not hasattr(config, const), \
+                f"Constant {const} should have been removed from config.py"
 
-class TestTeamDataConfiguration:
-    """Test team data configuration"""
+    def test_kept_non_cli_constants_importable(self):
+        """C-8: Non-CLI constants are still importable from config module"""
+        kept_constants = [
+            'COORDINATES_JSON', 'ESPN_USER_AGENT', 'LOG_NAME',
+            'LOGGING_FORMAT', 'PROGRESS_ETA_WINDOW_SIZE',
+        ]
+        for const in kept_constants:
+            assert hasattr(config, const), \
+                f"Constant {const} should still be in config.py"
 
-    def test_team_data_folder_is_valid_path(self):
-        """Test TEAM_DATA_FOLDER is a valid path string"""
-        assert isinstance(config.TEAM_DATA_FOLDER, str)
-        assert len(config.TEAM_DATA_FOLDER) > 0
-        # Should be a relative path
-        assert 'team_data' in config.TEAM_DATA_FOLDER
+    def test_config_module_has_exactly_kept_constants(self):
+        """I-15: config module exposes only the expected non-CLI constants"""
+        # Verify all 5 kept constants are accessible
+        assert hasattr(config, 'COORDINATES_JSON')
+        assert hasattr(config, 'ESPN_USER_AGENT')
+        assert hasattr(config, 'LOG_NAME')
+        assert hasattr(config, 'LOGGING_FORMAT')
+        assert hasattr(config, 'PROGRESS_ETA_WINDOW_SIZE')
+
+    def test_coordinates_json_is_filename_string(self):
+        """C-10: COORDINATES_JSON is a filename string (non-CLI constant preserved)"""
+        assert isinstance(config.COORDINATES_JSON, str)
+        assert len(config.COORDINATES_JSON) > 0
+        assert config.COORDINATES_JSON.endswith('.json')

@@ -727,3 +727,31 @@ class TestIntegrationScenarios:
         assert week1 == 15.0
         assert week2 == -5.0  # Negative allowed for DST
         assert week3 == 8.0
+
+
+# ============================================================================
+# KAI-10 Refactoring Tests (Task 11 — Tests 8.1-8.2, E-13)
+# ============================================================================
+
+class TestFantasyPointsCalculatorKAI10:
+    """
+    Tests verifying KAI-10 refactoring: NFL_SEASON removed from config import;
+    FantasyPointsExtractor uses datetime.now().year as default.
+    (REQ-08 — 3 tests)
+    """
+
+    def test_nfl_season_not_imported_from_config(self):
+        """8.1: fantasy_points_calculator does not import NFL_SEASON from config"""
+        import fantasy_points_calculator
+        assert not hasattr(fantasy_points_calculator, 'NFL_SEASON')
+
+    def test_default_season_is_current_year(self):
+        """8.2: FantasyPointsExtractor default season is datetime.now().year"""
+        import datetime
+        extractor = FantasyPointsExtractor()
+        assert extractor.season == datetime.datetime.now().year
+
+    def test_explicit_season_override_accepted(self):
+        """E-13: FantasyPointsExtractor accepts explicit season override"""
+        extractor = FantasyPointsExtractor(season=2024)
+        assert extractor.season == 2024

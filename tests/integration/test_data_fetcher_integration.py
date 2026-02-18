@@ -224,10 +224,6 @@ class TestErrorHandling:
         settings = Settings(
             scoring_format=ScoringFormat.PPR,
             season=2024,
-            output_directory=str(tmp_path),
-            create_csv=True,
-            create_json=False,
-            create_excel=False
         )
 
         collector = NFLProjectionsCollector(settings)

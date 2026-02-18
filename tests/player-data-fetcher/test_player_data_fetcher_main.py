@@ -20,7 +20,7 @@ sys.path.append(str(Path(__file__).parent.parent.parent))
 sys.path.append(str(Path(__file__).parent.parent.parent / "player-data-fetcher"))
 
 from player_data_fetcher_main import (
-    Settings, NFLProjectionsCollector
+    Settings, NFLProjectionsCollector, create_settings_from_dict
 )
 from player_data_models import ScoringFormat, ProjectionData, PlayerProjection
 
@@ -402,12 +402,9 @@ class TestHistoricalDataSave:
     """Test save_to_historical_data method"""
 
     @patch('player_data_exporter.DataExporter')
-    @patch('player_data_fetcher_main.ENABLE_HISTORICAL_DATA_SAVE', True)
-    @patch('player_data_fetcher_main.CURRENT_NFL_WEEK', 11)
-    @patch('player_data_fetcher_main.NFL_SEASON', 2025)
     def test_save_creates_folder_when_missing(self, mock_exporter, tmp_path):
         """Test that historical data folder is created if it doesn't exist"""
-        settings = Settings()
+        settings = Settings(enable_historical_save=True, current_nfl_week=11, season=2025)
 
         with patch.object(NFLProjectionsCollector, '_derive_bye_weeks_from_schedule', return_value={}):
             collector = NFLProjectionsCollector(settings)
@@ -435,12 +432,9 @@ class TestHistoricalDataSave:
             assert result is True
 
     @patch('player_data_exporter.DataExporter')
-    @patch('player_data_fetcher_main.ENABLE_HISTORICAL_DATA_SAVE', True)
-    @patch('player_data_fetcher_main.CURRENT_NFL_WEEK', 11)
-    @patch('player_data_fetcher_main.NFL_SEASON', 2025)
     def test_save_copies_files_and_team_data_folder(self, mock_exporter, tmp_path):
         """Test that files and team_data folder are copied with zero-padded week number"""
-        settings = Settings()
+        settings = Settings(enable_historical_save=True, current_nfl_week=11, season=2025)
 
         with patch.object(NFLProjectionsCollector, '_derive_bye_weeks_from_schedule', return_value={}):
             collector = NFLProjectionsCollector(settings)
@@ -478,12 +472,9 @@ class TestHistoricalDataSave:
             assert result is True
 
     @patch('player_data_exporter.DataExporter')
-    @patch('player_data_fetcher_main.ENABLE_HISTORICAL_DATA_SAVE', True)
-    @patch('player_data_fetcher_main.CURRENT_NFL_WEEK', 11)
-    @patch('player_data_fetcher_main.NFL_SEASON', 2025)
     def test_save_skips_when_folder_exists(self, mock_exporter, tmp_path):
         """Test that save operation is skipped when weekly folder already exists"""
-        settings = Settings()
+        settings = Settings(enable_historical_save=True, current_nfl_week=11, season=2025)
 
         with patch.object(NFLProjectionsCollector, '_derive_bye_weeks_from_schedule', return_value={}):
             collector = NFLProjectionsCollector(settings)
@@ -513,10 +504,9 @@ class TestHistoricalDataSave:
             assert result is False
 
     @patch('player_data_exporter.DataExporter')
-    @patch('player_data_fetcher_main.ENABLE_HISTORICAL_DATA_SAVE', False)
     def test_save_respects_config_flag_disabled(self, mock_exporter, tmp_path):
-        """Test that save is skipped when ENABLE_HISTORICAL_DATA_SAVE is False"""
-        settings = Settings()
+        """Test that save is skipped when enable_historical_save is False"""
+        settings = Settings(enable_historical_save=False)
 
         with patch.object(NFLProjectionsCollector, '_derive_bye_weeks_from_schedule', return_value={}):
             collector = NFLProjectionsCollector(settings)
@@ -535,12 +525,9 @@ class TestHistoricalDataSave:
             assert not historical_folder.exists()
 
     @patch('player_data_exporter.DataExporter')
-    @patch('player_data_fetcher_main.ENABLE_HISTORICAL_DATA_SAVE', True)
-    @patch('player_data_fetcher_main.CURRENT_NFL_WEEK', 1)
-    @patch('player_data_fetcher_main.NFL_SEASON', 2025)
     def test_save_constructs_zero_padded_path(self, mock_exporter, tmp_path):
         """Test that week number is zero-padded (e.g., 01, 02)"""
-        settings = Settings()
+        settings = Settings(enable_historical_save=True, current_nfl_week=1, season=2025)
 
         with patch.object(NFLProjectionsCollector, '_derive_bye_weeks_from_schedule', return_value={}):
             collector = NFLProjectionsCollector(settings)
@@ -568,12 +555,9 @@ class TestHistoricalDataSave:
             assert result is True
 
     @patch('player_data_exporter.DataExporter')
-    @patch('player_data_fetcher_main.ENABLE_HISTORICAL_DATA_SAVE', True)
-    @patch('player_data_fetcher_main.CURRENT_NFL_WEEK', 11)
-    @patch('player_data_fetcher_main.NFL_SEASON', 2025)
     def test_save_handles_missing_source_file(self, mock_exporter, tmp_path):
         """Test graceful handling when source file is missing"""
-        settings = Settings()
+        settings = Settings(enable_historical_save=True, current_nfl_week=11, season=2025)
 
         with patch.object(NFLProjectionsCollector, '_derive_bye_weeks_from_schedule', return_value={}):
             collector = NFLProjectionsCollector(settings)
@@ -601,3 +585,115 @@ class TestHistoricalDataSave:
             assert (historical_folder / "players_projected.csv").exists()
             # team_data folder should not exist
             assert not (historical_folder / "team_data").exists()
+
+
+# ============================================================================
+# KAI-10 Refactoring Tests (Task 11 — Tests 4.1-4.3, 5.1-5.3, I-10-I-12, E-11-E-12)
+# ============================================================================
+
+class TestKAI10Refactoring:
+    """
+    Tests verifying KAI-10 refactoring: config imports removed,
+    bare config usage replaced with self.settings.*, create_settings_from_dict exists.
+    (REQ-03, REQ-04, REQ-05 — 11 tests)
+    """
+
+    def test_nfl_season_not_in_module_namespace(self):
+        """4.1: NFL_SEASON is not imported in player_data_fetcher_main module"""
+        import player_data_fetcher_main
+        assert not hasattr(player_data_fetcher_main, 'NFL_SEASON')
+
+    def test_current_nfl_week_not_in_module_namespace(self):
+        """4.2: CURRENT_NFL_WEEK is not imported in player_data_fetcher_main module"""
+        import player_data_fetcher_main
+        assert not hasattr(player_data_fetcher_main, 'CURRENT_NFL_WEEK')
+
+    def test_pydantic_settings_not_imported(self):
+        """4.3: pydantic_settings is not imported in player_data_fetcher_main"""
+        import player_data_fetcher_main
+        assert not hasattr(player_data_fetcher_main, 'BaseSettings')
+        assert not hasattr(player_data_fetcher_main, 'SettingsConfigDict')
+
+    @patch('player_data_fetcher_main.DataExporter')
+    @patch('pathlib.Path.exists')
+    def test_save_to_historical_data_uses_settings_enable_flag(self, mock_exists, mock_exporter):
+        """5.1: save_to_historical_data uses settings.enable_historical_save (not bare config)"""
+        mock_exists.return_value = True
+
+        with patch.object(NFLProjectionsCollector, '_derive_bye_weeks_from_schedule', return_value={}):
+            settings = Settings(enable_historical_save=False)
+            collector = NFLProjectionsCollector(settings)
+            result = collector.save_to_historical_data()
+            assert result is False  # Disabled via settings
+
+    @patch('player_data_fetcher_main.DataExporter')
+    @patch('pathlib.Path.exists')
+    def test_save_to_historical_data_uses_settings_current_nfl_week(self, mock_exists, mock_exporter, tmp_path):
+        """5.2: save_to_historical_data uses self.settings.current_nfl_week"""
+        mock_exists.return_value = True
+
+        with patch.object(NFLProjectionsCollector, '_derive_bye_weeks_from_schedule', return_value={}):
+            settings = Settings(enable_historical_save=True, current_nfl_week=5)
+            collector = NFLProjectionsCollector(settings)
+
+            with patch.object(collector, 'script_dir', tmp_path / 'player-data-fetcher'):
+                (tmp_path / 'player-data-fetcher').mkdir(parents=True, exist_ok=True)
+                # Should use week 5 (zero-padded as "05")
+                result = collector.save_to_historical_data()
+                assert isinstance(result, bool)
+
+    @patch('player_data_fetcher_main.DataExporter')
+    @patch('pathlib.Path.exists')
+    def test_fetch_game_data_method_uses_settings_enable_flag(self, mock_exists, mock_exporter):
+        """5.3: NFLProjectionsCollector.fetch_game_data() uses settings.enable_game_data"""
+        mock_exists.return_value = True
+
+        with patch.object(NFLProjectionsCollector, '_derive_bye_weeks_from_schedule', return_value={}):
+            settings = Settings(enable_game_data=False)
+            collector = NFLProjectionsCollector(settings)
+            result = collector.fetch_game_data()
+            assert result is False  # Disabled via settings
+
+    def test_removed_config_constants_not_in_module(self):
+        """I-10: CLI-configurable constants are not accessible in player_data_fetcher_main"""
+        import player_data_fetcher_main
+        removed_constants = [
+            'NFL_SEASON', 'CURRENT_NFL_WEEK', 'REQUEST_TIMEOUT', 'RATE_LIMIT_DELAY',
+            'LOGGING_LEVEL', 'ENABLE_HISTORICAL_DATA_SAVE', 'ENABLE_GAME_DATA_FETCH',
+        ]
+        for const in removed_constants:
+            assert not hasattr(player_data_fetcher_main, const), \
+                f"Constant {const} should not be in player_data_fetcher_main"
+
+    def test_create_settings_from_dict_function_exists(self):
+        """I-11: create_settings_from_dict function exists in player_data_fetcher_main"""
+        import player_data_fetcher_main
+        assert hasattr(player_data_fetcher_main, 'create_settings_from_dict')
+        assert callable(player_data_fetcher_main.create_settings_from_dict)
+
+    def test_settings_validate_settings_still_works(self):
+        """E-11: Settings.validate_settings() method is preserved and callable"""
+        settings = Settings(season=datetime.datetime.now().year)
+        # Should not raise
+        settings.validate_settings()
+
+    @patch('player_data_fetcher_main.DataExporter')
+    @patch('pathlib.Path.exists')
+    def test_collector_passes_current_nfl_week_from_settings(self, mock_exists, mock_exporter):
+        """E-12: NFLProjectionsCollector passes settings.current_nfl_week to DataExporter"""
+        mock_exists.return_value = True
+        mock_exporter_instance = Mock()
+        mock_exporter.return_value = mock_exporter_instance
+
+        with patch.object(NFLProjectionsCollector, '_derive_bye_weeks_from_schedule', return_value={}):
+            settings = Settings(current_nfl_week=8)
+            collector = NFLProjectionsCollector(settings)
+
+        # Verify DataExporter was called with current_nfl_week from settings
+        call_kwargs = mock_exporter.call_args.kwargs
+        assert call_kwargs.get('current_nfl_week') == 8
+
+    def test_e2e_test_field_in_settings(self):
+        """I-12: Settings has e2e_test field for E2E mode"""
+        settings = Settings(e2e_test=True)
+        assert settings.e2e_test is True

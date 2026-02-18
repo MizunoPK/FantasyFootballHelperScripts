@@ -17,6 +17,7 @@ Key Features:
 Author: Kai Mizuno
 """
 
+import datetime
 from dataclasses import dataclass
 from typing import Dict, Any, Optional
 from pathlib import Path
@@ -25,9 +26,6 @@ from utils.LoggingManager import get_logger
 
 # Add parent directory to path for imports
 sys.path.append(str(Path(__file__).parent.parent))
-
-# Import NFL season from centralized config
-from config import NFL_SEASON
 
 
 @dataclass
@@ -49,13 +47,13 @@ class FantasyPointsExtractor:
     stat entries, with comprehensive fallback mechanisms and configurable behavior.
     """
 
-    def __init__(self, config: Optional[FantasyPointsConfig] = None, season: int = NFL_SEASON):
+    def __init__(self, config: Optional[FantasyPointsConfig] = None, season: int = datetime.datetime.now().year):
         """
         Initialize the fantasy points extractor
 
         Args:
             config: Configuration object. If None, uses default settings
-            season: Current NFL season year (defaults to NFL_SEASON from config)
+            season: Current NFL season year (defaults to current year)
         """
         self.config = config or FantasyPointsConfig()
         self.season = season
@@ -238,7 +236,7 @@ def extract_week_fantasy_points(
     position: str,
     player_name: str = "Unknown",
     config: Optional[FantasyPointsConfig] = None,
-    season: int = NFL_SEASON,
+    season: int = datetime.datetime.now().year,
     fallback_data: Optional[Dict[str, Any]] = None
 ) -> float:
     """

@@ -93,40 +93,24 @@ class TestRunLeagueHelper:
 # ============================================================================
 
 class TestRunPlayerFetcher:
-    """Test run_player_fetcher.py"""
+    """Test run_player_fetcher.py (KAI-10: direct import pattern, no subprocess)"""
 
-    @patch('os.chdir')
-    @patch('subprocess.run')
-    def test_run_player_fetcher_success(self, mock_run, mock_chdir):
-        """Test successful player fetcher execution"""
-        mock_run.return_value = Mock(returncode=0)
-
-        # Import and run the main block
+    def test_run_player_fetcher_has_parse_args(self):
+        """Test run_player_fetcher has parse_args function (KAI-10 refactoring)"""
         import run_player_fetcher
-        # The script runs in if __name__ == "__main__", so we need to call it differently
-        # Let's just verify the script structure exists
+        assert hasattr(run_player_fetcher, 'parse_args')
+        assert callable(run_player_fetcher.parse_args)
 
-        assert hasattr(run_player_fetcher, 'subprocess')
-        assert hasattr(run_player_fetcher, 'Path')
-
-    @patch('os.chdir')
-    @patch('subprocess.run')
-    @patch('sys.exit')
-    def test_run_player_fetcher_handles_subprocess_error(self, mock_exit, mock_run, mock_chdir):
-        """Test handling of subprocess errors in player fetcher"""
-        mock_run.side_effect = subprocess.CalledProcessError(1, 'cmd')
-
-        # We can't easily test the __main__ block, but we can verify the imports work
+    def test_run_player_fetcher_has_create_settings_dict(self):
+        """Test run_player_fetcher has create_settings_dict function"""
         import run_player_fetcher
-        assert run_player_fetcher.subprocess is not None
+        assert hasattr(run_player_fetcher, 'create_settings_dict')
+        assert callable(run_player_fetcher.create_settings_dict)
 
-    @patch('os.chdir')
-    def test_run_player_fetcher_changes_directory(self, mock_chdir):
-        """Test that player fetcher changes to correct directory"""
+    def test_run_player_fetcher_no_subprocess(self):
+        """Test run_player_fetcher does not use subprocess (KAI-10 direct import)"""
         import run_player_fetcher
-
-        # Verify the script structure
-        assert run_player_fetcher.Path is not None
+        assert not hasattr(run_player_fetcher, 'subprocess')
 
 
 # ============================================================================

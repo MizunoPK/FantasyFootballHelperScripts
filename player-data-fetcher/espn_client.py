@@ -24,7 +24,7 @@ from fantasy_points_calculator import FantasyPointsExtractor, FantasyPointsConfi
 from player_data_constants import (
     ESPN_TEAM_MAPPINGS, ESPN_POSITION_MAPPINGS
 )
-from config import (ESPN_USER_AGENT, ESPN_PLAYER_LIMIT, CURRENT_NFL_WEEK)
+from config import ESPN_USER_AGENT
 
 import sys
 sys.path.append(str(Path(__file__).parent.parent))
@@ -317,7 +317,7 @@ class ESPNClient(BaseAPIClient):
 
             # Only calculate for remaining season (current week + future weeks)
             end_week = 17
-            start_week = CURRENT_NFL_WEEK
+            start_week = self.settings.current_nfl_week
 
             total_projection = 0.0
             weeks_processed = 0
@@ -329,7 +329,7 @@ class ESPNClient(BaseAPIClient):
                 week_points = self._extract_week_points(player_info, week, position=position, player_name=name)
 
                 # Determine data type for logging (current week = current, future weeks = projected)
-                if week == CURRENT_NFL_WEEK:
+                if week == self.settings.current_nfl_week:
                     data_type = 'current'
                 else:
                     data_type = 'projected'
@@ -365,7 +365,7 @@ class ESPNClient(BaseAPIClient):
                 week=week,
                 position=position,
                 player_name=player_name,
-                current_nfl_week=CURRENT_NFL_WEEK
+                current_nfl_week=self.settings.current_nfl_week
             )
 
             return points if points is not None else 0.0
@@ -584,7 +584,7 @@ class ESPNClient(BaseAPIClient):
         
         headers = {
             'User-Agent': ESPN_USER_AGENT,
-            'X-Fantasy-Filter': f'{{"players":{{"limit":{ESPN_PLAYER_LIMIT},"sortPercOwned":{{"sortPriority":4,"sortAsc":false}}}}}}'
+            'X-Fantasy-Filter': f'{{"players":{{"limit":{self.settings.espn_player_limit},"sortPercOwned":{{"sortPriority":4,"sortAsc":false}}}}}}'
         }
         
         data = await self._make_request("GET", url, params=params, headers=headers)
@@ -611,19 +611,14 @@ class ESPNClient(BaseAPIClient):
             Dictionary mapping team abbreviations to offensive/defensive ranks
         """
         try:
-            import sys
-            import os
-            sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-            from config import CURRENT_NFL_WEEK, NFL_SEASON
-
             # Minimum weeks needed for reliable rankings (hardcoded default)
             min_weeks_for_rankings = 5
 
             # Determine which season to use for statistics
-            use_current_season = CURRENT_NFL_WEEK > min_weeks_for_rankings
+            use_current_season = self.settings.current_nfl_week > min_weeks_for_rankings
 
             self.logger.info(f"Team rankings: Using {'current season' if use_current_season else 'neutral'} data. "
-                           f"Current week: {CURRENT_NFL_WEEK}, Min weeks needed: {min_weeks_for_rankings}")
+                           f"Current week: {self.settings.current_nfl_week}, Min weeks needed: {min_weeks_for_rankings}")
 
             # Use neutral rankings if not enough weeks have passed
             if not use_current_season:
@@ -639,21 +634,13 @@ class ESPNClient(BaseAPIClient):
             }
 
             # Use rolling window to calculate rankings from recent weeks
-            return await self._calculate_rolling_window_rankings(CURRENT_NFL_WEEK, min_weeks_for_rankings)
+            return await self._calculate_rolling_window_rankings(self.settings.current_nfl_week, min_weeks_for_rankings)
 
         except Exception as e:
             # Handle case where variables might not be defined yet
-            season_info = "unknown season"
-            try:
-                import sys
-                import os
-                sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-                from config import CURRENT_NFL_WEEK, NFL_SEASON
-                min_weeks_for_rankings = 5
-                use_current_season = CURRENT_NFL_WEEK > min_weeks_for_rankings
-                season_info = f"{NFL_SEASON} season" if use_current_season else "neutral data"
-            except:
-                pass
+            min_weeks_for_rankings = 5
+            use_current_season = self.settings.current_nfl_week > min_weeks_for_rankings
+            season_info = f"{self.settings.season} season" if use_current_season else "neutral data"
 
             self.logger.error(f"Error calculating team rankings for {season_info}: {e}")
 
@@ -911,16 +898,14 @@ class ESPNClient(BaseAPIClient):
             {'KC': 'DEN', 'DEN': 'KC', 'NE': 'BUF', 'BUF': 'NE', ...}
         """
         try:
-            from config import CURRENT_NFL_WEEK, NFL_SEASON
-
-            self.logger.info(f"Fetching week {CURRENT_NFL_WEEK} schedule from ESPN")
+            self.logger.info(f"Fetching week {self.settings.current_nfl_week} schedule from ESPN")
 
             # ESPN scoreboard API endpoint for current week
             url = f"https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard"
             params = {
                 "seasontype": 2,  # Regular season
-                "week": CURRENT_NFL_WEEK,
-                "dates": NFL_SEASON
+                "week": self.settings.current_nfl_week,
+                "dates": self.settings.season
             }
 
             data = await self._make_request("GET", url, params=params)
@@ -962,7 +947,7 @@ class ESPNClient(BaseAPIClient):
                     self.logger.warning(f"Error parsing schedule event: {e}")
                     continue
 
-            self.logger.info(f"Retrieved schedule for {len(schedule_map)} teams in week {CURRENT_NFL_WEEK}")
+            self.logger.info(f"Retrieved schedule for {len(schedule_map)} teams in week {self.settings.current_nfl_week}")
             return schedule_map
 
         except Exception as e:
@@ -978,7 +963,6 @@ class ESPNClient(BaseAPIClient):
             Example: {1: {'KC': 'BAL', 'BAL': 'KC', ...}, 2: {...}, ...}
         """
         try:
-            from config import NFL_SEASON
             import asyncio
 
             full_schedule = {}
@@ -993,7 +977,7 @@ class ESPNClient(BaseAPIClient):
                 params = {
                     "seasontype": 2,  # Regular season
                     "week": week,
-                    "dates": NFL_SEASON
+                    "dates": self.settings.season
                 }
 
                 data = await self._make_request("GET", url, params=params)
@@ -1065,13 +1049,11 @@ class ESPNClient(BaseAPIClient):
                 ...
             ]
         """
-        from config import NFL_SEASON
-
         url = f"https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard"
         params = {
             "seasontype": 2,  # Regular season
             "week": week,
-            "dates": NFL_SEASON
+            "dates": self.settings.season
         }
 
         data = await self._make_request("GET", url, params=params)
@@ -1466,9 +1448,7 @@ class ESPNClient(BaseAPIClient):
 
     async def _parse_espn_data(self, data: Dict[str, Any]) -> List[ESPNPlayerData]:
         """Parse ESPN API response into ESPNPlayerData objects"""
-        from config import (
-            PROGRESS_UPDATE_FREQUENCY, PROGRESS_ETA_WINDOW_SIZE, CURRENT_NFL_WEEK
-        )
+        from config import PROGRESS_ETA_WINDOW_SIZE
 
         projections = []
         unknown_position_count = 0  # Track players filtered due to unknown positions
@@ -1492,14 +1472,14 @@ class ESPNClient(BaseAPIClient):
         progress_tracker = ProgressTracker(
             total_players=len(players),
             logger=self.logger,
-            update_frequency=PROGRESS_UPDATE_FREQUENCY,
+            update_frequency=self.settings.progress_frequency,
             eta_window_size=PROGRESS_ETA_WINDOW_SIZE
         )
 
         # Week 1 preprocessing: Collect all player draft ranks for position-specific calculation
         all_players_with_ranks = []
-        if CURRENT_NFL_WEEK <= 1:
-            self.logger.info(f"Calculating position-specific ranks for Week {CURRENT_NFL_WEEK} (processing {len(players)} players)")
+        if self.settings.current_nfl_week <= 1:
+            self.logger.info(f"Calculating position-specific ranks for Week {self.settings.current_nfl_week} (processing {len(players)} players)")
             for player in players:
                 player_info = player.get('player', {})
                 draft_ranks = player_info.get('draftRanksByRankType', {})
@@ -1541,7 +1521,7 @@ class ESPNClient(BaseAPIClient):
                 # Extract positional rank using same logic as main loop (lines 1418-1482)
                 positional_rank = None
 
-                if CURRENT_NFL_WEEK <= 1:
+                if self.settings.current_nfl_week <= 1:
                     # Week 1: Use draft rankings converted to positional
                     draft_ranks = player_info.get('draftRanksByRankType', {})
                     ppr_rank_data = draft_ranks.get('PPR', {})
@@ -1553,7 +1533,7 @@ class ESPNClient(BaseAPIClient):
                         )
                 else:
                     # Week 2+: Use current week's ROS consensus rankings
-                    ranking_key = '0' if CURRENT_NFL_WEEK == 1 else str(CURRENT_NFL_WEEK)
+                    ranking_key = '0' if self.settings.current_nfl_week == 1 else str(self.settings.current_nfl_week)
                     rankings_ros = player_info.get('rankings', {}).get(ranking_key, [])
                     all_rankings = player_info.get('rankings', {})
 
@@ -1562,7 +1542,7 @@ class ESPNClient(BaseAPIClient):
 
                     if not rankings_ros or not has_consensus:
                         # Fallback: Find the most recent week with valid consensus rankings
-                        for fallback_week in range(CURRENT_NFL_WEEK - 1, 0, -1):
+                        for fallback_week in range(self.settings.current_nfl_week - 1, 0, -1):
                             fallback_key = str(fallback_week)
                             if fallback_key in all_rankings and all_rankings[fallback_key]:
                                 fallback_rankings = all_rankings[fallback_key]
@@ -1699,7 +1679,7 @@ class ESPNClient(BaseAPIClient):
                 positional_rank = None
 
                 # Determine which ranking source to use based on current week
-                if CURRENT_NFL_WEEK <= 1:
+                if self.settings.current_nfl_week <= 1:
                     # Pre-season/Week 1: Use draft rankings (ROS not updated yet)
                     # Convert overall draft rank to position-specific
                     draft_ranks = player_info.get('draftRanksByRankType', {})
@@ -1721,7 +1701,7 @@ class ESPNClient(BaseAPIClient):
                     # Use current week's snapshot for most up-to-date expert consensus
                     # Exception: Week 1 uses rankings['0'] (pre-season) since Week 1 rankings may be sparse
 
-                    ranking_key = '0' if CURRENT_NFL_WEEK == 1 else str(CURRENT_NFL_WEEK)
+                    ranking_key = '0' if self.settings.current_nfl_week == 1 else str(self.settings.current_nfl_week)
                     rankings_ros = player_info.get('rankings', {}).get(ranking_key, [])
                     all_rankings = player_info.get('rankings', {})
 
@@ -1733,7 +1713,7 @@ class ESPNClient(BaseAPIClient):
                         # (working backwards from current week)
 
                         # Try weeks in descending order from current week down to week 1
-                        for fallback_week in range(CURRENT_NFL_WEEK - 1, 0, -1):
+                        for fallback_week in range(self.settings.current_nfl_week - 1, 0, -1):
                             fallback_key = str(fallback_week)
                             if fallback_key in all_rankings and all_rankings[fallback_key]:
                                 fallback_rankings = all_rankings[fallback_key]
@@ -1875,11 +1855,10 @@ class ESPNClient(BaseAPIClient):
             self.logger.info(f"Filtered out {unknown_position_count} players with unknown positions")
 
         # Calculate position-specific defense rankings
-        from config import CURRENT_NFL_WEEK
         position_defense_rankings = self._calculate_position_defense_rankings(
             projections,
             full_season_schedule,
-            CURRENT_NFL_WEEK
+            self.settings.current_nfl_week
         )
 
         # Store position defense rankings for later use
