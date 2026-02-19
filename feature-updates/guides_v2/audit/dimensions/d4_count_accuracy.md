@@ -305,10 +305,19 @@ S5: Implementation Planning (22 iterations across 3 rounds)
 
 **Validation Commands:**
 ```bash
-# Count S5 iteration sections
+# Count S5 iteration sections (S5 v2 — searches single s5_v2_validation_loop.md)
 grep -rh "^### S5\.P[0-9]\.I[0-9]\|^## I[0-9]" \
   feature-updates/guides_v2/stages/s5/ | wc -l
 # Expected: 22
+```
+
+> ⚠️ **S5 v2 Note:** The round-specific commands below are **S5 v1 historical examples**.
+> S5 v1 used separate iteration files (`s5_p1*.md`, `s5_p2*.md`, `s5_p3*.md`) which no longer
+> exist. S5 v2 uses only `stages/s5/s5_v2_validation_loop.md`. Use the generic command above
+> for S5 v2 iteration count verification. See `reference/stage_5/s5_v2_quick_reference.md`.
+
+```bash
+# [S5 v1 HISTORICAL — these files no longer exist in S5 v2]
 
 # Verify Round 1 (I1-I7)
 grep -c "^### I[1-7]\b\|S5\.P1\.I[1-7]" \
@@ -511,6 +520,10 @@ grep -rn "^## [0-9]+ \|^### [0-9]+ " feature-updates/guides_v2/
 ```
 
 **Validation Process:**
+
+> ⚠️ **S5 v1 Historical Example:** The file `s5_p3_i2_gates_part1.md` referenced below
+> no longer exists (S5 v1 iteration file). This shows the general pattern for validating
+> numeric claims in section headers. Apply the same pattern to current guide files.
 
 1. **Find numeric header:**
    ```bash
@@ -822,7 +835,13 @@ grep -n "[0-9]+ iterations\|[0-9]+ phases" \
 
 **Step 2: Validate S5 Iteration Count (Special Case) (5 min)**
 
+> ⚠️ **S5 v2 Note:** The script below references S5 v1 iteration files (`s5_p1*.md`,
+> `s5_p2*.md`, `s5_p3*.md`) which no longer exist. For S5 v2, use:
+> `grep -c "^## I[0-9]\|^### S5\.P[0-9]\.I[0-9]" stages/s5/s5_v2_validation_loop.md`
+> Expected: 22 total iterations across 3 rounds.
+
 ```bash
+# [S5 v1 HISTORICAL — these files no longer exist in S5 v2]
 # S5 is most complex - validate thoroughly
 echo "=== S5 Iteration Count Validation ==="
 
