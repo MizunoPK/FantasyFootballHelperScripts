@@ -2,14 +2,14 @@
 
 **Purpose:** Track resolved vs pending decisions for this feature.
 **Created:** 2026-02-19 (S1)
-**Status:** Empty — will populate in S2
+**Last Updated:** 2026-02-19 (S2.P1.I1)
+**Status:** All items resolved
 
 ---
 
 ## Open Questions
 
-{No open questions — all design decisions resolved in KAI-10 S2.
-S2 will verify nothing has changed and confirm final checklist.}
+*None — all design decisions resolved.*
 
 ---
 
@@ -22,14 +22,16 @@ S2 will verify nothing has changed and confirm final checklist.}
 | 3 | Which week for E2E test? | Week 1 — deterministic | KAI-10 S2 | 2026-02-18 |
 | 4 | Should a `--debug` flag be added? | No — use `--e2e-test --log-level DEBUG` | KAI-10 S2 | 2026-02-18 |
 | 5 | How to detect historical season after config removal? | Add `--historical-season` flag | KAI-10 S2 | 2026-02-18 |
+| 6 | Should `parse_args()` be extracted as a module-level function? | Yes (Option A) — enables default-value testing in REQ-11 | User approval | 2026-02-19 |
+| 7 | E2E output path: fixed path or random tmpdir? | Fixed path `/tmp/game_data_e2e_test.csv` — always use fixed paths for E2E output | User approval | 2026-02-19 |
 
 ---
 
-## S2 Verification Items
+## S2 Verification Items (confirmed in S2.P1.I1)
 
-{Items for S2 to confirm before finalizing spec:}
-
-- [ ] Verify `fetch_game_data()` signature still accepts `request_timeout` (KAI-10 REQ-09)
-- [ ] Verify no new args added to `run_game_data_fetcher.py` since KAI-10 spec
-- [ ] Verify E2E output path `/tmp/game_data_e2e_test.csv` doesn't conflict with anything
-- [ ] Confirm test file naming convention: `test_run_game_data_fetcher.py`
+| Item | Status | Evidence |
+|------|--------|---------|
+| `fetch_game_data()` accepts `request_timeout` | ✅ Confirmed | KAI-10 applied; constructor + fetch_game_data() both accept `request_timeout=30` |
+| No new args added to runner since KAI-10 spec | ✅ Confirmed | Still 4 args, all `default=None` — runner unchanged since KAI-10 was planned |
+| `/tmp/game_data_e2e_test.csv` — no conflicts | ✅ Confirmed | Standard /tmp, hardcoded path (different from player fetcher's random tmp dir) |
+| Test file naming: `test_run_game_data_fetcher.py` | ✅ Confirmed | Consistent with project convention (test_ prefix) |
