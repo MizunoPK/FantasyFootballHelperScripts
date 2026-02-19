@@ -347,7 +347,11 @@ Within each priority, order by impact (highest impact first)
 - Affected guide and section
 - Before/after comparison
 - Rationale (how this helps)
-- Ask: "Your decision for Proposal P{X}-{N}: Approve / Modify / Reject / Discuss?"
+- Ask: "Your decision for Proposal P{X}-{N}:
+  - **Approve** — apply exactly as written
+  - **Modify** — apply with changes (you provide alternative text)
+  - **Reject** — skip this proposal
+  - **Discuss** — ask questions or request clarification first"
 
 4.4. **Collect user decisions:**
 
