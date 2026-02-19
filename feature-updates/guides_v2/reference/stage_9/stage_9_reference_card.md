@@ -1,4 +1,4 @@
-# STAGE 6: Epic-Level Final QC - Quick Reference Card
+# STAGE 9: Epic-Level Final QC - Quick Reference Card
 
 **Purpose:** One-page summary for epic-level testing, QC rounds, and final review
 **Use Case:** Quick lookup when validating entire epic as cohesive system

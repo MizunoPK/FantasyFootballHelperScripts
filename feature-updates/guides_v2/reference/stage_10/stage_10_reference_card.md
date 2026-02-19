@@ -1,4 +1,4 @@
-# STAGE 7: Epic Cleanup - Quick Reference Card
+# STAGE 10: Epic Cleanup - Quick Reference Card
 
 **Purpose:** One-page summary for final epic completion and archival
 **Use Case:** Quick lookup when committing changes and archiving epic
