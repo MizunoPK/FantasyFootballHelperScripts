@@ -31,6 +31,25 @@ This is the largest refactoring scope of all 7 scripts (~10 files). It follows t
    (add_to_roster, starter_helper, trade_simulator, modify_player_data, save_calculated_points)
 7. Add graceful skip: exit 0 if league_config.json not found in E2E mode
 
+## E2E Mode
+
+**Purpose:** The --e2e-test flag enables a repeatable, automated end-to-end scenario designed
+for CI/CD integration testing. The integration test framework (feature 8 of this series) calls
+each script with --e2e-test via subprocess to validate the full pipeline end-to-end without
+needing human interaction. This is distinct from unit tests — it exercises the real league
+helper logic through the actual CLI entry point without user interaction prompts.
+
+**Requirements for a valid E2E mode:**
+- Completes in ≤180 seconds (all 5 modes must run within this budget)
+- Exits 0 on success; exits 0 with info message if league_config.json is missing (graceful skip)
+- Deterministic: same command always tests the same thing (all 5 execute_e2e() methods)
+- No user interaction: execute_e2e() methods run without prompts
+
+**Behavior:** Calls execute_e2e() on all 5 mode managers (AddToRosterModeManager,
+StarterHelperModeManager, TradeSimulatorModeManager, ModifyPlayerDataModeManager,
+SaveCalculatedPointsManager). Exits 0 with info message if league_config.json not found at
+--data-folder path (enables graceful CI skip on machines without league data).
+
 ## Design Decisions (from KAI-10 S2)
 
 - No --debug flag: --e2e-test serves both purposes

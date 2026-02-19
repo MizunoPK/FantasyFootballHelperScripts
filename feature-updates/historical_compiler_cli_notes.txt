@@ -4,9 +4,6 @@
 KAI-10 (architectural_refactoring_configuration_management) but never implemented. The
 full specification was completed in KAI-10 S2 and can be referenced directly.
 
-**Existing spec**: feature-updates/KAI-10-architectural_refactoring_configuration_management/
-feature_04_historical_compiler_cli/spec.md (all requirements, acceptance criteria, files to modify)
-
 ## Background
 
 compile_historical_data.py already has 4 args (--year, --verbose/-v, --enable-log-file,
@@ -19,6 +16,23 @@ These two constants need to move from constants.py to argparse defaults.
 
 The BaseHTTPClient already accepts timeout and rate_limit_delay via constructor params
 (historical_data_compiler/http_client.py lines 62-82) — no refactoring needed there.
+
+## E2E Mode
+
+**Purpose:** The --e2e-test flag enables a repeatable, automated end-to-end scenario designed
+for CI/CD integration testing. The integration test framework (feature 8 of this series) calls
+each script with --e2e-test via subprocess to validate the full pipeline end-to-end without
+needing human interaction. This is distinct from unit tests — it exercises the real network
+call, real data parsing, and real file I/O through the actual CLI entry point.
+
+**Requirements for a valid E2E mode:**
+- Completes in ≤180 seconds (network latency must be within this budget)
+- Writes all output to /tmp (never to simulation/sim_data/) — /tmp is outside the repo and never committed
+- Exits 0 on success; exits 0 with info message if required data files are missing (graceful skip)
+- Deterministic: same command always tests the same thing (1 season, 100-player limit)
+
+**Behavior:** fetches 1 season with player_limit=100. Uses tempfile.TemporaryDirectory() for
+output — temp dir is auto-cleaned after the run. Never writes to simulation/sim_data/.
 
 ## Goals
 

@@ -16,6 +16,21 @@ feature_08_integration_test_framework/spec.md (all requirements, acceptance crit
 6. accuracy_simulation_e2e
 7. league_helper_cli
 
+## Purpose
+
+This framework is the CI/CD integration layer for the entire runner script series. Each runner
+script's --e2e-test flag exists specifically to enable this framework — the flag provides a
+deterministic, ≤180s, zero-human-interaction entry point that these integration tests invoke
+via subprocess.
+
+The integration tests validate the full pipeline end-to-end: CLI argument parsing, business
+logic, real network calls (where applicable), and file I/O — all through the actual CLI entry
+point. This is distinct from unit tests, which mock dependencies and test components in isolation.
+
+**CI/CD usage:** Run `python run_all_integration_tests.py` in a CI pipeline after deploying
+changes to any runner script. Exit code 0 = all 7 scripts working end-to-end. Exit code non-zero
+= at least one script has a regression.
+
 ## Background
 
 After all 7 runner scripts are refactored with --e2e-test support, this feature creates

@@ -25,10 +25,29 @@ changes needed (no config.py exists for this script).
 4. Implement --e2e-test mode: forces mode=single, sims=1, workers=1; exits 0 in ≤180s
 5. Add graceful skip: exit 0 if simulation data or baseline config is missing in E2E mode
 
+## E2E Mode
+
+**Purpose:** The --e2e-test flag enables a repeatable, automated end-to-end scenario designed
+for CI/CD integration testing. The integration test framework (feature 8 of this series) calls
+each script with --e2e-test via subprocess to validate the full pipeline end-to-end without
+needing human interaction. This is distinct from unit tests — it exercises the real simulation
+logic and real file I/O through the actual CLI entry point.
+
+**Requirements for a valid E2E mode:**
+- Completes in ≤180 seconds (simulation must be within this budget)
+- Writes all output to /tmp (never to simulation/) — /tmp is outside the repo and never committed
+- Exits 0 on success; exits 0 with info message if required data files are missing (graceful skip)
+- Deterministic: same command always tests the same thing (single mode, 1 sim, 1 worker)
+
+**Behavior:** Forces mode=single, sims=1, workers=1. Writes output to /tmp/win_rate_e2e_test/
+(not simulation/simulation_configs/). Exits 0 with info message if sim_data/ or baseline config
+folder not found.
+
 ## Design Decisions (from KAI-10 S2)
 
 - No --debug flag: --e2e-test serves both purposes
 - E2E mode overrides: args.mode='single', args.sims=1, args.workers=1 (set before SimulationManager)
+- E2E output: writes to /tmp/win_rate_e2e_test/ (overrides --output default) to avoid contaminating simulation/simulation_configs/
 - Graceful skip: exit 0 + info message if baseline config folder or sim_data folder not found
 - Season stays hardcoded 2025 in single mode (matches existing single mode behavior)
 - --log-level uses uppercase choices: DEBUG/INFO/WARNING/ERROR/CRITICAL (consistent with F01)
@@ -61,7 +80,7 @@ changes needed (no config.py exists for this script).
 - [ ] python run_win_rate_simulation.py --help shows --e2e-test and --log-level
 - [ ] python run_win_rate_simulation.py --log-level DEBUG sets DEBUG logging
 - [ ] python run_win_rate_simulation.py --log-level INVALID exits with argparse error
-- [ ] python run_win_rate_simulation.py --e2e-test exits 0 in ≤180s (when sim data present)
+- [ ] python run_win_rate_simulation.py --e2e-test exits 0 in ≤180s, writes to /tmp/win_rate_e2e_test/ (not simulation/) when sim data present
 - [ ] python run_win_rate_simulation.py --e2e-test exits 0 with info message when no baseline config
 - [ ] python run_win_rate_simulation.py --e2e-test exits 0 with info message when sim_data missing
 - [ ] python run_win_rate_simulation.py (no args) behavior identical to current

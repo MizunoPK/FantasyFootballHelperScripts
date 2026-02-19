@@ -21,6 +21,23 @@ but is missing the universal args (--e2e-test, --log-level) and has two anti-pat
 The internal game_data_fetcher.py module was refactored by KAI-10 F01 (REQ-09) to accept
 request_timeout and rate_limit_delay as constructor parameters.
 
+## E2E Mode
+
+**Purpose:** The --e2e-test flag enables a repeatable, automated end-to-end scenario designed
+for CI/CD integration testing. The integration test framework (feature 8 of this series) calls
+each script with --e2e-test via subprocess to validate the full pipeline end-to-end without
+needing human interaction. This is distinct from unit tests — it exercises the real network
+call, real data parsing, and real file I/O through the actual CLI entry point.
+
+**Requirements for a valid E2E mode:**
+- Completes in ≤180 seconds (network latency must be within this budget)
+- Writes all output to /tmp (never to data/) — /tmp is outside the repo and never committed
+- Exits 0 on success; exits 0 with info message if required data files are missing (graceful skip)
+- Deterministic: same command always tests the same thing (week 1 only)
+
+**Behavior:** fetches Week 1 game data only (weeks=[1]), writes to
+/tmp/game_data_e2e_test.csv. Does not write to data/game_data.csv.
+
 ## Goals
 
 1. Add universal args --e2e-test and --log-level to run_game_data_fetcher.py
