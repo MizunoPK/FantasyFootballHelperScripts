@@ -1188,7 +1188,7 @@ Round 3: Check ALL 7 dimensions + scenario-specific
 
 ### Example: S5 Implementation Planning Loop
 
-**File:** `reference/validation_loop_implementation_planning.md`
+**Full Guide:** `stages/s5/s5_v2_validation_loop.md`
 
 **Structure:**
 ```markdown

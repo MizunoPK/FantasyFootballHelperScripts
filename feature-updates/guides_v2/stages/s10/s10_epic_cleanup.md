@@ -870,7 +870,7 @@ git reset --hard origin/main
 
 **Important:** The PR includes ALL final cleanup (epic work, folder move, EPIC_TRACKER update). No further changes needed after merge.
 
-**See:** `reference/stage_10/pr_creation_guide.md` for detailed PR templates (if exists)
+**See:** `reference/GIT_WORKFLOW.md` for PR creation details and templates
 
 ---
 

@@ -682,7 +682,7 @@ done
 **Sub-Round Dimension Checklist:**
 - Sub-Round N.1: D1 ✓, D2 ✓, D3 ✓, D8 ✓ (Core)
 - Sub-Round N.2: D4 ✓, D5 ✓, D6 ✓, D13 ✓, D14 ✓ (Content)
-- Sub-Round N.3: D9 ✓, D10 ✓, D11 ✓, D12 ✓ (Structural)
+- Sub-Round N.3: D9 ✓, D10 ✓, D11 ✓, D12 ✓, D18 ✓ (Structural)
 - Sub-Round N.4: D7 ✓, D15 ✓, D16 ✓ (Advanced)
 
 ---

@@ -42,7 +42,7 @@ Terms are organized alphabetically. Terms with multiple context-specific meaning
 - Parts: `part_X.Y.Z_name.md`
 - Steps: Contained within part files
 
-**See:** `reference/naming_standards.md` for complete specification
+**See:** `reference/naming_conventions.md` for complete specification
 
 ## A
 ### Acceptance Criteria
@@ -788,6 +788,6 @@ Principle that ALL issues must be fixed immediately (no deferrals).
 ### Old File Names
 | Deprecated | Current | Description |
 
-**See:** `reference/naming_standards.md` for migration guidance
+**See:** `reference/naming_conventions.md` for migration guidance
 
 ---

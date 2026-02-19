@@ -422,7 +422,7 @@ Issues found during testing
     └─ NO (missed requirement)
          ↓
     [Use Missed Requirement Workflow]
-         - debugging/missed_requirement_workflow.md
+         - missed_requirement/missed_requirement_protocol.md
          - Update spec.md
          - Add to implementation_plan.md (if ≤3 tasks) OR return to S5 (if >3 tasks)
 ```
@@ -577,7 +577,7 @@ Context window limit reached → Session compacted
 - "Spec didn't mention error handling for this edge case"
 - "This requirement wasn't in the original spec"
 
-**Entry point:** `debugging/missed_requirement_workflow.md`
+**Entry point:** `missed_requirement/missed_requirement_protocol.md`
 
 ---
 
