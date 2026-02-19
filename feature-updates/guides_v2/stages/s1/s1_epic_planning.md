@@ -181,10 +181,10 @@ S1 is complete when you have Discovery approved, a validated epic ticket, comple
 
 **Verify BEFORE starting S1:**
 
-□ User has created a request file in `feature-updates/requests/` (check for .txt or .md file, optionally in a subfolder)
-□ Epic request file contains sufficient detail (problem description, goals, constraints)
-□ No existing epic folder with same name (check `feature-updates/` directory)
-□ Git working directory is clean (no uncommitted changes that could conflict)
+- [ ] User has created a request file in `feature-updates/requests/` (check for .txt or .md file, optionally in a subfolder)
+- [ ] Epic request file contains sufficient detail (problem description, goals, constraints)
+- [ ] No existing epic folder with same name (check `feature-updates/` directory)
+- [ ] Git working directory is clean (no uncommitted changes that could conflict)
 
 **If any prerequisite fails:**
 - ❌ STOP - Do NOT proceed with S1

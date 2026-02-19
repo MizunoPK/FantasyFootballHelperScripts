@@ -91,10 +91,10 @@ S4 is complete when test_strategy.md exists with >90% coverage planned, all edge
 
 **Verify BEFORE starting S4:**
 
-□ S3 (Cross-Feature Sanity Check) complete
-□ Epic test plan approved by user (Gate 4.5 passed)
-□ Feature spec.md finalized and user-approved (Gate 3 passed from S2)
-□ Have read feature spec.md to understand:
+- [ ] S3 (Cross-Feature Sanity Check) complete
+- [ ] Epic test plan approved by user (Gate 4.5 passed)
+- [ ] Feature spec.md finalized and user-approved (Gate 3 passed from S2)
+- [ ] Have read feature spec.md to understand:
   - All requirements and acceptance criteria
   - Expected inputs and outputs
   - Integration points with other features
@@ -201,16 +201,16 @@ Output: Create test_strategy.md
 
 **S4 is complete when ALL of these are true:**
 
-□ Iterations 1, 2, 3 complete (test strategy developed)
-□ Iteration 4 complete (Validation Loop passed with 3 consecutive clean rounds)
-□ test_strategy.md created in `feature_{N}_{name}/` folder with:
+- [ ] Iterations 1, 2, 3 complete (test strategy developed)
+- [ ] Iteration 4 complete (Validation Loop passed with 3 consecutive clean rounds)
+- [ ] test_strategy.md created in `feature_{N}_{name}/` folder with:
   - All test categories (unit, integration, edge, config)
   - Representative test cases for each requirement
   - Coverage goal >90%
   - Traceability matrix (requirement → test mapping)
   - Edge case catalog (boundary conditions, error paths)
   - Configuration test matrix (default, custom, invalid, missing)
-□ Feature README.md updated:
+- [ ] Feature README.md updated:
   - Agent Status: Current Phase = S5_READY
   - S4 completion marked with timestamp
 
@@ -273,12 +273,12 @@ Output: Create test_strategy.md
 
 **Before transitioning to S5, verify:**
 
-□ S4 completion criteria ALL met
-□ test_strategy.md exists in `feature_{N}_{name}/` folder
-□ test_strategy.md has all required sections (not empty/placeholder)
-□ test_strategy.md shows >90% coverage goal
-□ Validation Loop passed (documented in test_strategy.md)
-□ Feature README.md shows:
+- [ ] S4 completion criteria ALL met
+- [ ] test_strategy.md exists in `feature_{N}_{name}/` folder
+- [ ] test_strategy.md has all required sections (not empty/placeholder)
+- [ ] test_strategy.md shows >90% coverage goal
+- [ ] Validation Loop passed (documented in test_strategy.md)
+- [ ] Feature README.md shows:
   - Agent Status: Current Phase = S5_READY
   - S4 completion timestamp
 

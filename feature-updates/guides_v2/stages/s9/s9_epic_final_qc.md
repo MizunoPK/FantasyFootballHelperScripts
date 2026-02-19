@@ -401,7 +401,7 @@ Ready to begin Step 1: Pre-QC Verification.
 
 **S9 is complete when ALL of these are true:**
 
-□ **All phases complete:**
+- [ ] **All phases complete:**
   - S9.P1: Pre-QC Verification complete
   - S9.P1: Epic Smoke Testing PASSED (all 4 parts)
   - S9.P2: Epic QC Validation Loop PASSED (3 consecutive clean rounds, 12 dimensions)
@@ -410,24 +410,24 @@ Ready to begin Step 1: Pre-QC Verification.
   - S9.P4: Validate Against Epic Request PASSED
   - S9.P4: Final Verification complete
 
-□ **Epic Smoke Testing:**
+- [ ] **Epic Smoke Testing:**
   - Part 1 (Import Tests): ✅ PASSED
   - Part 2 (Entry Point Tests): ✅ PASSED
   - Part 3 (E2E Execution Tests): ✅ PASSED with correct data values
   - Part 4 (Cross-Feature Integration Tests): ✅ PASSED
 
-□ **Epic QC Validation Loop (S9.P2):**
+- [ ] **Epic QC Validation Loop (S9.P2):**
   - 3 consecutive clean rounds achieved: ✅ PASSED
   - All 12 dimensions checked every round (7 master + 5 epic): ✅ PASSED
   - VALIDATION_LOOP_LOG.md complete: ✅ PASSED
   - All issues fixed immediately (no deferred issues): ✅ PASSED
 
-□ **Epic PR Review:**
+- [ ] **Epic PR Review:**
   - All 11 categories reviewed: ✅ PASSED
   - Architectural consistency validated: ✅ PASSED
   - No issues requiring bug fixes
 
-□ **Documentation:**
+- [ ] **Documentation:**
   - epic_lessons_learned.md updated with S9 insights (all sub-stages)
   - EPIC_README.md Epic Progress Tracker shows S9 complete
   - EPIC_README.md Agent Status shows S9.P3 complete
@@ -437,7 +437,7 @@ Ready to begin Step 1: Pre-QC Verification.
   - S9 RESTARTED after bug fixes (from S9.P1)
   - All steps re-run and passed
 
-□ **Quality Gates:**
+- [ ] **Quality Gates:**
   - All unit tests passing (100%)
   - No pending issues
   - Original epic goals validated and achieved

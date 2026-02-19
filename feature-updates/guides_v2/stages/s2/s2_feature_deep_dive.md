@@ -474,7 +474,7 @@ Ready to begin Phase 0: Discovery Context Review.
 
 **S2 is complete for THIS feature when ALL of these are true:**
 
-□ **All S2 phases complete (S2.P1 iterations 1-3, S2.P2 alignment):**
+- [ ] **All S2 phases complete (S2.P1 iterations 1-3, S2.P2 alignment):**
   - Phase 0: Discovery Context reviewed
   - Step 1: Targeted Research complete
   - Phase 1.5: Research Audit PASSED (GATE)
@@ -485,16 +485,16 @@ Ready to begin Phase 0: Discovery Context Review.
   - Step 5: Cross-feature alignment complete
   - Step 6: User APPROVED acceptance criteria (GATE)
 
-□ **Files complete:**
+- [ ] **Files complete:**
   - spec.md: Discovery Context section, requirements with traceability, acceptance criteria (user approved)
   - checklist.md: All questions resolved
   - README.md: S2 marked complete
   - epic/research/{FEATURE_NAME}_DISCOVERY.md: Research findings
 
-□ **Epic updated:**
+- [ ] **Epic updated:**
   - EPIC_README.md Feature Tracking: "[x]" for this feature's S2
 
-□ **All gates passed:**
+- [ ] **All gates passed:**
   - ✅ Phase 1.5: Research Audit
   - ✅ Phase 2.5: Spec Alignment Check
   - ✅ Phase 6: User Approval
@@ -566,17 +566,7 @@ A: No. Still 3 gates: Phase 1.5 (Research Audit), Phase 2.5 (Alignment Check), P
 A: It is! Phase 2.5 is "Spec-to-Epic Alignment Check" covered in S2.P2.
 
 **Q: Can I reference the original guide?**
-A: Yes. The original guide is backed up as `STAGE_2_feature_deep_dive_guide_ORIGINAL_BACKUP.md` for reference, but use the new split guides for workflow.
-
----
-
-## Original Guide Location
-
-**Backup:** `STAGE_2_feature_deep_dive_guide_ORIGINAL_BACKUP.md`
-
-**Purpose:** Historical reference only. Do NOT use for workflow.
-
-The original guide has been preserved for reference but is deprecated. All S2 work should use the new phase guides (S2.P1, S2.P2, S2.P3).
+A: The original monolithic guide has been removed. Use the current split phase guides (S2.P1, S2.P2, S2.P3) for all S2 workflow work.
 
 ---
 

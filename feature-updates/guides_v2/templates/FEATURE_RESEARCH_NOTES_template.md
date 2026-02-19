@@ -338,10 +338,10 @@ class FeatureDataModel:
 ## 11. Next Steps
 
 **Immediate Actions:**
-1. ☐ Transfer findings to spec.md (S2.P1.I2)
-2. ☐ Create checklist.md from pending questions (S2.P1.I2)
-3. ☐ Resolve all pending questions before S2.P1.I3
-4. ☐ Reference this document in spec.md "Research Notes" section
+1. [ ] Transfer findings to spec.md (S2.P1.I2)
+2. [ ] Create checklist.md from pending questions (S2.P1.I2)
+3. [ ] Resolve all pending questions before S2.P1.I3
+4. [ ] Reference this document in spec.md "Research Notes" section
 
 **Future References:**
 - This document will be referenced during:

@@ -50,10 +50,10 @@ After reading S4 router (`s4_feature_testing_strategy.md`) and verifying prerequ
 Plan unit tests, integration tests, and edge cases with traceability to requirements. Create initial test coverage matrix with >90% coverage goal.
 
 ### Prerequisites
-□ Feature spec.md finalized (Gate 3 passed)
-□ Have read spec.md completely
-□ Understand all requirements and acceptance criteria
-□ Understand integration points with other features
+- [ ] Feature spec.md finalized (Gate 3 passed)
+- [ ] Have read spec.md completely
+- [ ] Understand all requirements and acceptance criteria
+- [ ] Understand integration points with other features
 
 ### Step 1.1: Requirement Coverage Analysis (5-10 min)
 
@@ -725,21 +725,21 @@ Identify configuration dependencies and plan configuration-related tests (defaul
 
 **Iterations 1-3 are complete when ALL of these are true:**
 
-□ Iteration 1 complete:
+- [ ] Iteration 1 complete:
   - Test coverage matrix created
   - Test case list created (all requirements covered)
   - Traceability matrix shows 100% requirement coverage
-□ Iteration 2 complete:
+- [ ] Iteration 2 complete:
   - Edge case catalog created (boundary conditions + error paths)
   - Edge case tests added to test case list
   - All edge cases have test coverage
-□ Iteration 3 complete:
+- [ ] Iteration 3 complete:
   - Configuration dependency analysis complete
   - Configuration test matrix created (default, custom, invalid, missing)
   - All config scenarios have test coverage
-□ Overall test coverage >90% (unit + integration + edge + config)
-□ Feature README.md updated at end of each iteration
-□ Ready for Iteration 4 (Validation Loop)
+- [ ] Overall test coverage >90% (unit + integration + edge + config)
+- [ ] Feature README.md updated at end of each iteration
+- [ ] Ready for Iteration 4 (Validation Loop)
 
 **If any item unchecked:**
 - ❌ Iterations 1-3 are NOT complete

@@ -297,13 +297,13 @@ Primary agent reviews during coordination heartbeat (every 15 minutes).
 
 **S2.P1 complete when ALL true:**
 
-□ I1 complete (spec drafted, research notes created, Gate 1 passed)
-□ I2 complete (all checklist questions resolved with user)
-□ I3 complete (Gate 2 passed, Gate 3 passed)
-□ spec.md finalized and user-approved
-□ checklist.md all items marked [x] (after user approval)
-□ RESEARCH_NOTES.md exists
-□ Feature README.md updated with S2.P1_COMPLETE status
+- [ ] I1 complete (spec drafted, research notes created, Gate 1 passed)
+- [ ] I2 complete (all checklist questions resolved with user)
+- [ ] I3 complete (Gate 2 passed, Gate 3 passed)
+- [ ] spec.md finalized and user-approved
+- [ ] checklist.md all items marked [x] (after user approval)
+- [ ] RESEARCH_NOTES.md exists
+- [ ] Feature README.md updated with S2.P1_COMPLETE status
 
 ---
 

@@ -126,21 +126,21 @@ Validation Phase is complete when all spec claims are validated, maximum checkli
 
 **Verify BEFORE starting Validation Phase:**
 
-□ **S2.P2 complete:**
+- [ ] **S2.P2 complete:**
   - Phase 2 complete: spec.md has requirements with traceability
   - Phase 2 complete: checklist.md has open questions
   - Phase 2.5 complete: Spec-to-Epic Alignment Check PASSED
 
-□ **Files exist and are current:**
+- [ ] **Files exist and are current:**
   - feature_{N}_{name}/spec.md exists with Discovery Context and requirements
   - feature_{N}_{name}/checklist.md exists with open questions
   - epic/research/{FEATURE_NAME}_DISCOVERY.md exists from Phase 1
 
-□ **Research foundation exists:**
+- [ ] **Research foundation exists:**
   - Phase 1.5 Research Completeness Audit PASSED
   - Evidence collected from initial research phase
 
-□ **Agent Status updated:**
+- [ ] **Agent Status updated:**
   - Last guide: stages/s2/s2_p2_specification.md
   - Current phase: Ready to start Validation Phase
 
@@ -463,32 +463,32 @@ AssignmentBatchResponseVO already uses String for beginDateTime/endDateTime fiel
 
 **Validation Phase (S2.P2.5) is COMPLETE when ALL of these are true:**
 
-□ **All spec claims validated:**
+- [ ] **All spec claims validated:**
   - Every requirement researched with additional evidence
   - Incorrect claims corrected or removed
   - New requirements added based on validation findings
   - All claims have supporting evidence from codebase
 
-□ **Maximum checklist questions self-resolved:**
+- [ ] **Maximum checklist questions self-resolved:**
   - Research conducted for every checklist question
   - Questions with clear research-based answers marked [x] resolved
   - Resolved questions converted to spec requirements
   - Only genuine unknowns or multi-approach decisions remain open
 
-□ **Deep investigation completed:**
+- [ ] **Deep investigation completed:**
   - Integration points researched and documented
   - Error handling patterns investigated
   - Performance considerations identified
   - Testing requirements discovered
   - Configuration needs assessed
 
-□ **New questions identified:**
+- [ ] **New questions identified:**
   - Additional unknowns discovered through deep research
   - Edge cases identified that weren't in original checklist
   - Multi-approach decisions flagged for user input
   - All new questions added to checklist with research context
 
-□ **Documentation updated:**
+- [ ] **Documentation updated:**
   - spec.md updated with validation findings
   - checklist.md updated with resolved questions and new questions
   - Agent Status updated with validation results

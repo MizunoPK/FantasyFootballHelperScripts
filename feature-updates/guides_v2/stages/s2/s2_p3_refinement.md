@@ -100,22 +100,22 @@ Refinement Phase is complete when all checklist questions are resolved, scope is
 
 **Before starting Refinement Phase (S2.P3), verify:**
 
-□ **S2.P2 complete:**
+- [ ] **S2.P2 complete:**
   - Phase 2 complete: spec.md has Discovery Context section, requirements with traceability
   - Phase 2 complete: checklist.md exists with open questions
   - Phase 2.5 complete: Spec-to-Epic Alignment Check PASSED
   - spec.md has valid sources for all requirements (Epic/User Answer/Derived)
 
-□ **Files exist and are current:**
+- [ ] **Files exist and are current:**
   - feature_{N}_{name}/spec.md exists with Discovery Context section
   - feature_{N}_{name}/checklist.md exists with questions
   - feature_{N}_{name}/README.md has Agent Status
 
-□ **Research foundation exists:**
+- [ ] **Research foundation exists:**
   - epic/research/{FEATURE_NAME}_DISCOVERY.md exists (from Phase 1)
   - Research completeness audit passed (Phase 1.5)
 
-□ **Agent Status updated:**
+- [ ] **Agent Status updated:**
   - Last guide: stages/s2/s2_p2_specification.md
   - Current phase: Ready to start Phase 3 (Interactive Question Resolution)
 

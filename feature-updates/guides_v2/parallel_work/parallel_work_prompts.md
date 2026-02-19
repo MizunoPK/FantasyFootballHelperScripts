@@ -171,16 +171,16 @@ Pausing Feature 01 work for coordination (< 10% time overhead)...
 
 **Coordination Checklist:**
 
-1. ☐ Update my checkpoint (agent_checkpoints/primary.json)
-2. ☐ Check ALL secondary inboxes:
+1. [ ] Update my checkpoint (agent_checkpoints/primary.json)
+2. [ ] Check ALL secondary inboxes:
    - agent_comms/secondary_a_to_primary.md
    - agent_comms/secondary_b_to_primary.md
    - agent_comms/secondary_c_to_primary.md
-3. ☐ Process any escalations (15-minute SLA)
-4. ☐ Check ALL STATUS files for blockers
-5. ☐ Verify checkpoint staleness (30 min warning, 60 min failure)
-6. ☐ Update EPIC_README.md (acquire lock first)
-7. ☐ Set next 15-minute timer
+3. [ ] Process any escalations (15-minute SLA)
+4. [ ] Check ALL STATUS files for blockers
+5. [ ] Verify checkpoint staleness (30 min warning, 60 min failure)
+6. [ ] Update EPIC_README.md (acquire lock first)
+7. [ ] Set next 15-minute timer
 
 **Escalation Processing:**
 - If escalation found: Attempt to resolve (answer question, clarify spec)
@@ -214,12 +214,12 @@ Pausing feature work for coordination (< 10% time overhead)...
 
 **Coordination Checklist:**
 
-1. ☐ Update my checkpoint (agent_checkpoints/{my_id}.json)
-2. ☐ Check my inbox (agent_comms/primary_to_{my_id}.md)
-3. ☐ Process any messages from Primary
-4. ☐ Update my STATUS file ({feature}/STATUS)
-5. ☐ Update EPIC_README.md my section (acquire lock first)
-6. ☐ Set next 15-minute timer
+1. [ ] Update my checkpoint (agent_checkpoints/{my_id}.json)
+2. [ ] Check my inbox (agent_comms/primary_to_{my_id}.md)
+3. [ ] Process any messages from Primary
+4. [ ] Update my STATUS file ({feature}/STATUS)
+5. [ ] Update EPIC_README.md my section (acquire lock first)
+6. [ ] Set next 15-minute timer
 
 **If blocked >15 minutes:**
 - Send escalation message to Primary
@@ -251,24 +251,24 @@ Feature 01 S2 complete. Verifying sync point before S3...
 **I acknowledge this is a MANDATORY GATE - cannot proceed to S3 without passing all verifications:**
 
 **Verification 1: Completion Messages**
-☐ Check agent_comms/secondary_a_to_primary.md for completion message
-☐ Check agent_comms/secondary_b_to_primary.md for completion message
-☐ Check agent_comms/secondary_c_to_primary.md for completion message
+- [ ] Check agent_comms/secondary_a_to_primary.md for completion message
+- [ ] Check agent_comms/secondary_b_to_primary.md for completion message
+- [ ] Check agent_comms/secondary_c_to_primary.md for completion message
 
 **Verification 2: STATUS Files**
-☐ Read feature_02/STATUS - verify READY_FOR_SYNC: true
-☐ Read feature_03/STATUS - verify READY_FOR_SYNC: true
-☐ Read feature_04/STATUS - verify READY_FOR_SYNC: true
+- [ ] Read feature_02/STATUS - verify READY_FOR_SYNC: true
+- [ ] Read feature_03/STATUS - verify READY_FOR_SYNC: true
+- [ ] Read feature_04/STATUS - verify READY_FOR_SYNC: true
 
 **Verification 3: Checkpoints**
-☐ Read agent_checkpoints/secondary_a.json - verify WAITING_FOR_SYNC + fresh
-☐ Read agent_checkpoints/secondary_b.json - verify WAITING_FOR_SYNC + fresh
-☐ Read agent_checkpoints/secondary_c.json - verify WAITING_FOR_SYNC + fresh
+- [ ] Read agent_checkpoints/secondary_a.json - verify WAITING_FOR_SYNC + fresh
+- [ ] Read agent_checkpoints/secondary_b.json - verify WAITING_FOR_SYNC + fresh
+- [ ] Read agent_checkpoints/secondary_c.json - verify WAITING_FOR_SYNC + fresh
 
 **Verification 4: Feature Specs**
-☐ Read feature_02/spec.md - verify Acceptance Criteria approved
-☐ Read feature_03/spec.md - verify Acceptance Criteria approved
-☐ Read feature_04/spec.md - verify Acceptance Criteria approved
+- [ ] Read feature_02/spec.md - verify Acceptance Criteria approved
+- [ ] Read feature_03/spec.md - verify Acceptance Criteria approved
+- [ ] Read feature_04/spec.md - verify Acceptance Criteria approved
 
 **If ALL verifications pass:**
 - Create sync verification document: epic/research/S3_SYNC_VERIFICATION_{date}.md

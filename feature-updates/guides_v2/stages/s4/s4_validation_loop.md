@@ -47,11 +47,11 @@ Validate test strategy completeness using systematic Validation Loop validation 
 
 ## Prerequisites
 
-□ S4.I1 complete (test coverage matrix created)
-□ S4.I2 complete (edge case catalog created)
-□ S4.I3 complete (config test matrix created)
-□ Test coverage >90% (from I1-I3)
-□ Traceability matrix shows 100% requirement coverage
+- [ ] S4.I1 complete (test coverage matrix created)
+- [ ] S4.I2 complete (edge case catalog created)
+- [ ] S4.I3 complete (config test matrix created)
+- [ ] Test coverage >90% (from I1-I3)
+- [ ] Traceability matrix shows 100% requirement coverage
 
 **If any prerequisite fails:**
 - ❌ STOP - Do NOT proceed to I4
@@ -345,13 +345,13 @@ ls feature_{N}_{name}/test_strategy.md
 
 **S4.I4 is complete when ALL of these are true:**
 
-□ Validation Loop executed with master protocol
-□ 3 consecutive rounds found ZERO issues
-□ ALL issues fixed (no deferred issues)
-□ test_strategy.md created in `feature_{N}_{name}/` folder
-□ test_strategy.md has all required sections (not empty)
-□ test_strategy.md shows >90% coverage
-□ Feature README.md updated with S4_COMPLETE status
+- [ ] Validation Loop executed with master protocol
+- [ ] 3 consecutive rounds found ZERO issues
+- [ ] ALL issues fixed (no deferred issues)
+- [ ] test_strategy.md created in `feature_{N}_{name}/` folder
+- [ ] test_strategy.md has all required sections (not empty)
+- [ ] test_strategy.md shows >90% coverage
+- [ ] Feature README.md updated with S4_COMPLETE status
 
 **If any item unchecked:**
 - ❌ S4.I4 is NOT complete

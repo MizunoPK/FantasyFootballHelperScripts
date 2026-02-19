@@ -553,32 +553,32 @@ After S2.5:
 
 **S2.5 is complete when ALL of these are true:**
 
-□ **Epic Re-Reading Complete:**
+- [ ] **Epic Re-Reading Complete:**
   - Epic notes file re-read word-for-word (spec.md closed during initial read)
   - Critical reading questions answered for each requirement
   - Literal meaning documented for ambiguous terms
 
-□ **Code Investigation Complete:**
+- [ ] **Code Investigation Complete:**
   - Method signatures verified from actual source code
   - Integration points verified (data passed between components)
   - Assumptions validated against real code
 
-□ **Data Investigation Complete:**
+- [ ] **Data Investigation Complete:**
   - Sample data files opened and inspected
   - Data structure verified (format, fields, types)
   - Spec assumptions validated against actual data
 
-□ **Evidence Collected:**
+- [ ] **Evidence Collected:**
   - File paths cited for code evidence
   - Line numbers cited for epic evidence
   - Data examples collected from real files
 
-□ **Validation Findings Documented:**
+- [ ] **Validation Findings Documented:**
   - spec_validation_findings.md created
   - Epic vs spec comparison complete
   - Discrepancies identified (if any)
 
-□ **Discrepancies Resolved:**
+- [ ] **Discrepancies Resolved:**
   - If discrepancies found: spec.md updated OR user decision documented
   - If zero discrepancies: validation confidence documented
 

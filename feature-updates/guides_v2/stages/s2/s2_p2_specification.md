@@ -133,12 +133,12 @@ Specification Phase is complete when spec.md has complete requirements with trac
 
 **Verify BEFORE starting Specification Phase:**
 
-□ S2.P1 complete (Research Phase)
-□ Phase 1.5 Research Audit PASSED (all 4 categories)
-□ Discovery Context section exists in spec.md (created in Phase 0)
-□ Research findings documented in epic/research/{FEATURE_NAME}_DISCOVERY.md
-□ Evidence collected (file paths, line numbers, code snippets)
-□ Feature README.md Agent Status shows S2.P1 complete
+- [ ] S2.P1 complete (Research Phase)
+- [ ] Phase 1.5 Research Audit PASSED (all 4 categories)
+- [ ] Discovery Context section exists in spec.md (created in Phase 0)
+- [ ] Research findings documented in epic/research/{FEATURE_NAME}_DISCOVERY.md
+- [ ] Evidence collected (file paths, line numbers, code snippets)
+- [ ] Feature README.md Agent Status shows S2.P1 complete
 
 **If any prerequisite fails:**
 - ❌ STOP - Do NOT proceed with specification
@@ -506,7 +506,7 @@ List all explicit user requests, then verify EACH is in spec:
 
 **Specification Phase (S2.P2) is COMPLETE when ALL of these are true:**
 
-□ **Phase 2 Complete:**
+- [ ] **Phase 2 Complete:**
   - spec.md updated with complete technical details
   - All requirements have traceability (Epic Request/Derived)
   - Components Affected section complete (with sources)
@@ -516,19 +516,19 @@ List all explicit user requests, then verify EACH is in spec:
   - checklist.md created with valid open questions
   - Assumptions removed from spec and moved to checklist
 
-□ **Phase 2.5 Complete:**
+- [ ] **Phase 2.5 Complete:**
   - Spec-to-Epic alignment check PASSED
   - Every requirement has valid source verified
   - No scope creep detected (or removed)
   - No missing requirements (or added to spec)
   - Overall alignment result: ✅ PASSED
 
-□ **Documentation Complete:**
+- [ ] **Documentation Complete:**
   - spec.md has requirement traceability for ALL requirements
   - checklist.md has valid questions (user preferences, edge cases, unknowns)
   - Agent Status updated with S2.P2 completion
 
-□ **Ready for Next Stage:**
+- [ ] **Ready for Next Stage:**
   - All requirements aligned with epic intent
   - Open questions identified (not assumptions)
   - Ready to ask user questions in S2.P3

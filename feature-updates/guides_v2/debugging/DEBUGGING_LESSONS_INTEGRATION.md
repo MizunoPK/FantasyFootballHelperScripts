@@ -270,16 +270,16 @@ feature_XX_{name}/debugging/
 
 Agents MUST verify (as part of guide_update_tracking.md):
 ```markdown
-□ Total sources checked: {N}
+- [ ] Total sources checked: {N}
   - lessons_learned.md files: {N}
   - debugging/process_failure_analysis.md files: {N}
   - debugging/guide_update_recommendations.md files: {N}
-□ Total lessons identified: {N}
+- [ ] Total lessons identified: {N}
   - Critical (debugging): {N}
   - High (debugging): {N}
   - Medium (feature): {N}
-□ Lessons applied: {N}
-□ Application rate: 100% ✅
+- [ ] Lessons applied: {N}
+- [ ] Application rate: 100% ✅
 ```
 
 **If application rate < 100%:** ❌ STOP - Cannot proceed to commit

@@ -350,34 +350,34 @@ Combine ALL lessons from ALL files:
 **Total Lessons Found:** 6
 
 **Source: epic_lessons_learned.md (3 lessons)**
-□ Lesson 1: Verify data sources in S1
+- [ ] Lesson 1: Verify data sources in S1
   - Guide: stages/s1/s1_epic_planning.md
   - Section: Step 3
   - Update: Add data source verification step
 
-□ Lesson 2: CSV format verification in S2
+- [ ] Lesson 2: CSV format verification in S2
   - Guide: stages/s2/s2_feature_deep_dive.md
   - Section: Phase 1
   - Update: Add CSV format check step
 
-□ Lesson 3: Nested algorithm example in S5
+- [ ] Lesson 3: Nested algorithm example in S5
   - Guide: stages/s5/s5_v2_validation_loop.md
   - Section: Iteration 4
   - Update: Add nested algorithm traceability example
 
 **Source: feature_01_adp_integration/lessons_learned.md (2 lessons)**
-□ Lesson 4: Document CSV format early
+- [ ] Lesson 4: Document CSV format early
   - Guide: stages/s2/s2_feature_deep_dive.md
   - Section: Phase 1
   - Update: Add CSV documentation requirement
 
-□ Lesson 5: Integration test checkpoint
+- [ ] Lesson 5: Integration test checkpoint
   - Guide: stages/s6/s6_execution.md
   - Section: Phase 3
   - Update: Add integration test checkpoint
 
 **Source: bugfix_high_point_calculation/lessons_learned.md (1 lesson)**
-□ Lesson 6: Integer division bug pattern
+- [ ] Lesson 6: Integer division bug pattern
   - Guide: stages/s5/s5_bugfix_workflow.md
   - Section: S2
   - Update: Add common bug pattern example
@@ -424,12 +424,12 @@ For each lesson in master checklist:
 ```markdown
 ## Verification Checklist
 
-□ Found ALL lessons_learned.md files using find command
-□ Read EVERY file found (epic + features + bugfixes)
-□ Created master checklist with ALL lessons from ALL sources
-□ Applied EVERY lesson (none skipped)
-□ Each lesson marked [x] APPLIED in checklist
-□ Can cite which guide section was updated for each lesson
+- [ ] Found ALL lessons_learned.md files using find command
+- [ ] Read EVERY file found (epic + features + bugfixes)
+- [ ] Created master checklist with ALL lessons from ALL sources
+- [ ] Applied EVERY lesson (none skipped)
+- [ ] Each lesson marked [x] APPLIED in checklist
+- [ ] Can cite which guide section was updated for each lesson
 
 **Totals:**
 - Files checked: {N} (epic: 1, features: {F}, bugfixes: {B})

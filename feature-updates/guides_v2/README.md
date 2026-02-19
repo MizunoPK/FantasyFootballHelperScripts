@@ -529,10 +529,10 @@ Plan  Deep Dive  Check  Strategy  (per feature)   QC
 5. Update Agent Status after each round
 
 **Before Proceeding to Next Step:**
-□ Read guide: `guides_v2/stages/s5/s5_v2_validation_loop.md` (start with Phase 1: Draft Creation)
-□ Acknowledge critical requirements
-□ Verify prerequisites
-□ Update this Quick Reference Card
+- [ ] Read guide: `guides_v2/stages/s5/s5_v2_validation_loop.md` (start with Phase 1: Draft Creation)
+- [ ] Acknowledge critical requirements
+- [ ] Verify prerequisites
+- [ ] Update this Quick Reference Card
 ```
 
 **Purpose:**

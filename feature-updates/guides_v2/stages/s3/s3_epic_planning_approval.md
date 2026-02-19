@@ -270,14 +270,14 @@ Await user decision before proceeding.
 
 **S3 complete when ALL true:**
 
-□ S3.P1 complete (epic_smoke_test_plan.md updated and validated)
-□ S3.P2 complete (EPIC_README.md refined and validated)
-□ S3.P3 complete (Gate 4.5 passed - user approved epic plan)
-□ Epic EPIC_README.md updated with:
+- [ ] S3.P1 complete (epic_smoke_test_plan.md updated and validated)
+- [ ] S3.P2 complete (EPIC_README.md refined and validated)
+- [ ] S3.P3 complete (Gate 4.5 passed - user approved epic plan)
+- [ ] Epic EPIC_README.md updated with:
   - Epic Completion Checklist: S3 items checked
   - Agent Status: Phase = S4_READY
-□ epic_smoke_test_plan.md shows "S3 version" (not "INITIAL")
-□ epic_smoke_test_plan.md has specific test scenarios (not TBD)
+- [ ] epic_smoke_test_plan.md shows "S3 version" (not "INITIAL")
+- [ ] epic_smoke_test_plan.md has specific test scenarios (not TBD)
 
 ---
 

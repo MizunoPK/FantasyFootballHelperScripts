@@ -927,33 +927,33 @@ Open the files. Print the values. Verify every assumption.
 
 **S5.5 is complete when ALL of these are true:**
 
-□ **Data Dependencies Identified:**
+- [ ] **Data Dependencies Identified:**
   - All data files listed from implementation_plan.md and spec.md
   - File paths verified (files exist)
   - Data format identified (JSON, CSV, etc.)
 
-□ **Python REPL Inspection Complete:**
+- [ ] **Python REPL Inspection Complete:**
   - Each data file opened in Python REPL
   - Actual data values printed and inspected
   - Data structure verified (keys, fields, nesting)
 
-□ **Assumptions Verified:**
+- [ ] **Assumptions Verified:**
   - Every data assumption from spec.md tested against real data
   - Data location verified (which folder/file contains what data)
   - Data offset verified (week_N contains week N or week N-1?)
   - Data completeness verified (are expected values present or null/zero?)
 
-□ **Discrepancies Documented:**
+- [ ] **Discrepancies Documented:**
   - Wrong assumptions identified and documented
   - Correct behavior documented with examples
   - Evidence collected (actual data values, file paths)
 
-□ **Specs Updated (if needed):**
+- [ ] **Specs Updated (if needed):**
   - spec.md updated with correct data model
   - implementation_plan.md updated with correct data loading logic
   - questions.md updated if clarification needed
 
-□ **Confidence Verified:**
+- [ ] **Confidence Verified:**
   - Confident about data structure
   - Confident about data location
   - Confident about data values

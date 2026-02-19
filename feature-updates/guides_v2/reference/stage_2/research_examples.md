@@ -162,11 +162,11 @@ Data source: "FantasyPros CSV" - Line 22
 
 **Agent Verification:**
 
-□ Re-read epic notes file: 2026-01-02 10:15
-□ Extracted exact quotes (not paraphrases)
-□ Cited line numbers for all quotes
-□ Identified out-of-scope items
-□ Understand user's goal (not just technical implementation)
+- [ ] Re-read epic notes file: 2026-01-02 10:15
+- [ ] Extracted exact quotes (not paraphrases)
+- [ ] Cited line numbers for all quotes
+- [ ] Identified out-of-scope items
+- [ ] Understand user's goal (not just technical implementation)
 
 ---
 
@@ -184,25 +184,25 @@ Data source: "FantasyPros CSV" - Line 22
 
 Based on Discovery Context section, I must research:
 
-□ **PlayerManager** (mentioned epic line 35)
+- [ ] **PlayerManager** (mentioned epic line 35)
   - Action: Find class definition
   - Action: Read calculate_total_score() method (user mentioned scoring)
   - Action: Document actual signatures (not assumed)
   - Evidence required: File path, line numbers, code snippets
 
-□ **injury penalty system** (mentioned epic line 37 as pattern)
+- [ ] **injury penalty system** (mentioned epic line 37 as pattern)
   - Action: Find implementation
   - Action: READ the actual code (not guess at pattern)
   - Action: Document pattern used (method structure, multiplier approach)
   - Evidence required: File path, code structure, actual code snippets
 
-□ **FantasyPros CSV format** (mentioned epic line 22)
+- [ ] **FantasyPros CSV format** (mentioned epic line 22)
   - Action: Search for existing CSV files in data/
   - Action: Check if ADP already used anywhere in codebase
   - Action: Document expected CSV structure (if examples exist)
   - Evidence required: File paths, column names, sample data
 
-□ **Multiplier pattern in scoring** (user said "like injury penalty")
+- [ ] **Multiplier pattern in scoring** (user said "like injury penalty")
   - Action: Find how multipliers are applied in calculate_total_score()
   - Action: Document the pattern (how to add new multiplier)
   - Action: Check if ConfigManager involved
@@ -536,8 +536,8 @@ def read_csv_with_validation(filepath: Union[str, Path], required_columns: List[
 
 **Verification Result for Category 1:**
 
-☑ All questions answered with ✅ GOOD level of detail
-☑ Evidence provided for each answer
+- [x] All questions answered with ✅ GOOD level of detail
+- [x] Evidence provided for each answer
 
 **Category 1: PASSED**
 
@@ -601,8 +601,8 @@ def read_csv_with_validation(filepath: Union[str, Path], required_columns: List[
 
 **Verification Result for Category 2:**
 
-☑ All questions answered with ✅ GOOD level of detail
-☑ Evidence provided for each answer
+- [x] All questions answered with ✅ GOOD level of detail
+- [x] Evidence provided for each answer
 
 **Category 2: PASSED**
 
@@ -683,8 +683,8 @@ Source: league_helper/util/FantasyPlayer.py lines 15-25
 
 **Verification Result for Category 3:**
 
-☑ All questions answered with ✅ GOOD level of detail
-☑ Evidence provided for each answer
+- [x] All questions answered with ✅ GOOD level of detail
+- [x] Evidence provided for each answer
 
 **Category 3: PASSED**
 
@@ -743,8 +743,8 @@ All of these are agent assumptions → Added to checklist as questions
 
 **Verification Result for Category 4:**
 
-☑ All questions answered with ✅ GOOD level of detail
-☑ Evidence provided for each answer
+- [x] All questions answered with ✅ GOOD level of detail
+- [x] Evidence provided for each answer
 
 **Category 4: PASSED**
 
@@ -850,10 +850,10 @@ All of these are agent assumptions → Added to checklist as questions
 ```
 ## Research Questions
 
-□ Understand how PlayerManager works
-□ Learn about the scoring system
-□ Research data loading patterns
-□ Study the codebase architecture
+- [ ] Understand how PlayerManager works
+- [ ] Learn about the scoring system
+- [ ] Research data loading patterns
+- [ ] Study the codebase architecture
 ```markdown
 
 ✅ **CORRECT:**
@@ -862,9 +862,9 @@ All of these are agent assumptions → Added to checklist as questions
 
 Based on user request to "integrate ADP data into PlayerManager scoring using injury penalty pattern":
 
-□ PlayerManager.calculate_total_score() - How does it work? (user mentioned scoring)
-□ injury penalty pattern - What's the implementation? (user said to follow this pattern)
-□ FantasyPros CSV - Does similar data exist? (user specified this data source)
+- [ ] PlayerManager.calculate_total_score() - How does it work? (user mentioned scoring)
+- [ ] injury penalty pattern - What's the implementation? (user said to follow this pattern)
+- [ ] FantasyPros CSV - Does similar data exist? (user specified this data source)
 ```markdown
 
 **Why:** Epic intent guides research. Only research what user explicitly mentioned.

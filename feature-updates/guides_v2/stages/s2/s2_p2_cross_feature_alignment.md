@@ -28,9 +28,9 @@
 
 ## Prerequisites
 
-□ All features in current group completed S2.P1
-□ All features have user-approved spec.md (Gate 3 passed)
-□ If parallel mode: All secondary agents reported completion
+- [ ] All features in current group completed S2.P1
+- [ ] All features have user-approved spec.md (Gate 3 passed)
+- [ ] If parallel mode: All secondary agents reported completion
 
 **If any prerequisite fails:**
 - ❌ STOP - Do NOT proceed to S2.P2
@@ -180,12 +180,12 @@ For each conflict found:
 
 **S2.P2 complete when ALL true:**
 
-□ All pairwise comparisons performed
-□ All conflicts identified and resolved
-□ Validation Loop passed (3 consecutive clean rounds)
-□ Comparison matrix created and saved
-□ All spec.md files updated (if conflicts resolved)
-□ Epic EPIC_README.md updated with S2.P2 completion
+- [ ] All pairwise comparisons performed
+- [ ] All conflicts identified and resolved
+- [ ] Validation Loop passed (3 consecutive clean rounds)
+- [ ] Comparison matrix created and saved
+- [ ] All spec.md files updated (if conflicts resolved)
+- [ ] Epic EPIC_README.md updated with S2.P2 completion
 
 ---
 

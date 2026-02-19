@@ -148,14 +148,14 @@ S6 is complete when all implementation tasks from implementation_plan.md are imp
 
 **Verify BEFORE starting S6:**
 
-□ S5 complete:
+- [ ] S5 complete:
   - Validation Loop passed (3 consecutive clean rounds achieved)
   - implementation_plan.md validated and complete
   - Gate 5 approval obtained from user
-□ All unit test files created (from implementation_plan.md test tasks)
-□ spec.md is accessible and will be kept open
-□ implementation_checklist.md created from implementation_plan.md
-□ No blockers in feature README.md Agent Status
+- [ ] All unit test files created (from implementation_plan.md test tasks)
+- [ ] spec.md is accessible and will be kept open
+- [ ] implementation_checklist.md created from implementation_plan.md
+- [ ] No blockers in feature README.md Agent Status
 
 **If any prerequisite fails:**
 - ❌ STOP - Do NOT proceed with S6
@@ -587,11 +587,11 @@ Add to feature README.md:
 
 **Checklist:**
 
-□ All tests for this phase pass (100%)
-□ Spec requirements for this phase checked off in implementation_checklist.md
-□ No regressions (existing tests still pass)
-□ Code follows project conventions (imports, naming, docstrings)
-□ No obvious bugs (smoke test the functionality)
+- [ ] All tests for this phase pass (100%)
+- [ ] Spec requirements for this phase checked off in implementation_checklist.md
+- [ ] No regressions (existing tests still pass)
+- [ ] Code follows project conventions (imports, naming, docstrings)
+- [ ] No obvious bugs (smoke test the functionality)
 
 **Quick smoke test:**
 
@@ -777,18 +777,18 @@ python run_league_helper.py --mode draft
 
 **S6 is complete when ALL of these are true:**
 
-□ Interface Verification Protocol complete (Step 1)
-□ implementation_checklist.md created (Step 2)
-□ All phases implemented (Step 3):
+- [ ] Interface Verification Protocol complete (Step 1)
+- [ ] implementation_checklist.md created (Step 2)
+- [ ] All phases implemented (Step 3):
   - All implementation tasks complete
   - All spec requirements checked off in implementation_checklist.md
-□ All unit tests passing (100% pass rate)
-□ All mini-QC checkpoints passed
-□ Final verification complete (Step 4):
+- [ ] All unit tests passing (100% pass rate)
+- [ ] All mini-QC checkpoints passed
+- [ ] Final verification complete (Step 4):
   - All tests passing
   - All requirements implemented
   - End-to-end smoke test passed
-□ Feature README.md updated:
+- [ ] Feature README.md updated:
   - Agent Status: Phase = POST_IMPLEMENTATION
   - Next Action = Read S7 (Testing & Review) guide
   - All phase test results documented
@@ -895,11 +895,11 @@ python run_league_helper.py --mode draft
 
 **Before transitioning to S7 (Testing & Review), verify:**
 
-□ S6 completion criteria ALL met
-□ All implementation tasks marked complete
-□ All tests passing (100%)
-□ implementation_checklist.md shows all requirements checked
-□ Feature README.md shows:
+- [ ] S6 completion criteria ALL met
+- [ ] All implementation tasks marked complete
+- [ ] All tests passing (100%)
+- [ ] implementation_checklist.md shows all requirements checked
+- [ ] Feature README.md shows:
   - Agent Status: Phase = POST_IMPLEMENTATION
   - All phase test results documented
   - Next Action = Read S7 (Testing & Review) guide

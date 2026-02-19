@@ -116,11 +116,11 @@ S10.5 is complete when all proposals have been reviewed by user, approved change
 
 **Verify BEFORE starting S10.5:**
 
-□ S10 user testing passed (Gate 7.2)
-□ Zero bugs found by user
-□ epic_lessons_learned.md exists and is complete
-□ All feature lessons_learned.md files exist and are complete
-□ Ready to analyze lessons and create proposals
+- [ ] S10 user testing passed (Gate 7.2)
+- [ ] Zero bugs found by user
+- [ ] epic_lessons_learned.md exists and is complete
+- [ ] All feature lessons_learned.md files exist and are complete
+- [ ] Ready to analyze lessons and create proposals
 
 **If any prerequisite fails:**
 - ❌ STOP - Do NOT proceed with S10.5
