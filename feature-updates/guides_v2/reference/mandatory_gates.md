@@ -15,7 +15,7 @@
 4. [S2: Feature Deep Dive (4 gates per feature - NEW: Checklist Approval added)](#s2-feature-deep-dive-4-gates-per-feature---new-checklist-approval-added)
 5. [S3: Cross-Feature Sanity Check (1 gate per epic)](#s3-cross-feature-sanity-check-1-gate-per-epic)
 6. [S4: Epic Testing Strategy (1 gate per epic - NEW)](#s4-epic-testing-strategy-1-gate-per-epic---new)
-7. [S5: Implementation Planning (5 gates per feature)](#s5-implementation-planning-5-gates-per-feature)
+7. [S5: Implementation Planning](#s5-implementation-planning)
 8. [S6: Implementation Execution](#s6-implementation-execution)
 9. [S7: Post-Implementation (2 gates per feature)](#s7-post-implementation-2-gates-per-feature)
 10. [S8: Post-Feature Updates](#s8-post-feature-updates)
@@ -308,7 +308,7 @@
 
 ---
 
-## S5 v2: Implementation Planning (Validation Loop Approach)
+## S5: Implementation Planning
 
 **NOTE:** S5 v2 uses Validation Loop approach. Former gates (4a, 7a, 23a, 24, 25) are now embedded as validation dimensions. Gate 5 (User Approval) remains separate.
 
@@ -327,9 +327,9 @@
 
 ---
 
-## S5 v2 Embedded Gates (formerly S5 v1 gates)
+## S5 Embedded Gates (Gate 4a, 7a, 23a, 25, 24)
 
-### Gate 1: Dimension 4 validation - Implementation Plan Specification Audit
+### Gate 4a: Dimension 4 Validation - Implementation Plan Specification Audit
 
 **Location:** Embedded in S5 v2 Dimension 4 (Task Specification Quality), validated every round
 **When:** After creating initial implementation_plan.md (Iteration 4)
@@ -402,7 +402,7 @@
 
 ---
 
-### Gate 2: Validation Round (multiple dimensions) - Pre-Implementation Spec Audit (5 PARTS)
+### Gate 23a: Pre-Implementation Spec Audit (5 PARTS)
 
 **Location:** Embedded in S5 v2 Dimension 11 (Spec Alignment & Cross-Validation), validated every round
 **When:** After preparation iterations (Iterations 14-19)
@@ -457,7 +457,7 @@
 
 ---
 
-### Gate 3: Dimension 11 validation - Spec Validation Against Validated Documents (CRITICAL)
+### Gate 25: Spec Validation Against Validated Documents (CRITICAL)
 
 **Location:** Embedded in S5 v2 Dimension 11 (Spec Alignment & Cross-Validation), validated every round
 **When:** Checked in every validation round
@@ -506,7 +506,7 @@
 
 ---
 
-### Gate 4: Validation Loop complete (3 consecutive clean rounds) - Implementation Readiness Protocol (GO/NO-GO)
+### Gate 24: GO/NO-GO Decision - Implementation Readiness Protocol
 
 **Location:** Embedded in S5 v2 Dimension 10 (Implementation Readiness), validated every round
 **When:** Checked in every validation round
