@@ -776,17 +776,3 @@ Principle that ALL issues must be fixed immediately (no deferrals).
 ---
 
 ---
-
----
-
----
-
-### Old Stage Notation
-| Deprecated | Current | Description |
-
-### Old File Names
-| Deprecated | Current | Description |
-
-**See:** `reference/naming_conventions.md` for migration guidance
-
----
