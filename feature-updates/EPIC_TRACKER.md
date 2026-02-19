@@ -17,12 +17,13 @@
 
 | KAI # | Epic Name | Type | Branch | Status | Date Started |
 |-------|-----------|------|--------|--------|--------------|
+| 11 | game_data_fetcher_cli | epic | epic/KAI-11 | In Progress | 2026-02-19 |
 
 ---
 
 ## Completed Epics
 
-### Next Available Number: KAI-11
+### Next Available Number: KAI-12
 
 | KAI # | Epic Name | Type | Branch | Date Completed | Location |
 |-------|-----------|------|--------|----------------|----------|
