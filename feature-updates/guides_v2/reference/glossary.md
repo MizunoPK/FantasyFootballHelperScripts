@@ -22,14 +22,16 @@ Terms are organized alphabetically. Terms with multiple context-specific meaning
 
 ## Hierarchical Notation System
 
-**The workflow uses a 4-level hierarchical notation system:**
+**The workflow uses a 3-level hierarchical S#.P#.I# notation system:**
 
-| Level | Notation | Format | Example | Description |
-|-------|----------|--------|---------|-------------|
-| **Level 1** | X | Single number | `5` | Stage (top-level) |
-| **Level 2** | X.Y | Two numbers | `5.1` | Phase (major subdivision) |
-| **Level 3** | X.Y.Z | Three numbers | `5.1.3` | Part (focused guide) |
-| **Level 4** | X.Y.Z.W | Four numbers | `5.1.3.2` | Step (detailed task) |
+| Level | Notation | Prefix | Example | Description | Term |
+|-------|----------|--------|---------|-------------|------|
+| **Level 1** | S# | S | `S5` | Top-level workflow stage | **Stage** |
+| **Level 2** | S#.P# | P | `S5.P1` | Major subdivision within stage | **Phase** |
+| **Level 3** | S#.P#.I# | I | `S5.P1.I2` | Specific iteration/task within phase | **Iteration** |
+
+**Within files (not part of file hierarchy):**
+- **Steps** — Numbered tasks within a guide (Step 1, Step 2, etc.)
 
 **Examples in practice:**
 - **S5** = Feature Implementation (Level 1 - Stage)
@@ -37,10 +39,9 @@ Terms are organized alphabetically. Terms with multiple context-specific meaning
 - **S5.P1.I2** = Iteration 2 within Round 1 (Level 3 - Iteration)
 
 **File naming:**
-- Stages: `stage_X/`
-- Phases: `phase_X.Y_name.md`
-- Parts: `part_X.Y.Z_name.md`
-- Steps: Contained within part files
+- Stages: `s{N}/` (e.g., `s1/`, `s5/`)
+- Phases: `s{N}_p{M}_{name}.md` (e.g., `s8_p1_cross_feature_alignment.md`)
+- Iterations: `s{N}_p{M}_i{K}_{name}.md` (e.g., `s5_p1_i2_validation.md`)
 
 **See:** `reference/naming_conventions.md` for complete specification
 
@@ -221,9 +222,7 @@ Epic-level source of truth document created during S1.P3 Discovery Phase.
 ### Decision Point
 Location in workflow where path diverges based on conditions.
 
-**See:** Workflow Diagrams
-
-**Guide:** workflow_diagrams.md
+**See:** EPIC_WORKFLOW_USAGE.md → "Workflow Stages" (stage flow diagrams)
 
 ---
 
@@ -411,7 +410,7 @@ Workflow pattern where issues force restart of testing.
 
 **See:** Debugging Protocol, Restart Protocol
 
-**Guide:** debugging/debugging_protocol.md, workflow_diagrams.md
+**Guide:** debugging/debugging_protocol.md
 
 ---
 
@@ -595,7 +594,7 @@ Rules for when to restart testing after finding issues.
 
 **See:** Loop-Back, Debugging Protocol
 
-**Guide:** workflow_diagrams.md
+**Guide:** debugging/debugging_protocol.md, stages/s7/s7_p1_smoke_testing.md
 
 ---
 

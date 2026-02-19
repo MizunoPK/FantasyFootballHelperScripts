@@ -14,6 +14,9 @@
 4. [Workflow Selection Guide](#workflow-selection-guide)
 5. ["I'm Stuck" Protocols](#im-stuck-protocols)
 6. [Agent-Specific Issues](#agent-specific-issues)
+7. [Quick Reference: Common Error Messages](#quick-reference-common-error-messages)
+8. [When to Ask User vs. Decide Autonomously](#when-to-ask-user-vs-decide-autonomously)
+9. [Additional Resources](#additional-resources)
 
 ---
 
@@ -916,11 +919,10 @@ Note: It's acceptable to fix pre-existing test failures from other epics during 
 
 **For detailed workflows:**
 - README.md - Guide index and quick start
-- EPIC_WORKFLOW_USAGE.md - Comprehensive usage guide with patterns
-- workflow_diagrams.md - Visual diagrams of all workflows
+- EPIC_WORKFLOW_USAGE.md - Comprehensive usage guide with patterns and workflow diagrams
 
 **For specific stages:**
-- See `stages/stage_X/` folders for detailed guides
+- See `stages/sN/` folders for detailed guides (e.g., `stages/s1/`, `stages/s5/`)
 
 **For reference:**
 - `reference/` folder contains patterns, reference cards, and supporting materials

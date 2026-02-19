@@ -202,7 +202,7 @@ Note:
 | Checklist question unclear | templates/feature_checklist_template.md |
 | Implementation plan vague | templates/implementation_plan_template.md |
 | Prompt not followed | prompts/{stage}_prompts.md |
-| Workflow diagram unclear | reference/workflow_diagrams.md |
+| Workflow diagram unclear | EPIC_WORKFLOW_USAGE.md → "Workflow Stages" |
 | Reference card missing info | reference/stage_{N}_reference_card.md |
 
 2.3. **Determine priority for each:**
