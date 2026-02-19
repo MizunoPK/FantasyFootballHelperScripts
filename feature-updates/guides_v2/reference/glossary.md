@@ -79,7 +79,7 @@ Table mapping algorithm requirements from spec.md to implementation_plan.md task
 
 **See:** implementation_plan.md, Iteration
 
-**Guide:** s5_v2_validation_loop.md, s5_v2_validation_loop.md (Validation Loop Round 3)
+**Guide:** stages/s5/s5_v2_validation_loop.md, stages/s5/s5_v2_validation_loop.md (Validation Loop Round 3)
 
 ---
 
@@ -88,7 +88,7 @@ Process of ensuring consistency across features (S3) or updating specs after imp
 
 **See:** Cross-Feature Sanity Check, Post-Feature Alignment
 
-**Guide:** s3_epic_planning_approval.md, post_feature_alignment.md
+**Guide:** stages/s3/s3_epic_planning_approval.md, stages/s8/s8_p1_cross_feature_alignment.md
 
 ---
 
@@ -97,7 +97,7 @@ Code correction following the bug fix workflow (S2 → S5 → S6 → S7 only).
 
 **See:** Debugging Protocol, Missed Requirement
 
-**Guide:** s5_bugfix_workflow.md
+**Guide:** stages/s5/s5_bugfix_workflow.md
 
 ---
 
@@ -161,7 +161,7 @@ Testing how multiple features interact together.
 
 **See:** Epic Testing, Smoke Testing
 
-**Guide:** smoke_testing.md, epic_smoke_testing.md
+**Guide:** stages/s7/s7_p1_smoke_testing.md, stages/s9/s9_p1_epic_smoke_testing.md
 
 ---
 
@@ -170,7 +170,7 @@ S3 process of systematic pairwise comparison of all feature specs.
 
 **See:** S3, Alignment
 
-**Guide:** s3_epic_planning_approval.md
+**Guide:** stages/s3/s3_epic_planning_approval.md
 
 ---
 
@@ -235,7 +235,7 @@ Testing complete workflow from start to finish with real data.
 
 **See:** Smoke Testing, Mandatory Gates
 
-**Guide:** smoke_testing_pattern.md
+**Guide:** reference/smoke_testing_pattern.md
 
 ---
 
@@ -251,7 +251,7 @@ Top-level work unit containing multiple related features.
 
 **See:** Feature, Stage
 
-**Guide:** s1_epic_planning.md
+**Guide:** stages/s1/s1_epic_planning.md
 
 ---
 
@@ -267,7 +267,7 @@ S9 process testing entire epic as cohesive system.
 
 **See:** S9, Feature Testing
 
-**Guide:** s6_epic_final_qc.md
+**Guide:** stages/s9/s9_epic_final_qc.md
 
 ---
 
@@ -283,7 +283,7 @@ Individual component within an epic.
 
 **See:** Epic, S5
 
-**Guide:** s2_feature_deep_dive.md
+**Guide:** stages/s2/s2_feature_deep_dive.md
 
 ---
 
@@ -292,7 +292,7 @@ S7 process testing single feature in isolation.
 
 **See:** S7, Epic Testing
 
-**Guide:** stages/s7/s7_p1_smoke_testing.md, s7_p2_qc_rounds.md, s7_p3_final_review.md
+**Guide:** stages/s7/s7_p1_smoke_testing.md, stages/s7/s7_p2_qc_rounds.md, stages/s7/s7_p3_final_review.md
 
 ---
 
@@ -301,7 +301,7 @@ Mandatory checkpoint that must PASS before proceeding.
 
 **See:** Mandatory Gates (reference/mandatory_gates.md), Iteration
 
-**Guide:** s5_v2_validation_loop.md, s5_v2_validation_loop.md (Dimension 11: Gate 23a), s5_v2_validation_loop.md (Dimensions 10, 11: Gates 24, 25)
+**Guide:** stages/s5/s5_v2_validation_loop.md, stages/s5/s5_v2_validation_loop.md (Dimension 11: Gate 23a), stages/s5/s5_v2_validation_loop.md (Dimensions 10, 11: Gates 24, 25)
 
 ---
 
@@ -310,7 +310,7 @@ S5 v2 Phase 2 complete - indicates readiness to proceed to S6 implementation aft
 
 **See:** S5 v2 Validation Loop, Phase 2, NO-GO, 3 Consecutive Clean Rounds
 
-**Guide:** s5_v2_validation_loop.md (Dimension 10: Implementation Readiness)
+**Guide:** stages/s5/s5_v2_validation_loop.md (Dimension 10: Implementation Readiness)
 
 ---
 
@@ -326,7 +326,7 @@ Process of reading actual source code to verify interfaces (not relying on memor
 
 **See:** Interface Verification
 
-**Guide:** hands_on_data_inspection.md
+**Guide:** reference/hands_on_data_inspection.md
 
 ---
 
@@ -335,7 +335,7 @@ S6 process of writing feature code following implementation_plan.md.
 
 **See:** S6, implementation_plan.md
 
-**Guide:** implementation_execution.md
+**Guide:** stages/s6/s6_execution.md
 
 ---
 
@@ -344,7 +344,7 @@ Iteration 17 process of breaking implementation into incremental phases for vali
 
 **See:** Iteration 17, S6
 
-**Guide:** s5_v2_validation_loop.md (Validation Loop Round 3)
+**Guide:** stages/s5/s5_v2_validation_loop.md (Validation Loop Round 3)
 
 ---
 
@@ -360,7 +360,7 @@ Process ensuring all new methods/functions have identified callers (no orphan co
 
 **See:** Iteration 23
 
-**Guide:** s5_v2_validation_loop.md (Dimension 11: Gate 23a)
+**Guide:** stages/s5/s5_v2_validation_loop.md (Dimension 11: Gate 23a)
 
 ---
 
@@ -369,7 +369,7 @@ Agreements defining method signatures, parameters, return types.
 
 **See:** Hands-On Data Inspection
 
-**Guide:** s5_v2_validation_loop.md, s5_v2_validation_loop.md (Dimension 11: Gate 23a)
+**Guide:** stages/s5/s5_v2_validation_loop.md, stages/s5/s5_v2_validation_loop.md (Dimension 11: Gate 23a)
 
 ---
 
@@ -392,7 +392,7 @@ Central tracking file for all discovered issues during debugging.
 
 **See:** Dimension, Validation Loop, S5
 
-**Guide:** s5_v2_validation_loop.md, s5_v2_validation_loop.md, s5_v2_validation_loop.md (Validation Loop Round 3), s5_v2_validation_loop.md (Dimension 11: Gate 23a), s5_v2_validation_loop.md (Dimensions 10, 11: Gates 24, 25)
+**Guide:** stages/s5/s5_v2_validation_loop.md, stages/s5/s5_v2_validation_loop.md, stages/s5/s5_v2_validation_loop.md (Validation Loop Round 3), stages/s5/s5_v2_validation_loop.md (Dimension 11: Gate 23a), stages/s5/s5_v2_validation_loop.md (Dimensions 10, 11: Gates 24, 25)
 
 ---
 
@@ -401,7 +401,7 @@ Insights and improvements documented after feature or epic completion.
 
 **See:** Final Review
 
-**Guide:** final_review.md, epic_final_review.md
+**Guide:** stages/s7/s7_p3_final_review.md, stages/s9/s9_p4_epic_final_review.md
 
 ---
 
@@ -433,7 +433,7 @@ Lightweight validation during S6 implementation.
 
 **See:** Implementation Execution
 
-**Guide:** implementation_execution.md
+**Guide:** stages/s6/s6_execution.md
 
 ---
 
@@ -442,7 +442,7 @@ Functionality that was NOT in spec.md but should have been.
 
 **See:** Bug Fix, Debugging Protocol
 
-**Guide:** missed_requirement_workflow.md
+**Guide:** missed_requirement/missed_requirement_protocol.md
 
 ---
 
@@ -451,7 +451,7 @@ Test double that simulates real object behavior.
 
 **See:** Integration Test, Dimension 11
 
-**Guide:** s5_v2_validation_loop.md (Validation Loop Round 3)
+**Guide:** stages/s5/s5_v2_validation_loop.md (Validation Loop Round 3)
 
 ---
 
@@ -460,7 +460,7 @@ S5 v2 Validation Loop not converging - indicates NOT ready to proceed to S6. Occ
 
 **See:** GO Decision, S5 v2 Validation Loop, Escalation Protocol
 
-**Guide:** s5_v2_validation_loop.md (Special Cases: "If Validation Loop Exceeds 10 Rounds")
+**Guide:** stages/s5/s5_v2_validation_loop.md (Special Cases: "If Validation Loop Exceeds 10 Rounds")
 
 ---
 
@@ -470,7 +470,7 @@ S5 v2 Validation Loop not converging - indicates NOT ready to proceed to S6. Occ
 
 **See:** Implementation Orchestration Guide
 
-**Guide:** implementation_orchestration.md
+**Guide:** reference/implementation_orchestration.md
 
 ---
 
@@ -480,11 +480,11 @@ S5 v2 Validation Loop not converging - indicates NOT ready to proceed to S6. Occ
 
 **[Guides]** Extracted common content referenced by multiple guides.
 
-- smoke_testing_pattern.md (3-4 part smoke testing workflow)
+- reference/smoke_testing_pattern.md (3-4 part smoke testing workflow)
 
 **See:** Reference
 
-**Guide:** smoke_testing_pattern.md, qc_rounds_pattern.md
+**Guide:** reference/smoke_testing_pattern.md, reference/qc_rounds_pattern.md
 
 ---
 
@@ -512,7 +512,7 @@ S8.P1 process of updating remaining feature specs after completing one feature.
 
 **See:** S8.P1, Alignment
 
-**Guide:** post_feature_alignment.md
+**Guide:** stages/s8/s8_p1_cross_feature_alignment.md
 
 ---
 
@@ -521,7 +521,7 @@ S7 process of validating implemented feature.
 
 **See:** S7, Feature Testing
 
-**Guide:** stages/s5/ (smoke_testing.md, qc_rounds.md, final_review.md)
+**Guide:** stages/s7/s7_p1_smoke_testing.md, stages/s7/s7_p2_qc_rounds.md, stages/s7/s7_p3_final_review.md
 
 ---
 
@@ -530,7 +530,7 @@ Pull Request review (7 categories) in S7 Phase 3 Final Review.
 
 **See:** Final Review
 
-**Guide:** final_review.md
+**Guide:** stages/s7/s7_p3_final_review.md
 
 ---
 
@@ -550,7 +550,7 @@ Pull Request review (7 categories) in S7 Phase 3 Final Review.
 
 **See:** S7, S9.P2, Round
 
-**Guide:** qc_rounds.md (feature), epic_qc_rounds.md (epic)
+**Guide:** stages/s7/s7_p2_qc_rounds.md (feature), stages/s9/s9_p2_epic_qc_rounds.md (epic)
 
 ---
 
@@ -583,7 +583,7 @@ Summary section in EPIC_README.md showing current epic status at a glance.
 
 **[Guides]** Supporting materials in reference/ folder.
 
-- Patterns (smoke_testing_pattern.md, qc_rounds_pattern.md)
+- Patterns (reference/smoke_testing_pattern.md, reference/qc_rounds_pattern.md)
 
 **See:** Pattern
 
@@ -648,7 +648,7 @@ Context window limit forcing conversation summarization.
 
 **See:** E2E, S7, S9.P1
 
-**Guide:** smoke_testing.md (feature), epic_smoke_testing.md (epic)
+**Guide:** stages/s7/s7_p1_smoke_testing.md (feature), stages/s9/s9_p1_epic_smoke_testing.md (epic)
 
 ---
 
@@ -657,7 +657,7 @@ Specification document in each feature folder containing all requirements.
 
 **See:** Feature, Checklist.md
 
-**Guide:** s2_feature_deep_dive.md
+**Guide:** stages/s2/s2_feature_deep_dive.md
 
 ---
 
@@ -669,7 +669,7 @@ Specification document in each feature folder containing all requirements.
 
 **See:** Gate 25, Dimension 11
 
-**Guide:** s5_v2_validation_loop.md (Dimensions 10, 11: Gates 24, 25), spec_validation.md
+**Guide:** stages/s5/s5_v2_validation_loop.md (Dimensions 10, 11: Gates 24, 25), reference/spec_validation.md
 
 ---
 
@@ -696,7 +696,7 @@ Implementation plan (~400 lines) in each feature folder containing comprehensive
 
 **See:** S5, Implementation Execution, implementation_checklist.md
 
-**Guide:** s5_v2_validation_loop.md, s5_v2_validation_loop.md, round3 guides
+**Guide:** stages/s5/s5_v2_validation_loop.md
 
 ---
 
@@ -723,7 +723,7 @@ S10 mandatory testing by the user before commit.
 
 **See:** S10, Mandatory Gates
 
-**Guide:** s7_epic_cleanup.md
+**Guide:** stages/s10/s10_epic_cleanup.md
 
 ---
 
@@ -764,7 +764,7 @@ Decision process for choosing which workflow to use.
 
 **See:** Debugging Protocol, Missed Requirement
 
-**Guide:** faq_troubleshooting.md
+**Guide:** reference/faq_troubleshooting.md
 
 ---
 
