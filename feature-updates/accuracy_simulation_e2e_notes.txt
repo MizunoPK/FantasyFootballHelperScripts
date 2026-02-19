@@ -46,7 +46,15 @@ run_accuracy_simulation.py already has comprehensive argparse (10 existing args 
 |----------|------|---------|-------|
 | --e2e-test | flag | False | 1 param/1 test value; also for debugging (NEW) |
 | --log-level | str | 'INFO' | Normalized to uppercase; adds CRITICAL; type=str.upper (MODIFIED) |
-| (9 existing args) | — | — | All preserved as-is |
+| --baseline | str | most recent optimal | Path to baseline config folder (EXISTING) |
+| --output | str | 'simulation/accuracy_sim_results' | Output directory for results (EXISTING) |
+| --data | str | 'simulation/sim_data' | Path to sim_data folder (EXISTING) |
+| --test-values | int | 3 | Number of test values per parameter (EXISTING) |
+| --num-params | int | 1 | Number of parameters to test at once (EXISTING) |
+| --max-workers | int | 4 | Parallel workers for config evaluation (EXISTING) |
+| --use-processes | flag | True | Use ProcessPoolExecutor (default) (EXISTING) |
+| --no-use-processes | flag | — | Use ThreadPoolExecutor instead (EXISTING) |
+| --enable-log-file | flag | False | Log to logs/accuracy_simulation/ (EXISTING) |
 
 ## Success Criteria
 

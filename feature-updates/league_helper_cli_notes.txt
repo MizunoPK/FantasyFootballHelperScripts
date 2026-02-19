@@ -28,6 +28,7 @@ This is the largest refactoring scope of all 7 scripts (~10 files). It follows t
    (PlayerManager, ModifyPlayerDataModeManager, FantasyTeam, TradeSimulatorModeManager,
     trade_analyzer, AddToRosterModeManager)
 6. Implement --e2e-test mode: run all 5 modes via execute_e2e() methods, ≤180s total
+   (add_to_roster, starter_helper, trade_simulator, modify_player_data, save_calculated_points)
 7. Add graceful skip: exit 0 if league_config.json not found in E2E mode
 
 ## Design Decisions (from KAI-10 S2)
@@ -38,7 +39,9 @@ This is the largest refactoring scope of all 7 scripts (~10 files). It follows t
   → create_settings_from_dict() → Settings dataclass
 - --week and --season default to None: use league_config.json values when not provided
 - No --config-path: ConfigManager auto-resolves from --data-folder
-- E2E implementation: each of 5 mode managers gets an execute_e2e() method (no user prompts)
+- E2E implementation: each of the 5 mode managers gets an execute_e2e() method (no user prompts):
+  AddToRosterModeManager, StarterHelperModeManager, TradeSimulatorModeManager,
+  ModifyPlayerDataModeManager, SaveCalculatedPointsManager
 - Graceful skip: if league_config.json not at data_folder path, exit 0 with info message
 - --my-team-name consistent with player_fetcher naming (not --team-name)
 
@@ -67,7 +70,7 @@ This is the largest refactoring scope of all 7 scripts (~10 files). It follows t
 | --num-runners-up | int | 9 | Replaces NUM_TRADE_RUNNERS_UP |
 | --min-trade-improvement | float | 0 | Replaces MIN_TRADE_IMPROVEMENT |
 | --data-folder | str | '../data' | Path to data directory |
-| --mode | str | None | Mode to run (non-E2E): add-to-roster, starter-helper, etc. |
+| --mode | str | None | Mode to run (non-E2E). choices: add-to-roster, starter-helper, trade-simulator, modify-player-data, save-calculated-points |
 | --week | int | None | Override league_config.json CURRENT_NFL_WEEK |
 | --season | int | None | Override league_config.json NFL_SEASON |
 | --enable-log-file | flag | False | Pre-existing — preserved as-is |
@@ -75,7 +78,7 @@ This is the largest refactoring scope of all 7 scripts (~10 files). It follows t
 ## Success Criteria
 
 - [ ] python run_league_helper.py --help shows all 12 arguments
-- [ ] python run_league_helper.py --e2e-test runs all 5 modes and exits 0 in ≤180s
+- [ ] python run_league_helper.py --e2e-test runs all 5 modes (add-to-roster, starter-helper, trade-simulator, modify-player-data, save-calculated-points) and exits 0 in ≤180s
 - [ ] python run_league_helper.py --e2e-test --data-folder /tmp/nonexistent exits 0 (graceful skip)
 - [ ] python run_league_helper.py --e2e-test --log-level DEBUG enables DEBUG logging
 - [ ] python run_league_helper.py --my-team-name "My Team" uses that name throughout

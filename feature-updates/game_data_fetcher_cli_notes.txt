@@ -28,12 +28,13 @@ request_timeout and rate_limit_delay as constructor parameters.
 3. Remove config import from runner (NFL_SEASON, CURRENT_NFL_WEEK)
 4. Remove os.chdir() — use sys.path.insert only (like player_fetcher pattern)
 5. Wire --log-level to setup_logger() (currently hardcoded "INFO")
-6. Implement --e2e-test mode: Week 1 data only, exits 0 in ≤180s
+6. Implement --e2e-test mode: Week 1 data only, writes to /tmp/game_data_e2e_test.csv (not data/), exits 0 in ≤180s
 
 ## Design Decisions (from KAI-10 S2)
 
 - No --debug flag: --e2e-test serves both purposes
 - E2E mode: fetch Week 1 only (weeks=[1]) — deterministic, reliable historical data
+- E2E output: writes to /tmp/game_data_e2e_test.csv (overrides --output default) to avoid contaminating data/game_data.csv
 - --historical-season flag: explicit flag replaces implicit year-comparison logic
 - --request-timeout exposed as CLI arg; --rate-limit-delay is unused in code (not added)
 - --data-folder, --validate, --clean: out of scope (follow DISCOVERY scope strictly)
@@ -62,7 +63,7 @@ epic (Feature 01 REQ-09), not this feature.
 ## Success Criteria
 
 - [ ] python run_game_data_fetcher.py --help shows all 8 arguments
-- [ ] python run_game_data_fetcher.py --e2e-test exits 0 in ≤180s
+- [ ] python run_game_data_fetcher.py --e2e-test exits 0 in ≤180s, writes to /tmp/game_data_e2e_test.csv (not data/)
 - [ ] python run_game_data_fetcher.py --e2e-test --log-level DEBUG exits 0 with DEBUG output
 - [ ] python run_game_data_fetcher.py (no args) behavior identical to current (season=2025, week=17)
 - [ ] python run_game_data_fetcher.py --season 2024 --historical-season sets current_week to 18
