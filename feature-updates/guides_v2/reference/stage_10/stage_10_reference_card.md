@@ -144,9 +144,8 @@ python tests/run_all_tests.py
 - Brief summary of epic
 
 ### Body:
-- List major features implemented
-- List major changes made
-- Keep concise (5-10 lines)
+Three sections (Major features, Key changes, Testing):
+- Keep concise (5-10 lines total)
 
 ### Example:
 ```text
@@ -156,7 +155,15 @@ Major features:
 - Integrate ADP data from FantasyPros API
 - Add injury assessment to player projections
 - Implement schedule strength analysis
-- Update recommendation engine with new multipliers
+
+Key changes:
+- player_data_fetcher.py: Add ADP API integration
+- projection_engine.py: Add injury/schedule multipliers
+
+Testing:
+- All unit tests passing (2200/2200)
+- Epic smoke testing passed
+- Epic QC Validation Loop passed
 ```
 
 ---

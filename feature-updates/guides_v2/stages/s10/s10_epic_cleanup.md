@@ -78,7 +78,7 @@ Epic cleanup typically takes 15-30 minutes.
 │ CRITICAL RULES FOR STAGE 10                                     │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                  │
-│ 1. ⚠️ STAGE 6 MUST BE COMPLETE                                  │
+│ 1. ⚠️ STAGE 9 MUST BE COMPLETE                                  │
 │    - Verify Epic Final QC passed                                │
 │    - Verify no pending bug fixes or features                    │
 │    - Verify EPIC_README.md shows S9 complete               │
@@ -94,10 +94,10 @@ Epic cleanup typically takes 15-30 minutes.
 │    - All feature README.md files complete                       │
 │    - epic_smoke_test_plan.md reflects final implementation      │
 │                                                                  │
-│ 4. ⚠️ USER TESTING COMPLETED IN STAGE 6                         │
+│ 4. ⚠️ USER TESTING COMPLETED IN STAGE 9                         │
 │    - S9 includes mandatory user testing (Step 6)           │
 │    - User must report "No bugs found" before S10            │
-│    - If bugs found in S9 → Bug fixes → Restart S6    │
+│    - If bugs found in S9 → Bug fixes → Restart S9    │
 │    - S10 only begins after user testing passed              │
 │                                                                  │
 │ 5. ⚠️ COMMIT MESSAGE MUST USE NEW FORMAT                        │
