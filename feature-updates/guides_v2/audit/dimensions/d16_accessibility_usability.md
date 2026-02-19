@@ -415,20 +415,46 @@ echo "Large files missing TOC: $MISSING_TOC"
 
 ### Script 2: Code Block Language Tags (IN pre_audit_checks.sh)
 
+> ⚠️ **Critical Note:** Do NOT use `grep "^\`\`\`$"` to find untagged code blocks.
+> This pattern matches closing fences (always bare ```) and produces **100% false positives**.
+> Closing fences never have language tags — only opening fences can be untagged.
+> Use the Python pair-tracker below instead.
+
 ```bash
 # CHECK 7: Code Block Language Tags (D16)
 # ============================================================================
 
 echo "=== Code Block Language Tags (D16) ==="
 
-UNTAGGED_BLOCKS=$(grep -rn "^\`\`\`$" stages templates prompts 2>/dev/null | wc -l)
+# Tracks fence pairs — only flags OPENING fences without a language tag.
+# Closing fences (always bare ```) are intentionally excluded.
+UNTAGGED_COUNT=$(python3 -c "
+import glob
+count = 0
+for fname in glob.glob('stages/**/*.md', recursive=True) + \
+             glob.glob('templates/**/*.md', recursive=True) + \
+             glob.glob('prompts/**/*.md', recursive=True) + \
+             glob.glob('reference/**/*.md', recursive=True):
+    try:
+        in_block = False
+        for line in open(fname):
+            s = line.rstrip()
+            if not in_block:
+                if s == '\`\`\`':
+                    count += 1
+                    in_block = True
+                elif s.startswith('\`\`\`') and len(s) > 3:
+                    in_block = True
+            elif s == '\`\`\`':
+                in_block = False
+    except: pass
+print(count)
+" 2>/dev/null)
 
-if [ "$UNTAGGED_BLOCKS" -gt 0 ]; then
-  echo "⚠️  Code blocks without language tags: $UNTAGGED_BLOCKS"
-  echo "   (First 5 examples:)"
-  grep -rn "^\`\`\`$" stages templates prompts 2>/dev/null | head -5
+if [ "${UNTAGGED_COUNT:-0}" -gt 0 ]; then
+  echo "⚠️  Opening code blocks without language tags: $UNTAGGED_COUNT"
 else
-  echo "✅ All code blocks have language tags"
+  echo "✅ All code blocks have language tags (opening fences)"
 fi
 ```markdown
 

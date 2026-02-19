@@ -306,16 +306,48 @@ echo ""
 echo -e "${BLUE}=== Code Block Language Tags (D16) ===${NC}"
 echo ""
 
-UNTAGGED_BLOCKS=$(grep -rn "^\`\`\`$" stages templates prompts 2>/dev/null | wc -l)
+# NOTE: Do NOT use `grep "^\`\`\`$"` — it matches closing fences (always bare ```),
+# producing 100% false positives. This Python approach tracks fence pairs and only
+# flags OPENING fences without a language tag.
+UNTAGGED_BLOCKS=$(python3 -c "
+import glob
+count = 0
+examples = []
+for fname in glob.glob('stages/**/*.md', recursive=True) + \
+             glob.glob('templates/**/*.md', recursive=True) + \
+             glob.glob('prompts/**/*.md', recursive=True) + \
+             glob.glob('reference/**/*.md', recursive=True):
+    try:
+        in_block = False
+        for i, line in enumerate(open(fname), 1):
+            s = line.rstrip()
+            if not in_block:
+                if s == '\`\`\`':
+                    count += 1
+                    if len(examples) < 5:
+                        examples.append(f'{fname}:{i}')
+                    in_block = True
+                elif s.startswith('\`\`\`') and len(s) > 3:
+                    in_block = True
+            elif s == '\`\`\`':
+                in_block = False
+    except: pass
+for ex in examples:
+    print(f'EXAMPLE:{ex}', flush=True)
+print(count)
+" 2>/dev/null)
 
-if [ "$UNTAGGED_BLOCKS" -gt 0 ]; then
-  echo -e "${YELLOW}⚠️  Code blocks without language tags: $UNTAGGED_BLOCKS${NC}"
+UNTAGGED_EXAMPLES=$(echo "$UNTAGGED_BLOCKS" | grep "^EXAMPLE:" | sed 's/^EXAMPLE://')
+UNTAGGED_COUNT=$(echo "$UNTAGGED_BLOCKS" | tail -1)
+
+if [ "${UNTAGGED_COUNT:-0}" -gt 0 ]; then
+  echo -e "${YELLOW}⚠️  Opening code blocks without language tags: $UNTAGGED_COUNT${NC}"
   echo "   (First 5 examples:)"
-  grep -rn "^\`\`\`$" stages templates prompts 2>/dev/null | head -5
-  ((WARNING_ISSUES += UNTAGGED_BLOCKS))
-  ((TOTAL_ISSUES += UNTAGGED_BLOCKS))
+  echo "$UNTAGGED_EXAMPLES" | head -5 | sed 's/^/   /'
+  ((WARNING_ISSUES += UNTAGGED_COUNT))
+  ((TOTAL_ISSUES += UNTAGGED_COUNT))
 else
-  echo -e "${GREEN}✅ All code blocks have language tags${NC}"
+  echo -e "${GREEN}✅ All code blocks have language tags (opening fences)${NC}"
 fi
 
 echo ""
