@@ -647,6 +647,8 @@ All positions supported ✅
 - **Old:** Round 1 (Integration) → Round 2 (Consistency) → Round 3 (Success) → Any issue → RESTART from beginning
 - **New:** Check ALL concerns EVERY round → Fix issues immediately → Continue validation until 3 consecutive clean
 
+**Important:** S7.P2 uses fix-and-continue (NOT restart to S7.P1). The CLAUDE.md restart protocol applies to S7.P1 smoke testing only (Part N fails → restart from Part 1). If S7.P2 finds issues, fix immediately and continue — do NOT restart to S7.P1.
+
 ---
 
 ## Example Validation Round Sequence
