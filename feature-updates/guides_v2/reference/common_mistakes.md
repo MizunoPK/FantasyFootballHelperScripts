@@ -88,8 +88,8 @@
 - ❌ Not getting user approval (Gate 4.5)
 
 ### S5: Implementation Planning
-- ❌ Skipping iterations or gates
-- ❌ Not creating questions.md when confidence < MEDIUM
+- ❌ Skipping dimensions or gates in the Validation Loop
+- ❌ Exiting the Validation Loop before achieving 3 consecutive clean rounds (confidence must be MEDIUM or HIGH)
 - ❌ Proceeding without user approval of implementation_plan.md (Gate 5)
 
 ### S6: Implementation
