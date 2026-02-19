@@ -29,7 +29,7 @@ STEP 3: Documentation Verification (5-10 min)
     └─ Update any incomplete documentation
     ↓
 STEP 4: Guide Update from Lessons Learned (20-45 min) ← S10.P1 MANDATORY
-    ├─ Read guide_update_workflow.md (complete 9-step process)
+    ├─ Read stages/s10/s10_p1_guide_update_workflow.md (complete 9-step process)
     ├─ Analyze ALL lessons_learned.md files (epic + features)
     ├─ Create GUIDE_UPDATE_PROPOSAL.md (prioritized P0-P3)
     ├─ Present EACH proposal to user (individual approval)
