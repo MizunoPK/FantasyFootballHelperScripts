@@ -397,7 +397,7 @@ bash feature-updates/guides_v2/parallel_work/scripts/validate_structure.sh .
 - User approval gates (Gates 3, 4.5, 5), zero autonomous resolution, continuous testing
 
 **Implementation:**
-- Test-driven development (S4 before S5), 22 verification iterations (S5 Rounds 1-3)
+- Test-driven development (S4 before S5), S5 v2: 2-phase approach (draft creation 60-90 min + validation loop with 11 S5-specific dimensions)
 - Validation Loop validation (3 consecutive clean rounds, zero deferred issues, max 10 rounds)
 - QC restart protocol (if ANY issues → restart), 100% test pass, zero tech debt tolerance
 

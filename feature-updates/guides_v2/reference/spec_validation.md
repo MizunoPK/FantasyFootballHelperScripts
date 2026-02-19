@@ -194,9 +194,9 @@ Conclusion: Must load week_N+1 for week N actuals
 Epic says: "week_17 folders for projected, week_18 folders for actual"
 
 Pattern Test:
-- Week 1: week_01 (projected), week_02 (actual) ✓ Pattern holds
-- Week 2: week_02 (projected), week_03 (actual) ✓ Pattern holds
-- Week 17: week_17 (projected), week_18 (actual) ✓ Pattern holds
+- Week 1: week_01 (projected), week_02 (actual) [x] Pattern holds
+- Week 2: week_02 (projected), week_03 (actual) [x] Pattern holds
+- Week 17: week_17 (projected), week_18 (actual) [x] Pattern holds
 
 Conclusion: This is a GENERAL PATTERN, not week 17 special case
 ```
@@ -503,7 +503,7 @@ Result: Catastrophic bug that survived 7 stages
 **What Should Have Happened (RIGHT):**
 
 S2.5:
-1. Close spec.md ✓
+1. Close spec.md ✅
 2. Re-read epic: "week_17 folders for projected, week_18 for actual"
 3. Question: "Why week 17? Is this special or pattern?"
 4. Investigate code: json_exporter.py shows week_N has 0.0 for week N

@@ -36,7 +36,7 @@
 │ ✓ README.md (this file)                                          │
 │ ✓ prompts_reference_v2.md (consolidated prompts)                 │
 │ ✓ EPIC_WORKFLOW_USAGE.md (usage guide)                           │
-│ ✓ GUIDES_V2_FORMAL_AUDIT_GUIDE.md (audit methodology)            │
+│ ✓ audit/ (modular audit system: stages, dimensions, scripts)     │
 │ ✓ Every other markdown file in this directory                    │
 │                                                                  │
 │ ALWAYS use Glob to discover all files:                           │

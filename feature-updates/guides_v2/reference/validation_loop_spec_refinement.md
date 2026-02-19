@@ -210,8 +210,8 @@ Evidence: ConfigManager.py:234
 Epic Request: "Load ADP data and calculate multipliers"
 
 spec.md Requirements:
-1. Load ADP data from CSV (Epic request line 12) ✓
-2. Calculate multipliers based on ADP (Epic request line 13) ✓
+1. Load ADP data from CSV (Epic request line 12) [x]
+2. Calculate multipliers based on ADP (Epic request line 13) [x]
 3. Generate visualization dashboard ← NOT REQUESTED (scope creep)
 4. Export to multiple formats ← NOT REQUESTED (scope creep)
 ```
@@ -459,8 +459,8 @@ System must handle timeout after 30 seconds.
 Epic Request: "Load player data and calculate scores"
 
 spec.md:
-1. Load player data ✓
-2. Calculate scores ✓
+1. Load player data [x]
+2. Calculate scores [x]
 3. Generate PDF reports ← NOT REQUESTED
 4. Send email notifications ← NOT REQUESTED
 ```

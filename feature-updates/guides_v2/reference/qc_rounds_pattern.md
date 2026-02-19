@@ -228,13 +228,13 @@ assert df['player_name'].str.len().min() > 2  # Verify reasonable values
 
 ```python
 ## For ALL data files/outputs:
-1. File exists? ✓
-2. File has correct structure (columns/fields)? ✓
-3. File has data (not empty)? ✓
-4. Data values are correct type? ✓
-5. Data values in expected range? ✓
-6. Data values not placeholder/zero/null? ✓
-7. Data values match spec requirements? ✓
+1. File exists? [x]
+2. File has correct structure (columns/fields)? [x]
+3. File has data (not empty)? [x]
+4. Data values are correct type? [x]
+5. Data values in expected range? [x]
+6. Data values not placeholder/zero/null? [x]
+7. Data values match spec requirements? [x]
 ```
 
 ### Pattern 2: Algorithm Verification

@@ -368,8 +368,8 @@ spec.md Requirements:
 - R4: Handle errors
 
 test_strategy.md:
-- Test 1: Load ADP data ✓
-- Test 2: Calculate multipliers ✓
+- Test 1: Load ADP data [x]
+- Test 2: Calculate multipliers [x]
 ← Missing: R2 (Validate player names), R4 (Handle errors)
 ```
 

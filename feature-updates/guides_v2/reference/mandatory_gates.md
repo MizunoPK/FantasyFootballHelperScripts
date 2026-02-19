@@ -18,7 +18,7 @@
 7. [S5: Implementation Planning (5 gates per feature)](#s5-implementation-planning-5-gates-per-feature)
 8. [S6: Implementation Execution](#s6-implementation-execution)
 9. [S7: Post-Implementation (2 gates per feature)](#s7-post-implementation-2-gates-per-feature)
-10. [S8.P1 & 5e: Post-Feature Updates](#s8p1--5e-post-feature-updates)
+10. [S8: Post-Feature Updates](#s8-post-feature-updates)
 11. [S9: Epic-Level Final QC](#s9-epic-level-final-qc)
 12. [S10: Epic Cleanup (2 gates per epic)](#s10-epic-cleanup-2-gates-per-epic)
 13. [Summary Statistics](#summary-statistics)
@@ -76,21 +76,21 @@
 
 | Stage | Gate | Location | Pass Criteria | Restart if Fail? |
 |-------|------|----------|---------------|------------------|
-| 1 | None | - | User confirmation recommended | No |
-| 2a | Gate 1: Research Audit | S2.P1 | All 4 categories with evidence | Yes (Redo research) |
-| 2b | Gate 2: Spec Alignment | S2.P2 | Zero scope creep + zero missing | Yes (Revise spec) |
-| **3** | **Gate 3: Checklist Approval (NEW)** | **S2.P2** | **User answers ALL questions (100%)** | **Yes (Revise/Re-present)** |
-| 4.5 | Gate 4.5: Epic Plan Approval | S3.P3 | User approves complete plan | Yes (S3) |
-| **5** | **Gate 5: Epic Test Plan Approval (NEW)** | **After S4** | **User approves epic_smoke_test_plan.md** | **Yes (Revise test plan)** |
-| 5aa | Dimension 4 validation | Round 1 | All tasks have acceptance criteria | Yes (Iteration 4) |
-| 5ac | Validation Round (multiple dimensions) | Part 2 | ALL 4 PARTS pass with 100% | Yes (Validation Round (multiple dimensions)) |
-| 5ac | Dimension 11 validation | Part 2 | Spec matches validated docs | Yes (User decides) |
-| 5ac | Validation Loop complete (3 consecutive clean rounds) | Part 2 | GO decision (confidence >= MEDIUM) | Yes (Fix + redo) |
-| S5 | Gate 5: Implementation Plan Approval | After S5 | User approves implementation_plan.md | Yes (Revise plan) |
-| S7.P1 | Smoke Part 3 | Smoke Testing | Data values verified | Yes (Part 1) |
-| S7.P2 | Validation Loop | Validation Loop | 3 consecutive clean rounds | Yes (Smoke Part 1) |
-| 7 | Unit Tests | Cleanup | 100% test pass (exit code 0) | Yes (Fix tests) |
-| 7 | User Testing | Cleanup | ZERO bugs found by user | Yes (S9) |
+| S1 | None | - | User confirmation recommended | No |
+| S2 | Gate 1: Research Audit | S2.P1 | All 4 categories with evidence | Yes (Redo research) |
+| S2 | Gate 2: Spec Alignment | S2.P2 | Zero scope creep + zero missing | Yes (Revise spec) |
+| S2 | Gate 3: Checklist Approval | S2.P2 | User answers ALL questions (100%) | Yes (Revise/Re-present) |
+| S3 | Gate 4.5: Epic Plan Approval | S3.P3 | User approves complete plan | Yes (S3) |
+| S5 | Gate 4a: Dimension 4 Validation | S5 v2 Validation Loop | All tasks have acceptance criteria | Yes (Fix + redo) |
+| S5 | Gate 7a: Backward Compatibility | S5 v2 Validation Loop | Compatibility strategy documented | Yes (Fix + redo) |
+| S5 | Gate 23a: Pre-Impl Spec Audit (5 parts) | S5 v2 Validation Loop | ALL 5 PARTS pass with 100% | Yes (Fix + redo) |
+| S5 | Gate 25: Spec Validation Check | S5 v2 Validation Loop | Spec matches validated docs | Yes (User decides) |
+| S5 | Gate 24: GO/NO-GO Decision | S5 v2 Validation Loop | GO decision (confidence >= MEDIUM) | Yes (Fix + redo) |
+| S5 | Gate 5: Implementation Plan Approval | After S5 v2 | User approves implementation_plan.md | Yes (Revise plan) |
+| S7 | Smoke Part 3 | S7.P1 | Data values verified | Yes (Restart S7.P1) |
+| S7 | Validation Loop | S7.P2 | 3 consecutive clean rounds | No (Fix + continue) |
+| S10 | Unit Tests | S10 | 100% test pass (exit code 0) | Yes (Fix tests) |
+| S10 | User Testing | S10 | ZERO bugs found by user | Yes (S9) |
 
 ---
 
@@ -647,7 +647,7 @@
 
 ---
 
-## S8.P1 & 5e: Post-Feature Updates
+## S8: Post-Feature Updates
 
 ### No Mandatory Gates
 
