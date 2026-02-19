@@ -461,6 +461,35 @@ Learn from actual audit rounds:
 
 ---
 
+## Outputs
+
+**Output files are temporary working documents — never commit them.**
+
+### Per-Round Working Files (`audit/outputs/`)
+
+| File | Created When | Purpose |
+|------|-------------|---------|
+| `round_N_discovery_report.md` | Stage 1 | Issues found during discovery |
+| `round_N_fix_plan.md` | Stage 2 | Grouped fixes with priorities |
+| `round_N_verification_report.md` | Stage 4 | Before/after evidence |
+| `round_N_loop_decision.md` | Stage 5 | Round summary and exit decision |
+| `round_N_improvements_working.md` | Start of round | Improvement candidates for audit guides |
+
+### Improvements Working File
+
+`round_N_improvements_working.md` captures improvement opportunities for the audit guides
+themselves — not epic workflow guides (those go through S10 lessons learned).
+
+- **Created:** At start of each round using `templates/improvements_working_template.md`
+- **Updated:** Add entries throughout the round as improvements are noticed
+- **Reviewed:** At round completion in Stage 5 "End-of-Round: Improvements Review"
+- **Cleared:** Not carried forward — a fresh file is created for each round
+- **Never committed:** All `outputs/` files stay local
+
+**See:** `stages/stage_5_loop_decision.md` → "End-of-Round: Improvements Review" for the full workflow.
+
+---
+
 ## Critical Success Factors
 
 ### Minimum Requirements for Audit Completion

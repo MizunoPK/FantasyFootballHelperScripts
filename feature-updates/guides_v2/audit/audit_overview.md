@@ -184,6 +184,16 @@ Issue discovered → Can I fix with confidence?
 - False negatives cause user confusion
 - When uncertain, ASK USER (don't defer)
 
+**7. Continuous Improvement Through Audit Findings**
+- While auditing, capture improvement opportunities for the audit guides in a working file
+- At the end of each complete round: write formal proposals, present to user for approval,
+  implement approved changes, then meta-audit the changed files
+- Keeps the audit system itself accurate and improving without interrupting audit flow
+- **Scope:** Improvements target audit guides ONLY (`audit/` folder) — epic workflow guide
+  improvements go through S10 lessons learned (separate ownership)
+- **Working file:** `audit/outputs/round_N_improvements_working.md` (temporary, not committed)
+- **Full process:** `stages/stage_5_loop_decision.md` → "End-of-Round: Improvements Review"
+
 ---
 
 ## How to Achieve Fresh Eyes (Operational Guide)
@@ -429,6 +439,8 @@ Round N:
           If issues found → Fix all → Re-run Sub-Round N.4
 
 Round N complete when: ALL 4 sub-rounds find 0 new issues
+  ↓
+End-of-Round Improvements Review (see stage_5_loop_decision.md → "End-of-Round: Improvements Review")
   ↓
 Round N+1 (with fresh eyes, new patterns, different approach)
   ↓

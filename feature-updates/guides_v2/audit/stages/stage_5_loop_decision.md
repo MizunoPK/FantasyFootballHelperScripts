@@ -14,10 +14,11 @@
 2. [Prerequisites](#prerequisites)
 3. [Exit Criteria Checklist](#exit-criteria-checklist)
 4. [Decision Logic](#decision-logic)
-5. [If Continuing to Next Round](#if-continuing-to-next-round)
-6. [If Exiting Audit](#if-exiting-audit)
-7. [User Presentation](#user-presentation)
-8. [Commit Strategy](#commit-strategy)
+5. [End-of-Round: Improvements Review](#end-of-round-improvements-review)
+6. [If Continuing to Next Round](#if-continuing-to-next-round)
+7. [If Exiting Audit](#if-exiting-audit)
+8. [User Presentation](#user-presentation)
+9. [Commit Strategy](#commit-strategy)
 
 ---
 
@@ -282,6 +283,132 @@ fi
 
 ---
 
+## End-of-Round: Improvements Review
+
+### When This Runs
+
+**Trigger:** All 4 sub-rounds of Round N found ZERO issues (round complete)
+
+**Runs:** BEFORE deciding to exit OR loop to next round — at every round completion.
+
+---
+
+### Purpose
+
+As the audit processes guides, the agent naturally notices opportunities to improve the audit guides
+themselves. This step captures those observations, proposes changes formally, and gets user approval
+before implementing.
+
+**Scope — Audit Guides ONLY:**
+- ✅ Files in `audit/` (`stages/`, `dimensions/`, `reference/`, `templates/`, `README.md`, `audit_overview.md`)
+- ❌ Epic workflow guides (`stages/s1/` through `stages/s10/`, etc.) — those improvements go through S10 lessons learned
+
+---
+
+### Step 1: Review Working File
+
+Open `audit/outputs/round_N_improvements_working.md`.
+
+- **If empty or does not exist:** No improvements this round — skip to next section
+- **If has entries:** Proceed to Step 2
+
+---
+
+### Step 2: Write Formal Proposals
+
+For each improvement candidate in the working file, write a formal proposal
+(use `../templates/improvements_working_template.md` → "Formal Proposals" section as your format):
+
+```markdown
+## Improvement Proposal N: [Short Name]
+
+**Category:** [Dimension Guidance | Process Clarity | New Rule | New Example | Readability | Other]
+**Priority:** [High | Medium | Low]
+**Affected Files:** [List of audit files to change]
+
+**Problem:**
+[What is currently unclear, wrong, missing, or misleading?]
+
+**Proposed Change:**
+[Exactly what to add / change / remove — specific enough to implement directly]
+
+**Why This Matters:**
+[Impact on audit quality, agent effectiveness, or guide accuracy]
+
+**Example (if applicable):**
+[Before / After or concrete example]
+```
+
+---
+
+### Step 3: Present to User
+
+Present ALL proposals in a single message:
+
+```markdown
+## End-of-Round N: Improvements Review
+
+Identified [N] improvement candidates for the audit guides this round.
+
+[Paste all formal proposals here]
+
+**For each proposal, please indicate:** Approve / Reject / Modify
+```
+
+**Wait for user response before proceeding.**
+
+---
+
+### Step 4: Implement Approved Changes
+
+For each approved proposal:
+1. Apply the specific change to the affected audit file(s)
+2. Mark the entry in the working file as: `IMPLEMENTED`
+
+For rejected proposals: mark as `REJECTED` (note user's reasoning if provided).
+
+---
+
+### Step 5: Meta-Audit Changed Files
+
+Run a focused mini-validation on only the audit files that were changed:
+
+**Checks to run per changed file:**
+- [ ] D1: No broken cross-references introduced
+- [ ] D2: Consistent terminology (no notation drift)
+- [ ] D9: Internal consistency within changed sections
+- [ ] D15: No duplication introduced
+
+**Process:**
+```text
+For each changed audit file:
+  1. Read the changed sections
+  2. Check D1 / D2 / D9 / D15
+  3. Issues found → fix immediately → re-check same file
+  4. Clean → proceed to next file
+
+All changed files clean → Meta-audit complete
+```
+
+**This is a focused check, NOT a full 3-round audit.** Exit when all changed files pass.
+
+---
+
+### Step 6: Clear Working File
+
+The working file is temporary — **do NOT commit it.**
+
+- **Continuing to Round N+1:** File is no longer needed. Create a fresh
+  `round_(N+1)_improvements_working.md` at the start of Round N+1.
+- **Exiting audit:** Leave the working file uncommitted (expected — `outputs/` files are never committed).
+
+---
+
+**After improvements review complete:**
+→ Proceed to [If Continuing to Next Round](#if-continuing-to-next-round) or [If Exiting Audit](#if-exiting-audit)
+
+---
+
 ## If Continuing to Next Round
 
 ### When to Loop
@@ -326,17 +453,20 @@ fi
 ```text
 1. Take 5-10 minute break (clear mental model)
    ↓
-2. Do NOT look at Round N notes until after discovery
+2. Create fresh `round_(N+1)_improvements_working.md` in `audit/outputs/`
+   (use `../templates/improvements_working_template.md`)
    ↓
-3. Return to Stage 1: Discovery
+3. Do NOT look at Round N notes until after discovery
    ↓
-4. Use completely different patterns than Round N
+4. Return to Stage 1: Discovery
    ↓
-5. Search folders in different order
+5. Use completely different patterns than Round N
    ↓
-6. Complete all 5 stages again
+6. Search folders in different order
    ↓
-7. Return to Stage 5 decision
+7. Complete all 5 stages again
+   ↓
+8. Return to Stage 5 decision
 ```
 
 ---
