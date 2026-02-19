@@ -3,99 +3,249 @@
 **Purpose:** Define how to validate the complete epic end-to-end
 
 **Created:** 2026-02-19 (S1)
-**Last Updated:** 2026-02-19 (S1 — INITIAL)
+**Last Updated:** 2026-02-19 (S3 — FINAL pre-implementation version)
 
-> ⚠️ INITIAL VERSION — Based on S1 assumptions. Will be updated in S4 and after S8.P2.
+> S3 VERSION — Based on approved spec.md. Will update in S8.P2 after actual implementation.
+
+---
+
+## Integration Points
+
+### Integration Point 1: run_game_data_fetcher.py → fetch_game_data()
+
+**Features Involved:** feature_01_game_data_fetcher_cli
+**Type:** Direct function call (no subprocess)
+**Flow:**
+- Runner: parses CLI args, builds params, calls `fetch_game_data()`
+- `fetch_game_data()`: accepts `request_timeout` (KAI-10 REQ-09 already applied)
+- Runner: passes `request_timeout=args.request_timeout` (REQ-10)
+
+**Test Need:** Verify runner correctly passes all args to fetch_game_data() including new request_timeout param.
+
+### Integration Point 2: run_game_data_fetcher.py → setup_logger()
+
+**Features Involved:** feature_01_game_data_fetcher_cli
+**Type:** Direct function call
+**Flow:**
+- Runner: passes `args.log_level` (not hardcoded "INFO") to setup_logger()
+
+**Test Need:** Verify --log-level DEBUG produces DEBUG output, default produces INFO output.
 
 ---
 
 ## Epic Success Criteria
 
-**The epic is successful if:**
+**The epic is successful if ALL of these criteria are met:**
 
-1. `run_game_data_fetcher.py --help` shows all 8 CLI arguments (4 existing + 4 new)
-2. `run_game_data_fetcher.py --e2e-test` completes in ≤180s and writes only to `/tmp/`
-3. `run_game_data_fetcher.py` (no args) behaves identically to pre-refactor (season=2025, week=17)
-4. `grep "from config import" run_game_data_fetcher.py` returns empty
-5. `grep "os.chdir" run_game_data_fetcher.py` returns empty
-6. All existing tests continue to pass (100% pass rate)
+### Criterion 1: All 8 CLI Args Present
+✅ **MEASURABLE:** `python run_game_data_fetcher.py --help` output contains all 8 args with correct defaults
 
-**Epic is considered SUCCESSFUL when ALL criteria above are met.**
+**Verification:**
+```bash
+python run_game_data_fetcher.py --help | grep -E "(season|current-week|output|weeks|e2e-test|log-level|request-timeout|historical-season)"
+```
+Expected: 8 lines, each showing an argument name
+
+### Criterion 2: E2E Mode Completes and Writes to /tmp Only
+✅ **MEASURABLE:** `--e2e-test` completes in ≤180s AND writes `/tmp/game_data_e2e_test.csv` AND does NOT modify `data/game_data.csv`
+
+**Verification:**
+```bash
+# Record data/ file state before
+md5sum data/game_data.csv > /tmp/before.md5
+
+# Run E2E
+time python run_game_data_fetcher.py --e2e-test
+
+# Verify /tmp file created, data/ unchanged
+ls -la /tmp/game_data_e2e_test.csv
+md5sum -c /tmp/before.md5
+```
+
+### Criterion 3: Config Imports Removed
+✅ **MEASURABLE:** grep returns empty for both config import and os.chdir patterns
+
+**Verification:**
+```bash
+grep "from config import" run_game_data_fetcher.py  # must return empty
+grep "os.chdir" run_game_data_fetcher.py             # must return empty
+```
+
+### Criterion 4: Backward Compatibility Preserved
+✅ **MEASURABLE:** Default argparse values match pre-refactor config values exactly
+
+**Verification:**
+```bash
+python run_game_data_fetcher.py --help | grep -A1 "\-\-season"    # default: 2025
+python run_game_data_fetcher.py --help | grep -A1 "\-\-current-week"  # default: 17
+```
+
+### Criterion 5: Unit Test Suite 100% Pass
+✅ **MEASURABLE:** pytest reports 0 failures, all tests pass
+
+**Verification:**
+```bash
+pytest tests/ -v 2>&1 | tail -5
+```
+Expected: `X passed, 0 failed`
 
 ---
 
-## Update History
+## Specific Test Scenarios
 
-| Date | Stage | Feature | What Changed | Why |
-|------|-------|---------|--------------|-----|
-| 2026-02-19 | S1 | (initial) | Initial plan created | Epic planning based on S1 assumptions |
+### Scenario 1: Import Test
 
----
+**Purpose:** Verify runner imports without error after removing config dependency
 
-## Test Scenarios (INITIAL — Will Refine in S4/S8.P2)
+**Steps:**
+1. Navigate to project root
+2. Run: `python -c "import run_game_data_fetcher; print('OK')"`
 
-### Part 1: Import / Structure Tests
+**Expected Results:**
+✅ Output: `OK`
+✅ No ImportError for config module
+✅ No ImportError for any other module
 
-**Scenario 1: Import test**
-```bash
-python -c "import run_game_data_fetcher; print('OK')"
-```
-**Expected:** No import errors
-
-**Scenario 2: Help output**
-```bash
-python run_game_data_fetcher.py --help
-```
-**Expected:** 8 arguments shown, no crashes
+**Failure Indicators:**
+❌ `ModuleNotFoundError: No module named 'config'` → config import not fully removed
+❌ Any other ImportError → sys.path setup broken
 
 ---
 
-### Part 2: CLI Argument Tests
+### Scenario 2: Help Output
 
-**Scenario 3: E2E test mode**
-```bash
-python run_game_data_fetcher.py --e2e-test
-```
-**Expected:** Exits 0 in ≤180s; `/tmp/game_data_e2e_test.csv` created; `data/game_data.csv` NOT modified
+**Purpose:** Verify all 8 arguments are present with correct defaults
 
-**Scenario 4: Log-level passthrough**
-```bash
-python run_game_data_fetcher.py --e2e-test --log-level DEBUG
-```
-**Expected:** Exits 0; DEBUG-level log lines visible
+**Steps:**
+1. Run: `python run_game_data_fetcher.py --help`
 
-**Scenario 5: Historical season flag**
-```bash
-python run_game_data_fetcher.py --season 2024 --historical-season --e2e-test
-```
-**Expected:** Exits 0; current_week set to 18 (visible in log)
+**Expected Results:**
+✅ `--season` shown with default `2025` (not `None`)
+✅ `--current-week` shown with default `17` (not `None`)
+✅ `--e2e-test` shown as flag
+✅ `--log-level` shown with choices `{DEBUG,INFO,WARNING,ERROR,CRITICAL}` and default `INFO`
+✅ `--request-timeout` shown with default `30`
+✅ `--historical-season` shown as flag
+✅ `--output` shown
+✅ `--weeks` shown
 
----
-
-### Part 3: Backward Compatibility
-
-**Scenario 6: No-args behavior**
-```bash
-python run_game_data_fetcher.py --help | grep -E "(season|current-week|output|weeks)"
-```
-**Expected:** Same default values as before refactor (season=2025, current-week=17)
-
-**Scenario 7: Grep checks**
-```bash
-grep "from config import" run_game_data_fetcher.py  # should return empty
-grep "os.chdir" run_game_data_fetcher.py             # should return empty
-```
-**Expected:** Both return empty
+**Failure Indicators:**
+❌ Any argument missing → not added to parse_args()
+❌ `--season` default is `None` → argparse default not updated (REQ-02 not implemented)
 
 ---
 
-### Part 4: Unit Test Suite
+### Scenario 3: E2E Test Mode
 
-**Scenario 8: Full test suite**
+**Purpose:** Verify E2E mode completes fast, writes to /tmp only, leaves data/ unchanged
+
+**Steps:**
+1. `md5sum data/game_data.csv > /tmp/game_data_before.md5` (save checksum)
+2. `time python run_game_data_fetcher.py --e2e-test`
+3. `ls -la /tmp/game_data_e2e_test.csv`
+4. `md5sum -c /tmp/game_data_before.md5` (verify data/ unchanged)
+
+**Expected Results:**
+✅ Exit code 0
+✅ Completes in ≤180 seconds
+✅ `/tmp/game_data_e2e_test.csv` exists and is non-empty
+✅ `data/game_data.csv` checksum unchanged
+✅ Log output shows "E2E test mode: limiting to week 1"
+
+**Failure Indicators:**
+❌ Exceeds 180s → E2E scope not limited to Week 1
+❌ `/tmp/game_data_e2e_test.csv` not created → output path override not implemented
+❌ `data/game_data.csv` checksum changed → E2E output path not redirected to /tmp
+
+---
+
+### Scenario 4: Log-Level Passthrough
+
+**Purpose:** Verify --log-level is wired to setup_logger() (not hardcoded INFO)
+
+**Steps:**
+1. `python run_game_data_fetcher.py --e2e-test --log-level DEBUG 2>&1 | head -20`
+
+**Expected Results:**
+✅ Exit code 0
+✅ DEBUG-level log lines visible (e.g., lines containing `DEBUG`)
+✅ More verbose output than default INFO run
+
+**Failure Indicators:**
+❌ No DEBUG lines → log_level not passed to setup_logger() (REQ-05 not implemented)
+
+---
+
+### Scenario 5: Historical Season Flag
+
+**Purpose:** Verify --historical-season sets current_week to 18 explicitly
+
+**Steps:**
+1. `python run_game_data_fetcher.py --season 2024 --historical-season --e2e-test --log-level INFO 2>&1 | grep -i "week\|historical"`
+
+**Expected Results:**
+✅ Exit code 0
+✅ Log contains "Historical season mode" message
+✅ Log shows current_week=18 or fetches week 1 with historical context
+
+**Failure Indicators:**
+❌ No "historical" log message → --historical-season not implemented (REQ-09 missing)
+❌ Implicit year-comparison still present → old logic not replaced
+
+---
+
+### Scenario 6: Backward Compatibility
+
+**Purpose:** Verify no-args behavior is identical to pre-refactor
+
+**Steps:**
+1. `python run_game_data_fetcher.py --help | grep -E "default|Default"`
+
+**Expected Results:**
+✅ `--season` default: `2025`
+✅ `--current-week` default: `17`
+✅ `--output` behavior unchanged
+✅ `--log-level` default: `INFO`
+
+**Failure Indicators:**
+❌ Any default differs from above → backward compatibility broken (REQ-08 violated)
+
+---
+
+### Scenario 7: Grep Checks (Anti-Pattern Removal)
+
+**Purpose:** Verify both anti-patterns fully removed from source
+
+**Steps:**
 ```bash
-pytest tests/ -v
+grep "from config import" run_game_data_fetcher.py
+grep "os.chdir" run_game_data_fetcher.py
 ```
-**Expected:** 100% passed, 0 failed
+
+**Expected Results:**
+✅ Both commands return empty (exit code 1 / no matches)
+
+**Failure Indicators:**
+❌ Any output → anti-pattern not fully removed
+
+---
+
+### Scenario 8: Full Unit Test Suite
+
+**Purpose:** Verify 100% pass rate including new test class
+
+**Steps:**
+1. `pytest tests/ -v`
+
+**Expected Results:**
+✅ `tests/root_scripts/test_run_game_data_fetcher.py` listed with 3 tests
+✅ All 3 new tests pass: `test_has_parse_args`, `test_parse_args_defaults`, `test_no_subprocess`
+✅ All existing tests pass (0 failures, 0 errors)
+
+**Failure Indicators:**
+❌ test_run_game_data_fetcher.py not found → test file not created (REQ-11 missing)
+❌ test_parse_args_defaults fails → parse_args() not extracted or defaults wrong
+❌ Any other failure → regression introduced
 
 ---
 
@@ -117,4 +267,13 @@ pytest tests/ -v
 **Part 4: Unit Test Suite**
 - [ ] Scenario 8: Full test suite — ◻️
 
-**Overall Status:** NOT STARTED
+**Overall Status:** NOT STARTED (will execute in S9)
+
+---
+
+## Update History
+
+| Date | Stage | What Changed | Why |
+|------|-------|-------------|-----|
+| 2026-02-19 | S1 | Initial plan created | Epic planning based on S1 assumptions |
+| 2026-02-19 | S3 | Updated to S3 version | Refined with approved spec.md details; added integration points, measurable success criteria, concrete commands |
