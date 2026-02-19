@@ -39,7 +39,7 @@
 
 ### Dimension Focus by Sub-Round
 
-**🚨 CRITICAL:** Only check dimensions assigned to your current sub-round. Do NOT check all 17 dimensions in one discovery phase.
+**🚨 CRITICAL:** Only check dimensions assigned to your current sub-round. Do NOT check all 18 dimensions in one discovery phase.
 
 #### Sub-Round N.1: Core Dimensions
 **Focus on:** D1, D2, D3, D8 (4 dimensions)
@@ -78,7 +78,7 @@
 5. D6 last (templates match current state)
 
 #### Sub-Round N.3: Structural Dimensions
-**Focus on:** D9, D10, D11, D12 (4 dimensions)
+**Focus on:** D9, D10, D11, D12, D18 (5 dimensions)
 **Duration:** 60-90 minutes (full cycle)
 **Why Third:** Structure depends on correct content and references
 
@@ -87,12 +87,14 @@
 - **D10: File Size Assessment** - Files within readable limits (CLAUDE.md <40K, guides <1250 lines)
 - **D11: Structural Patterns** - Guides follow expected template structures
 - **D12: Cross-File Dependencies** - Stage prerequisites match outputs, workflow continuity
+- **D18: Character and Format Compliance** - No Unicode checkboxes, curly quotes, or other banned non-ASCII chars
 
 **Priority Order:**
 1. D10 first (file size issues may require splitting)
-2. D11 second (structural patterns)
-3. D9 third (intra-file consistency)
-4. D12 last (cross-file dependencies require D9-D11 clean)
+2. D18 second (character compliance — 100% automated, run pre-audit script)
+3. D11 third (structural patterns)
+4. D9 fourth (intra-file consistency)
+5. D12 last (cross-file dependencies require D9-D11 clean)
 
 #### Sub-Round N.4: Advanced Dimensions
 **Focus on:** D7, D15, D16 (3 dimensions)
@@ -128,7 +130,7 @@ Output: Discovery report with D1, D2, D3, D8 issues ONLY
 ```diff
 
 **Do NOT:**
-- ❌ Check all 17 dimensions in Sub-Round N.1
+- ❌ Check all 18 dimensions in Sub-Round N.1
 - ❌ Check D10 (file size) during Sub-Round N.1 (save for N.3)
 - ❌ Mix dimensions from different sub-rounds
 - ❌ Skip dimensions assigned to current sub-round

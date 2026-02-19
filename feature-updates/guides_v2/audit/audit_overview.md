@@ -23,7 +23,7 @@
 
 This audit ensures **consistency, accuracy, and completeness** across all guides_v2 files AND related external files.
 
-### The 17 Audit Dimensions
+### The 18 Audit Dimensions
 
 **Core Dimensions (Always Check) - D1, D2, D3, D8:**
 - ✅ **D1: Cross-Reference Accuracy** - All file paths, stage references, and cross-links are valid
@@ -38,11 +38,12 @@ This audit ensures **consistency, accuracy, and completeness** across all guides
 - ✅ **D13: Documentation Quality** - All required sections present, no TODOs or placeholders
 - ✅ **D14: Content Accuracy** - Claims in guides match reality (step counts, durations, etc.)
 
-**Structural Dimensions - D9, D10, D11, D12:**
+**Structural Dimensions - D9, D10, D11, D12, D18:**
 - ✅ **D9: Intra-File Consistency** - Within-file quality (headers, checklists, formatting)
 - ✅ **D10: File Size Assessment** - Files within readable limits, complex files split appropriately
 - ✅ **D11: Structural Patterns** - Guides follow expected template structures
 - ✅ **D12: Cross-File Dependencies** - Stage prerequisites match outputs, workflow continuity
+- ✅ **D18: Character and Format Compliance** - Guide files use only agent-readable characters; no Unicode checkboxes, curly quotes, or other problematic non-ASCII chars
 
 **Advanced Dimensions - D7, D15, D16, D17:**
 - ✅ **D7: Context-Sensitive Validation** - Same pattern validated differently based on context
@@ -439,11 +440,11 @@ EXIT (only if Round N had 0 issues in all 4 sub-rounds + 9 criteria met)
 **Benefits of the 4 sub-round structure:**
 
 1. **Dependency Management:** Core dimension fixes (broken references) applied before Structural checks (cross-file dependencies)
-2. **Focused Discovery:** Check 4-5 related dimensions per sub-round, not all 17 at once
+2. **Focused Discovery:** Check 4-5 related dimensions per sub-round, not all 18 at once
 3. **Incremental Verification:** Verify fixes before moving to next category
 4. **Mental Clarity:** Fresh mental model between dimension categories
 5. **Better Tracking:** Know exactly which category and dimensions you're auditing
-6. **Prevents Blind Spots:** ALL 17 dimensions checked systematically every round
+6. **Prevents Blind Spots:** ALL 18 dimensions checked systematically every round
 
 ### Dimension Organization by Sub-Round
 
@@ -469,6 +470,7 @@ EXIT (only if Round N had 0 issues in all 4 sub-rounds + 9 criteria met)
 - D10: File Size Assessment - Readability limits (100% automated)
 - D11: Structural Patterns - Template compliance (60% automated)
 - D12: Cross-File Dependencies - Stage transitions (30% automated)
+- D18: Character and Format Compliance - Banned Unicode chars (100% automated)
 
 **Why Third:** Structure depends on correct content and references
 
@@ -563,7 +565,7 @@ Round N complete + Minimum 3 rounds + ALL 9 criteria met → Consider exit
 4. ✅ **Minimum 3 rounds:** At least 3 complete rounds (12 sub-rounds total) completed
 5. ✅ **All remaining documented:** All remaining instances documented as intentional
 6. ✅ **User has NOT challenged:** User has not questioned findings
-7. ✅ **Confidence score:** ≥ 80% confidence in completeness across all 17 dimensions
+7. ✅ **Confidence score:** ≥ 80% confidence in completeness across all 18 dimensions
 8. ✅ **Pattern diversity:** ≥ 5 pattern types used per dimension category across rounds
 9. ✅ **Spot-check clean:** 10+ files manually checked per sub-round, zero issues
 

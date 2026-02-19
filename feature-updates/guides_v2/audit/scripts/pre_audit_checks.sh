@@ -2,16 +2,17 @@
 # Pre-Audit Automated Checks
 # Runs before manual audit to catch common structural issues
 #
-# Coverage: 10 of 17 dimensions (D1, D3, D8, D9, D10, D11, D13, D14, D16, D17)
+# Coverage: 11 of 18 dimensions (D1, D3, D8, D9, D10, D11, D13, D14, D16, D17, D18)
 # Estimated: 45-55% of typical issues (based on KAI-7 Round 1-2 data)
 # NOT Checked: D2 (Terminology - requires pattern-specific search, see dimension guide)
 #
-# Last Updated: 2026-02-06 (D17 Addition)
+# Last Updated: 2026-02-19 (D18 Addition)
 # Changes:
 #   - Round 3: Simplified file size threshold from 3-tier (600/800/1000) to 1000-line baseline
 #   - Round 3: Added 17 known exceptions for Prerequisites/Exit Criteria checks
 #   - Meta-Audit: Increased baseline from 1000 → 1250 lines for comprehensive reference guides
 #   - Exceptions documented in audit/reference/known_exceptions.md
+#   - 2026-02-19: Added D18 Character and Format Compliance check (banned Unicode chars)
 
 # set -e  # Exit on error - DISABLED: causes premature exit in file size check loop
 
@@ -426,6 +427,128 @@ echo ""
 echo -e "${YELLOW}Verify all S1 modes are handled in S2 router${NC}"
 echo "(Full D17 validation required in manual audit)"
 
+echo ""
+
+# ============================================================================
+# CHECK 12: Character and Format Compliance (D18)
+# ============================================================================
+
+echo -e "${BLUE}=== Character and Format Compliance (D18) ===${NC}"
+echo ""
+
+BANNED_CHAR_FILES=0
+REVIEW_CHAR_FILES=0
+
+# Use python3 to scan for banned Unicode characters
+# Category A/B: BANNED (checkboxes, curly quotes) → Critical violation
+# Category C: REVIEW (em/en dashes) → Warning only (acceptable in prose)
+python3 - <<'PYEOF'
+import os
+import sys
+
+# Category A/B: Fully banned — must be replaced
+BANNED = {
+    '\u25a1': ('□', 'U+25A1 WHITE SQUARE', '- [ ]'),
+    '\u2610': ('☐', 'U+2610 BALLOT BOX', '- [ ]'),
+    '\u2611': ('☑', 'U+2611 BALLOT BOX WITH CHECK', '- [x]'),
+    '\u2612': ('☒', 'U+2612 BALLOT BOX WITH X', '- [x]'),
+    '\u201c': ('\u201c', 'U+201C LEFT DOUBLE QUOTE', '"'),
+    '\u201d': ('\u201d', 'U+201D RIGHT DOUBLE QUOTE', '"'),
+    '\u2018': ('\u2018', 'U+2018 LEFT SINGLE QUOTE', "'"),
+    '\u2019': ('\u2019', 'U+2019 RIGHT SINGLE QUOTE', "'"),
+}
+
+# Category C: Review — acceptable in prose, flag for human inspection
+REVIEW = {
+    '\u2013': ('\u2013', 'U+2013 EN DASH', '--'),
+    '\u2014': ('\u2014', 'U+2014 EM DASH', '--'),
+}
+
+RED = '\033[0;31m'
+YELLOW = '\033[1;33m'
+GREEN = '\033[0;32m'
+NC = '\033[0m'
+
+banned_files = 0
+review_files = 0
+banned_total = 0
+review_total = 0
+
+# Known exceptions: files that intentionally contain banned chars as examples
+EXCEPTIONS = {
+    './audit/dimensions/d18_character_format_compliance.md',  # D18 guide shows the chars it bans
+}
+
+for root, dirs, files in os.walk('.'):
+    dirs[:] = [d for d in dirs if not d.startswith('.')]
+    for fname in files:
+        if not fname.endswith('.md'):
+            continue
+        fpath = os.path.join(root, fname)
+        if fpath in EXCEPTIONS:
+            continue
+        try:
+            with open(fpath, encoding='utf-8') as f:
+                content = f.read()
+        except Exception:
+            continue
+
+        banned_hits = []
+        for char, (display, name, replacement) in BANNED.items():
+            count = content.count(char)
+            if count > 0:
+                banned_hits.append(f"  {count}x {name} → replace with '{replacement}'")
+                banned_total += count
+
+        if banned_hits:
+            banned_files += 1
+            print(f"{RED}❌ BANNED CHARS:{NC} {fpath}")
+            for hit in banned_hits:
+                print(hit)
+
+        review_hits = []
+        for char, (display, name, replacement) in REVIEW.items():
+            count = content.count(char)
+            if count > 0:
+                review_hits.append(f"  {count}x {name} (review — OK in prose, replace in lists/code)")
+                review_total += count
+
+        if review_hits:
+            review_files += 1
+            print(f"{YELLOW}⚠️  REVIEW CHARS:{NC} {fpath}")
+            for hit in review_hits:
+                print(hit)
+
+if banned_files == 0 and review_files == 0:
+    print(f"{GREEN}✅ No banned or review Unicode characters found{NC}")
+elif banned_files == 0:
+    print(f"{YELLOW}⚠️  No banned chars found, but {review_files} file(s) have review chars (em/en dash){NC}")
+    print("Review each occurrence — acceptable in prose, should be replaced in lists/code")
+else:
+    print(f"\nFiles with banned chars (CRITICAL): {banned_files}")
+    print(f"Files with review chars (WARNING): {review_files}")
+    print("Fix: See audit/dimensions/d18_character_format_compliance.md for bulk replacement script")
+    sys.exit(1)
+
+# Signal review-only to caller
+if banned_files == 0 and review_files > 0:
+    sys.exit(2)
+PYEOF
+
+D18_EXIT=$?
+if [ $D18_EXIT -eq 1 ]; then
+  ((CRITICAL_ISSUES++))
+  ((TOTAL_ISSUES++))
+  ((BANNED_CHAR_FILES++))
+elif [ $D18_EXIT -eq 2 ]; then
+  ((WARNING_ISSUES++))
+  ((TOTAL_ISSUES++))
+  ((REVIEW_CHAR_FILES++))
+fi
+
+echo ""
+echo "Files with banned chars (critical): $BANNED_CHAR_FILES"
+echo "(See output above for full list of review-level chars)"
 echo ""
 
 # ============================================================================

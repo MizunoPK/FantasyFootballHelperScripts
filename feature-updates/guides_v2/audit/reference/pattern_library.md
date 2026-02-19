@@ -216,8 +216,8 @@ grep -rn "[0-9]+ files\|[0-9]+ stages\|[0-9]+ iterations\|[0-9]+ rounds" --inclu
 ### Pattern 4.2: Dimension Count Claims
 
 ```bash
-# Should be 17 dimensions
-grep -rn "17 dimensions\|all 17\|17 critical" --include="*.md" .
+# Should be 18 dimensions
+grep -rn "18 dimensions\|all 18\|18 critical" --include="*.md" .
 
 # Check for old counts (if previously different)
 grep -rn "14 dimensions\|15 dimensions" --include="*.md" .

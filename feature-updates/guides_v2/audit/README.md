@@ -75,7 +75,7 @@ Round N:
   │   S1: Discovery → S2: Planning → S3: Apply → S4: Verify → S5: Loop Decision
   │   If 0 issues → Sub-Round N.3 | If issues → Fix & Re-run N.2
   │
-  ├─> Sub-Round N.3: Structural (D9, D10, D11, D12)
+  ├─> Sub-Round N.3: Structural (D9, D10, D11, D12, D18)
   │   S1: Discovery → S2: Planning → S3: Apply → S4: Verify → S5: Loop Decision
   │   If 0 issues → Sub-Round N.4 | If issues → Fix & Re-run N.3
   │
@@ -89,10 +89,10 @@ Round N complete → Round N+1 (fresh eyes) → EXIT when all criteria met
 ### Sub-Round Benefits
 
 1. **Dependency Management:** Core fixes (broken references) applied before Structural checks
-2. **Focused Discovery:** Check 4-5 related dimensions per sub-round, not all 17 at once
+2. **Focused Discovery:** Check 4-5 related dimensions per sub-round, not all 18 at once
 3. **Incremental Verification:** Verify fixes before moving to next category
 4. **Mental Clarity:** Fresh mental model between dimension categories
-5. **Complete Coverage:** ALL 17 dimensions checked systematically every round
+5. **Complete Coverage:** ALL 18 dimensions checked systematically every round
 6. **No Blind Spots:** Can't skip dimensions accidentally
 
 ---
@@ -123,9 +123,9 @@ Round N complete → Round N+1 (fresh eyes) → EXIT when all criteria met
 |-----------|------------|-------|-------|----------|
 | **N.1: Core** | D1, D2, D3, D8 | 4 | File paths, terminology, workflow, CLAUDE.md | 60-90 min |
 | **N.2: Content** | D4, D5, D6, D13, D14 | 5 | Counts, completeness, templates, documentation | 75-120 min |
-| **N.3: Structural** | D9, D10, D11, D12 | 4 | File consistency, size, patterns, dependencies | 60-90 min |
+| **N.3: Structural** | D9, D10, D11, D12, D18 | 5 | File consistency, size, patterns, dependencies, character compliance | 60-90 min |
 | **N.4: Advanced** | D7, D15, D16, D17 | 4 | Context-sensitive, duplication, accessibility, flow | 60-90 min |
-| **TOTAL** | All 17 dimensions | 17 | Complete coverage | 4.5-6.5 hours |
+| **TOTAL** | All 18 dimensions | 18 | Complete coverage | 4.5-6.5 hours |
 
 **Execution Order:**
 1. **Core first** - Fixes broken references and inconsistent notation that affect all other checks
@@ -143,7 +143,7 @@ Round N complete → Round N+1 (fresh eyes) → EXIT when all criteria met
 
 ## Navigation by Audit Dimension
 
-The audit evaluates guides across **17 critical dimensions**:
+The audit evaluates guides across **18 critical dimensions**:
 
 ### Core Dimensions (Always Check)
 
@@ -172,6 +172,7 @@ The audit evaluates guides across **17 critical dimensions**:
 | **D10: File Size Assessment** | `dimensions/d10_file_size_assessment.md` | Readability limits | 100% automated |
 | **D11: Structural Patterns** | `dimensions/d11_structural_patterns.md` | Template compliance | 60% automated |
 | **D12: Cross-File Dependencies** | `dimensions/d12_cross_file_dependencies.md` | Stage transitions | 30% automated |
+| **D18: Character and Format Compliance** | `dimensions/d18_character_format_compliance.md` | Banned Unicode chars | 100% automated |
 
 ### Advanced Dimensions
 
@@ -431,7 +432,7 @@ Learn from actual audit rounds:
 
 ### Pre-Audit Checks
 `scripts/pre_audit_checks.sh` - Run before manual audit begins
-- Checks 10 of 17 dimensions (D1, D3, D8, D9, D10, D11, D13, D14, D16, D17)
+- Checks 11 of 18 dimensions (D1, D3, D8, D9, D10, D11, D13, D14, D16, D17, D18)
 - Catches common structural issues (estimated 45-55% of typical issues)
 - Fast execution (5 minutes)
 - Generates initial report
