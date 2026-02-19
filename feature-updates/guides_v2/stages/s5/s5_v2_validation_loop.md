@@ -118,6 +118,7 @@ S5 v2 is a **validation loop-based approach** to implementation planning that sy
 - Starting implementation planning after S4 complete (Epic Testing Strategy approved)
 - Creating implementation_plan.md for a new feature
 - All spec.md requirements finalized and user-approved (Gate 3 passed)
+- Re-entering from S8 alignment loop to plan the next feature in the epic
 
 ---
 

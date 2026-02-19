@@ -97,19 +97,21 @@
 5. D12 last (cross-file dependencies require D9-D11 clean)
 
 #### Sub-Round N.4: Advanced Dimensions
-**Focus on:** D7, D15, D16 (3 dimensions)
-**Duration:** 45-75 minutes (full cycle)
+**Focus on:** D7, D15, D16, D17 (4 dimensions)
+**Duration:** 60-90 minutes (full cycle)
 **Why Last:** Advanced checks require all other dimensions to be clean
 
 **Dimensions:**
 - **D7: Context-Sensitive Validation** - Distinguish errors from intentional exceptions
 - **D15: Duplication Detection** - No duplicate content or contradictory instructions
 - **D16: Accessibility** - Navigation aids, TOCs, scannable structure
+- **D17: Stage Flow Consistency** - Stage transitions, handoffs, next-guide references
 
 **Priority Order:**
 1. D16 first (accessibility - missing TOCs)
 2. D15 second (duplication detection)
-3. D7 last (context-sensitive validation requires understanding all content)
+3. D17 third (stage flow and handoff accuracy)
+4. D7 last (context-sensitive validation requires understanding all content)
 
 ### How to Use This Section
 
@@ -683,7 +685,7 @@ done
 - Sub-Round N.1: D1 ✓, D2 ✓, D3 ✓, D8 ✓ (Core)
 - Sub-Round N.2: D4 ✓, D5 ✓, D6 ✓, D13 ✓, D14 ✓ (Content)
 - Sub-Round N.3: D9 ✓, D10 ✓, D11 ✓, D12 ✓, D18 ✓ (Structural)
-- Sub-Round N.4: D7 ✓, D15 ✓, D16 ✓ (Advanced)
+- Sub-Round N.4: D7 ✓, D15 ✓, D16 ✓, D17 ✓ (Advanced)
 
 ---
 

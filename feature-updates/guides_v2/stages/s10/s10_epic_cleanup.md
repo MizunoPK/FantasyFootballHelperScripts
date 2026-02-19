@@ -819,7 +819,7 @@ Before the user merges, recommend a squash commit message. GitHub squash-merges 
 
 Provide the user with a ready-to-use message in this format:
 
-```
+```text
 {commit_type}/KAI-{number}: {short epic summary}
 
 Features implemented:

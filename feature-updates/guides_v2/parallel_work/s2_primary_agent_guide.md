@@ -329,7 +329,7 @@ echo "✅ Handoff packages saved to feature folders"
 
 **NEW SIMPLIFIED PROCESS:** Handoff packages are pre-saved in feature folders. User just spawns agents with one-line instructions.
 
-```markdown
+````markdown
 Great! I'll set up parallel work for S2.
 
 📋 SETUP INSTRUCTIONS
@@ -381,7 +381,7 @@ The agent will locate the epic folder automatically, find `feature_03_{name}/HAN
 - When all complete S2, I'll run S3
 
 Ready to start? Please enter the startup commands in the new sessions.
-```
+````
 
 ### Step 5: Wait for Secondary Agents to Start
 

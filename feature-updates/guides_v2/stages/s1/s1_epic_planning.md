@@ -280,7 +280,7 @@ Step 6: Transition to S2
 
 After reading EPIC_TRACKER.md showing "Next Available Number: KAI-9", use AskUserQuestion:
 
-```
+```text
 Question: "Which KAI number should I use for this epic?"
 Header: "KAI Number"
 Options:

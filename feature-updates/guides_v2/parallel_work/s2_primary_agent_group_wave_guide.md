@@ -397,7 +397,7 @@ I'm joining as a secondary agent to help with S2 parallelization for the {epic_n
 
 **Create presentation message:**
 
-```markdown
+````markdown
 🚀 Group 1 S2 Complete! Ready to spawn Group 2 secondary agents.
 
 ## Wave 1 Results (Group 1)
@@ -459,7 +459,7 @@ Each agent will automatically locate the epic folder, find their `feature_XX_{na
 - Then we proceed to S3 (groups no longer matter)
 
 **Let me know when you've spawned all 6 agents and I'll begin coordination.**
-```
+````
 
 #### Step 2.4: Wait for Secondary Agent Startup
 
@@ -528,7 +528,7 @@ Coordinate Group 2 secondary agents executing S2.P1 in parallel.
 
 **🚨 PRIMARY AGENT MONITORING SCOPE — READ BEFORE MONITORING:**
 
-```
+```text
 What to check during Wave 2 monitoring:
 ✅ agent_checkpoints/*.json timestamps (is agent active / not stale?)
 ✅ STATUS files in each feature folder (is agent making progress?)
