@@ -231,8 +231,8 @@ STEP 6: Transition to S2 (5 min)
 - Git branch: `{work_type}/KAI-{number}`
 - EPIC_TRACKER.md (updated and committed)
 - `feature-updates/KAI-{N}-{epic_name}/` folder
-- `KAI-{N}-{epic_name}/{epic_name}_notes.txt` (moved from root)
-- `KAI-{N}-{epic_name}/EPIC_README.md`
+- `KAI-{N}-{epic_name}/EPIC_README.md` (includes link to request file in feature-updates/requests/)
+- Request file stays in `feature-updates/requests/` — not moved into epic folder
 
 **Step 3:**
 - `KAI-{N}-{epic_name}/DISCOVERY.md` (user-approved)

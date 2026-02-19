@@ -43,7 +43,7 @@ The Epic-Driven Development Workflow v2 is a **10-stage process** for managing c
 ### Workflow at a Glance
 
 ```text
-Epic Request (user creates .txt file)
+Epic Request (user creates file in feature-updates/requests/)
     ↓
 S1: Epic Planning (break into features)
     ↓
@@ -91,7 +91,7 @@ S10: Epic Cleanup (commit, archive, apply lessons)
    - Continue from where previous agent left off
 
 3. **If no in-progress epic:**
-   - Verify user created `feature-updates/{epic_name}.txt` with initial notes
+   - Verify user created a request file in `feature-updates/requests/` with initial notes
    - Use "Starting S1" prompt from `prompts_reference_v2.md`
    - Read `stages/s1/s1_epic_planning.md`
    - Begin S1 workflow
@@ -1029,7 +1029,7 @@ This project uses the Epic-Driven Development Workflow v2 for managing features 
 **Complete workflow documentation:** `feature-updates/guides_v2/EPIC_WORKFLOW_USAGE.md`
 
 **Quick workflow overview:**
-- User creates `feature-updates/{epic_name}.txt` with initial request
+- User creates request file in `feature-updates/requests/` (optionally in a subfolder) with initial request
 - Agent follows 10-stage process (Planning → Implementation → Validation)
 - Complete epics move to `feature-updates/done/`
 
@@ -1140,7 +1140,7 @@ Create `feature-updates/guides_v2/PROJECT_SPECIFIC_STANDARDS.md`:
    # Quick Reference
    - Starting work: Check feature-updates/ for in-progress epics
    - Resume: Read EPIC_README.md Agent Status
-   - New epic: User creates .txt file → Start S1
+   - New epic: User creates request file in feature-updates/requests/ → Start S1
    - Stuck: Re-read current guide
    - Questions: Check prompts_reference_v2.md
    ```

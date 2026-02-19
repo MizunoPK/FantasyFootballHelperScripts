@@ -46,7 +46,7 @@
 Epic Planning is the first stage where you create the git branch, analyze the user's epic request, conduct Discovery research, break it down into features, validate your understanding through an epic ticket, and create the folder structure for the entire epic.
 
 **When do you use this guide?**
-- User has created `{epic_name}.txt` with their epic request
+- User has created a request file in `feature-updates/requests/` with their epic request
 - Starting a new epic from scratch
 - Need to plan multi-feature work
 
@@ -181,7 +181,7 @@ S1 is complete when you have Discovery approved, a validated epic ticket, comple
 
 **Verify BEFORE starting S1:**
 
-□ User has created `feature-updates/{epic_name}.txt` with epic request notes
+□ User has created a request file in `feature-updates/requests/` (check for .txt or .md file, optionally in a subfolder)
 □ Epic request file contains sufficient detail (problem description, goals, constraints)
 □ No existing epic folder with same name (check `feature-updates/` directory)
 □ Git working directory is clean (no uncommitted changes that could conflict)
@@ -300,9 +300,9 @@ Create epic folder: `feature-updates/KAI-{N}-{epic_name}/`
 
 **Naming:** Use KAI number + snake_case epic name (e.g., `KAI-1-improve_draft_helper`)
 
-### Step 1.2: Move Epic Request File
+### Step 1.2: Record Epic Request File Location
 
-Move and rename: `{epic_name}.txt` → `KAI-{N}-{epic_name}/{epic_name}_notes.txt`
+Find the request file in `feature-updates/requests/` (check subfolders if needed). Note its full path in the EPIC_README.md so it's easy to find. **Do NOT move the file** — it stays in `feature-updates/requests/` permanently and is not part of the epic folder.
 
 ### Step 1.3: Create EPIC_README.md
 

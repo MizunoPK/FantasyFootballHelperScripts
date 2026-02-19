@@ -240,14 +240,17 @@ Systematic 28-iteration planning process creating implementation_plan.md (~400 l
 
 **When assigned:** S1 Step 1.0c (before creating epic folder)
 
-**Original Request File:** `feature-updates/{epic_name}.txt` (no KAI number - stays in root for reference)
+**Original Request File:** `feature-updates/requests/[subfolder]/{epic_name}.txt` (stays in `requests/` for reference — not inside the epic folder)
 
 ---
 
 ### Epic Folder Structure
 ```text
 feature-updates/
-├── {epic_name}.txt                        ← Original user request (stays in root)
+├── requests/                              ← All epic/feature request files live here
+│   ├── [subfolder]/                       ← Optional grouping (e.g., cli-enhancements/, metrics/)
+│   │   └── {epic_name}.txt               ← User's request file
+│   └── {epic_name}.txt                   ← Or directly in requests/ root
 ├── KAI-{N}-{epic_name}/                   ← Epic folder (all work here, includes KAI number)
 │   ├── EPIC_README.md                     ← Master tracking, Quick Reference Card, Agent Status
 │   ├── epic_smoke_test_plan.md       ← How to test complete epic (evolves through stages)
@@ -388,7 +391,7 @@ feature-updates/
 
 ### Step 1: User Creates Initial Request
 
-User creates `feature-updates/{epic_name}.txt` with initial scratchwork:
+User creates a file in `feature-updates/requests/` (optionally in a subfolder) with initial scratchwork:
 
 ```bash
 Epic Request: Improve Draft Helper System
@@ -602,7 +605,7 @@ S9 (Execution):
 
 ### Workflow 1: Starting a New Epic
 
-1. User creates `{epic_name}.txt` with initial notes
+1. User creates request file in `feature-updates/requests/` with initial notes
 2. User says: "Help me develop {epic_name}"
 3. Agent reads `stages/s1/s1_epic_planning.md`
 4. Agent uses phase transition prompt

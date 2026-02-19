@@ -49,7 +49,7 @@ Per-feature loop: S5 (Planning) → S6 (Execution) → S7 (Testing) → S8 (Alig
 - **Epic** = Top-level work unit (collection of related features)
 - **Feature** = Individual component within an epic
 - **KAI Number** = Unique epic identifier (tracked in EPIC_TRACKER.md)
-- User creates `{epic_name}.txt` → Agent creates `KAI-{N}-{epic_name}/` folder with multiple `feature_XX_{name}/` folders
+- User creates request file in `feature-updates/requests/` (optionally in a subfolder) → Agent creates `KAI-{N}-{epic_name}/` folder with multiple `feature_XX_{name}/` folders
 
 **See:** `feature-updates/guides_v2/reference/glossary.md` for complete term definitions and alphabetical index
 

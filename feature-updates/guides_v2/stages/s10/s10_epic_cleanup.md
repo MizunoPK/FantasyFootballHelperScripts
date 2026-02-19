@@ -699,13 +699,11 @@ ls -d feature-updates/done/*/ | wc -l
 - Verify correct epics were removed
 - Ensure only most recent 10 epics remain
 
-**6f. Leave Original Epic Request in Root**
+**6f. Leave Original Epic Request in Requests Folder**
 
-**IMPORTANT:** Do NOT move the original {epic_name}.txt file (if it exists in root).
+**IMPORTANT:** Do NOT move the request file from `feature-updates/requests/`.
 
-**Why:** Original request stays in feature-updates/ root for reference.
-
-**Note:** If the original request file was inside the epic folder (e.g., `KAI-8-logging_refactoring/logging_refactoring_notes.txt`), it will move with the epic folder to done/, which is acceptable.
+**Why:** The request file lives in `feature-updates/requests/` (in its subfolder) and is not part of the epic folder. When the epic folder moves to `done/`, the request file stays in `feature-updates/requests/` permanently for reference.
 
 **6g. Commit the Epic Folder Move**
 
