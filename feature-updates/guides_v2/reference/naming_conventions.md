@@ -223,7 +223,7 @@ feature-updates/guides_v2/
 **File:** `s1_epic_planning.md`
 
 **Purpose:** Plan epic scope, break down into features, create folder structure
-**Prerequisites:** User created `{epic_name}.txt` with initial requirements
+**Prerequisites:** User created request file in `feature-updates/requests/` with initial requirements
 **Next Guide:** `stages/s2/s2_feature_deep_dive.md`
 
 ---
@@ -366,7 +366,7 @@ See `stages/s6/s6_execution.md` for execution details.
 **File:** `s1_epic_planning.md`
 
 **Purpose:** Plan epic scope, break down into features, create folder structure
-**Prerequisites:** User created `{epic_name}.txt` with initial requirements
+**Prerequisites:** User created request file in `feature-updates/requests/` with initial requirements
 **Next Guide:** `stages/s2/s2_feature_deep_dive.md`
 
 ---

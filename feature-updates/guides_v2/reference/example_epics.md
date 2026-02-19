@@ -72,9 +72,9 @@
 ## Example File Names
 
 **Original request:**
-- `feature-updates/improve_draft_helper.txt`
-- `feature-updates/add_player_validation.txt`
-- `feature-updates/integrate_matchup_data.txt`
+- `feature-updates/requests/improve_draft_helper.txt`
+- `feature-updates/requests/add_player_validation.txt`
+- `feature-updates/requests/integrate_matchup_data.txt`
 
 **Epic folders:**
 - `feature-updates/KAI-1-improve_draft_helper/`

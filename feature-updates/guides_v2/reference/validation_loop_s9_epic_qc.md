@@ -86,7 +86,7 @@ These universal dimensions apply to S9 Epic QC validation:
 - [ ] Specific success criteria verification
 
 ### Dimension 6: Upstream Alignment
-- [ ] Implementation matches original epic request ({epic_name}.txt)
+- [ ] Implementation matches original epic request (`feature-updates/requests/{epic_name}.txt`)
 - [ ] All original user goals achieved
 - [ ] All acceptance criteria met
 - [ ] No scope creep (no unrequested features)
@@ -246,7 +246,7 @@ except FileNotFoundError:
 **Checklist:**
 
 **Original Epic Request:**
-- [ ] Re-read original {epic_name}.txt
+- [ ] Re-read original `feature-updates/requests/{epic_name}.txt`
 - [ ] All user goals achieved
 - [ ] All stated requirements implemented
 - [ ] No missing functionality
@@ -259,7 +259,7 @@ except FileNotFoundError:
 
 **Example Verification:**
 ```markdown
-## Original Epic Goals (from {epic_name}.txt)
+## Original Epic Goals (from `feature-updates/requests/{epic_name}.txt`)
 
 Goal 1: "Integrate ADP data into draft recommendations"
 Verified: Feature 01 fetches ADP, Feature 02 applies ratings, Feature 03 uses in recommendations

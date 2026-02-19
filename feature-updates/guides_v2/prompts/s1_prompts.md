@@ -9,7 +9,7 @@
 
 **User says:** "Help me develop the {epic_name} epic" or "Let's plan {epic_name}"
 
-**Prerequisite:** User has created `feature-updates/{epic_name}.txt` with initial scratchwork notes.
+**Prerequisite:** User has created a request file in `feature-updates/requests/` with initial scratchwork notes.
 
 **Agent MUST respond:**
 
@@ -32,7 +32,7 @@ I'm reading `stages/s1/s1_epic_planning.md` to ensure I follow the complete epic
 - Feature folders NOT created until Discovery approved
 
 **Prerequisites I'm verifying:**
-[ ] Epic request file exists: `feature-updates/{epic_name}.txt`
+[ ] Epic request file exists: `feature-updates/requests/{epic_name}.txt`
 [ ] Epic request contains user's initial notes
 [ ] Git working directory is clean
 

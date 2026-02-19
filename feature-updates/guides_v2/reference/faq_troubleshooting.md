@@ -88,7 +88,7 @@ Update feature README.md during feature loop stages (S5, S6, S7, S8).
 
 A: Ask user to create the file first:
 ```text
-I need you to create feature-updates/{epic_name}.txt with your initial notes about what you want to accomplish. This file should contain:
+I need you to create a request file in feature-updates/requests/ (e.g., feature-updates/requests/{epic_name}.txt) with your initial notes about what you want to accomplish. This file should contain:
 - What problem are you trying to solve?
 - What outcomes do you want?
 - Any specific requirements or constraints?

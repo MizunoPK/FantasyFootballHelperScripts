@@ -183,7 +183,7 @@ git push origin --delete {work_type}/KAI-{number}
 - `feature-updates/KAI-1-improve_draft_helper/`
 - `feature-updates/KAI-3-integrate_new_player_data_into_simulation/`
 
-**Original Request File:** `feature-updates/{epic_name}.txt` (no KAI number)
+**Original Request File:** `feature-updates/requests/{epic_name}.txt` (no KAI number)
 
 **Why include KAI number:**
 - Ensures unique folder names

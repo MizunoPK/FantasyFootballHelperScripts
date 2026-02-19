@@ -207,7 +207,7 @@ Step 1: Initial Setup
    |   +-- Create branch: {work_type}/KAI-{number}
    |   +-- Update EPIC_TRACKER.md and commit
    +-- Create epic folder
-   +-- Move {epic_name}.txt into epic folder
+   +-- Note epic request file location in EPIC_README.md
    +-- Create EPIC_README.md (with Agent Status)
 
 Step 2: Epic Analysis

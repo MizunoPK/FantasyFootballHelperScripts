@@ -758,7 +758,7 @@ warnings.warn("Old ADP format deprecated. Use new format.", DeprecationWarning)
 
 ### Validation Checklist
 
-- [ ] Epic scope matches original request (from {epic_name}.txt)
+- [ ] Epic scope matches original request (from `feature-updates/requests/{epic_name}.txt`)
 - [ ] No scope creep (undocumented features added)
 - [ ] All changes necessary for epic (no unrelated changes)
 - [ ] No unrelated changes included (bug fixes, refactoring unrelated to epic)
@@ -768,7 +768,7 @@ warnings.warn("Old ADP format deprecated. Use new format.", DeprecationWarning)
 
 ```markdown
 - 1. Re-read original epic request
-- Read {epic_name}.txt file from feature-updates/
+- Read `feature-updates/requests/{epic_name}.txt`
 
 - 2. Compare epic scope to original request
 - Create validation table:

@@ -51,7 +51,7 @@ STEP 6: Move Epic to done/ Folder (2 min)
     ├─ Create done/ folder if doesn't exist
     ├─ Move entire epic folder: mv {epic}/ done/{epic}/
     ├─ Verify move successful
-    └─ Leave original epic request (.txt) in root
+    └─ Leave original epic request (.txt) in feature-updates/requests/
     ↓
 STEP 7: Final Verification & Completion (2 min)
     ├─ Verify epic in done/ folder
@@ -310,7 +310,7 @@ Agent waits for user to review and merge the Pull Request in GitHub.
 **Step 7 → Step 8:**
 - [ ] Epic folder moved to done/
 - [ ] Move successful (verified)
-- [ ] Original .txt file still in root
+- [ ] Original .txt file still in feature-updates/requests/
 
 **Step 8 → Complete:**
 - [ ] Epic verified in done/ folder
@@ -333,7 +333,7 @@ Agent waits for user to review and merge the Pull Request in GitHub.
 
 **Step 7:**
 - `feature-updates/done/KAI-{N}-{epic_name}/` (entire epic folder moved)
-- `feature-updates/{epic_name}.txt` (original request, stays in root)
+- `feature-updates/requests/{epic_name}.txt` (original request, stays in feature-updates/requests/)
 
 **Step 8:**
 - Final EPIC_README.md with completion summary

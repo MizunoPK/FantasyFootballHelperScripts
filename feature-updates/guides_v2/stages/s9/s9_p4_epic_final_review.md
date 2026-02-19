@@ -180,7 +180,7 @@ Prerequisites Met?
 
 4. ⚠️ Validate against ORIGINAL epic request
    - Not against evolved specs
-   - Re-read {epic_name}.txt file
+   - Re-read `feature-updates/requests/{epic_name}.txt` file
    - Verify user's stated goals achieved
 
 5. ⚠️ Zero tolerance for architectural inconsistencies
@@ -241,7 +241,7 @@ Prerequisites Met?
 ### Documentation
 - [ ] epic_lessons_learned.md exists and accessible
 - [ ] EPIC_README.md shows S9.P1, S9.P2, S9.P3 complete
-- [ ] Original {epic_name}.txt file located
+- [ ] Original `feature-updates/requests/{epic_name}.txt` file located
 
 **If ANY prerequisite not met:**
 - STOP - Do not proceed with S9.P4

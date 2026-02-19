@@ -666,7 +666,7 @@ Specification document in each feature folder containing all requirements.
 
 **[Gate 25 Dimension 11]** Three-way validation of spec.md against validated documents.
 
-1. Epic notes (user's original request in {epic_name}.txt)
+1. Epic notes (user's original request in `feature-updates/requests/{epic_name}.txt`)
 
 **See:** Gate 25, Dimension 11
 

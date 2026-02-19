@@ -16,7 +16,7 @@ STEP 1: Initial Setup (15-20 min)
     |   +-- Create branch: {work_type}/KAI-{number}
     |   +-- Update EPIC_TRACKER.md and commit immediately
     +-- Step 1.1: Create epic folder
-    +-- Step 1.2: Move {epic_name}.txt into epic folder
+    +-- Step 1.2: Note epic request file location in EPIC_README.md
     +-- Step 1.3: Create EPIC_README.md with Agent Status
     |
 STEP 2: Epic Analysis (10-15 min)
@@ -187,7 +187,7 @@ STEP 6: Transition to S2 (5 min)
 - [ ] Git branch created: {work_type}/KAI-{number}
 - [ ] EPIC_TRACKER.md updated and committed
 - [ ] Epic folder created: `feature-updates/KAI-{N}-{epic_name}/`
-- [ ] {epic_name}.txt moved into epic folder
+- [ ] Epic request file location noted in EPIC_README.md
 - [ ] EPIC_README.md created with Agent Status
 
 **Step 2 -> Step 3:**

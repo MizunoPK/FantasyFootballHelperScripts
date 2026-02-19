@@ -172,7 +172,7 @@ Epic QC Validation Loop is complete when 3 consecutive validation rounds find ZE
 - [ ] Current guide: stages/s9/s9_p2_epic_qc_rounds.md
 
 **Original epic request available:**
-- [ ] Have access to {epic_name}.txt
+- [ ] Have access to `feature-updates/requests/{epic_name}.txt`
 - [ ] Can reference original goals for Round 3
 
 **If any prerequisite fails:**
@@ -555,9 +555,9 @@ except FileNotFoundError:
 
 ### Validation 3.1: Validate Against Original Epic Request
 
-**Re-read ORIGINAL {epic_name}.txt:**
+**Re-read ORIGINAL `feature-updates/requests/{epic_name}.txt`:**
 
-Close any current views → Open {epic_name}.txt → Read fresh
+Close any current views → Open `feature-updates/requests/{epic_name}.txt` → Read fresh
 
 **For EACH goal in original request, verify:**
 
@@ -713,7 +713,7 @@ STOP - DO NOT PROCEED TO S9.P3 YET
 **REQUIRED ACTIONS:**
 1. [ ] Use Read tool to re-read "Critical Rules" section of this guide
 2. [ ] Use Read tool to re-read `reference/validation_loop_master_protocol.md` (7 principles)
-3. [ ] Use Read tool to re-read original epic request ({epic_name}.txt)
+3. [ ] Use Read tool to re-read original epic request (`feature-updates/requests/{epic_name}.txt`)
 4. [ ] Verify 3 consecutive clean rounds documented in VALIDATION_LOOP_LOG.md
 5. [ ] Verify ALL 12 dimensions checked every round
 6. [ ] Update epic_lessons_learned.md with validation findings

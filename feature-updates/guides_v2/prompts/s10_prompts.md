@@ -58,11 +58,11 @@ I'm beginning S10 (Epic Cleanup).
   - Update EPIC_TRACKER.md after user merges
 - **Move Epic to done/**:
   - Move ENTIRE epic folder: feature-updates/{epic}/ → feature-updates/done/{epic}/
-  - Leave original epic request (.txt) in root for reference
+  - Leave original epic request (.txt) in feature-updates/requests/ for reference
   - Verify folder structure intact after move
 - **Final Verification**:
   - Epic in done/ folder
-  - Original request still in root
+  - Original request still in feature-updates/requests/
   - Git shows clean state
 
 **Prerequisites I'm verifying:**
@@ -76,7 +76,7 @@ I'm beginning S10 (Epic Cleanup).
 - Current Stage: S10 - Epic Cleanup
 - Current Guide: stages/s10/s10_epic_cleanup.md
 - Guide Last Read: {YYYY-MM-DD HH:MM}
-- Critical Rules: "Unit tests 100% pass before commit", "User testing MANDATORY before commit", "If bugs found → RESTART S9", "Move ENTIRE epic folder", "Leave .txt in root"
+- Critical Rules: "Unit tests 100% pass before commit", "User testing MANDATORY before commit", "If bugs found → RESTART S9", "Move ENTIRE epic folder", "Leave .txt in requests/"
 - Next Action: Run python tests/run_all_tests.py
 
 Running unit tests...

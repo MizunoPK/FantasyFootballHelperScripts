@@ -30,7 +30,7 @@ After epic is complete and moved to done/, update the EPIC_README.md file in its
 - Final Test Pass Rate: 100% ({total_tests}/{total_tests} tests)
 
 **Epic Moved To:** feature-updates/done/KAI-{N}-{epic_name}/
-**Original Request:** feature-updates/{epic_name}.txt
+**Original Request:** feature-updates/requests/{epic_name}.txt
 
 **Next Steps:** None - epic complete! 🎉
 ```
@@ -57,7 +57,7 @@ After epic is complete and moved to done/, update the EPIC_README.md file in its
 - Final Test Pass Rate: 100% (2200/2200 tests)
 
 **Epic Moved To:** feature-updates/done/KAI-1-improve_draft_helper/
-**Original Request:** feature-updates/improve_draft_helper.txt
+**Original Request:** feature-updates/requests/improve_draft_helper.txt
 
 **Next Steps:** None - epic complete! 🎉
 ```
@@ -118,7 +118,7 @@ Result of `python tests/run_all_tests.py` showing passed/total. Should always be
 The new location in done/ folder. Always: `feature-updates/done/KAI-{N}-{epic_name}/`
 
 ### Original Request
-Location of the original .txt file with user's request. Always: `feature-updates/{epic_name}.txt`
+Location of the original .txt file with user's request. Always: `feature-updates/requests/{epic_name}.txt`
 
 ---
 

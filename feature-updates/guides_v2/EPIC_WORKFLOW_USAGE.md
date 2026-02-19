@@ -1046,7 +1046,7 @@ This project uses the Epic-Driven Development Workflow v2 for managing features 
 4. Continue from listed next action
 
 **For starting new epic:**
-1. Verify user created `feature-updates/{epic_name}.txt`
+1. Verify user created request file in `feature-updates/requests/`
 2. Use "Starting S1" prompt from `prompts_reference_v2.md`
 3. Read `stages/s1/s1_epic_planning.md`
 4. Begin S1 workflow
@@ -1080,7 +1080,7 @@ This project uses the Epic-Driven Development Workflow v2 for managing features 
 
 1. **Create test epic request:**
    ```bash
-   echo "Test epic to verify workflow" > feature-updates/test_workflow.txt
+   echo "Test epic to verify workflow" > feature-updates/requests/test_workflow.txt
    ```
 
 2. **Run through S1:**

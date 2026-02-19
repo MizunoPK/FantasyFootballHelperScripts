@@ -111,7 +111,7 @@ S9.P3: Epic Final Review (60-90 min + bug fixes if needed)
 - ✅ ALL 3 QC rounds are MANDATORY (cannot skip)
 - ✅ If ANY issues found → create bug fix → RESTART S9 from S9.P1
 - ✅ Epic PR review has 11 categories (all mandatory, Architecture MOST IMPORTANT)
-- ✅ Validate against ORIGINAL epic request (re-read {epic_name}.txt)
+- ✅ Validate against ORIGINAL epic request (re-read `feature-updates/requests/{epic_name}.txt`)
 - ✅ 100% test pass rate required throughout S9
 - ✅ Zero tolerance for epic-level quality issues
 
@@ -247,7 +247,7 @@ S9.P3: Epic Final Review (60-90 min + bug fixes if needed)
 ### ❌ Pitfall 7: Ignoring Original Epic Request
 **Problem:** "I'll validate against final specs, not original request"
 **Impact:** Scope creep validated, original goals missed
-**Solution:** Re-read {epic_name}.txt, validate against user's original intent
+**Solution:** Re-read `feature-updates/requests/{epic_name}.txt`, validate against user's original intent
 
 ---
 

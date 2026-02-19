@@ -31,7 +31,7 @@ First, I need to check if there are any in-progress epics...
 
 No in-progress epics found. Let me verify you have a request file...
 
-I see you have feature-updates/{epic_name}.txt. Let me start S1.
+I see you have a request file in feature-updates/requests/. Let me start S1.
 
 [Use "Starting S1" prompt from prompts_reference_v2.md]
 [Read stages/s1/s1_epic_planning.md]
@@ -46,7 +46,7 @@ The guide requires:
 - Generate initial epic_smoke_test_plan.md
 
 Prerequisites I'm verifying:
-✅ User created feature-updates/{epic_name}.txt with initial notes
+✅ User created request file in feature-updates/requests/ with initial notes
 ✅ feature-updates/guides_v2/ folder exists
 ✅ No conflicting in-progress epics
 

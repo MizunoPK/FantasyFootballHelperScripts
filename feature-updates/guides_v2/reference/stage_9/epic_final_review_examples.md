@@ -126,7 +126,7 @@ GOOD:
 - Step 6.11 (Scope & Changes) validates against USER'S GOALS, not intermediate specs
 
 **What to do instead:**
-- ✅ Re-read ORIGINAL {epic_name}.txt file
+- ✅ Re-read ORIGINAL `feature-updates/requests/{epic_name}.txt` file
 - ✅ Validate against user's stated goals (from epic notes)
 - ✅ Verify expected outcomes delivered (from user's perspective)
 - ✅ Check for scope creep (features not in original request)
@@ -531,7 +531,7 @@ bugfix_high_architecture_inconsistency/
 - ❌ Don't fix issues inline and continue
 
 **Validate Against Original Request:**
-- ✅ Re-read {epic_name}.txt
+- ✅ Re-read `feature-updates/requests/{epic_name}.txt`
 - ✅ Verify user's goals achieved
 - ✅ Check for scope creep
 - ❌ Don't just compare to evolved specs

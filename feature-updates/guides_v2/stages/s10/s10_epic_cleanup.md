@@ -120,7 +120,7 @@ Epic cleanup typically takes 15-30 minutes.
 │ 8. ⚠️ MOVE ENTIRE EPIC FOLDER (NOT INDIVIDUAL FEATURES)         │
 │    - Move: feature-updates/{epic}/                              │
 │    - To: feature-updates/done/{epic}/                           │
-│    - Keep original epic request (.txt) in root for reference    │
+│    - Keep original epic request (.txt) in feature-updates/requests/  │
 │                                                                  │
 │ 9. ⚠️ MAINTAIN MAX 10 EPICS IN done/ FOLDER                     │
 │    - Count epics in done/ before moving current epic            │
@@ -220,7 +220,7 @@ STAGE 10: Epic Cleanup
 │   ├─ Move entire epic folder to done/
 │   ├─ Verify move successful (folder structure intact)
 │   ├─ Verify done/ has 10 or fewer epics
-│   ├─ Leave original epic request (.txt) in root for reference
+│   ├─ Leave original epic request (.txt) in feature-updates/requests/
 │   └─ Commit the epic folder move
 │
 ├─> STEP 7: Update EPIC_TRACKER.md
@@ -238,7 +238,7 @@ STAGE 10: Epic Cleanup
 │
 └─> STEP 9: Final Verification & Completion
     ├─ Verify epic in done/ folder
-    ├─ Verify original request still in root
+    ├─ Verify original request still in feature-updates/requests/
     ├─ Verify git shows clean state
     ├─ Update EPIC_README.md with completion summary
     └─ Celebrate epic completion! 🎉

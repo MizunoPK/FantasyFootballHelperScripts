@@ -429,7 +429,7 @@ I'm reading `stages/s1/s1_epic_planning.md` to ensure I follow the complete epic
 - ... (list critical requirements)
 
 **Prerequisites I'm verifying:**
-✅ Epic request file exists: `feature-updates/improve_draft_helper.txt`
+✅ Epic request file exists: `feature-updates/requests/improve_draft_helper.txt`
 ✅ Epic request contains user's initial notes
 ✅ Epic scope is clear from request
 

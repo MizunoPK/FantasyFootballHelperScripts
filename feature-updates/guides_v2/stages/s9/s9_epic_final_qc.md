@@ -317,7 +317,7 @@ When user reports bugs during S9.P3:
    - Focus on epic-wide concerns (not feature-level)
 
 7. ⚠️ Validate against ORIGINAL epic request (not evolved specs)
-   - Re-read {epic_name}.txt file
+   - Re-read `feature-updates/requests/{epic_name}.txt` file
    - Verify user's stated goals achieved
 
 8. ⚠️ 100% test pass rate required throughout S9

@@ -87,7 +87,7 @@ Plan  Deep Dive  Check  Strategy  (per feature)   QC
 2. {Outcome 2}
 3. {Outcome 3}
 
-**Original Request:** `feature-updates/{epic_name}.txt`
+**Original Request:** `feature-updates/requests/{epic_name}.txt`
 
 ---
 
@@ -447,7 +447,7 @@ Plan  Deep Dive  Check  Strategy  (per feature)   QC
 **Final Test Pass Rate:** {X/Y tests passing} ({percentage}%)
 
 **Epic Location:** `feature-updates/done/{epic_name}/`
-**Original Request:** `feature-updates/{epic_name}.txt`
+**Original Request:** `feature-updates/requests/{epic_name}.txt`
 
 **Key Achievements:**
 - {Achievement 1}

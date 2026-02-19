@@ -156,7 +156,7 @@ Epic Smoke Testing is complete when ALL 4 parts of epic_smoke_test_plan.md pass,
 - [ ] Test scenarios reflect ACTUAL implementation
 
 **Original epic request available:**
-- [ ] `{epic_name}.txt` file exists in feature-updates/ folder
+- [ ] `{epic_name}.txt` file exists in feature-updates/requests/ folder
 - [ ] Contains user's original epic request
 
 **EPIC_README.md ready:**
@@ -257,7 +257,7 @@ Check epic folder for any `bugfix_{priority}_{name}/` folders. If found, verify 
 
 ### Step 1.4: Read Original Epic Request
 
-**Read `{epic_name}.txt`:**
+**Read `feature-updates/requests/{epic_name}.txt`:**
 - Review user's original goals
 - Understand epic success criteria
 - Keep in mind for Part 3 validation
