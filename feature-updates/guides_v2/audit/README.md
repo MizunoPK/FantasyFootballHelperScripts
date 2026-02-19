@@ -10,14 +10,19 @@
 
 1. [Quick Start](#quick-start)
 2. [Audit Process Overview](#audit-process-overview-sub-round-system)
-3. [Audit Files Structure](#audit-files-structure)
-4. [Dimension Categories](#dimension-categories)
-5. [Stage Workflow Guides](#stage-workflow-guides)
-6. [Dimension Guides](#dimension-guides)
-7. [Reference Materials](#reference-materials)
-8. [Templates](#templates)
-9. [Scripts](#scripts)
-10. [Outputs](#outputs)
+3. [Navigation by Stage](#navigation-by-stage)
+4. [Sub-Round Structure](#sub-round-structure)
+5. [Navigation by Audit Dimension](#navigation-by-audit-dimension)
+6. [Recommended Dimension Reading Order](#recommended-dimension-reading-order)
+7. [Common Scenarios](#common-scenarios)
+8. [Reference Materials](#reference-materials)
+9. [Templates](#templates)
+10. [Real Examples](#real-examples--complete)
+11. [Automated Scripts](#automated-scripts)
+12. [Outputs](#outputs)
+13. [Critical Success Factors](#critical-success-factors)
+14. [Philosophy](#philosophy)
+15. [Getting Help](#getting-help)
 
 ---
 
@@ -411,6 +416,13 @@ bash scripts/pre_audit_checks.sh
 - Round results summary
 - Loop decision documentation
 - Evidence for user review
+
+### Improvements Working File
+`templates/improvements_working_template.md` - Created at start of each round
+- Candidate entries captured during the round
+- Formal proposals written at end of round
+- Used in Stage 5 "End-of-Round: Improvements Review"
+- Temporary — never committed
 
 ---
 
