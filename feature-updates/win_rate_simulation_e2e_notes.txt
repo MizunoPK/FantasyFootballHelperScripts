@@ -64,7 +64,7 @@ folder not found.
 | Argument | Type | Default | Notes |
 |----------|------|---------|-------|
 | --e2e-test | flag | False | Forces single/sims=1/workers=1; also for debugging |
-| --log-level | str | 'INFO' | Replaces LOGGING_LEVEL = 'INFO' constant |
+| --log-level | str | 'INFO' | choices: DEBUG/INFO/WARNING/ERROR/CRITICAL; replaces LOGGING_LEVEL = 'INFO' constant |
 | mode (positional) | str | 'iterative' | Existing — preserved |
 | --enable-log-file | flag | False | Existing — preserved |
 | --sims | int | 5 | Existing — preserved |

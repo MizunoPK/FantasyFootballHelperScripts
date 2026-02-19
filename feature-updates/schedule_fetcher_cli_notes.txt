@@ -36,7 +36,7 @@ call, real data parsing, and real file I/O through the actual CLI entry point.
 **Requirements for a valid E2E mode:**
 - Completes in ≤180 seconds (network latency must be within this budget)
 - Writes all output to /tmp (never to data/) — /tmp is outside the repo and never committed
-- Exits 0 on success; exits 0 with info message if required data files are missing (graceful skip)
+- Exits 0 on success
 - Deterministic: same command always tests the same thing (week 1, fixed season)
 
 **Behavior:** fetches 1 week of schedule data only (max_weeks=1), writes to

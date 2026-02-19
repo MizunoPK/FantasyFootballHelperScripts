@@ -7,14 +7,14 @@ preceding epics in this series). The full specification was completed in KAI-10 
 **Existing spec**: feature-updates/KAI-10-architectural_refactoring_configuration_management/
 feature_08_integration_test_framework/spec.md (all requirements, acceptance criteria, files to create)
 
-**DEPENDENCY**: All 7 refactoring epics must be completed before this one:
-1. validate_player_fetcher_refactoring
-2. schedule_fetcher_cli
-3. game_data_fetcher_cli
-4. historical_compiler_cli
-5. win_rate_simulation_e2e
-6. accuracy_simulation_e2e
-7. league_helper_cli
+**DEPENDENCY**: All 6 remaining refactoring epics must be completed before this one
+(validate_player_fetcher_refactoring was completed in KAI-10 and is already done):
+1. schedule_fetcher_cli
+2. game_data_fetcher_cli
+3. historical_compiler_cli
+4. win_rate_simulation_e2e
+5. accuracy_simulation_e2e
+6. league_helper_cli
 
 ## Purpose
 
@@ -72,7 +72,7 @@ Timeout handling: tests warn but do not fail on >180s (network variability).
 6. tests/integration/test_simulation_integration.py — Append TestWinRateSimulationCLI class
 7. tests/integration/test_accuracy_simulation_integration.py — Append TestAccuracySimulationCLI class
 
-**New files (2):**
+**Additional new files (2):**
 8. run_all_integration_tests.py — Master runner (project root)
 9. docs/testing/INTEGRATION_TESTING_GUIDE.md — ~300 lines, 5 sections
 
@@ -83,7 +83,7 @@ Timeout handling: tests warn but do not fail on >180s (network variability).
 - test_schedule_fetcher_cli.py: --e2e-test, --e2e-test --log-level DEBUG, --e2e-test --season 2024,
   --e2e-test --output-path /tmp/test_sched.csv, --help
 - test_game_data_fetcher_cli.py: --e2e-test, --e2e-test --log-level DEBUG,
-  --e2e-test --request-timeout 60, --e2e-test --historical-season 2024, --help
+  --e2e-test --request-timeout 60, --e2e-test --season 2024 --historical-season, --help
 - test_historical_compiler_cli.py: --e2e-test, --e2e-test --log-level DEBUG,
   --e2e-test --year 2024, --e2e-test --timeout 120, --help
 - test_league_helper_cli.py: --e2e-test, --e2e-test --log-level DEBUG,

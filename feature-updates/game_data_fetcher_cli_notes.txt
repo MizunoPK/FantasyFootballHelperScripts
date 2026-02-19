@@ -7,9 +7,9 @@ full specification was completed in KAI-10 S2 and can be referenced directly.
 **Existing spec**: feature-updates/KAI-10-architectural_refactoring_configuration_management/
 feature_03_game_data_fetcher_cli/spec.md (all requirements, acceptance criteria, files to modify)
 
-**IMPORTANT DEPENDENCY**: The player-data-fetcher/game_data_fetcher.py module was already
-refactored in KAI-10 Feature 01 (REQ-09). The validate_player_fetcher_refactoring epic should
-be completed before this one to confirm the internal module changes are in place.
+**NOTE**: The player-data-fetcher/game_data_fetcher.py module was already refactored in
+KAI-10 Feature 01 (REQ-09). The validate_player_fetcher_refactoring validation was completed
+in KAI-10 — this dependency is already satisfied.
 
 ## Background
 
@@ -20,6 +20,15 @@ but is missing the universal args (--e2e-test, --log-level) and has two anti-pat
 
 The internal game_data_fetcher.py module was refactored by KAI-10 F01 (REQ-09) to accept
 request_timeout and rate_limit_delay as constructor parameters.
+
+## Goals
+
+1. Add universal args --e2e-test and --log-level to run_game_data_fetcher.py
+2. Add script-specific args: --request-timeout, --historical-season
+3. Remove config import from runner (NFL_SEASON, CURRENT_NFL_WEEK)
+4. Remove os.chdir() — use sys.path.insert only (like player_fetcher pattern)
+5. Wire --log-level to setup_logger() (currently hardcoded "INFO")
+6. Implement --e2e-test mode: Week 1 data only, writes to /tmp/game_data_e2e_test.csv (not data/), exits 0 in ≤180s
 
 ## E2E Mode
 
@@ -32,20 +41,11 @@ call, real data parsing, and real file I/O through the actual CLI entry point.
 **Requirements for a valid E2E mode:**
 - Completes in ≤180 seconds (network latency must be within this budget)
 - Writes all output to /tmp (never to data/) — /tmp is outside the repo and never committed
-- Exits 0 on success; exits 0 with info message if required data files are missing (graceful skip)
+- Exits 0 on success
 - Deterministic: same command always tests the same thing (week 1 only)
 
 **Behavior:** fetches Week 1 game data only (weeks=[1]), writes to
 /tmp/game_data_e2e_test.csv. Does not write to data/game_data.csv.
-
-## Goals
-
-1. Add universal args --e2e-test and --log-level to run_game_data_fetcher.py
-2. Add script-specific args: --request-timeout, --historical-season
-3. Remove config import from runner (NFL_SEASON, CURRENT_NFL_WEEK)
-4. Remove os.chdir() — use sys.path.insert only (like player_fetcher pattern)
-5. Wire --log-level to setup_logger() (currently hardcoded "INFO")
-6. Implement --e2e-test mode: Week 1 data only, writes to /tmp/game_data_e2e_test.csv (not data/), exits 0 in ≤180s
 
 ## Design Decisions (from KAI-10 S2)
 
@@ -57,9 +57,10 @@ call, real data parsing, and real file I/O through the actual CLI entry point.
 - --data-folder, --validate, --clean: out of scope (follow DISCOVERY scope strictly)
 - argparse defaults replace config fallbacks: --season defaults to 2025, --current-week to 17
 
-## Files to Modify (1 file)
+## Files to Modify (2 files)
 
 1. run_game_data_fetcher.py — Add 4 new args, remove os.chdir, fix defaults, remove config import
+2. tests/root_scripts/test_run_game_data_fetcher.py — Add tests for new CLI args
 
 Note: player-data-fetcher/game_data_fetcher.py was modified by the player fetcher refactoring
 epic (Feature 01 REQ-09), not this feature.
