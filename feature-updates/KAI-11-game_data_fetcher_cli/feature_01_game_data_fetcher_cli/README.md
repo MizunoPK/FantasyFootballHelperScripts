@@ -97,8 +97,9 @@ it into this feature's spec.md and verify nothing has changed since KAI-10.
 **S8.P1 - Cross-Feature Alignment:** N/A (only feature in epic)
 
 **S8.P2 - Epic Testing Plan Update:**
-- [ ] `epic_smoke_test_plan.md` updated based on actual implementation
-- [ ] S8.P2 complete: ◻️
+- [x] `epic_smoke_test_plan.md` reviewed — NO CHANGE needed (implementation matched S3 plan exactly)
+- [x] Execution checklist updated with S7 pre-verification results
+- [x] S8.P2 complete: ✅
 
 ---
 
