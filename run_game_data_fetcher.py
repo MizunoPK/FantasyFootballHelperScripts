@@ -20,9 +20,17 @@ Author: Kai Mizuno
 """
 
 import argparse
-import os
 import sys
 from pathlib import Path
+
+# Module-level sys.path setup
+_script_dir = Path(__file__).parent
+_fetcher_dir = _script_dir / "player-data-fetcher"
+sys.path.insert(0, str(_fetcher_dir))
+sys.path.insert(0, str(_script_dir))
+
+from game_data_fetcher import fetch_game_data, GameDataFetcher  # noqa: E402
+from utils.LoggingManager import setup_logger  # noqa: E402
 
 
 def parse_weeks(weeks_str: str) -> list:
@@ -51,16 +59,16 @@ def parse_weeks(weeks_str: str) -> list:
     return weeks
 
 
-def main():
-    """Main entry point for game data fetcher."""
+def parse_args(argv=None):
+    """Parse command-line arguments."""
     parser = argparse.ArgumentParser(
         description="Fetch NFL game data (venue, weather, scores) from ESPN and Open-Meteo APIs"
     )
     parser.add_argument(
         '--season',
         type=int,
-        default=None,
-        help='NFL season year (default: current season from config)'
+        default=2025,
+        help='NFL season year (default: 2025)'
     )
     parser.add_argument(
         '--output',
@@ -77,57 +85,70 @@ def main():
     parser.add_argument(
         '--current-week',
         type=int,
-        default=None,
-        help='Override current NFL week (default: from config)'
+        default=17,
+        help='Override current NFL week (default: 17)'
     )
+    parser.add_argument(
+        '--e2e-test',
+        action='store_true',
+        default=False,
+        help='E2E test mode: limits to week 1, outputs to /tmp/game_data_e2e_test.csv'
+    )
+    parser.add_argument(
+        '--log-level',
+        type=str,
+        default='INFO',
+        choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
+        help='Logging level (default: INFO)'
+    )
+    parser.add_argument(
+        '--request-timeout',
+        type=int,
+        default=30,
+        help='HTTP request timeout in seconds (default: 30)'
+    )
+    parser.add_argument(
+        '--historical-season',
+        action='store_true',
+        default=False,
+        help='Fetch a past season: overrides current_week to 18 (all weeks)'
+    )
+    return parser.parse_args(argv)
 
-    args = parser.parse_args()
 
-    # Get the directory where this script is located (project root)
-    script_dir = Path(__file__).parent
-
-    # Construct path to the player-data-fetcher module directory
-    fetcher_dir = script_dir / "player-data-fetcher"
-
-    # Save current working directory to restore later
-    original_cwd = os.getcwd()
+def main():
+    """Main entry point for game data fetcher."""
+    args = parse_args()
 
     try:
-        # Change to fetcher directory so imports work correctly
-        os.chdir(fetcher_dir)
-
-        # Add fetcher directory to path
-        sys.path.insert(0, str(fetcher_dir))
-        sys.path.insert(0, str(script_dir))
-
-        # Import after changing directory
-        from game_data_fetcher import fetch_game_data, GameDataFetcher
-        from config import NFL_SEASON, CURRENT_NFL_WEEK
-        from utils.LoggingManager import setup_logger
-
         # Setup logging
-        logger = setup_logger("game_data_fetcher", "INFO", False, None, "standard")
+        logger = setup_logger("game_data_fetcher", args.log_level, False, None, "standard")
 
         # Determine parameters
-        season = args.season if args.season else NFL_SEASON
-        current_week = args.current_week if args.current_week else CURRENT_NFL_WEEK
+        season = args.season
+        current_week = args.current_week
 
-        # For historical seasons (like 2024), use week 18 as current week
-        if args.season and args.season < NFL_SEASON:
+        # Historical season mode: fetch all 18 weeks
+        if args.historical_season:
             current_week = 18
-            logger.info(f"Historical season {season}: setting current_week to 18")
+            logger.info(f"Historical season mode: fetching all 18 weeks for {args.season}")
 
         # Determine output path
         if args.output:
-            output_path = script_dir / args.output
+            output_path = _script_dir / args.output
         else:
-            output_path = script_dir / "data" / "game_data.csv"
+            output_path = _script_dir / "data" / "game_data.csv"
 
-        # Parse weeks if specified
-        weeks = None
-        if args.weeks:
+        # E2E test mode: limit to week 1, override output path
+        if args.e2e_test:
+            weeks = [1]
+            logger.info("E2E test mode: limiting to week 1")
+            output_path = Path("/tmp/game_data_e2e_test.csv")
+        elif args.weeks:
             weeks = parse_weeks(args.weeks)
             logger.info(f"Fetching specific weeks: {weeks}")
+        else:
+            weeks = None
 
         # Log configuration
         logger.info(f"Game Data Fetcher Configuration:")
@@ -144,7 +165,8 @@ def main():
             output_path=output_path,
             season=season,
             current_week=current_week,
-            weeks=weeks
+            weeks=weeks,
+            request_timeout=args.request_timeout
         )
 
         print(f"\n[SUCCESS] Game data saved to: {result_path}")
@@ -164,9 +186,6 @@ def main():
         import traceback
         traceback.print_exc()
         sys.exit(1)
-    finally:
-        # Always restore original working directory
-        os.chdir(original_cwd)
 
 
 if __name__ == "__main__":
