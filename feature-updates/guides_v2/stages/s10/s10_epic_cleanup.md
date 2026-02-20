@@ -641,23 +641,18 @@ ls -d feature-updates/done/*/ | wc -l
 
 **6c. Move Entire Epic Folder to done/**
 
-Move the complete epic folder (with KAI number):
+Move the complete epic folder (with KAI number) using **`git mv`** (not shell `mv`):
 
-**Windows:**
 ```bash
-move feature-updates\KAI-{N}-{epic_name} feature-updates\done\KAI-{N}-{epic_name}
+git mv feature-updates/KAI-{N}-{epic_name} feature-updates/done/KAI-{N}-{epic_name}
 ```
 
-**Example:** `move feature-updates\KAI-1-improve_draft_helper feature-updates\done\KAI-1-improve_draft_helper`
+**Example:** `git mv feature-updates/KAI-11-game_data_fetcher_cli feature-updates/done/KAI-11-game_data_fetcher_cli`
 
-**Linux/Mac:**
-```bash
-mv feature-updates/KAI-{N}-{epic_name} feature-updates/done/KAI-{N}-{epic_name}
-```
+**⚠️ CRITICAL: Use `git mv`, NOT shell `mv`.**
+Shell `mv` moves the files on disk but leaves the old paths as unstaged deletions in git. `git mv` stages both the deletion (old location) and the addition (new location) atomically, so the commit in Step 6g captures the complete move.
 
-**Example:** `mv feature-updates/KAI-1-improve_draft_helper feature-updates/done/KAI-1-improve_draft_helper`
-
-**CRITICAL:** Move the ENTIRE folder, not individual features.
+Using shell `mv` + `git add done/{epic}/` only stages the new files — the old files remain as uncommitted deletions, polluting `git status` and requiring a separate cleanup commit.
 
 **6d. Verify Move Successful**
 
@@ -707,9 +702,8 @@ ls -d feature-updates/done/*/ | wc -l
 
 **6g. Commit the Epic Folder Move**
 
-Stage and commit the folder move:
+Commit the folder move (`git mv` already staged everything in Step 6c):
 ```bash
-git add feature-updates/done/{epic_name}/
 git commit -m "chore/KAI-{N}: Move completed epic to done/ folder
 
 Epic KAI-{N} ({epic_name}) is complete:
@@ -790,12 +784,33 @@ git log -1 --oneline
 
 **Actions:**
 
-**8a. Push Branch to Remote**
+**8a. Verify Working Tree Clean, Then Push**
+
+**🛑 BEFORE pushing, verify there are zero uncommitted changes:**
+```bash
+git status
+```
+
+**Required output:** `nothing to commit, working tree clean`
+
+**If ANY files are shown as modified, deleted, or untracked:**
+- Stage and commit them before proceeding
+- Do NOT create the PR until `git status` is clean
+- A PR created while uncommitted changes exist is incomplete — the PR will be missing those changes
+
+**Do not declare the PR ready until the working tree is clean AND all commits are pushed.**
 
 Push all commits (epic work + folder move + EPIC_TRACKER update):
 ```bash
 git push origin {work_type}/KAI-{number}
 ```
+
+After pushing, verify all commits are on the remote:
+```bash
+git log --oneline origin/{work_type}/KAI-{number}..HEAD
+```
+
+**Required output:** No output (empty = all commits pushed)
 
 **8b. Create Pull Request**
 
