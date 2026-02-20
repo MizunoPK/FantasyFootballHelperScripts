@@ -458,6 +458,14 @@ Read spec.md sections:
 - Verify code matches spec EXACTLY
 - Check implementation_checklist.md item
 
+**⚠️ Special Case — Dependency Removal Tasks:** When a task removes an import or dependency (X):
+1. Remove the import statement (obvious)
+2. **ALSO remove ALL code that references X** — conditionals, comparisons, function calls (critical!)
+3. Replacement code for X goes in the appropriate later phase/task
+4. Phase checkpoint: `grep "X" {file}` to verify ALL references gone
+
+> **Why this matters:** If only the import is removed but referencing code remains, the code fails at runtime with a `NameError` — not at import time. Phase checkpoints that only test `--help` or import will NOT catch this. The bug appears only when the affected code path runs.
+
 2. **Example: Implementing Task 1 (Load ADP Data)**
 
 **Read spec (Algorithms section):**

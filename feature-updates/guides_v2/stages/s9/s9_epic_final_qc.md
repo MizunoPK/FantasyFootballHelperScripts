@@ -61,6 +61,28 @@
 | S9.P3: User Testing | `stages/s9/s9_p3_user_testing.md` | Variable |
 | S9.P4: Epic Final Review | `stages/s9/s9_p4_epic_final_review.md` | 1.5-2 hours |
 
+### Single-Feature Epic Shortcut
+
+**If the epic has exactly 1 feature AND no cross-feature integration exists:**
+
+> Skip S9.P1 and S9.P2. Proceed directly to **S9.P3 (User Testing)**.
+
+**Why:** S9.P1 and S9.P2 are redundant for single-feature epics:
+- Code has not changed since S7 (no new integration to verify)
+- S9.P1 would re-run the same smoke test as S7.P1
+- S9.P2 would re-run the same QC loop as S7.P2
+- Part 4 (cross-feature integration) is N/A by definition
+
+**S9.P3 remains mandatory** — user testing is the genuine value-add of S9 and cannot be replicated by the agent, regardless of feature count.
+
+**Apply this shortcut ONLY when:**
+- ✅ Epic has exactly 1 feature
+- ✅ No cross-feature workflows to verify
+
+**Do NOT skip S9.P1 and S9.P2 when:**
+- ❌ Epic has 2+ features
+- ❌ Cross-feature integration points exist (even for 1-feature epics that touch shared modules)
+
 ---
 
 ## Overview

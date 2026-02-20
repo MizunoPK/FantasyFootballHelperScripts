@@ -406,6 +406,10 @@ Historical evidence from KAI-8 Feature 04 shows test creation tasks missing from
 
 **Next Action:** Update Agent Status, proceed to Phase 2 (Validation Loop)
 
+**🚨 Before entering Phase 2:** Review your Phase 1 "Known Gaps" section. ANY gap documented as "may need more detail" or "to be added" MUST be resolved NOW — before Round 1 begins.
+
+> **Why:** If a Known Gap reaches Round 1, it becomes a Round 1 issue. Round 1 will not be clean. This is fine (fix-and-continue handles it), but it's more efficient to fix gaps at the Phase 1/Phase 2 boundary than inside the loop. The "known gaps OK" quality target applies during Phase 1 drafting — not when you START the loop.
+
 ---
 
 ## 🔄 PHASE 2: VALIDATION LOOP
