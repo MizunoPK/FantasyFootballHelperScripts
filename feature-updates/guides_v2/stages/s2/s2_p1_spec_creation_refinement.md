@@ -157,6 +157,14 @@ Present checklist to user, resolve questions one-at-a-time, update spec
 - Agent: "Question 1 marked RESOLVED. Adding Requirement 9 to spec."
 ```
 
+**⚠️ "Port the Spec" Mode Warning:**
+When S2 is framed as "porting an existing approved spec" (e.g., carrying forward a KAI-N spec to a successor epic), be extra vigilant about autonomous resolution. This framing creates a pull toward treating any new decision as "already covered." Watch for:
+- Checklist items labeled "Verification Items" that expose genuinely NEW decisions during research
+- Decisions where you have "strong evidence" from existing patterns — strong evidence → better PENDING presentation, NOT autonomous resolution
+- Any design decision not explicitly decided in the source spec (even if you can rationalize it from the source)
+
+**The rule remains unchanged:** Any new decision requires PENDING → User approval → RESOLVED. The "verification" framing does not change this protocol.
+
 **Outputs:**
 - spec.md (updated with user answers)
 - checklist.md (all questions marked ANSWERED)
