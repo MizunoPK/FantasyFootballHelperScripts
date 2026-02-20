@@ -437,7 +437,7 @@ The workflow uses two types of gates:
 **Type 1: Stage-Level Gates** (whole numbers or decimals)
 - Named after the stage they occur in or between
 - Most require user approval
-- Examples: Gate 3 (S2), Gate 4.5 (S4), Gate 5 (S5)
+- Examples: Gate 3 (S2), Gate 4.5 (S3), Gate 5 (S5)
 
 **Type 2: Iteration-Level Gates** (iteration numbers)
 - Named after the iteration they occur in
@@ -642,7 +642,7 @@ git status  # Shows uncommitted changes
 ### Never Allowed
 
 ❌ **Skip stages** (all stages have dependencies)
-❌ **Skip iterations** in S5 (all 22 mandatory)
+❌ **Skip dimensions** in S5 Validation Loop (all 11 must be checked each round)
 ❌ **Batch iterations** (execute ONE at a time, sequentially)
 ❌ **Defer issues for "later"** (fix immediately, includes Validation Loop issues)
 ❌ **Skip Validation Loop rounds** (must complete 3 consecutive clean rounds)

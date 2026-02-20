@@ -302,12 +302,38 @@ Workflow: S1 → S2 → S3 → S4 → S5 → S6 → S7 → S8 → S9 → S10
 
 ## Automated Validation
 
-### Script 1: Validate All File Paths
+### ⚠️ CRITICAL: Prefer Markdown-Link Extraction Over Broad Path Grep
+
+**The broad path grep approach (Scripts 1 and 2 below) extracts path fragments from guide code examples, inline shell commands, and naming-convention illustrations. This produces 100+ false positives per run.**
+
+**Recommended primary approach — markdown-link extraction (see Type 3 pattern):**
+
+```bash
+# PRIMARY: Extract only real markdown links (avoids code-example false positives)
+cd feature-updates/guides_v2
+grep -rhn "\[.*\]([^)#]*\.md)" . --include="*.md" | \
+  grep -oE '\(([^)]+\.md)\)' | tr -d '()' | sort -u > /tmp/md_links.txt
+
+# Validate each resolved path (relative to guides_v2/)
+while read path; do
+  full="$path"
+  [ "${path:0:1}" != "/" ] && full="feature-updates/guides_v2/$path"
+  [ ! -f "$full" ] && echo "BROKEN LINK: $path"
+done < /tmp/md_links.txt
+```
+
+**Use Scripts 1–2 only as a secondary sweep** (with manual false-positive filtering) after the markdown-link check is clean.
+
+---
+
+### Script 1: Validate All File Paths (Secondary — Produces False Positives)
 
 ```bash
 #!/bin/bash
 # validate_file_paths.sh
 # Extracts all file paths and verifies they exist
+# ⚠️ WARNING: Produces false positives from guide code examples.
+#    Use markdown-link extraction above as primary check.
 
 echo "=== Validating File Paths ==="
 
@@ -341,12 +367,13 @@ else
 fi
 ```bash
 
-### Script 2: Find References to Non-Existent Files
+### Script 2: Find References to Non-Existent Files (Secondary — Produces False Positives)
 
 ```bash
 #!/bin/bash
 # find_broken_refs.sh
 # More sophisticated - extracts paths and checks from source file context
+# ⚠️ WARNING: Still extracts from code examples — use as secondary sweep only.
 
 # Check all directories AND root-level files
 {
