@@ -17,7 +17,7 @@
 
 | KAI # | Epic Name | Type | Branch | Status | Date Started |
 |-------|-----------|------|--------|--------|--------------|
-| 11 | game_data_fetcher_cli | epic | epic/KAI-11 | In Progress | 2026-02-19 |
+| (none) | | | | | |
 
 ---
 
@@ -27,6 +27,7 @@
 
 | KAI # | Epic Name | Type | Branch | Date Completed | Location |
 |-------|-----------|------|--------|----------------|----------|
+| 11 | game_data_fetcher_cli | epic | epic/KAI-11 | 2026-02-20 | feature-updates/done/KAI-11-game_data_fetcher_cli/ |
 | 10 | architectural_refactoring_configuration_management | epic | epic/KAI-10 | 2026-02-18 | feature-updates/done/KAI-10-architectural_refactoring_configuration_management/ |
 | 9 | remove_player_fetcher_legacy_features | epic | epic/KAI-9 | 2026-02-13 | feature-updates/done/KAI-9-remove_player_fetcher_legacy_features/ |
 | 8 | logging_refactoring | epic | epic/KAI-8 | 2026-02-12 | feature-updates/done/KAI-8-logging_refactoring/ |
@@ -42,6 +43,53 @@
 ## Epic Details
 
 <!-- Each epic gets a detailed section below once completed -->
+
+---
+
+### KAI-11: game_data_fetcher_cli
+
+**Type:** epic
+**Branch:** epic/KAI-11
+**Date Started:** 2026-02-19
+**Date Completed:** 2026-02-20
+**Location:** feature-updates/done/KAI-11-game_data_fetcher_cli/
+
+**Description:**
+Refactored `run_game_data_fetcher.py` to add universal CLI args (`--e2e-test`, `--log-level`), script-specific args (`--request-timeout`, `--historical-season`), remove the `os.chdir()` anti-pattern and config imports, wire log-level to `setup_logger()`, implement E2E test mode, and extract `parse_args()` as a module-level function enabling unit testing. The script now has 8 CLI args total (4 existing + 4 new) with no config imports, and E2E test mode completes in ~8 seconds writing to `/tmp/game_data_e2e_test.csv`. This is the successor to KAI-10 Feature 03 (which had refactored `game_data_fetcher.py` internally) — this epic refactored the runner script to match the `run_player_fetcher.py` pattern established in KAI-10.
+
+**Features Implemented:**
+1. feature_01_game_data_fetcher_cli — Refactored `run_game_data_fetcher.py`: 4 new CLI args, `os.chdir()` removed, config imports removed, `parse_args(argv=None)` extracted at module level, E2E mode with fixed `/tmp` output path, 3 new unit tests
+
+**Key Changes:**
+- `run_game_data_fetcher.py`: Added `--e2e-test`, `--log-level`, `--request-timeout`, `--historical-season` CLI args; replaced `os.chdir()` with module-level `_script_dir = Path(__file__).parent`; removed `from config import NFL_SEASON, CURRENT_NFL_WEEK`; extracted `parse_args(argv=None)` from `main()` to module level; wired `args.log_level` to `setup_logger()`; E2E mode writes to `/tmp/game_data_e2e_test.csv`
+- `tests/root_scripts/test_run_game_data_fetcher.py`: Created 3 unit tests (test_has_parse_args, test_parse_args_defaults, test_no_subprocess)
+- `feature-updates/guides_v2/`: 4 guide improvements applied (S10.P1)
+
+**Commit History:**
+- `5f809db` - `feat/KAI-11: S2 complete — game_data_fetcher_cli spec approved`
+- `654df80` - `feat/KAI-11: S3 complete — epic plan approved (Gate 4.5)`
+- `9d05a6f` - `feat/KAI-11: S4 complete — test strategy for feature_01_game_data_fetcher_cli`
+- `7d69742` - `feat/KAI-11: Refactor run_game_data_fetcher — CLI args, sys.path, E2E mode`
+- `17f2aed` - `docs/KAI-11: S8.P2 epic testing plan update`
+- `f103cc8` - `docs(guides): Apply lessons from KAI-11-game_data_fetcher_cli`
+- `c346998` - `chore/KAI-11: Move completed epic to done/ folder`
+
+**Testing Results:**
+- Unit tests: 2714/2714 passing (100%; 3 new tests added)
+- S7.P1 Smoke test: Passed (3 parts — import, --help with all 8 args, --e2e-test fetched 16 games in ~8s)
+- S7.P2 QC Validation Loop: Passed (3 consecutive clean rounds from Round 1, 12 dimensions each)
+- S7.P3 PR Review Loop: Passed (3 consecutive clean rounds from Round 1, 11 categories)
+- S9.P3 User Testing: Passed (zero bugs found)
+- S10.P1 Guide updates: 4 proposals approved and applied (2 P1, 2 P2)
+
+**Key Lessons Learned:**
+Single-feature epic S9 shortcut: S9.P1 and S9.P2 are redundant for single-feature epics with no cross-feature integration — skip directly to S9.P3 (user testing). "Port the Spec" mode creates a pull toward autonomous resolution of new design decisions; extra vigilance needed when S2 is framed as porting an existing spec. Thorough S5 and S6 execution (catching the Data Flow gap in S5, fixing ALL NFL_SEASON references in S6) produced a clean S7 from Round 1. Pattern: `parse_args(argv=None)` at module level enables unit tests to call `parse_args([])` directly without subprocess.
+
+**Related Documentation:**
+- Epic README: feature-updates/done/KAI-11-game_data_fetcher_cli/EPIC_README.md
+- Epic Test Plan: feature-updates/done/KAI-11-game_data_fetcher_cli/epic_smoke_test_plan.md
+- Epic Lessons Learned: feature-updates/done/KAI-11-game_data_fetcher_cli/epic_lessons_learned.md
+- Guide Update Proposal: feature-updates/done/KAI-11-game_data_fetcher_cli/GUIDE_UPDATE_PROPOSAL.md
 
 ---
 
