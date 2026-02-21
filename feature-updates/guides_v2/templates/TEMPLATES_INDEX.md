@@ -28,7 +28,7 @@
 | Template | Filename | Use When |
 |----------|----------|----------|
 | [Feature README](#feature-readme) | `feature_readme_template.md` | Creating feature folder |
-| [Spec Summary](#spec-summary) | `spec_summary_template.md` | Validating feature understanding (Phase 6) |
+| [Spec Summary](#spec-summary) | `spec_summary_template.md` | Validating feature understanding (S2.P1.I3) |
 | [Feature Spec](#feature-spec) | `feature_spec_template.md` | Writing detailed feature specification |
 | [Feature Checklist](#feature-checklist) | `feature_checklist_template.md` | Tracking feature decisions |
 | [Feature Lessons Learned](#feature-lessons-learned) | `feature_lessons_learned_template.md` | Creating feature-level lessons document |
@@ -110,7 +110,7 @@
 
 #### Spec Summary
 - **File:** `spec_summary_template.md`
-- **Created:** S2 - Phase 6
+- **Created:** S2.P1.I3
 - **Purpose:** User-validated feature-level outcomes
 - **Size:** ~140 lines
 - **When to use:** After multi-phase research, before implementation

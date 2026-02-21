@@ -39,7 +39,7 @@
 
 **Logic:**
 - Gate 3 = S2 gate (named after target stage)
-- Gate 4.5 = Between S4 and 5 (decimal indicates "between")
+- Gate 4.5 = S3.P3 (interstitial; approves epic plan + test strategy before S4 begins)
 - Gate 5 = S5 gate
 
 ### Type 2: Iteration-Level Gates (iteration numbers)
@@ -255,56 +255,9 @@
 
 ---
 
-## S4: Epic Testing Strategy (1 gate per epic - NEW)
+## S4: Feature-Level Testing Strategy (0 formal gates)
 
-### Gate 4.5: Epic Test Plan Approval (🚨 NEW MANDATORY GATE)
-
-**Location:** stages/s4/s4_feature_testing_strategy.md
-**When:** After updating epic_smoke_test_plan.md (before S5 begins)
-
-**What it checks:**
-- User reviews updated epic_smoke_test_plan.md
-- User approves epic testing strategy BEFORE implementation planning begins
-- Agent knows testing requirements before creating implementation plans
-
-**Pass Criteria:**
-- Agent presents epic_smoke_test_plan.md with:
-  - Measurable success criteria (5-10 criteria)
-  - Specific test scenarios (4-8 scenarios)
-  - Integration points between features
-  - Data quality checks (verify VALUES not just structure)
-  - Concrete commands and expected outputs
-- User explicitly approves test plan
-- User says "approved" or "looks good" or equivalent
-
-**Evidence Required:**
-- epic_smoke_test_plan.md shows N measurable success criteria
-- epic_smoke_test_plan.md shows N test scenarios
-- All integration points from S3 incorporated
-- User Approval section completed with timestamp
-- Gate 4.5 Status: ✅ PASSED documented in EPIC_README.md
-
-**If FAIL (user requests changes):**
-- Revise epic_smoke_test_plan.md based on user feedback
-- Re-present test plan for user approval
-- Cannot proceed to S5 without user approval
-
-**Why it matters:**
-- Addresses guide-updates.txt #10: "Have the testing plan be presented to the user and confirmed for each feature and the epic as a whole. Do this EARLY so that the agent knows how to test the work itself."
-- Agent knows EXACTLY how to test work BEFORE creating implementation plans
-- User can adjust test strategy early (S4 vs S5 v2 Phase 2)
-- Prevents creating implementation plans without knowing testing requirements
-- Separates test WHAT (S4) from implement HOW (S5)
-- Earlier feedback loop (S4 approval vs S5 v2 Phase 2 approval)
-
-**Benefits:**
-- Agent creates better implementation plans knowing exact testing requirements
-- User sees test strategy early (cheap to change)
-- Prevents discovering test strategy misalignment late (expensive to fix)
-- Test strategy guides implementation planning (not vice versa)
-- Clear separation: test plan approval (Gate 4.5) vs implementation plan approval (Gate 5)
-
-**From Enhancement:** This gate ensures agents know HOW to test work BEFORE planning implementation, creating earlier user visibility and control.
+S4 has no formal user approval gates. The epic testing strategy was approved at Gate 4.5 in S3. S4 creates feature-level test strategies (test_strategy.md per feature) which are agent-validated only.
 
 ---
 
@@ -747,7 +700,7 @@
 - S10: 0 formal gates (but checkpoints 7.1 and 7.2 are critical)
 
 **Gates with Evidence Requirements:** 7
-- Phase 1.5: File paths, line numbers
+- Gate 1 (S2.P1.I1 Research Audit): File paths, line numbers
 - Dimension 4 validation: Task count, criteria count
 - Validation Round (multiple dimensions): 4 parts with specific numbers
 - Dimension 11 validation: Three-way comparison results
@@ -755,8 +708,8 @@
 - Validation Loop: 3 consecutive clean rounds
 
 **Gates with Restart Protocol:** 6
-- Phase 1.5 → Phase 1
-- Phase 2.5 → Phase 2
+- Gate 1 (S2.P1.I1) → Return to S2.P1.I1 research
+- Gate 2 (S2.P1.I3 Alignment) → Revise spec and re-check
 - Dimension 4 validation → Iteration 4
 - Validation Round (multiple dimensions) → Validation Round (multiple dimensions)
 - Smoke Part 3 → Smoke Part 1
@@ -769,7 +722,7 @@
 - Gate 25 (Dimension 11 validation): User decision if discrepancies found
 
 **Stage Checkpoints Requiring User Input:** 2
-- S2.P3 Checkpoint: User approval of acceptance criteria
+- S2.P1.I3 Checkpoint: User approval of acceptance criteria (embedded in Gate 3)
 - S10 Checkpoint 7.2: User testing approval (zero bugs)
 
 ---
