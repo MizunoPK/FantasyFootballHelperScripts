@@ -9,7 +9,7 @@
 
 ## Table of Contents
 
-1. [Understanding Gate Numbering](#🔢-understanding-gate-numbering)
+1. [Understanding Gate Numbering](#-understanding-gate-numbering)
 2. [Quick Summary Table](#quick-summary-table)
 3. [S1: Epic Planning](#s1-epic-planning)
 4. [S2: Feature Deep Dive (4 gates per feature - NEW: Checklist Approval added)](#s2-feature-deep-dive-4-gates-per-feature-new-checklist-approval-added)

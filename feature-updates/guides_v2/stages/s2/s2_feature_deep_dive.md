@@ -13,8 +13,8 @@
 
 ## Table of Contents
 
-1. [🔀 Parallel Work Check (FIRST PRIORITY)](#🔀-parallel-work-check-first-priority)
-2. [📖 Terminology Note](#📖-terminology-note)
+1. [🔀 Parallel Work Check (FIRST PRIORITY)](#-parallel-work-check-first-priority)
+2. [📖 Terminology Note](#-terminology-note)
 3. [Prerequisites](#prerequisites)
 4. [Quick Navigation](#quick-navigation)
 5. [Overview](#overview)
