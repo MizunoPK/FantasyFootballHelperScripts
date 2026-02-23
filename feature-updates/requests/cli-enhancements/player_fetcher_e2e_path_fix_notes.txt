@@ -51,3 +51,30 @@ Also update the corresponding test in `tests/root_scripts/test_root_scripts.py`
 
 **Always use fixed paths for E2E output** — applies to ALL runner scripts, not just
 player_fetcher. This is a global preference established 2026-02-19.
+
+---
+
+## Additional Request: Verify KAI-10 CLI & E2E Implementation
+
+**Created:** 2026-02-20
+**Type:** Verification / validation work
+
+Before implementing the E2E path fix above, verify that the KAI-10 refactoring
+(CLI args + E2E mode) was correctly implemented end-to-end.
+
+### Scope
+
+- Confirm all expected CLI arguments are present and working in `run_player_fetcher.py`
+- Confirm E2E mode behavior is correct and functional
+- Confirm the script is aligned with the other runner scripts (consistent CLI patterns,
+  argument naming, E2E behavior, etc.)
+- Confirm the script is aligned with the plans/specs from KAI-10
+
+### What to Check
+
+1. **CLI arguments:** All arguments defined in the KAI-10 spec/plan are present and
+   correctly implemented (names, types, defaults, help text)
+2. **E2E mode:** `--e2e-test` flag works correctly end-to-end (data fetch + output)
+3. **Cross-script alignment:** CLI structure matches the pattern established by other
+   refactored scripts (e.g., `run_game_data_fetcher.py`, `run_scores_fetcher.py`)
+4. **Functional test:** Script runs without errors in normal and E2E modes
