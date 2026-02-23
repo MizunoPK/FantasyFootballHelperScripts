@@ -33,7 +33,7 @@ The v2 workflow is a **10-stage epic-driven development process** for managing l
 **Workflow Overview:**
 ```
 S1: Epic Planning → S2: Feature Deep Dives → S3: Cross-Feature Sanity Check →
-S4: Epic Testing Strategy → S5-S8: Feature Loop (per feature) → S9: Epic-Level Final QC →
+S4: Feature Testing Strategy → S5-S8: Feature Loop (per feature) → S9: Epic-Level Final QC →
 S10: Epic Cleanup (includes S10.P1: Guide Updates)
 
 Per-feature loop: S5 (Planning) → S6 (Execution) → S7 (Testing) → S8 (Alignment) → Repeat or S9
