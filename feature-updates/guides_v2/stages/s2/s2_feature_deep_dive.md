@@ -13,8 +13,8 @@
 
 ## Table of Contents
 
-1. [🔀 Parallel Work Check (FIRST PRIORITY)](#-parallel-work-check-first-priority)
-2. [📖 Terminology Note](#-terminology-note)
+1. [🔀 Parallel Work Check (FIRST PRIORITY)](#🔀-parallel-work-check-first-priority)
+2. [📖 Terminology Note](#📖-terminology-note)
 3. [Prerequisites](#prerequisites)
 4. [Quick Navigation](#quick-navigation)
 5. [Overview](#overview)
@@ -27,8 +27,7 @@
 12. [Next Stage After S2](#next-stage-after-s2)
 13. [Why S2 Was Split](#why-s2-was-split)
 14. [Frequently Asked Questions](#frequently-asked-questions)
-15. [Original Guide Location](#original-guide-location)
-16. [Summary](#summary)
+15. [Summary](#summary)
 
 ---
 
@@ -166,82 +165,53 @@ Feature Planning is where you research each feature, create detailed specificati
 
 ## Sub-Stage Breakdown
 
-### S2.P1: Research Phase (Phases 0, 1, 1.5)
+### S2.P1: Spec Creation and Refinement (2.25-4 hours)
 
-**Read:** `stages/s2/s2_p1_spec_creation_refinement.md`
+**Guide:** `stages/s2/s2_p1_spec_creation_refinement.md`
 
-**What it covers:**
-- **Phase 0:** Discovery Context Review (review DISCOVERY.md, verify spec has context)
-- **Step 1:** Targeted Research (research components mentioned in epic)
-- **Phase 1.5:** Research Completeness Audit (MANDATORY GATE - verify research is thorough)
+**What it covers (3 iterations):**
+
+**I1 — Feature-Level Discovery (60-90 min):**
+- Read Discovery Context (review DISCOVERY.md, note integration points)
+- Reference previously completed features for alignment and pattern consistency
+- Targeted Research (find exact files/classes to modify, read implementations, verify library compatibility)
+- Draft initial spec.md with requirements and traceability
+- Research Completeness Audit (Gate 1 embedded — MANDATORY)
+
+**I2 — Checklist Resolution (45-90 min):**
+- Resolve all checklist questions with user ONE at a time
+- Update spec.md in real-time after each answer
+
+**I3 — Refinement & Alignment (30-60 min):**
+- Dynamic Scope Adjustment (split feature if checklist >35 items)
+- Cross-feature comparison with completed features
+- Spec-to-Epic Alignment Check (Gate 2 embedded — MANDATORY)
+- Acceptance Criteria creation + User Approval (Gate 3)
 
 **Key Outputs:**
-- "Discovery Context" section in spec.md (grounding in DISCOVERY.md findings)
-- Research findings documented in epic/research/{FEATURE_NAME}_DISCOVERY.md
-- Evidence collected: file paths, line numbers, code snippets
-- Research completeness audit passed
+- spec.md: Discovery Context, requirements with traceability, acceptance criteria (user approved)
+- checklist.md: All questions resolved (zero open items)
+- epic/research/{FEATURE_NAME}_DISCOVERY.md: Research findings
 
-**Time Estimate:** 45-60 minutes
-
-**When complete:** Transition to S2.P2
-
-**Why this sub-stage exists:**
-- Reduces token usage by 60% (1,037 lines vs 2,348 lines)
-- Focuses agent on research phase only
-- Clear mandatory gate (Phase 1.5) before specification work
+**When complete:** S2.P1 complete — Secondary agents STOP here, Primary proceeds to S2.P2
 
 ---
 
-### S2.P2: Specification Phase (Phases 2, 2.5)
+### S2.P2: Cross-Feature Alignment (20-60 min)
 
-**Read:** `stages/s2/s2_p2_specification.md`
-
-**What it covers:**
-- **Step 2:** Update Spec & Checklist (document requirements with traceability)
-- **Phase 2.5:** Spec-to-Epic Alignment Check (MANDATORY GATE - verify no scope creep)
-
-**Key Outputs:**
-- spec.md complete with requirement traceability (every requirement has source: Epic/User Answer/Derived)
-- checklist.md with open questions (valid questions, not research gaps)
-- Alignment check passed (no scope creep, no missing requirements)
-
-**Time Estimate:** 30-45 minutes
-
-**When complete:** Transition to S2.P3
-
-**Why this sub-stage exists:**
-- Focuses on specification quality and traceability
-- Prevents scope creep through mandatory alignment check
-- Ensures checklist questions are valid (not things that should have been researched)
-
----
-
-### S2.P3: Refinement Phase (Phases 3, 4, 5, 6)
-
-**Read:** `stages/s2/s2_p3_refinement.md`
+**Guide:** `stages/s2/s2_p2_cross_feature_alignment.md`
 
 **What it covers:**
-- **Step 3:** Interactive Question Resolution (ONE question at a time)
-- **Step 4:** Dynamic Scope Adjustment (split if >35 items)
-- **Step 5:** Cross-Feature Alignment (compare to completed features)
-- **Phase 6:** Acceptance Criteria & User Approval (MANDATORY GATE)
+- Pairwise comparison of all features' specs for conflicts and duplication
+- Validation Loop for systematic cross-feature checks
+- **Primary agent only** — secondary agents wait after S2.P1
 
 **Key Outputs:**
-- All checklist questions resolved (zero open items)
-- Spec updated in real-time after each answer
-- Feature scope validated (split if needed)
-- Cross-feature conflicts resolved
-- Acceptance criteria created and user-approved
+- Cross-feature conflicts resolved and documented
+- Shared patterns and interfaces identified
+- EPIC_README.md Feature Tracking updated
 
-**Time Estimate:** 1-2 hours (depends on number of questions)
-
-**When complete:** Feature's S2 is COMPLETE
-
-**Why this sub-stage exists:**
-- Focuses on interactive refinement with user
-- Clear one-question-at-a-time protocol
-- Systematic cross-feature alignment process
-- User approval as final gate
+**When complete:** S2 is COMPLETE for the epic → proceed to S3
 
 ---
 
@@ -249,37 +219,40 @@ Feature Planning is where you research each feature, create detailed specificati
 
 ```text
 ┌──────────────────────────────────────────────────────────────┐
-│                   S2 Workflow                           │
+│                   S2 Workflow                                │
 └──────────────────────────────────────────────────────────────┘
 
 Start Feature Deep Dive
           │
           ▼
-    ┌─────────────┐
-    │  S2.P1   │  Research Phase
-    │  (45-60min) │  • Phase 0: Discovery Context Review
-    └─────────────┘  • Phase 1: Targeted Research
-          │          • Phase 1.5: Research Audit (GATE)
+    ┌──────────────────────────────────────────────────┐
+    │  S2.P1: Spec Creation and Refinement (2.25-4h)  │
+    │                                                  │
+    │  I1 — Feature-Level Discovery (60-90 min)        │
+    │    • Read Discovery Context                      │
+    │    • Reference completed features                │
+    │    • Targeted Research                           │
+    │    • Draft spec.md with traceability             │
+    │    • Research Audit ← GATE 1                     │
+    │                    ↓                             │
+    │  I2 — Checklist Resolution (45-90 min)           │
+    │    • Resolve questions ONE at a time             │
+    │    • Update spec.md in real-time                 │
+    │                    ↓                             │
+    │  I3 — Refinement & Alignment (30-60 min)         │
+    │    • Scope Adjustment (split if >35 items)       │
+    │    • Cross-feature comparison                    │
+    │    • Spec-to-Epic Alignment Check ← GATE 2       │
+    │    • Acceptance Criteria + User Approval ← GATE 3│
+    └──────────────────────────────────────────────────┘
           │
-    [Research Audit Passed?]
-          │
-          ▼
-    ┌─────────────┐
-    │  S2.P2   │  Specification Phase
-    │  (30-45min) │  • Phase 2: Spec & Checklist
-    └─────────────┘  • Phase 2.5: Alignment Check (GATE)
-          │
-    [Alignment Check Passed?]
-          │
-          ▼
-    ┌─────────────┐
-    │  S2.P3   │  Refinement Phase
-    │  (1-2 hours)│  • Phase 3: Question Resolution
-    └─────────────┘  • Phase 4: Scope Adjustment
-          │          • Phase 5: Cross-Feature Alignment
-          │          • Phase 6: User Approval (GATE)
-          │
-    [User Approved?]
+          ▼ (Secondary agents STOP here)
+    ┌──────────────────────────────────────────────────┐
+    │  S2.P2: Cross-Feature Alignment (20-60 min)      │
+    │  [Primary agent only]                            │
+    │    • Pairwise comparison across all features     │
+    │    • Validation Loop for cross-feature checks    │
+    └──────────────────────────────────────────────────┘
           │
           ▼
     S2 COMPLETE
@@ -292,7 +265,7 @@ Start Feature Deep Dive
      ▼           ▼
   Next        S3
  Feature
-S2.P1
+ S2.P1
 ```
 
 ---
@@ -323,7 +296,7 @@ S2.P1
 
 ---
 
-### Gate 2: Phase 2.5 - Spec-to-Epic Alignment Check (S2.P2)
+### Gate 2: Spec-to-Epic Alignment Check (S2.P1.I3)
 
 **Purpose:** Verify spec accurately reflects Discovery findings (no scope creep, no missing requirements)
 
@@ -340,11 +313,11 @@ S2.P1
 - Fix requirement sources (Epic/User Answer/Derived)
 - Re-run alignment check
 
-**Cannot proceed to Phase 3 without passing this gate.**
+**Cannot complete I3 (Refinement & Alignment) without passing this gate.**
 
 ---
 
-### Gate 3: Phase 6 - User Approval (S2.P3)
+### Gate 3: User Approval (S2.P1.I3)
 
 **Purpose:** Get explicit user sign-off on acceptance criteria before implementation planning
 
@@ -419,16 +392,16 @@ S2.P1
 
 **Use the phase transition prompt** from `prompts_reference_v2.md`:
 ```markdown
-I'm starting S2.P1 (Research Phase) for Feature {N}: {Name}.
+I'm starting S2.P1 (Spec Creation and Refinement) for Feature {N}: {Name}.
 
 I acknowledge:
-- This guide covers Phases 0, 1, and 1.5 (Discovery Context → Research → Audit)
-- I must review DISCOVERY.md (Phase 0) for epic-level context
-- Phase 1.5 Research Audit is MANDATORY GATE (cannot proceed without passing)
-- I must collect evidence: file paths, line numbers, code snippets
+- This guide covers all 3 iterations: I1 (Discovery), I2 (Checklist Resolution), I3 (Refinement & Alignment)
+- I must review DISCOVERY.md (I1 step 1) for epic-level context
+- Gate 1 (Research Audit) is embedded in I1 — cannot proceed to I2 without passing
+- Gate 2 (Spec-to-Epic Alignment) and Gate 3 (User Approval) are in I3
 - Research must be targeted (THIS feature only, not entire epic)
 
-Ready to begin Phase 0: Discovery Context Review.
+Ready to begin I1: Feature-Level Discovery.
 ```
 
 ---
@@ -443,30 +416,25 @@ Ready to begin Phase 0: Discovery Context Review.
 ```
 
 **Then read the appropriate guide:**
-- **Phase 0, 1, or 1.5:** Read S2.P1
-- **Phase 2 or 2.5:** Read S2.P2
-- **Phase 3, 4, 5, or 6:** Read S2.P3
+- **Mid-S2.P1 (any iteration — I1, I2, or I3):** Read `stages/s2/s2_p1_spec_creation_refinement.md`
+- **Mid-S2.P2:** Read `stages/s2/s2_p2_cross_feature_alignment.md`
 
 **Continue from "Next Action" in Agent Status.**
 
 ---
 
-### If you're transitioning between sub-stages:
+### If you're transitioning between phases:
 
-**After completing S2.P1:**
-- Update feature README.md Agent Status: "Phase 1.5 complete, starting Phase 2"
-- **READ:** `stages/s2/s2_p2_specification.md` (full guide)
+**After completing S2.P1 (Gate 3 passed — user approved acceptance criteria):**
+- Update feature README.md Agent Status: "S2.P1 complete, starting S2.P2"
+- **If Primary agent:** READ `stages/s2/s2_p2_cross_feature_alignment.md` (full guide)
+- **If Secondary agent:** STOP — wait for Primary to complete S2.P2 and notify you
 - Use phase transition prompt from `prompts_reference_v2.md`
 
 **After completing S2.P2:**
-- Update feature README.md Agent Status: "Phase 2.5 complete, starting Phase 3"
-- **READ:** `stages/s2/s2_p3_refinement.md` (full guide)
-- Use phase transition prompt from `prompts_reference_v2.md`
-
-**After completing S2.P3:**
-- Feature's S2 is COMPLETE
-- Update epic EPIC_README.md Feature Tracking table
-- Proceed to next feature or S3
+- S2 is COMPLETE for the epic
+- Update EPIC_README.md Feature Tracking table
+- Proceed to S3 (Cross-Feature Sanity Check)
 
 ---
 
@@ -505,8 +473,8 @@ Ready to begin Phase 0: Discovery Context Review.
 
 **If more features remain:**
 - Begin S2 for next feature
-- Start with S2.P1 (Research Phase)
-- Repeat all phases
+- Start with S2.P1 (Spec Creation and Refinement)
+- Repeat all iterations
 
 **If ALL features complete S2:**
 - Transition to S3 (Cross-Feature Sanity Check)
@@ -526,10 +494,10 @@ Ready to begin Phase 0: Discovery Context Review.
 
 ### Benefits of Split Guides:
 
-1. **60-70% token reduction per phase:**
-   - S2.P1: 1,037 lines vs 2,348 lines (56% reduction)
-   - S2.P2: ~700 lines vs 2,348 lines (70% reduction)
-   - S2.P3: ~900 lines vs 2,348 lines (62% reduction)
+1. **Significant token reduction per phase:**
+   - Agents load only the guide for their current phase (S2.P1 or S2.P2)
+   - `s2_p1_spec_creation_refinement.md` replaces the original 2,348-line monolithic guide
+   - `s2_p2_cross_feature_alignment.md` is a focused, separate guide for the cross-feature phase
 
 2. **Clear phase boundaries:**
    - Natural breakpoints at mandatory gates
@@ -550,11 +518,11 @@ Ready to begin Phase 0: Discovery Context Review.
 
 ## Frequently Asked Questions
 
-**Q: Do I need to read all three sub-stage guides?**
-A: Yes, but sequentially. Read S2.P1 first, complete it, then read S2.P2, complete it, then read S2.P3.
+**Q: Do I need to read both phase guides?**
+A: You read `s2_p1_spec_creation_refinement.md` once and work through all 3 iterations (I1 → I2 → I3). After S2.P1 is done, the Primary agent reads `s2_p2_cross_feature_alignment.md` for S2.P2.
 
 **Q: Can I skip a phase?**
-A: No. All S2 phases are mandatory (S2.P1 with 3 iterations, S2.P2 alignment). The new structure doesn't change workflow requirements, just organization.
+A: No. S2.P1 (all 3 iterations) and S2.P2 (Primary agent) are both mandatory. The structure doesn't change workflow requirements, just organization.
 
 **Q: What if I'm resuming mid-stage?**
 A: Check feature README.md Agent Status for current phase, then read the guide for that phase.
@@ -562,25 +530,22 @@ A: Check feature README.md Agent Status for current phase, then read the guide f
 **Q: Do the mandatory gates change?**
 A: No. Still 3 gates: Phase 1.5 (Research Audit), Phase 2.5 (Alignment Check), Phase 6 (User Approval).
 
-**Q: Why isn't Phase 2.5 (Spec Validation) in S2.P2?**
-A: It is! Phase 2.5 is "Spec-to-Epic Alignment Check" covered in S2.P2.
+**Q: Where does the Spec-to-Epic Alignment Check happen?**
+A: In S2.P1.I3 (Refinement & Alignment) — Gate 2 is embedded in I3 of `s2_p1_spec_creation_refinement.md`.
 
 **Q: Can I reference the original guide?**
-A: The original monolithic guide has been removed. Use the current split phase guides (S2.P1, S2.P2, S2.P3) for all S2 workflow work.
+A: The original monolithic guide has been removed. Use `s2_p1_spec_creation_refinement.md` (all spec work, 3 iterations) and `s2_p2_cross_feature_alignment.md` (cross-feature phase).
 
 ---
 
 ## Summary
 
-**S2 is now split into three focused guides:**
+**S2 has two phases:**
 
-1. **stages/s2/s2_p1_spec_creation_refinement.md** - Research & Audit (Phases 0, 1, 1.5)
-2. **stages/s2/s2_p2_specification.md** - Specification & Alignment (Phases 2, 2.5)
-3. **stages/s2/s2_p3_refinement.md** - Refinement & Approval (Phases 3, 4, 5, 6)
+1. **stages/s2/s2_p1_spec_creation_refinement.md** — S2.P1: Spec Creation and Refinement (I1 → I2 → I3, embeds Gates 1 & 2, includes Gate 3)
+2. **stages/s2/s2_p2_cross_feature_alignment.md** — S2.P2: Cross-Feature Alignment (Primary agent only)
 
-**Workflow remains the same:** 2 phases with 3 iterations in P1, 3 mandatory gates (Gate 1, Gate 2, Gate 3), same completion criteria
-
-**Improvement:** 60-70% reduction in guide size per phase, clearer navigation, better phase focus
+**Workflow:** S2.P1 (3 iterations) → S2.P2 (pairwise comparison) → S3
 
 **Start here:** `stages/s2/s2_p1_spec_creation_refinement.md` (unless resuming mid-stage)
 

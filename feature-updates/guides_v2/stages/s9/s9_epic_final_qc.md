@@ -27,8 +27,7 @@
 10. [Next Stage After S9](#next-stage-after-s9)
 11. [Why S9 Was Split](#why-s9-was-split)
 12. [Frequently Asked Questions](#frequently-asked-questions)
-13. [Original Guide Location](#original-guide-location)
-14. [Summary](#summary)
+13. [Summary](#summary)
 
 ---
 

@@ -9,9 +9,9 @@
 
 ## Table of Contents
 
-1. [MANDATORY READING PROTOCOL](#mandatory-reading-protocol)
+1. [MANDATORY READING PROTOCOL](#🚨-mandatory-reading-protocol)
 2. [Overview](#overview)
-3. [Critical Rules](#critical-rules)
+3. [Critical Rules](#🛑-critical-rules)
 4. [Prerequisites Checklist](#prerequisites-checklist)
 5. [Workflow Overview](#workflow-overview)
 6. [Quick Navigation](#quick-navigation)
@@ -261,12 +261,12 @@ STAGE 10: Epic Cleanup
 | **Step 2** | Run Unit Tests | 5 min | ✅ YES (100% pass) | [Jump](#step-2-run-unit-tests) |
 | **Step 2b** | Investigate Anomalies | 10-30 min | Optional | [Jump](#step-2b-investigate-user-reported-anomalies-if-applicable) |
 | **Step 3** | Documentation Verification | 10 min | No | [Jump](#step-3-documentation-verification) |
-| **Step 4** | Update Guides (Apply Lessons) | 20-45 min | No | [Jump](#step-4-update-guides-if-needed) |
+| **Step 4** | Update Guides (Apply Lessons) | 20-45 min | No | [Jump](#step-4-guide-update-from-lessons-learned-🚨-mandatory-s10p1) |
 | **Step 5** | Final Commit (Epic Work) | 10 min | No | [Jump](#step-5-final-commit-epic-implementation) |
 | **Step 6** | Move Epic to done/ | 5 min | No | [Jump](#step-6-move-epic-to-done-folder) |
-| **Step 7** | Update EPIC_TRACKER.md | 5 min | No | [Jump](#step-7-update-epic_trackermd) |
+| **Step 7** | Update EPIC_TRACKER.md | 5 min | No | [Jump](#step-7-update-epictrackermd) |
 | **Step 8** | Push and Create PR | 5 min | No | [Jump](#step-8-push-branch-and-create-pull-request) |
-| **Step 9** | Final Verification | 5 min | No | [Jump](#step-9-final-verification--completion) |
+| **Step 9** | Final Verification | 5 min | No | [Jump](#step-9-final-verification-completion) |
 
 **Total Time:** 85-130 minutes (including S10.P1 guide updates)
 
@@ -282,9 +282,9 @@ STAGE 10: Epic Cleanup
 
 | Section | Description | Go To |
 |---------|-------------|-------|
-| Critical Rules | Must-follow cleanup rules | [Critical Rules](#critical-rules) |
+| Critical Rules | Must-follow cleanup rules | [Critical Rules](#🛑-critical-rules) |
 | Prerequisites | What must be done first | [Prerequisites Checklist](#prerequisites-checklist) |
-| Completion Criteria | All items that must be checked | [Completion Criteria](#completion-criteria) |
+| Exit Criteria | All items that must be checked | [Exit Criteria](#exit-criteria) |
 
 **Important:**
 - Step 2: 100% test pass required (MANDATORY)

@@ -322,7 +322,7 @@ while read path; do
 done < /tmp/md_links.txt
 ```
 
-**Use Scripts 1–2 only as a secondary sweep** (with manual false-positive filtering) after the markdown-link check is clean.
+**Use Scripts 1-2 only as a secondary sweep** (with manual false-positive filtering) after the markdown-link check is clean.
 
 ---
 

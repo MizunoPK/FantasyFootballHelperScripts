@@ -9,12 +9,12 @@
 
 ## Table of Contents
 
-1. [Understanding Gate Numbering](#-understanding-gate-numbering)
+1. [Understanding Gate Numbering](#🔢-understanding-gate-numbering)
 2. [Quick Summary Table](#quick-summary-table)
 3. [S1: Epic Planning](#s1-epic-planning)
-4. [S2: Feature Deep Dive (4 gates per feature - NEW: Checklist Approval added)](#s2-feature-deep-dive-4-gates-per-feature---new-checklist-approval-added)
+4. [S2: Feature Deep Dive (4 gates per feature - NEW: Checklist Approval added)](#s2-feature-deep-dive-4-gates-per-feature-new-checklist-approval-added)
 5. [S3: Cross-Feature Sanity Check (1 gate per epic)](#s3-cross-feature-sanity-check-1-gate-per-epic)
-6. [S4: Epic Testing Strategy (1 gate per epic - NEW)](#s4-epic-testing-strategy-1-gate-per-epic---new)
+6. [S4: Feature-Level Testing Strategy (0 formal gates)](#s4-feature-level-testing-strategy-0-formal-gates)
 7. [S5: Implementation Planning](#s5-implementation-planning)
 8. [S6: Implementation Execution](#s6-implementation-execution)
 9. [S7: Post-Implementation (2 gates per feature)](#s7-post-implementation-2-gates-per-feature)
