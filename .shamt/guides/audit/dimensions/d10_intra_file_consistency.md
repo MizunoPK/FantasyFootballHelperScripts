@@ -1,0 +1,1166 @@
+# D10: Intra-File Consistency
+
+**Dimension Number:** 10
+**Category:** Structural Dimensions
+**Automation Level:** 80% automated
+**Priority:** MEDIUM
+**Last Updated:** 2026-02-04
+
+**Focus:** Ensure notation, terminology, and instructions are consistent within each file (no mixed notation, contradictions)
+**Typical Issues Found:** 8-15 per audit
+
+---
+
+## Table of Contents
+
+1. [What This Checks](#what-this-checks)
+2. [Why This Matters](#why-this-matters)
+3. [Pattern Types](#pattern-types)
+4. [How Errors Happen](#how-errors-happen)
+5. [Automated Validation](#automated-validation)
+6. [Manual Validation](#manual-validation)
+7. [Context-Sensitive Rules](#context-sensitive-rules)
+8. [Real Examples](#real-examples)
+9. [Integration with Other Dimensions](#integration-with-other-dimensions)
+
+---
+
+## What This Checks
+
+**D10: Intra-File Consistency** validates that content WITHIN a single file is internally consistent:
+
+1. **Notation Consistency** - File uses one notation system throughout (not mixed "S5a" and "S5.P1")
+2. **Terminology Consistency** - Same concept uses same term (not "epic" then "project" then "initiative")
+3. **Structural Consistency** - Sections follow same format pattern
+4. **Instruction Consistency** - No contradictory directives within file
+5. **Reference Consistency** - Internal file references are accurate
+6. **Tone Consistency** - Maintains consistent voice/style throughout
+7. **Example Consistency** - Examples demonstrate principles stated in text
+8. **Prerequisite-Content Consistency** - Prerequisites section doesn't contradict file's body content
+
+**Coverage:**
+- All workflow guides in stages/
+- Reference materials in reference/
+- Templates in templates/
+- Root-level documentation files
+
+**Key Distinction from D2 (Terminology Consistency):**
+- **D2:** Validates consistency ACROSS files (all files use same notation)
+- **D10:** Validates consistency WITHIN single files (one file doesn't mix notations)
+
+---
+
+## Why This Matters
+
+**Internal inconsistencies = Confusion about which instruction/format is correct**
+
+### Impact of Intra-File Inconsistencies:
+
+**Mixed Notation:**
+- Section 1 uses "S5.P1"
+- Section 4 uses "S5a" (old notation)
+- Agent confused about which is correct
+- May search for wrong file paths
+
+**Contradictory Instructions:**
+- Section 2: "ALWAYS run tests before committing"
+- Section 6: "Tests can be run after committing if needed"
+- Agent doesn't know which rule to follow
+- Different agents may follow different instructions
+
+**Inconsistent Terminology:**
+- Introduction calls it "epic"
+- Middle sections call it "project"
+- End calls it "initiative"
+- Reader confused about whether these are same thing or different concepts
+
+**Structural Inconsistency:**
+- Sections 1-5 have "Prerequisites" subsections
+- Sections 6-10 don't have "Prerequisites"
+- Reader unsure if prerequisites don't exist or were forgotten
+
+**Reference Mismatches:**
+- Section 3 says "see Section 7 for details"
+- File only has 5 sections
+- Broken internal reference
+
+### Historical Evidence:
+
+**SHAMT-7 Issues:**
+- S5 guide mixed "Round 1" and "S5.P1" notation in same file
+- Debugging protocol said "ALWAYS create issue file" in one section, "create if needed" in another
+- spec.md template used "epic" and "project" interchangeably
+
+**Why 80% Automation:**
+- Automated: Notation patterns, terminology variations, structural patterns
+- Manual Required: Semantic contradictions, tone assessment, contextual appropriateness
+
+---
+
+## Pattern Types
+
+### Type 0: Root-Level File Internal Consistency (CRITICAL - Often Missed)
+
+**Files to Always Check:**
+```text
+CLAUDE.md (project root)
+.shamt/guides/README.md
+.shamt/guides/EPIC_WORKFLOW_USAGE.md
+```bash
+
+**What to Validate:**
+
+**CLAUDE.md - Notation Consistency:**
+```bash
+# Check for mixed notation within CLAUDE.md
+grep -n "S[0-9][a-z]\|Stage [0-9][a-z]" CLAUDE.md | head -10
+# Should find: ZERO matches (all should use S#.P# notation)
+
+# Check for correct notation
+grep -n "S[0-9]\\.P[0-9]" CLAUDE.md | head -10
+# Should find: Multiple matches ✓
+```
+
+**README.md - Terminology Consistency:**
+```bash
+# Find all terms for workflow unit
+grep -ion "epic\|project\|initiative\|feature set" \
+  .shamt/guides/README.md | \
+  cut -d: -f2 | sort | uniq -c
+
+# Should show consistent use of "epic" (not mixed terms)
+```bash
+
+**EPIC_WORKFLOW_USAGE.md - Section Structure Consistency:**
+```bash
+# Check if all stage sections have same subsections
+for stage in S{1..10}; do
+  echo "=== $stage ==="
+  grep "^###" .shamt/guides/EPIC_WORKFLOW_USAGE.md | \
+    grep -A 5 "$stage"
+done
+
+# All should have: Duration, Phases, Key Outputs, Gates
+```
+
+**Red Flags:**
+- CLAUDE.md uses "S5.P1" in top section, "S5a" later
+- README.md calls it "epic" 20 times, "project" 5 times
+- EPIC_WORKFLOW_USAGE.md has inconsistent section structures
+
+**Automated:** ✅ Yes (can detect notation/terminology variations within file)
+
+---
+
+### Type 1: Mixed Notation Within Single File
+
+**What to Check:**
+File should use ONE notation system consistently, not mix old and new.
+
+**Common Pattern:**
+```markdown
+# S5: Implementation Planning
+
+## S5.P1: Planning Round 1
+
+Complete iterations I1-I7...
+
+## S5a: Planning Round 1  ← ERROR: Mixed notation
+
+For backward compatibility, S5a refers to... ← If NOT explaining old notation, this is an error
+```bash
+
+**Search Commands:**
+```bash
+# For each guide file, check for notation mixing
+for file in stages/**/*.md; do
+  # Count old notation occurrences
+  old=$(grep -c "S[0-9][a-z]\|Stage [0-9][a-z]" "$file")
+
+  # Count new notation occurrences
+  new=$(grep -c "S[0-9]\\.P[0-9]" "$file")
+
+  if [ "$old" -gt 0 ] && [ "$new" -gt 0 ]; then
+    echo "MIXED NOTATION: $file (old: $old, new: $new)"
+  fi
+done
+```
+
+**Validation Checklist:**
+
+**Stage References:**
+- [ ] All stage references use S# format (not "Stage #" or "Stage N")
+- [ ] All phase references use S#.P# format (not "S#a" or "Phase #")
+- [ ] All iteration references use S#.P#.I# format (not mixed)
+
+**Common Mixing Patterns:**
+```markdown
+INCONSISTENT:
+- "S5.P1" in header, "S5a" in text
+- "Stage 5 Phase 1" in intro, "S5.P1" in body
+- "Round 1" in some sections, "S5.P1" in others
+
+CONSISTENT:
+- "S5.P1" throughout entire file
+- "Stage 5" explained once as "(S5)", then "S5" used throughout
+```markdown
+
+**Red Flags:**
+- Header uses "S5.P1.I1" but text uses "Iteration 1"
+- Some sections say "S5a", others say "S5.P1"
+- Mixed "Stage N" and "SN" within same file
+
+**Automated:** ✅ Yes (grep for notation patterns, flag files with multiple types)
+
+---
+
+### Type 2: Contradictory Instructions Within File
+
+**What to Check:**
+File should not give conflicting instructions about same topic.
+
+**Common Patterns:**
+
+**Pattern A: ALWAYS vs SOMETIMES**
+```markdown
+## Section 2: Testing Requirements
+
+ALWAYS run tests before committing. Never commit untested code.
+
+## Section 8: Git Workflow
+
+If you're in a hurry, you can commit first and run tests later.  ← CONTRADICTION
+```
+
+**Pattern B: MUST vs OPTIONAL**
+```markdown
+## Prerequisites
+
+- [ ] User approval REQUIRED before proceeding
+
+## When to Proceed
+
+You can proceed without user approval if changes are minor.  ← CONTRADICTION
+```markdown
+
+**Pattern C: DO vs DON'T**
+```markdown
+## Best Practices
+
+DO update Agent Status after every phase.
+
+## Workflow
+
+Agent Status updates are optional for minor phases.  ← CONTRADICTION
+```
+
+**Search Commands:**
+```bash
+# Find mandatory language
+grep -n "MUST\|ALWAYS\|REQUIRED\|NEVER" stages/s5/*.md > /tmp/mandatory.txt
+
+# Find optional language for same topics
+grep -n "optional\|can skip\|if needed\|may" stages/s5/*.md > /tmp/optional.txt
+
+# Manually review for contradictions (requires reading context)
+```markdown
+
+**Validation Process:**
+
+1. Extract all imperative statements (MUST, ALWAYS, NEVER, REQUIRED)
+2. Extract all permissive statements (optional, may, can, if needed)
+3. For each topic, check if both mandatory and permissive statements exist
+4. If both exist, verify they're not contradictory
+
+**Red Flags:**
+- "ALWAYS do X" followed later by "X is optional"
+- "NEVER skip Y" followed by "Y can be skipped if..."
+- "REQUIRED: Z" followed by "Z is only needed for..."
+
+**Automated:** ⚠️ Partial (can find contradictory keywords, requires manual semantic validation)
+
+---
+
+### Type 3: Inconsistent Terminology Within File
+
+**What to Check:**
+File should use ONE term consistently for each concept, not multiple synonyms.
+
+**Common Inconsistencies:**
+
+**Epic vs Project vs Initiative:**
+```markdown
+# Introduction
+
+This guide covers epic planning...
+
+## Section 3
+
+Your project should include...  ← INCONSISTENT (epic or project?)
+
+## Section 7
+
+The initiative requires...  ← INCONSISTENT (epic, project, or initiative?)
+```
+
+**Feature vs Component vs Module:**
+```markdown
+## Overview
+
+Each feature within the epic...
+
+## Implementation
+
+Complete all components...  ← Are "components" same as "features"?
+
+## Testing
+
+Test each module independently...  ← Are "modules" same as "features" or "components"?
+```bash
+
+**Search Commands:**
+```bash
+# For a given file, extract terminology variations
+file="stages/s2/s2_feature_deep_dive.md"
+
+echo "=== Workflow unit terms ==="
+grep -oi "epic\|project\|initiative\|feature set" "$file" | sort | uniq -c
+
+echo "=== Component terms ==="
+grep -oi "feature\|component\|module\|piece" "$file" | sort | uniq -c
+
+echo "=== Stage terms ==="
+grep -oi "stage\|phase\|step\|iteration" "$file" | sort | uniq -c
+```
+
+**Validation Checklist:**
+
+For each concept category:
+- [ ] Workflow unit: Uses ONE term (epic, not mixed with project/initiative)
+- [ ] Sub-unit: Uses ONE term (feature, not mixed with component/module)
+- [ ] Hierarchy: Uses consistent terms (stage→phase→iteration, not stage→step→round)
+- [ ] Files: Uses consistent terms (guide, not mixed with document/file/manual)
+
+**Valid Exception:**
+```markdown
+## Introduction
+
+This guide covers **epic planning** (also called "project planning" in some organizations)...
+
+[Rest of file uses "epic" consistently]
+```markdown
+
+This is VALID if variation is explained once then consistent term used throughout.
+
+**Red Flags:**
+- Uses "epic" 20 times, "project" 15 times with no explanation
+- Switches between "feature" and "component" arbitrarily
+- Uses "step," "iteration," "phase" interchangeably
+
+**Automated:** ✅ Yes (can count term variations and flag files with high variation)
+
+---
+
+### Type 4: Structural Pattern Inconsistencies
+
+**What to Check:**
+If file has repeated structures (like multiple examples or sections), they should follow same format.
+
+**Common Pattern: Multiple Sections**
+```markdown
+## Section 1: First Topic
+**Duration:** 30 min
+**Prerequisites:** None
+**Outputs:** File A
+
+## Section 2: Second Topic
+**Duration:** 45 min
+**Prerequisites:** Section 1
+**Outputs:** File B
+
+## Section 3: Third Topic  ← INCONSISTENT (missing Duration, Prerequisites, Outputs)
+
+This section covers...
+```
+
+**Common Pattern: Multiple Examples**
+```markdown
+### Example 1: Adding a Feature
+
+**Scenario:**...
+**Problem:**...
+**Solution:**...
+**Result:**...
+
+### Example 2: Fixing a Bug
+
+**Scenario:**...
+**Problem:**...
+**Solution:**...
+[No Result section]  ← INCONSISTENT
+```bash
+
+**Search Commands:**
+```bash
+# Check if all major sections have same subsections
+file="stages/s5/s5_v2_validation_loop.md"
+
+# Extract section headers
+sections=$(grep "^## " "$file" | sed 's/^## //')
+
+# For each section, check if it has standard subsections
+for section in $sections; do
+  echo "=== $section ==="
+  # Check for Duration
+  grep -A 10 "^## $section" "$file" | grep -q "Duration:"
+  [ $? -eq 0 ] && echo "  Has Duration" || echo "  MISSING Duration"
+
+  # Check for Prerequisites
+  grep -A 10 "^## $section" "$file" | grep -q "Prerequisites:"
+  [ $? -eq 0 ] && echo "  Has Prerequisites" || echo "  MISSING Prerequisites"
+done
+```
+
+**Validation Checklist:**
+
+**For Section Structures:**
+- [ ] All major sections have same subsection types
+- [ ] Subsections appear in same order
+- [ ] Subsection formatting is consistent
+
+**For Example Structures:**
+- [ ] All examples have same components (Scenario, Problem, Solution, Result)
+- [ ] Components appear in same order
+- [ ] Formatting is consistent
+
+**For List Structures:**
+- [ ] All list items use same bullet style (all "-" or all "1.")
+- [ ] All list items have same depth pattern
+- [ ] Sub-items consistently indented
+
+**Red Flags:**
+- Section 1 has Duration/Prerequisites/Outputs, Section 2 doesn't
+- Example 1 uses Scenario/Problem/Solution/Result, Example 2 uses Before/After
+- Some bullets use "-", others use "*"
+
+**Automated:** ⚠️ Partial (can detect missing sections, requires pattern recognition for semantic consistency)
+
+---
+
+### Type 5: Internal Reference Accuracy
+
+**What to Check:**
+References within file (e.g., "see Section 5") should point to sections that exist.
+
+**Common Patterns:**
+
+**Section References:**
+```markdown
+## Section 3: Setup
+
+For detailed configuration, see Section 7.
+
+[File only has 5 sections]  ← ERROR: Section 7 doesn't exist
+```markdown
+
+**"Above" and "Below" References:**
+```markdown
+## Section 2
+
+As mentioned above in the Prerequisites section...
+
+[No Prerequisites section exists above Section 2]  ← ERROR
+```
+
+**Search Commands:**
+```bash
+# Find all "see Section N" references
+grep -n "see Section [0-9]\|Section [0-9] for\|described in Section [0-9]" \
+  stages/s5/*.md
+
+# For each reference, verify section exists
+# (Manual validation - requires parsing file structure)
+```markdown
+
+**Validation Process:**
+
+1. **Extract section numbers:** Get all "## Section N" or "## N." headers
+2. **Extract section references:** Get all "see Section N" mentions
+3. **Cross-validate:** Ensure all referenced sections exist
+4. **Check "above/below":** Verify referenced content actually appears above/below
+
+**Common Errors:**
+
+**After File Reorganization:**
+```markdown
+Original: Section 7: Advanced Topics
+After reorg: Section 5: Advanced Topics
+
+[References still say "see Section 7"]  ← BROKEN (now Section 5)
+```
+
+**After Section Deletion:**
+```markdown
+File had Sections 1-8
+Section 4 deleted
+References still mention Section 4  ← BROKEN
+```markdown
+
+**Red Flags:**
+- "See Section N" where N > total sections
+- "As mentioned above" but content isn't above
+- "Details below" but no details appear below
+- References to deleted/renamed sections
+
+**Automated:** ⚠️ Partial (can find references, requires parsing to validate)
+
+---
+
+### Type 6: Tone and Style Consistency
+
+**What to Check:**
+File should maintain consistent voice, formality level, and perspective throughout.
+
+**Common Inconsistencies:**
+
+**Perspective Shifts:**
+```markdown
+## Introduction
+
+You should begin by reading the prerequisites.  ← Second person "you"
+
+## Implementation
+
+The agent must complete all iterations.  ← Third person "the agent"
+
+## Conclusion
+
+We recommend following best practices.  ← First person "we"
+```
+
+**Formality Shifts:**
+```markdown
+## Overview
+
+This guide provides comprehensive instructions for implementation planning.  ← Formal
+
+## Tips
+
+Yo, don't forget to run tests!  ← Informal  ← INCONSISTENT
+```markdown
+
+**Imperative vs Declarative:**
+```markdown
+## Steps
+
+1. Read the prerequisites
+2. Complete the setup
+3. Run the validation
+
+## Next Section
+
+The agent will read the prerequisites.  ← INCONSISTENT (declarative, not imperative)
+```
+
+**Detection (Manual):**
+
+Read through file and note:
+- Perspective: Consistent use of "you," "the agent," "we"?
+- Formality: All sections maintain similar formality level?
+- Mood: Imperative ("Do X") vs Declarative ("Agent does X") consistent?
+- Tone: Professional/instructional throughout, or mixed with casual?
+
+**Red Flags:**
+- Switches between "you" and "the agent" arbitrarily
+- One section very formal, another very casual
+- Inconsistent use of contractions ("don't" vs "do not")
+- Mixed imperative and declarative mood
+
+**Automated:** ❌ No (requires human judgment of tone and style)
+
+---
+
+### Type 7: Example-to-Principle Consistency
+
+**What to Check:**
+Examples should correctly demonstrate the principles stated in text.
+
+**Common Pattern:**
+```markdown
+## Best Practice: Always Include Type Hints
+
+All functions should include complete type hints for parameters and return values.
+
+### Example
+
+def calculate_total(items):  ← ERROR: No type hints in example
+    return sum(items)
+```markdown
+
+**Another Pattern:**
+```markdown
+## Rule: Use S#.P# Notation
+
+Always use the S#.P# notation format (e.g., S5.P1, not S5a).
+
+### Example
+
+For Stage 5a Phase 2...  ← ERROR: Example violates the rule it demonstrates
+```
+
+**Validation Process:**
+
+1. **Extract rules/principles:** Find declarative statements (ALWAYS, NEVER, MUST, SHOULD)
+2. **Find associated examples:** Locate examples in same section
+3. **Verify examples follow rules:** Check if example code/text follows stated principle
+
+**Common Errors:**
+
+**Example Violates Rule:**
+- Rule: "Never skip checkpoints"
+- Example workflow: Shows skipping checkpoint
+
+**Example Outdated:**
+- Rule updated to use new notation
+- Example still shows old notation
+
+**Example Unclear:**
+- Rule is specific
+- Example is vague or doesn't clearly demonstrate rule
+
+**Red Flags:**
+- Example does opposite of what rule states
+- Example uses deprecated pattern
+- Multiple examples exist, some follow rule, others don't
+
+**Automated:** ❌ No (requires semantic understanding of principles and examples)
+
+---
+
+### Type 8: Prerequisite-Content Consistency
+
+**What to Check:**
+A file's prerequisites section must not contradict its own body content.
+
+**Why This Matters:**
+Prerequisites set expectations for what must be true before the stage runs. If content describes behavior that contradicts prerequisites, agents receive conflicting guidance.
+
+**Common Contradiction Pattern:**
+
+**Prerequisites say:**
+```markdown
+## Prerequisites
+
+- [ ] ALL features must complete S2 before starting S3
+```
+
+**Content says:**
+```markdown
+## Dependency Groups Section
+
+S3 runs ONCE PER ROUND (not just once at end):
+- **Round 1 S3:** Validate Group 1 features only
+- **Round 2 S3:** Validate Group 2 features + Group 1
+```
+
+**CONTRADICTION:**
+- Prerequisites: "ALL features complete S2 first" (epic-level)
+- Content: "Round 1: Group 1 features only" (implies group-level, not all features)
+
+**Search Commands:**
+
+```bash
+# Step 1: Find files with "ALL" in prerequisites
+for file in stages/**/*.md; do
+  has_all=$(grep -A 15 "^## Prerequisites" "$file" 2>/dev/null | grep -i "ALL\|all features\|every feature")
+  if [ -n "$has_all" ]; then
+    echo "=== $file ==="
+    echo "Prerequisites: $has_all"
+
+    # Step 2: Check for group/round-based content
+    has_groups=$(grep -i "Round [0-9]:.*Group\|Group [0-9].*only\|per group" "$file")
+    if [ -n "$has_groups" ]; then
+      echo "Content: $has_groups"
+      echo "POTENTIAL CONTRADICTION"
+    fi
+  fi
+done
+```
+
+**Validation Checklist:**
+
+For each stage guide:
+- [ ] If prerequisites say "ALL features/stages complete" then content doesn't describe per-group execution
+- [ ] If prerequisites say "per feature" then content doesn't assume epic-level context
+- [ ] Scope in prerequisites matches scope in content
+- [ ] Timing in prerequisites matches timing described in content
+
+**Example Issue (SHAMT-8):**
+
+**File:** `stages/s3/s3_epic_planning_approval.md`
+
+**Prerequisites (Line 46):**
+```markdown
+- ALL features have completed S2 (Feature Deep Dives)
+```
+
+**Content (Lines 67-71):**
+```markdown
+S3 runs ONCE PER ROUND (not just once at end):
+- **Round 1 S3:** Validate Group 1 features against each other
+- **Round 2 S3:** Validate Group 2 features against ALL Group 1 features
+```
+
+**Analysis:**
+- Prerequisites say "ALL features complete S2 first"
+- Content says "Round 1 S3: Group 1 features" (implies S3 starts before all features complete S2)
+- **CONTRADICTION** within same file
+
+**Red Flags:**
+- "ALL" in prerequisites + "Round/Group X only" in content
+- "Per feature" in prerequisites + "epic-level" in content
+- Different timing assumptions between sections
+- Scope language conflicts (epic vs group vs feature)
+
+**Automated:** Partial - Can find keyword patterns, requires semantic validation
+
+---
+
+## How Errors Happen
+
+### Root Cause 1: Incremental Editing Without Full File Review
+
+**Scenario:**
+- File created with consistent notation
+- Later, Section 5 updated with new content
+- Editor copy-pastes from old file with old notation
+- **RESULT:** Section 5 now has old notation, rest of file has new notation
+
+**Example:**
+S5 guide originally consistent with S5.P1 notation. During update, copy-pasted content from old guide that used "S5a" notation. Now file mixes both.
+
+---
+
+### Root Cause 2: Multiple Authors Without Style Guide
+
+**Scenario:**
+- Author A writes Introduction using "epic" terminology
+- Author B adds middle sections using "project" terminology
+- No style guide enforces consistent terms
+- **RESULT:** File mixes "epic" and "project"
+
+---
+
+### Root Cause 3: Section Reorganization Without Reference Updates
+
+**Scenario:**
+- File originally: Sections 1-8
+- Section 4 deleted, subsequent sections renumbered
+- Internal references updated for section numbers
+- **FORGOT** to update "see Section 7" to "see Section 6"
+- **RESULT:** Broken internal references
+
+---
+
+### Root Cause 4: Rule Changes Without Example Updates
+
+**Scenario:**
+- Rule originally: "Use S5a notation"
+- Rule updated to: "Use S5.P1 notation"
+- Rule text updated
+- **FORGOT** to update examples still showing S5a
+- **RESULT:** Examples violate updated rule
+
+---
+
+### Root Cause 5: Template Evolution Creating Structural Inconsistencies
+
+**Scenario:**
+- File created from template v1 (has Duration/Prerequisites/Outputs)
+- Sections 1-5 written
+- Template updated to v2 (adds "Exit Criteria" subsection)
+- Sections 6-10 written using new template
+- **RESULT:** Sections 1-5 don't have Exit Criteria, Sections 6-10 do
+
+---
+
+## Automated Validation
+
+### Pre-Audit Script Coverage
+
+**From `scripts/pre_audit_checks.sh`:**
+
+**CHECK 16: Notation Mixing Detection** *(planned, not yet implemented)*
+```bash
+#!/bin/bash
+echo "Checking for mixed notation within files..."
+
+for file in stages/**/*.md reference/*.md; do
+  # Count old notation
+  old=$(grep -c "S[0-9][a-z]\|Stage [0-9][a-z]" "$file")
+
+  # Count new notation
+  new=$(grep -c "S[0-9]\\.P[0-9]" "$file")
+
+  if [ "$old" -gt 0 ] && [ "$new" -gt 0 ]; then
+    echo "MIXED NOTATION in $file (old: $old, new: $new)"
+  fi
+done
+```bash
+
+**CHECK 17: Terminology Variation Detection** *(planned, not yet implemented)*
+```bash
+#!/bin/bash
+echo "Checking for terminology inconsistencies..."
+
+for file in stages/**/*.md; do
+  echo "=== $(basename $file) ==="
+
+  # Check workflow unit term variation
+  epic_count=$(grep -oi "epic" "$file" | wc -l)
+  project_count=$(grep -oi "project" "$file" | wc -l)
+
+  if [ "$epic_count" -gt 5 ] && [ "$project_count" -gt 5 ]; then
+    echo "WARNING: Mixed 'epic' ($epic_count) and 'project' ($project_count)"
+  fi
+
+  # Check feature term variation
+  feature_count=$(grep -oi "feature" "$file" | wc -l)
+  component_count=$(grep -oi "component" "$file" | wc -l)
+
+  if [ "$feature_count" -gt 5 ] && [ "$component_count" -gt 5 ]; then
+    echo "WARNING: Mixed 'feature' ($feature_count) and 'component' ($component_count)"
+  fi
+done
+```
+
+**CHECK 18: Internal Reference Validation** *(planned, not yet implemented)*
+```bash
+#!/bin/bash
+echo "Checking internal section references..."
+
+for file in stages/**/*.md; do
+  # Count total sections
+  section_count=$(grep -c "^## " "$file")
+
+  # Find references to "Section N"
+  refs=$(grep -o "Section [0-9]+" "$file" | grep -o "[0-9]+" | sort -u)
+
+  for ref in $refs; do
+    if [ "$ref" -gt "$section_count" ]; then
+      echo "BROKEN REFERENCE in $file: References Section $ref but only $section_count sections exist"
+    fi
+  done
+done
+```diff
+
+**Automation Coverage: ~80%**
+- ✅ Notation mixing
+- ✅ Terminology variations
+- ✅ Structural pattern detection
+- ⚠️ Internal reference validation (can detect some cases)
+- ❌ Contradictory instructions (requires semantic analysis)
+- ❌ Tone consistency (requires human judgment)
+- ❌ Example-to-principle matching (requires semantic understanding)
+
+---
+
+## Manual Validation
+
+### Manual Process (Intra-File Consistency Audit)
+
+**Duration:** 45-60 minutes
+**Frequency:** After major guide updates, new guide creation
+
+**Step 1: Notation Consistency Check (10 min)**
+
+```bash
+# For each guide, check notation patterns
+for file in stages/**/*.md; do
+  echo "=== $(basename $file) ==="
+
+  # Show all stage/phase references
+  grep -n "S[0-9]" "$file" | head -20
+
+  # Manually review for:
+  # - Mixed "S5a" and "S5.P1"
+  # - Mixed "Stage 5" and "S5"
+  # - Inconsistent iteration notation
+done
+```
+
+**Manual Review Questions:**
+- Does file use ONE notation system consistently?
+- If old notation appears, is it explained as historical reference?
+- Are all stage/phase/iteration references formatted same way?
+
+**Step 2: Terminology Consistency Check (10 min)**
+
+```bash
+# Extract term frequencies per file
+file="stages/s2/s2_feature_deep_dive.md"
+
+echo "Workflow unit terms:"
+grep -oi "epic\|project\|initiative" "$file" | sort | uniq -c
+
+echo "Sub-unit terms:"
+grep -oi "feature\|component\|module" "$file" | sort | uniq -c
+
+echo "Process terms:"
+grep -oi "stage\|phase\|step\|iteration" "$file" | sort | uniq -c
+```diff
+
+**Manual Review Questions:**
+- Does file use ONE term for each concept?
+- If multiple terms exist, is variation explained?
+- Are terms used appropriately in context?
+
+**Step 3: Structural Consistency Check (10 min)**
+
+```bash
+# Check if all sections have same structure
+file="stages/s5/s5_v2_validation_loop.md"
+
+# List all section headers
+grep "^## \|^### " "$file"
+
+# For sections that should be parallel (e.g., all iteration sections):
+# - Check if they have same subsections
+# - Check if formatting is consistent
+```
+
+**Manual Review Process:**
+1. Identify repeated structures (e.g., multiple examples, multiple iteration sections)
+2. For each group, note structure of first item
+3. Verify remaining items follow same structure
+4. Flag inconsistencies
+
+**Step 4: Contradiction Check (15 min)**
+
+```bash
+# Extract mandatory statements
+grep -n "MUST\|ALWAYS\|NEVER\|REQUIRED" "$file" > /tmp/mandatory.txt
+
+# Extract permissive statements
+grep -n "optional\|can skip\|may\|if needed" "$file" > /tmp/permissive.txt
+
+# Manually review both files for contradictions
+```markdown
+
+**Manual Review Process:**
+1. Read all mandatory statements
+2. Read all permissive statements
+3. For overlapping topics, check if they contradict
+4. Verify exceptions are clearly marked as exceptions
+
+**Step 5: Internal Reference Validation (10 min)**
+
+```bash
+# Find all internal references
+grep -n "see Section\|Section [0-9]\|above\|below" "$file"
+
+# For each reference:
+# 1. Note what it claims to reference
+# 2. Verify referenced content exists
+# 3. Verify content is in claimed location (above/below)
+```
+
+**Manual Review Questions:**
+- Do all "see Section N" references point to existing sections?
+- Do "above" references actually reference content above?
+- Do "below" references have content below?
+- Are references still accurate after reorganization?
+
+---
+
+## Context-Sensitive Rules
+
+### Rule 1: Intentional Terminology Variation in Examples
+
+**Context:** Examples may intentionally show incorrect patterns as anti-patterns.
+
+**Valid Example:**
+```markdown
+## Best Practice: Use S#.P# Notation
+
+Always use S#.P# notation (e.g., S5.P1).
+
+### Anti-Pattern Example
+
+❌ WRONG: "For Stage 5a..."  ← This is showing what NOT to do
+✅ CORRECT: "For S5.P1..."
+```markdown
+
+**Validation:** If example explicitly labeled as anti-pattern/wrong → VALID (not inconsistency)
+
+---
+
+### Rule 2: Historical References May Use Old Notation
+
+**Context:** Historical evidence sections intentionally reference old structure.
+
+**Valid Example:**
+```markdown
+## Current Notation
+
+Use S#.P# format (S5.P1, S5.P2, S5.P3).
+
+## Historical Note
+
+The old workflow used S5a/S5b/S5c notation. This was changed in 2025 to improve clarity.
+```
+
+**Validation:** Old notation in historical context → VALID (not inconsistency)
+
+---
+
+### Rule 3: Introductory Terminology Definitions
+
+**Context:** Introductions may define multiple terms then use one consistently.
+
+**Valid Example:**
+```markdown
+## Introduction
+
+This guide covers **epic planning** (also called "project planning" or "initiative planning" in some organizations). Throughout this guide, we use "epic" consistently.
+
+## Rest of File
+
+[Uses "epic" exclusively, no "project" or "initiative"]
+```markdown
+
+**Validation:** Multiple terms defined once then one used consistently → VALID
+
+---
+
+### Rule 4: Different Perspectives for Different Audiences
+
+**Context:** Some guides intentionally address multiple audiences.
+
+**Valid Example:**
+```markdown
+## For Users
+
+You should review the implementation plan before approving.
+
+## For Agents
+
+The agent must wait for user approval before proceeding.
+```
+
+**Validation:** Perspective shift with clear audience markers → VALID
+
+---
+
+### Rule 5: GFM Anchor Generation for Emoji and Special Characters
+
+**Context:** ToC anchor links for headings containing emoji or special characters follow GFM
+(GitHub Flavored Markdown) anchor generation rules that produce non-obvious results. Agents
+that guess at emoji anchor format will be wrong, and will "fix" correct anchors into broken ones.
+
+**The GFM Anchor Algorithm (apply this before flagging any anchor as wrong):**
+
+1. Take the heading text (excluding the `#` prefix and surrounding whitespace)
+2. Convert to lowercase
+3. Remove all characters that are NOT alphanumeric, spaces, or hyphens — this includes:
+   - Emoji (🔢, 🔀, 📖, 🚨, 🛑, ✅, etc.)
+   - Punctuation: `:`, `(`, `)`, `/`, `!`, `?`, `.`
+   - Symbols: `&`, `*`, `@`
+4. Replace spaces with hyphens
+5. **Do NOT trim leading or trailing hyphens** — a leading `#-` is valid and correct
+
+**Key implication — emoji prefix pattern:**
+An emoji at the START of a heading followed by a space produces a **leading hyphen** in the anchor
+(the space after the stripped emoji becomes the first hyphen).
+
+```text
+Heading:  ## 🔢 Understanding Gate Numbering
+Step 3:   [strip emoji]  →  " understanding gate numbering"   (space remains)
+Step 4:   [spaces→hyphens]  →  "-understanding-gate-numbering"
+Anchor:   #-understanding-gate-numbering   ← CORRECT (leading hyphen is intentional)
+```
+
+**Common wrong "fix" (do NOT apply):**
+```text
+❌ WRONG:  #🔢-understanding-gate-numbering   (emoji cannot appear in GFM anchors)
+✅ CORRECT: #-understanding-gate-numbering
+```
+
+**🚨 MANDATORY STOP:** Before flagging any anchor containing emoji as wrong, apply the algorithm
+above manually. If the existing anchor matches the algorithm output, it is CORRECT — do not
+change it, even if it looks unintuitive (e.g., leading `#-`).
+
+**Verified anchor table for Shamt emoji headings (do NOT change these):**
+
+| File | Heading | Correct Anchor |
+|------|---------|----------------|
+| `reference/mandatory_gates.md` | `## 🔢 Understanding Gate Numbering` | `#-understanding-gate-numbering` |
+| `stages/s2/s2_feature_deep_dive.md` | `## 🔀 Parallel Work Check (FIRST PRIORITY)` | `#-parallel-work-check-first-priority` |
+| `stages/s2/s2_feature_deep_dive.md` | `## 📖 Terminology Note` | `#-terminology-note` |
+| `stages/s10/s10_epic_cleanup.md` | `## 🚨 MANDATORY READING PROTOCOL` | `#-mandatory-reading-protocol` |
+| `stages/s10/s10_epic_cleanup.md` | `## 🛑 Critical Rules` | `#-critical-rules` |
+
+**History:** This rule was added after Round 12 SR12.3 introduced a regression by changing
+correct `#-emoji-name` anchors to incorrect `#emoji-emoji-name` anchors. The agent lacked this
+rule and reasoned incorrectly that the emoji should appear in the anchor. See
+`audit/outputs/round_12_sr3_discovery_report.md` for the original (incorrect) finding.
+
+**Validation:** Apply algorithm manually → if result matches current anchor → VALID (do not change)
+
+---
+
+## Real Examples
+
+See `d10_examples.md` for 5 real examples of each detection pattern type (mixed notation, contradictory instructions, terminology inconsistency, structural inconsistency, broken internal references).
+
+---
+
+## Integration with Other Dimensions
+
+**D10 focuses on consistency WITHIN files, complementing dimensions that check ACROSS files:**
+
+| Dimension | Division of Responsibility |
+|-----------|---------------------------|
+| **D2: Terminology Consistency** | D2 = inter-file (all files use same terms), D10 = intra-file (single file doesn't mix terms) |
+| **D6: Content Completeness** | D6 = presence (sections exist), D10 = consistency (sections internally consistent) |
+| **D12: Structural Patterns** | D12 = template compliance (matches template), D10 = internal consistency (patterns match within file) |
+| **D8: Documentation Quality** | D8 = standards (quality met), D10 = consistency (quality consistent throughout) |
+
+**Example workflow:**
+1. D2 checks: All files use "epic" (not "project") ✅
+2. D10 checks: Single file doesn't mix "epic" and "project" ✅
+3. D8 checks: Examples are high-quality ✅
+4. D10 checks: All examples in file follow same structure ✅
+
+**Recommendation:** Run D2, D10, D12, D8 together for comprehensive consistency validation.
+
+## Summary
+
+**D10: Intra-File Consistency validates that content within single files is internally consistent.**
+
+**Key Validations:**
+1. ✅ Notation consistency (one system throughout file)
+2. ⚠️ No contradictory instructions
+3. ✅ Terminology consistency (one term per concept)
+4. ⚠️ Structural consistency (repeated patterns match)
+5. ⚠️ Internal reference accuracy
+6. ❌ Tone and style consistency (manual)
+7. ❌ Example-to-principle consistency (manual)
+8. ⚠️ Prerequisite-content consistency (prerequisites don't contradict body)
+
+**Automation: ~80%**
+- Highly automated for notation, terminology, structure
+- Manual needed for semantic contradictions, tone assessment, example validation
+
+**Critical for:**
+- Preventing reader confusion from mixed notation/terminology
+- Ensuring file provides consistent guidance throughout
+- Maintaining professional quality in documentation
+
+**Next Dimension:** D16: Duplication Detection (finding duplicate content across files)
+
+---
+
+**Last Updated:** 2026-02-06
+**Version:** 1.1
+**Status:** ✅ Fully Implemented

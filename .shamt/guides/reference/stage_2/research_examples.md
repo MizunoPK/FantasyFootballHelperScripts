@@ -1,0 +1,955 @@
+# S2.P1.I1: Feature-Level Discovery - Detailed Examples
+
+**Guide Version:** 1.0
+**Created:** 2026-01-10
+**Purpose:** Detailed examples and templates for S2.P1.I1 Feature-Level Discovery execution
+**Prerequisites:** Read stages/s2/s2_p1_spec_creation_refinement.md first
+**Main Guide:** stages/s2/s2_p1_spec_creation_refinement.md
+
+---
+
+## Table of Contents
+
+1. [Purpose](#purpose)
+2. [S2.P1.I1 Step 1 Examples: Discovery Context Review](#s2p1i1-step-1-examples-discovery-context-review)
+3. [S2.P1.I1 Step 2 Examples: Targeted Research](#s2p1i1-step-2-examples-targeted-research)
+4. [S2.P1.I1 Gate 1 Examples: Research Completeness Audit](#s2p1i1-gate-1-examples-research-completeness-audit)
+5. [Anti-Patterns to Avoid](#anti-patterns-to-avoid)
+6. [Success Criteria Summary](#success-criteria-summary)
+
+---
+
+## Purpose
+
+This reference provides detailed examples for executing Research Phase (S2.P1). Use this alongside the main guide for:
+- Example epic intent extraction
+- Sample research findings documents
+- Detailed audit verification examples
+- Real-world research patterns
+
+**Always read the main guide first.** This is a reference supplement, not a standalone guide.
+
+---
+
+## S2.P1.I1 Step 1 Examples: Discovery Context Review
+
+### Example 1: Complete Discovery Context Analysis
+
+```markdown
+## Discovery Context Analysis (Internal - for agent)
+
+**1. What problem is THIS feature solving?**
+
+Quote from epic notes: "Draft helper doesn't account for rank (external rank priority) when ranking items. This means we might recommend items who get drafted way earlier than projected, making recommendations useless in real drafts."
+(Source: Epic notes line 12-14)
+
+My interpretation: Users want scoring recommendations that reflect real-world draft patterns, not just our scoring projections in isolation.
+
+---
+
+**2. What did the user EXPLICITLY request for this feature?**
+
+Explicit request 1: "integrate rank data from [ranking source]"
+(Source: Epic notes line 15)
+
+Explicit request 2: "factor rank priority into scoring recommendations so high-rank priority items rank higher"
+(Source: Epic notes line 18-19)
+
+Explicit request 3: "use [ranking source] CSV format"
+(Source: Epic notes line 22)
+
+---
+
+**3. What constraints did the user mention?**
+
+Constraint 1: "Don't change RecordManager interface too much - other code depends on it"
+(Source: Epic notes line 35)
+
+Constraint 2: "Keep it simple - just add rank priority as another multiplier like injury penalty"
+(Source: Epic notes line 37-38)
+
+---
+
+**4. What is OUT of scope? (user said "not now" or "future")**
+
+Out of scope 1: "Don't worry about historical rank priority trends, just use current season rank priority"
+(Source: Epic notes line 42)
+
+Out of scope 2: "Automatic rank priority updates can come later, manual CSV for now"
+(Source: Epic notes line 45)
+
+---
+
+**5. What is the user trying to ACCOMPLISH? (end goal)**
+
+User's goal: "Make better draft decisions by incorporating real-world draft patterns into our recommendations"
+(Source: Epic notes line 8-10)
+
+---
+
+**6. What technical components did the user mention?**
+
+Component 1: "RecordManager" - Line 35
+Component 2: "injury penalty system" (as a pattern to follow) - Line 37
+Data source: "[ranking source] CSV" - Line 22
+```
+
+### Example 2: Discovery Context Section in spec.md
+
+```markdown
+## Feature 01: rank priority Integration
+
+---
+
+## Discovery Context (User's Original Request)
+
+**⚠️ CRITICAL:** All requirements below MUST trace back to this section.
+
+**Problem This Feature Solves:**
+
+"Draft helper doesn't account for rank (external rank priority) when ranking items. This means we might recommend items who get drafted way earlier than projected, making recommendations useless in real drafts."
+(Source: Epic notes line 12-14)
+
+---
+
+**User's Explicit Requests:**
+
+1. "integrate rank data from [ranking source]"
+   (Source: Epic notes line 15)
+
+2. "factor rank priority into scoring recommendations so high-rank priority items rank higher"
+   (Source: Epic notes line 18-19)
+
+3. "use [ranking source] CSV format"
+   (Source: Epic notes line 22)
+
+---
+
+**User's Constraints:**
+
+- "Don't change RecordManager interface too much - other code depends on it"
+  (Source: Epic notes line 35)
+
+- "Keep it simple - just add rank priority as another multiplier like injury penalty"
+  (Source: Epic notes line 37-38)
+
+---
+
+**Out of Scope (User Explicitly Excluded):**
+
+- "Don't worry about historical rank priority trends, just use current season rank priority"
+  (Source: Epic notes line 42)
+
+- "Automatic rank priority updates can come later, manual CSV for now"
+  (Source: Epic notes line 45)
+
+---
+
+**User's End Goal:**
+
+"Make better draft decisions by incorporating real-world draft patterns into our recommendations"
+(Source: Epic notes line 8-10)
+
+---
+
+**Technical Components Mentioned by User:**
+
+- **RecordManager** (Epic notes line 35)
+- **injury penalty system** (as pattern to follow) (Epic notes line 37)
+- **[ranking source] CSV** (Epic notes line 22)
+
+---
+
+**Agent Verification:**
+
+- [ ] Re-read epic notes file: 2026-01-02 10:15
+- [ ] Extracted exact quotes (not paraphrases)
+- [ ] Cited line numbers for all quotes
+- [ ] Identified out-of-scope items
+- [ ] Understand user's goal (not just technical implementation)
+
+---
+
+{Rest of spec.md sections will be added in S2.P2}
+```
+
+---
+
+## S2.P1.I1 Step 2 Examples: Targeted Research
+
+### Example 1: Research Checklist (Grounded in Epic)
+
+```markdown
+## Research Checklist for Feature 01 (rank priority Integration)
+
+Based on Discovery Context section, I must research:
+
+- [ ] **RecordManager** (mentioned epic line 35)
+  - Action: Find class definition
+  - Action: Read calculate_total_score() method (user mentioned scoring)
+  - Action: Document actual signatures (not assumed)
+  - Evidence required: File path, line numbers, code snippets
+
+- [ ] **injury penalty system** (mentioned epic line 37 as pattern)
+  - Action: Find implementation
+  - Action: READ the actual code (not guess at pattern)
+  - Action: Document pattern used (method structure, multiplier approach)
+  - Evidence required: File path, code structure, actual code snippets
+
+- [ ] **[ranking source] CSV format** (mentioned epic line 22)
+  - Action: Search for existing CSV files in data/
+  - Action: Check if rank priority already used anywhere in codebase
+  - Action: Document expected CSV structure (if examples exist)
+  - Evidence required: File paths, column names, sample data
+
+- [ ] **Multiplier pattern in scoring** (user said "like injury penalty")
+  - Action: Find how multipliers are applied in calculate_total_score()
+  - Action: Document the pattern (how to add new multiplier)
+  - Action: Check if ConfigManager involved
+  - Evidence required: Code showing multiplier application
+```
+
+### Example 2: Complete Research Findings Document
+
+```markdown
+## Feature 01: rank priority Integration - Discovery Findings
+
+**Research Date:** 2026-01-02
+**Researcher:** Agent
+**Grounded In:** Discovery Context (user's explicit requests)
+
+---
+
+## Discovery Context Summary
+
+**User requested:** "integrate rank data from [ranking source] and factor it into scoring recommendations using a multiplier pattern similar to injury penalty"
+
+**Components user mentioned:**
+- RecordManager (scoring integration)
+- injury penalty system (pattern to follow)
+- [ranking source] CSV (data source)
+
+**This research focused on user-mentioned components ONLY.**
+
+---
+
+## Components Identified
+
+### Component 1: RecordManager (from Epic line 35)
+
+**User mentioned:** "Don't change RecordManager interface too much"
+
+**Found in codebase:**
+- File: `[module]/util/RecordManager.py`
+- Class definition: Line 45
+- Relevant method: `calculate_total_score()` at line 125
+
+**Method signature (actual from source):**
+```
+def calculate_total_score(self, item: DataRecord, config: ConfigManager) -> float:
+    """Calculate total score including all multipliers.
+
+    Args:
+        item (DataRecord): Item to score
+        config (ConfigManager): Configuration for multiplier ranges
+
+    Returns:
+        float: Final score with all multipliers applied
+    """
+    base_score = item.projected_value
+
+    # Apply multipliers
+    attribute_mult = self._calculate_attribute_multiplier(item)
+    context_mult = self._calculate_context_multiplier(item)
+    team_mult = self._calculate_team_quality_multiplier(item)
+
+    total_score = base_score * attribute_mult * context_mult * team_mult
+    return total_score
+```markdown
+
+**How it works today:**
+- Loads base score from item.projected_value
+- Applies multipliers: injury, matchup, team_quality
+- Each multiplier is a separate method (pattern: `_calculate_{type}_multiplier()`)
+- Returns final score as product of base * all multipliers
+
+**Relevance to this feature:**
+- User wants to add rank priority as another multiplier
+- Should follow existing pattern: create `_calculate_rank_multiplier()` method
+- Multiply into total_score alongside existing multipliers
+
+---
+
+### Component 2: injury penalty system (from Epic line 37 - pattern to follow)
+
+**User mentioned:** "Keep it simple - just add rank priority as another multiplier like injury penalty"
+
+**Found implementation:**
+- File: `[module]/util/RecordManager.py`
+- Lines: 450-480
+- Pattern used: Multiplier-based penalty
+
+**Code structure (actual):**
+```
+def _calculate_attribute_multiplier(self, item: DataRecord) -> float:
+    """Calculate injury status multiplier.
+
+    Args:
+        item (DataRecord): Item to evaluate
+
+    Returns:
+        float: Multiplier between 0.0-1.0 (penalty for injury)
+    """
+    if item.attribute_status == "Healthy":
+        return 1.0
+    elif item.attribute_status == "Questionable":
+        return 0.95
+    elif item.attribute_status == "Doubtful":
+        return 0.85
+    elif item.attribute_status == "Out":
+        return 0.0
+    else:
+        # Unknown status - neutral
+        return 1.0
+```markdown
+
+**Pattern to reuse:**
+- Method returns float multiplier
+- Range: 0.0-1.0 (penalty) or 1.0+ (bonus)
+- Applied in calculate_total_score() by multiplication
+- Uses item fields to determine multiplier value
+- Defaults to 1.0 (neutral) for unknown/missing data
+
+**For rank feature:**
+- Create `_calculate_rank_multiplier(item: DataRecord) -> float`
+- High rank priority (1-50) → multiplier > 1.0 (bonus)
+- Low rank priority (200+) → multiplier = 1.0 (neutral)
+- Missing rank priority → multiplier = 1.0 (neutral, like injury unknown status)
+- Add to total_score calculation: `total_score = base * injury * matchup * team * rank`
+
+---
+
+### Data Source: [ranking source] CSV (from Epic line 22)
+
+**User mentioned:** "use [ranking source] CSV format"
+
+**Found in codebase:**
+- Searched for: `grep -r "rank" --include="*.py" -i`
+- Result: NO existing rank priority references found
+- This is NEW data source (not currently in codebase)
+
+**Searched for example CSV files:**
+- `find data/ -name "*.csv"`
+- Found: `data/items.csv`, `data/injury_report.csv`
+
+**Example CSV structure (from items.csv):**
+```
+Name,Position,Team,ProjectedPoints
+Record-A,QB,KC,450.5
+Christian McCaffrey,RB,CAR,380.2
+```markdown
+
+**For rank feature:**
+- Need to determine exact [ranking source] CSV format (add to checklist as question)
+- Likely columns: Name, Position, rank priority (TBD - ask user)
+- Will need to match items by Name+Position (matching logic TBD - add to checklist)
+
+---
+
+## Existing Test Patterns
+
+**Found test pattern in:** `tests/[module]/util/test_RecordManager_scoring.py`
+
+**Pattern observed:**
+- Uses pytest fixtures for sample items
+- Mocks ConfigManager
+- Tests each multiplier in isolation:
+  ```
+  def test_attribute_multiplier_healthy():
+      item = DataRecord(name="Test", attribute_status="Healthy")
+      manager = RecordManager()
+      mult = manager._calculate_attribute_multiplier(item)
+      assert mult == 1.0
+
+  def test_attribute_multiplier_questionable():
+      item = DataRecord(name="Test", attribute_status="Questionable")
+      manager = RecordManager()
+      mult = manager._calculate_attribute_multiplier(item)
+      assert mult == 0.95
+  ```markdown
+- Integration test with all multipliers combined
+- Edge case tests (missing data, invalid values)
+
+**Can follow this pattern for rank feature tests:**
+- `test_rank_multiplier_high()` - rank priority 1-50 returns bonus
+- `test_rank_multiplier_low()` - rank priority 200+ returns neutral
+- `test_rank_multiplier_missing()` - No rank data returns 1.0
+- Integration test with all multipliers including rank priority
+
+---
+
+## Interface Dependencies
+
+**Classes This Feature Will Call:**
+
+1. **ConfigManager.get_rank_multiplier()** (may need to create)
+   - Searched: `grep -r "get_.*_multiplier" [module]/util/ConfigManager.py`
+   - Found similar method: `get_attribute_multiplier(status: str) -> float` at line 180
+   - Pattern: Takes input value, returns multiplier
+   - For rank priority: Will need `get_rank_multiplier(rank: int) -> float`
+   - May need to add this method (not currently exists)
+
+2. **CSV utilities** (for reading [ranking source] CSV)
+   - Source: `utils/csv_utils.py`
+   - Method: `read_csv_with_validation(filepath, required_columns)`
+   - Verified: Method exists (checked source code line 45)
+   - Can use for loading rank data
+
+3. **DataRecord class** (need to add rank priority field)
+   - Source: `[module]/util/DataRecord.py`
+   - Current fields (line 15): name, position, team, projected_value, attribute_status
+   - Will add: `rank_value: Optional[int]` (new field)
+
+---
+
+## Edge Cases Identified
+
+**From reading existing code:**
+
+1. Item not in rank data → How to handle?
+   - Pattern from injury: Return neutral multiplier (1.0)
+   - Add to checklist: "Should items without rank priority get neutral 1.0 or penalty?"
+
+2. Invalid rank values (< 1 or > 500) → Validation needed?
+   - Add to checklist: "What's valid rank priority range? How to handle invalid values?"
+
+3. rank data file missing → Graceful degradation?
+   - Pattern from injury: If injury_report.csv missing, all items get 1.0
+   - Add to checklist: "If rank priority CSV missing, should we fail or default to neutral?"
+
+4. Multiple items with same name → Matching logic?
+   - Add to checklist: "How to match items? Exact name+position? Fuzzy matching?"
+
+---
+
+## Research Completeness
+
+**Components researched:**
+- ✅ RecordManager class (READ source code lines 45-500)
+- ✅ Existing multiplier pattern (READ injury penalty code lines 450-480)
+- ✅ Test patterns (READ existing tests in test_RecordManager_scoring.py)
+- ✅ Data source search (grep for existing rank priority references - none found)
+- ✅ CSV utilities (verified read_csv_with_validation exists)
+- ✅ DataRecord class structure (READ source code lines 1-100)
+
+**Evidence collected:**
+- File paths: 5 files (RecordManager.py, DataRecord.py, ConfigManager.py, csv_utils.py, test_RecordManager_scoring.py)
+- Line numbers: Cited for all code references
+- Actual code snippets: Copied method signatures, example implementations
+
+**Ready for S2.P1.I1 Gate 1 audit.**
+
+---
+
+**Next Steps:**
+- S2.P1.I1 Gate 1: Verify research completeness
+- S2.P1.I2: Update spec.md with findings, resolve checklist questions
+```
+
+---
+
+## S2.P1.I1 Gate 1 Examples: Research Completeness Audit
+
+### Example 1: Complete Audit with PASSING Results
+
+```markdown
+## Research Completeness Audit
+
+### Category 1: Component Knowledge
+
+**Question 1.1:** Can I list the EXACT classes/files that will be modified?
+
+❌ BAD: "Probably RecordManager and maybe ConfigManager"
+✅ GOOD: "RecordManager ([module]/util/RecordManager.py:125-180) and ConfigManager ([module]/util/ConfigManager.py:234)"
+
+**My answer:**
+- RecordManager ([module]/util/RecordManager.py)
+  - calculate_total_score() method at line 125
+  - Will add _calculate_rank_multiplier() method around line 485
+- DataRecord ([module]/util/DataRecord.py)
+  - Class definition at line 15
+  - Will add rank_value field
+- ConfigManager ([module]/util/ConfigManager.py)
+  - May need to add get_rank_multiplier() method (similar to get_attribute_multiplier at line 180)
+
+**Evidence:**
+- Read RecordManager.py lines 1-500 (Read tool call at 10:25)
+- Read DataRecord.py lines 1-100 (Read tool call at 10:27)
+- Read ConfigManager.py lines 1-300 (Read tool call at 10:30)
+
+---
+
+**Question 1.2:** Have I READ the source code for each component?
+
+❌ BAD: "I searched for it but didn't read the actual code"
+✅ GOOD: "Yes, used Read tool to view RecordManager.py lines 1-300, focused on calculate_total_score() method"
+
+**My answer:** Yes, read source code for all components:
+- RecordManager.py: Read lines 1-500, focused on calculate_total_score() (125-150) and injury multiplier pattern (450-480)
+- DataRecord.py: Read lines 1-100, documented current field structure
+- ConfigManager.py: Read lines 1-300, found get_attribute_multiplier() pattern
+- csv_utils.py: Read lines 1-100, verified read_csv_with_validation() exists
+- test_RecordManager_scoring.py: Read entire file, documented test patterns
+
+**Evidence:** Read tool calls made at 10:25, 10:27, 10:30, 10:32, 10:35
+
+---
+
+**Question 1.3:** Can I cite actual method signatures from source?
+
+❌ BAD: "The method probably takes an item and returns a score"
+✅ GOOD: "def calculate_total_score(self, item: DataRecord, config: ConfigManager) -> float (RecordManager.py:125)"
+
+**My answer:** Yes, documented actual signatures:
+
+```
+## RecordManager.calculate_total_score
+def calculate_total_score(self, item: DataRecord, config: ConfigManager) -> float:
+    # Source: RecordManager.py:125
+
+## RecordManager._calculate_attribute_multiplier
+def _calculate_attribute_multiplier(self, item: DataRecord) -> float:
+    # Source: RecordManager.py:450
+
+## ConfigManager.get_attribute_multiplier
+def get_attribute_multiplier(self, status: str) -> float:
+    # Source: ConfigManager.py:180
+
+## csv_utils.read_csv_with_validation
+def read_csv_with_validation(filepath: Union[str, Path], required_columns: List[str]) -> pd.DataFrame:
+    # Source: csv_utils.py:45
+```markdown
+
+**Evidence:** Copied from actual source files, cited line numbers
+
+---
+
+**Verification Result for Category 1:**
+
+- [x] All questions answered with ✅ GOOD level of detail
+- [x] Evidence provided for each answer
+
+**Category 1: PASSED**
+
+---
+
+### Category 2: Pattern Knowledge
+
+**Question 2.1:** Have I searched for similar existing features?
+
+❌ BAD: "I assume there are similar features but didn't search"
+✅ GOOD: "Searched for 'injury penalty', found implementation in RecordManager.py:450-480"
+
+**My answer:** Yes, searched for multiplier pattern:
+- grep -r "multiplier" --include="*.py" [module]/
+- Found: attribute_multiplier, context_multiplier, team_quality_multiplier
+- All follow same pattern in RecordManager
+- Read attribute_multiplier as example (most similar to rank priority use case)
+
+**Evidence:**
+- grep results showed 3 existing multipliers
+- Read RecordManager.py lines 450-550 to see all multiplier implementations
+
+---
+
+**Question 2.2:** Have I READ at least one similar feature's implementation?
+
+❌ BAD: "Found it but didn't read the code"
+✅ GOOD: "Read RecordManager.py lines 450-480, documented pattern in research file"
+
+**My answer:** Yes, read injury penalty implementation in detail:
+- Method structure: `_ calculate_{type}_multiplier(item: DataRecord) -> float`
+- Return value: Float between 0.0-1.0 for penalties, 1.0+ for bonuses
+- Default: Returns 1.0 for unknown/missing data
+- Integration: Multiplied into total_score in calculate_total_score()
+
+**Evidence:** Documented full code in research file with line citations
+
+---
+
+**Question 2.3:** Can I describe the existing pattern in detail?
+
+❌ BAD: "It probably uses some kind of multiplier"
+✅ GOOD: "Returns float multiplier (0.0-1.0 range), applied in calculate_total_score(), follows method naming pattern _calculate_{type}_multiplier()"
+
+**My answer:** Pattern details:
+- **Naming:** `_calculate_{type}_multiplier((self, item: DataRecord)) -> float`
+- **Range:** 0.0-1.0 for penalties (injury, bad matchup), 1.0+ for bonuses (good matchup)
+- **Default:** Returns 1.0 for neutral/missing data
+- **Integration:** All multipliers multiplied together in calculate_total_score():
+  ```
+  total_score = base_score * mult1 * mult2 * mult3 * ... * multN
+  ```markdown
+- **Config:** Some multipliers use ConfigManager for ranges (matchup uses config.get_context_multiplier())
+
+**Evidence:**
+- attribute_multiplier code (lines 450-480)
+- context_multiplier code (lines 490-520)
+- calculate_total_score integration (lines 125-150)
+
+---
+
+**Verification Result for Category 2:**
+
+- [x] All questions answered with ✅ GOOD level of detail
+- [x] Evidence provided for each answer
+
+**Category 2: PASSED**
+
+---
+
+### Category 3: Data Structure Knowledge
+
+**Question 3.1:** Have I READ the actual data files (CSV/JSON examples)?
+
+❌ BAD: "I assume CSV has Name, Position columns"
+✅ GOOD: "Read data/items.csv, actual columns: Name,Position,Team,Points,rank priority (line 1)"
+
+**My answer:** Yes, read existing CSV files to understand format:
+- Read data/items.csv (example record data)
+- Read data/injury_report.csv (example status data)
+- No existing rank priority CSV found (this is new data source)
+- Documented format patterns from existing files
+
+**Evidence:**
+- data/items.csv header: `Name,Position,Team,ProjectedPoints`
+- data/injury_report.csv header: `Name,Position,Status,Updated`
+- Sample row from items.csv: `Record-A,QB,KC,450.5`
+
+---
+
+**Question 3.2:** Can I describe the current format from actual examples?
+
+❌ BAD: "CSV format with record data"
+✅ GOOD: "CSV with header row, 5 columns (Name,Position,Team,Points,rank priority), example: 'Record-A,QB,KC,450.5,5'"
+
+**My answer:**
+Existing CSV pattern (from items.csv):
+- Format: CSV with header row
+- Columns: Name,Position,Team,ProjectedPoints
+- Name: Full item name (e.g., "Record-A")
+- Position: Standard position abbreviation (QB, RB, WR, TE, K, DST)
+- Team: Team abbreviation (e.g., "KC")
+- ProjectedPoints: Float value
+
+For rank priority CSV (need to confirm with user):
+- Will likely follow same pattern
+- Expected columns: Name, Position, rank priority (TBD - add to checklist)
+- rank priority: Integer ranking 1-500 (TBD - ask user for range)
+
+**Evidence:**
+- Actual header from data/items.csv: `Name,Position,Team,ProjectedPoints`
+- Sample rows documented in research file
+
+---
+
+**Question 3.3:** Have I verified field names from source code?
+
+❌ BAD: "I assume item has 'name' field"
+✅ GOOD: "DataRecord class ([module]/util/DataRecord.py:15) has fields: name: str, position: str, team: str, projected_value: float"
+
+**My answer:** Yes, verified DataRecord class fields:
+
+```
+@dataclass
+class DataRecord:
+    name: str
+    position: str
+    team: str
+    projected_value: float
+    attribute_status: Optional[str] = None
+    matchup_rating: Optional[float] = None
+    team_quality: Optional[float] = None
+    # Will add: rank_value: Optional[int] = None
+```markdown
+
+Source: [module]/util/DataRecord.py lines 15-25
+
+**Evidence:**
+- Read DataRecord.py lines 1-100
+- Copied actual field definitions with type hints
+
+---
+
+**Verification Result for Category 3:**
+
+- [x] All questions answered with ✅ GOOD level of detail
+- [x] Evidence provided for each answer
+
+**Category 3: PASSED**
+
+---
+
+### Category 4: Epic Request Knowledge
+
+**Question 4.1:** Have I re-read the epic notes file in THIS phase?
+
+❌ BAD: "I read it at S2.P1.I1 start, don't need to read again"
+✅ GOOD: "Re-read at S2.P1.I1 start at 2026-01-02 10:15, extracted user requests"
+
+**My answer:** Yes, re-read epic notes at S2.P1.I1 start:
+- File: .shamt/epics/SHAMT-1-improve_recommendation_engine/improve_recommendation_engine_notes.txt
+- Read timestamp: 2026-01-02 10:15
+- Extracted user quotes with line numbers
+- Created Discovery Context section in spec.md
+
+**Evidence:** S2.P1.I1 start timestamp in Agent Status: 2026-01-02 10:20
+
+---
+
+**Question 4.2:** Can I list what the user EXPLICITLY requested?
+
+❌ BAD: "User wants better scoring recommendations"
+✅ GOOD: "User requested: 1) 'integrate rank data' (line 15), 2) 'factor rank priority into scoring' (line 18), 3) 'use [ranking source] CSV' (line 22)"
+
+**My answer:** User explicit requests:
+1. "integrate rank data from [ranking source]" (epic line 15)
+2. "factor rank priority into scoring recommendations so high-rank priority items rank higher" (epic line 18-19)
+3. "use [ranking source] CSV format" (epic line 22)
+4. "Keep it simple - just add rank priority as another multiplier like injury penalty" (epic line 37-38)
+
+**Evidence:** Exact quotes with line citations in Discovery Context section of spec.md
+
+---
+
+**Question 4.3:** Can I identify what's NOT mentioned (assumptions)?
+
+❌ BAD: "Everything seems covered"
+✅ GOOD: "User did NOT mention: fuzzy matching, automatic CSV updates, caching. These are agent assumptions (need to add to checklist as questions)"
+
+**My answer:** User did NOT mention:
+- rank multiplier formula (how to convert rank priority 1-500 to multiplier)
+- Item matching strategy (exact vs fuzzy)
+- Default behavior when item not in rank data
+- rank value ranges (min/max valid rank priority)
+- CSV location/filename
+- Handling multiple items with same name
+
+All of these are agent assumptions → Added to checklist as questions
+
+**Evidence:** Reviewed epic notes, none of these topics mentioned
+
+---
+
+**Verification Result for Category 4:**
+
+- [x] All questions answered with ✅ GOOD level of detail
+- [x] Evidence provided for each answer
+
+**Category 4: PASSED**
+
+---
+
+## S2.P1.I1 Gate 1 Audit Summary
+
+**Category 1 (Component Knowledge):** ✅ PASSED
+**Category 2 (Pattern Knowledge):** ✅ PASSED
+**Category 3 (Data Structure Knowledge):** ✅ PASSED
+**Category 4 (Epic Request Knowledge):** ✅ PASSED
+
+---
+
+**OVERALL RESULT:** ✅ PASSED - All 4 categories passed, ready for S2.P2
+
+---
+
+**Evidence Summary:**
+
+**Files Read:** 6
+- [module]/util/RecordManager.py (lines 1-500)
+- [module]/util/DataRecord.py (lines 1-100)
+- [module]/util/ConfigManager.py (lines 1-300)
+- utils/csv_utils.py (lines 1-100)
+- tests/[module]/util/test_RecordManager_scoring.py (entire file)
+- data/items.csv (header + sample rows)
+
+**Code Snippets Collected:** 8
+- calculate_total_score() signature and implementation
+- _calculate_attribute_multiplier() full implementation
+- _calculate_context_multiplier() signature
+- get_attribute_multiplier() signature
+- read_csv_with_validation() signature
+- DataRecord class definition with fields
+- Test pattern examples (3 test methods)
+
+**Epic Notes Citations:** 8 line numbers
+- Lines 8-10, 12-14, 15, 18-19, 22, 35, 37-38, 42, 45
+
+**Ready for S2.P2:** YES
+
+---
+
+### Example 2: Audit with FAILURES (What NOT to do)
+
+```
+## Research Completeness Audit (FAILED EXAMPLE)
+
+### Category 1: Component Knowledge
+
+**Question 1.1:** Can I list the EXACT classes/files that will be modified?
+
+**My answer:** ❌ "Probably RecordManager and maybe ConfigManager, not sure what else"
+
+**Evidence:** ❌ None - didn't check file paths or line numbers
+
+**FAILURE:** Vague answer, no evidence
+**Action Required:** Use Glob to find files, Read to verify components, cite exact paths
+
+---
+
+**Question 1.2:** Have I READ the source code for each component?
+
+**My answer:** ❌ "I used grep to search for RecordManager but didn't actually read the file"
+
+**Evidence:** ❌ grep results only, no Read tool calls
+
+**FAILURE:** Searched but didn't READ
+**Action Required:** Use Read tool to view actual source code, document what you found
+
+---
+
+**Question 1.3:** Can I cite actual method signatures from source?
+
+**My answer:** ❌ "The scoring method probably takes an item and returns a number"
+
+**Evidence:** ❌ None - guessing based on assumptions
+
+**FAILURE:** Assumption, not actual code
+**Action Required:** Read source file, copy exact signature with types and line number
+
+---
+
+**Verification Result for Category 1:** ❌ FAILED
+
+**Must return to S2.P1.I1 and:**
+1. Find exact file paths for all components
+2. READ source code (not just search)
+3. Document actual signatures with evidence
+4. Re-run Gate 1 audit after research complete
+
+**DO NOT PROCEED TO S2.P2**
+```markdown
+
+---
+
+## Anti-Patterns to Avoid
+
+### Anti-Pattern 1: Generic Research
+
+❌ **WRONG:**
+```
+## Research Questions
+
+- [ ] Understand how RecordManager works
+- [ ] Learn about the scoring system
+- [ ] Research data loading patterns
+- [ ] Study the codebase architecture
+```markdown
+
+✅ **CORRECT:**
+```
+## Research Questions (Grounded in Epic)
+
+Based on user request to "integrate rank data into RecordManager scoring using injury penalty pattern":
+
+- [ ] RecordManager.calculate_total_score() - How does it work? (user mentioned scoring)
+- [ ] injury penalty pattern - What's the implementation? (user said to follow this pattern)
+- [ ] [ranking source] CSV - Does similar data exist? (user specified this data source)
+```markdown
+
+**Why:** Epic intent guides research. Only research what user explicitly mentioned.
+
+---
+
+### Anti-Pattern 2: Assuming Instead of Reading
+
+❌ **WRONG:**
+```
+**RecordManager probably has a calculate_score method that takes an item.**
+
+I'll assume it returns a float and we can add rank priority as a parameter.
+```markdown
+
+✅ **CORRECT:**
+```
+**RecordManager.calculate_total_score() actual signature:**
+
+```python
+def calculate_total_score(self, item: DataRecord, config: ConfigManager) -> float:
+```
+
+Source: [module]/util/RecordManager.py:125
+Read timestamp: 2026-01-02 10:30
+
+**Cannot add rank priority as parameter** - would break interface (user constraint: "don't change interface too much")
+**Must follow multiplier pattern instead** - add as separate calculation, multiply into result
+```markdown
+
+**Why:** READ the actual code. Don't guess at signatures or patterns.
+
+---
+
+### Anti-Pattern 3: Skipping Discovery Context Review (S2.P1.I1 Step 1)
+
+❌ **WRONG:**
+```
+I remember from S1 that user wants Rank integration. I'll start researching RecordManager now.
+
+{Jumps straight to research without re-reading epic}
+```markdown
+
+✅ **CORRECT:**
+```
+**S2.P1.I1 Step 1: Discovery Context Review**
+
+Even though I worked on S1, I'm re-reading epic notes now to ensure I understand user intent.
+
+{Reviews DISCOVERY.md from S1}
+{Verifies spec has Discovery Context section}
+{Notes relevant findings and user answers}
+{THEN proceeds to targeted research}
+
+**Why:** Context windows have limits. Session compaction may have lost details. Always review DISCOVERY.md at S2.P1.I1 start.
+
+---
+
+## Success Criteria Summary
+
+**S2.P1.I1 passes when:**
+
+✅ **S2.P1.I1 Step 1 (Discovery Context Review):**
+- DISCOVERY.md reviewed (not relied on memory)
+- Relevant Discovery findings noted for this feature
+- Discovery Context section verified in spec.md
+- Feature's scope from Discovery documented
+- Out-of-scope items identified
+
+✅ **S2.P1.I1 Step 2 (Targeted Research):**
+- Research grounded in epic intent (not generic)
+- Components mentioned by user researched FIRST
+- Source code READ (not just searched)
+- Evidence collected (file paths, line numbers, code snippets)
+- Research findings documented in epic/research/{FEATURE_NAME}_DISCOVERY.md
+
+✅ **S2.P1.I1 Gate 1 (Research Completeness Audit):**
+- All 4 categories answered with evidence
+- Can cite exact files, lines, signatures
+- Can describe patterns from actual code
+- Can identify assumptions vs. user requests
+- Overall result: PASSED
+
+**Ready for S2.P1.I2 (Checklist Resolution) when Gate 1 complete with evidence.**
+
+---
+
+*End of research_examples.md*

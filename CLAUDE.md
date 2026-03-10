@@ -701,6 +701,24 @@ git status  # Shows uncommitted changes
 - `feature-updates/` - Epic-driven development
 
 **See:**
-- `ARCHITECTURE.md` - Complete architectural details
+- `.shamt/project-specific-configs/ARCHITECTURE.md` - Concise architecture reference for agents
+- `.shamt/project-specific-configs/CODING_STANDARDS.md` - Concise coding standards for agents
+- `ARCHITECTURE.md` - Complete architectural details (1,673 lines)
 - `README.md` - Installation and usage
 - `CODING_STANDARDS.md` - Complete coding standards and testing guidelines
+
+---
+
+## Key Coding Rules
+
+**Full standards:** `.shamt/project-specific-configs/CODING_STANDARDS.md`
+
+1. **Type hints required on all functions.** Every parameter and return value must have a type hint. Use `Optional[T]` for nullable params, `Union[str, Path]` for filepath arguments.
+
+2. **Google-style docstrings on all public functions/classes.** Must include: one-line summary, `Args:` (with types), `Returns:`, and `Raises:` (if applicable). No bare undocumented public methods.
+
+3. **Error handling via `error_context()`.** Import from `utils/error_handler.py`. Never use bare `except:` or generic `except Exception:` without context. Use custom exceptions: `DataProcessingError`, `APIError`, `FileOperationError`, `ConfigurationError`.
+
+4. **No `print()` in production code.** Use `LoggingManager` (`setup_logger()`/`get_logger()` from `utils/LoggingManager.py`). `print()` is permitted only in CLI entry points for user-facing output.
+
+5. **100% test pass rate before every commit.** Run `python tests/run_all_tests.py`. Zero failures allowed. Tests mirror source structure under `tests/`; use Arrange-Act-Assert pattern with `pytest`.

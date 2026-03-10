@@ -1,0 +1,1113 @@
+# D16: Duplication Detection
+
+**Dimension Number:** 16
+**Category:** Advanced Dimensions
+**Automation Level:** 50% automated
+**Priority:** MEDIUM
+**Last Updated:** 2026-02-04
+
+**Focus:** Identify duplicate content across guides and enforce DRY principle through consolidation
+**Typical Issues Found:** 10-25 duplicate sections per audit
+
+---
+
+## Table of Contents
+
+1. [What This Checks](#what-this-checks)
+2. [Why This Matters](#why-this-matters)
+3. [Pattern Types](#pattern-types)
+4. [How Errors Happen](#how-errors-happen)
+5. [Automated Validation](#automated-validation)
+6. [Manual Validation](#manual-validation)
+7. [Context-Sensitive Rules](#context-sensitive-rules)
+8. [Real Examples](#real-examples)
+9. [Integration with Other Dimensions](#integration-with-other-dimensions)
+
+---
+
+## What This Checks
+
+**D16: Duplication Detection** validates the DRY principle (Don't Repeat Yourself) across guides:
+
+1. **Exact Duplicates** - Same content appears in multiple files verbatim
+2. **Near Duplicates** - Very similar content with minor variations (90%+ similarity)
+3. **Redundant Instructions** - Same instructions repeated in multiple contexts
+4. **Duplicate Examples** - Same examples used in multiple guides
+5. **Copied Sections** - Entire sections duplicated across files
+6. **Maintenance Burden** - Content that must be updated in multiple places
+7. **Consolidation Opportunities** - Content that should be in one place with references
+8. **Contradictory Content** - Different claims about same topic across files (incompatible, not just duplicate)
+
+**Coverage:**
+- All workflow guides in stages/
+- Reference materials in reference/
+- Templates in templates/
+- Root-level documentation
+
+**Key Distinction:**
+- **Acceptable:** Reference or link to canonical source ("See X.md for details")
+- **Problematic:** Copy-paste same content into multiple files
+
+---
+
+## Why This Matters
+
+**Duplication = Maintenance burden and inconsistency over time**
+
+### Impact of Duplication:
+
+**Update Overhead:**
+- Same content exists in 5 files
+- Content needs updating
+- Must remember to update all 5 locations
+- Easy to miss one location
+- Result: Inconsistent information across guides
+
+**Inconsistency Over Time:**
+- Content duplicated across files
+- One copy updated, others not
+- Users see conflicting information
+- Don't know which version is correct
+
+**Increased File Size:**
+- Duplicated content increases file size unnecessarily
+- Files exceed readability thresholds
+- Should extract to shared reference instead
+
+**Search Confusion:**
+- User searches for topic
+- Finds same content in 5 different files
+- Doesn't know which is authoritative
+- May read outdated version
+
+**Version Drift:**
+- File A and File B start with same content
+- Over time, A gets updated, B doesn't
+- A and B now have conflicting information
+- Users confused about which is correct
+
+### Historical Evidence:
+
+**SHAMT-7 Issues:**
+- "Critical Rules" section duplicated in 8 different stage guides
+- Gate definitions copy-pasted into multiple files instead of referencing mandatory_gates.md
+- Same debugging protocol instructions in multiple stage guides
+
+**Why 50% Automation:**
+- Automated: Exact duplicate detection, near-duplicate fuzzy matching
+- Manual Required: Semantic duplication (same meaning, different words), determining if duplication is intentional
+
+---
+
+## Pattern Types
+
+### Type 0: Root-Level File Duplication (CRITICAL - Often Missed)
+
+**Files to Always Check:**
+```text
+CLAUDE.md (project root)
+.shamt/guides/README.md
+.shamt/guides/EPIC_WORKFLOW_USAGE.md
+```markdown
+
+**What to Validate:**
+
+**Common Duplication: Stage Workflow Descriptions**
+
+CLAUDE.md has workflow overview.
+README.md has workflow overview.
+EPIC_WORKFLOW_USAGE.md has detailed workflow.
+
+**Problem:** If all three describe workflow, updates must happen in 3 places.
+
+**Validation:**
+```bash
+# Extract workflow section from each root file
+grep -A 50 "Stage Workflows\|Workflow Overview" CLAUDE.md > /tmp/claude_workflow.txt
+grep -A 50 "10 Stages\|Workflow Overview" .shamt/guides/README.md > /tmp/readme_workflow.txt
+grep -A 50 "Stage-by-Stage" .shamt/guides/EPIC_WORKFLOW_USAGE.md > /tmp/usage_workflow.txt
+
+# Compare for similarity
+diff /tmp/claude_workflow.txt /tmp/readme_workflow.txt
+diff /tmp/readme_workflow.txt /tmp/usage_workflow.txt
+```
+
+**Recommendation:**
+- CLAUDE.md: High-level overview (3-5 sentences per stage)
+- README.md: Router to guides (just links)
+- EPIC_WORKFLOW_USAGE.md: Detailed workflow (comprehensive)
+
+**Red Flags:**
+- Same paragraph appears in all 3 files
+- Stage descriptions duplicated across files
+- Gate lists copy-pasted instead of referenced
+
+**Automated:** ✅ Yes (can detect exact duplicates, near-duplicates)
+
+---
+
+### Type 1: Exact Duplicate Content
+
+**What to Check:**
+Same content appears verbatim in multiple files.
+
+**Common Pattern:**
+
+**File A (stages/s5/s5_v2_validation_loop.md):**
+```markdown
+## Critical Rules
+
+1. Never skip iterations
+2. Always run tests before committing
+3. Update Agent Status after each phase
+4. Zero tech debt tolerance
+5. Fix all issues immediately
+```markdown
+
+**File B (stages/s6/s6_execution.md):**
+```markdown
+## Critical Rules
+
+1. Never skip iterations
+2. Always run tests before committing
+3. Update Agent Status after each phase
+4. Zero tech debt tolerance
+5. Fix all issues immediately
+```
+
+**Problem:** Exact duplicate - if rules change, must update both files.
+
+**Search Commands:**
+```bash
+# Find exact duplicate sections (>5 lines)
+# This requires specialized tooling or manual comparison
+
+# Simple approach: Extract common section headers, compare content
+for header in "Critical Rules" "Common Mistakes" "Exit Criteria"; do
+  echo "=== Checking duplication of: $header ==="
+
+  # Find all files with this header
+  files=$(grep -rl "^## $header" .shamt/guides/stages/)
+
+  # For each pair, compare content
+  # (Manual comparison needed for semantic understanding)
+done
+```markdown
+
+**Validation Process:**
+
+1. **Identify common sections** across files (Critical Rules, Prerequisites, Exit Criteria)
+2. **Extract section content** from each file
+3. **Compare line-by-line** for exact matches
+4. **Flag duplicates** for consolidation or referencing
+
+**Red Flags:**
+- Same multi-line content in 3+ files
+- Content is general (applies to all stages), not stage-specific
+- Content likely to change over time
+
+**Automated:** ✅ Yes (can detect exact text matches across files)
+
+---
+
+### Type 2: Near-Duplicate Content (90%+ Similarity)
+
+**What to Check:**
+Content is nearly identical with minor wording variations.
+
+**Common Pattern:**
+
+**File A:**
+```markdown
+## Testing Requirements
+
+All code must be tested before committing. Run the full test suite and ensure 100% pass rate. Never commit failing tests.
+```
+
+**File B:**
+```markdown
+## Testing Requirements
+
+All code should be tested before committing. Run the complete test suite and verify 100% pass rate. Do not commit failing tests.
+```markdown
+
+**Similarity:** ~90% (must→should, full→complete, ensure→verify, Never→Do not)
+
+**Problem:** Essentially duplicate content with slight variations. Should be consolidated.
+
+**Detection Approach:**
+
+**Using similarity tools:**
+```bash
+# Install similarity detection tool (if available)
+# Example with Python difflib or fuzzywuzzy
+
+# For each pair of files
+for file1 in stages/s*/*.md; do
+  for file2 in stages/s*/*.md; do
+    if [ "$file1" != "$file2" ]; then
+      # Compare similarity (requires tool)
+      # Flag if >90% similar
+    fi
+  done
+done
+```
+
+**Manual Detection:**
+```bash
+# Extract common section types
+grep -rh "^## Testing Requirements\|^## Quality Standards" stages/ > /tmp/testing_sections.txt
+
+# Manually review for near-duplicates
+```markdown
+
+**Red Flags:**
+- Same meaning expressed with different words
+- Same structure, minor wording changes
+- Copy-paste then slight editing
+
+**Automated:** ⚠️ Partial (requires fuzzy matching tools like fuzzywuzzy, diff ratio)
+
+---
+
+### Type 3: Redundant Instructions Across Guides
+
+**What to Check:**
+Same instructions repeated in context where reference would suffice.
+
+**Common Pattern:**
+
+**Multiple guides explain how to create git branch:**
+
+**S1 Guide:**
+```markdown
+## Step 1.1: Create Git Branch
+
+Create branch: `git checkout -b epic/SHAMT-{number}`
+
+Branch naming format: {work_type}/SHAMT-{number}
+Where work_type is: epic, feat, or fix
+```
+
+**S10 Guide:**
+```markdown
+## Create Pull Request
+
+First, ensure you're on correct branch: `git checkout -b epic/SHAMT-{number}`
+
+Branch naming format: {work_type}/SHAMT-{number}
+Where work_type is: epic, feat, or fix
+```markdown
+
+**Problem:** Branch naming rules duplicated. Should reference GIT_WORKFLOW.md instead.
+
+**Recommendation:**
+
+**S1 Guide:**
+```markdown
+## Step 1.1: Create Git Branch
+
+Create branch following git workflow conventions.
+See `reference/GIT_WORKFLOW.md` for branch naming format.
+
+Command: `git checkout -b epic/SHAMT-{number}`
+```
+
+**S10 Guide:**
+```markdown
+## Create Pull Request
+
+Follow git workflow for PR creation.
+See `reference/GIT_WORKFLOW.md` for complete process.
+```json
+
+**Detection:**
+```bash
+# Find instructions that appear in multiple guides
+common_instructions=(
+  "git checkout"
+  "Branch naming"
+  "Commit message format"
+  "Test command"
+  "File structure"
+)
+
+for instruction in "${common_instructions[@]}"; do
+  echo "=== $instruction ==="
+  grep -rn "$instruction" stages/ | wc -l
+  # If count > 3, may be redundant duplication
+done
+```
+
+**Red Flags:**
+- Same how-to instructions in 5+ files
+- Instructions are reference material (should be in reference/)
+- Instructions likely to change (maintenance burden)
+
+**Automated:** ✅ Yes (can count occurrences of instruction patterns)
+
+---
+
+### Type 4: Duplicate Examples Across Guides
+
+**What to Check:**
+Same examples used in multiple guides instead of referencing common examples.
+
+**Common Pattern:**
+
+**S5 Guide:**
+```markdown
+### Example: Missing Import Error
+
+**Problem:** Code fails with "ModuleNotFoundError"
+**Cause:** Missing import statement
+**Solution:** Add `import pandas as pd`
+**Result:** Code executes successfully
+```markdown
+
+**S7 Guide:**
+```markdown
+### Example: Import Error During Testing
+
+**Problem:** Test fails with "ModuleNotFoundError"
+**Cause:** Missing import statement
+**Solution:** Add `import pandas as pd`
+**Result:** Tests pass
+```
+
+**Problem:** Same example duplicated with slight context changes.
+
+**Recommendation:**
+
+**Create shared examples file:**
+```text
+reference/common_examples.md
+```markdown
+
+**S5 and S7 both reference:**
+```markdown
+See `reference/common_examples.md` → "Missing Import Error" for debugging approach.
+```
+
+**Detection:**
+```bash
+# Find example sections
+grep -rn "^### Example\|^## Example" stages/ > /tmp/all_examples.txt
+
+# Manually review for duplicates
+# Look for same scenario, problem, solution patterns
+```markdown
+
+**Red Flags:**
+- Same scenario described in multiple examples
+- Same code snippets in multiple examples
+- Same problem-solution pairs
+
+**Automated:** ❌ No (requires semantic understanding of example content)
+
+---
+
+### Type 5: Entire Section Duplication
+
+**What to Check:**
+Large sections (50+ lines) duplicated across files.
+
+**Common Pattern:**
+
+**Prerequisites Section Duplication:**
+
+Many stage guides have identical "Prerequisites" boilerplate:
+```markdown
+## Prerequisites
+
+Before starting this stage:
+
+- [ ] Read the complete guide using Read tool
+- [ ] Use mandatory phase transition prompt
+- [ ] Verify prerequisites checklist
+- [ ] Update Agent Status in README
+- [ ] THEN proceed with work
+```
+
+**If this appears in 10 stage guides identically, it's duplication.**
+
+**Recommendation:**
+
+**Create shared prerequisite template:**
+```text
+reference/standard_prerequisites.md
+```markdown
+
+**Stage guides reference:**
+```markdown
+## Prerequisites
+
+**Standard Prerequisites:**
+See `reference/standard_prerequisites.md` for standard workflow prerequisites.
+
+**Stage-Specific Prerequisites:**
+- [ ] Completed S4
+- [ ] test_strategy.md exists
+- [ ] User approved epic plan (Gate 4.5)
+```
+
+**Detection:**
+```bash
+# Find large sections (>50 lines)
+for file in stages/**/*.md; do
+  # Extract major sections
+  csplit -s -f /tmp/section_ "$file" '/^## /' '{*}' 2>/dev/null
+
+  # For each section, compare to sections in other files
+  # (Requires tooling or manual review)
+done
+```markdown
+
+**Red Flags:**
+- Same 50+ line section in 5+ files
+- Section is general, not file-specific
+- Section changes occasionally (maintenance burden)
+
+**Automated:** ⚠️ Partial (can detect exact matches, requires fuzzy matching for near-duplicates)
+
+---
+
+### Type 6: Duplicate Reference Lists
+
+**What to Check:**
+Same reference lists (See Also, Additional Resources) duplicated across files.
+
+**Common Pattern:**
+
+**Multiple guides have same "See Also" section:**
+
+**S2, S3, S4, S5 all have:**
+```markdown
+## See Also
+
+- `reference/mandatory_gates.md` - Complete gate reference
+- `reference/common_mistakes.md` - Anti-pattern reference
+- `reference/GIT_WORKFLOW.md` - Git branching workflow
+- `CODING_STANDARDS.md` - Coding standards
+```
+
+**Problem:** Duplicated reference lists. If new reference added, must update all files.
+
+**Recommendation:**
+
+**Create master reference index:**
+```text
+reference/REFERENCE_INDEX.md
+```markdown
+
+**Guides reference index:**
+```markdown
+## See Also
+
+See `reference/REFERENCE_INDEX.md` for complete reference list.
+
+**Stage-Specific:**
+- `stages/s6/s6_execution.md` - Implementation guide
+- `stages/s7/s7_testing.md` - Testing guide
+```
+
+**Detection:**
+```bash
+# Extract all "See Also" sections
+grep -A 10 "^## See Also" stages/**/*.md > /tmp/see_also_sections.txt
+
+# Compare for duplication
+# Count unique vs total
+```markdown
+
+**Red Flags:**
+- Same reference list in 5+ files
+- References are general (not file-specific)
+- List grows over time (maintenance burden)
+
+**Automated:** ✅ Yes (can detect exact duplicate lists)
+
+---
+
+### Type 7: Template Content Propagation
+
+**What to Check:**
+Templates create duplicates by design - content appears in all instances.
+
+**Pattern:**
+
+**Template creates boilerplate:**
+```markdown
+# templates/feature_spec_template.md
+
+## Common Pitfalls
+
+1. Forgetting to run tests
+2. Skipping user approval
+3. Not updating Agent Status
+```
+
+**Every feature spec has this section.**
+
+**Evaluation:**
+
+**ACCEPTABLE if:**
+- Content is placeholder to be filled in with feature-specific pitfalls
+- Each instance customized for that feature
+
+**PROBLEMATIC if:**
+- Content is generic, never customized
+- Same text appears in 20 feature specs
+- Should be in reference material instead
+
+**Detection:**
+```bash
+# Find content that appears in many instances
+# Compare all feature_XX/spec.md files
+
+common_sections=$(grep -rh "^## Common Pitfalls" .shamt/epics/SHAMT-*/feature_*/spec.md | sort | uniq)
+
+# If all identical, template content not being customized
+```markdown
+
+**Recommendation:**
+
+**If generic content:**
+```markdown
+# template: Don't include generic content
+
+## Common Pitfalls
+
+[List feature-specific pitfalls here]
+
+**See:** `reference/common_pitfalls.md` for general pitfalls
+```
+
+**Red Flags:**
+- Template creates non-customizable boilerplate
+- All instances have identical content
+- Content is reference material, not feature-specific
+
+**Automated:** ⚠️ Partial (can detect identical content across instances, requires judgment on acceptability)
+
+---
+
+### Type 8: Contradictory Content Detection
+
+**What to Check:**
+Multiple files describing the same concept must not contradict each other.
+
+**Key Distinction from Duplication:**
+- **Duplication (Types 1-7):** Same content copied -> maintenance burden
+- **Contradiction (Type 8):** Different claims about same topic -> confusion
+
+**Why This Belongs in D16:**
+Both duplication and contradiction involve multiple files describing the same thing:
+- Duplication: Same thing, same words (redundant)
+- Contradiction: Same thing, incompatible words (incorrect)
+
+**Common Contradiction Patterns:**
+
+**Pattern 8.1: Workflow Sequence Contradictions**
+```text
+File A: "Groups complete S2->S3->S4 cycle before next group starts"
+File B: "After all groups complete S2, proceed to S3 (epic-level)"
+
+Same topic (group workflow), incompatible claims
+```
+
+**Pattern 8.2: Scope Contradictions**
+```text
+File A: "S3 runs at epic-level (all features together)"
+File B: "Round 1 S3: Group 1 features only"
+
+Same topic (S3 scope), incompatible claims
+```
+
+**Pattern 8.3: Timing Contradictions**
+```text
+File A: "ALL features must complete S2 before S3 starts"
+File B: "S3 Round 1 runs after Group 1 completes S2"
+
+Same topic (S3 timing), incompatible claims
+```
+
+**Search Strategy:**
+
+```bash
+# Step 1: Identify topic clusters
+topics=(
+  "group.*workflow\|workflow.*group"
+  "S3.*scope\|scope.*S3"
+  "parallel.*S2\|S2.*parallel"
+)
+
+# Step 2: For each topic, extract all claims
+for topic in "${topics[@]}"; do
+  echo "=== Topic: $topic ==="
+  grep -rn "$topic" stages/ | head -20
+done
+
+# Step 3: Manual review for contradictions
+```
+
+**Validation Process:**
+
+1. **Identify topic to validate** (e.g., "group workflow")
+
+2. **Extract all claims about topic:**
+   ```bash
+   grep -rn "group.*complete\|complete.*group\|group.*S[0-9]" stages/
+   ```
+
+3. **Categorize claims:**
+   - Claim A: Groups do X
+   - Claim B: Groups do Y
+   - Are X and Y compatible?
+
+4. **Determine correct claim:**
+   - Which matches intended workflow?
+   - Which should be updated?
+
+5. **Flag contradictions:**
+   ```markdown
+   CONTRADICTION FOUND:
+   - File: s1_epic_planning.md:600
+   - Claim: "groups complete S2->S3->S4 cycle"
+   - Contradicts: s2_feature_deep_dive.md:157 ("groups complete S2 only")
+   - Resolution: [Determine correct behavior]
+   ```
+
+**Example Issue (SHAMT-8):**
+
+**Topic:** Group workflow
+
+**Claims Found:**
+
+| File | Line | Claim |
+|------|------|-------|
+| s1_epic_planning.md | 600 | "Each group completes full S2->S3->S4 cycle" |
+| s2_feature_deep_dive.md | 157 | "After all groups done -> Proceed to S3" |
+| s3_epic_planning_approval.md | 46 | "ALL features complete S2" (prerequisite) |
+| s3_epic_planning_approval.md | 67 | "Round 1 S3: Group 1 features" (content) |
+
+**Contradiction Matrix:**
+
+| Claim | S2->S3->S4 per group | S2 only, then S3 epic |
+|-------|---------------------|----------------------|
+| S1:600 | YES | |
+| S2:157 | | YES |
+| S3:46 | | YES |
+| S3:67 | Partial (implies per-group S3) | |
+
+**Resolution:** S2:157 and S3:46 are correct (groups matter for S2 only). S1:600 and S3:67 need updating.
+
+**Red Flags:**
+- Multiple claims about same workflow feature
+- Claims describe incompatible behaviors
+- One "ALL" claim contradicted by "per group" claim
+
+**Automated:** Partial - Can cluster claims by topic, requires manual contradiction detection
+
+---
+
+## How Errors Happen
+
+### Root Cause 1: Copy-Paste for Consistency
+
+**Scenario:**
+- Need to add "Critical Rules" to S5 guide
+- S2 guide has good "Critical Rules" section
+- Copy entire section from S2 to S5
+- **RESULT:** Same content in both files
+
+**Better Approach:**
+- Create `reference/critical_rules.md`
+- Both S2 and S5 reference: "See reference/critical_rules.md"
+
+---
+
+### Root Cause 2: Template Boilerplate Not Customized
+
+**Scenario:**
+- Feature template includes generic "Prerequisites" section
+- User creates 20 features from template
+- Never customizes Prerequisites (leaves template text)
+- **RESULT:** Same Prerequisites in 20 feature specs
+
+**Better Approach:**
+- Template includes: "[Customize this - list feature-specific prerequisites]"
+- Forces user to replace with feature-specific content
+
+---
+
+### Root Cause 3: Reference Material in Multiple Places
+
+**Scenario:**
+- Git workflow instructions needed in S1 and S10
+- Instead of creating reference/GIT_WORKFLOW.md once
+- Same instructions copy-pasted into both guides
+- **RESULT:** Must update 2 places when git workflow changes
+
+---
+
+### Root Cause 4: Examples Not Extracted to Shared Library
+
+**Scenario:**
+- Multiple guides need same example (e.g., "Missing Import Error")
+- Each guide includes full example
+- Example appears in 5 guides
+- **RESULT:** Example fix requires updating 5 files
+
+**Better Approach:**
+- Create `reference/common_examples.md`
+- Guides reference: "See common_examples.md → Missing Import Error"
+
+---
+
+### Root Cause 5: Consolidation Effort Not Prioritized
+
+**Scenario:**
+- Duplication identified during audit
+- "We'll fix it later" decision
+- Later never comes
+- **RESULT:** Duplication persists, creates maintenance burden
+
+---
+
+## Automated Validation
+
+### Pre-Audit Script Coverage
+
+**From `scripts/pre_audit_checks.sh`:**
+
+**CHECK 19: Exact Duplicate Detection** *(planned, not yet implemented)*
+```bash
+#!/bin/bash
+echo "Checking for exact duplicate sections..."
+
+# Find common section headers
+headers=$(grep -rh "^## " stages/ | sort | uniq -c | sort -rn | head -20 | awk '{$1=""; print $0}')
+
+for header in $headers; do
+  # Extract content for this header from all files
+  files=$(grep -rl "^## $header" stages/)
+
+  # Compare content across files
+  temp_files=()
+  for file in $files; do
+    # Extract section content (from header to next header)
+    awk "/^## $header/,/^## /" "$file" > /tmp/"$(basename $file)_$header.txt"
+    temp_files+=("/tmp/$(basename $file)_$header.txt")
+  done
+
+  # Find duplicates
+  for ((i=0; i<${#temp_files[@]}; i++)); do
+    for ((j=i+1; j<${#temp_files[@]}; j++)); do
+      if diff -q "${temp_files[$i]}" "${temp_files[$j]}" > /dev/null; then
+        echo "DUPLICATE: $header section identical in ${temp_files[$i]} and ${temp_files[$j]}"
+      fi
+    done
+  done
+done
+```bash
+
+**CHECK 20: Instruction Duplication Count** *(planned, not yet implemented)*
+```bash
+#!/bin/bash
+echo "Checking for redundant instructions..."
+
+# Common instruction patterns
+patterns=(
+  "git checkout -b"
+  "Branch naming format"
+  "Commit message format"
+  "run tests"
+  "Agent Status"
+)
+
+for pattern in "${patterns[@]}"; do
+  count=$(grep -rc "$pattern" stages/ | awk -F: '{sum+=$2} END {print sum}')
+  files=$(grep -rl "$pattern" stages/ | wc -l)
+
+  if [ "$files" -gt 5 ]; then
+    echo "WARNING: '$pattern' appears in $files files ($count total occurrences)"
+    echo "  Consider creating reference file"
+  fi
+done
+```
+
+**Automation Coverage: ~50%**
+- ✅ Exact duplicate detection
+- ✅ Instruction duplication counting
+- ⚠️ Near-duplicate detection (requires fuzzy matching)
+- ❌ Semantic duplication (same meaning, different words)
+- ❌ Determining if duplication is intentional/acceptable
+
+---
+
+## Manual Validation
+
+### Manual Process (Duplication Audit)
+
+**Duration:** 60-90 minutes
+**Frequency:** Quarterly, after major guide additions
+
+**Step 1: Identify Common Sections (15 min)**
+
+```bash
+# Find most common section headers
+grep -rh "^## " stages/ reference/ | sort | uniq -c | sort -rn | head -30
+
+# Common sections typically:
+# - Critical Rules
+# - Prerequisites
+# - Exit Criteria
+# - Common Mistakes
+# - Examples
+# - See Also
+```bash
+
+**For each common section:**
+1. Note how many files contain it
+2. If >5 files, investigate for duplication
+
+**Step 2: Compare Content of Common Sections (20 min)**
+
+```bash
+# For each common section (e.g., "Critical Rules")
+header="Critical Rules"
+
+# Extract from all files
+for file in $(grep -rl "^## $header" stages/); do
+  echo "=== $file ==="
+  awk "/^## $header/,/^## /" "$file"
+  echo ""
+done > /tmp/critical_rules_comparison.txt
+
+# Manually review for duplicates
+cat /tmp/critical_rules_comparison.txt
+```
+
+**Questions to ask:**
+- Is content identical across files?
+- Is content nearly identical (>90% similar)?
+- Is content generic (applies to all stages) or stage-specific?
+- If duplicated, should it be consolidated?
+
+**Step 3: Search for Duplicate Instructions (15 min)**
+
+```bash
+# Common instructions likely to be duplicated
+instructions=(
+  "Create git branch"
+  "Commit format"
+  "Run tests"
+  "Update Agent Status"
+  "User approval"
+)
+
+for instr in "${instructions[@]}"; do
+  echo "=== $instr ==="
+  grep -rn "$instr" stages/ | head -10
+  count=$(grep -rc "$instr" stages/ | awk -F: '{sum+=$2} END {print sum}')
+  echo "Total occurrences: $count"
+  echo ""
+done
+```markdown
+
+**For high-count instructions:**
+- Check if same text appears in multiple places
+- Determine if should be in reference file instead
+
+**Step 4: Review Examples for Duplication (20 min)**
+
+```bash
+# Extract all examples
+grep -B 2 -A 10 "^### Example" stages/**/*.md > /tmp/all_examples.txt
+
+# Manually review for:
+# - Same scenario in multiple examples
+# - Same code snippets
+# - Same problem-solution pairs
+```
+
+**Create spreadsheet:**
+
+| Example Topic | Files | Similarity | Action Needed |
+|---------------|-------|------------|---------------|
+| Missing Import | S5, S7, S9 | High | Consolidate to common_examples.md |
+| Logic Error | S6, S7 | Medium | Keep separate (context-specific) |
+| ... | ... | ... | ... |
+
+**Step 5: Evaluate Consolidation Opportunities (20 min)**
+
+For each duplicate found:
+
+**Decision Matrix:**
+
+| Duplication Type | Action |
+|------------------|--------|
+| Exact duplicate, generic content | **CONSOLIDATE** - Create reference file |
+| Near-duplicate, minor variations | **STANDARDIZE** - Consolidate to one version |
+| Similar, different context | **KEEP** - Duplication acceptable |
+| Template boilerplate | **EVALUATE** - Should it be customized or referenced? |
+
+**Consolidation Process:**
+1. Create reference file with canonical content
+2. Update all guides to reference (not duplicate)
+3. Delete duplicated content from guides
+
+---
+
+## Context-Sensitive Rules
+
+### Rule 1: Intentional Duplication for Critical Rules
+
+**Context:** Some rules are SO critical they're intentionally duplicated for visibility.
+
+**Example:**
+```markdown
+# S5, S6, S7 all have:
+
+## Critical Rule
+
+NEVER commit without running tests first. 100% test pass rate required.
+```markdown
+
+**Evaluation:**
+- Is rule truly critical? (commits without tests = high risk)
+- Is duplication intentional for emphasis?
+- Is content stable (rarely changes)?
+
+**Validation:** If rule is critical, stable, and intentionally duplicated for emphasis → ACCEPTABLE
+
+**Recommendation:** Add comment in guides:
+```markdown
+## Critical Rule
+
+[NOTE: Intentionally duplicated across S5-S7 for emphasis]
+
+NEVER commit without running tests first. 100% test pass rate required.
+```
+
+---
+
+### Rule 2: Template Boilerplate Intended for Customization
+
+**Context:** Templates create instances with same initial content, intended to be customized.
+
+**Example:**
+```markdown
+# template creates:
+
+## Prerequisites
+
+- [ ] Previous stage complete
+- [ ] Required files exist
+- [ ] User approval received
+```markdown
+
+**Evaluation:**
+- Is template content placeholder?
+- Is customization expected?
+- Do instances actually customize it?
+
+**Validation:** If template creates customizable placeholders AND instances customize them → ACCEPTABLE
+
+**Problematic:** If all instances have identical template content (not customized) → DUPLICATION ISSUE
+
+---
+
+### Rule 3: Examples Demonstrating Same Pattern in Different Contexts
+
+**Context:** Same pattern shown in different stage contexts may be intentional.
+
+**Example:**
+
+**S5 Example:** Missing import during planning
+**S7 Example:** Missing import discovered during testing
+
+**Same problem, different discovery context.**
+
+**Evaluation:**
+- Does context matter?
+- Do examples emphasize different aspects?
+- Would consolidation lose context-specific value?
+
+**Validation:** If context adds value → ACCEPTABLE
+
+---
+
+### Rule 4: High-Level vs Detailed Duplication
+
+**Context:** Root files may duplicate detailed guides at high level.
+
+**Example:**
+
+**CLAUDE.md:** 2-sentence stage summary
+**stages/sN/guide.md:** 500-line detailed guide
+
+**Overlap:** Both describe stage, but different levels of detail.
+
+**Validation:** High-level summary + link to detailed guide → ACCEPTABLE (not duplication)
+
+**Problematic:** Both have 50-line detailed descriptions → DUPLICATION
+
+---
+
+## Real Examples
+
+See `d16_examples.md` for 5 real examples of each detection pattern type (exact duplicates, redundant instructions, duplicate examples, template propagation, section boilerplate).
+
+---
+
+## Integration with Other Dimensions
+
+**D16 complements related dimensions by focusing on consolidation and DRY principle:**
+
+| Dimension | Division of Responsibility |
+|-----------|---------------------------|
+| **D6: Content Completeness** | D6 = presence (content exists), D16 = non-duplication (content not redundant) |
+| **D12: Structural Patterns** | D12 = consistency (structure matches), D16 = consolidation (structure not duplicated) |
+| **D13: Cross-File Dependencies** | D13 = references work (links valid), D16 = prefer references (content referenced, not copied) |
+| **D9: Content Accuracy** | D9 = correctness (claims accurate), D16 = efficiency (claims not duplicated) |
+
+**Example workflow:**
+1. D6 checks: Guide has "Examples" section ✅
+2. D16 checks: Examples aren't duplicated across guides ✅
+3. D13 checks: Examples reference is valid ✅
+
+---
+
+## Summary
+
+**D16: Duplication Detection validates the DRY principle across guides.**
+
+**Key Validations:**
+1. ✅ Exact duplicate detection
+2. ⚠️ Near-duplicate detection (fuzzy matching)
+3. ✅ Redundant instruction counting
+4. ❌ Duplicate example detection (manual)
+5. ⚠️ Section duplication detection
+6. ✅ Reference list duplication
+7. ⚠️ Template propagation evaluation
+8. ⚠️ Contradictory content detection (same topic, incompatible claims)
+
+**Automation: ~50%**
+- Automated for exact duplicates, instruction counts
+- Manual for semantic duplication, consolidation decisions
+
+**Critical for:**
+- Reducing maintenance burden (single source of truth)
+- Preventing inconsistency over time (one update point)
+- Improving file readability (extract to references)
+- DRY principle adherence
+
+**Next Dimension:** D15: Context-Sensitive Validation (distinguishing intentional exceptions from errors)
+
+---
+
+**Last Updated:** 2026-02-06
+**Version:** 1.1
+**Status:** ✅ Fully Implemented
