@@ -1,7 +1,7 @@
 # Epic Smoke Test Plan Template
 
 **Filename:** `epic_smoke_test_plan.md`
-**Location:** `.shamt/epics/FF-{N}-{epic_name}/epic_smoke_test_plan.md`
+**Location:** `.shamt/epics/SHAMT-{N}-{epic_name}/epic_smoke_test_plan.md`
 **Created:** {YYYY-MM-DD} (S1)
 **Updated:** S3.P1 (finalized), S8.P2 (after each feature)
 

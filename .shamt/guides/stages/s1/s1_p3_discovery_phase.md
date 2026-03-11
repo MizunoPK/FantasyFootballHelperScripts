@@ -197,7 +197,7 @@ Proceed to S1 Step 4 (Feature Breakdown Proposal)
 
 Create `DISCOVERY.md` in the epic folder using the template.
 
-**Location:** `.shamt/epics/FF-{N}-{epic_name}/DISCOVERY.md`
+**Location:** `.shamt/epics/SHAMT-{N}-{epic_name}/DISCOVERY.md`
 
 **Template:** `templates/discovery_template.md`
 
@@ -272,6 +272,17 @@ Based on initial research, identify questions that need user input:
 | 1 | What does "debugging version run" mean? | Term undefined in request | 2025-01-20 |
 | 2 | Should all scripts share the same debug approach? | 6 different scripts mentioned | 2025-01-20 |
 ```
+
+**Also extract from Discovery Targets:**
+Read the "Discovery Targets" section of the epic request. For each target listed, add it to the Pending Questions table with a `[PRIORITY]` tag and `Explicitly requested by user` in the Context column.
+
+```markdown
+| # | Question | Context | Asked |
+|---|----------|---------|-------|
+| 1 | Is the existing X module extensible? | [PRIORITY] Explicitly requested by user | 2025-01-20 |
+```
+
+These take precedence in the Discovery Loop — address them before other open questions.
 
 **Ask user questions before proceeding to Validation Loop**
 
@@ -507,6 +518,7 @@ For EACH issue identified in Step B, you MUST fix it BEFORE continuing to Step D
    [ ] Scope clearly defined (in/out/deferred documented)
    [ ] Solution approach identified with rationale
    [ ] Feature breakdown ready with Discovery basis
+   [ ] All [PRIORITY] Discovery Targets from epic request resolved or explicitly deferred with rationale
 
    If any unchecked --> Reset counter to 0, continue loop
    If all checked --> Proceed to S1.P3.3 Synthesis
@@ -545,6 +557,17 @@ For EACH issue identified in Step B, you MUST fix it BEFORE continuing to Step D
 **Time:** 20-30 minutes
 
 After the Discovery Loop exits, compile findings into actionable recommendations.
+
+### Step 0: Check Approaches to Avoid
+
+Before listing options, read the "Approaches to Avoid" section of the epic request. Document what's already been ruled out:
+
+```markdown
+### Ruled Out (from epic request)
+- {approach}: {reason given by user}
+```
+
+For each solution option you're considering, confirm it doesn't repeat a rejected pattern. If it does, either eliminate it or document why the constraint doesn't apply in this specific context.
 
 ### Step 1: Document Solution Options
 

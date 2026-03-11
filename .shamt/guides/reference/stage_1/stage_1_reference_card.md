@@ -188,7 +188,7 @@ STEP 6: Transition to S2 (5 min)
 **Step 1 -> Step 2:**
 - [ ] Git branch created: {work_type}/SHAMT-{number}
 - [ ] .shamt/epics/EPIC_TRACKER.md updated and committed
-- [ ] Epic folder created: `.shamt/epics/FF-{N}-{epic_name}/`
+- [ ] Epic folder created: `.shamt/epics/SHAMT-{N}-{epic_name}/`
 - [ ] Epic request file location noted in EPIC_README.md
 - [ ] EPIC_README.md created with Agent Status
 
@@ -232,22 +232,22 @@ STEP 6: Transition to S2 (5 min)
 **Step 1:**
 - Git branch: `{work_type}/SHAMT-{number}`
 - .shamt/epics/EPIC_TRACKER.md (updated and committed)
-- `.shamt/epics/FF-{N}-{epic_name}/` folder
-- `FF-{N}-{epic_name}/EPIC_README.md` (includes link to request file in .shamt/epics/requests/)
+- `.shamt/epics/SHAMT-{N}-{epic_name}/` folder
+- `SHAMT-{N}-{epic_name}/EPIC_README.md` (includes link to request file in .shamt/epics/requests/)
 - Request file stays in `.shamt/epics/requests/` — not moved into epic folder
 
 **Step 3:**
-- `FF-{N}-{epic_name}/DISCOVERY.md` (user-approved)
+- `SHAMT-{N}-{epic_name}/DISCOVERY.md` (user-approved)
 
 **Step 4:**
 - Epic ticket in conversation (user-validated)
 
 **Step 5:**
-- `FF-{N}-{epic_name}/feature_01_{name}/spec.md` (seeded with Discovery Context)
-- `FF-{N}-{epic_name}/epic_smoke_test_plan.md` (PLACEHOLDER)
-- `FF-{N}-{epic_name}/epic_lessons_learned.md`
-- `FF-{N}-{epic_name}/research/`
-- `FF-{N}-{epic_name}/GUIDE_ANCHOR.md`
+- `SHAMT-{N}-{epic_name}/feature_01_{name}/spec.md` (seeded with Discovery Context)
+- `SHAMT-{N}-{epic_name}/epic_smoke_test_plan.md` (PLACEHOLDER)
+- `SHAMT-{N}-{epic_name}/epic_lessons_learned.md`
+- `SHAMT-{N}-{epic_name}/research/`
+- `SHAMT-{N}-{epic_name}/GUIDE_ANCHOR.md`
 - EPIC_README.md updated with Epic Progress Tracker
 
 ---

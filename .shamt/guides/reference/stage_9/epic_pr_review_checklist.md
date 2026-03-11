@@ -58,7 +58,7 @@ This checklist supplements the complete PR review protocol. See `reference/valid
 2. Spawn fresh agents for each review round
 3. Use this checklist as **reference for epic-level considerations**
 4. Fresh agents automatically apply 11-category checklist during Rounds 2-5
-5. Document findings in `FF-{N}-{epic_name}/pr_review_issues.md`
+5. Document findings in `SHAMT-{N}-{epic_name}/pr_review_issues.md`
 6. Continue until 2 consecutive clean rounds achieved
 
 **Epic-Specific Agent Prompt:**

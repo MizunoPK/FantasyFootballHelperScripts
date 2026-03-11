@@ -437,12 +437,12 @@ I'm joining as a secondary agent to help with S2 parallelization for the {epic_n
 
 ### Secondary-A: Feature 02
 ~~~text
-You are a secondary agent for FF-{N} for feature 02
+You are a secondary agent for SHAMT-{N} for feature 02
 ~~~
 
 ### Secondary-B: Feature 03
 ~~~text
-You are a secondary agent for FF-{N} for feature 03
+You are a secondary agent for SHAMT-{N} for feature 03
 ~~~
 
 [Continue for all Group 2 features, incrementing the feature number each time...]

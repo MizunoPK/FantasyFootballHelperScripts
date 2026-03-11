@@ -30,7 +30,7 @@
 
 ```bash
 ## Navigate to epic folder
-cd .shamt/epics/FF-{N}-{epic_name}/
+cd .shamt/epics/SHAMT-{N}-{epic_name}/
 
 ## Create new feature folder
 mkdir -p feature_{XX}_{name}
@@ -44,7 +44,7 @@ touch feature_{XX}_{name}/lessons_learned.md
 
 **Folder structure:**
 ```text
-.shamt/epics/FF-{N}-{epic_name}/feature_{XX}_{name}/
+.shamt/epics/SHAMT-{N}-{epic_name}/feature_{XX}_{name}/
 ├── README.md            (create with Agent Status)
 ├── spec.md              (create in this phase)
 ├── checklist.md         (create in this phase)

@@ -268,13 +268,13 @@ python run_[module].py --mode rating_helper --dry-run
 
 Before executing E2E testing, create standardized test artifacts in epic folder:
 
-1. **Test Scenario Documentation:** `FF-{N}-{epic_name}/test_scenario.md`
+1. **Test Scenario Documentation:** `SHAMT-{N}-{epic_name}/test_scenario.md`
    - Document standard test scenario for this feature
    - Include input data sources (which files, what values)
    - Document expected behavior and outputs
    - Describe validation criteria
 
-2. **Expected Results Documentation:** `FF-{N}-{epic_name}/expected_results.md`
+2. **Expected Results Documentation:** `SHAMT-{N}-{epic_name}/expected_results.md`
    - Document expected output structure
    - Include expected value ranges (from spec)
    - List edge cases to verify
@@ -308,7 +308,7 @@ python -m pip install -e .  # If using editable install
 
 ### Step 2: Prepare Standardized Test Data
 
-**📖 Reference:** `FF-{N}-{epic_name}/test_scenario.md` (created during Part 3 setup)
+**📖 Reference:** `SHAMT-{N}-{epic_name}/test_scenario.md` (created during Part 3 setup)
 
 **Use PRODUCTION or PRODUCTION-LIKE data:**
 - ✅ Real data CSV files from `data/`
@@ -364,7 +364,7 @@ python run_[module].py --mode rating_helper --data-folder ./data
 
 ### Step 4: Validate Output Structure
 
-**📖 Reference:** `FF-{N}-{epic_name}/expected_results.md`
+**📖 Reference:** `SHAMT-{N}-{epic_name}/expected_results.md`
 
 **Check output file structure:**
 ```python
@@ -403,7 +403,7 @@ print("✅ Output structure validated")
 
 **📖 See pattern file for data validation examples.**
 
-**📖 Refer to `FF-{N}-{epic_name}/expected_results.md` for validation criteria**
+**📖 Refer to `SHAMT-{N}-{epic_name}/expected_results.md` for validation criteria**
 
 **⚠️ CRITICAL: Don't just check structure - verify actual data correctness**
 

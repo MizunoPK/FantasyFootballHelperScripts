@@ -1,7 +1,7 @@
 # Epic Readme Template
 
 **Filename:** `EPIC_README.md`
-**Location:** `.shamt/epics/FF-{N}-{epic_name}/EPIC_README.md`
+**Location:** `.shamt/epics/SHAMT-{N}-{epic_name}/EPIC_README.md`
 **Created:** {YYYY-MM-DD}
 **Updated:** Throughout all stages
 

@@ -49,7 +49,7 @@ This reference provides all templates needed during S9.P3 (Epic Final Review):
 
 **Purpose:** Document PR review outcome in epic_lessons_learned.md
 **When to Use:** After completing Step 6 (Epic PR Review)
-**Location:** Add to `FF-{N}-{epic_name}/epic_lessons_learned.md`
+**Location:** Add to `SHAMT-{N}-{epic_name}/epic_lessons_learned.md`
 
 ### Basic Template
 
@@ -67,7 +67,7 @@ This reference provides all templates needed during S9.P3 (Epic Final Review):
 - Total issues found and fixed: {count}
 - Epic-level concerns addressed: {list any architectural/integration fixes}
 
-**pr_review_issues.md file:** `FF-{N}-{epic_name}/pr_review_issues.md`
+**pr_review_issues.md file:** `SHAMT-{N}-{epic_name}/pr_review_issues.md`
 
 **Epic is ready for Step 8 (Final Verification)**
 ```
@@ -104,7 +104,7 @@ This reference provides all templates needed during S9.P3 (Epic Final Review):
 
 **Purpose:** Document all issues discovered during Step 6
 **When to Use:** When ANY category fails in Step 6 PR review
-**Location:** Add to `FF-{N}-{epic_name}/epic_lessons_learned.md`
+**Location:** Add to `SHAMT-{N}-{epic_name}/epic_lessons_learned.md`
 
 ### Template
 
@@ -170,7 +170,7 @@ This reference provides all templates needed during S9.P3 (Epic Final Review):
 
 **Purpose:** Determine which issues require bug fixes vs documentation only
 **When to Use:** After documenting all issues in Step 7.1
-**Location:** Add to `FF-{N}-{epic_name}/epic_lessons_learned.md` or work notes
+**Location:** Add to `SHAMT-{N}-{epic_name}/epic_lessons_learned.md` or work notes
 
 ### Template
 
@@ -288,7 +288,7 @@ Should I proceed with creating these bug fixes?
 
 **Purpose:** Create bug fix folders with proper structure
 **When to Use:** Step 7.4 when creating bug fixes for issues
-**Location:** `FF-{N}-{epic_name}/bugfix_{priority}_{name}/`
+**Location:** `SHAMT-{N}-{epic_name}/bugfix_{priority}_{name}/`
 
 ### Folder Structure
 
@@ -349,7 +349,7 @@ bugfix_{priority}_{name}/
 
 **Purpose:** Document S9 restart after bug fixes complete
 **When to Use:** After ALL bug fixes complete, when restarting S9
-**Location:** Add to `FF-{N}-{epic_name}/epic_lessons_learned.md`
+**Location:** Add to `SHAMT-{N}-{epic_name}/epic_lessons_learned.md`
 
 ### Template
 
@@ -400,7 +400,7 @@ bugfix_{priority}_{name}/
 
 **Purpose:** Verify all S9 work complete before marking done
 **When to Use:** Step 8.1 (Final Verification)
-**Location:** Add to `FF-{N}-{epic_name}/epic_lessons_learned.md`
+**Location:** Add to `SHAMT-{N}-{epic_name}/epic_lessons_learned.md`
 
 ### Template
 
@@ -466,7 +466,7 @@ bugfix_{priority}_{name}/
 
 **Purpose:** Update EPIC_README.md to show S9 complete
 **When to Use:** Step 8.2 after verification passes
-**Location:** Update in `FF-{N}-{epic_name}/EPIC_README.md`
+**Location:** Update in `SHAMT-{N}-{epic_name}/EPIC_README.md`
 
 ### Template
 
@@ -531,7 +531,7 @@ bugfix_{priority}_{name}/
 
 **Purpose:** Document insights from S9.P3 for future improvement
 **When to Use:** Step 8.3 after S9 complete
-**Location:** Add to `FF-{N}-{epic_name}/epic_lessons_learned.md`
+**Location:** Add to `SHAMT-{N}-{epic_name}/epic_lessons_learned.md`
 
 ### Template
 
@@ -634,7 +634,7 @@ bugfix_{priority}_{name}/
 
 **Purpose:** Update EPIC_README.md Agent Status to show S9 complete
 **When to Use:** Step 8.4 after all documentation complete
-**Location:** Update in `FF-{N}-{epic_name}/EPIC_README.md`
+**Location:** Update in `SHAMT-{N}-{epic_name}/EPIC_README.md`
 
 ### Template
 

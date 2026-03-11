@@ -203,7 +203,7 @@ What would you like to do?
 
 2. **Create folder in epic directory:**
    ```text
-   .shamt/epics/FF-{N}-{epic_name}/bugfix_{priority}_{name}/
+   .shamt/epics/SHAMT-{N}-{epic_name}/bugfix_{priority}_{name}/
    ```
 
 3. **Create initial structure:**

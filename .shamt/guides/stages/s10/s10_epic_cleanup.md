@@ -107,7 +107,7 @@ Epic cleanup typically takes 85-130 minutes (including S10.P1 guide updates). Wi
 │    - Body: List major features and changes                      │
 │                                                                  │
 │ 6. ⚠️ CREATE PULL REQUEST FOR USER REVIEW                       │
-│    - Push branch to remote: git push origin {work_type}/FF-{N}│
+│    - Push branch to remote: git push origin {work_type}/SHAMT-{N}│
 │    - Create PR using gh CLI with epic summary                   │
 │    - User reviews PR and merges when satisfied                  │
 │                                                                  │
@@ -545,7 +545,7 @@ Testing:
 **Create commit using HEREDOC** (ensures proper formatting):
 ```bash
 git commit -m "$(cat <<'EOF'
-feat/FF-{N}: Complete {epic_name} epic
+feat/SHAMT-{N}: Complete {epic_name} epic
 
 {content following format above}
 EOF
@@ -644,7 +644,7 @@ ls -d .shamt/epics/done/*/ | wc -l
 Move the complete epic folder (with SHAMT number) using **`git mv`** (not shell `mv`):
 
 ```bash
-git mv .shamt/epics/FF-{N}-{epic_name} .shamt/epics/done/FF-{N}-{epic_name}
+git mv .shamt/epics/SHAMT-{N}-{epic_name} .shamt/epics/done/SHAMT-{N}-{epic_name}
 ```
 
 **Example:** `git mv .shamt/epics/SHAMT-11-game_data_fetcher_cli .shamt/epics/done/SHAMT-11-game_data_fetcher_cli`
@@ -658,7 +658,7 @@ Using shell `mv` + `git add done/{epic}/` only stages the new files — the old 
 
 Check folder structure:
 ```bash
-ls .shamt/epics/done/FF-{N}-{epic_name}/
+ls .shamt/epics/done/SHAMT-{N}-{epic_name}/
 ```
 
 **Example:** `ls .shamt/epics/done/SHAMT-1-improve_recommendation_engine/`
@@ -704,9 +704,9 @@ ls -d .shamt/epics/done/*/ | wc -l
 
 Commit the folder move (`git mv` already staged everything in Step 6c):
 ```bash
-git commit -m "chore/FF-{N}: Move completed epic to done/ folder
+git commit -m "chore/SHAMT-{N}: Move completed epic to done/ folder
 
-Epic FF-{N} ({epic_name}) is complete:
+Epic SHAMT-{N} ({epic_name}) is complete:
 - All {N} features implemented and tested
 - {X}/{X} tests passing
 - Epic moved to done/ for clean PR state
@@ -759,9 +759,9 @@ Update "Next Available Number" field to SHAMT-{N+1}
 Stage and commit:
 ```bash
 git add .shamt/epics/EPIC_TRACKER.md
-git commit -m "chore/FF-{N}: Update EPIC_TRACKER with completed epic
+git commit -m "chore/SHAMT-{N}: Update EPIC_TRACKER with completed epic
 
-Move FF-{N} from Active to Completed:
+Move SHAMT-{N} from Active to Completed:
 - {brief epic summary}
 - {key achievement}
 - {key achievement}

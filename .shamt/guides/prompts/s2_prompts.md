@@ -39,7 +39,7 @@ I'm reading `stages/s2/s2_feature_deep_dive.md` to ensure I follow the complete 
 - Checklist.md ALL items must be resolved (marked [x]) before S2 complete
 
 **Prerequisites I'm verifying:**
-✅ Epic folder exists: `.shamt/epics/FF-{N}-{epic_name}/`
+✅ Epic folder exists: `.shamt/epics/SHAMT-{N}-{epic_name}/`
 ✅ Feature folder exists: `feature_{NN}_{name}/`
 ✅ S1 complete (EPIC_README.md shows S1 complete)
 ✅ Parallelization assessed (Step 5.8-5.9 completed)
@@ -87,7 +87,7 @@ S2.P1.I3 (Spec-to-Epic Alignment Check) has passed. I've created checklist.md wi
 
 **Total Questions:** {N}
 
-**File Location:** `.shamt/epics/FF-{N}-{epic_name}/feature_{XX}_{name}/checklist.md`
+**File Location:** `.shamt/epics/SHAMT-{N}-{epic_name}/feature_{XX}_{name}/checklist.md`
 
 **How this works:**
 1. You review each question in checklist.md

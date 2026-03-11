@@ -1,7 +1,7 @@
 # Epic Lessons Learned Template
 
 **Filename:** `epic_lessons_learned.md`
-**Location:** `.shamt/epics/FF-{N}-{epic_name}/epic_lessons_learned.md`
+**Location:** `.shamt/epics/SHAMT-{N}-{epic_name}/epic_lessons_learned.md`
 **Created:** S1 (Epic Planning)
 **Updated:** Throughout all stages (after each feature completion)
 

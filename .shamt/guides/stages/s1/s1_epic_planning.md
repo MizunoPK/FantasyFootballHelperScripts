@@ -183,7 +183,7 @@ S1 is complete when you have Discovery approved, a validated epic ticket, comple
 **If you are CREATING an epic request (not starting S1):**
 - ✅ Create file in `.shamt/epics/requests/{name}.md` or `.txt`
 - ✅ Write comprehensive request document
-- ❌ DO NOT create `FF-{N}/` folder
+- ❌ DO NOT create `SHAMT-{N}/` folder
 - ❌ DO NOT create EPIC_README.md
 - ❌ DO NOT create git branch
 - ⏸️ STOP - Request file waits in `requests/` until user initiates S1
@@ -201,7 +201,7 @@ S1 is complete when you have Discovery approved, a validated epic ticket, comple
 - Ask user to resolve prerequisite issue
 - Document blocker in conversation
 
-**REMEMBER:** FF-{N} folders are created in Step 5 of S1, NOT before S1 starts.
+**REMEMBER:** SHAMT-{N} folders are created in Step 5 of S1, NOT before S1 starts.
 
 ---
 
@@ -308,7 +308,7 @@ If user selects Option B, they will provide the custom number in "Other" text in
 
 ### Step 1.1: Create Epic Folder
 
-Create epic folder: `.shamt/epics/FF-{N}-{epic_name}/`
+Create epic folder: `.shamt/epics/SHAMT-{N}-{epic_name}/`
 
 **Naming:** Use SHAMT number + snake_case epic name (e.g., `SHAMT-1-improve_recommendation_engine`)
 
@@ -477,6 +477,7 @@ Present the feature breakdown from DISCOVERY.md to user for formal approval.
 **Process:**
 
 1. **Draft epic ticket** using template from reference guide
+   - Use the "Definition of Done" section of the epic request as the starting point — pull `Success looks like` and `Failure looks like` entries directly as initial acceptance criteria and failure patterns, then refine based on Discovery findings
 2. **Save to:** `.shamt/epics/{epic_name}/EPIC_TICKET.md`
 3. **Present to user** for validation
 4. **Proceed to Step 4.7** for user sign-off
@@ -542,7 +543,7 @@ I've created an epic ticket to validate my understanding of the epic's goals and
 
 ### Step 5.1: Create Feature Folders
 
-For EACH approved feature, create folder: `.shamt/epics/FF-{N}-{epic_name}/feature_{NN}_{name}/`
+For EACH approved feature, create folder: `.shamt/epics/SHAMT-{N}-{epic_name}/feature_{NN}_{name}/`
 
 **Naming:** Zero-padded numbers + descriptive snake_case name (e.g., `feature_01_rank_integration`)
 

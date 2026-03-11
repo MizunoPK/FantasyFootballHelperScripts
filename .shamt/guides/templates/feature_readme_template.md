@@ -1,7 +1,7 @@
 # Feature Readme Template
 
 **Filename:** `README.md`
-**Location:** `.shamt/epics/FF-{N}-{epic_name}/feature_XX_{name}/README.md`
+**Location:** `.shamt/epics/SHAMT-{N}-{epic_name}/feature_XX_{name}/README.md`
 **Created:** {YYYY-MM-DD}
 **Updated:** Throughout feature implementation (S2-S8)
 

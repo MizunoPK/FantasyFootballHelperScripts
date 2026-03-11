@@ -1,7 +1,7 @@
 # Feature Checklist Template
 
 **Filename:** `checklist.md`
-**Location:** `.shamt/epics/FF-{N}-{epic_name}/feature_XX_{name}/checklist.md`
+**Location:** `.shamt/epics/SHAMT-{N}-{epic_name}/feature_XX_{name}/checklist.md`
 **Created:** S2 (Feature Deep Dive)
 
 **Purpose:** Track unresolved questions and decisions that require user input. Agent creates questions during S2, user provides answers, agent updates spec.md accordingly.

@@ -23,16 +23,16 @@ This file provides a complete overview of the Shamt S1-S10 epic-driven developme
    - **DO NOT** include code snippets or detailed implementation
 4. File remains in `requests/` folder
 
-**DO NOT create FF-{N} folders at this stage. The S1-S10 flow will determine detailed design.**
+**DO NOT create SHAMT-{N} folders at this stage. The S1-S10 flow will determine detailed design.**
 
 ### Starting S1
 
 1. User says "Start S1 for [epic request name]"
 2. Agent verifies request file exists in `.shamt/epics/requests/`
 3. Agent reads `stages/s1/s1_epic_planning.md`
-4. Agent creates git branch and FF-{N} folder **during S1** (not before)
+4. Agent creates git branch and SHAMT-{N} folder **during S1** (not before)
 
-**FF-{N} folders are ONLY created during S1 execution, never as part of request creation.**
+**SHAMT-{N} folders are ONLY created during S1 execution, never as part of request creation.**
 
 ---
 

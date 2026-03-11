@@ -368,7 +368,7 @@ You'll need to open 2 new Claude Code sessions (one for each secondary agent).
 In NEW Claude Code session #1, enter:
 
 ~~~text
-You are a secondary agent for FF-{N} for feature 02
+You are a secondary agent for SHAMT-{N} for feature 02
 ~~~
 
 The agent will locate the epic folder automatically, find `feature_02_{name}/HANDOFF_PACKAGE.md`, and self-configure.
@@ -380,7 +380,7 @@ The agent will locate the epic folder automatically, find `feature_02_{name}/HAN
 In NEW Claude Code session #2, enter:
 
 ~~~text
-You are a secondary agent for FF-{N} for feature 03
+You are a secondary agent for SHAMT-{N} for feature 03
 ~~~
 
 The agent will locate the epic folder automatically, find `feature_03_{name}/HANDOFF_PACKAGE.md`, and self-configure.

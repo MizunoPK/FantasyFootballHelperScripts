@@ -53,8 +53,8 @@ You are a secondary agent for SHAMT-10 for feature 02
 **Your self-location response (Step 0):**
 
 If given only an epic number and feature number, locate your handoff package automatically:
-1. Search for the epic folder: `Glob pattern="FF-{N}-*" path=".shamt/epics/"`
-2. Find your feature handoff: `Glob pattern="feature_{X}_*/HANDOFF_PACKAGE.md" path=".shamt/epics/FF-{N}-{epic_name}/"`
+1. Search for the epic folder: `Glob pattern="SHAMT-{N}-*" path=".shamt/epics/"`
+2. Find your feature handoff: `Glob pattern="feature_{X}_*/HANDOFF_PACKAGE.md" path=".shamt/epics/SHAMT-{N}-{epic_name}/"`
 3. Read the HANDOFF_PACKAGE.md — it contains all context and instructions
 4. Extract your assignment and begin S2.P1 as directed
 

@@ -223,13 +223,9 @@ Write-Separator "Configuring .gitignore"
 
 $GitignoreFile = Join-Path $TargetDir ".gitignore"
 
-# Always add shamt_master_path.conf (machine-specific absolute path — never commit)
-Add-GitignoreEntry -GitignoreFile $GitignoreFile -Entry ".shamt/shamt_master_path.conf"
-Write-Host "  OK .shamt/shamt_master_path.conf added to .gitignore (always)"
-
-# Always add last_sync.conf (operational state — never commit)
-Add-GitignoreEntry -GitignoreFile $GitignoreFile -Entry ".shamt/last_sync.conf"
-Write-Host "  OK .shamt/last_sync.conf added to .gitignore (always)"
+# Always add *.conf wildcard (covers shamt_master_path.conf, last_sync.conf, rules_file_path.conf, etc.)
+Add-GitignoreEntry -GitignoreFile $GitignoreFile -Entry ".shamt/*.conf"
+Write-Host "  OK .shamt/*.conf added to .gitignore (always)"
 
 # Always add import_diff*.md (transient diff files — never commit)
 Add-GitignoreEntry -GitignoreFile $GitignoreFile -Entry ".shamt/import_diff*.md"

@@ -188,7 +188,7 @@ git push origin --delete {work_type}/SHAMT-{number}
 
 ### Epic Folder Naming
 
-**Format:** `.shamt/epics/FF-{N}-{epic_name}/`
+**Format:** `.shamt/epics/SHAMT-{N}-{epic_name}/`
 
 **Examples:**
 - `.shamt/epics/SHAMT-1-add_dark_mode_to_cli/`

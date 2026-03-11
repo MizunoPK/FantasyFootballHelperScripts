@@ -332,7 +332,7 @@ S9.P2's 12-dimension validation provides strong coverage of many PR review categ
 
 1. **Create pr_review_issues.md file:**
    ```text
-   Location: FF-{N}-{epic_name}/pr_review_issues.md
+   Location: SHAMT-{N}-{epic_name}/pr_review_issues.md
    Purpose: Track issues discovered during PR review rounds
    ```
 

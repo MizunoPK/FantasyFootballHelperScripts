@@ -29,7 +29,7 @@ After epic is complete and moved to done/, update the EPIC_README.md file in its
 - Bug Fixes Created: {N} (or 0 if none)
 - Final Test Pass Rate: 100% ({total_tests}/{total_tests} tests)
 
-**Epic Moved To:** .shamt/epics/done/FF-{N}-{epic_name}/
+**Epic Moved To:** .shamt/epics/done/SHAMT-{N}-{epic_name}/
 **Original Request:** .shamt/epics/requests/{epic_name}.txt
 
 **Next Steps:** None - epic complete! 🎉
@@ -115,7 +115,7 @@ Count of bugfix folders in epic (e.g., bugfix_high_interface_mismatch = 1 bug fi
 Result of `{TEST_COMMAND}` showing passed/total. Should always be 100%.
 
 ### Epic Moved To
-The new location in done/ folder. Always: `.shamt/epics/done/FF-{N}-{epic_name}/`
+The new location in done/ folder. Always: `.shamt/epics/done/SHAMT-{N}-{epic_name}/`
 
 ### Original Request
 Location of the original .txt file with user's request. Always: `.shamt/epics/requests/{epic_name}.txt`

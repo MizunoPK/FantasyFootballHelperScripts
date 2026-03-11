@@ -1,7 +1,7 @@
 # Epic Ticket Template
 
 **Filename:** `EPIC_TICKET.md`
-**Location:** `.shamt/epics/FF-{N}-{epic_name}/EPIC_TICKET.md`
+**Location:** `.shamt/epics/SHAMT-{N}-{epic_name}/EPIC_TICKET.md`
 **Created:** {YYYY-MM-DD}
 **Updated:** Never (immutable after user validation)
 

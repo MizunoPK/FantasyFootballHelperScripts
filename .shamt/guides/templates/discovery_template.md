@@ -1,7 +1,7 @@
 # Discovery Document Template
 
 **Filename:** `DISCOVERY.md`
-**Location:** `.shamt/epics/FF-{N}-{epic_name}/DISCOVERY.md`
+**Location:** `.shamt/epics/SHAMT-{N}-{epic_name}/DISCOVERY.md`
 **Created:** S1.P3 (Discovery Phase)
 
 **Purpose:** Epic-level source of truth for problem understanding, solution approach, and feature breakdown rationale. Created through iterative research and user Q&A during the Discovery Phase.
@@ -13,7 +13,7 @@
 ```markdown
 ## Discovery Phase: {epic_name}
 
-**Epic:** FF-{N}-{epic_name}
+**Epic:** SHAMT-{N}-{epic_name}
 **Created:** {YYYY-MM-DD}
 **Last Updated:** {YYYY-MM-DD}
 **Status:** {IN_PROGRESS | COMPLETE}

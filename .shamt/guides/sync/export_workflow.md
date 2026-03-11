@@ -50,11 +50,11 @@ For each section in your rules file not present in the template, ask: *would thi
 **Signs of project-specific content (leave in rules file only):**
 - References to actual tech stack or test commands (`pytest`, `tsc --noEmit`, etc.)
 - Historical context specific to this project
-- Your project's epic tag as a literal value rather than `FF`
+- Your project's epic tag as a literal value rather than `{{EPIC_TAG}}`
 
 **If generic additions exist:**
 1. Add the content to `RULES_FILE.template.md` in the master repo
-2. Replace your epic tag with `FF` wherever it appears as a template variable
+2. Replace your epic tag with `{{EPIC_TAG}}` wherever it appears as a template variable
 3. Add a `CHANGES.md` entry (see `sync/separation_rule.md` for format):
 
 ```markdown
@@ -84,12 +84,12 @@ grep -r "YOUR_EPIC_TAG-{N}" .shamt/guides/
 If any matches are found:
 
 1. **Stop** — do not proceed to Step 2 (audit) until these are resolved
-2. The matches are guide files where an agent incorrectly replaced the generic `FF-{N}` placeholder with your project's epic tag
-3. For each affected file: revert the epic tag substitution back to `FF-{N}`, preserving any other legitimate changes you made to that file
+2. The matches are guide files where an agent incorrectly replaced the generic `SHAMT-{N}` placeholder with your project's epic tag
+3. For each affected file: revert the epic tag substitution back to `SHAMT-{N}`, preserving any other legitimate changes you made to that file
 4. Re-run the grep to confirm zero matches before continuing
 
 **What counts as contamination vs. acceptable:**
-- ❌ Workflow instruction text with your epic tag instead of `FF-{N}` — revert
+- ❌ Workflow instruction text with your epic tag instead of `SHAMT-{N}` — revert
 - ✅ Attribution comments in file metadata (e.g., "Added from KAI-1 lessons learned") — acceptable, do not revert
 
 ---

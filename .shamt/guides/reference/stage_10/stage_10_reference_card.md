@@ -189,22 +189,22 @@ Testing:
 ```bash
 git status       # Review all modified files
 git diff         # Review all changes
-git add .shamt/epics/FF-{N}-{epic_name}/
+git add .shamt/epics/SHAMT-{N}-{epic_name}/
 git add <any other changed files>
 git commit -m "{commit_type}/SHAMT-{number}: {message}"
 ```
 
 ### Step 6: Move Epic Folder and Commit
 ```bash
-git mv .shamt/epics/FF-{N}-{epic_name} .shamt/epics/done/FF-{N}-{epic_name}
-git commit -m "chore/FF-{N}: Move completed epic to done/ folder"
+git mv .shamt/epics/SHAMT-{N}-{epic_name} .shamt/epics/done/SHAMT-{N}-{epic_name}
+git commit -m "chore/SHAMT-{N}: Move completed epic to done/ folder"
 ```
 
 ### Step 7: Update EPIC_TRACKER and Commit
 ```bash
 # Edit .shamt/epics/EPIC_TRACKER.md (move epic to Completed, add details, increment number)
 git add .shamt/epics/EPIC_TRACKER.md
-git commit -m "chore/FF-{N}: Update EPIC_TRACKER with completed epic"
+git commit -m "chore/SHAMT-{N}: Update EPIC_TRACKER with completed epic"
 ```
 
 ### Step 8: Push Branch and Create Pull Request
@@ -354,7 +354,7 @@ git checkout main && git fetch origin && git reset --hard origin/main
 - Git commit (epic implementation work)
 
 **Step 6:**
-- `.shamt/epics/done/FF-{N}-{epic_name}/` (entire epic folder moved via git mv)
+- `.shamt/epics/done/SHAMT-{N}-{epic_name}/` (entire epic folder moved via git mv)
 - `.shamt/epics/requests/{epic_name}.txt` (original request, stays in place)
 - Git commit (epic folder move)
 

@@ -1,7 +1,7 @@
 # Feature Lessons Learned Template
 
 **Filename:** `lessons_learned.md`
-**Location:** `.shamt/epics/FF-{N}-{epic_name}/feature_XX_{name}/lessons_learned.md`
+**Location:** `.shamt/epics/SHAMT-{N}-{epic_name}/feature_XX_{name}/lessons_learned.md`
 **Created:** {YYYY-MM-DD}
 **Updated:** After Stages S5, S6, S7
 

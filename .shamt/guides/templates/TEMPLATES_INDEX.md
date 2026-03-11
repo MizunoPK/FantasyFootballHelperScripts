@@ -19,7 +19,7 @@
 |----------|----------|----------|
 | [Epic Request](#epic-request) | `EPIC_REQUEST_TEMPLATE.md` | User asks to create an epic request BEFORE starting S1 |
 
-**⚠️ IMPORTANT:** Epic request files are created in `.shamt/epics/requests/` and left there until user explicitly initiates S1. Do NOT create FF-{N} folders when writing epic requests.
+**⚠️ IMPORTANT:** Epic request files are created in `.shamt/epics/requests/` and left there until user explicitly initiates S1. Do NOT create SHAMT-{N} folders when writing epic requests.
 
 ### S1: Epic Planning
 
@@ -77,7 +77,7 @@
 
 | Template | Filename | Use When |
 |----------|----------|----------|
-| [Guide Update Proposal](#guide-update-proposal) | `guide_update_proposal_template.md` | Proposing guide improvements discovered during epic work (FF-{N} format) |
+| [Guide Update Proposal](#guide-update-proposal) | `guide_update_proposal_template.md` | Proposing guide improvements discovered during epic work (SHAMT-{N} format) |
 | [PR Review Issues](#pr-review-issues) | `pr_review_issues_template.md` | Tracking issues found during PR review (also used in S7) |
 
 ### Parallel Work
@@ -267,7 +267,7 @@
 #### Guide Update Proposal
 - **File:** `guide_update_proposal_template.md`
 - **Created:** S10 (S10.P1 Guide Updates)
-- **Purpose:** Proposing guide improvements discovered during epic work, using FF-{N} numbering format
+- **Purpose:** Proposing guide improvements discovered during epic work, using SHAMT-{N} numbering format
 - **Size:** ~257 lines
 - **When to use:** S10.P1 when creating guide update proposals
 

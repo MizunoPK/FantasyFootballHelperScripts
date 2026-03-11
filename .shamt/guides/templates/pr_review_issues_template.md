@@ -1,6 +1,6 @@
 # PR Review Issues Tracker
 
-**Feature/Epic:** {feature_XX_{name} or FF-{N}-{epic_name}}
+**Feature/Epic:** {feature_XX_{name} or SHAMT-{N}-{epic_name}}
 **Review Start:** {YYYY-MM-DD HH:MM}
 **Review End:** {YYYY-MM-DD HH:MM}
 **Final Status:** {PASSED / ESCALATED TO USER}

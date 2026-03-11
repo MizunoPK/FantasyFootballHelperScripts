@@ -101,9 +101,9 @@ This document tracks the feedback loop from implementation â†’ lessons learned â
 ### Pattern 1: {Pattern Name}
 
 **Observed In:**
-- FF-{N}-{epic_name} - {brief description}
-- FF-{N}-{epic_name} - {brief description}
-- FF-{N}-{epic_name} - {brief description}
+- SHAMT-{N}-{epic_name} - {brief description}
+- SHAMT-{N}-{epic_name} - {brief description}
+- SHAMT-{N}-{epic_name} - {brief description}
 
 **Root Cause:**
 {Why this pattern keeps appearing}

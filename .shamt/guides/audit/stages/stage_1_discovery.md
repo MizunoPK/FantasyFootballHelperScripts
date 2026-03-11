@@ -602,7 +602,7 @@ Checklist for each script pair (bash + PowerShell):
 - [ ] All function calls in `.ps1` files resolve to functions defined in the script or PowerShell built-ins — no undefined function calls
 - [ ] Bash and PowerShell scripts are functionally equivalent — same logic, same behavior, same edge case handling
 - [ ] Script next-steps output (what the script prints to the user) matches the corresponding guide's step-by-step instructions
-- [ ] Transient output files written by the script (e.g. `import_diff*.md`, `shamt_master_path.conf`, `last_sync.conf`) are listed in `.gitignore`
+- [ ] Transient output files written by the script (e.g. `import_diff*.md`) and all `.conf` files (via `.shamt/*.conf`) are listed in `.gitignore`
 - [ ] State writes (e.g. `write_last_sync`) happen before output generation and agent prompt — not at the very end where an interruption would skip them
 
 ---

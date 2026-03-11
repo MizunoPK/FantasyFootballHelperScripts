@@ -1,6 +1,6 @@
-# Guide Update Proposal - FF-{N}-{epic_name}
+# Guide Update Proposal - SHAMT-{N}-{epic_name}
 
-**Epic:** FF-{N}-{epic_name}
+**Epic:** SHAMT-{N}-{epic_name}
 **Date:** {YYYY-MM-DD}
 **Agent:** Claude Sonnet 4.5
 **Total Proposals:** {N} ({P0} critical, {P1} high, {P2} medium, {P3} low)

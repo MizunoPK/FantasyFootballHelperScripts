@@ -1,7 +1,7 @@
 # Spec Summary Template
 
 **Filename:** `SPEC_SUMMARY.md`
-**Location:** `.shamt/epics/FF-{N}-{epic_name}/feature_XX_{name}/SPEC_SUMMARY.md`
+**Location:** `.shamt/epics/SHAMT-{N}-{epic_name}/feature_XX_{name}/SPEC_SUMMARY.md`
 **Created:** {YYYY-MM-DD}
 **Updated:** Never (immutable after user validation)
 

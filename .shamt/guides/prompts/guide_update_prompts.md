@@ -179,7 +179,7 @@ Applying guide updates...
 
 **Changes committed:**
 - Commit: {commit_hash}
-- Message: "docs(guides): Apply lessons from FF-{N}-{epic_name}"
+- Message: "docs(guides): Apply lessons from SHAMT-{N}-{epic_name}"
 - Files modified: {N} guide files
 - Proposals applied: {N} approved + {N} modified
 

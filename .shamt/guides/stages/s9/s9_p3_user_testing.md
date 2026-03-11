@@ -247,7 +247,7 @@ I'll wait for your testing results before proceeding to the final review.
 For EACH bug reported by user, create a bug fix folder:
 
 ```bash
-.shamt/epics/FF-{N}-{epic_name}/bugfix_{priority}_{short_name}/
+.shamt/epics/SHAMT-{N}-{epic_name}/bugfix_{priority}_{short_name}/
 ```
 
 **Priority Determination:**

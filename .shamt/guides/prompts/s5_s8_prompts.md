@@ -278,7 +278,7 @@ I've completed the validation loop with 3 consecutive clean rounds. implementati
 - Issues Found & Fixed: {count}
 - Final Quality: 99%+ (3 consecutive clean validation rounds)
 
-**File Location:** `.shamt/epics/FF-{N}-{epic_name}/feature_{XX}_{name}/implementation_plan.md`
+**File Location:** `.shamt/epics/SHAMT-{N}-{epic_name}/feature_{XX}_{name}/implementation_plan.md`
 
 **Please review implementation_plan.md and confirm:**
 1. Implementation approach makes sense

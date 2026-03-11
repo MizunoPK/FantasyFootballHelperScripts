@@ -93,9 +93,9 @@ Check for:
 - All pointers correctly placed and not stale
 - No project-specific content inadvertently introduced into shared guides
 - No broken cross-references in updated guides (if the import introduced any)
-- `FF-{N}` placeholder intact throughout `.shamt/guides/` — you must not replace it with your epic tag
+- `SHAMT-{N}` placeholder intact throughout `.shamt/guides/` — you must not replace it with your epic tag
 
-**On the last point:** `FF-{N}` appears throughout the shared guides as a generic placeholder for "epic number N." It is not a reference to the master Shamt project — it applies equally to every child project. Never substitute it with your project's epic tag (e.g., do not change `FF-{N}` to `KAI-{N}` or `BAR-{N}`). If you find any such substitutions, revert them immediately before the validation loop can pass.
+**On the last point:** `SHAMT-{N}` appears throughout the shared guides as a generic placeholder for "epic number N." It is not a reference to the master Shamt project — it applies equally to every child project. Never substitute it with your project's epic tag (e.g., do not change `SHAMT-{N}` to `KAI-{N}` or `BAR-{N}`). If you find any such substitutions, revert them immediately before the validation loop can pass.
 
 ---
 
@@ -171,4 +171,11 @@ If your project was initialized before SHAMT-3, import diff files were not autom
 
 ```
 .shamt/import_diff*.md
+```
+
+**SHAMT-4 migration — individual `.conf` entries not consolidated:**
+If your project was initialized before SHAMT-4, your `.gitignore` may list `.shamt/shamt_master_path.conf` and `.shamt/last_sync.conf` individually, and `.shamt/rules_file_path.conf` may not be gitignored at all. Replace the individual entries with the wildcard:
+
+```
+.shamt/*.conf
 ```

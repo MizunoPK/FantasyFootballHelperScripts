@@ -25,8 +25,8 @@
 ## 1. Epic Context
 
 **Epic Name:** {SHAMT-N - Epic Name}
-**Epic Location:** `.shamt/epics/FF-{N}-{epic_name}/`
-**DISCOVERY.md Reference:** `FF-{N}-{epic_name}/DISCOVERY.md`
+**Epic Location:** `.shamt/epics/SHAMT-{N}-{epic_name}/`
+**DISCOVERY.md Reference:** `SHAMT-{N}-{epic_name}/DISCOVERY.md`
 
 **Relevant Epic Findings:**
 - {Key finding 1 from DISCOVERY.md relevant to this feature}

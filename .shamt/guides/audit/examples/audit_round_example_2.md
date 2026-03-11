@@ -84,7 +84,7 @@ grep -rn "\.\./.*\.md" --include="*.md" ../../ | head -50
 ## Step 5.4: Create Epic Folder Structure
 
 Use the template:
-- `templates/epic_readme_template.md` → `.shamt/epics/FF-{N}-{epic}/EPIC_README.md`
+- `templates/epic_readme_template.md` → `.shamt/epics/SHAMT-{N}-{epic}/EPIC_README.md`
 ```
 
 **Analysis:**
@@ -176,12 +176,12 @@ For validation protocols, see the validation directory:
 
 **Before:**
 ```markdown
-- `templates/epic_readme_template.md` → `.shamt/epics/FF-{N}-{epic}/EPIC_README.md`
+- `templates/epic_readme_template.md` → `.shamt/epics/SHAMT-{N}-{epic}/EPIC_README.md`
 ```
 
 **After:**
 ```markdown
-- `templates/EPIC_README_template.md` → `.shamt/epics/FF-{N}-{epic}/EPIC_README.md`
+- `templates/EPIC_README_template.md` → `.shamt/epics/SHAMT-{N}-{epic}/EPIC_README.md`
 ```
 
 **File:** s1_epic_planning.md:340

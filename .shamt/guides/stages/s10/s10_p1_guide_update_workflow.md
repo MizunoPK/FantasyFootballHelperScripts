@@ -92,7 +92,7 @@ S10.P1 is complete when all proposals have been reviewed by user, approved chang
 
 5. ⚠️ Separate commit for guide updates
    - Guide updates committed separately from epic code
-   - Commit message: "docs(guides): Apply lessons from FF-{N}-{epic_name}"
+   - Commit message: "docs(guides): Apply lessons from SHAMT-{N}-{epic_name}"
    - Do NOT mix guide updates with epic commits
 
 6. ⚠️ Check gitignore BEFORE committing guide updates
@@ -480,7 +480,7 @@ git add CLAUDE.md  # if modified
 
 6.2. **Create commit:**
 ```bash
-git commit -m "docs(guides): Apply lessons from FF-{N}-{epic_name}
+git commit -m "docs(guides): Apply lessons from SHAMT-{N}-{epic_name}
 
 Proposals applied:
 - P0: {N} critical fixes
@@ -530,7 +530,7 @@ Check:
 
 7.2. **Add to Applied Lessons Log:**
 - For each approved/modified proposal:
-  - Epic: FF-{N}-{epic_name}
+  - Epic: SHAMT-{N}-{epic_name}
   - Priority: P0/P1/P2/P3
   - Lesson Summary: {brief description}
   - Guide(s) Updated: {paths}
@@ -539,7 +539,7 @@ Check:
 
 7.3. **Add to Rejected Lessons:**
 - For each rejected proposal:
-  - Epic: FF-{N}-{epic_name}
+  - Epic: SHAMT-{N}-{epic_name}
   - Priority: P0/P1/P2/P3
   - Lesson Summary: {brief description}
   - Proposed Guide(s): {paths}
@@ -559,7 +559,7 @@ Check:
 7.6. **Commit tracking update:**
 ```bash
 git add .shamt/guides/reference/guide_update_tracking.md
-git commit -m "docs(tracking): Update guide tracking for FF-{N}-{epic_name}"
+git commit -m "docs(tracking): Update guide tracking for SHAMT-{N}-{epic_name}"
 ```
 
 **Checkpoint:**
@@ -591,7 +591,7 @@ git commit -m "docs(tracking): Update guide tracking for FF-{N}-{epic_name}"
 
 Compare your project's rules file (wherever it lives: `CLAUDE.md`, `.github/copilot-instructions.md`, etc.) against `.shamt/scripts/initialization/RULES_FILE.template.md`. For each section in your rules file not present in the template, ask: *would this apply to any Shamt project regardless of tech stack?*
 
-- **If generic additions exist** → add them to the template (replace your epic tag with `FF`), then add a `CHANGES.md` entry for each:
+- **If generic additions exist** → add them to the template (replace your epic tag with `{{EPIC_TAG}}`), then add a `CHANGES.md` entry for each:
   ```markdown
   ## YYYY-MM-DD — Rules file template: [section name]
   - Modified: `scripts/initialization/RULES_FILE.template.md`

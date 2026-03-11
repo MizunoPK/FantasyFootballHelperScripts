@@ -225,21 +225,15 @@ separator "Configuring .gitignore"
 
 GITIGNORE_FILE="$TARGET_DIR/.gitignore"
 
-# Always add shamt_master_path.conf (machine-specific absolute path — never commit)
+# Always add *.conf wildcard (covers shamt_master_path.conf, last_sync.conf, rules_file_path.conf, etc.)
 if [ -f "$GITIGNORE_FILE" ]; then
-    if ! grep -qF ".shamt/shamt_master_path.conf" "$GITIGNORE_FILE"; then
-        echo ".shamt/shamt_master_path.conf" >> "$GITIGNORE_FILE"
+    if ! grep -qF ".shamt/*.conf" "$GITIGNORE_FILE"; then
+        echo ".shamt/*.conf" >> "$GITIGNORE_FILE"
     fi
 else
-    echo ".shamt/shamt_master_path.conf" > "$GITIGNORE_FILE"
+    echo ".shamt/*.conf" > "$GITIGNORE_FILE"
 fi
-echo "  ✓ .shamt/shamt_master_path.conf added to .gitignore (always)"
-
-# Always add last_sync.conf (operational state — never commit)
-if ! grep -qF ".shamt/last_sync.conf" "$GITIGNORE_FILE"; then
-    echo ".shamt/last_sync.conf" >> "$GITIGNORE_FILE"
-fi
-echo "  ✓ .shamt/last_sync.conf added to .gitignore (always)"
+echo "  ✓ .shamt/*.conf added to .gitignore (always)"
 
 # Always add import_diff*.md (transient diff files — never commit)
 if ! grep -qF ".shamt/import_diff" "$GITIGNORE_FILE"; then

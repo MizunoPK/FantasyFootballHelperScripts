@@ -192,7 +192,7 @@ Please answer so I can continue research.
 **S1 (Epic Planning) Complete**
 
 **Summary:**
-- Epic folder created: .shamt/epics/FF-{N}-{epic_name}/
+- Epic folder created: .shamt/epics/SHAMT-{N}-{epic_name}/
 - Feature folders created: {count}
 - Discovery iterations: {N}
 - Questions resolved: {M}
