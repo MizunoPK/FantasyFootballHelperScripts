@@ -40,7 +40,7 @@ This file provides a complete overview of the Shamt S1-S10 epic-driven developme
 
 ```text
 S1: Epic Planning → S2: Feature Deep Dives → S3: Epic-Level Docs, Tests, and Approval →
-S4: Feature Testing Strategy → S5-S8: Feature Loop → S9: Epic Final QC → S10: Epic Cleanup
+S5-S8: Feature Loop (S4 deprecated — Test Scope Decision in S5 Step 0) → S9: Epic Final QC → S10: Epic Cleanup
 
 Per-feature loop: S5 (Plan) → S6 (Execute) → S7 (Test) → S8 (Align) → repeat or S9
 ```
@@ -93,21 +93,19 @@ Key activities:
 Key activities:
 - S3.P1: Create epic smoke test plan (integration tests spanning ALL features)
 - S3.P2: Refine EPIC_README.md with feature summaries and architecture decisions
-- S3.P3: Gate 4.5 — present epic plan to user, mandatory approval before S4
+- S3.P3: Gate 4.5 — present epic plan to user, mandatory approval before S5 (S4 deprecated)
 
 **Outputs:** `epic_smoke_test_plan.md`, refined `EPIC_README.md`, Gate 4.5 approval
 
 ---
 
-### S4: Feature Testing Strategy
+### S4: (Deprecated)
 
-**Guide:** `stages/s4/s4_feature_testing_strategy.md`
+**Guide:** `stages/s4/s4_feature_testing_strategy.md` (redirect stub)
 
-Key activities:
-- For each feature: create `test_strategy.md`
-- 4 iterations total (I1: Test Strategy Development, I2: Edge Case Enumeration, I3: Configuration Change Impact, I4: Validation Loop)
+S4 has been deprecated. Test Scope Decision (what to test per feature) is now Step 0 of S5. The Testing Approach (A/B/C/D) is set at S1 Step 4.6.5.
 
-**Outputs:** `test_strategy.md` per feature
+**Next stage after S3:** S5 (skip S4 entirely)
 
 ---
 

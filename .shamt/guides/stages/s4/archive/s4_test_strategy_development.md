@@ -1,4 +1,10 @@
-# S4: Test Strategy Development (Iterations 1-3)
+# S4: Test Strategy Development (Iterations 1-3) — DEPRECATED
+
+> ⚠️ **DEPRECATED as of SHAMT-6.** This guide is preserved for reference only.
+> S4 is no longer part of the active workflow. See `stages/s4/s4_feature_testing_strategy.md`
+> for the redirect stub and migration notes. Test scope decisions now live in S5.
+
+---
 
 🚨 **MANDATORY READING PROTOCOL**
 

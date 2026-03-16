@@ -34,7 +34,7 @@ S5 (Implementation Planning) → S6 (Implementation Execution) → S7 (Testing &
 
 ## 🚨 MANDATORY READING PROTOCOL
 
-**BEFORE starting Cross-Feature Alignment, you MUST:**
+**BEFORE starting Cross-Feature Alignment — including when resuming a prior session — you MUST:**
 
 1. **Use the phase transition prompt** from `prompts_reference_v2.md`
    - Find "Starting S8.P1" prompt
@@ -53,6 +53,16 @@ S5 (Implementation Planning) → S6 (Implementation Execution) → S7 (Testing &
 4. **THEN AND ONLY THEN** begin Cross-Feature Alignment workflow
 
 **This is NOT optional.** Reading this guide ensures you don't miss critical spec updates.
+
+---
+
+## 🚫 FORBIDDEN SHORTCUTS
+
+You CANNOT:
+- Skip checking remaining feature specs because "the changes were minor" — ALL not-yet-implemented feature specs must be reviewed against the ACTUAL implementation, regardless of perceived change scope
+- Skip Step 5 (Alignment Validation Loop) because "no spec changes were needed" — the validation loop must run to confirm zero conflicts, even when no changes are required
+
+If you are about to do any of the above: STOP and re-read the relevant section.
 
 ---
 

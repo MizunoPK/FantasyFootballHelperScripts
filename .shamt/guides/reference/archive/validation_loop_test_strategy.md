@@ -5,7 +5,7 @@
 
 **Applicable Stages:**
 - S3.P1: Epic Testing Strategy Development
-- S4: Feature Testing Strategy
+- S4: Feature Testing Strategy (deprecated — superseded by S5 Step 0 Test Scope Decision)
 
 **Version:** 2.0 (Updated to extend master protocol)
 **Last Updated:** 2026-02-10
@@ -45,7 +45,7 @@
 
 **What this validates:**
 - epic_smoke_test_plan.md (epic-level in S3.P1)
-- test_strategy.md (feature-level in S4)
+- test_strategy.md (feature-level in S4 — deprecated; test scope decision now at S5 Step 0)
 
 **Quality Standard:**
 - >90% coverage planned (feature-level)
@@ -117,7 +117,7 @@ These 3 dimensions are specific to test strategy validation:
 
 **Checklist:**
 
-**Feature-Level (S4):**
+**Feature-Level (S5 Step 0, Options C/D only):**
 - [ ] >90% requirement coverage planned
 - [ ] All critical path requirements have tests
 - [ ] All error paths have tests
@@ -281,9 +281,9 @@ Test Scenario 5:
 
 ---
 
-### S4: Feature Testing Strategy
+### S4: Feature Testing Strategy (Deprecated — see S5 Step 0)
 
-**Artifact:** test_strategy.md
+**Artifact:** test_strategy.md (no longer required; created at S5 Step 0 for Options C/D only)
 
 **Validates:**
 - Unit test coverage

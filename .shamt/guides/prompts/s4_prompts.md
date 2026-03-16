@@ -1,7 +1,10 @@
 # S4 Prompts: Feature Testing Strategy
 
-**Stage:** 4
-**Purpose:** Feature-level test strategy creation based on feature specs
+> **⚠️ DEPRECATED (SHAMT-6):** S4 has been deprecated. Test Scope Decision is now Step 0 of S5.
+> Do NOT follow these prompts for new epics. See `stages/s4/archive/s4_feature_testing_strategy.md` for the redirect stub (archived).
+
+**Stage:** 4 (DEPRECATED)
+**Purpose:** (Deprecated) Feature-level test strategy creation based on feature specs
 
 ---
 

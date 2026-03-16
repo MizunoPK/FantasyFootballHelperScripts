@@ -63,15 +63,43 @@
 
 ---
 
+## 🚨 MANDATORY READING PROTOCOL
+
+Before starting this stage — including when resuming a prior session:
+1. Use Read tool to load THIS ENTIRE GUIDE — not just the overview
+   - Quick entry point: `reference/stage_5/stage_5_reference_card.md` — use for second or later features
+   - Full guide (this file): required for first feature and edge cases
+2. Verify prerequisites checklist below
+3. Update feature README.md Agent Status with guide name + timestamp
+
+DO NOT start work based on the overview alone.
+
+---
+
+## 🚫 FORBIDDEN SHORTCUTS
+
+You CANNOT:
+- Draft an implementation plan based on general knowledge — follow Steps 0–7 in Phase 1
+- Skip Phase 2 (Validation Loop) because Phase 1 is "done enough"
+- Present the plan to the user or stop before the 2-round checkpoint without user input — the 2-round checkpoint is the only sanctioned early-exit mechanism (see `reference/validation_loop_master_protocol.md` Exit Criteria)
+- Proceed to S6 without Gate 5 user approval
+
+If you are about to do any of the above: STOP and re-read the relevant section.
+
+---
+
 ## Prerequisites
 
 **Before starting S5 v2:**
 
-- [ ] S4 complete - test_strategy.md created for this feature (epic_smoke_test_plan.md created in S3.P1, updated in S8.P2)
+- [ ] Test approach confirmed in EPIC_README (`Testing Approach:` field set at S1)
 - [ ] Feature spec.md complete (all sections filled, no TBD)
 - [ ] Feature checklist.md resolved (all user questions answered, Gate 3 passed)
 - [ ] S5 v2 template available: `templates/implementation_plan_template.md`
 - [ ] Feature README.md exists with Agent Status section
+
+**Note:** S4 is deprecated. The `test_strategy.md` prerequisite has been removed. Test scope
+decisions are now made during Phase 1 of S5 (Test Scope Decision step).
 
 **If any prerequisite missing:**
 - ❌ Do NOT start S5 - Return to complete missing prerequisites
@@ -108,7 +136,7 @@ S5 v2 is a **validation loop-based approach** to implementation planning that sy
 ### When to Use This Guide
 
 **Use S5 v2 when:**
-- Starting implementation planning after S4 complete (Feature Testing Strategy complete)
+- Starting implementation planning (S4 is deprecated; proceed to S5 directly after S3)
 - Creating implementation_plan.md for a new feature
 - All spec.md requirements finalized and user-approved (Gate 3 passed)
 - Re-entering from S8 alignment loop to plan the next feature in the epic
@@ -129,7 +157,7 @@ S5 v2 is a **validation loop-based approach** to implementation planning that sy
 | Master Dimension | How It Applies to implementation_plan.md |
 |------------------|------------------------------------------|
 | **D1: Empirical Verification** | All interfaces verified from actual source code (file:line), no assumed method signatures |
-| **D2: Completeness** | All spec.md requirements have tasks, all test_strategy.md tests have creation tasks, all 11 sections present |
+| **D2: Completeness** | All spec.md requirements have tasks; for Options C/D: all test_strategy.md tests have creation tasks; all 11 sections present |
 | **D3: Internal Consistency** | No contradictions between tasks, algorithms, data flow, or test coverage |
 | **D4: Traceability** | Every task traces to spec requirement or test category, every algorithm traces to spec section |
 | **D5: Clarity & Specificity** | Task acceptance criteria are specific and measurable (no vague "handle X properly") |
@@ -177,6 +205,16 @@ S5 v2 is a **validation loop-based approach** to implementation planning that sy
 
 ## 🚀 PHASE 1: DRAFT CREATION
 
+⚠️ **Before starting Phase 1, confirm:**
+- [ ] Phase 2 (Validation Loop) is mandatory after Phase 1 — I will not skip it
+- [ ] I will not present the plan to the user or stop before the 2-round checkpoint without user input — the 2-round checkpoint is the only sanctioned early-exit mechanism
+
+Phase 1 produces a ~70% quality draft. Phase 2 is what makes it production-ready. Gate 5 (user approval) follows Phase 2.
+
+If you navigated here via the Table of Contents: go back to the beginning and read sequentially — the MANDATORY READING PROTOCOL and FORBIDDEN SHORTCUTS at the top apply to you.
+
+---
+
 **Goal:** Create implementation_plan.md with all 11 dimension sections present
 
 **Time:** 60-90 minutes
@@ -186,6 +224,59 @@ S5 v2 is a **validation loop-based approach** to implementation planning that sy
 ---
 
 ### Step-by-Step Process
+
+#### **Step 0: Test Scope Decision (10-15 minutes — replaces S4)**
+
+This step replaces the entire S4 stage. Complete it before creating the draft.
+
+**0.1: Read the epic's Testing Approach from EPIC_README**
+
+The `Testing Approach:` field in the epic's EPIC_README (at the epic folder root, one level above this feature folder) is one of: A, B, C, or D.
+
+**0.2: Based on Testing Approach, decide what tests this feature needs:**
+
+**If Option C or D (unit tests included):**
+- Read the feature's spec.md
+- Identify every function in the spec that qualifies as "algorithmic":
+  - Takes primitive inputs (numbers, strings, lists of primitives)
+  - Returns a deterministic primitive output
+  - Has no I/O dependencies (no file reads, API calls, external object calls)
+  - Mocking is NOT required to test it meaningfully
+- Examples that qualify: `calculate_rank_multiplier(rank: int) -> float`, `normalize_name(name: str) -> str`
+- Examples that do NOT qualify: `load_rank_data(csv_path)` (file I/O), `RecordManager.calculate_total_score(item)` (depends on external object state)
+- List qualifying functions explicitly (e.g., `calculate_multiplier()`, `normalize_name()`)
+- These become unit test tasks in the implementation plan
+- **If fewer than 2 qualifying functions exist:** Note this and skip unit tests for this feature even if the epic preference includes them
+
+**If Option B or D (integration scripts included):**
+
+First, discover the project's test infrastructure (recorded once per epic in EPIC_README):
+- **Check EPIC_README for `Integration Test Convention:` field.** If already populated (set on a prior feature), use it. Skip steps i-iii.
+- (i) Search the codebase for existing integration tests. If found, note their language, framework, directory location, naming convention, assertion style, and run command. The new script must follow this pattern exactly.
+- (ii) If no integration tests exist, check for any tests at all to determine the project's test language and conventions.
+- (iii) If no tests exist at all, ask the user: "Where should integration tests live in this project, and which language/framework should they use?" Record the answer in EPIC_README under `Integration Test Convention:` before proceeding.
+
+Then, for this feature:
+- Identify the primary E2E scenario: what does the user invoke, what output files or data changes result, what specific values indicate correct behavior?
+- Draft the integration test script's assertion list (3-5 key assertions):
+  - Feature executes end-to-end without error
+  - Expected output files exist with required fields
+  - Output values are correct, non-empty, and non-uniform
+  - Integration points with other features are satisfied
+- This becomes a dedicated implementation task: "Create integration test script for {feature_name}"
+
+**If Option A (smoke only):**
+- No test scope decision needed. Proceed directly to Step 1 below.
+
+**0.3: Document the test scope decision in a brief note**
+
+Write 3-5 lines in the implementation plan draft's "Test Strategy" section:
+- Which option applies
+- Qualifying algorithmic functions (if C/D) or "None qualifying"
+- Integration script assertion list (if B/D) or "Not applicable"
+- Integration test convention from EPIC_README (if B/D)
+
+---
 
 #### **Step 1: Setup (5 minutes)**
 
@@ -197,7 +288,7 @@ S5 v2 is a **validation loop-based approach** to implementation planning that sy
 2. **Open files for reference:**
    - Feature spec.md (requirements source)
    - Feature checklist.md (verify all resolved)
-   - S4 test_strategy.md (test coverage reference)
+   - EPIC_README (for Testing Approach and Integration Test Convention)
 
 3. **Create Validation Loop Log:**
    ```bash
@@ -206,25 +297,24 @@ S5 v2 is a **validation loop-based approach** to implementation planning that sy
 
 #### **Step 2: Requirements → Tasks (15-20 minutes)**
 
-**Goal:** Create implementation tasks for all spec.md requirements **AND test_strategy.md tests**
+**Goal:** Create implementation tasks for all spec.md requirements AND test tasks from Step 0
 
-**🚨 CRITICAL: Test Creation Tasks are MANDATORY**
+**🚨 CRITICAL: Test Creation Tasks are MANDATORY (where applicable)**
 
 Historical evidence from SHAMT-8 Feature 04 shows test creation tasks missing from implementation plan caused 56 tests to be missing until S7.P3 PR review (2-4 hour rework). **Test creation is implementation work**, not verification work.
 
 **Process:**
 1. **Read spec.md completely**
-2. **Read test_strategy.md completely** (S4 output)
+2. **Review Step 0 Test Scope Decision output**
 3. For EACH requirement in spec.md:
    - Create a FEATURE TASK in implementation_plan.md
    - Add requirement reference (which spec section)
    - Add basic acceptance criteria (2-3 items minimum)
    - Note file/method location (approximate is OK for draft)
-4. For EACH test category in test_strategy.md:
-   - Create a TEST CREATION TASK in implementation_plan.md
-   - Reference test category (e.g., "R1 CLI Flag Integration - 8 tests")
-   - Add test file path and test names
-   - Include acceptance: "All [N] tests implemented and passing"
+4. For test tasks (based on Testing Approach from Step 0):
+   - **If unit tests in scope (Options C/D):** Create a UNIT TEST CREATION TASK for the algorithmic functions identified in Step 0. Reference each function and specify the test file path.
+   - **If integration script in scope (Options B/D):** Create an INTEGRATION TEST SCRIPT TASK: "Create integration test script for {feature_name}" with the assertion list from Step 0. Reference `Integration Test Convention:` from EPIC_README for file location and naming.
+   - **If smoke only (Option A):** No test creation tasks in implementation plan.
 
 **Example Feature Task (Draft Quality):**
 ```markdown
@@ -372,7 +462,7 @@ Historical evidence from SHAMT-8 Feature 04 shows test creation tasks missing fr
 **Goal:** Create placeholder sections for remaining dimensions
 
 **Process:**
-1. **Test Strategy:** Reference S4's test_strategy.md
+1. **Test Strategy:** For Options C/D: Reference test scope decision from S5 Step 0 (test_strategy.md); For Options A/B: Note Testing Approach (no unit test file)
 2. **Integration:** Note major integration points (defer verification)
 3. **Performance:** Note if any O(n²) algorithms present
 4. **Implementation Phases:** Rough 4-6 phase breakdown
@@ -445,13 +535,19 @@ Each round follows this pattern:
    - Use reading pattern for this round
    - Document EVERY issue found (no matter how minor)
 
-4. REPORT FINDINGS
-   - Count issues by dimension
+4. ADVERSARIAL SELF-CHECK (run after all dimensions, before scoring)
+   - See master protocol for the 5 required questions
+   - Any new issues found → add to this round's issue list
+   - Any open questions that can't be answered locally → Open Questions Protocol
+   - This step may not be skipped — a round may not be scored clean if it is
+
+5. REPORT FINDINGS
+   - Count issues by dimension (including any from Adversarial Self-Check)
    - Report: "Round N: X issues found across Y dimensions"
 
-5. FIX OR CONTINUE
+6. FIX OR CONTINUE
    - If X > 0: Fix ALL issues immediately → Round N+1, RESET counter
-   - If X = 0: Increment clean counter → Check if 3 consecutive clean
+   - If X = 0: Increment clean counter → Check if 3 consecutive clean (or 2-round checkpoint)
 ```
 
 ---
@@ -476,16 +572,16 @@ Each round follows this pattern:
 
 **What to Check:**
 - [ ] Every spec.md requirement has implementation task(s)
-- [ ] **🚨 CRITICAL: Every test_strategy.md test category has test creation task(s)**
-- [ ] No orphan tasks (all tasks trace to spec requirements OR test_strategy.md)
+- [ ] **🚨 CRITICAL (Options C/D): Every test_strategy.md test category has test creation task(s)**
+- [ ] No orphan tasks (all tasks trace to spec requirements; for Options C/D: also test_strategy.md)
 - [ ] No scope creep (no tasks for unrequested features)
 - [ ] Task numbering sequential with no gaps
 - [ ] Every task cites which spec section OR test category it implements
-- [ ] **Test task count matches test_strategy.md test count** (e.g., if test_strategy.md has 58 tests across 7 categories, implementation_plan.md should have ≥7 test creation tasks covering all 58 tests)
+- [ ] **Options C/D only: Test task count matches test_strategy.md test count** (e.g., if test_strategy.md has 58 tests across 7 categories, implementation_plan.md should have ≥7 test creation tasks covering all 58 tests)
 
 **Evidence Required:**
 - Requirement-to-task mapping table showing 100% coverage (spec.md)
-- **Test-to-task mapping table showing 100% coverage (test_strategy.md)**
+- **Options C/D only: Test-to-task mapping table showing 100% coverage (test_strategy.md)**
 
 **Example Issue (Feature Requirements):**
 - "Missing requirement: spec.md line 67 'Handle item name matching' has no task"
@@ -559,8 +655,11 @@ Each round follows this pattern:
 - [ ] Every task has acceptance criteria checklist (3+ items)
 - [ ] Every task has implementation location (file, method, line)
 - [ ] Every task has dependencies documented (what it needs)
-- [ ] Every task has test names specified
 - [ ] No vague tasks ("handle", "process", "update" without details)
+- [ ] Test tasks match the epic's Testing Approach (from EPIC_README):
+  - If unit tests in scope (Options C/D): test tasks specify which algorithmic functions are covered
+  - If integration script in scope (Options B/D): one task exists for creating the integration test script with the assertion list from Step 0
+  - If smoke only (Option A): no test creation tasks required
 
 **Evidence Required:**
 - 100% of tasks pass specification audit
@@ -648,24 +747,34 @@ Each round follows this pattern:
 
 #### **Dimension 8: Test Coverage Quality**
 
-**What to Check:**
-- [ ] Test strategy references S4's test_strategy.md (don't duplicate)
-- [ ] Tests cover ALL code categories/types (e.g., all item categories)
-- [ ] Success paths: 100% coverage
-- [ ] Failure paths: 100% coverage
-- [ ] Edge cases: >90% coverage
-- [ ] **Resume/Persistence tests:** Old data format handling verified
-- [ ] Overall coverage: >90%
+**Read Testing Approach from EPIC_README first. This dimension's checks are conditional.**
+
+**If Option A (smoke only):**
+- [ ] No test creation tasks in implementation plan (correct per approach)
+- This dimension passes automatically for Option A
+
+**If Option B (integration scripts only):**
+- [ ] One integration test script task exists in the implementation plan
+- [ ] Script assertion list covers: feature execution, output structure, output values, integration points
+- [ ] Script location and naming follows `Integration Test Convention:` from EPIC_README
+- [ ] No unit test tasks (correct per approach)
+
+**If Option C (unit tests only):**
+- [ ] Algorithmic functions identified in Step 0 each have unit test tasks
+- [ ] Unit tests cover: success paths, failure paths, boundary conditions
+- [ ] No integration script task (correct per approach)
+
+**If Option D (both):**
+- [ ] All checks from Options B AND C above
 
 **Evidence Required:**
-- Test coverage analysis table showing >90% total coverage
+- Test tasks in implementation plan match Testing Approach (A/B/C/D)
 
-**Example Issue:**
-- "Test coverage 85% - missing tests for case-insensitive item matching"
+**Example Issue (B/D):**
+- "Integration test script task exists but assertion list is missing — add 3-5 specific assertions"
 
-**How to Fix:**
-- Add test: test_match_item_case_insensitive()
-- Verify coverage now >90%
+**Example Issue (C/D):**
+- "Unit test task for calculate_rank_multiplier() exists but no test for boundary condition (rank=0)"
 
 ---
 
@@ -699,14 +808,17 @@ Each round follows this pattern:
 - [ ] Each phase has checkpoint and test validation
 - [ ] Rollback strategy documented for each phase
 - [ ] ALL mocks verified against real interfaces (read source code)
-- [ ] 3+ integration tests with REAL objects (no mocks) planned
 - [ ] Output consumers validated (format, structure, units match)
 - [ ] Documentation tasks added (docstrings, ARCHITECTURE.md, etc.)
+- [ ] **Test scope matches epic's Testing Approach (from EPIC_README):**
+  - If unit tests included (Options C/D): algorithmic functions identified in Step 0 are in the plan
+  - If integration script included (Options B/D): script design documented (assertion list present)
+  - If smoke only (Option A): no test creation tasks in plan
 
 **Evidence Required:**
 - Implementation phasing plan (4-6 phases with checkpoints)
 - Mock audit report (all mocks verified)
-- Integration test plan (3+ real-object tests)
+- Confirmation that test tasks match Testing Approach
 
 **Example Issue:**
 - "No implementation phasing - 'big bang' approach risks failure"
@@ -1128,9 +1240,9 @@ Next: Present implementation_plan.md to user (Gate 5)
 
 **Can ONLY exit when ALL true:**
 
-1. ✅ 3 consecutive rounds found ZERO issues each
-2. ✅ Rounds N-2, N-1, and N all found zero issues
-3. ✅ All 18 dimensions validated in final 3 rounds (7 master + 11 implementation planning)
+1. ✅ 3 consecutive rounds found ZERO issues each, OR user explicitly opted to stop at the 2-round checkpoint (see `reference/validation_loop_master_protocol.md` Exit Criteria for the checkpoint protocol)
+2. ✅ Rounds N-2, N-1, and N all found zero issues (or user opted to stop at 2-round checkpoint)
+3. ✅ All 18 dimensions validated in final clean rounds (7 master + 11 implementation planning)
 4. ✅ All evidence artifacts present in implementation_plan.md
 5. ✅ Confidence level >= MEDIUM
 6. ✅ implementation_plan.md version incremented (v0.1 draft → v1.0 validated)
@@ -1245,4 +1357,36 @@ Use `VALIDATION_LOOP_LOG_S5_template.md` to track each round: timestamp, reading
 ---
 
 
-**This guide is complete and ready for use. Begin with Phase 1: Draft Creation when S4 is complete and spec.md is finalized.**
+**This guide is complete and ready for use. Begin with Phase 1: Draft Creation when S3 is complete (Gate 4.5 passed) and spec.md is finalized. (S4 is deprecated — Test Scope Decision is now Step 0 of S5.)**
+
+---
+
+## Dependency Re-Validation Protocol
+
+**Trigger:** The user informs you that a dependency epic (recorded in this epic's `EPIC_README.md` `## Dependencies` section) has completed and merged.
+
+**When it runs:** After Gate 5 approval and before you begin S6. If multiple dependencies exist, re-validate separately as each one completes — do not batch.
+
+**Scope (not a full S5 redo):**
+
+1. Read the completed dependency's merged code changes. The user should provide the PR URL or commit range — epic artifacts are gitignored and not in git history.
+2. Re-read this epic's `implementation_plan.md`.
+3. Run a focused validation pass checking only:
+   - API/interface changes from the dependency that affect this plan
+   - New files or changed file paths referenced in this plan
+   - Design decisions made in the dependency that contradict assumptions in this plan
+4. If issues found: update the implementation plan accordingly. Do **not** restart all of S5.
+5. If a foundational architectural change invalidates the plan's core approach: **STOP and escalate to the user.** Do not self-repair. A full S5 re-run is not the fallback; user judgment is.
+
+**What requires a plan update:**
+- A function or class this plan calls has changed its signature
+- A file this plan references has moved or been deleted
+- A data model or schema changed in a way that affects this epic's work
+- An architectural decision was made in the dependency that contradicts an assumption in this plan
+
+**What does NOT require a plan update:**
+- Line number changes in files this plan references
+- New files added by the dependency that this plan doesn't touch
+- Formatting or comment changes
+
+**After re-validation:** Update the `Re-Validation Status` field in this epic's `EPIC_README.md` `## Dependencies` table to "Done — {date}", then proceed to S6.

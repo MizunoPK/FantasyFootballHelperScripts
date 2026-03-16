@@ -666,19 +666,19 @@ NEXT_ACTION: Waiting for Primary to run S2.P2 (Cross-Feature Alignment) and S3
 - Complete their Feature 01 S2
 - Wait for other secondaries to complete
 - Run S3 (Epic-Level Docs, Tests, and Approval)
-- Run S4 (Feature Testing Strategy)
+- S4 deprecated — Test Scope Decision now at S5 Step 0 (per feature)
 
 ### Step 2: Monitor Inbox
 
 **Check inbox every 15 minutes:**
 - Primary may send updates
-- Primary will signal when S3/S4 complete
+- Primary will signal when S3 complete (S4 deprecated)
 
-### Step 3: When Primary Signals S3/S4 Complete
+### Step 3: When Primary Signals S3 Complete
 
 **Primary sends message:**
 ```markdown
-Subject: S3 and S4 Complete - Implementation Sequential
+Subject: S3 Complete - Implementation Sequential
 Status: All planning complete
 Next: Implementation (S5-S8) will be sequential
 ```
@@ -778,8 +778,8 @@ Next: Implementation (S5-S8) will be sequential
 - [ ] Completion message sent to Primary
 - [ ] Entered waiting state
 
-**After S3/S4:**
-- [ ] Received S3/S4 complete message from Primary
+**After S3:**
+- [ ] Received S3 complete message from Primary
 - [ ] Understood next steps
 - [ ] Closed session or idling (depending on plan)
 

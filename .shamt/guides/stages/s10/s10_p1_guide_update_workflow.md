@@ -36,6 +36,16 @@
 
 ---
 
+## 🚫 FORBIDDEN SHORTCUTS
+
+You CANNOT:
+- Draft guide change proposals based on general knowledge without reviewing the actual lessons_learned.md files — start with Step 1: Review lessons_learned.md from ALL completed features before proposing any changes
+- Submit proposals without completing the Quick Reference: Proposal Quality Checklist — every proposal must pass the quality checklist before submission to avoid low-quality or premature guide changes
+
+If you are about to do any of the above: STOP and re-read the relevant section.
+
+---
+
 ## Overview
 
 **What is this phase?**

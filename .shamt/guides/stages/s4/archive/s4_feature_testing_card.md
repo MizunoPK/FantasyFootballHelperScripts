@@ -1,5 +1,7 @@
 # S4: Feature Testing Strategy - Quick Reference Card
 
+> ⚠️ **DEPRECATED (SHAMT-6):** S4 is no longer an active stage. Test Scope Decision moved to **S5 Step 0**. This card is kept for historical reference only. Proceed to S5 directly after S3.
+
 **📚 Full Guides:** `s4_feature_testing_strategy.md`, `s4_test_strategy_development.md`, `s4_validation_loop.md`
 
 ---

@@ -51,5 +51,5 @@ loop on the test strategy (S4.I4) does not need to be re-run.
 
 ---
 
-*S4 content preserved for reference in `stages/s4/archive/s4_test_strategy_development.md` and
-`stages/s4/archive/s4_validation_loop.md` (both marked deprecated).*
+*S4 content preserved for reference in `stages/s4/s4_test_strategy_development.md` and
+`stages/s4/s4_validation_loop.md` (both marked deprecated).*

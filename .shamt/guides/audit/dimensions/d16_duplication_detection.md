@@ -1006,7 +1006,7 @@ NEVER commit without running tests first. 100% test pass rate required.
 - [ ] Previous stage complete
 - [ ] Required files exist
 - [ ] User approval received
-```markdown
+```
 
 **Evaluation:**
 - Is template content placeholder?

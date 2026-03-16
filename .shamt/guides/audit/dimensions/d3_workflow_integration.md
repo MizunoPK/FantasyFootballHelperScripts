@@ -55,7 +55,7 @@
 - Agent starts stage without required inputs
 - Missing context causes poor decisions
 - Rework required when prerequisites discovered later
-- Example: S5 started without S4 test_strategy.md → implementation plan incomplete
+- Example: S5 started without Testing Approach set in EPIC_README → test scope unclear
 
 **Wrong Stage Transitions:**
 - Agent proceeds to wrong stage after completion
@@ -67,7 +67,7 @@
 - Stage A produces file X, Stage B expects file Y
 - Agent confused about what inputs to use
 - Manual workarounds required
-- Example: S5 expects "implementation_plan.md" but S4 creates "test_plan.md"
+- Example: S5 expects Testing Approach in EPIC_README but it was not set at S1
 
 **Incomplete Workflow Documentation:**
 - Stages reference non-existent stages
@@ -175,11 +175,11 @@ done
 **S3: Epic-Level Documentation**
 - [ ] Prerequisites: S2 complete for ALL features, all spec.md files exist
 
-**S4: Feature Testing Strategy**
-- [ ] Prerequisites: S3 complete, epic plan approved (Gate 4.5), spec.md exists for feature
+**S4: (Deprecated)**
+- [ ] S4 is deprecated. Test Scope Decision is now Step 0 of S5. Skip S4 entirely.
 
 **S5: Implementation Planning**
-- [ ] Prerequisites: S4 complete, test_strategy.md exists (merged into implementation_plan.md in S5.P1.I1)
+- [ ] Prerequisites: S3 complete, Testing Approach confirmed in EPIC_README (S4 deprecated)
 
 **S6: Implementation Execution**
 - [ ] Prerequisites: S5 complete, implementation_plan.md exists, user approved plan (Gate 5)
@@ -213,7 +213,7 @@ D3 automated checks validate stage *numbers* only. Stage *names* in prerequisite
 3. If they differ: update the parenthetical to match the current canonical title
 
 **Example (real issue):**
-```
+```text
 S4 prerequisite: "S3 (Cross-Feature Sanity Check) complete"
 S3 actual title: "S3: Epic-Level Documentation, Testing Plans, and Approval"
 → ERROR: parenthetical name is stale
@@ -339,8 +339,8 @@ done
 |-------|----------------|-------------------|
 | S1 | epic folder, DISCOVERY.md, feature_XX folders | S2: epic folder exists, DISCOVERY.md exists |
 | S2 | spec.md, checklist.md, RESEARCH_NOTES.md | S3: all spec.md files exist |
-| S3 | epic_smoke_test_plan.md, refined EPIC_README.md | S4: epic context for feature testing |
-| S4 | test_strategy.md | S5.P1.I1: merges test_strategy.md into implementation_plan.md |
+| S3 | epic_smoke_test_plan.md, refined EPIC_README.md | S5: Testing Approach confirmed, epic context |
+| S4 | (Deprecated — no output) | S5 Step 0: Test Scope Decision (Testing Approach from EPIC_README) |
 | S5 | implementation_plan.md | S6: implementation_plan.md as build guide |
 | S6 | implementation_checklist.md, implemented code | S7: code to test |
 | S7 | lessons_learned.md, committed feature | S8: committed feature for alignment check |
@@ -350,7 +350,7 @@ done
 
 **Red Flags:**
 - S2 produces "specification.md" but S3 looks for "spec.md"
-- S4 produces "testing_plan.md" but S5 expects "test_strategy.md"
+- S4 deprecated — auditors should NOT require test_strategy.md as S5 prerequisite
 - S5 says output is "plan.md" but S6 looks for "implementation_plan.md"
 - Stage produces file but next stage doesn't mention it in prerequisites
 - Stage expects file but previous stage doesn't produce it
@@ -494,8 +494,8 @@ Text descriptions of workflow behavior must be consistent across all guides.
 
 **Why This Matters:**
 Different guides may describe the same workflow differently, creating confusion:
-- S1 says "groups complete S2->S3->S4 cycle"
-- S2 says "groups complete S2 only, then S3"
+- S1 says "groups complete S2->S3->S5 cycle"
+- S2 says "groups complete S2 only, then S3 (S4 deprecated, S5 is per-feature sequential)"
 - **CONTRADICTION** - agents receive conflicting instructions
 
 **Common Patterns to Search:**
@@ -506,8 +506,8 @@ Different guides may describe the same workflow differently, creating confusion:
 grep -rn "S[0-9].*->.*S[0-9]\|S[0-9].*then.*S[0-9]\|S[0-9].*before.*S[0-9]" stages/
 
 # Examples found:
-# "groups complete S2->S3->S4 cycle"
-# "S2 then S3 then S4"
+# "groups complete S2->S3->S5 cycle"  (wrong: groups only matter for S2)
+# "S2 then S3 then S5"
 # "complete S2 before S3"
 ```
 
@@ -554,10 +554,11 @@ grep -rn "epic.level\|feature.level\|group.level\|all features\|per feature" sta
 
 **Example Issue (SHAMT-8):**
 ```text
-S1 Line 600: "Each group completes full S2->S3->S4 cycle"
+S1 Line 600: "Each group completes full S2->S3->S5 cycle"
 S2.P2: "After all groups complete S2 -> Proceed to S3"
 
-CONTRADICTION: S1 says groups matter for S3/S4, S2 says groups only matter for S2
+CONTRADICTION: S1 says groups matter for S3/S5, S2 says groups only matter for S2
+(Note: S4 is deprecated since SHAMT-6 — S5 is sequential per-feature, not part of group cycles)
 ```
 
 **Automated:** Partial - Can find workflow descriptions, requires manual consistency check
@@ -765,8 +766,7 @@ done
 # Validate:
 # S1 → S2
 # S2 → S3
-# S3 → S4
-# S4 → S5
+# S3 → S5  (S4 deprecated — no S3→S4 or S4→S5 transitions expected)
 # S5 → S6
 # S6 → S7
 # S7 → S8
@@ -938,6 +938,8 @@ Proceed to S5: Implementation Planning (`stages/s5/s5_v2_validation_loop.md`)
 -Proceed to S5: Implementation Planning (`stages/s5/s5_v2_validation_loop.md`)
 +Proceed to S4: Feature Testing Strategy (`stages/s4/s4_feature_testing_strategy.md`)
 ```markdown
+
+> **Historical note:** S4 was deprecated in SHAMT-6. The fix shown above was correct at the time. The file is now at `stages/s4/archive/s4_feature_testing_strategy.md`.
 
 **Root Cause:** Workflow evolution without systematic update cascade
 
@@ -1128,7 +1130,7 @@ Proceed to S9: Epic-Level Final QC (`stages/s9/s9_epic_final_qc.md`)
 
 **Example:**
 - D2 checks: Uses "S5.P1" not "S5a" ✅
-- D3 checks: S4 → S5 transition exists ✅
+- D3 checks: S3 → S5 transition exists ✅ (S4 deprecated since SHAMT-6)
 
 ---
 

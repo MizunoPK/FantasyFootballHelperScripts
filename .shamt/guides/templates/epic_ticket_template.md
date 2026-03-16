@@ -16,6 +16,7 @@
 
 **Created:** {YYYY-MM-DD}
 **Status:** {VALIDATED / DRAFT}
+**Testing Approach:** {A — Smoke only | B — Integration scripts (Recommended) | C — Unit tests only | D — Both}
 
 ---
 

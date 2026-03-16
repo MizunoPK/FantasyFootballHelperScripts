@@ -452,17 +452,19 @@ Removed the "Key Changes from Old S3" block and the "Moved from old S4, expanded
 
 ---
 
-### Example 3: S3.P1 / S4 Structural Similarity (SHAMT-6)
+### Example 3: S3.P1 / S5 Step 0 Structural Similarity (Historical: SHAMT-6)
 
-**Issue Found:**
-S3.P1 (epic smoke test plan) and S4 (per-feature test strategy) used nearly identical template structures — same section headers, same output formats, same validation loop format. No guide had an explicit "this is NOT the other guide" callout.
+**Issue Found (pre-SHAMT-6):**
+S3.P1 (epic smoke test plan) and the former S4 (per-feature test strategy) used nearly identical template structures — same section headers, same output formats, same validation loop format. No guide had an explicit "this is NOT the other guide" callout.
 
 **Impact:**
 Agents who completed S3.P1 and then reached S4 treated them as the same workflow, reusing S3.P1-level thinking (cross-feature scenarios) for per-feature test planning, or skipping S4 on the assumption that "test planning was already done in S3."
 
-**Fix Applied:**
-- Added to S3.P1: `> **This is NOT per-feature test planning.** Tests defined here span multiple features and verify end-to-end workflows across the whole epic.`
-- S4 already had a prerequisite "S3 complete" — no additional callout was added to S4, but one should be added per Type 3 checklist
+**Resolution:**
+S4 was deprecated in SHAMT-6. The Test Scope Decision now happens at S5 Step 0 (not a separate stage), and only applies to Options C/D (unit tests). S3.P1 has a callout: `> **This is NOT per-feature test planning.** Tests defined here span multiple features and verify end-to-end workflows across the whole epic.`
+
+**Current D21 applicability:**
+Watch for agents confusing S3.P1 (epic-level integration testing) with S5 Step 0 (per-feature test scope decision). These serve different purposes and should not be treated as equivalent.
 
 **D21 Detection:**
 - Type 3: Structural Similarity check — manual read of both guides side by side reveals identical template without scope differentiation

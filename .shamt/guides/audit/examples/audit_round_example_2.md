@@ -391,7 +391,7 @@ $ grep -rh "stages/.*\.md\|templates/.*\.md" --include="*.md" ../../ | \
 **Pattern ideas for Round 3:**
 - Search for old notation: "S5a", "S6a", "S7a", etc.
 - Search for notation variations: "S5a:", "back to S5a", "(S5a)"
-- Check count claims: "10 stages", "7 stages", "21 dimensions"
+- Check count claims: "10 stages", "7 stages", "22 dimensions"
 
 ---
 

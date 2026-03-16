@@ -736,15 +736,15 @@ stages/s5/s5_p1_i1_requirements.md:292:```
 **Fix:**
 ```markdown
 # Before
-```bash
+~~~
 grep -rn "pattern" files/
-```text
+~~~
 
 # After
-```
+~~~bash
 grep -rn "pattern" files/
-```text
-```bash
+~~~
+```
 
 ### Example 4: Root File Missing Section
 
@@ -838,8 +838,7 @@ declare -a known_exceptions=(
   "stages/s5/s5_p1_i3_iter5_dataflow.md"
   # ... (14 S5 iteration files)
   "stages/s3/s3_parallel_work_sync.md"
-  "stages/s4/s4_feature_testing_card.md"
-  "stages/s4/s4_test_strategy_development.md"
+  # Note: s4 files were archived in SHAMT-7 and removed from exceptions
 )
 
 # Skip known exceptions in check loop

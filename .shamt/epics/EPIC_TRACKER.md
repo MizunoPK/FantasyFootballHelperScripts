@@ -1,22 +1,24 @@
 # FantasyFootballHelperScripts Epic Tracker
 
 **Project:** FantasyFootballHelperScripts
-**Epic Tag:** FF
-**Next Available Number:** FF-1
+**Epic Tag:** KAI
+**Next Available Number:** KAI-12
 
 ---
 
 ## Active Epics
 
-| FF # | Epic Name | Branch | Status | Started |
+| KAI # | Epic Name | Branch | Status | Started |
 |----------------|-----------|--------|--------|---------|
 | — | — | — | — | — |
+
+**Status values indicating an active epic (for dependency checks):** In Progress, Planning, Blocked, On Hold — any value that is NOT "Completed" or "Archived". When running the S1 sibling epic awareness check, treat any non-Completed, non-Archived epic as active.
 
 ---
 
 ## Completed Epics
 
-| FF # | Epic Name | Branch | Completed | Notes |
+| KAI # | Epic Name | Branch | Completed | Notes |
 |----------------|-----------|--------|-----------|-------|
 | — | — | — | — | — |
 

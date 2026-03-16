@@ -147,8 +147,8 @@ How Stage N describes workflow mechanics must match how Stage N+1 operates.
 |------------|------------------------|
 | S1->S2 | Does S1's parallelization description match S2's handling? |
 | S2->S3 | Does S2's "proceed to S3" condition match S3's prerequisites? |
-| S3->S4 | Does S3's scope (epic/group) match S4's scope? |
-| S4->S5 | Does S4's test strategy integrate into S5's planning? |
+| S3->S5 | Does S3's exit (Gate 4.5) correctly transition to S5? (S4 deprecated) |
+| S4->S5 | S4 deprecated — verify no guide still requires S4 completion as S5 prerequisite |
 | S5->S6 | Does S5's plan format match S6's execution expectations? |
 | S6->S7 | Does S6's completion state match S7's entry assumptions? |
 | S7->S8 | Does S7's commit status match S8's alignment assumptions? |
@@ -655,7 +655,7 @@ Subsequent features: S8 -> S5 (loop back)
 
 **S1 Exit (Line 600):**
 ```markdown
-Workflow: Each group completes full S2->S3->S4 cycle before next group starts
+Workflow: Each group completes full S2->S3->S5 cycle before next group starts
 ```
 
 **S2 Operation (Lines 150-157):**
@@ -665,8 +665,8 @@ After S2.P2:
 ```
 
 **Analysis:**
-- S1 promises: Groups cycle through S2, S3, AND S4
-- S2 implements: Groups only matter for S2, then S3 is epic-level
+- S1 promises: Groups cycle through S2, S3, AND S5
+- S2 implements: Groups only matter for S2, then S3 is epic-level (S4 deprecated)
 - **FLOW INCONSISTENCY**
 
 **Impact:**

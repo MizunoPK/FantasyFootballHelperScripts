@@ -319,10 +319,10 @@ Agent spawns: Secondaries AFTER Group 1 S2 complete
 **Scenario:**
 ```text
 Agent creates: Group 1 (Feature 01), Group 2 (Features 02-05)
-Agent plans: "Group 1 completes S2→S3→S4, then Group 2 starts S2"
+Agent plans: "Group 1 completes S2→S3→S5, then Group 2 starts S2"
 ```
 
-**Why Wrong:** Groups only matter for S2. After S2, workflow returns to epic-level (S3) then sequential per-feature (S4+)
+**Why Wrong:** Groups only matter for S2. After S2, workflow returns to epic-level (S3) then sequential per-feature S5+ (S4 deprecated)
 
 **Correct Approach:**
 ```text
@@ -330,7 +330,7 @@ Agent plans:
 - Wave 1: Group 1 completes S2 only
 - Wave 2: Group 2 completes S2 only
 - After ALL S2 done: Primary runs S3 (epic-level, all features together)
-- After S3: Primary runs S4 for each feature (sequential, no groups)
+- After S3: Primary runs S5 for each feature (sequential, no groups — S4 deprecated)
 ```
 
 **Key Principle:** Groups are S2-only constructs, don't extend to other stages

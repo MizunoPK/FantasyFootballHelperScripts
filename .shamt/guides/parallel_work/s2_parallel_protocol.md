@@ -46,8 +46,8 @@ SAVINGS: 4 hours (67% reduction in S2 time)
 
 **Epic-level impact:**
 ```text
-Sequential Epic: S1(2h) + S2(6h) + S3(1h) + S4(1h) + S5-S8(15h) + S9(2h) + S10(1h) = 28h
-Parallel S2 Epic: S1(2h) + S2(2h) + S3(1h) + S4(1h) + S5-S8(15h) + S9(2h) + S10(1h) = 24h
+Sequential Epic: S1(2h) + S2(6h) + S3(1h) + S5-S8(15h) + S9(2h) + S10(1h) = 27h  [S4 deprecated]
+Parallel S2 Epic: S1(2h) + S2(2h) + S3(1h) + S5-S8(15h) + S9(2h) + S10(1h) = 23h  [S4 deprecated]
 
 SAVINGS: 4 hours (14% epic-level reduction)
 ```
@@ -80,7 +80,7 @@ SAVINGS: 4 hours (14% epic-level reduction)
 **Sequential (Unchanged):**
 - ❌ S1: Epic Planning (Primary only)
 - ❌ S3: Epic-Level Docs, Tests, and Approval (Primary only)
-- ❌ S4: Feature Testing Strategy (Primary only)
+- ❌ S4: (Deprecated — Test Scope Decision now in S5 Step 0)
 - ❌ S5-S8: Feature Implementation (sequential in this plan)
 - ❌ S9-S10: Epic completion (Primary only)
 
@@ -98,7 +98,7 @@ SAVINGS: 4 hours (14% epic-level reduction)
 │  - Generates handoff packages                           │
 │  - Monitors secondary agents                            │
 │  - Handles escalations                                  │
-│  - Runs S1, S3, S4, S9, S10                            │
+│  - Runs S1, S3, S5–S10 (S4 deprecated)                 │
 └─────────────────────────────────────────────────────────┘
           │                                   │
           │ handoff package                   │ handoff package
@@ -585,16 +585,13 @@ All features complete! Proceeding to S3.
 
 ---
 
-### Phase 8: S4 Feature Testing Strategy (Primary Solo)
+### Phase 8: S4 Deprecated — Proceed to S5
 
-**Run S4 alone:**
+> **⚠️ S4 has been deprecated (SHAMT-6).** Skip this phase entirely. Proceed to S5.
 
-1. Create test_strategy.md for each feature
-2. Follow S4 guide per feature (feature-level only)
-3. Complete S4
-   - Note: epic_smoke_test_plan.md was finalized in S3.P1; do NOT update it in S4
-
-**No parallel work in S4** (sequential feature testing strategy)
+**Test Scope Decision is now Step 0 of S5:**
+- Read Testing Approach (A/B/C/D) from EPIC_README
+- Follow `stages/s5/s5_v2_validation_loop.md` Step 0 for each feature
 
 ---
 
@@ -604,7 +601,7 @@ All features complete! Proceeding to S3.
 
 ```markdown
 ## Message (TIMESTAMP) ⏳ UNREAD
-**Subject:** S3 and S4 Complete
+**Subject:** S3 Complete (S4 deprecated)
 **Status:** All planning complete
 **Findings:** No conflicts found
 **Next:** Implementation (S5-S8) will be sequential
@@ -749,7 +746,7 @@ READY_FOR_SYNC: false
    - Generate handoff packages
    - Monitor secondary agents (STATUS, checkpoints)
    - Handle escalations (respond within 15 min)
-   - Run S3 and S4 (solo)
+   - Run S3 solo (S4 deprecated)
    - Manage sync points
 
 3. **User Liaison:**
@@ -834,12 +831,12 @@ READY_FOR_SYNC: true
 
 **Status:** "Waiting for all features to complete S2"
 
-### Sync Point 3: After S4 → Before S5
+### Sync Point 3: After S3 → Before S5
 
-**Trigger:** Primary completes S3 and S4
+**Trigger:** Primary completes S3 (S4 deprecated)
 
 **Actions:**
-1. Primary notifies secondaries (S3/S4 done)
+1. Primary notifies secondaries (S3 done)
 2. Secondaries close sessions or idle
 3. Primary proceeds to S5 (sequential implementation)
 

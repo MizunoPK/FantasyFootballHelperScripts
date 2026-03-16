@@ -327,13 +327,13 @@ When planning complete:
 ```markdown
 ## Epic Progress Tracker
 
-| Feature | S2 | S3 | S4 | S5 | S6 | S7 | S8.P1 | S8.P2 |
-|---------|---------|---------|---------|----------|----------|----------|----------|----------|
-| feature_01_rank_integration | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| feature_02_projection_system | ✅ | ✅ | ✅ | ✅ | 🔄 | ◻️ | ◻️ | ◻️ |
-| feature_03_performance_tracker | ✅ | ✅ | ✅ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ |
-| feature_04_matchup_analysis | ✅ | ✅ | ✅ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ |
-| feature_05_injury_tracking (NEW) | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ |
+| Feature | S2 | S3 | S5 | S6 | S7 | S8.P1 | S8.P2 |
+|---------|---------|---------|----------|----------|----------|----------|----------|
+| feature_01_rank_integration | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| feature_02_projection_system | ✅ | ✅ | ✅ | 🔄 | ◻️ | ◻️ | ◻️ |
+| feature_03_performance_tracker | ✅ | ✅ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ |
+| feature_04_matchup_analysis | ✅ | ✅ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ |
+| feature_05_injury_tracking (NEW) | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ |
 
 **Implementation Sequence (Updated):**
 1. feature_01 ✅ COMPLETE

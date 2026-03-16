@@ -48,11 +48,11 @@
 |----------|----------|----------|
 | [Cross-Feature Alignment](#cross-feature-alignment) | `cross_feature_sanity_check_template.md` | Comparing features for conflicts or duplications during S2.P2 (Cross-Feature Alignment) |
 
-### S4: Feature Testing Strategy
+### S4: (Deprecated — Test Scope Decision in S5 Step 0)
 
 | Template | Filename | Use When |
 |----------|----------|----------|
-| [Feature Test Strategy](#feature-test-strategy) | `feature_test_strategy_template.md` | Creating test strategy before implementation (>90% coverage goal) |
+| [Feature Test Strategy](#feature-test-strategy) | `feature_test_strategy_template.md` | Options C/D only — algorithmic function test planning at S5 Step 0 |
 
 ### S5: Implementation Planning
 
@@ -137,10 +137,10 @@
 #### Epic Smoke Test Plan
 - **File:** `epic_smoke_test_plan_template.md`
 - **Created:** S1
-- **Updated:** S4, S8.P2 (after each feature)
+- **Updated:** S3.P1, S8.P2 (after each feature)
 - **Purpose:** Epic end-to-end testing scenarios
 - **Size:** ~280 lines
-- **When to use:** S1 initial creation, S4 refinement
+- **When to use:** S1 initial creation, S3.P1 refinement (S4 deprecated)
 
 #### Epic Lessons Learned
 - **File:** `epic_lessons_learned_template.md`
@@ -231,10 +231,10 @@
 
 #### Feature Test Strategy
 - **File:** `feature_test_strategy_template.md`
-- **Created:** S4
-- **Purpose:** Planning unit tests, integration tests, edge cases, and config scenarios with >90% coverage goal before implementation
+- **Created:** S5 Step 0 (formerly S4 — deprecated)
+- **Purpose:** Options C/D only — planning unit tests for algorithmic functions before implementation
 - **Size:** ~259 lines
-- **When to use:** S4 start (creates `test_strategy.md` in feature folder)
+- **When to use:** S5 Step 0 if Testing Approach is C or D
 
 #### Cross-Feature Alignment
 - **File:** `cross_feature_sanity_check_template.md`

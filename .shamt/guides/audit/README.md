@@ -84,7 +84,7 @@ Round N:
   │   S1: Discovery → S2: Planning → S3: Apply → S4: Verify → S5: Loop Decision
   │   If 0 issues → Sub-Round N.4 | If issues → Fix & Re-run N.3
   │
-  └─> Sub-Round N.4: Advanced (D15, D16, D17, D18, D19, D20, D21)
+  └─> Sub-Round N.4: Advanced (D15, D16, D17, D18, D19, D20, D21, D22)
       S1: Discovery → S2: Planning → S3: Apply → S4: Verify → S5: Loop Decision
       If 0 issues → Round N complete | If issues → Fix & Re-run N.4
 
@@ -94,10 +94,10 @@ Round N complete → Round N+1 (fresh eyes) → EXIT when all criteria met
 ### Sub-Round Benefits
 
 1. **Dependency Management:** Core fixes (broken references) applied before Structural checks
-2. **Focused Discovery:** Check 4-7 related dimensions per sub-round, not all 21 at once
+2. **Focused Discovery:** Check 4-8 related dimensions per sub-round, not all 22 at once
 3. **Incremental Verification:** Verify fixes before moving to next category
 4. **Mental Clarity:** Fresh mental model between dimension categories
-5. **Complete Coverage:** ALL 21 dimensions checked systematically every round
+5. **Complete Coverage:** ALL 22 dimensions checked systematically every round
 6. **No Blind Spots:** Can't skip dimensions accidentally
 
 ---
@@ -129,8 +129,8 @@ Round N complete → Round N+1 (fresh eyes) → EXIT when all criteria met
 | **N.1: Core** | D1, D2, D3, D4 | 4 | File paths, terminology, workflow, CLAUDE.md | 60-90 min |
 | **N.2: Content** | D5, D6, D7, D8, D9 | 5 | Counts, completeness, templates, documentation | 75-120 min |
 | **N.3: Structural** | D10, D11, D12, D13, D14 | 5 | File consistency, size, patterns, dependencies, character compliance | 60-90 min |
-| **N.4: Advanced** | D15, D16, D17, D18, D19, D20, D21 | 7 | Context-sensitive, duplication, accessibility, flow, rules alignment, script integrity, agent comprehension | 60-90 min |
-| **TOTAL** | All 21 dimensions | 21 | Complete coverage | 4.5-6.5 hours |
+| **N.4: Advanced** | D15, D16, D17, D18, D19, D20, D21, D22 | 8 | Context-sensitive, duplication, accessibility, flow, rules alignment, script integrity, agent comprehension, guide bypass risk | 60-90 min |
+| **TOTAL** | All 22 dimensions | 22 | Complete coverage | 4.5-6.5 hours |
 
 **Execution Order:**
 1. **Core first** - Fixes broken references and inconsistent notation that affect all other checks
@@ -148,7 +148,7 @@ Round N complete → Round N+1 (fresh eyes) → EXIT when all criteria met
 
 ## Navigation by Audit Dimension
 
-The audit evaluates guides across **21 critical dimensions**:
+The audit evaluates guides across **22 critical dimensions**:
 
 ### Core Dimensions (Always Check)
 
@@ -190,6 +190,7 @@ The audit evaluates guides across **21 critical dimensions**:
 | **D19: Rules File Template Alignment** | `dimensions/d19_rules_file_template_alignment.md` | Child rules file structure (child context only) | 30% automated |
 | **D20: Script Integrity** | `stages/stage_1_discovery.md` (D20 section) | Sync/init script correctness and parity | 20% automated |
 | **D21: Agent Comprehension Risk** | `dimensions/d21_agent_comprehension_risk.md` | Per-guide scope clarity, migration note absence, structural similarity differentiation | 15% automated |
+| **D22: Guide Bypass Risk** | `dimensions/d22_guide_bypass_risk.md` | MRP presence, FORBIDDEN SHORTCUTS, phase commitment gates, bypass resistance | 30% automated |
 
 **Usage:** Read dimension guides as needed during discovery. Not all dimensions apply to every audit.
 
@@ -447,7 +448,7 @@ Learn from actual audit rounds:
 
 ### Pre-Audit Checks
 `scripts/pre_audit_checks.sh` - Run before manual audit begins
-- Checks 12 of 21 dimensions (D1, D3, D4, D8, D9, D10, D11, D12, D14, D17, D18, D20 partial)
+- Checks 12 of 22 dimensions (D1, D3, D4, D8, D9, D10, D11, D12, D14, D17, D18, D20 partial)
 - Catches common structural issues (estimated 45-55% of typical issues)
 - Fast execution (5 minutes)
 - Generates initial report

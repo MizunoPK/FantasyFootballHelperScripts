@@ -2,12 +2,22 @@
 
 🚨 **MANDATORY READING PROTOCOL**
 
-**Before starting this phase:**
+**Before starting this phase — including when resuming a prior session:**
 1. Use Read tool to load THIS ENTIRE GUIDE
 2. Verify ALL features in group completed S2.P1 (Gate 3 passed for each)
 3. Update epic EPIC_README.md Agent Status with guide name + timestamp
 
 **This phase is PRIMARY AGENT ONLY - Secondary agents wait**
+
+---
+
+## 🚫 FORBIDDEN SHORTCUTS
+
+You CANNOT:
+- Skip pairwise comparison for features that "seem independent" — every feature in the group must be checked against every other feature for spec conflicts and shared assumptions
+- Run S2.P2 immediately after one group completes S2.P1 without waiting for ALL groups to complete S2.P1 — S2.P2 runs once after ALL groups complete S2.P1
+
+If you are about to do any of the above: STOP and re-read the relevant section.
 
 ---
 

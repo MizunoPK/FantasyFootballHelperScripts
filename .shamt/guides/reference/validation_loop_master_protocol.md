@@ -1,7 +1,7 @@
 # Master Validation Loop Protocol
 
-**Version:** 2.2
-**Last Updated:** 2026-03-02
+**Version:** 2.3
+**Last Updated:** 2026-03-15
 **Purpose:** Universal validation loop protocol with master dimensions that apply to ALL validation contexts
 **Extends:** This master protocol is extended by scenario-specific validation loop guides
 
@@ -24,7 +24,8 @@
 4. **Walk through ALL dimensions** (master + scenario-specific) and document each as PASS or ISSUE
 5. **Verify ≥3 technical claims** against source code every round using tools (read_file, grep_search)
 6. **Never delegate rounds to subagents** — you must do the reads and checks yourself
-7. **Exit ONLY when `clean_counter = 3`** — meaning 3 consecutive rounds where you found ZERO issues
+7. **At 2 consecutive clean rounds: pause and present to the user** (see Exit Criteria for the checkpoint protocol) — the standard is 3 consecutive clean rounds, but the user may opt to stop at 2
+8. **Complete the Adversarial Self-Check** after checking all dimensions in each round — a round may not be scored clean if this step is skipped
 
 **A round where you found issues and fixed them is NOT a clean round. The counter resets to 0.**
 
@@ -39,12 +40,15 @@
 3. [Core Validation Process](#core-validation-process)
 4. [Universal Dimensions (Master - Always Checked)](#universal-dimensions-master---always-checked)
 5. [Round-by-Round Execution](#round-by-round-execution)
-6. [Documentation Requirements](#documentation-requirements)
-7. [Quality Standards](#quality-standards)
-8. [Exit Criteria](#exit-criteria)
-9. [Common Mistakes](#common-mistakes)
-10. [How Scenario-Specific Loops Extend This Master](#how-scenario-specific-loops-extend-this-master)
-11. [Templates](#templates)
+   - [Round Structure](#round-structure-every-round)
+   - [Adversarial Self-Check](#adversarial-self-check-run-after-all-dimensions-before-post-round-gate)
+6. [Open Questions Protocol](#open-questions-protocol)
+7. [Documentation Requirements](#documentation-requirements)
+8. [Quality Standards](#quality-standards)
+9. [Exit Criteria](#exit-criteria)
+10. [Common Mistakes](#common-mistakes)
+11. [How Scenario-Specific Loops Extend This Master](#how-scenario-specific-loops-extend-this-master)
+12. [Templates](#templates)
 
 
 ---
@@ -203,7 +207,7 @@ Draft Artifact Created
 - Clean round counter starts at 0
 - Each clean round increments counter
 - ANY issue found → Counter resets to 0
-- Need counter = 3 to exit
+- Need counter = 3 to exit (or user opts to stop at the 2-round checkpoint — see Exit Criteria)
 
 **Example:**
 - Round 1: 5 issues → Fix all → Counter = 0
@@ -819,9 +823,49 @@ PRE-ROUND GATE CHECKLIST:
 
 **If VALIDATION_LOG.md does not exist, create it now using the template in the Documentation Requirements section before proceeding.**
 
+### Round Structure (EVERY Round)
+
+Each round follows these steps in this exact order:
+
+1. **Pre-Round Gate** — verify VALIDATION_LOG.md exists, clean_counter is recorded, round plan documented
+2. **Re-read entire artifact** — use Read tool, no working from memory, fresh eyes
+3. **Check ALL dimensions** — all master dimensions + all scenario-specific dimensions, systematically (1→N)
+4. **Adversarial Self-Check** — run after all dimensions, before scoring the round (see section below)
+5. **Post-Round Gate** — update VALIDATION_LOG.md, document all dimensions, update clean_counter
+
+**The Adversarial Self-Check (step 4) may not be skipped. A round may not be scored clean if it is skipped.**
+
+---
+
+### Adversarial Self-Check (Run After All Dimensions, Before Post-Round Gate)
+
+For each question below, state the answer explicitly or record it as an open question
+if no answer can be found. Answering "nothing found" is only valid after genuinely
+working through each question — not after deciding the artifact looks correct.
+
+- **Uncovered scenarios:** "Are there scenarios in this feature/epic that I have not
+  considered? What are the edge cases, error states, and non-happy-path flows?"
+- **Codebase gaps:** "Is there any part of the codebase I have not read that could be
+  relevant to this artifact? What would I find if I looked at [related module / config /
+  dependency]?"
+- **Emergent questions:** "Based on everything I've found in this round, are there open
+  questions I have not yet asked? What would an adversarial reviewer ask about this artifact?"
+- **Application interactions:** "How do the different applications, services, or modules
+  involved interact with each other? Have I accounted for the seams between them?"
+- **Assumption audit:** "What am I assuming to be true that I have not verified? List the
+  top 3 unverified assumptions in this artifact."
+
+If any question surfaces a new issue: add it to this round's issue list and fix it before
+scoring the round. The round may not be scored clean if the Adversarial Self-Check is skipped.
+
+If any question surfaces an open question that cannot be answered locally: handle it via the
+Open Questions Protocol (see below).
+
+---
+
 ### Mandatory Post-Round Gate (EVERY Round)
 
-**After completing a round, verify these 5 conditions before moving to the next round.**
+**After completing a round, verify these 6 conditions before moving to the next round.**
 
 ```text
 POST-ROUND GATE CHECKLIST:
@@ -829,12 +873,13 @@ POST-ROUND GATE CHECKLIST:
 [ ] ALL dimensions documented (PASS or ISSUE for each — 7 master + scenario-specific)
 [ ] ≥3 technical claims verified with tool evidence documented in log
 [ ] Full artifact re-read evidenced (read_file calls covering line 1 through end)
+[ ] Adversarial Self-Check completed (all 5 questions answered or recorded as open questions)
 [ ] clean_counter updated correctly:
     - If ANY issues found this round → clean_counter = 0 (even if you fixed them)
     - If ZERO issues found → clean_counter = previous + 1
 ```
 
-**Do NOT proceed to the next round until all 5 boxes are checked.**
+**Do NOT proceed to the next round until all 6 boxes are checked.**
 
 ---
 
@@ -982,6 +1027,58 @@ Round 4: 0 issues → Counter = 3 ✅ EXIT
 - No hard maximum (continue until 3 consecutive clean)
 - Typical: 4-7 rounds total
 - If exceeding 10 rounds: Re-evaluate approach (may need to redesign artifact)
+
+---
+
+## Open Questions Protocol
+
+An open question is any question raised during a validation round that the agent
+cannot confidently answer from information already gathered.
+
+### At the end of each round:
+
+**Step 1 — Categorize open questions**
+For each open question from this round:
+- Type A: Answerable by codebase research (a specific file, function, or config not yet read)
+- Type B: Requires user input (a product decision, an external constraint, a business rule)
+
+If a question is ambiguous (could be Type A or Type B): treat it as Type A and attempt
+research first. Only escalate to Type B if the research confirms no answer exists in the
+codebase.
+
+**Step 2 — Resolve Type A questions before stating the round result**
+If any Type A questions exist: do the research now, within this round. Read the relevant
+files and update the round's findings before scoring the round clean or not-clean.
+
+A round may not be scored as clean if Type A questions remain unresearched.
+
+**Step 3 — Pause for Type B questions before starting the next round**
+If any Type B questions remain after Step 2:
+- Do NOT start the next round
+- Present the open questions to the user clearly, grouped by topic
+- Explain why each question blocks the next round (what dimension or decision it affects)
+- Wait for user input before proceeding
+- When the user answers: incorporate those answers explicitly in all dimensions of the
+  next round, not just the dimension that raised the question
+- **If the user's answer requires significant plan changes**: restart **the validation loop from Round 1**
+  (i.e., Round 1 of Phase 2 — do not redo Phase 1/draft creation unless the answer
+  fundamentally invalidates the draft itself) and reset the clean counter to 0. Minor
+  clarifications that don't change the plan do not require a restart.
+
+  **"Significant" means any of:**
+  - The answer affects 3 or more tasks in the implementation plan
+  - The answer changes the core approach or algorithm (regardless of task count)
+  - The answer invalidates a claim verified in a prior clean round (e.g., a "verified"
+    interface is now wrong, a "confirmed" assumption was false)
+
+  If none of these apply, treat the answer as a minor clarification and continue without
+  restarting.
+- **If the user is unavailable:** record the open questions in Agent Status under
+  "Blocked: awaiting user input on [question summary]" and suspend the loop. Resume when
+  the user returns and provides answers.
+
+**Step 4 — No Type B questions: continue normally**
+If no Type B questions remain after Steps 2 and 3: proceed to the next round.
 
 ---
 
@@ -1188,23 +1285,57 @@ Before declaring validation complete, agent MUST:
 
 ## Exit Criteria
 
+**Minimum standard:** 3 consecutive clean rounds with all dimensions passing and all
+exit criteria met.
+
+**User checkpoint at 2 consecutive clean rounds:**
+When 2 consecutive clean rounds are achieved, STOP before starting Round 3.
+
+Present to the user:
+- Current round count and consecutive clean count (e.g., "Round 4 complete — 2 consecutive clean")
+- A brief summary of what was checked in these two rounds and what was confirmed clean
+- The open question: "Round 3 is the standard exit threshold. Do you want to run it,
+  or are you satisfied with the plan at this point?"
+
+If the user opts to stop at 2: record this in Agent Status and proceed to the next stage gate.
+If the user opts to continue: run Round 3 normally; if Round 3 is clean, exit the loop.
+If Round 3 is NOT clean: continue until 3 consecutive clean rounds are achieved or the
+  user again opts to stop after a 2-consecutive-clean checkpoint.
+
+**Note on recurrence:** If Round 3 is not clean and the counter resets, the checkpoint
+triggers again the next time 2 consecutive clean rounds are achieved. Every time the plan
+reaches a 2-clean-round plateau, the user gets to decide whether to push to a 3rd.
+
+**Interaction with the 10-round re-evaluation threshold:**
+If the 2-consecutive-clean checkpoint fires at or near the 10-round limit (e.g., clean rounds
+are rounds 9 and 10), do not present the two escalations separately. Present a single combined
+checkpoint to the user:
+
+> "Round 10 reached (re-evaluation threshold) AND 2 consecutive clean rounds achieved.
+> Three options:
+> (a) Accept the plan now — 2 clean rounds is sufficient confidence for this artifact.
+> (b) Run a 3rd round — you are explicitly authorizing proceeding past the 10-round threshold.
+> (c) Re-evaluate the artifact — the number of rounds needed suggests a structural issue
+>     worth addressing before proceeding."
+
+Option (b) requires explicit user authorization; silence or a vague acknowledgment does not
+count. When the two escalation points coincide, the user receives one combined decision.
+
 **Validation Loop is COMPLETE when ALL of the following are true:**
 
-- [ ] 3 consecutive zero-issue rounds achieved (consecutive_clean = 3)
-- [ ] 3 consecutive rounds with ZERO issues found
+- [ ] 3 consecutive zero-issue rounds achieved (consecutive_clean = 3) OR user explicitly opted to stop at 2-round checkpoint
 - [ ] All 7 master dimensions checked every round
 - [ ] All scenario-specific dimensions checked every round
-- [ ] Clean round counter = 3
 - [ ] Validation log complete with all rounds documented
 - [ ] Final artifact version tagged/noted
 - [ ] Summary section completed in validation log
 
 **Cannot exit if:**
-- ❌ Only 2 consecutive clean rounds
+- ❌ You CANNOT stop before the 2-round checkpoint without user input — the checkpoint is the only sanctioned early-exit mechanism
 - ❌ Skipped any dimensions in any round
 - ❌ Deferred any issues (even LOW severity)
 - ❌ Worked from memory (didn't re-read)
-- ❌ Last round found issues
+- ❌ Last round found issues (unless user authorized exit at 2-round checkpoint)
 
 ---
 

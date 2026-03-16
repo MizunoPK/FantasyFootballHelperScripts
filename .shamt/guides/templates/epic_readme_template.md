@@ -17,6 +17,8 @@
 **Created:** {YYYY-MM-DD}
 **Status:** {IN PROGRESS / COMPLETE}
 **Total Features:** {N}
+**Testing Approach:** {A — Smoke only | B — Integration scripts (Recommended) | C — Unit tests only | D — Both}
+**Integration Test Convention:** {Language/framework, directory, naming pattern, run command — or "N/A (Option A or C)"}
 
 ---
 
@@ -28,11 +30,12 @@
 
 **Stage Workflow:**
 ```
-S1 → S2 → S3 → S4 → [S5→S6→S7→S8] → S9 → S10
-  ↓        ↓        ↓        ↓        ↓           ↓        ↓
-Epic  Features  Sanity  Testing  Implementation  Epic    Done
-Plan  Deep Dive  Check  Strategy  (per feature)   QC
-```markdown
+S1 → S2 → S3 → [S5→S6→S7→S8] → S9 → S10
+  ↓        ↓        ↓        ↓           ↓        ↓
+Epic  Features  Sanity  Implementation  Epic    Done
+Plan  Deep Dive  Check  (per feature)   QC
+```text
+(S4 deprecated — Test Scope Decision moved to S5 Step 0)
 
 **You are here:** ➜ Stage {X}
 
@@ -91,15 +94,28 @@ Plan  Deep Dive  Check  Strategy  (per feature)   QC
 
 ---
 
+## Dependencies
+
+**Inter-Epic Dependencies:**
+{List any active epics this epic depends on, or "None"}
+
+| Dependency Epic | Reason | Re-Validation Status |
+|-----------------|--------|---------------------|
+| {SHAMT-N — epic name} | {Brief reason this epic's plan depends on that epic's work} | {Pending / Done — {date}} |
+
+**Re-Validation Reminder:** If a dependency epic above completes and merges, trigger the Dependency Re-Validation protocol in `stages/s5/s5_v2_validation_loop.md` before proceeding to S6. The user should provide the PR URL or commit range for the dependency's merged changes.
+
+---
+
 ## Epic Progress Tracker
 
 **Overall Status:** {X/Y features complete}
 
-| Feature | S1 | S2 | S3 | S4 | S5 | S6 | S7 | S8.P1 | S8.P2 |
-|---------|---------|---------|---------|---------|----------|----------|----------|----------|----------|
-| feature_01_{name} | {✅/◻️} | {✅/◻️} | {✅/◻️} | {✅/◻️} | {✅/◻️} | {✅/◻️} | {✅/◻️} | {✅/◻️} | {✅/◻️} |
-| feature_02_{name} | {✅/◻️} | {✅/◻️} | {✅/◻️} | {✅/◻️} | {✅/◻️} | {✅/◻️} | {✅/◻️} | {✅/◻️} | {✅/◻️} |
-| feature_03_{name} | {✅/◻️} | {✅/◻️} | {✅/◻️} | {✅/◻️} | {✅/◻️} | {✅/◻️} | {✅/◻️} | {✅/◻️} | {✅/◻️} |
+| Feature | S1 | S2 | S3 | S5 | S6 | S7 | S8.P1 | S8.P2 |
+|---------|---------|---------|---------|----------|----------|----------|----------|----------|
+| feature_01_{name} | {✅/◻️} | {✅/◻️} | {✅/◻️} | {✅/◻️} | {✅/◻️} | {✅/◻️} | {✅/◻️} | {✅/◻️} |
+| feature_02_{name} | {✅/◻️} | {✅/◻️} | {✅/◻️} | {✅/◻️} | {✅/◻️} | {✅/◻️} | {✅/◻️} | {✅/◻️} |
+| feature_03_{name} | {✅/◻️} | {✅/◻️} | {✅/◻️} | {✅/◻️} | {✅/◻️} | {✅/◻️} | {✅/◻️} | {✅/◻️} |
 
 **Legend:**
 - ✅ = Complete
@@ -172,7 +188,7 @@ Plan  Deep Dive  Check  Strategy  (per feature)   QC
 **After S2 Complete:**
 - Groups no longer matter
 - S3: Epic-level (all features together)
-- S4: Per-feature sequential
+- S4: Deprecated (test scope decision now at S5 Step 0)
 - S5-S8: Per-feature sequential (implementation dependencies checked separately)
 - S9-S10: Epic-level
 
@@ -212,7 +228,7 @@ Plan  Deep Dive  Check  Strategy  (per feature)   QC
   - Generate handoff packages for secondaries
   - Monitor coordination channels
   - Handle escalations within 15 min SLA
-  - Run S3 and S4 solo after all features complete S2
+  - Run S3 solo after all features complete S2 (S4 deprecated)
 
 **Secondary Agents:**
 
@@ -252,15 +268,15 @@ Plan  Deep Dive  Check  Strategy  (per feature)   QC
 - **Verification Complete:** {YES/NO}
 - **Timestamp:** {YYYY-MM-DD HH:MM or "Not reached"}
 
-**S4 → S5 Sync Point:**
+**S3 → S5 Sync Point:**
 - **Status:** {NOT_REACHED / WAITING / COMPLETE}
-- **Primary Completed S3/S4:** {YES/NO}
+- **Primary Completed S3:** {YES/NO}
 - **All Agents Notified:** {YES/NO}
 - **Timestamp:** {YYYY-MM-DD HH:MM or "Not reached"}
 
 ### Coordination Status
 
-**Current Phase:** {S2 Parallel / S3 Primary Solo / S4 Primary Solo / Sequential (post-S4)}
+**Current Phase:** {S2 Parallel / S3 Primary Solo / Sequential (post-S3)}
 
 **Active Agents:** {N} ({primary_count} primary + {secondary_count} secondaries)
 
@@ -375,11 +391,13 @@ Plan  Deep Dive  Check  Strategy  (per feature)   QC
 ## Workflow Checklist
 
 **S1 - Epic Planning:**
+- [ ] Sibling epic awareness check completed (Step 0) — dependencies recorded in ## Dependencies if any
 - [ ] Epic folder created
 - [ ] All feature folders created
 - [ ] Initial `epic_smoke_test_plan.md` created
 - [ ] `EPIC_README.md` created (this file)
 - [ ] `epic_lessons_learned.md` created
+- [ ] Testing Approach (A/B/C/D) set in EPIC_README and epic ticket (Step 4.6.5)
 - [ ] Parallelization assessment completed (Step 5.8-5.9)
 - [ ] User chose: {PARALLEL / SEQUENTIAL} for S2
 
@@ -396,12 +414,9 @@ Plan  Deep Dive  Check  Strategy  (per feature)   QC
 **S3 - Epic-Level Docs, Tests, and Approval:**
 - [ ] S3.P1: `epic_smoke_test_plan.md` created (integration tests across ALL features)
 - [ ] S3.P2: `EPIC_README.md` refined with feature summaries and architecture notes
-- [ ] S3.P3: Gate 4.5 — epic plan approved by user (mandatory before S4)
+- [ ] S3.P3: Gate 4.5 — epic plan approved by user (mandatory before S5; S4 deprecated)
 
-**S4 - Feature Testing Strategy:**
-- [ ] Feature 1: `test_strategy.md` created (>90% coverage planned)
-- [ ] Feature 2: `test_strategy.md` created
-- [ ] {Repeat per feature}
+**S4 - (Deprecated):** Test Scope Decision is now Step 0 of S5.
 
 **S5 - Feature Implementation:**
 - [ ] Feature 1: S5→S6→S7→S8 complete
@@ -416,7 +431,7 @@ Plan  Deep Dive  Check  Strategy  (per feature)   QC
 - [ ] End-to-end validation vs original request passed
 
 **S10 - Epic Cleanup:**
-- [ ] All unit tests passing (100%)
+- [ ] Tests passed per Testing Approach (Options C/D: unit tests 100%; Options B/D: integration scripts exit 0; Option A: none)
 - [ ] Documentation verified complete
 - [ ] Guides updated based on lessons learned (if needed)
 - [ ] Final commits made

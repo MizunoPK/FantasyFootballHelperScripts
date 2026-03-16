@@ -32,7 +32,7 @@
 | **D5** | Data Flow & Consumption | Data transformation path | Track data from input → processing → output |
 | **D6** | Error Handling & Edge Cases | Robustness coverage | Identify failure modes, validation, boundary cases |
 | **D7** | Integration & Compatibility | Cross-feature coherence | Check for conflicts with existing features |
-| **D8** | Test Coverage Quality | Testing comprehensiveness | Unit tests, integration tests, edge case tests |
+| **D8** | Test Coverage Quality | Testing comprehensiveness | Tests per Testing Approach (A: none; B: integration script assertions; C: algorithmic unit tests; D: both) |
 | **D9** | Performance & Dependencies | Resource efficiency | Identify bottlenecks, unnecessary dependencies |
 | **D10** | Implementation Readiness | Execution preparedness | Phasing, rollback plan, go/no-go checklist (Gate 24) |
 | **D11** | Spec Alignment & Cross-Validation | Completeness verification | Final spec audit, no gaps (Gates 23a, 25) |

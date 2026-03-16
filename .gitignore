@@ -221,4 +221,4 @@ __marimo__/
 feature-updates/guides_v2/audit/outputs/
 .shamt/*.conf
 .shamt/import_diff*.md
-_internal/
+*VALIDATION_LOG*

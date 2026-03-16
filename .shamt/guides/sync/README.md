@@ -16,7 +16,7 @@ This directory contains the three guides that govern how Shamt improvements flow
 
 ## The Full Sync Cycle
 
-```
+```text
 You improve a shared guide
         |
         v

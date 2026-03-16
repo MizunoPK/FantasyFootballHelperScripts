@@ -95,7 +95,7 @@ S9.P1 → S9.P2 → S9.P3 → S10 (entire epic flow)
    - Use `missed_requirement/realignment.md`
    - S2.P2: cross-feature pairwise alignment for new/updated feature
    - S3: epic smoke test update (S3.P1) + Gate 4.5 re-approval (S3.P3)
-   - S4: create feature test_strategy.md for new/updated feature
+   - S4: deprecated — Test Scope Decision now in S5 Step 0 (check Testing Approach in EPIC_README)
    - **Note:** Epic testing is paused, not a specific feature
 
 ---

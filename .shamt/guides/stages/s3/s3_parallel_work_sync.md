@@ -6,6 +6,15 @@
 
 ---
 
+## 🚨 MANDATORY READING PROTOCOL
+
+**Before starting Parallel Work Sync — including when resuming a prior session:**
+1. Read this ENTIRE guide
+2. Confirm you are the Primary agent and S2 was executed in parallel mode
+3. Verify all secondary agents have sent completion messages before beginning Step 0.1
+
+---
+
 ## Prerequisites
 
 **Before starting parallel work sync:**
@@ -212,7 +221,7 @@ Create sync verification record in `epic/research/S3_SYNC_VERIFICATION_{DATE}.md
      - Primary now running S3 (Epic-Level Documentation, Testing Plans, and Approval)
      - You should WAIT - do NOT proceed to S3
 
-     **Next:** After S3 completes, you'll receive notification to proceed to S4
+     **Next:** After S3 completes, you'll receive notification to proceed to S5 (S4 is deprecated)
      **Acknowledge:** No action needed, this is informational only
      ```
 

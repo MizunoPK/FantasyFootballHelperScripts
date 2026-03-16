@@ -8,6 +8,25 @@
 
 ---
 
+## Table of Contents
+
+1. [What is Smoke Testing?](#what-is-smoke-testing)
+2. [Common Smoke Testing Structure](#common-smoke-testing-structure)
+3. [Universal Critical Rules](#universal-critical-rules)
+4. [Part 1: Import Test (Universal Pattern)](#part-1-import-test-universal-pattern)
+5. [Part 2: Entry Point Test (Universal Pattern)](#part-2-entry-point-test-universal-pattern)
+6. [Part 3: E2E Execution Test (Universal Pattern - CRITICAL)](#part-3-e2e-execution-test-universal-pattern---critical)
+7. [Part 4: Cross-Feature Integration (Epic-Level Only)](#part-4-cross-feature-integration-epic-level-only)
+8. [Restart Protocol](#restart-protocol)
+9. [Common Mistakes to Avoid](#common-mistakes-to-avoid)
+10. [Scope-Specific Differences](#scope-specific-differences)
+11. [Part 3 Detail: Testing Approach Paths](#part-3-detail-testing-approach-paths)
+12. [Mandatory Logging Requirements](#mandatory-logging-requirements)
+13. [Platform-Specific Considerations](#platform-specific-considerations)
+14. [Summary](#summary)
+
+---
+
 ## What is Smoke Testing?
 
 **Definition:** Smoke testing is the first validation step after implementation where you verify the system actually runs end-to-end with REAL data through mandatory structured parts.
@@ -362,6 +381,176 @@ assert df['rank'].min() > 0  # Not placeholder values
 - **Data:** Epic-level workflows with multiple features
 - **Next Stage:** S9.P2 (Epic Validation Loop) if passed
 - **Restart Destination:** S9.P1 Step 1 (complete epic smoke testing)
+
+---
+
+## Part 3 Detail: Testing Approach Paths
+
+Before starting Part 3, read `Testing Approach:` from EPIC_README. This determines which path to follow.
+
+### Path B/D — Integration Script Opted In
+
+Run the feature's integration test script instead of the manual 6-step process.
+
+1. **Read `Integration Test Convention:` from EPIC_README** for script location and invocation command
+2. **Run the integration test script:**
+   ```bash
+   {invocation command from EPIC_README}
+   ```
+3. **The script must pass (exit code 0)** — the 6 manual steps are encoded in the script
+4. **If the script fails:** investigate root cause, fix, restart from Part 1
+
+**Note:** `test_scenario.md` and `expected_results.md` test artifacts are superseded by the integration test script for Options B/D — they do not need to be created separately.
+
+**If Part 3 passes:** proceed to next stage (S7.P2 or S9.P2).
+
+---
+
+### Path A/C — Manual 6-Step E2E Process
+
+**Required Test Artifacts (before executing):**
+
+Create in the epic folder before starting Part 3:
+1. **`SHAMT-{N}-{epic_name}/test_scenario.md`** — document the standard test scenario:
+   - Input data sources (which files, what values)
+   - Expected behavior and outputs
+   - Validation criteria
+2. **`SHAMT-{N}-{epic_name}/expected_results.md`** — document expected results:
+   - Expected output structure
+   - Expected value ranges (from spec)
+   - Edge cases to verify
+   - Pass/fail criteria
+
+**Step 1: Prepare Environment**
+
+```bash
+which python  # Should show venv path
+python -m pip install -e .  # If using editable install
+```
+
+Verify:
+- [ ] Python environment is correct
+- [ ] Dependencies are installed
+- [ ] No stale processes running
+
+**Step 2: Prepare Test Data**
+
+Reference `test_scenario.md`. Use production or production-like data:
+- ✅ Real data from `data/` directory
+- ❌ NOT test fixtures (unless testing edge cases specifically)
+- ❌ NOT mocked data
+
+Document what was used: input files, values, expected behavior.
+
+**Step 3: Execute End-to-End**
+
+```bash
+python run_[module].py --mode {feature_mode} --data-folder ./data
+```
+
+Verify:
+- [ ] Script completes without crashes
+- [ ] No unexpected errors in logs
+- [ ] Output files created
+- [ ] Execution time reasonable
+
+**Step 4: Validate Output Structure**
+
+Reference `expected_results.md`. Verify:
+- [ ] All expected output files exist
+- [ ] Files contain data (not empty)
+- [ ] Required fields present (from spec)
+- [ ] No null/empty/placeholder values in structure
+
+**Step 5: Validate Output Data Values (CRITICAL)**
+
+See data validation examples in the universal Part 3 section above. Key checks:
+- Values in expected range (from spec)
+- Non-uniform distribution (feature actually ran calculations)
+- Edge cases handled correctly
+- No placeholder values remaining
+
+**Step 6: Check Application Logs**
+
+See the **Mandatory Logging Requirements** section below for required log types.
+
+```bash
+grep "feature_keyword" logs/application.log
+tail -100 logs/application.log | grep -i "feature"
+```
+
+Verify:
+- [ ] Feature activation logged
+- [ ] Key data processing logged
+- [ ] Feature results logged
+- [ ] No unexpected errors or warnings
+
+If logs are missing or insufficient: add required logging, re-run E2E test, verify logs show observable feature behavior.
+
+---
+
+## Mandatory Logging Requirements
+
+All features must include appropriate logging for observability. Logs are validated in Part 3 Step 6.
+
+### Required Log Messages
+
+1. **Feature Entry** — log when feature is activated
+2. **Key Data Processing** — log important data transformations
+3. **Feature Results** — log feature outputs/calculations
+4. **Error Handling** — log feature-specific errors
+
+### Log Level Guidelines
+
+- **`logger.info()`**: Feature activation, important results
+- **`logger.debug()`**: Detailed processing steps
+- **`logger.warning()`**: Non-critical issues, fallbacks
+- **`logger.error()`**: Feature failures, critical issues
+
+### Example
+
+```python
+logger = get_logger()
+logger.info(f"Feature mode activated for: {context_name}")
+logger.debug(f"Processing {len(items)} items")
+logger.info(f"Generated {len(results)} results")
+logger.error(f"Failed to process: {e}", exc_info=True)
+```
+
+Missing logs = Part 3 Step 6 failure. Smoke testing requires visible evidence that the feature ran.
+
+---
+
+## Platform-Specific Considerations
+
+### Windows: File Locking with Log Handlers
+
+When testing logging functionality on Windows, file handlers may keep log files open, preventing temporary directory cleanup.
+
+**Problem:** `PermissionError` or `WinError 32` during cleanup of temporary directories that contain log files.
+
+**Solution:** Close log handlers before temp directory cleanup:
+
+```python
+def _close_logger_handlers(logger):
+    """Close all handlers to release file locks (Windows)."""
+    for handler in logger.handlers[:]:
+        handler.close()
+        logger.removeHandler(handler)
+
+# In test:
+try:
+    logger = setup_debug_logging("test_component")
+    logger.info("Test message")
+finally:
+    _close_logger_handlers(logger)
+    # Now temp directory can be cleaned up
+```
+
+**When this applies:**
+- Testing file logging on Windows
+- Using temporary directories with log files
+- Seeing `PermissionError` or `WinError 32` during cleanup
 
 ---
 

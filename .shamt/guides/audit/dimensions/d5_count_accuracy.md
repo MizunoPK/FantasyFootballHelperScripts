@@ -33,7 +33,7 @@
 2. **Phase Counts** - "S5 has 2 phases" matches S5 v2 Phase 1 (Draft Creation) and Phase 2 (Validation Loop)
 3. **Iteration Counts** - "22 iterations in S5" matches actual iteration count
 4. **Gate Counts** - "8 mandatory gates" matches reference/mandatory_gates.md
-5. **File Counts** - "21 dimensions" matches actual dimension count
+5. **File Counts** - "22 dimensions" matches actual dimension count
 6. **List Item Counts** - Numbered lists match their claimed count
 7. **Duration Claims** - "5-8 total rounds typical" matches historical evidence
 
@@ -139,14 +139,14 @@ done
 
 **README.md - Dimension Count:**
 ```markdown
-The audit evaluates guides across **21 critical dimensions**:
+The audit evaluates guides across **22 critical dimensions**:
 ```
 
 **Validation:**
 ```bash
 # Count dimension entries in README.md dimension table
 grep -c "^\| \*\*D[0-9]" .shamt/guides/audit/README.md
-# Expected: 21
+# Expected: 22
 
 # Count actual dimension files
 ls -1 .shamt/guides/audit/dimensions/d*.md | wc -l
@@ -434,18 +434,18 @@ Claims about file counts match actual file system.
 
 **Dimension Count:**
 ```markdown
-The audit system has **21 dimensions** covering all quality aspects.
+The audit system has **22 dimensions** covering all quality aspects.
 ```bash
 
 **Validation:**
 ```bash
 # Count dimension files
 ls -1 .shamt/guides/audit/dimensions/d*.md | wc -l
-# Expected: 22 (d1-d19 guides + d21 guide + d10_examples.md + d16_examples.md; D20 in stage_1_discovery.md)
+# Expected: 23 (d1-d19 guides + d21 guide + d22 guide + d10_examples.md + d16_examples.md; D20 in stage_1_discovery.md)
 
 # Count dimension entries in README
 grep -c "^\| \*\*D[0-9]" .shamt/guides/audit/README.md
-# Expected: 21
+# Expected: 22
 ```
 
 **Stage Count:**

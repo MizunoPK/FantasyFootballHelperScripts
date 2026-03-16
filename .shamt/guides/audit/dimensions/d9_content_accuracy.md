@@ -45,7 +45,7 @@
 
 ✅ **Claims vs Reality:**
 - "Run pre_audit_checks.sh" → script actually exists
-- "Checks 12 of 21 dimensions" → actually checks 12 (not 11 or 13)
+- "Checks 12 of 22 dimensions" → actually checks 12 (not 11 or 13)
 - "3 consecutive zero-issue rounds" → workflow enforces consecutive_clean >= 3 (not total rounds)
 
 ✅ **Version Numbers:**
@@ -147,7 +147,7 @@ git log --since="2025-12-30" --oneline stages/ reference/ | wc -l
 ```text
 "19 templates"
 "10 stages"
-"21 dimensions"
+"22 dimensions"
 "22 iterations in S5"
 ```bash
 
@@ -230,7 +230,7 @@ done < referenced_files.txt
 **Common Claims:**
 ```text
 "Automated validation catches 90%"
-"Checks 12 of 21 dimensions"
+"Checks 12 of 22 dimensions"
 "3 consecutive zero-issue rounds required"
 "100% test pass rate enforced"
 ```
@@ -567,7 +567,7 @@ STEP 1: Extract capability claims
 $ grep -rn "automated.*[0-9]\+%\|Checks [0-9] of [0-9]" .shamt/guides/
 
 STEP 2: Verify each claim manually
-- "Checks 12 of 21 dimensions" → Check pre_audit_checks.sh has 12 CHECK blocks
+- "Checks 12 of 22 dimensions" → Check pre_audit_checks.sh has 12 CHECK blocks
 - "90% automated" → Estimate automation coverage
 
 STEP 3: Update or add disclaimers

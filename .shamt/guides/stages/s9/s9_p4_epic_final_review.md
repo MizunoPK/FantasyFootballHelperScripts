@@ -11,18 +11,19 @@
 ## Table of Contents
 
 1. [S9.P4: Epic Final Review](#s9p4-epic-final-review)
-2. [🚨 MANDATORY READING PROTOCOL](#🚨-mandatory-reading-protocol)
-3. [Overview](#overview)
-4. [Critical Rules for S9.P4](#critical-rules-for-s9p4)
-5. [Prerequisites](#prerequisites)
-6. [STEP 6: Epic PR Review (Multi-Round with Fresh Eyes)](#step-6-epic-pr-review-multi-round-with-fresh-eyes)
-7. [STEP 7: Handle Issues (If Any Discovered)](#step-7-handle-issues-if-any-discovered)
-8. [STEP 8: Final Verification & README Update](#step-8-final-verification--readme-update)
-9. [Re-Reading Checkpoints](#re-reading-checkpoints)
-10. [Exit Criteria](#exit-criteria)
-11. [Reference Files](#reference-files)
-12. [Prerequisites for Next Stage](#prerequisites-for-next-stage)
-13. [Summary](#summary)
+2. [🚨 MANDATORY READING PROTOCOL](#-mandatory-reading-protocol)
+3. [🚫 FORBIDDEN SHORTCUTS](#-forbidden-shortcuts)
+4. [Overview](#overview)
+5. [Critical Rules for S9.P4](#critical-rules-for-s9p4)
+6. [Prerequisites](#prerequisites)
+7. [STEP 6: Epic PR Review (Multi-Round with Fresh Eyes)](#step-6-epic-pr-review-multi-round-with-fresh-eyes)
+8. [STEP 7: Handle Issues (If Any Discovered)](#step-7-handle-issues-if-any-discovered)
+9. [STEP 8: Final Verification & README Update](#step-8-final-verification--readme-update)
+10. [Re-Reading Checkpoints](#re-reading-checkpoints)
+11. [Exit Criteria](#exit-criteria)
+12. [Reference Files](#reference-files)
+13. [Prerequisites for Next Stage](#prerequisites-for-next-stage)
+14. [Summary](#summary)
 
 ---
 ## 🚨 MANDATORY READING PROTOCOL
@@ -45,6 +46,18 @@ Before proceeding, you must have:
 1. Check EPIC_README.md "Agent Status" section for current step
 2. Re-read this guide from the beginning
 3. Continue from documented checkpoint
+
+---
+
+## 🚫 FORBIDDEN SHORTCUTS
+
+You CANNOT:
+- Skip Step 6 (Epic PR Review) or any of its 11 categories because "S9.P2 already covered them" — all 11 categories are MANDATORY; S9.P2 results provide supplementary context only, not a replacement for the epic PR review
+- Fix issues found in Step 6 inline instead of creating bug fix folders — ALL high/medium priority issues require a bug fix folder and the full S2→S5→S6→S7 workflow
+- Proceed to Step 8 (Final Verification) after creating bug fixes without restarting S9 from S9.P1 — the S9 restart is MANDATORY after any bug fixes created in Step 7
+- Mark S9.P4 complete without updating both EPIC_README.md Epic Progress Tracker and epic_lessons_learned.md with S9.P4 results and insights
+
+If you are about to do any of the above: STOP and re-read the relevant section.
 
 ---
 
@@ -186,9 +199,10 @@ Prerequisites Met?
    - Code style must be uniform
    - Error handling must be consistent
 
-6. ⚠️ 100% test pass rate required
-   - All unit tests must pass
-   - No "expected failures"
+6. ⚠️ Test pass rate required (conditional on Testing Approach)
+   - Options C/D: All unit tests must pass (100%), no "expected failures"
+   - Options B/D: All integration scripts must exit 0
+   - Option A: No automated tests — smoke testing only
    - Fix ALL test failures before marking complete
 
 7. ⚠️ Document EVERYTHING in epic_lessons_learned.md

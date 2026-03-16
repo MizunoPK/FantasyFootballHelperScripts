@@ -37,7 +37,7 @@
 6. **Dependency Graph Completeness** - No circular dependencies, no missing links in chain
 
 **Coverage:**
-- Stage-to-stage handoff files (DISCOVERY.md, spec.md, test_strategy.md, implementation_plan.md, etc.)
+- Stage-to-stage handoff files (DISCOVERY.md, spec.md, implementation_plan.md, etc.; test_strategy.md is Options C/D only, created at S5 Step 0)
 - Template references to workflow files
 - Cross-references between guides
 - Root-level files referencing sub-guides
@@ -58,7 +58,7 @@
 - Stage B expects file from Stage A, file doesn't exist
 - Agent blocked, cannot proceed
 - Manual intervention required
-- Example: S5 expects test_strategy.md from S4, but S4 was skipped → S5 cannot start
+- Example: S5 expects Testing Approach in EPIC_README but it was not set at S1 → test scope unclear
 
 **Incorrect File References:**
 - spec.md says "see DISCOVERY.md Section 3.2"
@@ -87,7 +87,7 @@
 ### Historical Evidence:
 
 **SHAMT-7 Issues:**
-- S5 guide said "merge test_strategy.md" but file sometimes missing (S4 skipped)
+- S5 guide said "merge test_strategy.md" but file sometimes missing (S4 deprecated; test_strategy.md is optional, Options C/D only)
 - spec.md template referenced DISCOVERY.md sections that didn't exist in actual DISCOVERY.md structure
 - Templates had "see X.md" references where X.md was never created in workflow
 
@@ -206,16 +206,12 @@ for feature_dir in $epic_dir/feature_*; do
   fi
 done
 
-# Check S3 → S4 handoff
+# Check S3 → S5 handoff (S4 deprecated)
 if [ ! -f "$epic_dir/epic_smoke_test_plan.md" ]; then
   echo "ERROR: S3 did not create epic_smoke_test_plan.md"
 fi
 
-# Check S4 → S5 handoff
-if [ ! -f "$feature_dir/test_strategy.md" ]; then
-  echo "ERROR: S4 did not create test_strategy.md"
-fi
-
+# S4 deprecated — test_strategy.md no longer required (Options C/D only, created at S5 Step 0)
 # Check S5 → S6 handoff
 if [ ! -f "$feature_dir/implementation_plan.md" ]; then
   echo "ERROR: S5 did not create implementation_plan.md"

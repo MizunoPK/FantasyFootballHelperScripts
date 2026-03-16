@@ -106,7 +106,7 @@ Issue/Gap Discovered
 5. User decides: approach + priority (high/medium/low)
 6. Return to S2 (Deep Dive) for new/updated feature
 7. Return to S3 (Epic-Level Docs, Tests, and Approval) to update smoke test plan + get re-approval
-8. Return to S4 (Test Strategy) to create feature test_strategy.md for new/updated feature
+8. (S4 deprecated — test scope decision handled at S5 Step 0 for new/updated feature)
 9. Resume paused work
 10. Implement new/updated feature when its turn comes
 

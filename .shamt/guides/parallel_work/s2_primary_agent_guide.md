@@ -4,7 +4,7 @@
 
 **Role:** Coordinator + Feature 01 owner
 
-**Stages:** S1 (solo) → S2 (parallel) → S3 (solo) → S4 (solo)
+**Stages:** S1 (solo) → S2 (parallel) → S3 (solo) → S5 (solo, per feature) — S4 deprecated
 
 ---
 
@@ -19,8 +19,8 @@
 - [Phase 5: Parallel S2 Work](#phase-5-parallel-s2-work)
 - [Phase 6: Sync Point — All Features Complete S2](#phase-6-sync-point--all-features-complete-s2)
 - [Phase 7: S3 Epic-Level Docs, Tests, and Approval (Solo)](#phase-7-s3-epic-level-docs-tests-and-approval-solo)
-- [Phase 8: S4 Feature Testing Strategy (Solo)](#phase-8-s4-feature-testing-strategy-solo)
-- [Phase 9: Notify Secondary Agents of S3/S4 Completion](#phase-9-notify-secondary-agents-of-s3s4-completion)
+- [Phase 8: S4 (Deprecated — Skip to S5)](#phase-8-s4-deprecated--skip-to-s5)
+- [Phase 9: Notify Secondary Agents of S3 Completion](#phase-9-notify-secondary-agents-of-s3-completion)
 - [Common Scenarios](#common-scenarios)
 - [Tools and References](#tools-and-references)
 - [Summary Checklist](#summary-checklist)
@@ -45,7 +45,7 @@ When S2 parallelization is enabled, the Primary agent has **dual responsibilitie
 ## Workflow Overview
 
 ```text
-S1 (Solo) → Offer Parallel Work → Generate Handoffs → S2 (Parallel) → S3 (Solo) → S4 (Solo)
+S1 (Solo) → Offer Parallel Work → Generate Handoffs → S2 (Parallel) → S3 (Solo) → S5 (Solo, per feature)
     ↓                                                       ↓
 Feature Analysis                                    Monitor + Coordinate
 Dependency Detection                                Handle Escalations
@@ -630,7 +630,7 @@ I'll create the epic smoke test plan, refine epic documentation, and get user ap
 **Status:** All features completed S2
 **Next:** I'm running S3 (Epic-Level Docs, Tests, and Approval) alone
 **Your Action:** WAIT - No action needed from you right now
-**ETA:** S3 will take ~1 hour, then I'll proceed to S4
+**ETA:** S3 will take ~1 hour, then I'll proceed to S5 (S4 deprecated)
 **Note:** Implementation (S5-S8) will be sequential in this plan
 **Acknowledge:** No action needed
 ```
@@ -662,29 +662,27 @@ I'll create the epic smoke test plan, refine epic documentation, and get user ap
 
 ---
 
-## Phase 8: S4 Feature Testing Strategy (Solo)
+## Phase 8: S4 (Deprecated — Skip to S5)
 
-**Run S4 alone:**
+> **⚠️ S4 has been deprecated (SHAMT-6).** Do NOT run S4. Proceed directly to S5.
 
-1. **Follow guide:** `stages/s4/s4_feature_testing_strategy.md`
+**Instead of S4, do at the start of S5 (Step 0):**
 
-2. **Create test_strategy.md per feature:**
-   - Follow S4 guide for each feature
-   - test_strategy.md is feature-level (NOT epic_smoke_test_plan.md — that was finalized in S3.P1)
-
-3. **Complete S4:**
-   - Signal S4 complete
+1. **Check Testing Approach** in EPIC_README (set at S1 Step 4.6.5)
+2. **Step 0: Test Scope Decision** — follow `stages/s5/s5_v2_validation_loop.md` Step 0
+   - If Options C/D: identify algorithmic functions to unit test
+   - If Options B/D: confirm Integration Test Convention in EPIC_README
 
 ---
 
-## Phase 9: Notify Secondary Agents of S3/S4 Completion
+## Phase 9: Notify Secondary Agents of S3 Completion
 
 **Send final message to secondaries:**
 
 ```markdown
 ## Message X (2026-01-15 15:30) ⏳ UNREAD
-**Subject:** S3 and S4 Complete - Implementation Sequential
-**Status:** S3 (Epic-Level Docs, Tests, and Approval) and S4 (Feature Testing Strategy) complete
+**Subject:** S3 Complete - Implementation Sequential (S4 deprecated)
+**Status:** S3 (Epic-Level Docs, Tests, and Approval) complete — S4 deprecated, Test Scope Decision now in S5 Step 0
 **Findings:** No conflicts found with any feature specs
 **Next Steps:**
 - Implementation (S5-S8) will be SEQUENTIAL in this plan
@@ -788,7 +786,7 @@ I'll now proceed with S5 (Implementation Planning) for Feature 01...
 - [ ] Notified secondary agents
 - [ ] Proceeding to S3 (solo)
 - [ ] S3 complete
-- [ ] S4 complete
-- [ ] Notified secondary agents of S3/S4 completion
+- [ ] S4 (deprecated — skipped)
+- [ ] Notified secondary agents of S3 completion
 
 **Next:** Proceed to sequential implementation (S5-S8) for all features

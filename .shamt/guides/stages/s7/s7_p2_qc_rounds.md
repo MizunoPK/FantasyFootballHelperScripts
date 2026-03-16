@@ -35,7 +35,7 @@ S7.P1 (Smoke Testing) →
 
 ## 🚨 MANDATORY READING PROTOCOL
 
-**BEFORE starting Feature QC, you MUST:**
+**BEFORE starting Feature QC — including when resuming a prior session — you MUST:**
 
 1. **Read the validation loop guide:** `reference/validation_loop_s7_feature_qc.md`
    - Understand 16 dimensions (7 master + 9 S7 QC-specific)
@@ -60,6 +60,18 @@ S7.P1 (Smoke Testing) →
 5. **THEN AND ONLY THEN** begin validation loop
 
 **This is NOT optional.** Reading the validation loop guide ensures you check all 16 dimensions systematically.
+
+---
+
+## 🚫 FORBIDDEN SHORTCUTS
+
+You CANNOT:
+- Declare QC "complete" after a single pass — at minimum the 2-round checkpoint requires user input before stopping
+- Skip the Code Inspection Protocol (MANDATORY) by reviewing code from memory
+- Stop before the 2-round checkpoint without user input — the checkpoint is the only sanctioned early-exit mechanism (see `reference/validation_loop_master_protocol.md` Exit Criteria)
+- Skip dimensions because "the feature was carefully implemented"
+
+If you are about to do any of the above: STOP and re-read the relevant section.
 
 ---
 
@@ -108,10 +120,10 @@ Feature QC is complete when 3 consecutive validation rounds find ZERO issues acr
    - Cannot skip any dimension
    - Re-read entire codebase each round (no working from memory)
 
-2. ⚠️ 3 CONSECUTIVE CLEAN ROUNDS REQUIRED
+2. ⚠️ 3 CONSECUTIVE CLEAN ROUNDS REQUIRED (OR USER CHECKPOINT AT 2)
    - Clean = ZERO issues found across all 16 dimensions
    - Counter resets if ANY issue found
-   - Cannot exit early (must achieve 3 consecutive)
+   - Cannot stop before the 2-round checkpoint without user input — the checkpoint is the only sanctioned early-exit mechanism (see master protocol Exit Criteria)
    - Typical: 6-8 rounds total to achieve 3 consecutive clean
 
 3. ⚠️ FIX ISSUES IMMEDIATELY (NO RESTART PROTOCOL)
@@ -158,9 +170,10 @@ Feature QC is complete when 3 consecutive validation rounds find ZERO issues acr
 - [ ] Feature executes end-to-end without crashes
 - [ ] Output data is correct and reasonable
 
-**Unit Tests:**
-- [ ] Run `{TEST_COMMAND}` → exit code 0
-- [ ] All unit tests passing (100% pass rate)
+**Tests (conditional on Testing Approach from EPIC_README):**
+- [ ] Options C/D: Run unit tests → `{TEST_COMMAND}` exit code 0, 100% pass rate
+- [ ] Options B/D: Run integration scripts → exit code 0
+- [ ] Option A: No automated tests required
 
 **Documentation:**
 - [ ] `implementation_checklist.md` all requirements verified
@@ -527,6 +540,13 @@ Code conventions verified: Follows CODING_STANDARDS.md (type hints, error contex
 
 ## Validation Round Execution
 
+⚠️ **Before starting Round 1, confirm:**
+- [ ] I will not stop after the first round that appears mostly clean
+- [ ] At minimum I must reach the 2-round checkpoint before stopping — at that point the user decides whether to continue to a 3rd round
+- [ ] I will not present QC results to the user or proceed to S7.P3 until at least the 2-round checkpoint has been presented to the user
+
+---
+
 **For complete validation round instructions, see:**
 - `reference/validation_loop_s7_feature_qc.md` - Complete 16-dimension checklist
 - `reference/validation_loop_master_protocol.md` - Core validation loop principles
@@ -670,13 +690,7 @@ STOP - DO NOT PROCEED TO S7.P3 YET
 
 ## Exit Criteria
 
-**Validation Loop (S7.P2) is complete when ALL of these are true:**
-
-- [ ] All steps in this phase complete as specified
-- [ ] Agent Status updated with phase completion
-- [ ] Ready to proceed to next phase
-
-**If any criterion unchecked:** Complete missing items before proceeding
+S7.P2 is complete when the Validation Loop exits with 3 consecutive clean rounds (zero issues, all 16 dimensions) and Agent Status is updated.
 
 ---
 

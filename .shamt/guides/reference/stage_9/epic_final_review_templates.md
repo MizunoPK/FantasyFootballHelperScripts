@@ -476,7 +476,7 @@ bugfix_{priority}_{name}/
 **S1 - Epic Planning:** ✅ COMPLETE
 **S2 - Feature Deep Dives:** ✅ COMPLETE
 **S3 - Epic-Level Docs, Tests, and Approval:** ✅ COMPLETE
-**S4 - Feature Testing Strategy:** ✅ COMPLETE
+**S4 - (Deprecated — Test Scope Decision in S5 Step 0):** N/A
 **S5 - Feature Implementation:** ✅ COMPLETE
   - Feature 01: ✅ COMPLETE
   - Feature 02: ✅ COMPLETE
@@ -505,7 +505,7 @@ bugfix_{priority}_{name}/
 **S1 - Epic Planning:** ✅ COMPLETE
 **S2 - Feature Deep Dives:** ✅ COMPLETE
 **S3 - Epic-Level Docs, Tests, and Approval:** ✅ COMPLETE
-**S4 - Feature Testing Strategy:** ✅ COMPLETE
+**S4 - (Deprecated — Test Scope Decision in S5 Step 0):** N/A
 **S5 - Feature Implementation:** ✅ COMPLETE
   - Feature 01: ✅ COMPLETE
   - Feature 02: ✅ COMPLETE

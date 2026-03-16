@@ -1,4 +1,10 @@
-# S4.I4: Validation Loop (Test Strategy Validation)
+# S4.I4: Validation Loop (Test Strategy Validation) — DEPRECATED
+
+> ⚠️ **DEPRECATED as of SHAMT-6.** This guide is preserved for reference only.
+> The S4 validation loop is removed from the active workflow. See `stages/s4/s4_feature_testing_strategy.md`
+> for the redirect stub and migration notes.
+
+---
 
 🚨 **MANDATORY READING PROTOCOL**
 

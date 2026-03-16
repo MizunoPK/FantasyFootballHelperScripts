@@ -5,7 +5,7 @@
 
 🚨 **MANDATORY READING PROTOCOL**
 
-**Before starting this guide:**
+**Before starting this guide — including when resuming a prior session:**
 1. Use Read tool to load THIS ENTIRE GUIDE
 2. Acknowledge critical requirements (see "Critical Rules" section below)
 3. Verify prerequisites (see "Prerequisites Checklist" section below)
@@ -17,6 +17,17 @@
 - Check feature README.md Agent Status for current phase
 - READ THIS GUIDE again (full guide, not summary)
 - Continue from "Next Action" in Agent Status
+
+---
+
+## 🚫 FORBIDDEN SHORTCUTS
+
+You CANNOT:
+- Start implementing feature code without completing Step 1 (Interface Verification Protocol) — interface verification is the MANDATORY FIRST STEP and prevents spec drift from incorrect interface assumptions
+- Skip mini-QC checkpoints during Step 3 (Phase-by-Phase Implementation) to save time — mini-QC checkpoints catch integration issues before they compound across phases
+- Commit code without completing Step 4 (Final Verification) — final verification confirms all spec requirements are met before proceeding to S7
+
+If you are about to do any of the above: STOP and re-read the relevant section.
 
 ---
 
@@ -55,7 +66,8 @@ Implementation Execution is where you write the feature code following the imple
 
 **Key Outputs:**
 - ✅ Feature code implemented phase by phase
-- ✅ All unit tests passing after each step (100% pass required)
+- ✅ Tests executed per Testing Approach (unit tests if C/D, integration script if B/D, mini-QC only if A)
+- ✅ integration_test_script created (if Options B/D) — skeletal on first pass, filled as feature builds
 - ✅ implementation_checklist.md updated in real-time
 - ✅ Mini-QC checkpoints passed after major components
 - ✅ Ready for S7 (Testing & Review) (Post-Implementation)
@@ -64,7 +76,7 @@ Implementation Execution is where you write the feature code following the imple
 Varies by feature complexity (1-4 hours typical)
 
 **Exit Condition:**
-S6 is complete when all implementation tasks from implementation_plan.md are implemented, 100% of tests pass, and spec requirements are verified complete via dual verification
+S6 is complete when all implementation tasks from implementation_plan.md are implemented, required tests/scripts pass per Testing Approach (A/B/C/D from EPIC_README), and spec requirements are verified complete via dual verification
 
 ---
 
@@ -113,9 +125,12 @@ S6 is complete when all implementation tasks from implementation_plan.md are imp
    - BEFORE implementing: Read requirement in spec
    - AFTER implementing: Verify code matches spec
 
-4. ⚠️ Run unit tests after each step (100% pass required)
-   - Do NOT proceed to next phase with failing tests
-   - Fix failures immediately
+4. ⚠️ Test execution is conditional on the epic's Testing Approach (read EPIC_README)
+   - Option A (smoke only): No test-after-step requirement. Mini-QC checkpoints are the quality gate.
+   - Option B (integration scripts): Run integration script at PHASE completion (not after each step). Full pass required before proceeding to next phase.
+   - Option C (unit tests only): Run unit tests after each step, 100% pass required.
+   - Option D (both): Run unit tests after each step AND run integration script at phase boundaries.
+   - Do NOT proceed with failing tests/scripts (regardless of option)
 
 5. ⚠️ Mini-QC checkpoints after each major component
    - Not same as final QC - lightweight validation
@@ -148,6 +163,7 @@ S6 is complete when all implementation tasks from implementation_plan.md are imp
 
 **Verify BEFORE starting S6:**
 
+- [ ] Parallel Epic Coordination: If other epics are active, confirm with the user that no other agent is currently in S6–S9 before proceeding. If unsure — **STOP and ask.**
 - [ ] S5 complete:
   - Validation Loop passed (3 consecutive clean rounds achieved)
   - implementation_plan.md validated and complete
@@ -199,6 +215,7 @@ Step 4: Final Verification
    ├─ All implementation tasks complete
    ├─ All unit tests passing (100%)
    ├─ All requirements checked off
+   ├─ Code comments self-check (no comments in code written or modified)
    └─ Ready for S7 (Testing & Review)
 
 Mark S6 Complete
@@ -547,11 +564,21 @@ def load_rank_data(self) -> List[Tuple[str, str, int]]:
 
 3. **Continue for all tasks in phase**
 
-#### 3.3: Run Unit Tests for This Phase
+#### 3.3: Test Execution for This Phase (Conditional on Testing Approach)
 
-**After implementing all tasks in phase:**
+**Read Testing Approach from EPIC_README before executing.**
 
-1. **Run tests for this phase:**
+---
+
+**If Option A (smoke only):**
+- No test execution at this phase checkpoint
+- Proceed directly to Mini-QC (Step 3.4)
+
+---
+
+**If Option C or D (unit tests included) — run after each step:**
+
+1. **Run unit tests for this phase:**
 
 ```bash
 ## Run tests for Phase 1 (Data Loading)
@@ -559,35 +586,33 @@ python -m pytest tests/[module]/util/test_RecordManager_rank.py::test_load_rank_
 python -m pytest tests/[module]/util/test_RecordManager_rank.py::test_load_rank_data_file_not_found -v
 ```
 
-2. **Verify 100% pass rate:**
+2. **Verify 100% pass rate** — do NOT proceed to next phase with failures
+
+3. **Document test results in feature README.md**
+
+---
+
+**If Option B or D (integration scripts included) — run at PHASE COMPLETION:**
+
+1. **Run the feature's integration test script** (following `Integration Test Convention:` from EPIC_README):
 
 ```bash
-tests/[module]/util/test_RecordManager_rank.py::test_load_rank_data_success PASSED
-tests/[module]/util/test_RecordManager_rank.py::test_load_rank_data_file_not_found PASSED
+## Example: pytest
+pytest tests/integration/test_{feature_name}_integration.py -v
 
-========================= 2 passed in 0.15s =========================
+## Example: Python stdlib
+python tests/integration/test_{feature_name}_e2e.py
 ```
 
-**✅ All tests passed - proceed to mini-QC**
+2. **Early phases:** The script may fail on assertions that haven't been implemented yet — this is expected. Investigate failures: if a failure is due to incomplete implementation (intentional), note it. If a failure is unexpected (regression), fix it before continuing.
 
-**❌ If ANY test fails:**
-- STOP - Do NOT proceed to next phase
-- Fix failing test
-- Re-run all phase tests
-- Only proceed when 100% pass
+3. **Phase completion:** All assertions that *should* pass at this stage must pass. Full script pass required by end of final phase.
 
-3. **Document test results:**
+4. **If integration script doesn't exist yet:** Create the skeleton in Phase 1 (see Step 3.5 below). On first run, all assertions are expected to fail — this is normal.
 
-Add to feature README.md:
+---
 
-```markdown
-**Phase 1 Test Results:**
-- Date: 2025-12-30 16:00
-- Tests run: 2
-- Tests passed: 2
-- Pass rate: 100%
-- Status: ✅ PASSED
-```
+**Document phase test/script results** in feature README.md Agent Status.
 
 #### 3.4: Mini-QC Checkpoint
 
@@ -595,7 +620,8 @@ Add to feature README.md:
 
 **Checklist:**
 
-- [ ] All tests for this phase pass (100%)
+- [ ] Tests executed per Testing Approach (Step 3.3) — all required tests/scripts pass
+- [ ] For Options B/D: integration script exists and has been run (failing assertions on early phases OK — document expected failures)
 - [ ] Spec requirements for this phase checked off in implementation_checklist.md
 - [ ] No regressions (existing tests still pass)
 - [ ] Code follows project conventions (imports, naming, docstrings)
@@ -632,9 +658,34 @@ Each phase:
 - Keep spec VISIBLE
 - Implement tasks
 - Update implementation_checklist.md
-- Run phase tests (100% pass)
+- Run phase tests per Testing Approach (Step 3.3)
 - Mini-QC checkpoint
 - Proceed to next phase
+
+---
+
+#### 3.5: Create Integration Test Script Skeleton (Options B/D — Phase 1 only)
+
+**When:** First phase of S6, if Testing Approach is B or D.
+
+**Purpose:** Scaffold the integration test script early so it grows alongside implementation.
+
+**Process:**
+
+1. Read `Integration Test Convention:` from EPIC_README for location, naming, and framework
+2. Create the script file at the specified location with the specified naming convention
+3. Scaffold with the assertion list from the S5 Test Scope Decision:
+   - Feature execution test (will fail until implementation complete)
+   - Output structure test (will fail until output files exist)
+   - Output value test (will fail until values are populated)
+   - Integration points test (will fail until cross-feature wiring exists)
+4. All assertions initially fail/skip — this is expected
+5. As implementation progresses across phases, fill in the assertion details
+6. Full pass is required by end of the final phase (before S7)
+
+**Placement:** Follow `Integration Test Convention:` in EPIC_README exactly. One script per feature.
+
+**Reference:** `reference/integration_test_script_pattern.md` for structure and conventions.
 
 ---
 
@@ -768,7 +819,20 @@ Check implementation_checklist.md:
 ✅ All requirements implemented and verified
 ```
 
-### 4.4: Final Smoke Test
+### 4.4: Code Comments Self-Check
+
+Scan all code you have written or modified in this feature — including test files — for any inline comments, docstrings, or explanatory block comments. Remove all of them.
+
+**Allowed to remain:**
+- License/copyright headers
+- Tool-required markers (`# type: ignore`, `# noqa`, `// eslint-disable-next-line`, etc.)
+- Any overrides documented in CODING_STANDARDS.md
+
+If you find comments: remove them now, re-run tests, then continue to Step 4.5.
+
+---
+
+### 4.5: Final Smoke Test
 
 Run feature end-to-end:
 
@@ -790,11 +854,17 @@ python run_[module].py --mode draft
 - [ ] All phases implemented (Step 3):
   - All implementation tasks complete
   - All spec requirements checked off in implementation_checklist.md
-- [ ] All unit tests passing (100% pass rate)
+- [ ] Tests executed per Testing Approach (read EPIC_README):
+  - Option A: Mini-QC checkpoints all passed (no test pass rate requirement)
+  - Option B: Integration test script passes with exit code 0
+  - Option C: All unit tests for algorithmic functions pass (100%)
+  - Option D: Both — unit tests 100% + integration script passes
 - [ ] All mini-QC checkpoints passed
+- [ ] For Options B/D: Integration test script created and committed (Step 3.5)
 - [ ] Final verification complete (Step 4):
-  - All tests passing
+  - All required tests/scripts passing per Testing Approach
   - All requirements implemented
+  - Code comments self-check passed (no inline comments, docstrings, or explanatory block comments in code written or modified in S6)
   - End-to-end smoke test passed
 - [ ] Feature README.md updated:
   - Agent Status: Phase = POST_IMPLEMENTATION

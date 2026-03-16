@@ -11,7 +11,7 @@ This directory contains the complete Shamt epic-driven development workflow guid
 | S1 | `stages/s1/s1_epic_planning.md` | Epic planning, discovery phase, git setup |
 | S2 | `stages/s2/s2_feature_deep_dive.md` | Feature specs, checklists, research |
 | S3 | `stages/s3/s3_epic_planning_approval.md` | Epic smoke test plan, documentation refinement, Gate 4.5 approval |
-| S4 | `stages/s4/s4_feature_testing_strategy.md` | Test strategy per feature |
+| S4 | `stages/s4/s4_feature_testing_strategy.md` | (Deprecated — redirects to S5 Step 0) |
 | S5 | `stages/s5/s5_v2_validation_loop.md` | Implementation plan (draft + validation loop) |
 | S6 | `stages/s6/s6_execution.md` | Implementation |
 | S7 | `stages/s7/s7_p1_smoke_testing.md` | Smoke testing, QC rounds, feature commit |

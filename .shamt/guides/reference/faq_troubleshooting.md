@@ -34,8 +34,8 @@
 **A:** NO. All stages have dependencies and must be completed in order:
 - S1 creates the structure needed for S2
 - S2 specs are validated in S3
-- S3 epic plan (Gate 4.5 approved) enables S4 feature test strategy
-- S4 test plan evolves through S5 → S9
+- S3 epic plan (Gate 4.5 approved) enables S5 implementation planning (S4 is deprecated)
+- Test scope decision (S5 Step 0) and implementation_plan.md evolve through S5 validation loop → S9
 - Skipping stages leads to incomplete planning and rework
 
 ### Q: What's the difference between a "round", "iteration", and "phase"?
@@ -54,7 +54,7 @@
 - **EPIC_README.md:** Epic-level status, Epic Progress Tracker, epic-level decisions
 - **Feature README.md:** Feature-level status, current guide being followed, implementation progress
 
-Update EPIC_README.md after completing each major stage (S1, S2, S3, S4, S9, S10).
+Update EPIC_README.md after completing each major stage (S1, S2, S3, S9, S10). S4 is deprecated — no update needed.
 Update feature README.md during feature loop stages (S5, S6, S7, S8).
 
 ### Q: What happens if I find a bug during implementation?
@@ -190,7 +190,7 @@ A: NO - Always do complete pairwise comparison:
 
 ---
 
-### S4: Feature Testing Strategy
+### S4: Feature Testing Strategy (Deprecated — see S5 Step 0)
 
 **Q: How is epic_smoke_test_plan.md different from feature smoke testing?**
 
@@ -201,10 +201,12 @@ A: Key differences:
 
 **Q: What if I don't know integration points yet (haven't implemented)?**
 
-A: Make best predictions in S4:
+A: Make best predictions at S5 Step 0 (Test Scope Decision):
 - Based on spec.md analysis
 - S8.P2 will update plan with ACTUAL integration points discovered
 - Plan evolves as implementation reveals reality
+
+*Note: S4 is deprecated since SHAMT-6. Test scope decisions (unit tests, integration scripts) are now decided at the start of S5 per the Testing Approach (A/B/C/D) set in S1.*
 
 ---
 

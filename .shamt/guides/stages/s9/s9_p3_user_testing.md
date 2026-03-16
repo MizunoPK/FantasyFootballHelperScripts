@@ -34,7 +34,7 @@ S9.P1 (Epic Smoke) → S9.P2 (Epic QC Validation Loop) →
 
 ## 🚨 MANDATORY READING PROTOCOL
 
-**BEFORE starting User Testing, you MUST:**
+**BEFORE starting User Testing — including when resuming a prior session — you MUST:**
 
 1. **Verify Prerequisites:**
    - S9.P2 Epic QC Validation Loop COMPLETE
@@ -45,6 +45,16 @@ S9.P1 (Epic Smoke) → S9.P2 (Epic QC Validation Loop) →
    - You CANNOT skip user testing
    - Epic must be tested by the actual user
    - User approval required before proceeding to PR review
+
+---
+
+## 🚫 FORBIDDEN SHORTCUTS
+
+You CANNOT:
+- Skip user testing and proceed to S9.P4 because "QC validation showed no issues" — user testing is a mandatory gate; the agent cannot approve epic completion without actual user testing
+- Document user testing as "complete" before receiving the user's explicit test results — you MUST present the system to the user and wait for their feedback (Step S9.P1→S9.P2 sequence in this guide)
+
+If you are about to do any of the above: STOP and re-read the relevant section.
 
 ---
 

@@ -472,7 +472,7 @@ cat feature_{XX}_{name}/README.md
 ✅ Full S2 rigor applied
 ✅ User approved spec
 
-**Next:** Read `missed_requirement/realignment.md` for PHASE 3 & 4 (S2.P2 + S3 + S4 realignment)
+**Next:** Read `missed_requirement/realignment.md` for PHASE 3 & 4 (S2.P2 + S3 realignment)
 
 ---
 

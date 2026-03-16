@@ -162,20 +162,20 @@ echo "/path/to/shamt-ai-dev" > .shamt/shamt_master_path.conf
 **SHAMT-2 migration — `.shamt/last_sync.conf` not in your `.gitignore`:**
 If your project was initialized before SHAMT-2, `.shamt/last_sync.conf` was not automatically gitignored at init time. The import script now writes this file after every run. Add it manually to your `.gitignore`:
 
-```
+```text
 .shamt/last_sync.conf
 ```
 
 **SHAMT-3 migration — `.shamt/import_diff*.md` not in your `.gitignore`:**
 If your project was initialized before SHAMT-3, import diff files were not automatically gitignored at init time. The import script writes these files on every run. Add them manually to your `.gitignore`:
 
-```
+```text
 .shamt/import_diff*.md
 ```
 
 **SHAMT-4 migration — individual `.conf` entries not consolidated:**
 If your project was initialized before SHAMT-4, your `.gitignore` may list `.shamt/shamt_master_path.conf` and `.shamt/last_sync.conf` individually, and `.shamt/rules_file_path.conf` may not be gitignored at all. Replace the individual entries with the wildcard:
 
-```
+```text
 .shamt/*.conf
 ```

@@ -41,7 +41,7 @@ I'm beginning S9 (Epic Final QC).
   - Verify epic achieves user's goals
   - Validate expected outcomes delivered
 - **Use EVOLVED epic_smoke_test_plan.md**:
-  - Plan updated in S1 → S4 → S8.P2 (all features)
+  - Plan updated in S1 → S3 → S8.P2 (all features)
   - Reflects ACTUAL implementation (not assumptions)
 - **Validation Loop approach**:
   - Fix issues immediately (no restart for minor issues)

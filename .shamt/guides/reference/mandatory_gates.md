@@ -14,13 +14,13 @@
 3. [S1: Epic Planning](#s1-epic-planning)
 4. [S2: Feature Deep Dive (3 formal gates per feature - NEW: Checklist Approval added)](#s2-feature-deep-dive-3-formal-gates-per-feature---new-checklist-approval-added)
 5. [S3: Epic-Level Docs, Tests, and Approval (1 gate per epic)](#s3-epic-level-docs-tests-and-approval-1-gate-per-epic)
-6. [S4: Feature-Level Testing Strategy (0 formal gates)](#s4-feature-level-testing-strategy-0-formal-gates)
+6. [S4: (Deprecated)](#s4-deprecated)
 7. [S5: Implementation Planning](#s5-implementation-planning)
 8. [S6: Implementation Execution](#s6-implementation-execution)
 9. [S7: Post-Implementation (2 checkpoints per feature)](#s7-post-implementation-2-checkpoints-per-feature)
 10. [S8: Post-Feature Updates](#s8-post-feature-updates)
 11. [S9: Epic-Level Final QC](#s9-epic-level-final-qc)
-12. [S10: Epic Cleanup (2 critical checkpoints per epic)](#s10-epic-cleanup-2-critical-checkpoints-per-epic)
+12. [S10: Epic Cleanup (3 critical checkpoints per epic — Gate 7.1, 7.1b, 7.2)](#s10-epic-cleanup-3-critical-checkpoints-per-epic)
 13. [Summary Statistics](#summary-statistics)
 14. [When to Use This Reference](#when-to-use-this-reference)
 
@@ -39,7 +39,7 @@
 
 **Logic:**
 - Gate 3 = S2 gate (named after target stage)
-- Gate 4.5 = S3.P3 (interstitial; approves epic plan + test strategy before S4 begins)
+- Gate 4.5 = S3.P3 (interstitial; approves epic plan before S5 begins; S4 deprecated)
 - Gate 5 = S5 gate
 
 ### Type 2: Iteration-Level Gates (iteration numbers)
@@ -89,7 +89,8 @@
 | S5 | Gate 5: Implementation Plan Approval | After S5 v2 | User approves implementation_plan.md | Yes (Revise plan) |
 | S7 | Smoke Part 3 | S7.P1 | Data values verified | Yes (Restart S7.P1) |
 | S7 | Validation Loop | S7.P2 | 3 consecutive clean rounds | No (Fix + continue) |
-| S10 | Unit Tests | S10 | 100% test pass (exit code 0) | Yes (Fix tests) |
+| S10 | Gate 7.1: Unit Tests (Options C/D only) | S10 | 100% test pass (exit code 0) — skipped for A/B | Yes (Fix tests) |
+| S10 | Gate 7.1b: Integration Scripts (Options B/D only) | S10 | All scripts exit code 0 — skipped for A/C | Yes (Fix scripts) |
 | S10 | User Testing | S10 | ZERO bugs found by user | Yes (S9) |
 
 ---
@@ -248,15 +249,15 @@
 - Address user concerns
 - Revise affected feature specs
 - Re-run S3 (Epic-Level Docs, Tests, and Approval)
-- Cannot proceed to S4 without sign-off
+- Cannot proceed to S5 without sign-off (S4 deprecated)
 
 **Why it matters:** Last checkpoint before significant implementation work begins
 
 ---
 
-## S4: Feature-Level Testing Strategy (0 formal gates)
+## S4: (Deprecated)
 
-S4 has no formal user approval gates. The epic testing strategy was approved at Gate 4.5 in S3. S4 creates feature-level test strategies (test_strategy.md per feature) which are agent-validated only.
+S4 has been deprecated. Test Scope Decision (what to test per feature) is now Step 0 of S5. The epic testing approach (A/B/C/D) is set at S1 Step 4.6.5. See `stages/s4/s4_feature_testing_strategy.md` for the redirect stub.
 
 ---
 
@@ -535,9 +536,11 @@ S4 has no formal user approval gates. The epic testing strategy was approved at 
 
 ### No Mandatory Gates
 
-**Requirements:**
-- 100% unit test pass after each step (not a formal gate, but required)
-- Mini-QC checkpoints every 5-7 tasks
+**Requirements (conditional per Testing Approach from EPIC_README):**
+- **Option A (smoke only):** No automated test requirement during execution
+- **Options C/D (unit tests):** 100% unit test pass after each step (not a formal gate, but required)
+- **Options B/D (integration scripts):** Run integration script at phase completion (early failures OK during development)
+- Mini-QC checkpoints every 5-7 tasks (all approaches)
 
 ---
 
@@ -619,14 +622,15 @@ S4 has no formal user approval gates. The epic testing strategy was approved at 
 
 ---
 
-## S10: Epic Cleanup (2 critical checkpoints per epic)
+## S10: Epic Cleanup (3 critical checkpoints per epic)
 
-### Gate 7.1: Unit Tests (100% Pass)
+### Gate 7.1: Unit Tests — Options C/D Only
 
 **Location:** stages/s10/s10_epic_cleanup.md
-**When:** Before user testing
+**When:** Before committing (Options C/D only); skipped for Options A/B
+**Conditional on Testing Approach** (set at S1, recorded in EPIC_README)
 
-**What it checks:**
+**What it checks (Options C/D):**
 - All unit tests pass
 - Exit code = 0 from test runner
 
@@ -634,12 +638,41 @@ S4 has no formal user approval gates. The epic testing strategy was approved at 
 - `{TEST_COMMAND}` exits with code 0
 - 100% test pass rate
 
-**If FAIL:**
+**If Testing Approach is A or B:** Skip this gate. Proceed to Gate 7.1b check.
+
+**If FAIL (Options C/D):**
 - Fix failing tests (including pre-existing failures from other epics)
 - Re-run tests
-- Only proceed to user testing when exit code = 0
+- Only proceed when exit code = 0
 
-**Why it matters:** Ensures no regressions in existing functionality
+**Why it matters:** Ensures no regressions for epics that use unit tests
+
+---
+
+### Gate 7.1b: Integration Scripts — Options B/D Only
+
+**Location:** stages/s10/s10_epic_cleanup.md (Step 2c)
+**When:** Before committing (Options B/D only); skipped for Options A/C
+**Conditional on Testing Approach** (set at S1, recorded in EPIC_README)
+
+**What it checks (Options B/D):**
+- All feature integration scripts run and pass
+- All exit code 0
+
+**Pass Criteria:**
+- Every integration script exits with code 0
+- Read Integration Test Convention from EPIC_README for run command
+
+**If Testing Approach is A or C:** Skip this gate. Proceed to Gate 7.2.
+
+**If FAIL (Options B/D):**
+- Review script output for failures
+- Fix failing assertions or implementation issues
+- Rerun the script — if fix is a behavior change, notify user
+- Only proceed when all scripts exit code 0
+- Note: If fix is a behavior change, return to S9 before continuing
+
+**Why it matters:** Ensures integration scripts are all passing before epic is committed
 
 ---
 
@@ -685,14 +718,15 @@ S4 has no formal user approval gates. The epic testing strategy was approved at 
 - S2.P1.I3: User Approval of Acceptance Criteria (referenced as "Gate 4" in this file for completeness — embedded in Gate 3)
 - S7.P1: Smoke Part 3 - E2E Data Validation (labeled "Checkpoint: S7.P1 Part 3" in this file)
 - S7.P2: Validation Loop - 3 Consecutive Clean Rounds (labeled "Checkpoint: S7.P2 Validation Loop" in this file)
-- S10: Unit Tests 100% Pass (referenced as "Gate 7.1" in this file)
+- S10: Unit Tests 100% Pass — Options C/D only (referenced as "Gate 7.1" in this file)
+- S10: Integration Scripts all exit 0 — Options B/D only (referenced as "Gate 7.1b" in this file)
 - S10: User Testing Zero Bugs (referenced as "Gate 7.2" in this file)
 
 **Gate Distribution by Stage:**
 - S1: 0 formal gates
 - S2: 3 formal gates per feature (Gates 1, 2, 3)
 - S3: 1 formal gate (Gate 4.5)
-- S4: 0 formal gates (test plan approval covered by Gate 4.5 in S3)
+- S4: (Deprecated — 0 formal gates; Test Scope Decision moved to S5 Step 0)
 - S5 v2: 1 formal user gate (Gate 5 - User Approval), 5 embedded validation gates (4a, 7a, 23a, 24, 25 now embedded in 11 validation dimensions)
 - S6-S8: 0 formal gates
 - S9: 0 formal gates (but restart protocol applies)

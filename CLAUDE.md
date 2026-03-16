@@ -1,724 +1,377 @@
-# Fantasy Football Helper Scripts - Claude Code Guidelines
+# FantasyFootballHelperScripts — Agent Rules
 
-## 🚨 CRITICAL: TRUST FILE STATE OVER CONVERSATION SUMMARIES
-
-**ALWAYS prioritize actual file contents over conversation summaries when determining project state:**
-
-1. **Check README.md files FIRST** - These contain the authoritative current status
-2. **Verify with actual source code** - Check what's actually implemented
-3. **Read Agent Status sections** - These are updated to reflect true current state
-4. **Conversation summaries can be outdated** - Files are the source of truth
-
-**Example workflow:**
-- User says "proceed" → Read current README.md Agent Status → Determine actual next step
-- Don't assume conversation summary reflects current file state
-- Always verify implementation status by checking actual code files
+> **This file:** `RULES_FILE.template.md` is renamed and placed during initialization per the AI service being used (e.g., `CLAUDE.md` for Claude Code, `.github/copilot-instructions.md` for GitHub Copilot).
 
 ---
 
 ## Quick Start for New Agents
 
-**FIRST**: Read `ARCHITECTURE.md` for complete architectural overview, system design, and implementation details.
+**FIRST:** Read `.shamt/project-specific-configs/ARCHITECTURE.md` for complete architectural overview and implementation details.
 
-**SECOND**: Read `README.md` for project overview, installation instructions, and usage guide.
+**SECOND:** Read this file for workflow rules, coding standards references, and commit protocols.
 
-**THIS FILE**: Contains workflow rules, coding standards, and commit protocols.
-
----
-
-## Epic-Driven Development Workflow (v2)
-
-The v2 workflow is a **10-stage epic-driven development process** for managing large projects:
-
-**Workflow Overview:**
-```
-S1: Epic Planning → S2: Feature Deep Dives → S3: Cross-Feature Sanity Check →
-S4: Feature Testing Strategy → S5-S8: Feature Loop (per feature) → S9: Epic-Level Final QC →
-S10: Epic Cleanup (includes S10.P1: Guide Updates)
-
-Per-feature loop: S5 (Planning) → S6 (Execution) → S7 (Testing) → S8 (Alignment) → Repeat or S9
-```
-
-**Notation System:**
-- **S#** = Stage (Level 1) - e.g., S1, S5
-- **S#.P#** = Phase (Level 2) - e.g., S2.P1, S5.P1
-- **S#.P#.I#** = Iteration (Level 3) - e.g., S5.P1.I2
-- Stages/Phases/Iterations reserved for hierarchy only; use "Step" for implementation tasks
-
-**Terminology:**
-- **Epic** = Top-level work unit (collection of related features)
-- **Feature** = Individual component within an epic
-- **KAI Number** = Unique epic identifier (tracked in EPIC_TRACKER.md)
-- User creates request file in `feature-updates/requests/` (optionally in a subfolder) → Agent creates `KAI-{N}-{epic_name}/` folder with multiple `feature_XX_{name}/` folders
-
-**See:** `feature-updates/guides_v2/reference/glossary.md` for complete term definitions and alphabetical index
+**THIRD:** Check `.shamt/epics/` for any in-progress epic work to resume.
 
 ---
 
-## 🚨 MANDATORY: Phase Transition Protocol
+## Project Overview
 
-**When transitioning between ANY stage, you MUST:**
-
-1. **READ the guide FIRST** - Use Read tool to load the ENTIRE guide for that stage
-2. **ACKNOWLEDGE what you read** - Use the phase transition prompt from `feature-updates/guides_v2/prompts_reference_v2.md`
-3. **VERIFY prerequisites** - Check prerequisites checklist in guide
-4. **UPDATE Agent Status** - Update EPIC_README.md or feature README.md with current guide + timestamp
-5. **THEN proceed** - Follow the guide step-by-step
-
-**Phase transition prompts are MANDATORY for:**
-- Starting any of the 10 stages (S1, S2, S3, S4, S5, S6, S7, S8, S9, S10)
-- Starting S1.P3 Discovery Phase
-- Starting S5 phases (Draft Creation, Validation Loop)
-- Starting S7 phases (Smoke Testing, QC Rounds, Final Review)
-- Creating missed requirements or entering debugging protocol
-- Resuming after session compaction
-
-**Agent Status updates are MANDATORY at phase boundaries:**
-
-When to update:
-- After completing ANY phase (S#.P#)
-- After completing ANY iteration (S#.P#.I#)
-- Before requesting user approval
-- After user provides input
-- At EVERY checkpoint completion
-
-What to update in Agent Status section:
-- Last Updated: [current timestamp]
-- Current Stage: [S#.P# notation]
-- Current Step: [what you just completed]
-- Next Action: [what you're about to do]
-- Current Guide: [guide file path]
-- Guide Last Read: [timestamp]
-
-**DO NOT batch updates** - Update after EACH phase/iteration, not at end of day.
-
-**Why this matters:**
-- Agent Status survives session compaction (context window limits)
-- Enables precise resumption if session interrupted
-- Provides user visibility into progress
-- Proves work was completed (accountability)
-
-**Historical failure:** KAI-7 agent completed entire S1.P3 Discovery Phase (4 sub-phases, 2 iterations, multiple hours of work) without a SINGLE Agent Status update. EPIC_README.md timestamp showed work from previous day, giving no indication of current progress.
-
-**See:** `feature-updates/guides_v2/prompts_reference_v2.md` → Complete prompt library
-
-**Why this matters:** Reading the guide first ensures you don't miss mandatory steps. The prompt acknowledgment confirms you understand requirements. Historical evidence: 40% guide abandonment rate without mandatory prompts.
+**Project:** FantasyFootballHelperScripts
+**Epic Tag:** KAI
+**Agent Name:** Shamt
+**Git Platform:** github
+**Default Branch:** main
 
 ---
 
-## 🚨 CRITICAL: Stage Workflows Are Quick Reference ONLY
+## Project Context
 
+**Tech Stack:** Python 3.13.6+, httpx (async ESPN API), Pydantic v2, pandas, scipy, tenacity
+**Runtime / Version:** Python 3.13.6+
+**Package Manager / Build Tool:** pip + venv (`pip install -r requirements.txt`)
+**Test Runner:** pytest — run via `python run_pre_commit_validation.py` (100% pass required)
+**Deployment Target:** Local only — no server, no cloud deployment
+
+**Critical Gotchas:**
+- Never hardcode scoring weights or thresholds — all configurable values live in `data/configs/league_config.json` and must be accessed via `ConfigManager` using `ConfigKeys` constants
+- Always use `write_csv_with_backup()` from `utils/csv_utils.py` when overwriting any CSV — never write directly
+- New source files require corresponding test files in `tests/` (mirroring source structure) before committing
+- Do not use `requests` for new HTTP code — use `httpx` (async)
+- Do not add new `sys.path.insert()` calls — use proper package imports instead
+
+---
+
+## Workflow System
+
+This project uses the **Shamt epic-driven development workflow** (S1–S10).
+
+**All guides live at:** `.shamt/guides/`
+
+**Stage overview:**
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│ ⚠️ DO NOT use Stage Workflows below as substitute for guides   │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                  │
-│ Stage Workflows section provides NAVIGATION ONLY                │
-│ - Shows which guide to read                                     │
-│ - Shows first action (prompt) to use                            │
-│ - Shows next stage                                              │
-│                                                                  │
-│ You MUST read the FULL guide for each stage                     │
-│ - Use Read tool to load ENTIRE guide                            │
-│ - Follow ALL steps in guide                                     │
-│ - Do NOT work from this quick reference alone                   │
-│                                                                  │
-│ Skipping guide reading = 40% abandonment rate (historical data) │
-│                                                                  │
-└─────────────────────────────────────────────────────────────────┘
+S1: Epic Planning → S2: Feature Deep Dives → S3: Epic-Level Docs, Tests, and Approval →
+S5-S8: Feature Loop → S9: Epic Final QC → S10: Cleanup
+(S4 deprecated — Test Scope Decision moved to S5 Step 0)
+
+Per-feature: S5 (Plan) → S6 (Execute) → S7 (Test) → S8 (Align) → repeat or S9
 ```
 
----
-
-## 🚨 Checkpoint Requirements
-
-Guides contain mandatory checkpoints marked with 🛑 or "CHECKPOINT".
-
-**What a checkpoint means:**
-1. STOP all work immediately
-2. Use Read tool to re-read specified guide section(s)
-3. Output acknowledgment: "✅ CHECKPOINT [N]: Re-read [sections]"
-4. Update Agent Status in README (current step, timestamp)
-5. ONLY THEN continue with next section
-
-**Checkpoints are NOT optional:**
-- "Checkpoint" = blocking requirement (not advisory)
-- Must perform re-reading BEFORE continuing
-- Must output acknowledgment to prove completion
-- Historical evidence: 80% skip rate without explicit acknowledgment
-
-**Why checkpoints exist:**
-- Agents (including you) work from memory after initial guide reading
-- Memory-based execution causes 40%+ violation rate
-- Re-reading takes 30 seconds, prevents hours of rework
-- Acknowledgment proves checkpoint was performed
-
-**Example checkpoint execution:**
-
-❌ WRONG:
-- Read guide once at beginning
-- Execute all steps from memory
-- See checkpoint marker, think "I remember this"
-- Skip checkpoint re-reading
-- Discover violations later during QC
-
-✅ CORRECT:
-- Read guide section
-- Execute steps for that section
-- See 🛑 MANDATORY CHECKPOINT marker
-- STOP immediately (do not proceed)
-- Use Read tool to re-read specified sections
-- Output: "✅ CHECKPOINT 1: Re-read Critical Rules and Discovery Loop sections"
-- Update Agent Status with completion timestamp
-- ONLY THEN continue with next section
-
-**Historical failure:** KAI-7 agent completed entire S1.P3 Discovery Phase (4 sub-phases, 2 iterations, 3 mandatory checkpoints) without performing a SINGLE checkpoint re-reading or Agent Status update. All 3 checkpoints were skipped despite being clearly marked in guide.
+**Resuming in-progress work:** Check `.shamt/epics/` for active epic folders. Read `EPIC_README.md` → Agent Status section for exact resumption point.
 
 ---
 
-## Stage Workflows Quick Reference
+## Critical Rules
 
-**🚨 READ THE FULL GUIDE** before starting each stage - this is navigation only.
+✅ **Always required:**
+- Read guide before starting each stage
+- Use phase transition prompts from `.shamt/guides/prompts/`
+- Update Agent Status in README files at every checkpoint
+- Fix ALL issues immediately (zero tech debt tolerance)
+- 100% test pass rate before commits
 
-### 🚨 Guide Selection Protocol
-
-**CLAUDE.md Stage Workflow table is the authoritative source for guide paths.**
-
-When transitioning between stages:
-1. ✅ Check EPIC_README.md Epic Completion Checklist - is current stage FULLY complete?
-2. ✅ Read CLAUDE.md Stage Workflow table - which guide for next stage?
-3. ✅ Use Read tool on EXACT guide listed in CLAUDE.md (ignore other files)
-4. ❌ Do NOT glob for guides and pick one - always use CLAUDE.md reference
-5. ❌ Do NOT skip phase/iteration checks within stages
-
-**If you find multiple guides in a stage folder:**
-- Trust CLAUDE.md Stage Workflow table (source of truth)
-- Old guides may exist temporarily during refactors
-- When in doubt, ask user which guide to use
-
-**If CLAUDE.md and filesystem conflict:**
-- CLAUDE.md wins (user updates CLAUDE.md first during refactors)
-- Report discrepancy to user
-- Use the guide path from CLAUDE.md
+❌ **Never allowed:**
+- Skip any required phase or step within a guide — guides must be executed completely, not selectively
+- Defer issues for later
+- Commit without running tests
+- Autonomous conflict resolution (always escalate to user)
+- Replace `SHAMT-{N}` with `KAI-{N}` inside `.shamt/guides/` files — see "Shared Guide Rules" below
+- Add inline comments, docstrings, or code annotations beyond what `.shamt/project-specific-configs/CODING_STANDARDS.md` requires — follow project standards exactly, no extra commentary
 
 ---
 
-| Stage | Trigger | Guide | Key Actions | Next |
-|-------|---------|-------|-------------|------|
-| **S1** | "Help me develop {epic}" | `stages/s1/s1_epic_planning.md` | KAI number (ask user: next available or custom), git branch, **Discovery Phase (MANDATORY)**, folder structure | S2 |
-| **S2** | Complete S1 | `stages/s2/s2_feature_deep_dive.md` | spec.md, checklist.md, RESEARCH_NOTES.md (Gate 3: User approval) | S3 |
-| **S3** | All features done S2 | `stages/s3/s3_epic_planning_approval.md` | Epic testing strategy, documentation (Gate 4.5: User approval) | S4 |
-| **S4** | S3 approved | `stages/s4/s4_feature_testing_strategy.md` | test_strategy.md (4 iterations, Validation Loop) | S5 |
-| **S5** | S4 complete | `stages/s5/s5_v2_validation_loop.md` | implementation_plan.md (Draft + Validation Loop, Gate 5: User approval) | S6 |
-| **S6** | S5 approved | `stages/s6/s6_execution.md` | implementation_checklist.md, implement code | S7 |
-| **S7** | S6 complete | `stages/s7/s7_p1_smoke_testing.md` | Smoke test, 3 QC rounds, commit feature | S8 |
-| **S8** | S7 complete | `stages/s8/s8_p1_cross_feature_alignment.md` | Update remaining specs, update epic testing plan | S5 (next) or S9 |
-| **S9** | All features done | `stages/s9/s9_epic_final_qc.md` | Epic smoke test, 3 QC rounds, user testing (ZERO bugs required) | S10 |
-| **S10** | S9 passed | `stages/s10/s10_epic_cleanup.md` | Unit tests (100% pass), guide updates (S10.P1 MANDATORY), PR | Done |
+## Parallel Epic Play
 
-**Critical Workflows:**
-- **S1.P3 Discovery Phase:** MANDATORY for ALL epics - research loop until 3 consecutive iterations with no new questions
-- **S5 v2 Structure:** 2-phase approach (Draft Creation 60-90 min + Validation Loop 3.5-6 hours with 11 dimensions, 3 consecutive clean rounds required)
-- **🚨 RESTART PROTOCOL:** S7/S9 - If ANY issues found → Restart from phase beginning (S7.P1 or S9.P1)
+When multiple epics are active simultaneously in separate agent windows:
 
-**Phase Transition Prompts:** `feature-updates/guides_v2/prompts_reference_v2.md` (MANDATORY)
+- **S1–S5 (planning):** Multiple agents may proceed independently and in parallel. Each agent operates in its own epic's subdirectory under `.shamt/epics/`. No coordination required.
+- **S6–S9 (execution, smoke testing, QC):** Only ONE agent may be in execution at a time. Before starting S6, confirm with the user that no other agent is currently in S6–S9.
+- **S10 (completion):** S10 also writes to `EPIC_TRACKER.md`. Two agents completing S10 simultaneously risk a file-level conflict. Treat S10 like S6–S9: only one at a time. Confirm with the user before starting S10 if another agent may also be finishing.
 
-**Complete Workflow Details:** `feature-updates/guides_v2/EPIC_WORKFLOW_USAGE.md` → "Stage-by-Stage Detailed Workflows"
+If you are ready to begin S6 or S10 and are unsure whether another agent is at those stages: **STOP and ask the user to confirm it is safe to proceed.**
 
 ---
 
-## 🔀 S2 Parallel Work (Optional for 3+ Features)
+## Guide Execution Protocol
 
-**When Offered:** During S1 Step 5.9 (if epic has 3+ features)
-**Benefits:** 40-60% time reduction for S2 phase
-**Complexity:** Requires spawning secondary agents and coordination
+When a guide is referenced for a stage or phase, the following rules apply regardless
+of how familiar the task seems:
 
-### Quick Decision
+- **Read the entire guide before starting any work** — the overview does not substitute
+  for the full guide including all steps
+- **Before executing each step, re-read that step's instructions from the guide** — do
+  not execute from memory after an initial read
+- **Guide instructions override your training knowledge** — if the guide specifies how to
+  perform a step, follow the guide's method even if you know a different approach
+- **All phases in a guide are mandatory** — do not stop after the phase that produces the
+  primary artifact and skip remaining phases (e.g., completing a draft but skipping the
+  validation loop)
+- **Do not present outputs to the user until all guide phases are complete**
+- **When resuming a prior session:** re-read the current guide before continuing — Agent
+  Status indicates where you are, not what the guide requires next
 
-**OFFER parallel work if:**
-- Epic has 3+ features (significant time savings)
-- User is time-constrained
+**Bypass pattern to watch for:** "I know how to write an implementation plan / spec /
+test strategy, so I'll do it my way." Your knowledge of how to perform the task does not
+reduce the requirement to follow the guide's specific steps.
 
-**SKIP parallel work if:**
-- Only 1-2 features (minimal benefit)
-- User prefers simplicity
+---
 
-**User decides:** Always present options, let user choose
+## Missed Requirement Protocol (Post-S5)
 
-### Parallelization Modes
+🚨 **If a new requirement is discovered AFTER S5 has started for any feature:**
 
-**Group-Based (dependency groups exist):**
-- Features organized into groups based on spec-level dependencies
-- Wave 1: Group 1 completes S2 first
-- Wave 2: Group 2 starts after Group 1 S2 complete
-- See: `parallel_work/s2_primary_agent_group_wave_guide.md`
+- **DO NOT** implement it directly — this is a protocol violation
+- **DO** read `.shamt/guides/missed_requirement/missed_requirement_protocol.md` FIRST
+- **DO** present options to user (new feature vs update unstarted feature)
+- **DO** follow the full protocol: Discovery → Planning → Realignment → S2/S3 → S5-S8
 
-**Full Parallelization (all features independent):**
-- All features execute S2 simultaneously
-- No dependency waves needed
-- See: `parallel_work/s2_primary_agent_guide.md`
+**Trigger keywords:** "missed", "forgot", "should have", "discovered", "gap", "create another feature", "add a feature for", "we also need"
 
-### 🚨 S2 Parallel Work Structure Rules
+**Decision tree — "NEW, CURRENT, or MISSED?"**
+- **NEW** requirement (no epic exists) → S1 epic planning
+- **CURRENT** requirement (during S2/S3, before S5) → Update specs in current stage
+- **MISSED** requirement (after S5 started) → Missed requirement protocol (`.shamt/guides/missed_requirement/`)
 
-**When executing parallel S2 work, you MUST follow this structure EXACTLY:**
+---
 
-**Allowed Coordination Directories (3 only):**
-1. `.epic_locks/` - Lock files
-2. `agent_comms/` - Communication FILES (no subdirectories)
-3. `agent_checkpoints/` - Checkpoint .json FILES (no subdirectories)
+## Validation Loop Enforcement (ALL stages)
 
-**Prohibited:**
-- ❌ `parallel_work/` directory
-- ❌ `agent_comms/inboxes/` subdirectories
-- ❌ `agent_comms/agent_checkpoints/` nesting
-- ❌ `agent_comms/coordination/` or any nested coordination dirs
-- ❌ Checkpoint files with .md extension
-- ❌ Communication channel directories (must be files)
+🚨 **MANDATORY — applies every time a Validation Loop runs (S2, S3, S5, S7, S8, S9)**
 
-**Required:**
-- ✅ ALL features (including Feature 01) MUST have STATUS file
-- ✅ ALL checkpoint files MUST use .json extension (not .md)
-- ✅ ALL communication channels MUST be individual .md files in agent_comms/
-- ✅ Handoff packages saved in feature folders: `feature_XX_{name}/HANDOFF_PACKAGE.md`
-- ✅ Primary creates ALL directories, secondaries create FILES only
-- ✅ Run validation script after infrastructure setup: `bash feature-updates/guides_v2/parallel_work/scripts/validate_structure.sh .`
+**The Validation Loop is the most commonly shortcut protocol. These rules exist because agents consistently:**
+- Declare validation "complete" after finding and fixing issues (without achieving 3 CLEAN rounds)
+- Skip full artifact re-reads (reading partial sections instead of the entire artifact)
+- Skip dimension checklists (finding issues "organically" instead of walking all dimensions)
+- Never create the required VALIDATION_LOG.md file
+- Treat "issues found and fixed" rounds as clean rounds (they are NOT clean — counter resets to 0)
 
-**File Format Requirements:**
-- Checkpoint files: `.json` extension (e.g., `secondary_a.json`)
-- Communication files: `.md` files directly in `agent_comms/` (e.g., `primary_to_secondary_a.md`)
-- STATUS files: Plain text key-value in each feature folder
-- Handoff packages: `.md` files in feature folders (e.g., `feature_02_{name}/HANDOFF_PACKAGE.md`)
+**Non-negotiable requirements:**
 
-**Validation:**
-```bash
-# After Primary creates infrastructure, run:
-bash feature-updates/guides_v2/parallel_work/scripts/validate_structure.sh .
+1. **Create VALIDATION_LOG.md BEFORE Round 1.** File: `{feature_folder}/VALIDATION_LOG.md`. Every round must be documented with: timestamp, reading pattern, artifacts re-read (list read_file calls), technical claims verified (list grep/search calls), findings per dimension, round summary with clean counter. If this file does not exist, the validation loop has not started.
 
-# Expected: ✅ PASSED - structure valid
-# If errors: Fix before generating handoff packages
+2. **Full artifact re-read every round.** Use `read_file` to read the ENTIRE artifact from line 1 to end. Partial reads (e.g., "lines 200-400") do NOT count. If the artifact is >200 lines, read it in 2-3 chunks covering ALL lines. Document the read_file calls in the log.
+
+3. **All dimensions checked every round.** Walk through every dimension checklist (7 master + scenario-specific) and document PASS or ISSUE for each. "I found issues organically" is not sufficient — you must check dimensions you did NOT find issues in too.
+
+4. **Clean counter resets to 0 when ANY issue is found.** A round where you found issues and fixed them is NOT a clean round. The counter only increments on rounds where ZERO issues are found across ALL dimensions.
+
+5. **3 consecutive clean rounds required to exit.** You need counter = 3 (three rounds in a row with zero issues). Typical validation takes 4-7 total rounds. If you're finishing in ≤3 rounds, you are almost certainly doing mechanical validation.
+
+6. **Spot-check technical claims against source code.** Each round must include ≥3 verified technical claims using `read_file`, `grep_search`, or `file_search` against actual source files. Document what you verified and the result.
+
+7. **Never delegate validation rounds to subagents.** The agent running the validation loop must do the reads and checks itself — subagents cannot provide "fresh eyes."
+
+**Self-check before declaring validation complete:**
+- [ ] VALIDATION_LOG.md exists with documented rounds
+- [ ] Clean counter = 3 (three consecutive zero-issue rounds)
+- [ ] Every round has full artifact re-read evidence (read_file calls covering all lines)
+- [ ] Every round has all dimensions documented (PASS or ISSUE for each)
+- [ ] Every round has ≥3 spot-checked technical claims with tool evidence
+- [ ] No round that found issues was counted toward the clean counter
+
+🚨 **TOOL USAGE EVIDENCE — MANDATORY PER ROUND**
+
+Each round in VALIDATION_LOG.md MUST include a "Tool Usage" section listing:
+- Every `read_file` call made (file path + line range)
+- Every `grep_search` call made (query + result summary)
+- Specific findings tied to tool output (not memory)
+
+**Example of compliant round documentation:**
+```
+Round 3 Tool Usage:
+- read_file(implementation_plan.md:1-200) ✓
+- read_file(implementation_plan.md:200-400) ✓
+- grep_search("{ClassName}") → found at line {N} ✓
+- grep_search("{fieldName}") → found at line {N} ✓
+Finding: Line {N} uses `{fieldName}` (verified via grep), matches spec requirement R3.
 ```
 
-### If User Chooses Parallel Work
-
-**Primary Agent (you):**
-- Create ALL coordination directories (`.epic_locks/`, `agent_comms/`, `agent_checkpoints/`)
-- Create STATUS file for Feature 01
-- Run validation script
-- Generate and save handoff packages to feature folders
-- Execute S2 for Feature 01
-- Coordinate with secondaries every 15 min
-- Run S3/S4 solo after all features complete S2
-
-**Secondary Agent (if joining):**
-- Receive one-line startup instruction from user
-- Read handoff package from feature folder automatically
-- Create ONLY your checkpoint.json and STATUS files (NOT directories)
-- Execute S2 for assigned feature
-- Coordinate every 15 min
-- WAIT for Primary to run S3/S4
-
-**Complete Protocols:** `feature-updates/guides_v2/parallel_work/`
-- `s2_parallel_protocol.md` - Complete 9-phase workflow + structure requirements
-- `s2_primary_agent_guide.md` - Primary agent workflow (full parallelization)
-- `s2_primary_agent_group_wave_guide.md` - Primary agent workflow (group-based waves)
-- `s2_secondary_agent_guide.md` - Secondary agent workflow
-- `scripts/validate_structure.sh` - Structure validation script
-- Infrastructure, recovery, and template files
-
-**Parallel work is OPTIONAL** - workflow works identically in sequential mode.
+**Red flags that indicate fake validation (user will reject and restart from Round 1):**
+- Listing dimensions as "✅ PASS" without citing any tool calls
+- Using phrases like "I remember..." or "This looks correct from earlier..."
+- Finding exactly 1 token issue per round, then declaring clean
+- Completing a round in <2 minutes (insufficient time for full re-read)
+- No `read_file` or `grep_search` calls visible in the round log
 
 ---
 
+## Git Conventions
 
-## Missed Requirement Protocol
+- **Branch format:** `{work_type}/KAI-{N}` (epic/feat/fix)
+- **Commit format:** `{commit_type}/KAI-{N}: {message}`
+- **Commit title max:** 100 characters
+- **No AI attribution** in commit messages (no Co-Authored-By, no "Generated with")
+- **Never force-add gitignored files** — if `git check-ignore` reports a file as ignored, do NOT use `git add -f`. Apply changes locally but skip the commit step.
 
-**When to use:** Missing scope discovered at ANY time (implementation, QA, epic testing), solution is KNOWN
+### Guide File Commit Rule
 
-**🚨 FIRST ACTION:** Use "Creating Missed Requirement" prompt
+🚨 **Before committing guide updates (`.shamt/guides/` or the rules file):**
 
-- **Guide:** `missed_requirement/missed_requirement_protocol.md`
-- **Before S5:** Update specs directly during S2/S3/S4
-- **After S5 starts:** Create new feature OR update unstarted feature
-- **User decides:** Approach + priority (high/medium/low)
-- **Process:** Pause work → S2/S3/S4 for new feature → Resume
-- **Priority determines sequence:** high = before current, medium = after current, low = at end
-
----
-
-## 🔀 Protocol Decision Tree
-
-**When you discover an issue or gap:**
-
-**Quick Summary:**
-- **Known solution + NEW requirement** → Missed Requirement Protocol
-- **Unknown root cause** → Debugging Protocol
-- **Known solution + NOT new requirement** → Just implement it (regular work)
-- **Need user input** → Add to questions.md, ask user
-
-**See:** `feature-updates/guides_v2/reference/PROTOCOL_DECISION_TREE.md` for complete decision tree with:
-- Issue/Gap discovery flowchart
-- 4 detailed scenario examples with analysis
-- Protocol selection criteria and common mistakes
+1. Run `git check-ignore .shamt/guides/` to verify guides are NOT ignored
+2. If guides ARE gitignored → apply changes locally, skip commit, inform user
+3. If guides are NOT gitignored → proceed with `git add` and `git commit`
+4. **NEVER use `git add -f` to force-commit gitignored guide files**
 
 ---
 
-## Debugging Protocol
+## PR Review Comment Workflow
 
-**When to use:** Issues discovered during QC/Smoke testing with UNKNOWN root cause requiring investigation
+**When user provides PR review comments** (copy/pasted or via a file), follow this protocol:
 
-**🚨 FIRST ACTION:** Use "Starting Debugging Protocol" prompt
+### Input
 
-- **Guide:** `debugging/debugging_protocol.md`
-- **File Structure:** Feature-level or epic-level `debugging/` folder
-- **6-Step Process:**
-  1. Issue Discovery & Checklist Update
-  2. Investigation (3 rounds: Code Tracing, Hypothesis, Testing)
-  3. Solution Design & Implementation
-  4. User Verification (MANDATORY)
-  5. **Step 4b: Root Cause Analysis** (MANDATORY per-issue, 5-why analysis)
-  6. Loop Back to Testing (cross-pattern analysis)
+The user will provide comments in one of two ways:
+- **Copy/paste** directly into the chat
+- **File** (e.g., a `.txt` export of the review email) — read it with `read_file`
 
-**Key Requirements:**
-- Issue-centric tracking (dedicated file per issue)
-- Max 5 investigation rounds before user escalation
-- User must confirm each fix
-- **Step 4b IMMEDIATELY after user verification** (NOT batched)
-- Zero issues required to proceed
+### Processing — One Comment at a Time
 
----
+Walk through each comment **sequentially** with the user. For each comment:
 
-## Key Principles
+1. **Present the comment.** Quote the reviewer's concern so both parties are aligned on what's being addressed.
 
-**Planning & Discovery:**
-- Epic-first thinking, S1.P3 Discovery Phase MANDATORY (research + Q&A loop until 3 consecutive clean iterations), continuous alignment (S8.P1)
+2. **Propose a solution.** Read the relevant source code, analyze the issue, and propose a concrete fix. Explain _what_ you'll change and _why_.
 
-**Execution & Quality:**
-- Read guide before starting, use phase transition prompts, update Agent Status at checkpoints
-- User approval gates (Gates 3, 4.5, 5), zero autonomous resolution, continuous testing
+3. **Wait for user confirmation.** Do NOT proceed with implementation until the user confirms the approach. The user may:
+   - Approve as-is → proceed
+   - Suggest a different approach → adapt and re-propose
+   - Decline the fix → skip and move to next comment
 
-**Implementation:**
-- Test-driven development (S4 before S5), S5 v2: 2-phase approach (draft creation 60-90 min + validation loop with 11 S5-specific dimensions)
-- Validation Loop validation (3 consecutive clean rounds, zero deferred issues, max 10 rounds)
-- QC restart protocol (if ANY issues → restart), 100% test pass, zero tech debt tolerance
+4. **Implement the fix.** Apply the code change.
 
----
+5. **Root-cause analysis.** Reflect on _why_ this issue made it into the PR in the first place. Consider:
+   - Was it a gap in coding standards?
+   - Was it a missing validation step in the S5–S8 development loop?
+   - Was it a pattern the agent should have caught during S9 Final QC?
+   - Would a guide update prevent this class of issue in future epics?
 
-## Common Anti-Patterns to Avoid
+6. **Update lessons learned.** Append the issue and root-cause analysis to the epic's lessons learned document at `.shamt/epics/KAI-{N}-{epic_name}/epic_lessons_learned.md`. Each entry should include:
+   - Issue number (sequential across all PR review rounds)
+   - File and location
+   - What the reviewer flagged
+   - What was fixed
+   - Root cause category (e.g., "unused import", "hardcoded value", "missing validation")
+   - Recommended guide update (if applicable)
 
-**🚨 CRITICAL: Avoid these anti-patterns** - Historical evidence shows these cause 80%+ of epic failures.
+7. **Repeat** for the next comment.
 
-### Anti-Pattern 1: Autonomous Checklist Resolution
-**Wrong:** Agent researches → Marks RESOLVED → Adds requirement
-**Correct:** Agent researches → Marks PENDING → Presents findings → User approves → THEN mark RESOLVED
-**Key:** Research findings ≠ User approval
+### After All Comments Are Addressed
 
-### Anti-Pattern 2: Narrow Investigation Scope
-**Wrong:** Check obvious aspect → Declare complete
-**Correct:** Use systematic 5-category checklist (method calls, config, integration, timing, edge cases)
-**Key:** Use systematic frameworks, don't rely on intuition
+1. **Run tests.** Run your project's tests per `CODING_STANDARDS.md` — all must pass before committing.
+2. **Commit.** Single commit for the entire round of fixes. Format: `fix/KAI-{N}: address PR review round {R} — {brief summary}`. Do NOT include the review input file in the commit (unstage it if present).
+3. **Provide copy/pastable replies.** For each comment, generate a reply the user can paste directly into the PR. Each reply must:
+   - Start with "Fixed in {commit_hash}."
+   - Briefly describe what was changed and why
+   - Be self-contained (one reply per comment, independently copy/pastable)
 
-### Anti-Pattern 3: Deferring Issues During Validation Loop
-**Wrong:** Find 5 issues → Note for later → Continue to next round
-**Correct:** Find 5 issues → Fix ALL immediately → Then continue
-**Key:** Validation Loop has ZERO TOLERANCE for deferred issues
-
-**Complete Anti-Pattern Reference:** `feature-updates/guides_v2/reference/common_mistakes.md`
-- Detailed workflows with step-by-step examples
-- Recovery protocols for each anti-pattern
-- Additional anti-patterns and edge cases
-- Historical failure case studies
-
----
-
-## Gate Numbering System
-
-The workflow uses two types of gates:
-
-**Type 1: Stage-Level Gates** (whole numbers or decimals)
-- Named after the stage they occur in or between
-- Most require user approval
-- Examples: Gate 3 (S2), Gate 4.5 (S3), Gate 5 (S5)
-
-**Type 2: Iteration-Level Gates** (iteration numbers)
-- Named after the iteration they occur in
-- Agent self-validates (using checklists)
-- Examples: Gate 4a, Gate 7a, Gate 23a, Gate 24, Gate 25
-
-### Complete Gate List
-
-| Gate | Type | Location | Purpose | Approver |
-|------|------|----------|---------|----------|
-| Gate 1 | Stage | S2.P1.I1 | Research Completeness Audit (embedded in Validation Loop) | Agent (checklist) |
-| Gate 2 | Stage | S2.P1.I3 | Spec-to-Epic Alignment (embedded in Validation Loop) | Agent (checklist) |
-| Gate 3 | Stage | S2.P1.I3 | User Checklist Approval (separate from Validation Loop) | User |
-| Gate 4.5 | Stage | S3.P3 | Epic Plan Approval (3-tier rejection handling) | User |
-| Gate 5 | Stage | S5.P3 | Implementation Plan Approval (3-tier rejection handling) | User |
-| Gate 4a | Iteration | S5.P1.I2 | TODO Specification Audit | Agent (checklist) |
-| Gate 7a | Iteration | S5.P1.I3 | Backward Compatibility Check | Agent (checklist) |
-| Gate 23a | Iteration | S5.P3.I2 | Pre-Implementation Spec Audit (5 parts) | Agent (checklist) |
-| Gate 24 | Iteration | S5.P3.I3 | GO/NO-GO Decision | Agent (confidence) |
-| Gate 25 | Iteration | S5.P3.I3 | Spec Validation Check | Agent (checklist) |
-
-**See:** `reference/mandatory_gates.md` for complete gate reference with timing, checklists, and guide locations.
-
----
-
-## Feature File Structure (Critical for Resuming Work)
-
-### Standard Feature Folder Structure
-
+**Example reply format:**
 ```
-feature_XX_{name}/
-├── README.md                      (Agent Status - current guide, next action)
-├── spec.md                        (Requirements specification - user-approved S2)
-├── checklist.md                   (QUESTIONS ONLY - user answers ALL before S5.P1)
-├── implementation_plan.md         (Implementation build guide ~400 lines - user-approved S5.P1)
-├── implementation_checklist.md    (Progress tracker ~50 lines - created S6)
-├── lessons_learned.md             (Retrospective - created S7.P3)
-└── debugging/                     (Created if issues found during testing)
-    ├── ISSUES_CHECKLIST.md
-    ├── issue_XX_{name}.md
-    └── ...
+Fixed in {commit_hash}. {Brief description of what was changed and why.}
 ```
 
-**File Roles:**
-- `spec.md` = WHAT to build (requirements) - user-approved S2
-- `checklist.md` = QUESTIONS to answer (user input) - user-approved S2 (Gate 3)
-- `implementation_plan.md` = HOW to build (implementation guide) - user-approved S5 (Gate 5)
-- `implementation_checklist.md` = PROGRESS tracker (real-time updates) - created S6
+### Reply Format for Non-Review Fixes
 
-**Note:** Git commit history provides all change tracking, eliminating need for separate change documentation.
+When the user addresses feedback that isn't from the automated PR reviewer (e.g., tech lead comments, user-reported bugs), still provide a copy/pastable reply in the same format after committing the fix.
 
 ---
 
-## Resuming In-Progress Epic Work
+## Epic Request Workflow
 
-**BEFORE starting any epic-related work**, check for in-progress epics:
+**CRITICAL:** Understand the distinction between creating an epic request vs starting S1.
 
-1. **Check for active epic folders:** Look in `feature-updates/` for any folders (excluding `done/` and `guides_v2/`)
+### Creating an Epic Request (Before S1)
 
-2. **CHECK FOR ACTIVE DEBUGGING:** Look for `debugging/` folder in epic or feature folders
-   - If `debugging/` folder exists, read `debugging/ISSUES_CHECKLIST.md` FIRST
-   - Active debugging takes priority over Agent Status in EPIC_README.md
-   - You may be mid-investigation or have unresolved issues
+**When user says:** "Create an epic request for [feature]"
 
-3. **If found, use the "Resuming In-Progress Epic" prompt** from `prompts_reference_v2.md`
+✅ **DO:** Create file in `.shamt/epics/requests/{name}.md` or `.txt`
+✅ **DO:** Write comprehensive request document (requirements, goals, constraints, research)
+✅ **DO:** Focus on WHAT needs to be done (requirements, not implementation)
+✅ **DO:** Mention files/areas that MAY need changes (not specific code)
+✅ **DO:** Reference coding practices to follow
+✅ **DO:** Leave file in `requests/` folder
 
-4. **READ THE EPIC_README.md FIRST:** Check "Agent Status" section:
-   - Current guide (S#.P#.I# notation)
-   - Current step/iteration
-   - Next action to take
-   - Critical rules from current guide
-   - **Debugging Active field** (if YES, check debugging/ folder)
+❌ **DO NOT:** Include code snippets, detailed schemas, or implementation details
+❌ **DO NOT:** Design the exact implementation (that happens during S1-S10)
+❌ **DO NOT:** Create `KAI-{N}/` folder yet
+❌ **DO NOT:** Create EPIC_README.md yet
+❌ **DO NOT:** Create git branch yet
 
-5. **READ THE CURRENT GUIDE:** Use Read tool to load the guide listed in Agent Status
+**The request file waits in `requests/` until user initiates S1. The S1-S10 flow will determine detailed design and implementation.**
 
-6. **Continue from where previous agent left off** - Don't restart the workflow
+### Starting S1 Epic Planning (After Request Exists)
 
-**Why this matters:** Session compaction can interrupt agents mid-workflow. EPIC_README.md Agent Status survives context window limits and provides exact resumption point. Active debugging must be detected to avoid missing critical investigation context.
+**When user says:** "Start S1 for [epic request]"
 
----
+✅ **DO:** Read `.shamt/guides/stages/s1/s1_epic_planning.md` first
+✅ **DO:** Verify request file exists in `.shamt/epics/requests/`
+✅ **DO:** Create git branch
+✅ **DO:** Assign `KAI-{N}` number
+✅ **DO:** Create `KAI-{N}/` folder structure during S1 Step 5
 
-## Workflow Guides Location
-
-**🚨 CRITICAL:** When user says "guides" = EVERY FILE in `feature-updates/guides_v2/`
-
-**Complete guide structure:**
-- `stages/` - Core workflow (s1-s10)
-- `reference/` - Mandatory gates, common mistakes, glossary, consistency loop protocols
-- `templates/` - File templates
-- `debugging/` - Debugging protocol
-- `missed_requirement/` - Missed requirement protocol
-- `prompts/` - Phase transition prompts (MANDATORY)
-- `parallel_work/` - Parallel work coordination
-- `audit/` - Modular audit system
-
-**Key files:**
-- `README.md` - Guide index
-- `prompts_reference_v2.md` - MANDATORY phase transition prompts
-- `EPIC_WORKFLOW_USAGE.md` - Comprehensive usage guide
-
-**When user says "audit the guides":**
-1. Read `audit/README.md` - Entry point
-2. Run `bash feature-updates/guides_v2/audit/scripts/pre_audit_checks.sh`
-3. Read `audit/stages/stage_1_discovery.md` - Begin Round 1
-
-**Find all guides:** `Glob pattern="**/*.md" path="feature-updates/guides_v2"`
-
-**See:** `feature-updates/guides_v2/README.md` for complete file index
+**`KAI-{N}` folders are ONLY created during S1, never before.**
 
 ---
 
-## 🚨 Git Safety Rules
+## Key File Locations
 
-**CRITICAL: NEVER destroy uncommitted changes**
+| File | Location | Purpose |
+|------|----------|---------|
+| Epic requests | `.shamt/epics/requests/` | Epic request files (BEFORE S1 starts) |
+| Epic tracker | `.shamt/epics/EPIC_TRACKER.md` | All epics + next available number |
+| Active epics | `.shamt/epics/KAI-{N}/` | Epic folders (CREATED DURING S1) |
+| Architecture | `.shamt/project-specific-configs/ARCHITECTURE.md` | Project structure and design |
+| Coding standards | `.shamt/project-specific-configs/CODING_STANDARDS.md` | Style, naming, testing rules |
+| Project-specific configs | `.shamt/project-specific-configs/` | All project-specific supplements and overrides |
+| Guides | `.shamt/guides/` | Full S1–S10 workflow |
+| Completed epics | `.shamt/epics/done/` | Archived epics |
 
-**BEFORE running ANY destructive git command, you MUST:**
+---
 
-1. **Check for uncommitted changes:**
-   ```bash
-   git status
-   ```
+## Coding Standards
 
-2. **If uncommitted changes exist, NEVER run:**
-   - `git reset --hard` (destroys uncommitted changes)
-   - `git checkout <branch>` without stashing first (may lose changes)
-   - `git checkout -- <file>` (discards file changes)
-   - `git clean` (deletes untracked files)
-   - `git reset HEAD~` combined with checkout (loses commits and changes)
-   - ANY command that would discard or lose uncommitted work
+See `.shamt/project-specific-configs/CODING_STANDARDS.md` for complete standards. Key points:
+- Type hints required on all public methods (parameters + return type)
+- Google-style docstrings on all classes and public methods
+- Manager pattern: single-responsibility managers, instantiated once and passed down — do not re-instantiate mid-flow
+- Use centralized logger (`from utils.LoggingManager import get_logger`) — never `print()` for operational output
+- 100% test pass rate required before every commit (`python run_pre_commit_validation.py`)
 
-3. **If you need to switch context with uncommitted changes:**
-   - **OPTION 1:** Commit the changes first
-   - **OPTION 2:** Use `git stash` to save changes temporarily
-   - **OPTION 3:** Ask user what to do with uncommitted changes
+---
 
-**Why this matters:**
-- Uncommitted changes represent active work (often hours of effort)
-- Once destroyed, changes are unrecoverable (not in git history)
-- Historical failure: agents running `git reset --hard` destroyed in-progress features
+## Shared Guide Rules
 
-**Safe git operations (always allowed):**
-- `git status` (read-only)
-- `git diff` (read-only)
-- `git log` (read-only)
-- `git add` (stages changes, non-destructive)
-- `git commit` (saves changes, non-destructive)
-- `git stash` (saves changes for later, non-destructive)
+The files in `.shamt/guides/` are **shared with all Shamt projects** via the export/import sync system. They must stay generic.
 
-**Example of WRONG behavior:**
-```bash
-git status  # Shows uncommitted changes
-git reset --hard origin/main  # ❌ DESTROYS uncommitted work
+**`SHAMT-{N}` is a universal placeholder** — it means "epic number N" in any child project. It does NOT refer to the master Shamt project specifically. When you see `SHAMT-{N}` in a guide, leave it as `SHAMT-{N}`.
+
+❌ **Never do this** in `.shamt/guides/` files:
+```text
+# Wrong — replaces the generic placeholder with a project-specific tag
+git checkout -b feat/KAI-{N}
 ```
 
-**Example of CORRECT behavior:**
-```bash
-git status  # Shows uncommitted changes
-# Agent: "You have uncommitted changes. Should I commit them, stash them, or discard them?"
-# Wait for user decision before proceeding
+✅ **Leave it as-is:**
+```text
+# Correct — generic placeholder stays generic
+git checkout -b feat/SHAMT-{N}
 ```
 
----
+Your project's epic tag (`KAI`) belongs in:
+- `.shamt/project-specific-configs/` — project-specific supplements and overrides
+- `.shamt/epics/` — your actual epic folders and work products
+- Commit messages and branch names for real commits
 
-## Git Branching Workflow
-
-**All epic work must be done on feature branches** (not directly on main).
-
-**Branch format:** `{work_type}/KAI-{number}` (epic/feat/fix)
-**Commit format:** `{commit_type}/KAI-{number}: {message}` (feat or fix)
-
-**🚨 CRITICAL: Commit Message Rules**
-- ❌ **NEVER include AI attribution** (no "Co-Authored-By" lines, no "Generated with" footers, no AI credit)
-- ✅ Use standard commit format: title line + body with details
-- ✅ Keep title line under 100 characters
-- ✅ Include context in body (features, changes, testing results)
-
-**S1:** Create branch: `git checkout -b {work_type}/KAI-{number}`
-**S10:** Create PR for user review, user merges, update EPIC_TRACKER.md
-
-**See:** `feature-updates/guides_v2/reference/GIT_WORKFLOW.md` for complete branching workflow including:
-- Detailed branch management steps
-- Commit message conventions and examples
-- PR creation and review process
-- EPIC_TRACKER.md management
-- Common scenarios and troubleshooting
+If you modify a shared guide file for a legitimate reason (adding a clarification, fixing a procedure), keep all `SHAMT-{N}` references intact. Only the content changes — never the placeholder.
 
 ---
 
-## Critical Rules Summary
+## Shamt Sync
 
-### Always Required
+This project syncs improvements with the master Shamt repo via scripts:
+- **Import updates from master:** `bash .shamt/scripts/import/import.sh`
+- **Export improvements to master:** `bash .shamt/scripts/export/export.sh` (then open a PR)
+- **Log shared file changes:** `.shamt/CHANGES.md` (written by agent during S10/audit work)
+- **Sync guide system overview:** `.shamt/guides/sync/README.md`
 
-✅ **Read guide before starting** (use Read tool for ENTIRE guide)
-✅ **Use phase transition prompts** from `prompts_reference_v2.md`
-✅ **Verify prerequisites** before proceeding
-✅ **Update Agent Status** in README files at checkpoints
-✅ **Validation Loop validation** (3 consecutive clean rounds, zero deferred issues)
-✅ **100% unit test pass rate** before commits and transitions
-✅ **Fix ALL issues immediately** (zero tech debt tolerance, includes Validation Loop issues)
-✅ **User testing approval** before S10 begins (completed in S9.P3)
+**When to consider importing:** At the start of a new epic, or if the guides feel stale — check `.shamt/last_sync.conf` for the date of the last import, then run the import script if an update seems warranted.
 
-### Never Allowed
-
-❌ **Skip stages** (all stages have dependencies)
-❌ **Skip dimensions** in S5 Validation Loop (all 11 must be checked each round)
-❌ **Batch iterations** (execute ONE at a time, sequentially)
-❌ **Defer issues for "later"** (fix immediately, includes Validation Loop issues)
-❌ **Skip Validation Loop rounds** (must complete 3 consecutive clean rounds)
-❌ **Exit Validation Loop early** (before 3 consecutive clean rounds)
-❌ **Skip QC restart** when issues found (restart from beginning)
-❌ **Commit without running tests**
-❌ **Commit without user testing approval** (S10)
-
-### Quality Gates
-
-**🛑 MANDATORY GATES (cannot proceed without passing):**
-- Gate 1: Research Completeness Audit (S2.P1.I1 - embedded in Validation Loop)
-- Gate 2: Spec-to-Epic Alignment (S2.P1.I3 - embedded in Validation Loop)
-- Gate 3: User Checklist Approval (S2.P1.I3)
-- Gate 4.5: Epic Plan Approval (S3.P3 - 3-tier rejection)
-- Gate 5: Implementation Plan Approval (S5.P3 - 3-tier rejection)
-- Gate 23a: Pre-Implementation Spec Audit (S5.P3.I2 Round 3)
-- Smoke Testing: Must pass before QC rounds (S7.P1)
-- User Testing: Must pass before S10 (S9.P3)
-
-**See:** `feature-updates/guides_v2/reference/common_mistakes.md` for comprehensive anti-pattern reference
-
----
-
-## Additional Resources
-
-**Primary references:**
-- **EPIC_WORKFLOW_USAGE.md**: Comprehensive usage guide with setup, patterns, FAQs
-- **prompts_reference_v2.md**: All phase transition prompts (MANDATORY)
-- **README.md**: Guide index and quick reference
-
-**Extracted references:**
-- **CODING_STANDARDS.md**: Import organization, error handling, logging, docstrings, type hints, testing standards, naming conventions
-- **feature-updates/guides_v2/reference/GIT_WORKFLOW.md**: Branch management, commit conventions, PR creation, EPIC_TRACKER.md updates
-- **feature-updates/guides_v2/reference/PROTOCOL_DECISION_TREE.md**: Issue/gap discovery flowchart, 4 scenario examples, protocol selection
-
----
-
-**Remember:** This workflow exists to ensure quality, completeness, and maintainability. Follow it rigorously, learn from each epic, and continuously improve the guides based on lessons learned.
-
----
-
-## Current Project Structure
-
-**Core Scripts:** `run_league_helper.py`, `run_simulation.py`, `run_player_fetcher.py`, `run_scores_fetcher.py`
-
-**Main Modules:**
-- `league_helper/` - 4 interactive modes (draft, optimizer, trade, data editor) + utilities
-- `simulation/` - Parameter optimization through league simulation
-- `player-data-fetcher/` - API data collection
-- `nfl-scores-fetcher/` - NFL scores and team rankings
-- `utils/` - Shared utilities (logging, error handling, CSV I/O)
-- `tests/` - 2,200+ tests (100% pass rate required)
-- `data/` - League config, player stats, team rankings
-- `docs/scoring/` - 10-step scoring algorithm documentation
-- `feature-updates/` - Epic-driven development
-
-**See:**
-- `.shamt/project-specific-configs/ARCHITECTURE.md` - Concise architecture reference for agents
-- `.shamt/project-specific-configs/CODING_STANDARDS.md` - Concise coding standards for agents
-- `ARCHITECTURE.md` - Complete architectural details (1,673 lines)
-- `README.md` - Installation and usage
-- `CODING_STANDARDS.md` - Complete coding standards and testing guidelines
-
----
-
-## Key Coding Rules
-
-**Full standards:** `.shamt/project-specific-configs/CODING_STANDARDS.md`
-
-1. **Type hints required on all functions.** Every parameter and return value must have a type hint. Use `Optional[T]` for nullable params, `Union[str, Path]` for filepath arguments.
-
-2. **Google-style docstrings on all public functions/classes.** Must include: one-line summary, `Args:` (with types), `Returns:`, and `Raises:` (if applicable). No bare undocumented public methods.
-
-3. **Error handling via `error_context()`.** Import from `utils/error_handler.py`. Never use bare `except:` or generic `except Exception:` without context. Use custom exceptions: `DataProcessingError`, `APIError`, `FileOperationError`, `ConfigurationError`.
-
-4. **No `print()` in production code.** Use `LoggingManager` (`setup_logger()`/`get_logger()` from `utils/LoggingManager.py`). `print()` is permitted only in CLI entry points for user-facing output.
-
-5. **100% test pass rate before every commit.** Run `python tests/run_all_tests.py`. Zero failures allowed. Tests mirror source structure under `tests/`; use Arrange-Act-Assert pattern with `pytest`.
+**If import or export scripts fail with "Master directory not found":** `.shamt/shamt_master_path.conf` is stale (the master repo has moved or you're on a different machine). Update it with the current path to your local `shamt-ai-dev` clone.

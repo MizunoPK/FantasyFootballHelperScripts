@@ -112,9 +112,9 @@ CLAUDE.md (project root)
 ```markdown
 ## Stage Workflows Quick Reference
 
-**Current Workflow:** S1 → S2 → S3 → S4 → S5 → S6 → S7 → S8 → S9 → S10
+**Current Workflow:** S1 → S2 → S3 → S5 → S6 → S7 → S8 → S9 → S10 (S4 deprecated in SHAMT-6)
 
-**Historical Note:** The old workflow (pre-2025) had 9 stages (S1-S9). S4 was added in January 2025, requiring renumbering of subsequent stages.
+**Historical Note:** The old workflow (pre-2025) had 9 stages (S1-S9). S4 was added in January 2025 and deprecated in SHAMT-6 (March 2026); Test Scope Decision moved to S5 Step 0.
 ```
 
 **Validation:**
@@ -369,7 +369,7 @@ Valid workflow variations should be documented as intentional exceptions.
 ```markdown
 ## Standard Workflow
 
-S1 → S2 → S3 → S4 → S5 → S6 → S7 → S8 → S9 → S10
+S1 → S2 → S3 → S5 → S6 → S7 → S8 → S9 → S10 (S4 deprecated)
 
 ## Workflow Variations
 
@@ -991,7 +991,7 @@ See `stages/s4/s4_testing.md` for testing approach.
 ```text
 D3: Workflow Integration
 FOUND: Workflow skips S4 in debugging/debugging_protocol.md:120
-ERROR: All stages required, S4 cannot be skipped
+STATUS: Expected — S4 is deprecated (SHAMT-6); proceeding to S5 is correct
 ```markdown
 
 **Context Review:**
@@ -1002,12 +1002,9 @@ ERROR: All stages required, S4 cannot be skipped
 
 **[APPROVED EXCEPTION]**
 
-For urgent production hotfixes, the workflow may skip S4 (Feature Testing Strategy) and proceed directly from S3 to S5.
+S4 (Feature Testing Strategy) has been deprecated (SHAMT-6). All epics proceed directly from S3 to S5. No exception is needed — this is the standard workflow.
 
-**Conditions:**
-- Critical production bug requiring immediate fix
-- User explicitly approves S4 skip
-- Fix is simple, low-risk change
+**Note:** Test Scope Decision (formerly S4's function) is now Step 0 of S5.
 
 This is the ONLY approved deviation from standard workflow.
 ```
@@ -1024,8 +1021,8 @@ This is the ONLY approved deviation from standard workflow.
 ```text
 D3: Workflow Integration
 FOUND: Workflow skips S4 in debugging/debugging_protocol.md:120
-STATUS: Approved exception (bug fix workflow)
-ACTION: No fix needed - variation is documented and approved
+STATUS: Expected — S4 is deprecated (SHAMT-6)
+ACTION: No fix needed — skipping S4 is now the standard flow
 ```yaml
 
 ---

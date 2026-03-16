@@ -2,18 +2,28 @@
 
 🚨 **MANDATORY READING PROTOCOL**
 
-**Before starting this guide:**
-1. Use Read tool to load THIS ENTIRE GUIDE
-2. Acknowledge critical requirements (see "Critical Rules" section below)
-3. Verify prerequisites (see "Prerequisites Checklist" section below)
-4. Update epic EPIC_README.md Agent Status with guide name + timestamp
-
-**DO NOT proceed without reading this guide.**
+**Before starting this guide — including when resuming a prior session:**
+1. **Quick entry point:** `reference/stage_1/stage_1_reference_card.md` — use for second or later features; covers the happy path
+2. **Full guide (this file):** Read entirely for your first time using this stage or when encountering edge cases
+3. Acknowledge critical requirements (see "Critical Rules" section below)
+4. Verify prerequisites (see "Prerequisites Checklist" section below)
+5. Update epic EPIC_README.md Agent Status with guide name + timestamp
 
 **After session compaction:**
 - Check epic EPIC_README.md Agent Status for current guide
-- READ THIS GUIDE again (full guide, not summary)
+- Re-read this guide (or the reference card if in a repeat pass) before continuing
 - Continue from "Next Action" in Agent Status
+
+---
+
+## 🚫 FORBIDDEN SHORTCUTS
+
+You CANNOT:
+- Skip Step 3 (Discovery Phase) because "the epic requirements are clear from the request file" — Discovery Phase is MANDATORY for every epic; read `s1_p3_discovery_phase.md` before Step 3
+- Skip Dependency Analysis and assume all features are independent — dependency groups determine S2 parallelization and must be identified before Step 4 (Feature Breakdown Proposal)
+- Propose feature breakdown (Step 4) without completing Step 2 (Epic Analysis) — Step 2 requires thorough codebase and scope analysis before breakdown
+
+If you are about to do any of the above: STOP and re-read the relevant section.
 
 ---
 
@@ -24,18 +34,19 @@
 3. [Critical Decisions Summary](#critical-decisions-summary)
 4. [Prerequisites Checklist](#prerequisites-checklist)
 5. [Workflow Overview](#workflow-overview)
-6. [Step 1: Initial Setup](#step-1-initial-setup)
-7. [Step 2: Epic Analysis](#step-2-epic-analysis)
-8. [Step 3: Discovery Phase (MANDATORY)](#step-3-discovery-phase-mandatory)
-9. [Step 4: Feature Breakdown Proposal](#step-4-feature-breakdown-proposal)
-10. [Step 5: Epic Structure Creation](#step-5-epic-structure-creation)
-11. [Step 6: Transition to S2](#step-6-transition-to-s2)
-12. [Mandatory Re-Reading Checkpoints](#mandatory-re-reading-checkpoints)
-13. [Exit Criteria](#exit-criteria)
-14. [Common Mistakes to Avoid](#common-mistakes-to-avoid)
-15. [README Agent Status Update Requirements](#readme-agent-status-update-requirements)
-16. [Prerequisites for S2](#prerequisites-for-s2)
-17. [Next Stage](#next-stage)
+6. [Step 0: Sibling Epic Awareness Check](#step-0-sibling-epic-awareness-check)
+7. [Step 1: Initial Setup](#step-1-initial-setup)
+8. [Step 2: Epic Analysis](#step-2-epic-analysis)
+9. [Step 3: Discovery Phase (MANDATORY)](#step-3-discovery-phase-mandatory)
+10. [Step 4: Feature Breakdown Proposal](#step-4-feature-breakdown-proposal)
+11. [Step 5: Epic Structure Creation](#step-5-epic-structure-creation)
+12. [Step 6: Transition to S2](#step-6-transition-to-s2)
+13. [Mandatory Re-Reading Checkpoints](#mandatory-re-reading-checkpoints)
+14. [Exit Criteria](#exit-criteria)
+15. [Common Mistakes to Avoid](#common-mistakes-to-avoid)
+16. [README Agent Status Update Requirements](#readme-agent-status-update-requirements)
+17. [Prerequisites for S2](#prerequisites-for-s2)
+18. [Next Stage](#next-stage)
 
 ---
 
@@ -133,13 +144,18 @@ S1 is complete when you have Discovery approved, a validated epic ticket, comple
     - Each feature delivers distinct value
 
 14. Mark completion in EPIC_README.md before transitioning to S2
+
+15. TEST APPROACH IS SET ONCE AT S1 (Step 4.6.5)
+    - Ask user BEFORE finalizing epic ticket (not autonomous decision)
+    - Record in epic ticket AND EPIC_README header
+    - Not re-decided per feature; if user changes mid-epic, document the change in EPIC_README
 ```
 
 ---
 
 ## Critical Decisions Summary
 
-**S1 has 5 major decision points. Know these before starting:**
+**S1 has 6 major decision points. Know these before starting:**
 
 ### Decision Point 1: Determine Work Type (Step 1.0d)
 **Question:** Is this an epic, feat, or fix?
@@ -172,6 +188,16 @@ S1 is complete when you have Discovery approved, a validated epic ticket, comple
 - **If YES:** Proceed to folder creation (Step 5)
 - **Impact:** Epic ticket becomes immutable reference - validates agent understanding
 
+### Decision Point 6: Test Approach (Step 4.7)
+**Question:** What automated testing approach should this epic use?
+- **A. Smoke testing only** — no automated test scripts; manual E2E smoke testing at S7 and S9
+- **B. Automated E2E integration scripts only** (Recommended) — runnable scripts that assert on real-data outputs; no unit tests
+- **C. Unit tests for algorithmic functions only** — pure function tests; no integration scripts
+- **D. Both** — algorithmic unit tests + automated E2E integration scripts
+- **Impact:** Controls S3.P1 scope, S4 redirect, S5 test scope decision, S6 test gates, S7.P1 Part 3, S9 Part 4, S10 Gate 7.1/7.1b
+- **Rule:** Set once at S1. If user wants to change mid-epic, agent records the update in EPIC_README with a note.
+- **CRITICAL:** Agent must ask the user — this is not an autonomous decision.
+
 **Note:** Each decision point has clear criteria. Read the detailed section before making decision.
 
 ---
@@ -196,6 +222,8 @@ S1 is complete when you have Discovery approved, a validated epic ticket, comple
 - [ ] Git working directory is clean (no uncommitted changes that could conflict)
 - [ ] User has explicitly initiated S1 (not just asking for a request to be written)
 
+**Parallel Play Note:** If other epics are active, S1–S5 of this epic may run in parallel with them. See the "Parallel Epic Play" section in the project rules file for the S6–S10 coordination requirement — only one agent may be in S6–S9 at a time.
+
 **If any prerequisite fails:**
 - ❌ STOP - Do NOT proceed with S1
 - Ask user to resolve prerequisite issue
@@ -211,6 +239,12 @@ S1 is complete when you have Discovery approved, a validated epic ticket, comple
 +--------------------------------------------------------------+
 |                    STAGE 1 WORKFLOW                          |
 +--------------------------------------------------------------+
+
+Step 0: Sibling Epic Awareness Check (BEFORE Step 1.0)
+   +-- Read EPIC_TRACKER.md
+   +-- List any epics NOT Completed or Archived (active epics)
+   +-- State dependency assessment for each active epic
+   +-- If any dependency found: record in EPIC_README.md ## Dependencies
 
 Step 1: Initial Setup
    +-- Create git branch for epic (Step 1.0 - BEFORE any changes)
@@ -267,6 +301,24 @@ Step 6: Transition to S2
 
 ---
 
+## Step 0: Sibling Epic Awareness Check
+
+**CRITICAL:** This check must happen BEFORE Step 1.0 — before creating your own EPIC_TRACKER entry. Reading first prevents confusing your new entry with existing active epics.
+
+**Steps:**
+
+1. Read `.shamt/epics/EPIC_TRACKER.md`
+2. List any epics that are **NOT** marked Completed or Archived (i.e., any active or unfinished epic, regardless of the exact status label used)
+3. For each active epic, state explicitly:
+   - "This new epic **[does / does not]** depend on work from **[epic name]**, because **[reason]**"
+4. If any dependency exists: note it now — you will record it in `EPIC_README.md` under `## Dependencies` when creating that file in Step 1.3.
+
+**If no active epics exist:** Note "No active epics — no dependency check needed" and proceed to Step 1.0.
+
+**Why before Step 1.0:** Discovering a dependency at S5 or S6 is far more expensive than at creation time. A single read + short reasoning step at S1 prevents plan invalidation later.
+
+---
+
 ## Step 1: Initial Setup
 
 ### Step 1.0: Create Git Branch for Epic
@@ -312,9 +364,15 @@ Create epic folder: `.shamt/epics/SHAMT-{N}-{epic_name}/`
 
 **Naming:** Use SHAMT number + snake_case epic name (e.g., `SHAMT-1-improve_recommendation_engine`)
 
-### Step 1.2: Record Epic Request File Location
+### Step 1.2: Move Epic Request File into Epic Folder
 
-Find the request file in `.shamt/epics/requests/` (check subfolders if needed). Note its full path in the EPIC_README.md so it's easy to find. **Do NOT move the file** — it stays in `.shamt/epics/requests/` permanently and is not part of the epic folder.
+Find the request file in `.shamt/epics/requests/` (check subfolders if needed). Move it into the epic folder:
+
+```bash
+mv .shamt/epics/requests/{filename} .shamt/epics/SHAMT-{N}-{epic_name}/
+```
+
+Note the new path in `EPIC_README.md` so it's easy to find.
 
 ### Step 1.3: Create EPIC_README.md
 
@@ -486,6 +544,33 @@ Present the feature breakdown from DISCOVERY.md to user for formal approval.
 - Complete epic ticket template
 - Guidelines for description, acceptance criteria, success indicators, failure patterns
 - Real-world example (Feature 02 epic ticket)
+
+---
+
+### Step 4.6.5: Test Approach Decision (MANDATORY — ask user before finalizing ticket)
+
+**Purpose:** Set the epic's testing approach once, before folder creation. This decision controls behavior across S3, S5, S6, S7, S9, and S10.
+
+**Process:**
+
+1. Before finalizing the epic ticket, ask the user (use AskUserQuestion):
+
+```text
+"What automated testing approach should this epic use?"
+
+A. Smoke testing only — no automated test scripts; manual E2E smoke testing at S7 and S9
+B. Automated E2E integration scripts only (Recommended) — runnable scripts that assert on
+   real-data outputs; no unit tests
+C. Unit tests for algorithmic functions only — pure function tests; no integration scripts
+D. Both — algorithmic unit tests + automated E2E integration scripts
+```
+
+2. Record the user's answer in two places (before presenting ticket for validation):
+   - Add `Testing Approach: [A/B/C/D — description]` to the epic ticket draft
+   - Add `Testing Approach: [A/B/C/D — description]` to EPIC_README header block
+   - For Options B or D, also add `Integration Test Convention: [TBD — will be set in S5]` to EPIC_README header
+
+3. **Critical rule:** This preference is set once at S1. It is not re-decided per feature. If the user wants to change it mid-epic, record the update in EPIC_README with a change note.
 
 ---
 
@@ -1126,12 +1211,14 @@ I'll work through all {N} features one-by-one, starting with Feature 01.
 
 **S1 is complete when ALL of these are true:**
 
+[ ] Sibling epic awareness check completed (Step 0) — any dependencies noted for EPIC_README.md
 [ ] Git branch created and .shamt/epics/EPIC_TRACKER.md updated
 [ ] DISCOVERY.md created and user-approved
 [ ] Epic folder structure complete (EPIC_README, DISCOVERY, test plan, lessons learned, research/, GUIDE_ANCHOR)
 [ ] Feature folders created with 4 files each (README, spec with Discovery Context, checklist, lessons learned)
 [ ] User approved Discovery findings (Step 3)
 [ ] User approved feature breakdown (Step 4)
+[ ] Testing Approach (A/B/C/D) set in EPIC_README and epic ticket (Step 4.6.5)
 [ ] User validated epic ticket (Step 4.7)
 [ ] Agent Status updated for S2 transition
 
@@ -1191,6 +1278,12 @@ X "I'll skip seeding spec.md with Discovery Context"
 X "I'll create a documentation feature to update README/ARCHITECTURE"
   --> STOP - Documentation is handled in S7.P3 (per-feature) and S10 (epic-level), NOT as separate feature
   --> EXCEPTION: Only create documentation feature if user EXPLICITLY requests it
+
+X "I'll decide the testing approach myself (Option B seems fine)"
+  --> STOP - Test approach is NOT an autonomous decision; must ask user via AskUserQuestion at Step 4.6.5
+
+X "I'll set the testing approach per-feature based on what makes sense for each one"
+  --> STOP - Testing approach is set ONCE at S1 for the entire epic, not per feature
 ```
 
 **📖 See:** `reference/stage_1/epic_planning_examples.md` for:

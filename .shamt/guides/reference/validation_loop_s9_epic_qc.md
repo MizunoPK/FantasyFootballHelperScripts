@@ -13,15 +13,6 @@
 
 🚨 **BEFORE STARTING: Read the Hard Stop section at the top of `reference/validation_loop_master_protocol.md`** 🚨
 
-**All validation loops require:**
-1. `VALIDATION_LOG.md` created in the artifact folder BEFORE Round 1
-2. Full artifact re-read (line 1 through end) EVERY round using `read_file`
-3. ALL dimensions (7 master + scenario-specific) documented as PASS/ISSUE per round
-4. `clean_counter` tracked explicitly — resets to 0 on ANY issue found
-5. ≥3 technical claims verified against source code per round
-6. Exit ONLY when `clean_counter = 3`
-7. Never delegate rounds to subagents
-
 ---
 
 ## Table of Contents
@@ -433,7 +424,7 @@ Implementation: Only generates top 100 items
 **Epic QC validation is COMPLETE when ALL of the following are true:**
 
 **From Master Protocol:**
-- [ ] 3 consecutive rounds with ZERO issues found
+- [ ] 3 consecutive rounds with ZERO issues found, OR user opted to stop at the 2-round checkpoint (see master protocol Exit Criteria)
 - [ ] All 7 master dimensions checked every round
 - [ ] All 5 epic QC dimensions checked every round
 - [ ] VALIDATION_LOOP_LOG.md complete with all rounds documented

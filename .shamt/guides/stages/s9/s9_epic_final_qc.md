@@ -13,6 +13,15 @@
 
 ---
 
+## 🚨 MANDATORY READING PROTOCOL
+
+**Before taking any S9 action — including when resuming a prior session:**
+1. Read this ENTIRE routing guide
+2. Check EPIC_README.md Agent Status for current stage and step
+3. Use the Quick Navigation table (Prerequisites section below) to find the correct sub-stage guide
+
+---
+
 ## Table of Contents
 
 1. [Prerequisites](#prerequisites)
@@ -341,8 +350,10 @@ When user reports bugs during S9.P3:
    - Re-read `.shamt/epics/requests/{epic_name}.txt` file
    - Verify user's stated goals achieved
 
-8. ⚠️ 100% test pass rate required throughout S9
-   - All unit tests must pass
+8. ⚠️ Test pass rate required throughout S9 (conditional on Testing Approach)
+   - Options C/D: All unit tests must pass (100%)
+   - Options B/D: All integration scripts must exit 0
+   - Option A: No automated tests — smoke testing only
    - Fix ALL test failures before proceeding
 
 9. ⚠️ Zero tolerance for epic-level quality issues

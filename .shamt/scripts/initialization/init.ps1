@@ -62,15 +62,15 @@ function Apply-Substitutions {
     Set-Content $FilePath $content -NoNewline
 }
 
-function Add-GitignoreEntry {
-    param([string]$GitignoreFile, [string]$Entry)
-    if (Test-Path $GitignoreFile) {
-        $existing = Get-Content $GitignoreFile -Raw
+function Add-ExcludeEntry {
+    param([string]$ExcludeFile, [string]$Entry)
+    if (Test-Path $ExcludeFile) {
+        $existing = Get-Content $ExcludeFile -Raw
         if ($existing -notlike "*$Entry*") {
-            Add-Content $GitignoreFile "`n$Entry"
+            Add-Content $ExcludeFile "`n$Entry"
         }
     } else {
-        Set-Content $GitignoreFile $Entry
+        Set-Content $ExcludeFile $Entry
     }
 }
 
@@ -148,17 +148,19 @@ Write-Host "  OK Default branch: $DefaultBranch"
 
 Write-Separator "Repository Configuration"
 
-Write-Host "  Should .shamt/ and the rules file be gitignored in this project?"
-Write-Host "  Choose 'yes' for solo/local-only tooling, 'no' to track them in the repo."
+Write-Host "  Should .shamt/ and the rules file be excluded from git in this project?"
+Write-Host "  This uses .git/info/exclude — local only, never committed or visible to other users."
+Write-Host "  Default: YES (recommended for solo/multi-agent work — keeps epic state files out of git)."
+Write-Host "  Choose 'no' only if you need to share .shamt/ with other developers via git."
 Write-Host ""
-$gitignoreChoice = Prompt-Input "  Gitignore .shamt/ and rules file? [y/N]" "N"
-if ($gitignoreChoice -match '^[Yy]$') {
-    $GitignoreShamt = $true
+$excludeChoice = Prompt-Input "  Locally exclude .shamt/ and rules file from git? [Y/n]" "Y"
+if ($excludeChoice -match '^[Yy]$') {
+    $ExcludeShamt = $true
 } else {
-    $GitignoreShamt = $false
+    $ExcludeShamt = $false
 }
 
-Write-Host "  OK Gitignore .shamt/ and rules file: $GitignoreShamt"
+Write-Host "  OK Locally exclude .shamt/ and rules file (default: yes): $ExcludeShamt"
 
 # --- Confirmation ------------------------------------------------------------
 
@@ -172,7 +174,7 @@ Write-Host "  Rules file:            $RulesFileName"
 Write-Host "  Rules file path:       $RulesFileDir\"
 Write-Host "  Git platform:          $GitPlatform"
 Write-Host "  Default branch:        $DefaultBranch"
-Write-Host "  Gitignore .shamt/:     $GitignoreShamt"
+Write-Host "  Exclude .shamt/ (local): $ExcludeShamt"
 Write-Host "  Epic directory:        .shamt\epics\"
 Write-Host ""
 
@@ -217,30 +219,50 @@ $masterHash = if ($LASTEXITCODE -eq 0) { ($masterHashResult | Out-String).Trim()
 Set-Content (Join-Path $ShamtDir "last_sync.conf") "$syncDate | $masterHash" -NoNewline
 Write-Host "  OK Sync state written to .shamt\last_sync.conf"
 
-# --- Configure .gitignore ----------------------------------------------------
+# --- Configure local git excludes --------------------------------------------
 
-Write-Separator "Configuring .gitignore"
+Write-Separator "Configuring local git excludes"
 
-$GitignoreFile = Join-Path $TargetDir ".gitignore"
+$GitExcludeDir = Join-Path $TargetDir ".git\info"
+$GitExcludeFile = Join-Path $GitExcludeDir "exclude"
 
-# Always add *.conf wildcard (covers shamt_master_path.conf, last_sync.conf, rules_file_path.conf, etc.)
-Add-GitignoreEntry -GitignoreFile $GitignoreFile -Entry ".shamt/*.conf"
-Write-Host "  OK .shamt/*.conf added to .gitignore (always)"
+if (-not (Test-Path $GitExcludeDir)) {
+    Write-Host "  WARNING: .git\info\ not found — is this a git repository?" -ForegroundColor Yellow
+    Write-Host "  Run 'git init' first, then re-run init to apply local excludes." -ForegroundColor Yellow
+    Write-Host "  Skipping local excludes configuration." -ForegroundColor Yellow
+} else {
+    # Always exclude *.conf files (covers shamt_master_path.conf, last_sync.conf, rules_file_path.conf, etc.)
+    Add-ExcludeEntry -ExcludeFile $GitExcludeFile -Entry ".shamt/*.conf"
+    Write-Host "  OK .shamt/*.conf added to .git/info/exclude (always)"
 
-# Always add import_diff*.md (transient diff files — never commit)
-Add-GitignoreEntry -GitignoreFile $GitignoreFile -Entry ".shamt/import_diff*.md"
-Write-Host "  OK .shamt/import_diff*.md added to .gitignore (always)"
+    # Always exclude import_diff*.md (transient diff files — never commit)
+    Add-ExcludeEntry -ExcludeFile $GitExcludeFile -Entry ".shamt/import_diff*.md"
+    Write-Host "  OK .shamt/import_diff*.md added to .git/info/exclude (always)"
 
-# Optionally gitignore .shamt/ and rules file
-if ($GitignoreShamt) {
-    Add-GitignoreEntry -GitignoreFile $GitignoreFile -Entry ".shamt/"
-    if ($RulesFileDir -eq $TargetDir) {
-        $RulesGitignorePath = $RulesFileName
-    } else {
-        $RulesGitignorePath = (Resolve-Path -Relative $rulesFilePath).TrimStart(".\").Replace("\", "/")
+    # Always exclude VALIDATION_LOG* (transient validation logs — never commit)
+    Add-ExcludeEntry -ExcludeFile $GitExcludeFile -Entry "*VALIDATION_LOG*"
+    Write-Host "  OK *VALIDATION_LOG* added to .git/info/exclude (always)"
+
+    # Optionally exclude .shamt/ and rules file
+    if ($ExcludeShamt) {
+        # Warn if .shamt/ is already tracked by git (migration required)
+        $trackedCheck = & git -C $TargetDir ls-files .shamt/ 2>&1 | Select-Object -First 1
+        if ($LASTEXITCODE -eq 0 -and -not [string]::IsNullOrWhiteSpace($trackedCheck)) {
+            Write-Host ""
+            Write-Host "  WARNING: .shamt/ is currently tracked by git. To migrate:" -ForegroundColor Yellow
+            Write-Host "       git rm -r --cached .shamt/" -ForegroundColor Yellow
+            Write-Host "       git commit -m ""stop tracking .shamt/ framework directory""" -ForegroundColor Yellow
+            Write-Host "  (Continuing -- adding .shamt/ to .git/info/exclude now; run the commands above when ready)" -ForegroundColor Yellow
+        }
+        Add-ExcludeEntry -ExcludeFile $GitExcludeFile -Entry ".shamt/"
+        if ($RulesFileDir -eq $TargetDir) {
+            $RulesExcludePath = $RulesFileName
+        } else {
+            $RulesExcludePath = (Resolve-Path -Relative $rulesFilePath).TrimStart(".\").Replace("\", "/")
+        }
+        Add-ExcludeEntry -ExcludeFile $GitExcludeFile -Entry $RulesExcludePath
+        Write-Host "  OK .shamt/ and $RulesExcludePath added to .git/info/exclude"
     }
-    Add-GitignoreEntry -GitignoreFile $GitignoreFile -Entry $RulesGitignorePath
-    Write-Host "  OK .shamt/ and $RulesGitignorePath added to .gitignore"
 }
 
 # --- Copy Guides -------------------------------------------------------------
@@ -335,6 +357,11 @@ $rulesNote = if ($RulesFileExisted) {
 $aiNote = if ($needsAiDiscovery) {
     "- AI service '$AiService' needs rules file convention confirmed. Agent should research and update ai_services.md."
 } else { "" }
+$excludeNote = if ($ExcludeShamt) {
+    "- .shamt/ and rules file are excluded via .git/info/exclude (local only — not committed or visible to other users)."
+} else {
+    "- .shamt/ is not excluded from git — it will be tracked and visible to all repo users."
+}
 
 $initConfigContent = @"
 # Shamt Initialization Config
@@ -384,12 +411,14 @@ Then run a validation loop to complete initialization:
 - [ ] Write ARCHITECTURE.md to `.shamt/project-specific-configs/`
 - [ ] Write CODING_STANDARDS.md to `.shamt/project-specific-configs/`
 - [ ] Add 3-5 key coding rules to rules file summary section
+- [ ] Fill in Project Context section in rules file (tech stack, runtime, test runner, deployment target, critical gotchas)
 - [ ] Validate all outputs meet quality bar (3 consecutive clean validation rounds)
 - [ ] Mark this file complete: change Status to COMPLETE
 
 ## Notes
 $rulesNote
 $aiNote
+$excludeNote
 - ARCHITECTURE.md and CODING_STANDARDS.md belong in `.shamt/project-specific-configs/`, not the project root.
 - Shared guide files in `.shamt/guides/` must remain generic — never write project-specific content into them.
 - The only exception: a pointer note in a shared guide directing the agent to check `.shamt/project-specific-configs/` for a supplement.

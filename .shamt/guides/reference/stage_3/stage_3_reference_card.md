@@ -47,9 +47,9 @@ S3.P3: Epic Plan Approval (10-15 min) ← MANDATORY GATE
 | Scope | Where | What |
 |-------|-------|------|
 | **Epic-Level (S3)** | `epic_smoke_test_plan.md` | End-to-end workflows across ALL features; integration points; epic success criteria |
-| **Feature-Level (S4)** | Per-feature test plan | Unit tests; component integration; edge cases within feature boundary |
+| **Feature-Level (S5 Step 0)** | Per-feature test scope (Options C/D only) | Unit tests; component integration; edge cases within feature boundary |
 
-> **Key Rule:** If you find yourself writing tests for a single feature's internal behavior — stop. That belongs in S4.
+> **Key Rule:** If you find yourself writing tests for a single feature's internal behavior — stop. That belongs in S5 Step 0 (Test Scope Decision). S4 is deprecated since SHAMT-6.
 
 ---
 
@@ -116,7 +116,7 @@ S3.P3: Epic Plan Approval (10-15 min) ← MANDATORY GATE
 ## Critical Rules Summary
 
 - ✅ ALL features must complete S2 (including S2.P2) before S3
-- ✅ S3 tests span MULTIPLE features — single-feature tests belong in S4
+- ✅ S3 tests span MULTIPLE features — single-feature test scope is decided at S5 Step 0
 - ✅ Each phase (S3.P1, S3.P2) uses a 3-consecutive-clean Validation Loop
 - ✅ Gate 4.5 user approval is MANDATORY — cannot skip
 - ✅ Total rejection → 3-tier handling, NOT a simple loop-back to S3
@@ -177,9 +177,9 @@ S3.P3: Epic Plan Approval (10-15 min) ← MANDATORY GATE
 - [ ] Epic summary created
 - [ ] User explicitly approved epic plan (Gate 4.5)
 - [ ] EPIC_README.md shows S3 complete
-- [ ] Ready to start S4 (first feature's Feature Testing Strategy)
+- [ ] Ready to start S5 (first feature's Implementation Planning — S4 deprecated)
 
-**Next Stage:** S4 (Feature Testing Strategy) — run once per feature
+**Next Stage:** S5 (Implementation Planning) — S4 deprecated; test scope decision at S5 Step 0
 
 ---
 

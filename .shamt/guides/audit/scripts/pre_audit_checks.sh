@@ -2,7 +2,7 @@
 # Pre-Audit Automated Checks
 # Runs before manual audit to catch common structural issues
 #
-# Coverage: 12 of 20 dimensions (D1, D3, D4, D8, D9, D10, D11, D12, D14, D17, D18, D20 partial)
+# Coverage: 12 of 22 dimensions (D1, D3, D4, D8, D9, D10, D11, D12, D14, D17, D18, D20 partial)
 # Estimated: 45-55% of typical issues (based on SHAMT-2 Round 1-2 data)
 # NOT Checked: D2 (Terminology - requires pattern-specific search, see dimension guide)
 # NOT Checked: D5, D6, D7, D13, D15, D16, D19 (require manual audit); D20 mostly manual
@@ -49,14 +49,33 @@ echo ""
 TOO_LARGE=0
 LARGE=0
 
+# Known D11 size exceptions (documented in audit/reference/known_exceptions.md)
+# These are pre-existing violations tracked for future file-splitting (separate SHAMT-N)
+declare -a size_exceptions=(
+  "stages/s1/s1_epic_planning.md"
+  "stages/s5/s5_v2_validation_loop.md"
+)
+
 for file in $(find stages sync -name "*.md" 2>/dev/null); do
   lines=$(wc -l < "$file")
 
   if [ "$lines" -gt 1250 ]; then
-    echo -e "${RED}❌ TOO LARGE:${NC} $file ($lines lines) - exceeds 1250-line baseline"
-    ((TOO_LARGE++))
-    ((CRITICAL_ISSUES++))
-    ((TOTAL_ISSUES++))
+    # Check if this file is a known D11 exception
+    is_exception=false
+    for exception in "${size_exceptions[@]}"; do
+      if [ "$file" = "$exception" ]; then
+        is_exception=true
+        break
+      fi
+    done
+    if [ "$is_exception" = true ]; then
+      echo -e "${YELLOW}⚠️  KNOWN D11 EXCEPTION:${NC} $file ($lines lines) - tracked in known_exceptions.md for future splitting"
+    else
+      echo -e "${RED}❌ TOO LARGE:${NC} $file ($lines lines) - exceeds 1250-line baseline"
+      ((TOO_LARGE++))
+      ((CRITICAL_ISSUES++))
+      ((TOTAL_ISSUES++))
+    fi
   fi
 done
 
@@ -116,10 +135,10 @@ required_sections=("Prerequisites" "Exit Criteria" "Overview")
 
 # Known exceptions (documented in audit/reference/known_exceptions.md)
 declare -a known_exceptions=(
-  # Category C: Optional/auxiliary files (3 files)
+  # Category C: Optional/auxiliary files (2 active files)
+  # (s4_feature_testing_card.md and s4_test_strategy_development.md archived in SHAMT-7)
   "stages/s3/s3_parallel_work_sync.md"
-  "stages/s4/s4_feature_testing_card.md"
-  "stages/s4/s4_test_strategy_development.md"
+  "stages/s4/s4_feature_testing_strategy.md"  # deprecation redirect stub, not a workflow guide
 )
 
 # Self-check: warn if any known_exceptions entry no longer exists on disk.
@@ -282,9 +301,11 @@ echo ""
 # Extract and check a sample of file paths
 BROKEN_REFS=0
 
-# Check stages/ references
-grep -rh "stages/s[0-9].*\.md" stages templates prompts 2>/dev/null | \
+# Check stages/ references (exclude archive dirs — archived files legitimately contain old paths)
+grep -rh "stages/s[0-9].*\.md" stages templates prompts 2>/dev/null \
+  --exclude-dir=archive | \
   grep -o "stages/s[0-9][^) ]*\.md" | \
+  grep -v "/archive/" | \
   sort -u | head -20 | while read ref; do
     if [ ! -f "$ref" ]; then
       echo -e "${RED}❌ BROKEN REF:${NC} $ref"

@@ -45,7 +45,7 @@
 
 **Sync Points:**
 - Sync Point 1 (S2 → S3): All agents complete S2, Primary runs S3 solo
-- Sync Point 2 (S4 → S5): Primary completes S4, all agents continue to S5
+- Sync Point 2 (S3 → S5): Primary completes S3, all agents continue to S5 (S4 deprecated)
 
 ---
 

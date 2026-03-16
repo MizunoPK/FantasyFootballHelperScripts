@@ -158,7 +158,7 @@
 - [ ] Each round used different patterns than previous
 - [ ] Each sub-round focused on correct dimension set
 - [ ] Clear mental break between rounds (fresh perspective)
-- [ ] All 21 dimensions checked at least 3 times (once per clean round)
+- [ ] All 22 dimensions checked at least 3 times (once per clean round)
 
 **If consecutive_clean < 3:** MUST loop (regardless of total rounds completed)
 **If ANY sub-round skipped:** MUST loop (all 4 sub-rounds mandatory)

@@ -37,7 +37,7 @@ S5 (Implementation Planning) → S6 (Implementation Execution) → S7 (Testing &
 
 ## 🚨 MANDATORY READING PROTOCOL
 
-**BEFORE starting Testing Plan Update, you MUST:**
+**BEFORE starting Testing Plan Update — including when resuming a prior session — you MUST:**
 
 1. **Use the phase transition prompt** from `prompts_reference_v2.md`
    - Find "Starting S8.P2" prompt
@@ -56,6 +56,16 @@ S5 (Implementation Planning) → S6 (Implementation Execution) → S7 (Testing &
 4. **THEN AND ONLY THEN** begin Testing Plan Update workflow
 
 **This is NOT optional.** Reading this guide ensures the test plan stays current and accurate.
+
+---
+
+## 🚫 FORBIDDEN SHORTCUTS
+
+You CANNOT:
+- Proceed to the next feature's S5 without reviewing epic_smoke_test_plan.md — the testing plan review is a mandatory gate that keeps integration scenarios current as the epic evolves
+- Mark the testing plan as "no changes needed" without explicitly reviewing it against the feature just implemented — you must check for new integration points and implementation realities discovered during S6
+
+If you are about to do any of the above: STOP and re-read the relevant section.
 
 ---
 
@@ -128,9 +138,9 @@ Testing Plan Update is complete when epic_smoke_test_plan.md reflects actual imp
    - Specify expected outputs
    - Make plan actionable, not aspirational
 
-8. PRESERVE STAGE 1 AND 4 UPDATES
+8. PRESERVE STAGE 1 AND 3 UPDATES
    - Don't delete original test categories from S1
-   - Don't remove test scenarios added in S4
+   - Don't remove test scenarios established in S3.P1
    - ADD to the plan (don't replace it)
    - Evolution builds on previous stages
 
@@ -644,6 +654,33 @@ None - all S4 scenarios still relevant
 
 ---
 
+### STEP 3b: Update Integration Test Script (Options B/D only)
+
+**When:** Only if the epic's Testing Approach (from EPIC_README) includes integration scripts (Options B or D).
+
+**Purpose:** After STEP 3 above (epic_smoke_test_plan.md updated), also update the feature's integration test script to reflect actual implementation.
+
+**Actions:**
+
+1. **Read `Integration Test Convention:` from EPIC_README** for the script location and invocation command
+2. **Open the feature's integration test script** at the location specified
+3. **Review against actual implementation:**
+   - Verify assertions reflect real output structure (field names, value ranges as actually implemented)
+   - Add assertions for integration points discovered during development (from STEP 1)
+   - Remove assertions for behaviors that changed during implementation
+   - Add any edge case behaviors discovered during testing
+4. **Run the updated script to confirm it passes:**
+   ```bash
+   ## Use the command from Integration Test Convention in EPIC_README
+   {invocation command from EPIC_README}
+   ```
+   The script must pass with exit code 0 after updates.
+5. **Commit the updated script alongside epic_smoke_test_plan.md** in the same commit
+
+**Key distinction:** The integration test script captures testable, executable behaviors; the `epic_smoke_test_plan.md` captures the human-readable rationale and update history. Both evolve together at S8.P2.
+
+---
+
 ### STEP 4: Final Verification
 
 **Purpose:** Ensure test plan is coherent, executable, and ready for S9
@@ -678,6 +715,7 @@ None - all S4 scenarios still relevant
 
 **Git:**
 - [ ] epic_smoke_test_plan.md updated
+- [ ] For Options B/D: Scan any integration test script changes for inline comments; remove any found before committing
 - [ ] Changes committed with descriptive message
 - [ ] Commit message includes feature name
 
@@ -989,7 +1027,7 @@ Before completing S8.P2, verify:
 1. **Actual Implementation Review** - Read code that was actually written (not specs)
 2. **Gap Identification** - Find what test plan is missing based on implementation
 3. **Specific Scenario Addition** - Add executable test scenarios with clear verification
-4. **Evolution Documentation** - Track how plan matured from S1 → S4 → S8.P2
+4. **Evolution Documentation** - Track how plan matured from S1 → S3 → S8.P2
 
 **Critical protocols:**
 - Update based on ACTUAL implementation (read the code)

@@ -8,21 +8,44 @@
 
 ---
 
+🚨 **MANDATORY READING PROTOCOL**
+
+**Before starting this guide — including when resuming a prior session:**
+1. Use Read tool to load THIS ENTIRE GUIDE
+2. Read `reference/validation_loop_discovery.md` to understand Discovery validation loop requirements
+3. Verify prerequisites (S1 Steps 1-2 complete, epic folder exists)
+4. Update EPIC_README.md Agent Status with guide name + timestamp
+
+---
+
+## 🚫 FORBIDDEN SHORTCUTS
+
+You CANNOT:
+- Skip S1.P3.2 (Validation Loop Validation) because the DISCOVERY.md draft "looks complete" — the 3 consecutive clean rounds exit criteria is mandatory
+- Proceed to S1 Step 4 (Feature Breakdown Proposal) without completing S1.P3.4 User Approval — user approval is MANDATORY before leaving this phase
+- Treat the Discovery Phase as optional for "simple" or "clear" epics — it is mandatory for every epic without exception
+
+If you are about to do any of the above: STOP and re-read the relevant section.
+
+---
+
 ## Table of Contents
 
-1. [Prerequisites](#prerequisites)
-2. [Overview](#overview)
-3. [Critical Rules](#critical-rules)
-4. [Workflow Overview](#workflow-overview)
-5. [S1.P3.1: Initialize Discovery Document](#s1p31-initialize-discovery-document)
-6. [S1.P3.2: Validation Loop Validation](#s1p32-validation-loop-validation)
-7. [S1.P3.3: Synthesize Findings](#s1p33-synthesize-findings)
-8. [S1.P3.4: User Approval](#s1p34-user-approval)
-9. [Completion Criteria](#completion-criteria)
-10. [Common Mistakes to Avoid](#common-mistakes-to-avoid)
-11. [Re-Reading Checkpoints](#re-reading-checkpoints)
-12. [Exit Criteria](#exit-criteria)
-13. [Next Phase](#next-phase)
+1. [🚨 MANDATORY READING PROTOCOL](#-mandatory-reading-protocol)
+2. [🚫 FORBIDDEN SHORTCUTS](#-forbidden-shortcuts)
+3. [Prerequisites](#prerequisites)
+4. [Overview](#overview)
+5. [Critical Rules](#critical-rules)
+6. [Workflow Overview](#workflow-overview)
+7. [S1.P3.1: Initialize Discovery Document](#s1p31-initialize-discovery-document)
+8. [S1.P3.2: Validation Loop Validation](#s1p32-validation-loop-validation)
+9. [S1.P3.3: Synthesize Findings](#s1p33-synthesize-findings)
+10. [S1.P3.4: User Approval](#s1p34-user-approval)
+11. [Completion Criteria](#completion-criteria)
+12. [Common Mistakes to Avoid](#common-mistakes-to-avoid)
+13. [Re-Reading Checkpoints](#re-reading-checkpoints)
+14. [Exit Criteria](#exit-criteria)
+15. [Next Phase](#next-phase)
 
 ---
 

@@ -62,9 +62,9 @@
 
 ## Documentation Standards
 
-- **Docstrings:** [required? format?]
-- **Comments:** [when to add inline comments]
-- **Type hints:** [required? partial?]
+- **Docstrings:** Not added to implemented code. Use clear function and parameter naming instead. *Override this default below if this project is a library with a published API and an established docstring convention (e.g., Google-style, NumPy-style).*
+- **Comments:** Not added to implemented code. Exceptions: license/copyright headers at the top of files; tool-required inline markers (e.g., `# type: ignore`, `# noqa`, `// eslint-disable-next-line`); config files where comments serve as the documentation format (e.g., `.env.example`, nginx configs). *Override below if this project requires comments in specific contexts.*
+- **Type hints:** [required? partial? — fill in from codebase]
 
 ---
 

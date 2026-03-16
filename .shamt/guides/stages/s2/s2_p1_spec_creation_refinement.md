@@ -2,10 +2,21 @@
 
 🚨 **MANDATORY READING PROTOCOL**
 
-**Before starting this phase:**
-1. Use Read tool to load THIS ENTIRE GUIDE
-2. Verify prerequisites (S1 complete, feature folder exists)
-3. Update feature README.md Agent Status with guide name + timestamp
+**Before starting this phase — including when resuming a prior session:**
+1. **Quick entry point:** `reference/stage_2/stage_2_reference_card.md` — covers S2.P1 and S2.P2 happy path; use for second or later features
+2. **Full guide (this file):** Read entirely for your first time using this stage or when encountering edge cases
+3. Verify prerequisites (S1 complete, feature folder exists)
+4. Update feature README.md Agent Status with guide name + timestamp
+
+---
+
+## 🚫 FORBIDDEN SHORTCUTS
+
+You CANNOT:
+- Skip I2 (Checklist Resolution) or I3 (Refinement & Alignment) and consider the spec done after I1 — all three iterations are mandatory and must run in sequence
+- Complete I3 without running the Validation Loop because "the spec looks complete" — 3 consecutive clean rounds are required before proceeding to Gate 3 (User Approval)
+
+If you are about to do any of the above: STOP and re-read the relevant section.
 
 ---
 

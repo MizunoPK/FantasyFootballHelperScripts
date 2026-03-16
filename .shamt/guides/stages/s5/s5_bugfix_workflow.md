@@ -35,7 +35,7 @@
 ---
 ## 🚨 MANDATORY READING PROTOCOL
 
-**BEFORE creating a bug fix, you MUST:**
+**BEFORE creating a bug fix — including when resuming a prior session — you MUST:**
 
 1. **Use the phase transition prompt** from `prompts_reference_v2.md`
    - Find "Creating Bug Fix" prompt
@@ -51,6 +51,16 @@
 3. **Get user approval** before creating bug fix folder
 
 4. **THEN AND ONLY THEN** proceed with bug fix creation
+
+---
+
+## 🚫 FORBIDDEN SHORTCUTS
+
+You CANNOT:
+- Create the bugfix folder and start implementation without getting user approval first — user approval is MANDATORY before creating the bug fix folder (Phase 1 Step 3)
+- Skip Phase 3 (Resume Previous Work) after the bug fix is implemented — Phase 3 is required to properly re-enter the interrupted feature workflow and restore correct Agent Status
+
+If you are about to do any of the above: STOP and re-read the relevant section.
 
 ---
 

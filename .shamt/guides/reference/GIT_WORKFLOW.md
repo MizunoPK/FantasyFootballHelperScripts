@@ -348,7 +348,7 @@ git push origin epic/SHAMT-{number} --force-with-lease
 - Commit with meaningful messages
 
 **❌ DON'T:**
-- Commit during planning stages (S1-S4)
+- Commit during planning stages (S1-S3)
 - Commit mid-implementation (S5-S6)
 - Commit before testing passes (S7 smoke testing/QC)
 

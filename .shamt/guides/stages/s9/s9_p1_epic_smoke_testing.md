@@ -15,30 +15,43 @@ S8 (ALL features complete) →
 
 ## 🚨 MANDATORY READING PROTOCOL
 
-**BEFORE starting Epic Smoke Testing, you MUST:**
+**BEFORE starting Epic Smoke Testing — including when resuming a prior session — you MUST:**
 
-1. **Read the smoke testing pattern:** `reference/smoke_testing_pattern.md`
-   - Understand universal smoke testing workflow
+1. **Quick entry point:** `reference/stage_9/stage_9_reference_card.md` — covers the epic QC happy path; use for fast navigation
+2. **Full guide (this file):** Read entirely for detailed workflow or when encountering edge cases
+
+3. **Read the smoke testing pattern:** `reference/smoke_testing_pattern.md`
+   - Understand universal smoke testing workflow (Parts 1–4, logging requirements, platform-specific notes)
    - Review critical rules that apply to ALL smoke testing
    - Study common mistakes to avoid
 
-2. **Use the phase transition prompt** from `prompts/s9_prompts.md`
+4. **Use the phase transition prompt** from `prompts/s9_prompts.md`
    - Find "Starting S9: Epic Final QC" prompt
    - Acknowledge critical requirements
    - List requirements from this guide
 
-3. **Update EPIC_README.md Agent Status** with:
+5. **Update EPIC_README.md Agent Status** with:
    - Current Phase: S9.P1 - Epic Smoke Testing
    - Current Guide: `stages/s9/s9_p1_epic_smoke_testing.md`
    - Guide Last Read: {YYYY-MM-DD HH:MM}
    - Critical Rules: "4 parts MANDATORY", "Use EVOLVED test plan", "Verify DATA VALUES", "Restart if ANY fails"
    - Next Action: Execute Step 1 - Pre-QC Verification
 
-4. **Verify all prerequisites** (see checklist below)
+6. **Verify all prerequisites** (see checklist below)
 
-5. **THEN AND ONLY THEN** begin epic smoke testing
+7. **THEN AND ONLY THEN** begin epic smoke testing
 
 **This is NOT optional.** Reading both the pattern and this guide ensures you validate the epic correctly.
+
+---
+
+## 🚫 FORBIDDEN SHORTCUTS
+
+You CANNOT:
+- Skip Parts 1-2 (Import/Entry Point Tests) because individual features were smoke-tested in S7.P1 — epic smoke testing validates ALL features working together; per-feature smoke tests do not substitute
+- Declare epic smoke testing complete after Part 3 (E2E) without completing Part 4 (logging and documentation) — all 4 parts are required before proceeding to S9.P2
+
+If you are about to do any of the above: STOP and re-read the relevant section.
 
 ---
 
@@ -107,7 +120,7 @@ Epic Smoke Testing is complete when ALL 4 parts of epic_smoke_test_plan.md pass,
    - Do NOT start if any feature is incomplete
 
 2. ⚠️ Use EVOLVED epic_smoke_test_plan.md (NOT original)
-   - Plan evolved through S1 → S4 → S8.P2 updates
+   - Plan evolved through S1 → S3 → S8.P2 updates
    - Reflects ACTUAL implementation (not initial assumptions)
    - Contains integration scenarios added during S8.P2 (Epic Testing Update)
 
@@ -232,11 +245,11 @@ Part 4: Cross-Feature Integration Test (EPIC-SPECIFIC)
 
 ```markdown
 ## Epic Progress Tracker
-| Feature | S1 | S2 | S3 | S4 | S5 | S6 | S7 (Testing & Review) | S8.P1 (Cross-Feature Alignment) | S8.P2 (Epic Testing Update) |
-|---------|---------|---------|---------|---------|----------|----------|----------|----------|----------|
-| feature_01 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| feature_02 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| feature_03 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Feature | S1 | S2 | S3 | S5 | S6 | S7 | S8.P1 | S8.P2 |
+|---------|---------|---------|---------|----------|----------|----------|----------|----------|
+| feature_01 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| feature_02 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| feature_03 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 ```
 
 **Verify:** EVERY feature shows ✅ in S8.P2 (Epic Testing Update) column.
@@ -338,40 +351,9 @@ python [run_script].py --complete-draft-workflow --data-folder ./data
 
 ### Step 2: CRITICAL - Verify Epic Output DATA VALUES
 
-**📖 See pattern file for data validation examples.**
+**📖 See `reference/smoke_testing_pattern.md` for data validation approach and examples.**
 
-**Epic-specific validation:**
-
-```python
-## Verify epic-level outputs have correct data
-from pathlib import Path
-import json
-
-## Check final epic output (combines all features)
-epic_output = Path("data/draft_recommendations_final.json")
-assert epic_output.exists(), "Epic output file missing"
-
-with open(epic_output) as f:
-    data = json.load(f)
-
-## Verify data from ALL features integrated correctly
-assert len(data) > 0, "Epic output is empty"
-
-## Verify Feature 01 data present (item info)
-assert all('player_name' in p for p in data), "Missing item names (Feature 01)"
-
-## Verify Feature 02 data present (ratings)
-assert all('rating' in p for p in data), "Missing ratings (Feature 02)"
-
-## Verify Feature 03 data present (recommendations)
-assert all('draft_position' in p for p in data), "Missing positions (Feature 03)"
-
-## Verify values are CORRECT (not placeholders)
-assert data[0]['rating'] != 0.0, "Ratings are placeholder values"
-assert data[0]['draft_position'] > 0, "Positions are invalid"
-
-print("✅ Epic output integrates all features correctly")
-```
+Epic-specific validation requirements: verify that data from ALL features is present and correctly integrated in the epic-level output. Apply the same pattern — verify structure, then verify DATA VALUES are not placeholders and calculations are correct.
 
 **If validation fails:** Document issue, fix, RE-RUN ALL 4 PARTS
 
@@ -382,6 +364,52 @@ print("✅ Epic output integrates all features correctly")
 **This part is UNIQUE to epic-level smoke testing.**
 
 **Objective:** Verify features work together correctly.
+
+### First: Read the Epic's Testing Approach
+
+Read `Testing Approach:` from EPIC_README. This determines which Part 4 path to follow.
+
+---
+
+### Part 4 — If Integration Scripts Opted In (Options B or D)
+
+Run all feature integration scripts in sequence.
+
+1. **Read `Integration Test Convention:` from EPIC_README** for the script location and invocation command
+2. **Run all feature integration scripts:**
+   ```bash
+   ## Use the run-all invocation from Integration Test Convention in EPIC_README
+   ## Examples (use whichever matches the project's framework):
+
+   # pytest
+   pytest tests/integration/ -v
+
+   # bash scripts
+   for script in integration_tests/*.sh; do bash "$script" || exit 1; done
+
+   # Python stdlib
+   for script in integration_tests/test_*_e2e.py; do python "$script" || exit 1; done
+   ```
+3. **Each script must pass (exit code 0)**
+4. **If any script fails:**
+   - Document which feature's script failed and why
+   - Fix the issue
+   - Restart from Part 1 per the existing failure protocol
+5. The `epic_smoke_test_plan.md` remains as the guide for human-readable scenario documentation, but the pass/fail determination in Part 4 comes from script execution results.
+
+**For Option C (unit tests only): Additional check at S9**
+After Parts 1-3 and before declaring S9 complete, also run all unit tests for all features in the epic collectively to verify no cross-feature regressions:
+```bash
+## Run all feature test suites together
+{unit test invocation for all features}
+```
+All must pass before S9 is complete.
+
+---
+
+### Part 4 — If Smoke Only or Unit Tests Only (Options A or C)
+
+Existing manual process is retained. Follow the steps below.
 
 ### Step 1: Identify Integration Points
 
@@ -591,13 +619,7 @@ print("✅ Interface compatibility verified")
 
 ## Exit Criteria
 
-**Epic Smoke Testing (S9.P1) is complete when ALL of these are true:**
-
-- [ ] All steps in this phase complete as specified
-- [ ] Agent Status updated with phase completion
-- [ ] Ready to proceed to next phase
-
-**If any criterion unchecked:** Complete missing items before proceeding
+S9.P1 is complete when all 4 parts pass per the Pass/Fail Criteria above and Agent Status is updated.
 
 ---
 ---

@@ -11,7 +11,7 @@
 
 1. [Overview](#overview)
 2. [Sync Point 1: S2 → S3](#sync-point-1-s2--s3-all-agents-complete-s2)
-3. [Sync Point 2: S4 → S5](#sync-point-2-s4--s5-primary-completes-s3s4)
+3. [Sync Point 2: S3 → S5](#sync-point-2-s3--s5-primary-completes-s3)
 4. [Prevention Best Practices](#prevention-best-practices)
 5. [Summary](#summary)
 
@@ -21,7 +21,7 @@
 
 During parallel S2 work, agents must synchronize at specific points:
 - **S2 → S3 Sync Point:** All agents complete S2 before Primary runs S3
-- **S4 → S5 Sync Point:** Primary completes S3/S4 before all agents proceed to S5
+- **S3 → S5 Sync Point:** Primary completes S3 before all agents proceed to S5 (S4 deprecated)
 
 The **Sync Timeout Protocol** handles scenarios where agents don't reach sync points within expected timeframes.
 
@@ -30,7 +30,7 @@ The **Sync Timeout Protocol** handles scenarios where agents don't reach sync po
 
 **When to use:**
 - When waiting for agents to complete S2 (Primary ready for S3)
-- When waiting for Primary to complete S3/S4 (Secondaries ready for S5)
+- When waiting for Primary to complete S3 (Secondaries ready for S5 — S4 deprecated)
 
 ---
 
@@ -291,14 +291,14 @@ Parallel S2 work started 6 hours ago. Not all features have completed S2.
 
 ---
 
-## Sync Point 2: S4 → S5 (Primary Completes S3/S4)
+## Sync Point 2: S3 → S5 (Primary Completes S3)
 
 ### Expected Timeline
 
 **Assumptions:**
 - S3: 75-105 minutes (Epic-Level Docs, Tests, and Approval)
-- S4: 45-60 minutes per feature (feature testing strategy — 4 iterations)
-- Total: 1-2 hours for Primary to complete both
+- S4: Deprecated — Test Scope Decision moved to S5 Step 0 (per feature)
+- Total: 1.5-2 hours for Primary to complete S3
 
 **Timeout thresholds:**
 - **Soft timeout:** 2 hours (secondary agents check status)
@@ -318,8 +318,8 @@ Parallel S2 work started 6 hours ago. Not all features have completed S2.
 3. **Elapsed time:**
    - Example: 2.5 hours
 
-4. **Has Primary signaled S4 complete?**
-   - Check inbox for "S4 complete - proceed to S5" message
+4. **Has Primary signaled S3 complete?**
+   - Check inbox for "S3 complete - proceed to S5" message
    - Example: No message received
 
 ### Soft Timeout Response (2 hours)
@@ -334,8 +334,8 @@ Parallel S2 work started 6 hours ago. Not all features have completed S2.
 ```json
 {
   "agent_id": "Primary",
-  "stage": "S4",
-  "phase": "Creating test_strategy.md for feature_02",
+  "stage": "S3",
+  "phase": "Completing S3 epic-level docs and approval",
   "last_checkpoint": "2026-01-17T17:15:00Z",
   "status": "IN_PROGRESS"
 }
@@ -349,19 +349,19 @@ Parallel S2 work started 6 hours ago. Not all features have completed S2.
 
 ```markdown
 ## Message {N} (2026-01-17 17:00) ⏳ UNREAD
-**Subject:** STATUS CHECK - S4 completion ETA?
-**Action:** Please provide ETA for S4 completion
+**Subject:** STATUS CHECK - S3 completion ETA?
+**Action:** Please provide ETA for S3 completion
 **Details:**
-- S3/S4 started: 2026-01-17 15:00 (2 hours ago)
-- Expected duration: 1-2 hours
-- Your checkpoint shows: S4 in progress (last update 15 min ago)
+- S3 started: 2026-01-17 15:00 (2 hours ago)
+- Expected duration: 1.5-2 hours
+- Your checkpoint shows: S3 in progress (last update 15 min ago)
 
 **We are ready:**
 - Feature 02 (Secondary-A): Waiting to proceed to S5
 - Feature 03 (Secondary-B): Waiting to proceed to S5
 
 **Request:**
-- ETA for S4 completion?
+- ETA for S3 completion?
 - Any blockers we should know about?
 
 **No urgency** - just checking in. Reply when convenient.
@@ -394,13 +394,13 @@ Parallel S2 work started 6 hours ago. Not all features have completed S2.
 **Secondary agent messages user:**
 
 ```markdown
-🕒 **SYNC TIMEOUT - S4 → S5**
+🕒 **SYNC TIMEOUT - S3 → S5**
 
 **Situation:**
-Primary agent started S3/S4 three hours ago. Have not received completion signal.
+Primary agent started S3 three hours ago. Have not received completion signal.
 
 **Timeline:**
-- S3/S4 started: 2026-01-17 15:00
+- S3 started: 2026-01-17 15:00
 - Expected completion: 1-2 hours (by 17:00)
 - Soft timeout: 2 hours (17:00) - status check sent
 - Hard timeout: 3 hours (18:00) - NOW
@@ -421,22 +421,22 @@ Primary agent started S3/S4 three hours ago. Have not received completion signal
 - Check staleness every 15 minutes
 - Recommendation: If Primary checkpoint is fresh (< 15 min)
 
-**Option 2: New Agent Runs S3/S4 (if Primary stale)**
-- Spawn new Primary agent to complete S3/S4
+**Option 2: New Agent Runs S3 (if Primary stale)**
+- Spawn new Primary agent to complete S3
 - Reads stale checkpoint for context
-- Completes S3/S4, then notifies secondaries
+- Completes S3, then notifies secondaries
 - Recommendation: If Primary checkpoint > 60 minutes old
 
 **What would you like me to do?**
 
-**Note:** I (Secondary-A) cannot proceed to S5 without S3/S4 complete. S3/S4 require epic-level view that only Primary has.
+**Note:** I (Secondary-A) cannot proceed to S5 without S3 complete. S3 requires epic-level view that only Primary has.
 ```
 
 **Step 3: Wait for User Decision**
 
 **Update Agent Status:**
 ```markdown
-**Blockers:** SYNC TIMEOUT (S4 → S5) - Waiting for user decision
+**Blockers:** SYNC TIMEOUT (S3 → S5) - Waiting for user decision
 **Next Action:** User to choose recovery option
 ```
 
@@ -465,7 +465,7 @@ Primary agent started S3/S4 three hours ago. Have not received completion signal
 ### For Primary Agent
 
 1. **Set realistic expectations**
-   - Tell secondaries expected S3/S4 duration
+   - Tell secondaries expected S3 duration
    - Update if taking longer than expected
 
 2. **Monitor soft timeouts**
@@ -485,7 +485,7 @@ Primary agent started S3/S4 three hours ago. Have not received completion signal
 - Hard timeout: 6 hours (escalate to user)
 - Recovery: Wait, investigate blocker, Primary takes over, or proceed with partial
 
-**Sync Point 2 (S4 → S5):**
+**Sync Point 2 (S3 → S5):**
 - Soft timeout: 2 hours (send status check)
 - Hard timeout: 3 hours (escalate to user)
 - Recovery: Wait or spawn new Primary agent

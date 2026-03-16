@@ -117,18 +117,14 @@ This document captures:
 
 ---
 
-## S4 Lessons Learned (Feature Testing Strategy)
+## S4 (Deprecated — Test Scope Decision in S5 Step 0)
 
-**What Went Well:**
-- {Positive observation}
-
-**What Could Be Improved:**
-- {Improvement}
+> **⚠️ S4 has been deprecated (SHAMT-6).** If this epic ran before SHAMT-6, document S4 lessons here. For new epics, document Testing Approach insights in the S5 Lessons Learned section instead.
 
 **epic_smoke_test_plan.md Evolution:**
 - Changes from S1 → S3.P1 → S8.P2: {Summary of how test plan evolved}
 - Integration points discovered: {N}
-- Key insights: {Insights about testing strategy}
+- Key insights: {Insights about testing/integration scripts}
 
 **Guide Improvements Needed:**
 - {Guide improvements or "None"}
@@ -359,7 +355,7 @@ This document captures:
 - S1: {N} days
 - S2: {N} days (all features)
 - S3: {N} days
-- S4: {N} days
+- S4: N/A (deprecated)
 - S5: {N} days (all features)
 - S9: {N} days
 - S10: {N} days

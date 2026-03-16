@@ -37,7 +37,7 @@ S7.P1 (Smoke Testing) → S7.P2 (Validation Loop) →
 
 ## 🚨 MANDATORY READING PROTOCOL
 
-**BEFORE starting Final Review, you MUST:**
+**BEFORE starting Final Review — including when resuming a prior session — you MUST:**
 
 1. **Use the phase transition prompt** from `prompts_reference_v2.md`
    - Find "Starting S7.P3" prompt
@@ -56,6 +56,16 @@ S7.P1 (Smoke Testing) → S7.P2 (Validation Loop) →
 4. **THEN AND ONLY THEN** begin final review
 
 **This is NOT optional.** Reading this guide ensures production-ready quality.
+
+---
+
+## 🚫 FORBIDDEN SHORTCUTS
+
+You CANNOT:
+- Skip Step 1 (PR Review Validation Loop) because "the code was already reviewed during S7.P2" — S7.P3 uses fresh-eyes PR review (reference/validation_loop_qc_pr.md), distinct from S7.P2's code quality validation loop; 3 consecutive clean rounds are required
+- Skip Step 2 (Lessons Learned Capture) to save time — lessons learned documentation is mandatory and feeds into S10.P1 guide improvement; it cannot be deferred
+
+If you are about to do any of the above: STOP and re-read the relevant section.
 
 ---
 

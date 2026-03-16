@@ -1,23 +1,31 @@
 # Test Strategy - {Feature Name}
 
+> **⚠️ NOTE: This template applies to Options C and D only (unit tests opted in).**
+> If the epic's Testing Approach is A (smoke only) or B (integration scripts only), do NOT
+> create this document. See S5 Step 0 for the Test Scope Decision instead.
+> Unit tests are appropriate only for **pure algorithmic functions** (no I/O, no external
+> dependencies, no mocking needed — primitive inputs, deterministic outputs).
+
 **Feature ID:** feature_{NN}_{name}
 **Date Created:** {YYYY-MM-DD}
-**Stage:** S4 (Feature Testing Strategy)
-**Coverage Goal:** >90%
+**Stage:** S5 Step 0 output (formerly S4)
+**Epic Testing Approach:** {C — Unit tests only | D — Both unit tests and integration scripts}
 
 ---
 
 ## Overview
 
-**This test strategy will be merged into implementation_plan.md during S5.**
+**Purpose:** Identify algorithmic functions in this feature that qualify for unit tests.
 
-**Purpose:** Define comprehensive test approach BEFORE implementation (test-driven development)
+**Algorithmic function criteria (ALL must be true):**
+- Pure function: same inputs always produce same output
+- No I/O: does not read files, call APIs, query databases, print, or log
+- No external dependencies: no mocking required to test
+- Primitive inputs/outputs: numbers, strings, lists — not domain objects with side effects
 
-**Test Categories:**
-- Unit Tests (per-method testing)
-- Integration Tests (feature-level testing)
-- Edge Case Tests
-- Regression Tests
+**Test Categories (narrowed):**
+- Unit Tests for algorithmic functions ONLY
+- (Integration/E2E testing handled via integration test scripts for Options B/D)
 
 ---
 
@@ -239,8 +247,8 @@
 ## Notes
 
 **Test-Driven Development:**
-- This test strategy is created BEFORE implementation (S4)
-- Tests define expected behavior
+- This test strategy output is determined at the start of S5 (Step 0)
+- Tests define expected behavior for algorithmic functions
 - Implementation must satisfy tests
 - Tests are not modified to match implementation (implementation matches tests)
 
@@ -256,4 +264,4 @@
 
 ---
 
-*This test strategy document will be integrated into implementation_plan.md during S5.P1.I1 (Test Strategy Merge).*
+*This document captures algorithmic function test decisions from S5 Step 0 and informs test task creation during S5.*

@@ -91,7 +91,7 @@ Missed Requirement Protocol treats missing scope as real features - either creat
 - ✅ New feature created OR unstarted feature updated
 - ✅ Feature spec fleshed out (S2)
 - ✅ All features re-aligned (S3)
-- ✅ Epic smoke test plan updated (S3.P1) + feature test_strategy.md created (S4)
+- ✅ Epic smoke test plan updated (S3.P1) + Test Scope Decision done at S5 Step 0 (S4 deprecated)
 - ✅ Epic documentation updated for resumability
 - ✅ Ready to resume previous work
 - ✅ New/updated feature implemented when its turn comes in sequence
@@ -119,10 +119,10 @@ Missed requirement handling is complete when the new/updated feature has been pl
    - If new feature: Decide sequence position
    - If update unstarted: Which feature to update
 
-3. ⚠️ ALWAYS RETURN TO STAGE 2/3/4
+3. ⚠️ ALWAYS RETURN TO STAGE 2/3 (S4 deprecated)
    - S2: Flesh out new/updated feature spec
    - S3: Epic-Level Docs, Tests, and Approval (ALL features)
-   - S4: Update/create feature testing strategy (test_strategy.md)
+   - S4 deprecated — Test Scope Decision now in S5 Step 0 (check Testing Approach in EPIC_README)
    - Maintains epic-level alignment
 
 4. ⚠️ SEQUENCE MATTERS FOR NEW FEATURES
@@ -198,7 +198,7 @@ The missed requirement protocol consists of 4 phases (plus special case):
 - S3: Epic-Level Docs, Tests, and Approval (ALL features, not just new/updated)
 - Resolve conflicts between features
 - S3.P1: Update epic_smoke_test_plan.md with scenarios for new/updated feature
-- S4: Create/update feature test_strategy.md (per-feature only)
+- S4 deprecated — Test Scope Decision in S5 Step 0 (use Testing Approach from EPIC_README)
 - Update Epic Progress Tracker
 - Update EPIC_README with new sequence
 
@@ -277,7 +277,7 @@ User decided approach, need to plan?
 
 Planning complete, need to align features?
 └─ Read missed_requirement/realignment.md (PHASE 3 & 4)
-   └─ S3 re-alignment + S4 test plan update → Resume work
+   └─ S3 re-alignment → Resume work (S4 deprecated — test scope at S5 Step 0)
 
 Discovered during S9 or S10?
 └─ Read missed_requirement/s9_s10_special.md (SPECIAL CASE)
@@ -294,7 +294,7 @@ Discovered during S9 or S10?
 1. Use discovery.md to present options to user
 2. User decides: Create new feature (medium priority)
 3. Use planning.md for S2 deep dive
-4. Use realignment.md for S3/4 + resume
+4. Use realignment.md for S3 + resume
 5. New feature implemented after current feature completes
 
 ---
@@ -305,7 +305,7 @@ Discovered during S9 or S10?
 1. Use discovery.md to present options to user
 2. User decides: Update unstarted feature_03
 3. Use planning.md to update feature_03 spec
-4. Use realignment.md for S3/4 + resume
+4. Use realignment.md for S3 + resume
 5. Resume Validation Loop where left off
 6. feature_03 implemented later with added scope
 
@@ -316,7 +316,7 @@ Discovered during S9 or S10?
 **Actions:**
 1. Use discovery.md to present options to user
 2. Use planning.md for S2 deep dive
-3. Use realignment.md for S3/4
+3. Use realignment.md for S3
 4. **Use s9_s10_special.md for special restart protocol**
 5. Complete all remaining features
 6. Implement new/updated feature
@@ -330,7 +330,7 @@ Discovered during S9 or S10?
 
 1. **Discovery:** Present two options (new feature vs update unstarted)
 2. **Planning:** Full S2 deep dive for new/updated feature
-3. **Realignment:** S3 re-alignment + S4 test plan update
+3. **Realignment:** S3 re-alignment (S4 deprecated — test scope at S5 Step 0)
 4. **Resume:** Continue paused work
 5. **Implementation:** Feature implemented later in sequence
 
@@ -342,7 +342,7 @@ Discovered during S9 or S10?
 **Sub-Guides:**
 - `missed_requirement/discovery.md` - Discovery & user decision
 - `missed_requirement/planning.md` - S2 deep dive
-- `missed_requirement/realignment.md` - S2.P2 + S3 + S4 realignment + resume
+- `missed_requirement/realignment.md` - S2.P2 + S3 realignment + resume
 - `missed_requirement/s9_s10_special.md` - Epic testing special case
 
 ---

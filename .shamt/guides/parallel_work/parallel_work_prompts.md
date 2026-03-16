@@ -17,7 +17,7 @@
 6. [Prompt 5: Sync Point Verification (Primary, before S3)](#prompt-5-sync-point-verification-primary-before-s3)
 7. [Prompt 6: Stale Agent Detected (Primary)](#prompt-6-stale-agent-detected-primary)
 8. [Prompt 7: Sync Timeout (Primary at S2→S3)](#prompt-7-sync-timeout-primary-at-s2s3)
-9. [Prompt 8: Sync Timeout (Secondary at S4→S5)](#prompt-8-sync-timeout-secondary-at-s4s5)
+9. [Prompt 8: Sync Timeout (Secondary at S3→S5)](#prompt-8-sync-timeout-secondary-at-s3s5)
 10. [Summary: Prompt Usage](#summary-prompt-usage)
 
 ---
@@ -79,7 +79,7 @@ I'm starting S2 (Feature Deep Dives) in PARALLEL MODE as Primary Agent.
    - Monitor checkpoint staleness (30 min warning, 60 min failure)
    - Update EPIC_README.md with lock protocol
 
-✅ I will run S3 and S4 SOLO after all features complete S2
+✅ I will run S3 SOLO after all features complete S2 (S4 deprecated — test scope handled at S5 Step 0)
 
 ✅ I will verify sync point before S3:
    - All completion messages received
@@ -159,7 +159,7 @@ Starting Stage: S2.P1 (Feature Deep Dive - Research Phase)
    - Update checkpoint: WAITING_FOR_SYNC
    - WAIT for Primary to run S3 (do NOT proceed myself)
 
-✅ I will NOT run S3 or S4 myself - Primary runs these solo
+✅ I will NOT run S3 myself - Primary runs S3 solo (S4 is deprecated)
 
 **Next Action:** Execute 10-step startup workflow, then begin S2.P1
 
@@ -397,9 +397,9 @@ Feature 01 S2 complete. Verifying sync point before S3...
 
 ---
 
-## Prompt 8: Sync Timeout (Secondary at S4→S5)
+## Prompt 8: Sync Timeout (Secondary at S3→S5)
 
-**When to use:** Waiting for Primary to complete S3/S4, exceeded time threshold
+**When to use:** Waiting for Primary to complete S3, exceeded time threshold
 
 **Acknowledgment required:** No (escalation procedure)
 
@@ -408,9 +408,9 @@ Feature 01 S2 complete. Verifying sync point before S3...
 ### Prompt Text
 
 ```bash
-🕒 SYNC TIMEOUT - S4 → S5
+🕒 SYNC TIMEOUT - S3 → S5
 
-**Situation:** Primary started S3/S4 {elapsed_hours} hours ago. Have not received completion signal.
+**Situation:** Primary started S3 {elapsed_hours} hours ago. Have not received completion signal.
 
 **Thresholds:**
 - Soft timeout: 2 hours (status check sent at {time})
@@ -426,9 +426,9 @@ Feature 01 S2 complete. Verifying sync point before S3...
 **Escalating to user with recovery options:**
 
 1. Continue Waiting (if Primary active with fresh checkpoint)
-2. New Agent Runs S3/S4 (if Primary stale)
+2. New Agent Runs S3 (if Primary stale — S4 deprecated)
 
-**Note:** I cannot proceed to S5 without S3/S4 complete. S3/S4 require epic-level view that only Primary has.
+**Note:** I cannot proceed to S5 without S3 complete. S3 requires epic-level view that only Primary has.
 
 **User decision required to proceed.**
 
@@ -449,7 +449,7 @@ Feature 01 S2 complete. Verifying sync point before S3...
 **Secondary Agent Prompts:**
 1. Joining Parallel S2 (startup from handoff)
 2. Coordination Heartbeat (every 15 minutes during S2)
-3. Sync Timeout at S4→S5 (if Primary delayed)
+3. Sync Timeout at S3→S5 (if Primary delayed)
 
 **Integration:**
 - These prompts are referenced in parallel work guides

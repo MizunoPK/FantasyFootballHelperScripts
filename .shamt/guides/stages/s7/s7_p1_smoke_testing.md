@@ -17,29 +17,25 @@ S5 (Implementation Planning) → S6 (Implementation Execution) →
 
 ## Table of Contents
 
-1. [S7.P1: Smoke Testing](#s7p1-smoke-testing)
-2. [🚨 MANDATORY READING PROTOCOL](#🚨-mandatory-reading-protocol)
-3. [Overview](#overview)
-4. [🛑 Critical Rules (Feature-Specific)](#🛑-critical-rules-feature-specific)
-5. [Prerequisites Checklist](#prerequisites-checklist)
-6. [Workflow Overview](#workflow-overview)
-7. [Part 1: Import Test (Feature-Specific)](#part-1-import-test-feature-specific)
-8. [Part 2: Entry Point Test (Feature-Specific)](#part-2-entry-point-test-feature-specific)
-9. [Part 3: E2E Execution Test (Feature-Specific - CRITICAL)](#part-3-e2e-execution-test-feature-specific---critical)
-10. [Test Scenario: Rating Multiplier Feature](#test-scenario-rating-multiplier-feature)
-11. [🚨 MANDATORY LOGGING REQUIREMENTS](#🚨-mandatory-logging-requirements)
-12. [Pass/Fail Criteria](#passfail-criteria)
-13. [Platform-Specific Considerations](#platform-specific-considerations)
-14. [Common Feature-Specific Issues](#common-feature-specific-issues)
-15. [🛑 MANDATORY CHECKPOINT 1](#🛑-mandatory-checkpoint-1)
-16. [Next Steps](#next-steps)
-17. [Summary](#summary)
-18. [Exit Criteria](#exit-criteria)
+1. [🚨 MANDATORY READING PROTOCOL](#🚨-mandatory-reading-protocol)
+2. [Overview](#overview)
+3. [🛑 Critical Rules (Feature-Specific)](#🛑-critical-rules-feature-specific)
+4. [Prerequisites Checklist](#prerequisites-checklist)
+5. [Workflow Overview](#workflow-overview)
+6. [Part 1: Import Test (Feature-Specific)](#part-1-import-test-feature-specific)
+7. [Part 2: Entry Point Test (Feature-Specific)](#part-2-entry-point-test-feature-specific)
+8. [Part 3: E2E Execution Test (Feature-Specific - CRITICAL)](#part-3-e2e-execution-test-feature-specific---critical)
+9. [Pass/Fail Criteria](#passfail-criteria)
+10. [Common Feature-Specific Issues](#common-feature-specific-issues)
+11. [🛑 MANDATORY CHECKPOINT 1](#🛑-mandatory-checkpoint-1)
+12. [Next Steps](#next-steps)
+13. [Summary](#summary)
+14. [Exit Criteria](#exit-criteria)
 
 ---
 ## 🚨 MANDATORY READING PROTOCOL
 
-**BEFORE starting Smoke Testing, you MUST:**
+**BEFORE starting Smoke Testing — including when resuming a prior session — you MUST:**
 
 1. **Read the smoke testing pattern:** `reference/smoke_testing_pattern.md`
    - Understand universal smoke testing workflow (3 parts)
@@ -63,6 +59,16 @@ S5 (Implementation Planning) → S6 (Implementation Execution) →
 5. **THEN AND ONLY THEN** begin smoke testing
 
 **This is NOT optional.** Reading both the pattern and this guide ensures you don't skip critical validation steps.
+
+---
+
+## 🚫 FORBIDDEN SHORTCUTS
+
+You CANNOT:
+- Skip Part 2 (Entry Point Test) or Part 3 (E2E Execution Test) because Part 1 (Import Test) passed — all 3 parts are mandatory; Part 3 is marked CRITICAL because it validates actual runtime behavior
+- Declare smoke testing complete based on Part 1 results alone — Part 3's E2E test with real data verification is required before proceeding to S7.P2
+
+If you are about to do any of the above: STOP and re-read the relevant section.
 
 ---
 
@@ -132,18 +138,24 @@ Smoke Testing is complete when ALL 3 parts pass (including data value verificati
 
 **From S6 (Implementation):**
 - [ ] All implementation tasks marked done in `implementation_checklist.md`
-- [ ] All unit tests passing (100% pass rate)
 - [ ] `implementation_checklist.md` all requirements verified
 - [ ] All code committed to git (clean working directory)
+- [ ] Tests per Testing Approach (read EPIC_README):
+  - Option A (smoke only): Mini-QC checkpoints passed — no automated test prerequisite
+  - Option B (integration scripts): Integration test script created (may have partial passes from S6)
+  - Option C (unit tests): Unit tests passing for algorithmic functions identified in S5 (100%)
+  - Option D (both): Both unit tests passing AND integration script created
 
 **Files that must exist:**
 - [ ] `feature_XX_{name}/spec.md` (primary specification)
 - [ ] `feature_XX_{name}/checklist.md` (planning decisions)
 - [ ] `feature_XX_{name}/implementation_plan.md` (implementation guidance)
 - [ ] `feature_XX_{name}/implementation_checklist.md` (progress tracking and requirement verification)
+- [ ] For Options B/D: Integration test script at location per `Integration Test Convention:` in EPIC_README
 
 **Verification:**
-- [ ] Run `{TEST_COMMAND}` → exit code 0
+- [ ] For Options C/D: Run `{UNIT_TEST_COMMAND}` → exit code 0
+- [ ] For Options B/D: Run `{INTEGRATION_SCRIPT_COMMAND}` → verify script runs (full pass not yet required)
 - [ ] Check `git status` → no uncommitted implementation changes
 - [ ] Review implementation_checklist.md → all items marked verified
 
@@ -264,264 +276,27 @@ python run_[module].py --mode rating_helper --dry-run
 
 **📖 See `reference/smoke_testing_pattern.md` for universal E2E test pattern and data validation examples.**
 
-**🚨 REQUIRED TEST ARTIFACTS (Middle Ground Approach):**
+### First: Read the Epic's Testing Approach
 
-Before executing E2E testing, create standardized test artifacts in epic folder:
-
-1. **Test Scenario Documentation:** `SHAMT-{N}-{epic_name}/test_scenario.md`
-   - Document standard test scenario for this feature
-   - Include input data sources (which files, what values)
-   - Document expected behavior and outputs
-   - Describe validation criteria
-
-2. **Expected Results Documentation:** `SHAMT-{N}-{epic_name}/expected_results.md`
-   - Document expected output structure
-   - Include expected value ranges (from spec)
-   - List edge cases to verify
-   - Define pass/fail criteria
-
-**Benefits:**
-- ✅ Maintains flexible feature-specific testing approach
-- ✅ Adds documentation consistency across features
-- ✅ Enables easier review and verification
-- ✅ Provides reference for future modifications
-
-**Standardized 6-Step E2E Testing Process:**
-
-### Step 1: Prepare Environment
-
-**Ensure clean state and dependencies:**
-```bash
-## Verify virtual environment activated
-which python  # Should show venv path
-
-## Ensure clean state (optional)
-python -m pip install -e .  # If using editable install
-```
-
-**Verify:**
-- [ ] Python environment is correct
-- [ ] Dependencies are installed
-- [ ] No stale processes running
+Read `Testing Approach:` from EPIC_README (at epic folder root). This determines which Part 3 path to follow.
 
 ---
 
-### Step 2: Prepare Standardized Test Data
+### Path B/D — Integration Script Opted In
 
-**📖 Reference:** `SHAMT-{N}-{epic_name}/test_scenario.md` (created during Part 3 setup)
+**📖 See `reference/smoke_testing_pattern.md` → "Part 3 Detail: Testing Approach Paths" → "Path B/D" for the full process.**
 
-**Use PRODUCTION or PRODUCTION-LIKE data:**
-- ✅ Real data CSV files from `data/`
-- ✅ Real league config from `data/league_config.json`
-- ❌ NOT test fixtures (unless specifically testing edge cases)
-- ❌ NOT mocked data
-
-**Document test scenario:**
-- Input data sources (which files, what values)
-- Expected behavior from spec.md
-- Feature-specific validation criteria
-
-**Example from test_scenario.md:**
-```markdown
-## Test Scenario: Rating Multiplier Feature
-
-**Input Data:**
-- data/players_2024.csv (300+ items)
-- data/league_config.json (standard scoring)
-
-**Expected Behavior:**
-- Apply rank-based multipliers (0.5 to 1.5 range)
-- Update 6 position-specific JSON files
-- Multipliers calculated per rank priority ranges from spec
-
-**Validation Criteria:**
-- All 6 position files updated
-- Multipliers in correct range (0.5-1.5)
-- No placeholder values (all 1.0)
-```
+Run the feature's integration test script per the `Integration Test Convention:` in EPIC_README. The script encodes all 6 manual validation steps — run it and verify exit code 0.
 
 ---
 
-### Step 3: Execute Feature End-to-End
+### Path A/C — Manual 6-Step E2E Process
 
-**Run feature with production data:**
-```bash
-python run_[module].py --mode {feature_mode} --data-folder ./data
-```
+**📖 See `reference/smoke_testing_pattern.md` → "Part 3 Detail: Testing Approach Paths" → "Path A/C" for the full 6-step process** (test artifact creation, environment prep, test data, execution, output structure validation, data values validation, log check).
 
-**Example:**
-```bash
-python run_[module].py --mode rating_helper --data-folder ./data
-```
+**📖 Mandatory logging requirements:** `reference/smoke_testing_pattern.md` → "Mandatory Logging Requirements"
 
-**Monitor for:**
-- [ ] Script completes without crashes
-- [ ] No unexpected errors/warnings in logs
-- [ ] Output files created
-- [ ] Execution time reasonable (not hanging)
-
----
-
-### Step 4: Validate Output Structure
-
-**📖 Reference:** `SHAMT-{N}-{epic_name}/expected_results.md`
-
-**Check output file structure:**
-```python
-from pathlib import Path
-import json
-
-## Verify expected output files exist
-expected_files = ['qb_ratings.json', 'rb_ratings.json', 'wr_ratings.json',
-                  'te_ratings.json', 'k_ratings.json', 'dst_ratings.json']
-
-for filename in expected_files:
-    filepath = Path(f"data/{filename}")
-    assert filepath.exists(), f"Missing output file: {filename}"
-
-    # Verify file has data (not empty)
-    with open(filepath) as f:
-        data = json.load(f)
-    assert len(data) > 0, f"{filename} is empty"
-
-    # Verify expected fields present
-    first_item = data[0]
-    assert 'rank_multiplier' in first_item, f"{filename} missing rank_multiplier field"
-
-print("✅ Output structure validated")
-```
-
-**Verify:**
-- [ ] All expected output files exist
-- [ ] Files contain data (not empty)
-- [ ] Required fields present (from spec)
-- [ ] No null/empty/placeholder values in structure
-
----
-
-### Step 5: Validate Output Data Values (CRITICAL)
-
-**📖 See pattern file for data validation examples.**
-
-**📖 Refer to `SHAMT-{N}-{epic_name}/expected_results.md` for validation criteria**
-
-**⚠️ CRITICAL: Don't just check structure - verify actual data correctness**
-
-**Feature-specific validation (example for rating multiplier feature):**
-
-```python
-import json
-from pathlib import Path
-
-## Feature updates 6 position files
-positions = ['QB', 'RB', 'WR', 'TE', 'K', 'DST']
-
-for pos in positions:
-    pos_file = Path(f"data/{pos.lower()}_ratings.json")
-
-    # Part 3a: Structure validation
-    assert pos_file.exists(), f"{pos} file missing"
-
-    with open(pos_file) as f:
-        data = json.load(f)
-    assert len(data) > 0, f"{pos} file is empty"
-
-    # Part 3b: DATA VALUE validation (CRITICAL)
-    first_item = data[0]
-
-    # Verify multiplier field exists and has value
-    assert 'rank_multiplier' in first_item, f"{pos} missing rank_multiplier field"
-    assert first_item['rank_multiplier'] is not None, f"{pos} multiplier is None"
-
-    # Verify multiplier is in expected range (from spec: 0.5 to 1.5)
-    multiplier = first_item['rank_multiplier']
-    assert 0.5 <= multiplier <= 1.5, f"{pos} multiplier {multiplier} out of range"
-
-    # Verify multiplier is not placeholder (common bug)
-    assert multiplier != 1.0, f"{pos} multiplier is placeholder value (1.0)"
-
-    # Sample check: At least some items have non-1.0 multipliers
-    multipliers = [p['rank_multiplier'] for p in data[:10]]
-    non_default = [m for m in multipliers if m != 1.0]
-    assert len(non_default) > 0, f"{pos} all multipliers are default (1.0)"
-
-print("✅ All 6 positions have valid multiplier data")
-```
-
-**Key validation points:**
-1. ✅ Values are correct type (float not string)
-2. ✅ Values in expected range (0.5-1.5 from spec)
-3. ✅ Values are NOT placeholders (not all 1.0)
-4. ✅ Calculations produce varied results (not uniform)
-5. ✅ Edge cases handled correctly (high rank, low rank, missing rank)
-
-**Pass Criteria:**
-- All values in expected range from spec
-- Non-uniform distribution (feature actually ran)
-- Edge cases produce valid values
-- No errors or exceptions in calculations
-
----
-
-## 🚨 MANDATORY LOGGING REQUIREMENTS
-
-**All features MUST include appropriate logging for observability:**
-
-### Required Log Messages:
-1. **Feature Entry** - Log when feature is activated
-2. **Key Data Processing** - Log important data transformations
-3. **Feature Results** - Log feature outputs/calculations
-4. **Error Handling** - Log feature-specific errors
-
-### Log Level Guidelines:
-- **logger.info()**: Feature activation, important results
-- **logger.debug()**: Detailed processing steps
-- **logger.warning()**: Non-critical issues, fallbacks
-- **logger.error()**: Feature failures, critical issues
-
-### Example Logging (Python):
-```python
-logger = get_logger()
-logger.info(f"Draft helper mode activated for league: {league_name}")
-logger.debug(f"Processing {len(items)} items for recommendations")
-logger.info(f"Generated {len(recommendations)} recommendations")
-logger.error(f"Failed to load record data: {e}", exc_info=True)
-```
-
-### Validation in Smoke Testing:
-- Part 3 Step 6: Check logs for feature-specific messages
-- Missing logs = smoke test failure
-- Logs must show feature activation and key operations
-
----
-
-### Step 6: Check Application Logs
-
-**Check for feature-specific log messages:**
-```bash
-## Check application logs for feature activity
-grep "feature_name\|important_keyword" logs/application.log
-## Or check recent logs
-tail -100 logs/application.log | grep -i "feature"
-```
-
-**Required validations:**
-- [ ] Feature activation logged (from logging requirements above)
-- [ ] Key data processing logged
-- [ ] Feature results logged
-- [ ] No unexpected errors or warnings
-- [ ] Log messages clearly show feature behavior
-
-**If logs missing or insufficient:**
-- Add required logging (see Mandatory Logging Requirements above)
-- Re-run E2E test after adding logs
-- Verify logs show observable feature behavior
-
-**If validation reveals issues:**
-- Document what failed and why
-- Identify root cause (algorithm bug, config issue, data mismatch)
-- Fix ALL issues
-- RE-RUN ALL 3 PARTS from Part 1
+For Option C: unit tests are a prerequisite from S6, not a replacement for Part 3 — the manual E2E smoke test still runs to validate real-data behavior.
 
 ---
 
@@ -563,33 +338,7 @@ tail -100 logs/application.log | grep -i "feature"
 
 ## Platform-Specific Considerations
 
-### Windows File Locking
-
-When testing logging functionality on Windows, file handlers may keep log files open, preventing temporary directory cleanup.
-
-**Solution:** Add cleanup code to close handlers before temp directory cleanup:
-
-```python
-def _close_logger_handlers(logger):
-    """Close all handlers to release file locks (Windows)."""
-    for handler in logger.handlers[:]:
-        handler.close()
-        logger.removeHandler(handler)
-
-## In test:
-try:
-    # Test logging functionality
-    logger = setup_debug_logging("test_component")
-    logger.info("Test message")
-finally:
-    _close_logger_handlers(logger)
-    # Now temp directory can be cleaned up
-```
-
-**When this applies:**
-- Testing file logging on Windows
-- Using temporary directories with log files
-- Seeing "PermissionError" or "WinError 32" during cleanup
+**📖 See `reference/smoke_testing_pattern.md` → "Platform-Specific Considerations" for Windows file locking with log handlers (`PermissionError` / `WinError 32` during temp directory cleanup).**
 
 ---
 
@@ -707,13 +456,7 @@ for p in raw_data:
 
 ## Exit Criteria
 
-**Smoke Testing (S7.P1) is complete when ALL of these are true:**
-
-- [ ] All steps in this phase complete as specified
-- [ ] Agent Status updated with phase completion
-- [ ] Ready to proceed to next phase
-
-**If any criterion unchecked:** Complete missing items before proceeding
+S7.P1 is complete when all 3 parts pass per the Pass/Fail Criteria above and Agent Status is updated.
 
 ---
 ---

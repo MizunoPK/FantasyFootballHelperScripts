@@ -320,11 +320,11 @@ Next Action: Read stages/s9/s9_epic_final_qc.md
 The Epic Progress Tracker is a table in `EPIC_README.md` that tracks each feature through all stages:
 
 ```markdown
-| Feature | S1 | S2 | S3 | S4 | S5 | S6 | S7 | S8.P1 | S8.P2 |
-|---------|---------|---------|---------|---------|----------|----------|----------|----------|----------|
-| feature_01_name | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| feature_02_name | ✅ | ✅ | ✅ | ✅ | ✅ | 🔄 | ◻️ | ◻️ | ◻️ |
-| feature_03_name | ✅ | ✅ | ✅ | ✅ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ |
+| Feature | S1 | S2 | S3 | S5 | S6 | S7 | S8.P1 | S8.P2 |
+|---------|---------|---------|---------|----------|----------|----------|----------|----------|
+| feature_01_name | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| feature_02_name | ✅ | ✅ | ✅ | ✅ | 🔄 | ◻️ | ◻️ | ◻️ |
+| feature_03_name | ✅ | ✅ | ✅ | ◻️ | ◻️ | ◻️ | ◻️ | ◻️ |
 ```
 
 **Legend:**

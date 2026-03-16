@@ -24,6 +24,19 @@
 
 ---
 
+## Project Context
+
+**Tech Stack:** [Agent: fill in — language(s), framework(s), key libraries]
+**Runtime / Version:** [Agent: fill in — e.g. Node 20, Python 3.12, Go 1.22]
+**Package Manager / Build Tool:** [Agent: fill in — e.g. npm, poetry, gradle]
+**Test Runner:** [Agent: fill in — e.g. pytest, jest, go test]
+**Deployment Target:** [Agent: fill in — e.g. Vercel, AWS Lambda, local only, Docker]
+
+**Critical Gotchas:**
+- [Agent: fill in — project-specific things that affect every feature and are easy to get wrong]
+
+---
+
 ## Workflow System
 
 This project uses the **Shamt epic-driven development workflow** (S1–S10).
@@ -52,11 +65,48 @@ Per-feature: S5 (Plan) → S6 (Execute) → S7 (Test) → S8 (Align) → repeat 
 - 100% test pass rate before commits
 
 ❌ **Never allowed:**
-- Skip stages or dimensions in S5 Validation Loop
+- Skip any required phase or step within a guide — guides must be executed completely, not selectively
 - Defer issues for later
 - Commit without running tests
 - Autonomous conflict resolution (always escalate to user)
 - Replace `SHAMT-{N}` with `{{EPIC_TAG}}-{N}` inside `.shamt/guides/` files — see "Shared Guide Rules" below
+- Add code comments, docstrings, or inline explanations to implemented code — see `.shamt/project-specific-configs/CODING_STANDARDS.md` for the no-comment policy and any project-specific exceptions
+
+---
+
+## Parallel Epic Play
+
+When multiple epics are active simultaneously in separate agent windows:
+
+- **S1–S5 (planning):** Multiple agents may proceed independently and in parallel. Each agent operates in its own epic's subdirectory under `.shamt/epics/`. No coordination required.
+- **S6–S9 (execution, smoke testing, QC):** Only ONE agent may be in execution at a time. Before starting S6, confirm with the user that no other agent is currently in S6–S9.
+- **S10 (completion):** S10 also writes to `EPIC_TRACKER.md`. Two agents completing S10 simultaneously risk a file-level conflict. Treat S10 like S6–S9: only one at a time. Confirm with the user before starting S10 if another agent may also be finishing.
+
+If you are ready to begin S6 or S10 and are unsure whether another agent is at those stages: **STOP and ask the user to confirm it is safe to proceed.**
+
+---
+
+## Guide Execution Protocol
+
+When a guide is referenced for a stage or phase, the following rules apply regardless
+of how familiar the task seems:
+
+- **Read the entire guide before starting any work** — the overview does not substitute
+  for the full guide including all steps
+- **Before executing each step, re-read that step's instructions from the guide** — do
+  not execute from memory after an initial read
+- **Guide instructions override your training knowledge** — if the guide specifies how to
+  perform a step, follow the guide's method even if you know a different approach
+- **All phases in a guide are mandatory** — do not stop after the phase that produces the
+  primary artifact and skip remaining phases (e.g., completing a draft but skipping the
+  validation loop)
+- **Do not present outputs to the user until all guide phases are complete**
+- **When resuming a prior session:** re-read the current guide before continuing — Agent
+  Status indicates where you are, not what the guide requires next
+
+**Bypass pattern to watch for:** "I know how to write an implementation plan / spec /
+test strategy, so I'll do it my way." Your knowledge of how to perform the task does not
+reduce the requirement to follow the guide's specific steps.
 
 ---
 

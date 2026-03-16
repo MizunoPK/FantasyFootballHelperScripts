@@ -20,7 +20,7 @@ S9.P1 (Epic Smoke Testing) →
 ## Table of Contents
 
 1. [S9.P2: Epic QC Validation Loop](#s9p2-epic-qc-validation-loop)
-2. [MANDATORY READING PROTOCOL](#mandatory-reading-protocol)
+2. [🚨 MANDATORY READING PROTOCOL](#-mandatory-reading-protocol)
 3. [Overview](#overview)
 4. [Critical Rules (Epic-Specific)](#critical-rules)
 5. [Prerequisites Checklist](#prerequisites-checklist)
@@ -38,9 +38,10 @@ S9.P1 (Epic Smoke Testing) →
 17. [Exit Criteria](#exit-criteria)
 
 ---
-## MANDATORY READING PROTOCOL
 
-**BEFORE starting Epic QC Validation Loop, you MUST:**
+## 🚨 MANDATORY READING PROTOCOL
+
+**BEFORE starting Epic QC Validation Loop — including when resuming a prior session — you MUST:**
 
 1. **Read the validation loop guides:**
    - `reference/validation_loop_master_protocol.md` - Core validation loop principles
@@ -67,6 +68,18 @@ S9.P1 (Epic Smoke Testing) →
 6. **THEN AND ONLY THEN** begin validation loop
 
 **This is NOT optional.** Reading the validation loop guides ensures systematic epic-wide validation.
+
+---
+
+## 🚫 FORBIDDEN SHORTCUTS
+
+You CANNOT:
+- Skip epic-specific dimensions (8–12) because feature QC (S7.P2) already verified each feature
+- Declare epic QC "complete" after reviewing a subset of features or dimensions
+- Stop before the 2-round checkpoint without user input — the checkpoint is the only sanctioned early-exit mechanism (see `reference/validation_loop_master_protocol.md` Exit Criteria)
+- Use notes from S7.P2 rounds as a substitute for fresh-eyes epic-level validation
+
+If you are about to do any of the above: STOP and re-read the relevant section.
 
 ---
 
@@ -113,10 +126,10 @@ Epic QC Validation Loop is complete when 3 consecutive validation rounds find ZE
    - Cannot skip any dimension
    - Re-read entire epic codebase each round (no working from memory)
 
-2. ⚠️ 3 CONSECUTIVE CLEAN ROUNDS REQUIRED
+2. ⚠️ 3 CONSECUTIVE CLEAN ROUNDS REQUIRED (OR USER CHECKPOINT AT 2)
    - Clean = ZERO issues found across all 12 dimensions
    - Counter resets if ANY issue found
-   - Cannot exit early (must achieve 3 consecutive)
+   - Cannot stop before the 2-round checkpoint without user input — the checkpoint is the only sanctioned early-exit mechanism (see master protocol Exit Criteria)
    - Typical: 5-8 rounds total to achieve 3 consecutive clean
 
 3. ⚠️ FIX ISSUES IMMEDIATELY (NO RESTART PROTOCOL)
@@ -125,11 +138,13 @@ Epic QC Validation Loop is complete when 3 consecutive validation rounds find ZE
    - Continue validation from current round (no restart needed)
    - New approach: Fix and continue vs old: Fix and restart from S9.P1
 
-4. ⚠️ 100% TESTS PASSING MANDATORY
-   - Run ALL tests EVERY validation round
-   - Must achieve 100% pass rate
-   - Any test failure = issue (must fix before next round)
-   - Verify tests still pass after code changes
+4. ⚠️ TEST PASSING REQUIREMENT (CONDITIONAL ON TESTING APPROACH)
+   - Check EPIC_README for Testing Approach (A/B/C/D) before each round
+   - **Option A (smoke only):** No automated test requirement — skip this check
+   - **Option B (integration scripts only):** Run all integration scripts EVERY round; all must exit code 0; any failure = issue
+   - **Option C (unit tests only):** Run ALL unit test suites EVERY round; must achieve 100% pass rate; any failure = issue
+   - **Option D (both):** Run ALL unit tests AND all integration scripts EVERY round; both must pass; any failure = issue
+   - Verify tests still pass after code changes regardless of approach
 
 5. ⚠️ FOCUS ON EPIC-LEVEL VALIDATION
    - Feature-level QC done in S7.P2
@@ -183,6 +198,14 @@ Epic QC Validation Loop is complete when 3 consecutive validation rounds find ZE
 ---
 
 ## Workflow Overview
+
+⚠️ **Before starting Round 1, confirm:**
+- [ ] I will not stop after the first round that appears mostly clean
+- [ ] At minimum I must reach the 2-round checkpoint before stopping — at that point the user decides whether to continue to a 3rd round
+- [ ] I will check all 12 dimensions (7 master + 5 epic-specific) every round, not just the epic-specific ones
+- [ ] I will not proceed to S10 until at least the 2-round checkpoint has been presented to the user
+
+---
 
 **See `reference/validation_loop_master_protocol.md` for universal validation loop details.**
 
@@ -792,7 +815,10 @@ STOP - DO NOT PROCEED TO S9.P3 YET
 
 - [ ] 3 consecutive clean rounds achieved (ZERO issues across all 12 dimensions)
 - [ ] All 12 dimensions checked every round (7 master + 5 epic)
-- [ ] All tests passing (100% pass rate verified every round)
+- [ ] **Option A:** No automated test requirement (smoke only — no check needed)
+- [ ] **Option B:** All integration scripts passing (exit code 0, verified every round)
+- [ ] **Option C:** All unit tests passing (100% pass rate, verified every round)
+- [ ] **Option D:** All unit tests AND all integration scripts passing (verified every round)
 - [ ] VALIDATION_LOOP_LOG.md complete with all rounds documented
 - [ ] Agent Status updated with validation loop completion
 - [ ] Ready to proceed to S9.P3 (User Testing)

@@ -84,9 +84,9 @@
 - ❌ Resolving conflicts without user input
 - ❌ Not getting user approval (Gate 4.5 — epic plan + test strategy approval occurs in S3.P3)
 
-### S4: Feature Testing Strategy
-- ❌ Creating detailed test plan without implementation knowledge
-- ❌ Starting S4 without Gate 4.5 already passed (Gate 4.5 is in S3.P3, not S4)
+### S4: (Deprecated — redirects to S5)
+- ❌ Trying to follow S4 as an active stage — S4 is deprecated; test scope decision is now S5 Step 0
+- ❌ Creating a separate test_strategy.md file — this file is no longer required (Options A/B only); use S5 Step 0 instead
 
 ### S5: Implementation Planning
 - ❌ Skipping dimensions or gates in the Validation Loop

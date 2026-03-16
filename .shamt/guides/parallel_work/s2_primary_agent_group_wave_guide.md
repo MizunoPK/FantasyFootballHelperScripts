@@ -821,12 +821,12 @@ grep "ISSUES:" feature_*/STATUS | grep -v "ISSUES: 0"
 
 **You can now:**
 1. ✅ Close your session (your work is complete for S2)
-2. 🔄 Wait for S3/S4 if you'd like to observe (I'll run solo)
+2. 🔄 Wait for S3 if you'd like to observe (I'll run solo; S4 deprecated)
 3. 💬 Ask questions if needed
 
 **What happens next:**
 - I'll run S3 (Epic-Level Docs, Tests, and Approval) - Epic-level, all features together
-- I'll run S4 (Testing Strategy) - Per-feature sequential
+- S4 deprecated — Test Scope Decision now at S5 Step 0 (per-feature sequential)
 - S5-S8: Implementation (per-feature sequential, no parallelization)
 - S9-S10: Epic QC and cleanup
 
@@ -886,7 +886,7 @@ grep "ISSUES:" feature_*/STATUS | grep -v "ISSUES: 0"
 **What I'll do:**
 1. S3.P1: Create epic smoke test plan (integration tests across all features)
 2. S3.P2: Refine EPIC_README.md with feature summaries and architecture decisions
-3. S3.P3: Gate 4.5 — get user approval of epic plan before S4
+3. S3.P3: Gate 4.5 — get user approval of epic plan before S5 (S4 deprecated)
 
 **Estimated time:** 1-2 hours
 

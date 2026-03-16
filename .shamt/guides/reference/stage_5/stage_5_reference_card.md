@@ -14,7 +14,7 @@ STAGE 5: Implementation Planning (4.5-7 hours typical, 6-8 validation rounds)
     │
     ├─ Phase 1: Draft Creation (stages/s5/s5_v2_validation_loop.md)
     │   Duration: 60-90 minutes
-    │   ├─ Merge test_strategy.md from S4
+    │   ├─ Step 0: Test Scope Decision (Testing Approach A/B/C/D from EPIC_README)
     │   ├─ Cover all 11 validation dimensions
     │   ├─ Create implementation_plan.md draft (~400 lines)
     │   └─ Output: Ready-for-validation draft
@@ -46,7 +46,7 @@ S6: Implementation Execution (stages/s6/s6_execution.md)
     ├─ Execute implementation_plan.md tasks (PRIMARY reference)
     ├─ Keep spec.md visible (continuous verification)
     ├─ Mini-QC checkpoints every 5-7 tasks
-    └─ 100% test pass required before completing
+    └─ Test execution per Testing Approach (conditional — see S6 guide)
         ↓
 S7: Post-Implementation (1.5-2.5 hours, 3 phases)
     │
@@ -82,9 +82,9 @@ Next Feature (loop S5→S6→S7→S8) OR S9 (if all features done)
 
 | Stage | Guide | Time | Key Activities | Mandatory Gates |
 |-------|-------|------|----------------|-----------------|
-| S5.P1 | stages/s5/s5_v2_validation_loop.md | 60-90 min | Draft creation, merge S4 test strategy | Draft ready |
+| S5.P1 | stages/s5/s5_v2_validation_loop.md | 60-90 min | Step 0: Test Scope Decision, draft creation | Draft ready |
 | S5.P2 | stages/s5/s5_v2_validation_loop.md | 3.5-6 hrs | Validation Loop (11 dimensions × 6-8 rounds) | 3 consecutive clean rounds, Gates 4a/7a/23a/24/25 embedded |
-| S6 | stages/s6/s6_execution.md | 1-4 hrs | Execute implementation_plan.md tasks | 100% test pass |
+| S6 | stages/s6/s6_execution.md | 1-4 hrs | Execute implementation_plan.md tasks | Tests per approach (conditional) |
 | S7.P1 | stages/s7/s7_p1_smoke_testing.md | 30-45 min | Import, entry point, E2E tests | Part 3 data values |
 | S7.P2 | stages/s7/s7_p2_qc_rounds.md | 45-75 min | Validation Loop, 16 dimensions (7 master + 9 S7 QC) | 3 consecutive clean rounds |
 | S7.P3 | stages/s7/s7_p3_final_review.md | 30-45 min | PR review, lessons learned | Zero tech debt |

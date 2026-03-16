@@ -9,6 +9,13 @@
 ## Workflow Overview
 
 ```bash
+STEP 0: Sibling Epic Awareness Check (5 min) - BEFORE Step 1.0
+    +-- Read .shamt/epics/EPIC_TRACKER.md
+    +-- List any epics NOT marked Completed or Archived (active epics)
+    +-- State dependency assessment for each active epic
+    +-- If any dependency found: note it — record in EPIC_README.md ## Dependencies (Step 1.3)
+    +-- If no active epics: note "No active epics" and proceed
+    |
 STEP 1: Initial Setup (15-20 min)
     +-- Step 1.0: Create Git Branch (BEFORE any changes)
     |   +-- Verify on main, pull latest
@@ -67,6 +74,7 @@ STEP 6: Transition to S2 (5 min)
 
 | Step | Duration | Key Activities | User Interaction | Gate? |
 |------|----------|----------------|------------------|-------|
+| 0 | 5 min | Read EPIC_TRACKER, assess sibling dependencies | None | No |
 | 1 | 15-20 min | Git branch, epic folder, EPIC_README.md | None | No |
 | 2 | 10-15 min | Read epic, reconnaissance, estimate size | None | No |
 | 3 | 1-4 hours | **Discovery Phase (MANDATORY)** - iterative research and Q&A | Questions throughout, approval at end | YES |
