@@ -10,7 +10,7 @@ Author: Kai Mizuno
 
 import pytest
 import csv
-from unittest.mock import Mock, patch, AsyncMock
+from unittest.mock import patch, AsyncMock
 
 from schedule_data_fetcher.ScheduleFetcher import ScheduleFetcher
 

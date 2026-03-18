@@ -13,16 +13,13 @@ import subprocess
 import sys
 from pathlib import Path
 import shutil
-import time
-from datetime import datetime
-import logging
 
 # Add project root to path
 project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
 from schedule_data_fetcher.ScheduleFetcher import ScheduleFetcher
-from utils.LoggingManager import setup_logger, get_logger
+from utils.LoggingManager import setup_logger
 
 
 class TestE2EExecution:
