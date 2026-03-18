@@ -37,7 +37,6 @@ from typing import Dict, List, Tuple, Optional, Any
 import statistics
 import warnings
 
-import logging
 from league_helper.util.TeamDataManager import TeamDataManager
 from league_helper.util.SeasonScheduleManager import SeasonScheduleManager
 from league_helper.util.FantasyTeam import FantasyTeam
