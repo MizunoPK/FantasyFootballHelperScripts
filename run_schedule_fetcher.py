@@ -25,7 +25,6 @@ from utils.LoggingManager import setup_logger
 
 # Add schedule-data-fetcher to path
 sys.path.append(str(Path(__file__).parent / "schedule-data-fetcher"))
-sys.path.append(str(Path(__file__).parent / "player-data-fetcher"))
 
 from ScheduleFetcher import ScheduleFetcher
 NFL_SEASON = 2025

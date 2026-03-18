@@ -15,11 +15,7 @@ import json
 from pathlib import Path
 from typing import Dict, List, Any, Optional
 
-import sys
-sys.path.append(str(Path(__file__).parent.parent))  # Add project root
-sys.path.append(str(Path(__file__).parent.parent / "player-data-fetcher"))  # Add player-data-fetcher folder
-
-from player_data_exporter import DataExporter
+from player_data_fetcher.player_data_exporter import DataExporter
 
 from .constants import POSITION_JSON_FILES, REGULAR_SEASON_WEEKS, FANTASY_POSITIONS
 from .player_data_fetcher import PlayerData
