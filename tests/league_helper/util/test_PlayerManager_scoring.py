@@ -22,10 +22,10 @@ from typing import List
 from pathlib import Path
 
 # Imports work via conftest.py which adds the necessary paths
-from util.PlayerManager import PlayerManager
-from util.ConfigManager import ConfigManager
-from util.TeamDataManager import TeamDataManager
-from util.FantasyTeam import FantasyTeam
+from league_helper.util.PlayerManager import PlayerManager
+from league_helper.util.ConfigManager import ConfigManager
+from league_helper.util.TeamDataManager import TeamDataManager
+from league_helper.util.FantasyTeam import FantasyTeam
 from utils.FantasyPlayer import FantasyPlayer
 
 

@@ -12,10 +12,7 @@ Tests the Save Calculated Points mode manager functionality including:
 
 import pytest
 import json
-from pathlib import Path
 from unittest.mock import Mock
-import sys
-sys.path.append(str(Path(__file__).parent.parent.parent.parent))
 from league_helper.save_calculated_points_mode.SaveCalculatedPointsManager import SaveCalculatedPointsManager
 from league_helper.util.ConfigManager import ConfigManager
 from league_helper.util.PlayerManager import PlayerManager

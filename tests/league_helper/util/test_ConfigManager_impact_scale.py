@@ -16,7 +16,7 @@ import json
 import tempfile
 
 # Imports work via conftest.py which adds the necessary paths
-from util.ConfigManager import ConfigManager
+from league_helper.util.ConfigManager import ConfigManager
 
 
 # ============================================================================

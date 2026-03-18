@@ -20,10 +20,10 @@ from unittest.mock import Mock, MagicMock, patch, mock_open
 from io import StringIO
 
 # Imports work via conftest.py
-from util.PlayerManager import PlayerManager
-from util.ConfigManager import ConfigManager
-from util.TeamDataManager import TeamDataManager
-from util.SeasonScheduleManager import SeasonScheduleManager
+from league_helper.util.PlayerManager import PlayerManager
+from league_helper.util.ConfigManager import ConfigManager
+from league_helper.util.TeamDataManager import TeamDataManager
+from league_helper.util.SeasonScheduleManager import SeasonScheduleManager
 from utils.FantasyPlayer import FantasyPlayer
 
 
