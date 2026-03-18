@@ -109,7 +109,7 @@ class TestLoggerNameConsistency:
             "setup_logger() should use snake_case name 'schedule_fetcher'"
 
         # Read ScheduleFetcher.py source
-        fetcher_path = project_root / "schedule-data-fetcher" / "ScheduleFetcher.py"
+        fetcher_path = project_root / "schedule_data_fetcher" / "ScheduleFetcher.py"
         with open(fetcher_path, 'r') as f:
             fetcher_source = f.read()
 
@@ -131,7 +131,7 @@ class TestScheduleFetcherLoggerSetup:
         Priority: HIGH
         """
         # Read ScheduleFetcher.py source
-        fetcher_path = project_root / "schedule-data-fetcher" / "ScheduleFetcher.py"
+        fetcher_path = project_root / "schedule_data_fetcher" / "ScheduleFetcher.py"
         with open(fetcher_path, 'r') as f:
             source = f.read()
 
@@ -151,7 +151,7 @@ class TestScheduleFetcherLoggerSetup:
         Priority: HIGH
         """
         # Read ScheduleFetcher.py source
-        fetcher_path = project_root / "schedule-data-fetcher" / "ScheduleFetcher.py"
+        fetcher_path = project_root / "schedule_data_fetcher" / "ScheduleFetcher.py"
         with open(fetcher_path, 'r') as f:
             source = f.read()
 
@@ -294,7 +294,7 @@ class TestLogQualityDebugWarning:
         Note: Per Feature 06 pattern, operational errors use WARNING
         """
         # Read ScheduleFetcher.py source
-        fetcher_path = project_root / "schedule-data-fetcher" / "ScheduleFetcher.py"
+        fetcher_path = project_root / "schedule_data_fetcher" / "ScheduleFetcher.py"
         with open(fetcher_path, 'r') as f:
             lines = f.readlines()
 
@@ -318,7 +318,7 @@ class TestLogQualityDebugWarning:
         Priority: MEDIUM
         """
         # Read ScheduleFetcher.py source
-        fetcher_path = project_root / "schedule-data-fetcher" / "ScheduleFetcher.py"
+        fetcher_path = project_root / "schedule_data_fetcher" / "ScheduleFetcher.py"
         with open(fetcher_path, 'r') as f:
             lines = f.readlines()
 

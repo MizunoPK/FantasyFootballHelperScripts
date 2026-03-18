@@ -21,12 +21,9 @@ import asyncio
 import sys
 from pathlib import Path
 
+from schedule_data_fetcher.ScheduleFetcher import ScheduleFetcher
 from utils.LoggingManager import setup_logger
 
-# Add schedule-data-fetcher to path
-sys.path.append(str(Path(__file__).parent / "schedule-data-fetcher"))
-
-from ScheduleFetcher import ScheduleFetcher
 NFL_SEASON = 2025
 
 

@@ -10,15 +10,9 @@ Author: Kai Mizuno
 
 import pytest
 import csv
-from pathlib import Path
 from unittest.mock import Mock, patch, AsyncMock
-import sys
 
-# Add project root and schedule-data-fetcher to path
-sys.path.append(str(Path(__file__).parent.parent.parent))
-sys.path.append(str(Path(__file__).parent.parent.parent / "schedule-data-fetcher"))
-
-from ScheduleFetcher import ScheduleFetcher
+from schedule_data_fetcher.ScheduleFetcher import ScheduleFetcher
 
 
 class TestScheduleFetcherInit:
@@ -306,6 +300,6 @@ class TestModuleImports:
 
     def test_import_schedule_fetcher(self):
         """Test ScheduleFetcher can be imported"""
-        from ScheduleFetcher import ScheduleFetcher
+        from schedule_data_fetcher.ScheduleFetcher import ScheduleFetcher
 
         assert ScheduleFetcher is not None
