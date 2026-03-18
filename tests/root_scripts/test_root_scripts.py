@@ -27,65 +27,29 @@ sys.path.append(str(project_root))
 class TestRunLeagueHelper:
     """Test run_league_helper.py"""
 
-    @patch('sys.argv', ['run_league_helper.py'])
-    @patch('subprocess.run')
-    def test_run_league_helper_success(self, mock_run):
-        """Test successful league helper execution"""
-        # Mock successful subprocess execution
-        mock_run.return_value = Mock(returncode=0)
+    def test_run_league_helper_calls_main(self):
+        """Test run_league_helper calls main() when executed as __main__"""
+        import runpy
+        with patch('league_helper.LeagueHelperManager.main') as mock_main:
+            runpy.run_module('run_league_helper', run_name='__main__')
+            mock_main.assert_called_once()
 
-        # Import and run
-        from run_league_helper import run_league_helper
-        exit_code = run_league_helper()
+    def test_run_league_helper_no_subprocess(self):
+        """Test run_league_helper does not use subprocess"""
+        import run_league_helper
+        assert not hasattr(run_league_helper, 'subprocess')
 
-        assert exit_code == 0
-        mock_run.assert_called_once()
+    def test_run_league_helper_imports_main_from_league_helper(self):
+        """Test run_league_helper imports main from league_helper.LeagueHelperManager"""
+        import run_league_helper
+        assert hasattr(run_league_helper, 'main')
 
-        # Verify correct script path and arguments
-        # Note: Data folder is NOT passed as argument - LeagueHelperManager constructs it internally
-        call_args = mock_run.call_args[0][0]
-        assert call_args[0] == sys.executable
-        assert "LeagueHelperManager.py" in call_args[1]
-        assert len(call_args) == 2  # Only python executable and script path
-
-    @patch('sys.argv', ['run_league_helper.py'])
-    @patch('subprocess.run')
-    def test_run_league_helper_handles_subprocess_error(self, mock_run):
-        """Test handling of subprocess errors"""
-        # Mock subprocess failure
-        mock_run.side_effect = subprocess.CalledProcessError(1, 'cmd')
-
-        from run_league_helper import run_league_helper
-        exit_code = run_league_helper()
-
-        assert exit_code == 1
-
-    @patch('sys.argv', ['run_league_helper.py'])
-    @patch('subprocess.run')
-    def test_run_league_helper_handles_general_exception(self, mock_run):
-        """Test handling of general exceptions"""
-        # Mock general exception
-        mock_run.side_effect = RuntimeError("Test error")
-
-        from run_league_helper import run_league_helper
-        exit_code = run_league_helper()
-
-        assert exit_code == 1
-
-    @patch('sys.argv', ['run_league_helper.py', '--enable-log-file'])
-    @patch('subprocess.run')
-    def test_run_league_helper_uses_correct_data_folder(self, mock_run):
-        """Test that CLI arguments are forwarded correctly"""
-        # Note: Data folder is NOT passed as argument - LeagueHelperManager constructs it internally
-        # This test now verifies CLI argument forwarding (KAI-8 feature)
-        mock_run.return_value = Mock(returncode=0)
-
-        from run_league_helper import run_league_helper
-        run_league_helper()
-
-        call_args = mock_run.call_args[0][0]
-        assert len(call_args) == 3  # python, script, --enable-log-file
-        assert "--enable-log-file" in call_args
+    def test_run_league_helper_has_main_block(self):
+        """Test run_league_helper has if __name__ == '__main__' block calling main()"""
+        script_path = Path(__file__).parent.parent.parent / 'run_league_helper.py'
+        content = script_path.read_text()
+        assert 'if __name__ == "__main__"' in content
+        assert 'main()' in content
 
 
 # ============================================================================
@@ -757,7 +721,7 @@ class TestRootScriptsIntegration:
     def test_all_scripts_import_required_modules(self):
         """Test that all scripts import required modules"""
         scripts_and_imports = {
-            'run_league_helper.py': ['subprocess', 'sys', 'Path'],
+            'run_league_helper.py': ['league_helper', 'LeagueHelperManager'],
             'run_player_fetcher.py': ['subprocess', 'sys', 'Path', 'os'],
             'run_pre_commit_validation.py': ['subprocess', 'sys', 'Path'],
             'run_win_rate_simulation.py': ['argparse', 'sys', 'Path'],
