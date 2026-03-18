@@ -271,7 +271,7 @@ def player_manager(mock_data_folder, config_manager, team_data_manager, mock_fan
     pm.season_schedule_manager.get_future_opponents = Mock(return_value=['DAL', 'PHI', 'NYG'])
 
     # Initialize scoring_calculator (required for refactored PlayerManager)
-    from util.player_scoring import PlayerScoringCalculator
+    from league_helper.util.player_scoring import PlayerScoringCalculator
     pm.scoring_calculator = PlayerScoringCalculator(
         config_manager,
         pm.projected_points_manager,

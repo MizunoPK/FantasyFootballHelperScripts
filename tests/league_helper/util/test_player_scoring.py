@@ -506,9 +506,9 @@ class TestPerformanceDeviation:
 
     def test_calculate_performance_deviation_respects_max_lookback_limit(self, mock_data_folder):
         """Test that lookback respects 2x MIN_WEEKS limit"""
-        from util.ConfigManager import ConfigManager
-        from util.TeamDataManager import TeamDataManager
-        from util.SeasonScheduleManager import SeasonScheduleManager
+        from league_helper.util.ConfigManager import ConfigManager
+        from league_helper.util.TeamDataManager import TeamDataManager
+        from league_helper.util.SeasonScheduleManager import SeasonScheduleManager
 
         # Create a new config with CURRENT_NFL_WEEK=10
         config_content = """{
