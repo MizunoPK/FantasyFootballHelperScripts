@@ -14,14 +14,10 @@ Key responsibilities:
 Author: Kai Mizuno
 """
 
-from pathlib import Path
 from typing import Dict, Any, List
 
-import sys
-from trade_simulator_mode.TradeSimTeam import TradeSimTeam
-
-sys.path.append(str(Path(__file__).parent.parent))
-from util.ScoredPlayer import ScoredPlayer
+from league_helper.trade_simulator_mode.TradeSimTeam import TradeSimTeam
+from league_helper.util.ScoredPlayer import ScoredPlayer
 
 class TradeSnapshot:
     """

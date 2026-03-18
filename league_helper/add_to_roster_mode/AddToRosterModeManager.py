@@ -19,20 +19,13 @@ guide recommendations.
 Author: Kai Mizuno
 """
 
-from pathlib import Path
 from typing import Dict, List
 
-import sys
-sys.path.append(str(Path(__file__).parent))
-import constants as Constants
-
-sys.path.append(str(Path(__file__).parent.parent))
-from util.ConfigManager import ConfigManager
-from util.PlayerManager import PlayerManager
-from util.TeamDataManager import TeamDataManager
-from util.ScoredPlayer import ScoredPlayer
-
-sys.path.append(str(Path(__file__).parent.parent.parent))
+import league_helper.constants as Constants
+from league_helper.util.ConfigManager import ConfigManager
+from league_helper.util.PlayerManager import PlayerManager
+from league_helper.util.TeamDataManager import TeamDataManager
+from league_helper.util.ScoredPlayer import ScoredPlayer
 from utils.LoggingManager import get_logger
 from utils.FantasyPlayer import FantasyPlayer
 

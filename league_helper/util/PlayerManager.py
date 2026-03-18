@@ -37,20 +37,15 @@ from typing import Dict, List, Tuple, Optional, Any
 import statistics
 import warnings
 
-import sys
 import logging
-from util.TeamDataManager import TeamDataManager
-from util.SeasonScheduleManager import SeasonScheduleManager
-from util.FantasyTeam import FantasyTeam
-from util.GameDataManager import GameDataManager
-
-sys.path.append(str(Path(__file__).parent))
-import constants as Constants
-from ConfigManager import ConfigManager
-from ScoredPlayer import ScoredPlayer
-from player_scoring import PlayerScoringCalculator
-
-sys.path.append(str(Path(__file__).parent.parent.parent))
+from league_helper.util.TeamDataManager import TeamDataManager
+from league_helper.util.SeasonScheduleManager import SeasonScheduleManager
+from league_helper.util.FantasyTeam import FantasyTeam
+from league_helper.util.GameDataManager import GameDataManager
+import league_helper.constants as Constants
+from league_helper.util.ConfigManager import ConfigManager
+from league_helper.util.ScoredPlayer import ScoredPlayer
+from league_helper.util.player_scoring import PlayerScoringCalculator
 from utils.FantasyPlayer import FantasyPlayer
 from utils.LoggingManager import get_logger
 

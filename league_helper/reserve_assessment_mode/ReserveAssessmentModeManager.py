@@ -10,19 +10,14 @@ Author: Kai Mizuno
 
 import csv
 import statistics
-from pathlib import Path
 from typing import Dict, List, Tuple, Optional
 
-import sys
-sys.path.append(str(Path(__file__).parent.parent))
-from util.ConfigManager import ConfigManager
-from util.PlayerManager import PlayerManager
-from util.TeamDataManager import TeamDataManager
-from util.SeasonScheduleManager import SeasonScheduleManager
-from util.ScoredPlayer import ScoredPlayer
-import constants as Constants
-
-sys.path.append(str(Path(__file__).parent.parent.parent))
+from league_helper.util.ConfigManager import ConfigManager
+from league_helper.util.PlayerManager import PlayerManager
+from league_helper.util.TeamDataManager import TeamDataManager
+from league_helper.util.SeasonScheduleManager import SeasonScheduleManager
+from league_helper.util.ScoredPlayer import ScoredPlayer
+import league_helper.constants as Constants
 from utils.FantasyPlayer import FantasyPlayer
 from utils.LoggingManager import get_logger
 

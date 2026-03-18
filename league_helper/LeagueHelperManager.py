@@ -17,20 +17,18 @@ Author: Kai Mizuno
 """
 
 from pathlib import Path
-import sys
 import argparse
-import constants
-from util.ConfigManager import ConfigManager
-from util.PlayerManager import PlayerManager
-from util.TeamDataManager import TeamDataManager
-from util.SeasonScheduleManager import SeasonScheduleManager
-from util.user_input import show_list_selection
-from add_to_roster_mode.AddToRosterModeManager import AddToRosterModeManager
-from starter_helper_mode.StarterHelperModeManager import StarterHelperModeManager
-from trade_simulator_mode.TradeSimulatorModeManager import TradeSimulatorModeManager
-from modify_player_data_mode.ModifyPlayerDataModeManager import ModifyPlayerDataModeManager
-from save_calculated_points_mode.SaveCalculatedPointsManager import SaveCalculatedPointsManager
-sys.path.append(str(Path(__file__).parent.parent))
+from league_helper import constants
+from league_helper.util.ConfigManager import ConfigManager
+from league_helper.util.PlayerManager import PlayerManager
+from league_helper.util.TeamDataManager import TeamDataManager
+from league_helper.util.SeasonScheduleManager import SeasonScheduleManager
+from league_helper.util.user_input import show_list_selection
+from league_helper.add_to_roster_mode.AddToRosterModeManager import AddToRosterModeManager
+from league_helper.starter_helper_mode.StarterHelperModeManager import StarterHelperModeManager
+from league_helper.trade_simulator_mode.TradeSimulatorModeManager import TradeSimulatorModeManager
+from league_helper.modify_player_data_mode.ModifyPlayerDataModeManager import ModifyPlayerDataModeManager
+from league_helper.save_calculated_points_mode.SaveCalculatedPointsManager import SaveCalculatedPointsManager
 from utils.LoggingManager import setup_logger, get_logger
 
 

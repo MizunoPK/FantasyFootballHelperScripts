@@ -20,8 +20,6 @@ from typing import Dict, List, Optional, Any, TYPE_CHECKING
 import csv
 import json
 
-import sys
-sys.path.append(str(Path(__file__).parent.parent))
 from utils.TeamData import TeamData, load_team_weekly_data, NFL_TEAMS
 from utils.LoggingManager import get_logger
 
@@ -419,9 +417,7 @@ class TeamDataManager:
             Position-specific defense rank (1-32) or None if not found.
         """
         # Check if position is defense (use overall defensive rank)
-        import sys
-        sys.path.append(str(Path(__file__).parent))
-        from constants import DEFENSE_POSITIONS
+        from league_helper.constants import DEFENSE_POSITIONS
 
         if position in DEFENSE_POSITIONS:
             return self.defensive_ranks.get(team)
@@ -509,9 +505,7 @@ class TeamDataManager:
             return 0
 
         # Check if player is on defense
-        import sys
-        sys.path.append(str(Path(__file__).parent))
-        from constants import DEFENSE_POSITIONS
+        from league_helper.constants import DEFENSE_POSITIONS
         is_defense = position in DEFENSE_POSITIONS
 
         if is_defense:

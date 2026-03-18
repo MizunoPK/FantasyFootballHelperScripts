@@ -9,15 +9,8 @@ Author: Kai Mizuno
 
 from typing import List, Tuple
 
-import sys
-from pathlib import Path
-
-# Add parent directory to path for utils imports
-sys.path.append(str(Path(__file__).parent.parent.parent))
 from utils.FantasyPlayer import FantasyPlayer
-
-sys.path.append(str(Path(__file__).parent))
-from trade_simulator_mode.TradeSnapshot import TradeSnapshot
+from league_helper.trade_simulator_mode.TradeSnapshot import TradeSnapshot
 
 
 class TradeDisplayHelper:

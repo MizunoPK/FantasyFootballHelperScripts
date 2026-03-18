@@ -15,16 +15,10 @@ Key responsibilities:
 Author: Kai Mizuno
 """
 
-from pathlib import Path
 from typing import Dict, Any, List
 
-import sys
-
-sys.path.append(str(Path(__file__).parent.parent))
-from util.PlayerManager import PlayerManager
-from util.ScoredPlayer import ScoredPlayer
-
-sys.path.append(str(Path(__file__).parent.parent.parent))
+from league_helper.util.PlayerManager import PlayerManager
+from league_helper.util.ScoredPlayer import ScoredPlayer
 from utils.FantasyPlayer import FantasyPlayer
 
 class TradeSimTeam:

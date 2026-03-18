@@ -11,17 +11,10 @@ This module manages the Modify Player Data modes including:
 Author: Kai Mizuno
 """
 
-from pathlib import Path
-import sys
-
-# Add parent paths for imports
-sys.path.append(str(Path(__file__).parent.parent))
-from util.PlayerManager import PlayerManager
-from util.player_search import PlayerSearch
-from util.user_input import show_list_selection
-import constants as Constants
-
-sys.path.append(str(Path(__file__).parent.parent.parent))
+from league_helper.util.PlayerManager import PlayerManager
+from league_helper.util.player_search import PlayerSearch
+from league_helper.util.user_input import show_list_selection
+import league_helper.constants as Constants
 from utils.LoggingManager import get_logger
 from utils.FantasyPlayer import FantasyPlayer
 
