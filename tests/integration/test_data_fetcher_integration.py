@@ -18,9 +18,6 @@ from player_data_fetcher.player_data_fetcher_main import NFLProjectionsCollector
 from player_data_fetcher.player_data_models import PlayerProjection, ScoringFormat, ProjectionData, ESPNPlayerData
 
 # Note: NFL scores fetcher tests removed - has code bugs
-# NFL scores fetcher imports
-# sys.path.append(str(project_root / "nfl-scores-fetcher"))
-# from nfl_scores_models import GameScore, Team
 
 
 class TestPlayerDataFetcherIntegration:
