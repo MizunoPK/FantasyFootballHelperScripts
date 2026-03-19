@@ -21,11 +21,8 @@ import random
 import copy
 from pathlib import Path
 from unittest.mock import patch, Mock
-import sys
 
-# Add simulation/shared directory to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "simulation" / "shared"))
-from ConfigGenerator import ConfigGenerator
+from simulation.shared.ConfigGenerator import ConfigGenerator
 
 # Standard parameter order for testing
 # This mirrors the production PARAMETER_ORDER from run_simulation.py

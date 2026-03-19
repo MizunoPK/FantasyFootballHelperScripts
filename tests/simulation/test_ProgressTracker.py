@@ -9,11 +9,7 @@ Author: Kai Mizuno
 import pytest
 import time
 from unittest.mock import Mock, patch, call
-import sys
-from pathlib import Path
 
-# Add project root to path
-sys.path.append(str(Path(__file__).parent.parent.parent))
 from simulation.shared.ProgressTracker import ProgressTracker, MultiLevelProgressTracker
 
 

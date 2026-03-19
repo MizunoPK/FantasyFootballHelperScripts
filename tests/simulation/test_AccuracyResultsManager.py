@@ -10,19 +10,16 @@ import json
 import pytest
 from pathlib import Path
 from unittest.mock import Mock, patch
-import sys
 import tempfile
 import shutil
 
-# Add simulation/accuracy to path
-sys.path.append(str(Path(__file__).parent.parent.parent / "simulation" / "accuracy"))
-from AccuracyResultsManager import (
+from simulation.accuracy.AccuracyResultsManager import (
     AccuracyResultsManager,
     AccuracyConfigPerformance,
     RankingMetrics,
     WEEK_RANGES
 )
-from AccuracyCalculator import AccuracyResult
+from simulation.accuracy.AccuracyCalculator import AccuracyResult
 
 
 class TestAccuracyConfigPerformance:

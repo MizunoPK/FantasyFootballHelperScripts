@@ -7,13 +7,10 @@ Author: Kai Mizuno
 """
 
 import pytest
+from pathlib import Path
 from unittest.mock import Mock, MagicMock, patch, mock_open
 import json
-import sys
-from pathlib import Path
 
-# Add project root to path
-sys.path.append(str(Path(__file__).parent.parent.parent))
 from simulation.shared.ResultsManager import ResultsManager
 from simulation.shared.ConfigPerformance import ConfigPerformance
 

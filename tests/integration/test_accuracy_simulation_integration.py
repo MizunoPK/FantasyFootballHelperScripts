@@ -20,15 +20,11 @@ import shutil
 
 # Add project root to path
 project_root = Path(__file__).parent.parent.parent
-sys.path.append(str(project_root))
 
-# Accuracy simulation imports
-sys.path.append(str(project_root / "simulation" / "shared"))
-sys.path.append(str(project_root / "simulation" / "accuracy"))
-from ConfigGenerator import ConfigGenerator
-from AccuracySimulationManager import AccuracySimulationManager
-from AccuracyResultsManager import AccuracyResultsManager, RankingMetrics, WEEK_RANGES
-from AccuracyCalculator import AccuracyCalculator, AccuracyResult
+from simulation.shared.ConfigGenerator import ConfigGenerator
+from simulation.accuracy.AccuracySimulationManager import AccuracySimulationManager
+from simulation.accuracy.AccuracyResultsManager import AccuracyResultsManager, RankingMetrics, WEEK_RANGES
+from simulation.accuracy.AccuracyCalculator import AccuracyCalculator, AccuracyResult
 
 
 # Test parameter order - mirrors the PARAMETER_ORDER in run_accuracy_simulation.py

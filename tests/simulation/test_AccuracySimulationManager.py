@@ -8,15 +8,11 @@ Author: Kai Mizuno
 
 import json
 import pytest
-from pathlib import Path
 from unittest.mock import Mock, patch, MagicMock
-import sys
 import tempfile
 import shutil
 
-# Add simulation/accuracy to path
-sys.path.append(str(Path(__file__).parent.parent.parent / "simulation" / "accuracy"))
-from AccuracySimulationManager import AccuracySimulationManager
+from simulation.accuracy.AccuracySimulationManager import AccuracySimulationManager
 
 
 # Test parameter order - mirrors the PARAMETER_ORDER in run_accuracy_simulation.py
@@ -130,9 +126,9 @@ class TestAccuracySimulationManagerInit:
 
         return data_folder
 
-    @patch('AccuracySimulationManager.ConfigGenerator')
-    @patch('AccuracySimulationManager.AccuracyCalculator')
-    @patch('AccuracySimulationManager.AccuracyResultsManager')
+    @patch('simulation.accuracy.AccuracySimulationManager.ConfigGenerator')
+    @patch('simulation.accuracy.AccuracySimulationManager.AccuracyCalculator')
+    @patch('simulation.accuracy.AccuracySimulationManager.AccuracyResultsManager')
     def test_initialization(
         self,
         mock_results_mgr,
@@ -159,9 +155,9 @@ class TestAccuracySimulationManagerInit:
         assert manager.parameter_order == TEST_PARAMETER_ORDER
         assert manager.num_test_values == 5
 
-    @patch('AccuracySimulationManager.ConfigGenerator')
-    @patch('AccuracySimulationManager.AccuracyCalculator')
-    @patch('AccuracySimulationManager.AccuracyResultsManager')
+    @patch('simulation.accuracy.AccuracySimulationManager.ConfigGenerator')
+    @patch('simulation.accuracy.AccuracySimulationManager.AccuracyCalculator')
+    @patch('simulation.accuracy.AccuracySimulationManager.AccuracyResultsManager')
     def test_discover_seasons(
         self,
         mock_results_mgr,
@@ -184,9 +180,9 @@ class TestAccuracySimulationManagerInit:
         assert len(manager.available_seasons) == 1
         assert manager.available_seasons[0].name == "2024"
 
-    @patch('AccuracySimulationManager.ConfigGenerator')
-    @patch('AccuracySimulationManager.AccuracyCalculator')
-    @patch('AccuracySimulationManager.AccuracyResultsManager')
+    @patch('simulation.accuracy.AccuracySimulationManager.ConfigGenerator')
+    @patch('simulation.accuracy.AccuracySimulationManager.AccuracyCalculator')
+    @patch('simulation.accuracy.AccuracySimulationManager.AccuracyResultsManager')
     def test_discover_seasons_multiple(
         self,
         mock_results_mgr,
@@ -214,9 +210,9 @@ class TestAccuracySimulationManagerInit:
         assert manager.available_seasons[0].name == "2023"
         assert manager.available_seasons[1].name == "2024"
 
-    @patch('AccuracySimulationManager.ConfigGenerator')
-    @patch('AccuracySimulationManager.AccuracyCalculator')
-    @patch('AccuracySimulationManager.AccuracyResultsManager')
+    @patch('simulation.accuracy.AccuracySimulationManager.ConfigGenerator')
+    @patch('simulation.accuracy.AccuracySimulationManager.AccuracyCalculator')
+    @patch('simulation.accuracy.AccuracySimulationManager.AccuracyResultsManager')
     def test_discover_seasons_no_valid_seasons_raises(
         self,
         mock_results_mgr,
@@ -261,9 +257,9 @@ class TestAccuracySimulationManagerSignalHandlers:
         data_folder.mkdir(parents=True)
         return tmp_path / "sim_data"
 
-    @patch('AccuracySimulationManager.ConfigGenerator')
-    @patch('AccuracySimulationManager.AccuracyCalculator')
-    @patch('AccuracySimulationManager.AccuracyResultsManager')
+    @patch('simulation.accuracy.AccuracySimulationManager.ConfigGenerator')
+    @patch('simulation.accuracy.AccuracySimulationManager.AccuracyCalculator')
+    @patch('simulation.accuracy.AccuracySimulationManager.AccuracyResultsManager')
     @patch('signal.signal')
     def test_setup_signal_handlers(
         self,
@@ -320,9 +316,9 @@ class TestAccuracySimulationManagerDataLoading:
 
         output_dir = tmp_path / "output"
 
-        with patch('AccuracySimulationManager.ConfigGenerator'), \
-             patch('AccuracySimulationManager.AccuracyCalculator'), \
-             patch('AccuracySimulationManager.AccuracyResultsManager'):
+        with patch('simulation.accuracy.AccuracySimulationManager.ConfigGenerator'), \
+             patch('simulation.accuracy.AccuracySimulationManager.AccuracyCalculator'), \
+             patch('simulation.accuracy.AccuracySimulationManager.AccuracyResultsManager'):
             return AccuracySimulationManager(
                 baseline_config_path=config_path,
                 output_dir=output_dir,
@@ -370,9 +366,9 @@ class TestAccuracySimulationManagerDataLoading:
 
         output_dir = tmp_path / "output"
 
-        with patch('AccuracySimulationManager.ConfigGenerator'), \
-             patch('AccuracySimulationManager.AccuracyCalculator'), \
-             patch('AccuracySimulationManager.AccuracyResultsManager'):
+        with patch('simulation.accuracy.AccuracySimulationManager.ConfigGenerator'), \
+             patch('simulation.accuracy.AccuracySimulationManager.AccuracyCalculator'), \
+             patch('simulation.accuracy.AccuracySimulationManager.AccuracyResultsManager'):
             manager = AccuracySimulationManager(
                 baseline_config_path=config_path,
                 output_dir=output_dir,
@@ -420,9 +416,9 @@ class TestAccuracySimulationManagerDataLoading:
 
         output_dir = tmp_path / "output"
 
-        with patch('AccuracySimulationManager.ConfigGenerator'), \
-             patch('AccuracySimulationManager.AccuracyCalculator'), \
-             patch('AccuracySimulationManager.AccuracyResultsManager'):
+        with patch('simulation.accuracy.AccuracySimulationManager.ConfigGenerator'), \
+             patch('simulation.accuracy.AccuracySimulationManager.AccuracyCalculator'), \
+             patch('simulation.accuracy.AccuracySimulationManager.AccuracyResultsManager'):
             manager = AccuracySimulationManager(
                 baseline_config_path=config_path,
                 output_dir=output_dir,
@@ -464,9 +460,9 @@ class TestAccuracySimulationManagerDataLoading:
 
         output_dir = tmp_path / "output"
 
-        with patch('AccuracySimulationManager.ConfigGenerator'), \
-             patch('AccuracySimulationManager.AccuracyCalculator'), \
-             patch('AccuracySimulationManager.AccuracyResultsManager'):
+        with patch('simulation.accuracy.AccuracySimulationManager.ConfigGenerator'), \
+             patch('simulation.accuracy.AccuracySimulationManager.AccuracyCalculator'), \
+             patch('simulation.accuracy.AccuracySimulationManager.AccuracyResultsManager'):
             manager = AccuracySimulationManager(
                 baseline_config_path=config_path,
                 output_dir=output_dir,
@@ -514,9 +510,9 @@ class TestAccuracySimulationManagerDataLoading:
         mock_calc.calculate_weekly_mae.return_value = MagicMock(mae=5.0)
         mock_calc.calculate_ranking_metrics_for_season.return_value = ({}, {})
 
-        with patch('AccuracySimulationManager.ConfigGenerator'), \
-             patch('AccuracySimulationManager.AccuracyCalculator', return_value=mock_calc), \
-             patch('AccuracySimulationManager.AccuracyResultsManager'):
+        with patch('simulation.accuracy.AccuracySimulationManager.ConfigGenerator'), \
+             patch('simulation.accuracy.AccuracySimulationManager.AccuracyCalculator', return_value=mock_calc), \
+             patch('simulation.accuracy.AccuracySimulationManager.AccuracyResultsManager'):
             manager = AccuracySimulationManager(
                 baseline_config_path=config_path,
                 output_dir=output_dir,
@@ -584,9 +580,9 @@ class TestAccuracySimulationManagerResumeState:
         output_dir = tmp_path / "output"
         output_dir.mkdir()
 
-        with patch('AccuracySimulationManager.ConfigGenerator'), \
-             patch('AccuracySimulationManager.AccuracyCalculator'), \
-             patch('AccuracySimulationManager.AccuracyResultsManager'):
+        with patch('simulation.accuracy.AccuracySimulationManager.ConfigGenerator'), \
+             patch('simulation.accuracy.AccuracySimulationManager.AccuracyCalculator'), \
+             patch('simulation.accuracy.AccuracySimulationManager.AccuracyResultsManager'):
             manager = AccuracySimulationManager(
                 baseline_config_path=config_path,
                 output_dir=output_dir,
