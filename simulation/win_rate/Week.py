@@ -13,18 +13,11 @@ Each week:
 Author: Kai Mizuno
 """
 
-import sys
-from pathlib import Path
 from typing import List, Tuple, Dict, Union
 
-# Add utils to path
-sys.path.append(str(Path(__file__).parent.parent.parent))
 from utils.LoggingManager import get_logger
-
-# Import team classes from same folder (win_rate/) - add to path for package imports
-sys.path.append(str(Path(__file__).parent))
-from DraftHelperTeam import DraftHelperTeam
-from SimulatedOpponent import SimulatedOpponent
+from simulation.win_rate.DraftHelperTeam import DraftHelperTeam
+from simulation.win_rate.SimulatedOpponent import SimulatedOpponent
 
 # Type alias for team (can be either DraftHelperTeam or SimulatedOpponent)
 Team = Union[DraftHelperTeam, SimulatedOpponent]

@@ -21,17 +21,9 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Any
 
-import sys
-sys.path.append(str(Path(__file__).parent.parent.parent))
 from utils.LoggingManager import get_logger
-
-# Import cleanup utilities
-sys.path.append(str(Path(__file__).parent.parent / "shared"))
-from config_cleanup import cleanup_old_accuracy_optimal_folders
-
-# Import from same folder
-sys.path.append(str(Path(__file__).parent))
-from AccuracyCalculator import AccuracyResult
+from simulation.shared.config_cleanup import cleanup_old_accuracy_optimal_folders
+from simulation.accuracy.AccuracyCalculator import AccuracyResult
 
 
 @dataclass

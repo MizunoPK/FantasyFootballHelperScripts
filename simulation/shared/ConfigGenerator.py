@@ -49,13 +49,8 @@ from pathlib import Path
 from typing import List, Dict, Tuple
 from itertools import product
 
-import sys
-sys.path.append(str(Path(__file__).parent.parent.parent))
 from utils.LoggingManager import get_logger
-
-# Import from same folder (shared/) - add to path for package imports
-sys.path.append(str(Path(__file__).parent))
-from ResultsManager import ResultsManager
+from simulation.shared.ResultsManager import ResultsManager
 
 # Import the class-level constants from ResultsManager
 BASE_CONFIG_PARAMS = ResultsManager.BASE_CONFIG_PARAMS

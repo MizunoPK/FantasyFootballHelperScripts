@@ -13,14 +13,9 @@ from pathlib import Path
 from typing import Dict, Optional, List, Tuple, Any
 from datetime import datetime
 
-import sys
-sys.path.append(str(Path(__file__).parent.parent.parent))
 from utils.LoggingManager import get_logger
-
-# Import from same folder (shared/) - add to path for package imports
-sys.path.append(str(Path(__file__).parent))
-from ConfigPerformance import ConfigPerformance, WEEK_RANGES
-from config_cleanup import cleanup_old_optimal_folders
+from simulation.shared.ConfigPerformance import ConfigPerformance, WEEK_RANGES
+from simulation.shared.config_cleanup import cleanup_old_optimal_folders
 
 
 class ResultsManager:
