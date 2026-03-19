@@ -22,11 +22,7 @@ import argparse
 import sys
 from pathlib import Path
 from utils.LoggingManager import setup_logger
-
-# Add simulation directory to path for imports
-# SimulationManager is now in simulation/win_rate/
-sys.path.append(str(Path(__file__).parent / "simulation" / "win_rate"))
-from SimulationManager import SimulationManager
+from simulation.win_rate.SimulationManager import SimulationManager
 
 
 # Logging configuration - adjust these settings to control verbosity

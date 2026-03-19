@@ -29,12 +29,7 @@ import signal
 import sys
 from pathlib import Path
 
-# Add simulation/accuracy to path
-sys.path.append(str(Path(__file__).parent / "simulation" / "accuracy"))
-from AccuracySimulationManager import AccuracySimulationManager
-
-# Add utils to path
-sys.path.append(str(Path(__file__).parent))
+from simulation.accuracy.AccuracySimulationManager import AccuracySimulationManager
 from utils.LoggingManager import setup_logger, get_logger
 
 
