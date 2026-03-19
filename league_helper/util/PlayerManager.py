@@ -321,7 +321,7 @@ class PlayerManager:
         if not player_data_dir.exists():
             raise FileNotFoundError(
                 f"Player data directory not found: {player_data_dir}\n"
-                "Run player-data-fetcher to generate JSON files."
+                "Run run_player_fetcher.py to generate JSON files."
             )
 
         all_players = []
@@ -456,7 +456,7 @@ class PlayerManager:
         This method selectively updates ONLY the drafted_by and locked fields
         in position-specific JSON files (qb_data.json, rb_data.json, etc.),
         preserving all other player data (projections, stats, etc.) from
-        the player-data-fetcher.
+        the player_data_fetcher.
 
         Uses atomic write pattern (temp file + rename).
 
@@ -469,7 +469,7 @@ class PlayerManager:
             - Preserves all other fields (projections, stats)
 
         Raises:
-            FileNotFoundError: If position JSON file missing (run player-data-fetcher)
+            FileNotFoundError: If position JSON file missing (run run_player_fetcher.py)
             PermissionError: If cannot write to files
             json.JSONDecodeError: If JSON file corrupted
 
@@ -503,7 +503,7 @@ class PlayerManager:
             if not json_path.exists():
                 error_msg = (
                     f"{position}_data.json not found in player_data/ directory. "
-                    f"Please run player-data-fetcher to create missing position files."
+                    f"Please run run_player_fetcher.py to create missing position files."
                 )
                 self.logger.error(error_msg)
                 raise FileNotFoundError(error_msg)

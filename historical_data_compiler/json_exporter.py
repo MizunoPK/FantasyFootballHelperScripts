@@ -6,7 +6,7 @@ Generates position-specific JSON files (qb_data.json, rb_data.json, etc.)
 for each week snapshot with point-in-time logic.
 
 Uses bridge adapter pattern to reuse stat extraction methods from
-player-data-fetcher/player_data_exporter.py without modifications.
+player_data_fetcher/player_data_exporter.py without modifications.
 
 Author: Kai Mizuno
 """

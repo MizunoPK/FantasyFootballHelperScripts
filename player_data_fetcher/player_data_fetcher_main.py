@@ -154,7 +154,7 @@ class NFLProjectionsCollector:
         if not schedule_path.exists():
             error_msg = (
                 f"Error: season_schedule.csv not found at {schedule_path}\n"
-                "Please run the schedule-data-fetcher first to generate this file:\n"
+                "Please run run_schedule_fetcher.py first to generate this file:\n"
                 "  python run_scores_fetcher.py"
             )
             self.logger.error(error_msg)

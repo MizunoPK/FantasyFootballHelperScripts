@@ -3,7 +3,7 @@
 Shared Fantasy Points Calculator
 
 This module provides standardized logic for extracting and calculating fantasy points
-from ESPN API data. Used by both player-data-fetcher and starter-helper to ensure
+from ESPN API data. Used by both player_data_fetcher and starter-helper to ensure
 consistent fantasy points calculations across the entire system.
 
 Key Features:
