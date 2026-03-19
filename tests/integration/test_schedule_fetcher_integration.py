@@ -14,9 +14,7 @@ import sys
 from pathlib import Path
 import shutil
 
-# Add project root to path
 project_root = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(project_root))
 
 from schedule_data_fetcher.ScheduleFetcher import ScheduleFetcher
 from utils.LoggingManager import setup_logger
