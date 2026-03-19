@@ -19,7 +19,6 @@ import pytest
 from unittest.mock import Mock, MagicMock, patch
 from typing import List
 
-# Imports work via conftest.py which adds the necessary paths
 from league_helper.util.player_scoring import PlayerScoringCalculator
 from league_helper.util.ConfigManager import ConfigManager
 from league_helper.util.ProjectedPointsManager import ProjectedPointsManager

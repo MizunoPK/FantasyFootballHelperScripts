@@ -16,7 +16,6 @@ import pytest
 from unittest.mock import Mock, patch
 from pathlib import Path
 
-# Imports work via conftest.py which adds league_helper/util to path
 from league_helper.util.TeamDataManager import TeamDataManager
 from league_helper.util.ConfigManager import ConfigManager
 from utils.TeamData import TeamData

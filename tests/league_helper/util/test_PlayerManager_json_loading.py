@@ -15,7 +15,6 @@ import json
 from pathlib import Path
 from unittest.mock import Mock, MagicMock
 
-# Imports work via conftest.py
 from league_helper.util.PlayerManager import PlayerManager
 from league_helper.util.ConfigManager import ConfigManager
 from league_helper.util.TeamDataManager import TeamDataManager

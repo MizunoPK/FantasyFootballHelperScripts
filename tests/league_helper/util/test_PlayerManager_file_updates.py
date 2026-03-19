@@ -19,7 +19,6 @@ from pathlib import Path
 from unittest.mock import Mock, MagicMock, patch, mock_open
 from io import StringIO
 
-# Imports work via conftest.py
 from league_helper.util.PlayerManager import PlayerManager
 from league_helper.util.ConfigManager import ConfigManager
 from league_helper.util.TeamDataManager import TeamDataManager

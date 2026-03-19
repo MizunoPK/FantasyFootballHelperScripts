@@ -21,7 +21,6 @@ from unittest.mock import Mock, MagicMock, patch
 from typing import List
 from pathlib import Path
 
-# Imports work via conftest.py which adds the necessary paths
 from league_helper.util.PlayerManager import PlayerManager
 from league_helper.util.ConfigManager import ConfigManager
 from league_helper.util.TeamDataManager import TeamDataManager

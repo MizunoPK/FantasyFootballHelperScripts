@@ -17,7 +17,6 @@ from unittest.mock import Mock, patch
 import json
 import tempfile
 
-# Imports work via conftest.py which adds the necessary paths
 from league_helper.util.ConfigManager import ConfigManager, ConfigKeys
 
 

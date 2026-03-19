@@ -18,7 +18,6 @@ import pytest
 from unittest.mock import Mock, MagicMock, patch
 from typing import List
 
-# Imports work via conftest.py which adds league_helper/util to path
 from league_helper.util.FantasyTeam import FantasyTeam
 from league_helper.util.ConfigManager import ConfigManager
 import league_helper.constants as Constants
