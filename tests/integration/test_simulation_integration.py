@@ -11,12 +11,10 @@ Author: Kai Mizuno
 """
 
 import pytest
-import sys
 from pathlib import Path
 from unittest.mock import Mock, patch, MagicMock
 import json
 
-# Add project root to path
 project_root = Path(__file__).parent.parent.parent
 
 from simulation.shared.ConfigGenerator import ConfigGenerator
