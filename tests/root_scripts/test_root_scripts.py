@@ -14,9 +14,7 @@ from pathlib import Path
 from unittest.mock import Mock, MagicMock, patch, call
 from io import StringIO
 
-# Add project root to path
 project_root = Path(__file__).parent.parent.parent
-sys.path.append(str(project_root))
 
 
 # ============================================================================

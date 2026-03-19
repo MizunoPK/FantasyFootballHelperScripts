@@ -9,14 +9,11 @@ Part of Feature 07 (KAI-8-logging_refactoring)
 """
 
 import pytest
-import sys
 from pathlib import Path
 import argparse
 
 
-# Add project root to path for imports
 project_root = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(project_root))
 
 
 class TestCLIFlagParsing:
