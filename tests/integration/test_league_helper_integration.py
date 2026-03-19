@@ -18,7 +18,6 @@ from pathlib import Path
 from unittest.mock import Mock, patch, MagicMock
 from io import StringIO
 
-# Add project root to path
 project_root = Path(__file__).parent.parent.parent
 
 from league_helper.LeagueHelperManager import LeagueHelperManager
