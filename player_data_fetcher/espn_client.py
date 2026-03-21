@@ -11,23 +11,18 @@ Author: Kai Mizuno
 import asyncio
 import csv
 from contextlib import asynccontextmanager
-from pathlib import Path
 from typing import Dict, List, Any, Optional, Set
 import math
 
 import httpx
 from tenacity import retry, stop_after_attempt, wait_random_exponential
 
-from player_data_models import ESPNPlayerData, ScoringFormat
-from pathlib import Path
-from fantasy_points_calculator import FantasyPointsExtractor, FantasyPointsConfig
-from player_data_constants import (
+from player_data_fetcher.player_data_models import ESPNPlayerData, ScoringFormat
+from player_data_fetcher.fantasy_points_calculator import FantasyPointsExtractor, FantasyPointsConfig
+from player_data_fetcher.player_data_constants import (
     ESPN_TEAM_MAPPINGS, ESPN_POSITION_MAPPINGS
 )
-from config import ESPN_USER_AGENT
-
-import sys
-sys.path.append(str(Path(__file__).parent.parent))
+from player_data_fetcher.config import ESPN_USER_AGENT
 from utils.LoggingManager import get_logger
 
 
@@ -1435,7 +1430,7 @@ class ESPNClient(BaseAPIClient):
         Returns:
             ESPN defaultPositionId, or -1 if unknown
         """
-        from player_data_constants import ESPN_POSITION_MAPPINGS
+        from player_data_fetcher.player_data_constants import ESPN_POSITION_MAPPINGS
 
         # Handle D/ST alias
         if position == 'D/ST':
@@ -1448,7 +1443,7 @@ class ESPNClient(BaseAPIClient):
 
     async def _parse_espn_data(self, data: Dict[str, Any]) -> List[ESPNPlayerData]:
         """Parse ESPN API response into ESPNPlayerData objects"""
-        from config import PROGRESS_ETA_WINDOW_SIZE
+        from player_data_fetcher.config import PROGRESS_ETA_WINDOW_SIZE
 
         projections = []
         unknown_position_count = 0  # Track players filtered due to unknown positions
@@ -1468,7 +1463,7 @@ class ESPNClient(BaseAPIClient):
         self.logger.info(f"Processing {len(players)} players from ESPN API")
 
         # Initialize progress tracker if enabled
-        from progress_tracker import ProgressTracker
+        from player_data_fetcher.progress_tracker import ProgressTracker
         progress_tracker = ProgressTracker(
             total_players=len(players),
             logger=self.logger,

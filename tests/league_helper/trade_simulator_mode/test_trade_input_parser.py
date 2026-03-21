@@ -8,11 +8,6 @@ Author: Kai Mizuno
 """
 
 import pytest
-import sys
-from pathlib import Path
-
-# Add parent directories to path
-sys.path.append(str(Path(__file__).parent.parent.parent.parent))
 from utils.FantasyPlayer import FantasyPlayer
 from league_helper.trade_simulator_mode.trade_input_parser import TradeInputParser
 

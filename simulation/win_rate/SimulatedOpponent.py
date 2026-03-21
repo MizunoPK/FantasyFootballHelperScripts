@@ -14,23 +14,13 @@ Strategies:
 Author: Kai Mizuno
 """
 
-import sys
 import random
-from pathlib import Path
 from typing import List, Optional
 
-# Add league_helper to path
-project_root = Path(__file__).parent.parent.parent
-sys.path.append(str(project_root))
-sys.path.append(str(project_root / "league_helper"))
-sys.path.append(str(project_root / "league_helper" / "util"))
 from league_helper.util.PlayerManager import PlayerManager
 from league_helper.util.ConfigManager import ConfigManager
 from league_helper.util.TeamDataManager import TeamDataManager
 import league_helper.constants as Constants
-
-# Add utils to path
-sys.path.append(str(project_root))
 from utils.FantasyPlayer import FantasyPlayer
 from utils.LoggingManager import get_logger
 

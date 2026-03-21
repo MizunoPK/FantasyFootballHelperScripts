@@ -13,8 +13,7 @@ import pytest
 from unittest.mock import Mock, patch, call
 from io import StringIO
 
-# Imports work via conftest.py which adds league_helper/util to path
-from util.user_input import show_list_selection
+from league_helper.util.user_input import show_list_selection
 
 
 # ============================================================================

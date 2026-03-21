@@ -24,27 +24,18 @@ import json
 import re
 import shutil
 import signal
-import sys
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Any
 
 # Third-party imports
 import numpy as np
 
-# Add parent directories to path for imports
-sys.path.append(str(Path(__file__).parent.parent.parent))
-sys.path.append(str(Path(__file__).parent.parent / "shared"))
-sys.path.append(str(Path(__file__).parent))
-sys.path.append(str(Path(__file__).parent.parent.parent / "league_helper"))
-sys.path.append(str(Path(__file__).parent.parent.parent / "league_helper" / "util"))
-
-# Local imports
 from utils.LoggingManager import get_logger
-from ConfigGenerator import ConfigGenerator
-from ProgressTracker import ProgressTracker
-from config_cleanup import cleanup_old_accuracy_optimal_folders, cleanup_accuracy_intermediate_folders
-from AccuracyCalculator import AccuracyCalculator, AccuracyResult
-from AccuracyResultsManager import AccuracyResultsManager, RankingMetrics, WEEK_RANGES
+from simulation.shared.ConfigGenerator import ConfigGenerator
+from simulation.shared.ProgressTracker import ProgressTracker
+from simulation.shared.config_cleanup import cleanup_old_accuracy_optimal_folders, cleanup_accuracy_intermediate_folders
+from simulation.accuracy.AccuracyCalculator import AccuracyCalculator, AccuracyResult
+from simulation.accuracy.AccuracyResultsManager import AccuracyResultsManager, RankingMetrics, WEEK_RANGES
 from league_helper.util.PlayerManager import PlayerManager
 from league_helper.util.ConfigManager import ConfigManager
 from league_helper.util.TeamDataManager import TeamDataManager

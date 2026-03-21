@@ -9,11 +9,6 @@ Author: Kai Mizuno
 """
 
 import pytest
-from pathlib import Path
-import sys
-
-# Add parent directory to path for imports
-sys.path.append(str(Path(__file__).parent.parent.parent))
 from league_helper import constants
 
 

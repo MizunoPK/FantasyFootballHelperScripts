@@ -8,11 +8,7 @@ Author: Kai Mizuno
 
 import pytest
 from unittest.mock import Mock, MagicMock
-import sys
-from pathlib import Path
 
-# Add project root to path
-sys.path.append(str(Path(__file__).parent.parent.parent))
 from simulation.win_rate.Week import Week, WeekResult
 
 

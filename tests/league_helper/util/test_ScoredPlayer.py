@@ -10,7 +10,7 @@ Date: 2025-10-10
 """
 
 import pytest
-from util.ScoredPlayer import ScoredPlayer
+from league_helper.util.ScoredPlayer import ScoredPlayer
 from utils.FantasyPlayer import FantasyPlayer
 
 

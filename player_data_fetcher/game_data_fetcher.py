@@ -13,7 +13,6 @@ Uses sync HTTP (httpx) and dual Open-Meteo API approach:
 Author: Kai Mizuno
 """
 
-import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Dict, List, Optional, Set, Any
@@ -21,13 +20,11 @@ from typing import Dict, List, Optional, Set, Any
 import httpx
 import pandas as pd
 
-# Add parent directory to path for utils access
-sys.path.append(str(Path(__file__).parent.parent))
 from utils.LoggingManager import get_logger
 
-from game_data_models import GameData, GAME_DATA_CSV_COLUMNS
-from coordinates_manager import CoordinatesManager
-from config import COORDINATES_JSON
+from player_data_fetcher.game_data_models import GameData, GAME_DATA_CSV_COLUMNS
+from player_data_fetcher.coordinates_manager import CoordinatesManager
+from player_data_fetcher.config import COORDINATES_JSON
 
 
 class GameDataFetcher:

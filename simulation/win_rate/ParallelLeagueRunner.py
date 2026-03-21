@@ -23,13 +23,8 @@ import threading
 import gc
 import multiprocessing
 
-import sys
-sys.path.append(str(Path(__file__).parent.parent.parent))
 from utils.LoggingManager import get_logger
-
-# Import from same folder (win_rate/) - add to path for package imports
-sys.path.append(str(Path(__file__).parent))
-from SimulatedLeague import SimulatedLeague
+from simulation.win_rate.SimulatedLeague import SimulatedLeague
 
 
 # Garbage collection frequency - force GC every N simulations to prevent memory accumulation

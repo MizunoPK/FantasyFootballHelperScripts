@@ -11,15 +11,10 @@ import json
 from unittest.mock import Mock, patch, MagicMock
 from datetime import datetime, timezone, timedelta
 import pandas as pd
-import sys
 from pathlib import Path
 
-# Add project root to path
-sys.path.append(str(Path(__file__).parent.parent.parent))
-sys.path.append(str(Path(__file__).parent.parent.parent / "player-data-fetcher"))
-
-from game_data_fetcher import GameDataFetcher, fetch_game_data
-from game_data_models import GameData
+from player_data_fetcher.game_data_fetcher import GameDataFetcher, fetch_game_data
+from player_data_fetcher.game_data_models import GameData
 
 
 class TestGameDataFetcherInitialization:
@@ -31,7 +26,7 @@ class TestGameDataFetcherInitialization:
         data_folder.mkdir()
 
         # Create a minimal coordinates file
-        coords_file = Path(__file__).parent.parent.parent / "player-data-fetcher" / "coordinates.json"
+        coords_file = Path(__file__).parent.parent.parent / "player_data_fetcher" / "coordinates.json"
 
         with patch.object(GameDataFetcher, '__init__', lambda self, **kwargs: None):
             fetcher = GameDataFetcher.__new__(GameDataFetcher)
@@ -269,7 +264,7 @@ class TestFetchWeatherForGame:
             assert weather["gust"] is None
             assert weather["precipitation"] is None
 
-    @patch('game_data_fetcher.httpx.get')
+    @patch('player_data_fetcher.game_data_fetcher.httpx.get')
     def test_outdoor_game_fetches_weather(self, mock_get):
         """Test outdoor games fetch weather from API"""
         mock_coords_manager = Mock()
@@ -341,7 +336,7 @@ class TestFetchWeatherForGame:
 class TestFetchEspnScoreboard:
     """Test _fetch_espn_scoreboard method"""
 
-    @patch('game_data_fetcher.httpx.get')
+    @patch('player_data_fetcher.game_data_fetcher.httpx.get')
     def test_fetch_scoreboard_success(self, mock_get):
         """Test successful ESPN API fetch"""
         mock_response = Mock()
@@ -366,7 +361,7 @@ class TestFetchEspnScoreboard:
             assert "events" in result
             assert len(result["events"]) == 1
 
-    @patch('game_data_fetcher.httpx.get')
+    @patch('player_data_fetcher.game_data_fetcher.httpx.get')
     def test_fetch_scoreboard_error_returns_empty(self, mock_get):
         """Test ESPN API error returns empty events"""
         import httpx
@@ -513,7 +508,7 @@ class TestBackfillPreviousWeekScores:
 class TestFetchGameDataConvenienceFunction:
     """Test fetch_game_data convenience function"""
 
-    @patch('game_data_fetcher.GameDataFetcher')
+    @patch('player_data_fetcher.game_data_fetcher.GameDataFetcher')
     def test_fetch_game_data_default_params(self, mock_fetcher_class, tmp_path):
         """Test convenience function with default parameters"""
         mock_fetcher = Mock()
@@ -525,13 +520,13 @@ class TestFetchGameDataConvenienceFunction:
         output_file = tmp_path / "game_data.csv"
         output_file.write_text("week,home_team\n")
 
-        with patch('game_data_fetcher.get_logger'):
+        with patch('player_data_fetcher.game_data_fetcher.get_logger'):
             result = fetch_game_data(output_path=output_file)
 
             mock_fetcher.fetch_all.assert_called_once()
             mock_fetcher.save_to_csv.assert_called_once()
 
-    @patch('game_data_fetcher.GameDataFetcher')
+    @patch('player_data_fetcher.game_data_fetcher.GameDataFetcher')
     def test_fetch_game_data_custom_weeks(self, mock_fetcher_class, tmp_path):
         """Test convenience function with specific weeks"""
         mock_fetcher = Mock()
@@ -542,7 +537,7 @@ class TestFetchGameDataConvenienceFunction:
         output_file = tmp_path / "game_data.csv"
         output_file.write_text("week,home_team\n")
 
-        with patch('game_data_fetcher.get_logger'):
+        with patch('player_data_fetcher.game_data_fetcher.get_logger'):
             result = fetch_game_data(output_path=output_file, weeks=[1, 2, 3])
 
             assert mock_fetcher._fetch_games_for_week.call_count == 3
@@ -664,7 +659,7 @@ class TestGameDataFetcherKAI10:
         """I-9: GameDataFetcher stores request_timeout as self.request_timeout"""
         data_folder = tmp_path / "data"
         data_folder.mkdir()
-        with patch('game_data_fetcher.CoordinatesManager'):
+        with patch('player_data_fetcher.game_data_fetcher.CoordinatesManager'):
             fetcher = GameDataFetcher(
                 data_folder=data_folder,
                 request_timeout=45

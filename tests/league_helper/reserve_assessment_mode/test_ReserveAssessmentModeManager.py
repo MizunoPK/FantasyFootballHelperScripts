@@ -15,13 +15,8 @@ Author: Kai Mizuno
 import pytest
 from unittest.mock import Mock, MagicMock, patch, call, mock_open
 from typing import List, Dict
-from pathlib import Path
 import csv
 from io import StringIO
-
-# Test imports
-import sys
-sys.path.append(str(Path(__file__).parent.parent.parent.parent))
 
 from league_helper.reserve_assessment_mode.ReserveAssessmentModeManager import ReserveAssessmentModeManager
 from league_helper.util.ConfigManager import ConfigManager

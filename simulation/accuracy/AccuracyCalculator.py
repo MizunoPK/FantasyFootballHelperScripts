@@ -15,19 +15,11 @@ Player Filtering Rules (from specs):
 Author: Kai Mizuno
 """
 
-# Standard library imports
-import sys
-from pathlib import Path
 from typing import List, Dict, Tuple, Optional, Any
 
-# Third-party imports
 import numpy as np
 from scipy.stats import spearmanr
 
-# Add parent directory to path
-sys.path.append(str(Path(__file__).parent.parent.parent))
-
-# Local imports
 from utils.LoggingManager import get_logger
 
 

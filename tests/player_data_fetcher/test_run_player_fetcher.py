@@ -9,12 +9,8 @@ Author: Kai Mizuno
 """
 
 import pytest
-import sys
 from pathlib import Path
 from unittest.mock import patch
-
-# Add project root to path
-sys.path.append(str(Path(__file__).parent.parent.parent))
 
 import run_player_fetcher
 from run_player_fetcher import parse_args, create_settings_dict

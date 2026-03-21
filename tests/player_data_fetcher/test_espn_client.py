@@ -9,18 +9,12 @@ Author: Kai Mizuno
 """
 
 import pytest
-from pathlib import Path
-import sys
 
-# Add project root and player-data-fetcher to path
-sys.path.append(str(Path(__file__).parent.parent.parent))
-sys.path.append(str(Path(__file__).parent.parent.parent / "player-data-fetcher"))
-
-from espn_client import (
+from player_data_fetcher.espn_client import (
     ESPNAPIError, ESPNRateLimitError, ESPNServerError,
     BaseAPIClient, ESPNClient
 )
-from player_data_fetcher_main import Settings
+from player_data_fetcher.player_data_fetcher_main import Settings
 
 
 class TestCustomExceptions:
@@ -152,7 +146,7 @@ class TestModuleImports:
 
     def test_import_exceptions(self):
         """Test custom exception classes can be imported"""
-        from espn_client import ESPNAPIError, ESPNRateLimitError, ESPNServerError
+        from player_data_fetcher.espn_client import ESPNAPIError, ESPNRateLimitError, ESPNServerError
 
         assert ESPNAPIError is not None
         assert ESPNRateLimitError is not None
@@ -160,13 +154,13 @@ class TestModuleImports:
 
     def test_import_base_client(self):
         """Test BaseAPIClient can be imported"""
-        from espn_client import BaseAPIClient
+        from player_data_fetcher.espn_client import BaseAPIClient
 
         assert BaseAPIClient is not None
 
     def test_import_espn_client(self):
         """Test ESPNClient can be imported"""
-        from espn_client import ESPNClient
+        from player_data_fetcher.espn_client import ESPNClient
 
         assert ESPNClient is not None
 
@@ -385,17 +379,17 @@ class TestESPNClientSettingsKAI10:
 
     def test_espn_player_limit_not_imported_from_config(self):
         """6.1: espn_client module does not have ESPN_PLAYER_LIMIT from config"""
-        import espn_client
+        import player_data_fetcher.espn_client as espn_client
         assert not hasattr(espn_client, 'ESPN_PLAYER_LIMIT')
 
     def test_current_nfl_week_not_imported_at_module_level(self):
         """6.2: espn_client module does not have CURRENT_NFL_WEEK from config at module level"""
-        import espn_client
+        import player_data_fetcher.espn_client as espn_client
         assert not hasattr(espn_client, 'CURRENT_NFL_WEEK')
 
     def test_espn_user_agent_still_imported(self):
         """6.3: ESPN_USER_AGENT is still imported in espn_client (non-CLI constant)"""
-        import espn_client
+        import player_data_fetcher.espn_client as espn_client
         assert hasattr(espn_client, 'ESPN_USER_AGENT')
         assert isinstance(espn_client.ESPN_USER_AGENT, str)
         assert len(espn_client.ESPN_USER_AGENT) > 0

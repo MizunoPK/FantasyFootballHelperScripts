@@ -11,23 +11,17 @@ Author: Kai Mizuno
 """
 
 import pytest
-import sys
 from pathlib import Path
 from unittest.mock import Mock, patch, MagicMock
 import json
 
-# Add project root to path
 project_root = Path(__file__).parent.parent.parent
-sys.path.append(str(project_root))
 
-# Simulation imports - now in subfolders
-sys.path.append(str(project_root / "simulation" / "shared"))
-sys.path.append(str(project_root / "simulation" / "win_rate"))
-from ConfigGenerator import ConfigGenerator
-from SimulationManager import SimulationManager
-from ParallelLeagueRunner import ParallelLeagueRunner
-from ResultsManager import ResultsManager
-from ConfigPerformance import ConfigPerformance
+from simulation.shared.ConfigGenerator import ConfigGenerator
+from simulation.win_rate.SimulationManager import SimulationManager
+from simulation.win_rate.ParallelLeagueRunner import ParallelLeagueRunner
+from simulation.shared.ResultsManager import ResultsManager
+from simulation.shared.ConfigPerformance import ConfigPerformance
 
 # Standard parameter order for testing
 TEST_PARAMETER_ORDER = [

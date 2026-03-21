@@ -8,14 +8,8 @@ Author: Kai Mizuno
 
 import pytest
 from pydantic import ValidationError
-import sys
-from pathlib import Path
 
-# Add project root to path
-sys.path.append(str(Path(__file__).parent.parent.parent))
-sys.path.append(str(Path(__file__).parent.parent.parent / "player-data-fetcher"))
-
-from game_data_models import GameData, GAME_DATA_CSV_COLUMNS
+from player_data_fetcher.game_data_models import GameData, GAME_DATA_CSV_COLUMNS
 
 
 class TestGameDataInitialization:

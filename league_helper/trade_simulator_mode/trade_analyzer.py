@@ -10,25 +10,16 @@ Author: Kai Mizuno
 import copy
 from typing import Dict, List, Optional, Tuple
 from itertools import combinations
-from pathlib import Path
 
-import sys
-sys.path.append(str(Path(__file__).parent))
-import constants as Constants
-
-sys.path.append(str(Path(__file__).parent.parent))
-from util.PlayerManager import PlayerManager
-from util.ConfigManager import ConfigManager
-from util.FantasyTeam import FantasyTeam
-from util.ScoredPlayer import ScoredPlayer
-
-# Add parent directory to path for utils imports
-sys.path.append(str(Path(__file__).parent.parent.parent))
+import league_helper.constants as Constants
+from league_helper.util.PlayerManager import PlayerManager
+from league_helper.util.ConfigManager import ConfigManager
+from league_helper.util.FantasyTeam import FantasyTeam
+from league_helper.util.ScoredPlayer import ScoredPlayer
 from utils.FantasyPlayer import FantasyPlayer
 from utils.LoggingManager import get_logger
-
-from trade_simulator_mode.TradeSimTeam import TradeSimTeam
-from trade_simulator_mode.TradeSnapshot import TradeSnapshot
+from league_helper.trade_simulator_mode.TradeSimTeam import TradeSimTeam
+from league_helper.trade_simulator_mode.TradeSnapshot import TradeSnapshot
 
 
 class TradeAnalyzer:

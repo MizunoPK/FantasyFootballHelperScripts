@@ -18,9 +18,6 @@ from pathlib import Path
 from unittest.mock import Mock, MagicMock, patch
 from typing import List
 
-import sys
-sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
-
 from utils.FantasyPlayer import FantasyPlayer
 from league_helper.trade_simulator_mode.TradeSimTeam import TradeSimTeam
 from league_helper.trade_simulator_mode.TradeSnapshot import TradeSnapshot

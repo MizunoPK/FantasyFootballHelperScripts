@@ -8,12 +8,6 @@ Author: Kai Mizuno
 """
 
 import pytest
-from pathlib import Path
-import sys
-
-# Add project root to path
-project_root = Path(__file__).parent.parent.parent
-sys.path.append(str(project_root))
 
 from simulation.utils.scheduler import (
     generate_round_robin,

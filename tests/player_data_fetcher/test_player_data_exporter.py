@@ -11,14 +11,9 @@ import pytest
 import asyncio
 from unittest.mock import Mock, patch, AsyncMock
 from pathlib import Path
-import sys
 
-# Add project root and player-data-fetcher to path
-sys.path.append(str(Path(__file__).parent.parent.parent))
-sys.path.append(str(Path(__file__).parent.parent.parent / "player-data-fetcher"))
-
-from player_data_exporter import DataExporter
-from player_data_models import ProjectionData, PlayerProjection
+from player_data_fetcher.player_data_exporter import DataExporter
+from player_data_fetcher.player_data_models import ProjectionData, PlayerProjection
 
 
 class TestDataExporterInit:
@@ -113,7 +108,7 @@ class TestPositionJSONExport:
     @pytest.mark.asyncio
     async def test_position_json_files_created(self, tmp_path):
         """Test that position JSON files are created (regression test)"""
-        output_dir = tmp_path / "player-data-fetcher" / "data"
+        output_dir = tmp_path / "player_data_fetcher" / "data"
 
         exporter = DataExporter(output_dir=str(output_dir))
 

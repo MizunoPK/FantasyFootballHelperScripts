@@ -21,11 +21,7 @@ import statistics
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
-import sys
-sys.path.append(str(Path(__file__).parent.parent))
-import constants as Constants
-
-sys.path.append(str(Path(__file__).parent.parent.parent))
+import league_helper.constants as Constants
 from historical_data_compiler.constants import ALL_NFL_TEAMS
 from utils.LoggingManager import get_logger
 from utils.FantasyPlayer import FantasyPlayer

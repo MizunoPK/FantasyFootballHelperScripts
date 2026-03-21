@@ -35,32 +35,25 @@ class TestINFOLogBehavior:
         """
         # Verify all win_rate modules can be imported successfully
         # (INFO changes should not break module loading)
-        import sys
-        from pathlib import Path
-
-        # Add simulation/win_rate to path
-        win_rate_path = project_root / 'simulation' / 'win_rate'
-        if str(win_rate_path) not in sys.path:
-            sys.path.insert(0, str(win_rate_path))
 
         # Import key modules (will fail if syntax errors from INFO changes)
         try:
-            import SimulationManager
-            import ParallelLeagueRunner
-            import SimulatedLeague
-            import DraftHelperTeam
-            import SimulatedOpponent
-            import Week
+            from simulation.win_rate.SimulationManager import SimulationManager
+            from simulation.win_rate.ParallelLeagueRunner import ParallelLeagueRunner
+            from simulation.win_rate.SimulatedLeague import SimulatedLeague
+            from simulation.win_rate.DraftHelperTeam import DraftHelperTeam
+            from simulation.win_rate.SimulatedOpponent import SimulatedOpponent
+            from simulation.win_rate.Week import Week
         except Exception as e:
             raise AssertionError(
                 f"Module import failed after INFO changes: {e}"
             )
 
-        # Verify modules have expected classes
-        assert hasattr(SimulationManager, 'SimulationManager'), (
+        # Verify classes are accessible
+        assert SimulationManager is not None, (
             "SimulationManager class not found"
         )
-        assert hasattr(ParallelLeagueRunner, 'ParallelLeagueRunner'), (
+        assert ParallelLeagueRunner is not None, (
             "ParallelLeagueRunner class not found"
         )
 

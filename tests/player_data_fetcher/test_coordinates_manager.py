@@ -9,14 +9,8 @@ Author: Kai Mizuno
 import pytest
 import json
 from unittest.mock import Mock, patch, MagicMock
-import sys
-from pathlib import Path
 
-# Add project root to path
-sys.path.append(str(Path(__file__).parent.parent.parent))
-sys.path.append(str(Path(__file__).parent.parent.parent / "player-data-fetcher"))
-
-from coordinates_manager import CoordinatesManager
+from player_data_fetcher.coordinates_manager import CoordinatesManager
 
 
 class TestCoordinatesManagerInitialization:
@@ -217,7 +211,7 @@ class TestGetOrFetchCoordinates:
         result = manager.get_or_fetch_coordinates()
         assert result is None
 
-    @patch('coordinates_manager.httpx.get')
+    @patch('player_data_fetcher.coordinates_manager.httpx.get')
     def test_fetch_international_from_api(self, mock_get, tmp_path):
         """Test fetching international venue from geocoding API"""
         coords_file = tmp_path / "coordinates.json"
@@ -252,7 +246,7 @@ class TestGetOrFetchCoordinates:
         cached = manager.get_international_venue("Sao Paulo", "Brazil")
         assert cached["lat"] == -23.5505
 
-    @patch('coordinates_manager.httpx.get')
+    @patch('player_data_fetcher.coordinates_manager.httpx.get')
     def test_fetch_saves_to_file(self, mock_get, tmp_path):
         """Test that fetched coordinates are saved to file"""
         coords_file = tmp_path / "coordinates.json"
@@ -287,7 +281,7 @@ class TestGetOrFetchCoordinates:
 class TestFetchCoordinatesFromApi:
     """Test _fetch_coordinates_from_api private method"""
 
-    @patch('coordinates_manager.httpx.get')
+    @patch('player_data_fetcher.coordinates_manager.httpx.get')
     def test_fetch_success(self, mock_get, tmp_path):
         """Test successful API fetch"""
         coords_file = tmp_path / "coordinates.json"
@@ -312,7 +306,7 @@ class TestFetchCoordinatesFromApi:
         assert result["lon"] == 2.3522
         assert result["tz"] == "Europe/Paris"
 
-    @patch('coordinates_manager.httpx.get')
+    @patch('player_data_fetcher.coordinates_manager.httpx.get')
     def test_fetch_api_error(self, mock_get, tmp_path):
         """Test API error handling"""
         coords_file = tmp_path / "coordinates.json"
@@ -327,7 +321,7 @@ class TestFetchCoordinatesFromApi:
 
         assert result is None
 
-    @patch('coordinates_manager.httpx.get')
+    @patch('player_data_fetcher.coordinates_manager.httpx.get')
     def test_fetch_no_results(self, mock_get, tmp_path):
         """Test handling of empty results"""
         coords_file = tmp_path / "coordinates.json"
@@ -343,7 +337,7 @@ class TestFetchCoordinatesFromApi:
 
         assert result is None
 
-    @patch('coordinates_manager.httpx.get')
+    @patch('player_data_fetcher.coordinates_manager.httpx.get')
     def test_fetch_network_error(self, mock_get, tmp_path):
         """Test handling of network errors"""
         coords_file = tmp_path / "coordinates.json"
@@ -357,7 +351,7 @@ class TestFetchCoordinatesFromApi:
 
         assert result is None
 
-    @patch('coordinates_manager.httpx.get')
+    @patch('player_data_fetcher.coordinates_manager.httpx.get')
     def test_fetch_missing_timezone(self, mock_get, tmp_path):
         """Test handling of missing timezone in response"""
         coords_file = tmp_path / "coordinates.json"
@@ -480,7 +474,7 @@ class TestCountryNormalization:
 
         assert manager.COUNTRY_NORMALIZATION.get("USA", "USA") == "USA"
 
-    @patch('coordinates_manager.httpx.get')
+    @patch('player_data_fetcher.coordinates_manager.httpx.get')
     def test_fetch_uses_normalized_country(self, mock_get, tmp_path):
         """Test that geocoding API call uses normalized country name"""
         coords_file = tmp_path / "coordinates.json"
@@ -534,7 +528,7 @@ class TestIntegrationScenarios:
         assert home_coords["tz"] == "America/Chicago"
         assert away_coords["tz"] == "America/New_York"
 
-    @patch('coordinates_manager.httpx.get')
+    @patch('player_data_fetcher.coordinates_manager.httpx.get')
     def test_workflow_international_game(self, mock_get, tmp_path):
         """Test typical workflow for international game"""
         coords_file = tmp_path / "coordinates.json"

@@ -9,11 +9,6 @@ Author: Kai Mizuno
 
 import pytest
 from unittest.mock import Mock, MagicMock, patch, mock_open
-import sys
-from pathlib import Path
-
-# Add parent directories to path
-sys.path.append(str(Path(__file__).parent.parent.parent.parent))
 from league_helper.trade_simulator_mode.trade_file_writer import TradeFileWriter
 from league_helper.trade_simulator_mode.TradeSimTeam import TradeSimTeam
 from league_helper.trade_simulator_mode.TradeSnapshot import TradeSnapshot

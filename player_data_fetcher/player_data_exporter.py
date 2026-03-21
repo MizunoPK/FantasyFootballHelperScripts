@@ -12,13 +12,11 @@ import asyncio
 from pathlib import Path
 from typing import List, Dict, Optional
 import json
-import sys
 
 import aiofiles
 
-from player_data_models import ProjectionData, ESPNPlayerData
+from player_data_fetcher.player_data_models import ProjectionData, ESPNPlayerData
 
-sys.path.append(str(Path(__file__).parent.parent))
 from utils.FantasyPlayer import FantasyPlayer
 from utils.TeamData import save_team_weekly_data
 from utils.data_file_manager import DataFileManager

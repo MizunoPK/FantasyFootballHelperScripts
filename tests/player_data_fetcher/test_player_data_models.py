@@ -9,14 +9,8 @@ Author: Kai Mizuno
 import pytest
 from datetime import datetime
 from pydantic import ValidationError
-import sys
-from pathlib import Path
 
-# Add project root to path
-sys.path.append(str(Path(__file__).parent.parent.parent))
-sys.path.append(str(Path(__file__).parent.parent.parent / "player-data-fetcher"))
-
-from player_data_models import (
+from player_data_fetcher.player_data_models import (
     ScoringFormat,
     ESPNPlayerData,
     PlayerProjection,

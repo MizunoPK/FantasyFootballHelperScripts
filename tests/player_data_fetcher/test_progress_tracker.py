@@ -9,15 +9,9 @@ Author: Kai Mizuno
 
 import pytest
 from unittest.mock import Mock
-from pathlib import Path
-import sys
 import time
 
-# Add project root and player-data-fetcher to path
-sys.path.append(str(Path(__file__).parent.parent.parent))
-sys.path.append(str(Path(__file__).parent.parent.parent / "player-data-fetcher"))
-
-from progress_tracker import ProgressTracker
+from player_data_fetcher.progress_tracker import ProgressTracker
 
 
 class TestProgressTrackerInit:

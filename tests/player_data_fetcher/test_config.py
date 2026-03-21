@@ -10,14 +10,8 @@ Author: Kai Mizuno
 """
 
 import pytest
-from pathlib import Path
-import sys
 
-# Add project root and player-data-fetcher to path
-sys.path.append(str(Path(__file__).parent.parent.parent))
-sys.path.append(str(Path(__file__).parent.parent.parent / "player-data-fetcher"))
-
-import config
+from player_data_fetcher import config
 
 
 class TestLoggingConfiguration:

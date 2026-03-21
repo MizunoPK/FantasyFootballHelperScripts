@@ -10,14 +10,11 @@ Author: Kai Mizuno
 """
 
 import json
-import sys
 from pathlib import Path
 from typing import Dict, Optional, Any
 
 import httpx
 
-# Add parent directory to path for utils access
-sys.path.append(str(Path(__file__).parent.parent))
 from utils.LoggingManager import get_logger
 
 

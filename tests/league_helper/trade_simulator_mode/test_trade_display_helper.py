@@ -9,18 +9,11 @@ Author: Claude Code
 """
 
 import pytest
-import sys
-from pathlib import Path
 from unittest.mock import Mock, MagicMock
 from typing import List
-
-# Add league_helper to path
-sys.path.append(str(Path(__file__).parent.parent.parent.parent / "league_helper"))
-from trade_simulator_mode.trade_display_helper import TradeDisplayHelper
-from trade_simulator_mode.TradeSnapshot import TradeSnapshot
-from trade_simulator_mode.TradeSimTeam import TradeSimTeam
-
-sys.path.append(str(Path(__file__).parent.parent.parent.parent))
+from league_helper.trade_simulator_mode.trade_display_helper import TradeDisplayHelper
+from league_helper.trade_simulator_mode.TradeSnapshot import TradeSnapshot
+from league_helper.trade_simulator_mode.TradeSimTeam import TradeSimTeam
 from utils.FantasyPlayer import FantasyPlayer
 
 

@@ -17,7 +17,6 @@ import argparse
 import asyncio
 import datetime
 import shutil
-import sys
 from dataclasses import dataclass
 from pathlib import Path
 from time import sleep
@@ -25,17 +24,15 @@ from typing import Dict, List
 
 import pandas as pd
 
-# Add parent directory to path for data access BEFORE importing data
-sys.path.append(str(Path(__file__).parent.parent))
 from utils.csv_utils import read_csv_with_validation
 from utils.FantasyPlayer import FantasyPlayer
 from utils.LoggingManager import setup_logger, get_logger
 
-from player_data_models import ScoringFormat, ProjectionData
-from espn_client import ESPNClient
-from player_data_exporter import DataExporter
+from player_data_fetcher.player_data_models import ScoringFormat, ProjectionData
+from player_data_fetcher.espn_client import ESPNClient
+from player_data_fetcher.player_data_exporter import DataExporter
 
-from config import LOG_NAME, LOGGING_FORMAT
+from player_data_fetcher.config import LOG_NAME, LOGGING_FORMAT
 
 
 @dataclass
@@ -157,7 +154,7 @@ class NFLProjectionsCollector:
         if not schedule_path.exists():
             error_msg = (
                 f"Error: season_schedule.csv not found at {schedule_path}\n"
-                "Please run the schedule-data-fetcher first to generate this file:\n"
+                "Please run run_schedule_fetcher.py first to generate this file:\n"
                 "  python run_scores_fetcher.py"
             )
             self.logger.error(error_msg)
@@ -475,7 +472,7 @@ class NFLProjectionsCollector:
 
         try:
             # Import here to avoid circular dependencies
-            from game_data_fetcher import fetch_game_data as do_fetch_game_data
+            from player_data_fetcher.game_data_fetcher import fetch_game_data as do_fetch_game_data
 
             self.logger.info("Fetching game data (venue, weather, scores)...")
 

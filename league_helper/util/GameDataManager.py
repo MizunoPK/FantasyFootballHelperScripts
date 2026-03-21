@@ -12,11 +12,9 @@ import csv
 from pathlib import Path
 from typing import Dict, Optional
 
-import sys
-sys.path.append(str(Path(__file__).parent.parent.parent))
 from utils.LoggingManager import get_logger
 
-from util.upcoming_game_model import UpcomingGame
+from league_helper.util.upcoming_game_model import UpcomingGame
 
 
 class GameDataManager:

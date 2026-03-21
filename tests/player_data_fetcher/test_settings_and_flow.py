@@ -11,15 +11,9 @@ Author: Kai Mizuno
 import inspect
 import os
 import pytest
-import sys
-from pathlib import Path
 from unittest.mock import patch, AsyncMock, Mock
 
-# Add project root and player-data-fetcher to path
-sys.path.append(str(Path(__file__).parent.parent.parent))
-sys.path.append(str(Path(__file__).parent.parent.parent / "player-data-fetcher"))
-
-from player_data_fetcher_main import Settings, create_settings_from_dict, main
+from player_data_fetcher.player_data_fetcher_main import Settings, create_settings_from_dict, main
 
 
 # ============================================================================
@@ -118,11 +112,11 @@ class TestMainSignature:
     async def test_main_accepts_settings_dict(self):
         """I-4: main(settings_dict) builds Settings from dict and runs"""
         settings_dict = _make_settings_dict()
-        with patch('player_data_fetcher_main.NFLProjectionsCollector') as mock_cls:
+        with patch('player_data_fetcher.player_data_fetcher_main.NFLProjectionsCollector') as mock_cls:
             mock_collector = Mock()
             mock_collector.collect_all_projections = AsyncMock(return_value=None)
             mock_cls.return_value = mock_collector
-            with patch('player_data_fetcher_main.setup_logger'):
+            with patch('player_data_fetcher.player_data_fetcher_main.setup_logger'):
                 # Should not raise
                 await main(settings_dict)
 
@@ -200,11 +194,11 @@ class TestE2EGracefulSkip:
             load_drafted_data=True,
             drafted_data_path=missing_path,
         )
-        with patch('player_data_fetcher_main.NFLProjectionsCollector') as mock_cls:
+        with patch('player_data_fetcher.player_data_fetcher_main.NFLProjectionsCollector') as mock_cls:
             mock_collector = Mock()
             mock_collector.collect_all_projections = AsyncMock(return_value=None)
             mock_cls.return_value = mock_collector
-            with patch('player_data_fetcher_main.setup_logger'):
+            with patch('player_data_fetcher.player_data_fetcher_main.setup_logger'):
                 # Should NOT raise FileNotFoundError
                 await main(settings_dict)
 
@@ -218,11 +212,11 @@ class TestE2EGracefulSkip:
             load_drafted_data=True,
             drafted_data_path=str(drafted_csv),
         )
-        with patch('player_data_fetcher_main.NFLProjectionsCollector') as mock_cls:
+        with patch('player_data_fetcher.player_data_fetcher_main.NFLProjectionsCollector') as mock_cls:
             mock_collector = Mock()
             mock_collector.collect_all_projections = AsyncMock(return_value=None)
             mock_cls.return_value = mock_collector
-            with patch('player_data_fetcher_main.setup_logger'):
+            with patch('player_data_fetcher.player_data_fetcher_main.setup_logger'):
                 await main(settings_dict)
 
     @pytest.mark.asyncio
@@ -234,7 +228,7 @@ class TestE2EGracefulSkip:
             load_drafted_data=True,
             drafted_data_path=missing_path,
         )
-        with patch('player_data_fetcher_main.setup_logger'):
+        with patch('player_data_fetcher.player_data_fetcher_main.setup_logger'):
             with pytest.raises(FileNotFoundError):
                 await main(settings_dict)
 

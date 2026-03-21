@@ -3,7 +3,7 @@
 Shared Fantasy Points Calculator
 
 This module provides standardized logic for extracting and calculating fantasy points
-from ESPN API data. Used by both player-data-fetcher and starter-helper to ensure
+from ESPN API data. Used by both player_data_fetcher and starter-helper to ensure
 consistent fantasy points calculations across the entire system.
 
 Key Features:
@@ -20,12 +20,7 @@ Author: Kai Mizuno
 import datetime
 from dataclasses import dataclass
 from typing import Dict, Any, Optional
-from pathlib import Path
-import sys
 from utils.LoggingManager import get_logger
-
-# Add parent directory to path for imports
-sys.path.append(str(Path(__file__).parent.parent))
 
 
 @dataclass

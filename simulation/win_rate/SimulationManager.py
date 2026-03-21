@@ -28,21 +28,13 @@ import warnings
 from pathlib import Path
 from typing import Optional, Tuple, Dict, List
 
-import sys
-sys.path.append(str(Path(__file__).parent.parent.parent))
 from utils.LoggingManager import get_logger
-
-# Import from shared folder
-sys.path.append(str(Path(__file__).parent.parent / "shared"))
-from ConfigGenerator import ConfigGenerator
-from ResultsManager import ResultsManager
-from ProgressTracker import MultiLevelProgressTracker
-from ConfigPerformance import WEEK_RANGES
-from config_cleanup import cleanup_old_optimal_folders, cleanup_intermediate_folders
-
-# Import from same folder (win_rate/)
-sys.path.append(str(Path(__file__).parent))
-from ParallelLeagueRunner import ParallelLeagueRunner
+from simulation.shared.ConfigGenerator import ConfigGenerator
+from simulation.shared.ResultsManager import ResultsManager
+from simulation.shared.ProgressTracker import MultiLevelProgressTracker
+from simulation.shared.ConfigPerformance import WEEK_RANGES
+from simulation.shared.config_cleanup import cleanup_old_optimal_folders, cleanup_intermediate_folders
+from simulation.win_rate.ParallelLeagueRunner import ParallelLeagueRunner
 
 
 class SimulationManager:

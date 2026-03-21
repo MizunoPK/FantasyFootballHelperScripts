@@ -9,14 +9,11 @@ Part of Feature 07 (KAI-8-logging_refactoring)
 """
 
 import pytest
-import sys
 from pathlib import Path
 import argparse
 
 
-# Add project root to path for imports
 project_root = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(project_root))
 
 
 class TestCLIFlagParsing:
@@ -109,7 +106,7 @@ class TestLoggerNameConsistency:
             "setup_logger() should use snake_case name 'schedule_fetcher'"
 
         # Read ScheduleFetcher.py source
-        fetcher_path = project_root / "schedule-data-fetcher" / "ScheduleFetcher.py"
+        fetcher_path = project_root / "schedule_data_fetcher" / "ScheduleFetcher.py"
         with open(fetcher_path, 'r') as f:
             fetcher_source = f.read()
 
@@ -131,7 +128,7 @@ class TestScheduleFetcherLoggerSetup:
         Priority: HIGH
         """
         # Read ScheduleFetcher.py source
-        fetcher_path = project_root / "schedule-data-fetcher" / "ScheduleFetcher.py"
+        fetcher_path = project_root / "schedule_data_fetcher" / "ScheduleFetcher.py"
         with open(fetcher_path, 'r') as f:
             source = f.read()
 
@@ -151,7 +148,7 @@ class TestScheduleFetcherLoggerSetup:
         Priority: HIGH
         """
         # Read ScheduleFetcher.py source
-        fetcher_path = project_root / "schedule-data-fetcher" / "ScheduleFetcher.py"
+        fetcher_path = project_root / "schedule_data_fetcher" / "ScheduleFetcher.py"
         with open(fetcher_path, 'r') as f:
             source = f.read()
 
@@ -294,7 +291,7 @@ class TestLogQualityDebugWarning:
         Note: Per Feature 06 pattern, operational errors use WARNING
         """
         # Read ScheduleFetcher.py source
-        fetcher_path = project_root / "schedule-data-fetcher" / "ScheduleFetcher.py"
+        fetcher_path = project_root / "schedule_data_fetcher" / "ScheduleFetcher.py"
         with open(fetcher_path, 'r') as f:
             lines = f.readlines()
 
@@ -318,7 +315,7 @@ class TestLogQualityDebugWarning:
         Priority: MEDIUM
         """
         # Read ScheduleFetcher.py source
-        fetcher_path = project_root / "schedule-data-fetcher" / "ScheduleFetcher.py"
+        fetcher_path = project_root / "schedule_data_fetcher" / "ScheduleFetcher.py"
         with open(fetcher_path, 'r') as f:
             lines = f.readlines()
 
