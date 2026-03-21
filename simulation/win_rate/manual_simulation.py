@@ -16,16 +16,10 @@ Output:
 Author: Kai Mizuno
 """
 
-import sys
 import json
 from pathlib import Path
 
-# Import from same folder (win_rate/) - add to path for package imports
-sys.path.append(str(Path(__file__).parent))
-from SimulatedLeague import SimulatedLeague
-
-# Add utils to path
-sys.path.append(str(Path(__file__).parent.parent.parent))
+from simulation.win_rate.SimulatedLeague import SimulatedLeague
 from utils.LoggingManager import get_logger
 
 

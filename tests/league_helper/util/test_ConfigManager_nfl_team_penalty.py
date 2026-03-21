@@ -9,10 +9,6 @@ Created: 2026-01-13
 
 import pytest
 import json
-from pathlib import Path
-
-import sys
-sys.path.append(str(Path(__file__).parent.parent.parent.parent))
 
 from league_helper.util.ConfigManager import ConfigManager
 

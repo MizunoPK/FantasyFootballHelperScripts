@@ -13,15 +13,11 @@ import subprocess
 import sys
 from pathlib import Path
 import shutil
-import time
-from datetime import datetime
-import logging
 
-# Add project root to path
 project_root = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(project_root))
 
-from utils.LoggingManager import setup_logger, get_logger
+from schedule_data_fetcher.ScheduleFetcher import ScheduleFetcher
+from utils.LoggingManager import setup_logger
 
 
 class TestE2EExecution:
@@ -170,10 +166,6 @@ class TestE2EExecution:
             log_format="standard"
         )
 
-        # Import ScheduleFetcher after logger setup
-        sys.path.insert(0, str(project_root / "schedule-data-fetcher"))
-        from ScheduleFetcher import ScheduleFetcher
-
         # Create ScheduleFetcher instance
         temp_output = project_root / "data" / "test_schedule.csv"
         fetcher = ScheduleFetcher(temp_output)
@@ -251,10 +243,6 @@ class TestE2EExecution:
         """
         # This test verifies the mechanism works, even if no warnings occur
         # We'll check that IF a warning is logged, it appears with correct level
-
-        # Import and setup
-        sys.path.insert(0, str(project_root / "schedule-data-fetcher"))
-        from ScheduleFetcher import ScheduleFetcher
 
         # Create temp log file
         logs_dir = project_root / "logs" / "schedule_fetcher"

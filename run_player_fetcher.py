@@ -14,15 +14,10 @@ Author: Kai Mizuno
 
 import argparse
 import asyncio
-import sys
 import tempfile
 from pathlib import Path
 
-# Add player-data-fetcher to path so we can import it directly
-_fetcher_dir = Path(__file__).parent / "player-data-fetcher"
-sys.path.insert(0, str(_fetcher_dir))
-
-from player_data_fetcher_main import main  # noqa: E402
+from player_data_fetcher.player_data_fetcher_main import main
 
 
 def parse_args(argv=None):

@@ -8,16 +8,9 @@ Author: Kai Mizuno
 """
 
 import pytest
-from pathlib import Path
 from unittest.mock import Mock, patch
 import tempfile
 import csv
-
-import sys
-sys.path.append(str(Path(__file__).parent.parent.parent.parent))
-sys.path.append(str(Path(__file__).parent.parent.parent.parent / "league_helper"))
-sys.path.append(str(Path(__file__).parent.parent.parent.parent / "league_helper" / "util"))
-
 from league_helper.util.GameDataManager import GameDataManager
 from league_helper.util.upcoming_game_model import UpcomingGame
 

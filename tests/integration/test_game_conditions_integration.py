@@ -8,15 +8,9 @@ Author: Kai Mizuno
 """
 
 import pytest
-from pathlib import Path
-import sys
 import json
 import tempfile
 import shutil
-
-sys.path.append(str(Path(__file__).parent.parent.parent))
-sys.path.append(str(Path(__file__).parent.parent.parent / "league_helper"))
-sys.path.append(str(Path(__file__).parent.parent.parent / "league_helper" / "util"))
 
 from league_helper.util.ConfigManager import ConfigManager
 from league_helper.util.PlayerManager import PlayerManager

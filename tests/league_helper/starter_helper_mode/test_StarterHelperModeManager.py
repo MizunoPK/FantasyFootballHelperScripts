@@ -11,20 +11,13 @@ Date: 2025-10-10
 """
 
 import pytest
-import sys
-from pathlib import Path
 from unittest.mock import Mock, MagicMock, patch
 from typing import List
-
-# Add league_helper to path
-sys.path.append(str(Path(__file__).parent.parent.parent.parent / "league_helper"))
-from starter_helper_mode.StarterHelperModeManager import StarterHelperModeManager, OptimalLineup
-from util.ScoredPlayer import ScoredPlayer
-from util.ConfigManager import ConfigManager
-from util.PlayerManager import PlayerManager
-from util.TeamDataManager import TeamDataManager
-
-sys.path.append(str(Path(__file__).parent.parent.parent.parent))
+from league_helper.starter_helper_mode.StarterHelperModeManager import StarterHelperModeManager, OptimalLineup
+from league_helper.util.ScoredPlayer import ScoredPlayer
+from league_helper.util.ConfigManager import ConfigManager
+from league_helper.util.PlayerManager import PlayerManager
+from league_helper.util.TeamDataManager import TeamDataManager
 from utils.FantasyPlayer import FantasyPlayer
 
 

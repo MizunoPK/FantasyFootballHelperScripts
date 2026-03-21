@@ -9,16 +9,8 @@ Date: 2025-10-16
 """
 
 import pytest
-import sys
-from pathlib import Path
 from unittest.mock import patch, mock_open, MagicMock
 from datetime import datetime
-
-# Add project root to path
-project_root = Path(__file__).parent.parent.parent.parent
-sys.path.append(str(project_root))
-sys.path.append(str(project_root / "league_helper"))
-sys.path.append(str(project_root / "league_helper" / "trade_simulator_mode"))
 
 from league_helper.trade_simulator_mode.TradeSimulatorModeManager import TradeSimulatorModeManager
 from league_helper.trade_simulator_mode.TradeSimTeam import TradeSimTeam

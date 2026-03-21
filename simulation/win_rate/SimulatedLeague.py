@@ -14,7 +14,6 @@ The simulation process:
 Author: Kai Mizuno
 """
 
-import sys
 import random
 import shutil
 import tempfile
@@ -23,28 +22,14 @@ import csv
 from pathlib import Path
 from typing import List, Dict, Tuple, Optional, Any
 
-# Add league_helper to path
-project_root = Path(__file__).parent.parent.parent
-sys.path.append(str(project_root))
-sys.path.append(str(project_root / "league_helper"))
-sys.path.append(str(project_root / "league_helper" / "util"))
 from league_helper.util.PlayerManager import PlayerManager
 from league_helper.util.ConfigManager import ConfigManager
 from league_helper.util.TeamDataManager import TeamDataManager
 from league_helper.util.SeasonScheduleManager import SeasonScheduleManager
-
-# Import win_rate simulation classes (same folder) - add to path for package imports
-sys.path.append(str(Path(__file__).parent))
-from DraftHelperTeam import DraftHelperTeam
-from SimulatedOpponent import SimulatedOpponent
-from Week import Week
-
-# Import scheduler from simulation/utils
-sys.path.append(str(Path(__file__).parent.parent / "utils"))
-from scheduler import generate_schedule_for_nfl_season
-
-# Add project utils to path
-sys.path.append(str(project_root))
+from simulation.win_rate.DraftHelperTeam import DraftHelperTeam
+from simulation.win_rate.SimulatedOpponent import SimulatedOpponent
+from simulation.win_rate.Week import Week
+from simulation.utils.scheduler import generate_schedule_for_nfl_season
 from utils.LoggingManager import get_logger
 
 

@@ -11,9 +11,6 @@ Author: Kai Mizuno
 import csv
 from pathlib import Path
 from typing import List, Set
-import sys
-
-sys.path.append(str(Path(__file__).parent.parent.parent))
 from utils.FantasyPlayer import FantasyPlayer
 from utils.LoggingManager import get_logger
 

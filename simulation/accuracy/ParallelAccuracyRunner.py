@@ -8,21 +8,14 @@ weekly horizons (week 1-5, 6-9, 10-13, 14-17) to calculate MAE.
 Author: Kai Mizuno
 """
 
-# Standard library imports
 import json
 import shutil
-import sys
 import tempfile
 from pathlib import Path
 from typing import Dict, List, Any, Tuple
 
-# Third-party imports
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
 
-# Add parent directory to path for imports
-sys.path.append(str(Path(__file__).parent.parent.parent))
-
-# Local imports
 from simulation.accuracy.AccuracyCalculator import AccuracyCalculator, AccuracyResult
 from utils.LoggingManager import get_logger
 from league_helper.util.ConfigManager import ConfigManager

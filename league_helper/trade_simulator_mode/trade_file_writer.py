@@ -11,16 +11,10 @@ from typing import List, Dict, Optional, Any
 from datetime import datetime
 import re
 
-import sys
-from pathlib import Path
 import pandas as pd
-
-sys.path.append(str(Path(__file__).parent.parent.parent))
 from utils.LoggingManager import get_logger
-
-sys.path.append(str(Path(__file__).parent))
-from trade_simulator_mode.TradeSnapshot import TradeSnapshot
-from trade_simulator_mode.TradeSimTeam import TradeSimTeam
+from league_helper.trade_simulator_mode.TradeSnapshot import TradeSnapshot
+from league_helper.trade_simulator_mode.TradeSimTeam import TradeSimTeam
 
 
 class TradeFileWriter:

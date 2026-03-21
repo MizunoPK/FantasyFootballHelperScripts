@@ -15,18 +15,11 @@ Key responsibilities:
 Author: Kai Mizuno
 """
 
-import sys
-from pathlib import Path
 from typing import List, Dict, Optional, Callable
 
-from util.ConfigManager import ConfigManager
+from league_helper.util.ConfigManager import ConfigManager
 
-parent_dir = Path(__file__).parent.parent
-sys.path.insert(0, str(parent_dir))
-import constants as Constants
-
-parent_dir = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(parent_dir))
+import league_helper.constants as Constants
 from utils.LoggingManager import get_logger
 from utils.FantasyPlayer import FantasyPlayer
 

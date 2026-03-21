@@ -22,25 +22,19 @@ Author: Kai Mizuno
 
 import statistics
 from typing import Tuple, Optional, List, Dict, TYPE_CHECKING
-from pathlib import Path
-
-import sys
-sys.path.append(str(Path(__file__).parent))
 
 # Conditional import to avoid circular dependency with PlayerManager
 # Spec: sub_feature_05_projected_points_manager_consolidation_spec.md, NEW-104
 if TYPE_CHECKING:
-    from util.PlayerManager import PlayerManager
+    from league_helper.util.PlayerManager import PlayerManager
 
-import constants as Constants
-from ConfigManager import ConfigManager
-from ScoredPlayer import ScoredPlayer
-from TeamDataManager import TeamDataManager
-from SeasonScheduleManager import SeasonScheduleManager
-from GameDataManager import GameDataManager
-from upcoming_game_model import UpcomingGame
-
-sys.path.append(str(Path(__file__).parent.parent.parent))
+import league_helper.constants as Constants
+from league_helper.util.ConfigManager import ConfigManager
+from league_helper.util.ScoredPlayer import ScoredPlayer
+from league_helper.util.TeamDataManager import TeamDataManager
+from league_helper.util.SeasonScheduleManager import SeasonScheduleManager
+from league_helper.util.GameDataManager import GameDataManager
+from league_helper.util.upcoming_game_model import UpcomingGame
 from utils.FantasyPlayer import FantasyPlayer
 from utils.LoggingManager import get_logger
 

@@ -9,11 +9,6 @@ Author: Kai Mizuno
 
 from typing import List, Optional, Tuple
 
-import sys
-from pathlib import Path
-
-# Add parent directory to path for utils imports
-sys.path.append(str(Path(__file__).parent.parent.parent))
 from utils.FantasyPlayer import FantasyPlayer
 
 

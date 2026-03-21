@@ -12,22 +12,15 @@ Author: Kai Mizuno
 
 import pytest
 from unittest.mock import Mock, MagicMock, patch
-from pathlib import Path
 import tempfile
 import json
-
-import sys
-sys.path.append(str(Path(__file__).parent.parent.parent.parent))
-sys.path.append(str(Path(__file__).parent.parent.parent.parent / "league_helper"))
-sys.path.append(str(Path(__file__).parent.parent.parent.parent / "league_helper" / "util"))
-
-from util.player_scoring import PlayerScoringCalculator
-from util.ConfigManager import ConfigManager
-from util.ProjectedPointsManager import ProjectedPointsManager
-from util.TeamDataManager import TeamDataManager
-from util.SeasonScheduleManager import SeasonScheduleManager
-from util.GameDataManager import GameDataManager
-from util.upcoming_game_model import UpcomingGame
+from league_helper.util.player_scoring import PlayerScoringCalculator
+from league_helper.util.ConfigManager import ConfigManager
+from league_helper.util.ProjectedPointsManager import ProjectedPointsManager
+from league_helper.util.TeamDataManager import TeamDataManager
+from league_helper.util.SeasonScheduleManager import SeasonScheduleManager
+from league_helper.util.GameDataManager import GameDataManager
+from league_helper.util.upcoming_game_model import UpcomingGame
 from utils.FantasyPlayer import FantasyPlayer
 
 

@@ -7,12 +7,8 @@ Author: Kai Mizuno
 """
 
 import pytest
-from pathlib import Path
-import sys
 
-# Add simulation/accuracy to path
-sys.path.append(str(Path(__file__).parent.parent.parent / "simulation" / "accuracy"))
-from AccuracyCalculator import AccuracyCalculator, AccuracyResult
+from simulation.accuracy.AccuracyCalculator import AccuracyCalculator, AccuracyResult
 
 
 class TestAccuracyResult:

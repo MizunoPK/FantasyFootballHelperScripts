@@ -14,8 +14,6 @@ import shutil
 from pathlib import Path
 from typing import List
 
-import sys
-sys.path.append(str(Path(__file__).parent.parent.parent))
 from utils.LoggingManager import get_logger
 
 # Maximum number of optimal folders to keep per type

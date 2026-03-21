@@ -11,24 +11,13 @@ Author: Kai Mizuno
 """
 
 import pytest
-import sys
-from pathlib import Path
 from unittest.mock import Mock, patch, MagicMock, AsyncMock
 import json
 
-# Add project root to path
-project_root = Path(__file__).parent.parent.parent
-sys.path.append(str(project_root))
-
-# Player data fetcher imports
-sys.path.append(str(project_root / "player-data-fetcher"))
-from player_data_fetcher_main import NFLProjectionsCollector, Settings
-from player_data_models import PlayerProjection, ScoringFormat, ProjectionData, ESPNPlayerData
+from player_data_fetcher.player_data_fetcher_main import NFLProjectionsCollector, Settings
+from player_data_fetcher.player_data_models import PlayerProjection, ScoringFormat, ProjectionData, ESPNPlayerData
 
 # Note: NFL scores fetcher tests removed - has code bugs
-# NFL scores fetcher imports
-# sys.path.append(str(project_root / "nfl-scores-fetcher"))
-# from nfl_scores_models import GameScore, Team
 
 
 class TestPlayerDataFetcherIntegration:
@@ -50,7 +39,7 @@ class TestPlayerDataFetcherIntegration:
         assert collector.settings.scoring_format == ScoringFormat.PPR
 
     @pytest.mark.asyncio
-    @patch('player_data_fetcher_main.ESPNClient')
+    @patch('player_data_fetcher.player_data_fetcher_main.ESPNClient')
     async def test_fetch_and_export_workflow(self, mock_espn_client, collector_settings):
         """Test complete fetch and export workflow"""
         # Mock ESPN client to return test data

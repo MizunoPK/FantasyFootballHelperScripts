@@ -16,11 +16,6 @@ Author: Kai Mizuno
 import pytest
 from unittest.mock import Mock, MagicMock, patch, call
 from typing import List
-from pathlib import Path
-
-# Test imports
-import sys
-sys.path.append(str(Path(__file__).parent.parent.parent.parent))
 
 from league_helper.add_to_roster_mode.AddToRosterModeManager import AddToRosterModeManager
 from league_helper.util.ConfigManager import ConfigManager

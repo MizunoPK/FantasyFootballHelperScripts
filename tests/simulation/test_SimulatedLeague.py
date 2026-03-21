@@ -10,13 +10,7 @@ Author: Kai Mizuno
 import pytest
 import json
 import tempfile
-from pathlib import Path
 from unittest.mock import Mock, MagicMock, patch, mock_open, call
-import sys
-
-# Add project root to path
-project_root = Path(__file__).parent.parent.parent
-sys.path.append(str(project_root))
 
 from simulation.win_rate.SimulatedLeague import SimulatedLeague
 

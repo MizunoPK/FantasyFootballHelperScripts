@@ -10,12 +10,6 @@ Author: Kai Mizuno
 
 import pytest
 import csv
-from pathlib import Path
-import sys
-
-# Add project root to path
-sys.path.append(str(Path(__file__).parent.parent.parent.parent))
-
 from league_helper.util.SeasonScheduleManager import SeasonScheduleManager
 
 

@@ -21,11 +21,10 @@ from unittest.mock import Mock, MagicMock, patch
 from typing import List
 from pathlib import Path
 
-# Imports work via conftest.py which adds the necessary paths
-from util.PlayerManager import PlayerManager
-from util.ConfigManager import ConfigManager
-from util.TeamDataManager import TeamDataManager
-from util.FantasyTeam import FantasyTeam
+from league_helper.util.PlayerManager import PlayerManager
+from league_helper.util.ConfigManager import ConfigManager
+from league_helper.util.TeamDataManager import TeamDataManager
+from league_helper.util.FantasyTeam import FantasyTeam
 from utils.FantasyPlayer import FantasyPlayer
 
 
@@ -271,7 +270,7 @@ def player_manager(mock_data_folder, config_manager, team_data_manager, mock_fan
     pm.season_schedule_manager.get_future_opponents = Mock(return_value=['DAL', 'PHI', 'NYG'])
 
     # Initialize scoring_calculator (required for refactored PlayerManager)
-    from util.player_scoring import PlayerScoringCalculator
+    from league_helper.util.player_scoring import PlayerScoringCalculator
     pm.scoring_calculator = PlayerScoringCalculator(
         config_manager,
         pm.projected_points_manager,
