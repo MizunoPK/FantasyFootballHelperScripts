@@ -542,7 +542,7 @@ class TestHistoricalDataSave:
 
     @patch('player_data_fetcher.player_data_exporter.DataExporter')
     def test_save_handles_missing_source_file(self, mock_exporter, tmp_path):
-        """tests that game_data.csv is copied, team_data (missing) is skipped gracefully"""
+        """Tests that game_data.csv is copied, team_data (missing) is skipped gracefully"""
         settings = Settings(enable_historical_save=True, current_nfl_week=11, season=2025)
 
         with patch.object(NFLProjectionsCollector, '_derive_bye_weeks_from_schedule', return_value={}):

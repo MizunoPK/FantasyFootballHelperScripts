@@ -19,12 +19,10 @@ import datetime
 import shutil
 from dataclasses import dataclass
 from pathlib import Path
-from time import sleep
 from typing import Dict, List
 
 import pandas as pd
 
-from utils.csv_utils import read_csv_with_validation
 from utils.FantasyPlayer import FantasyPlayer
 from utils.LoggingManager import setup_logger, get_logger
 
@@ -389,7 +387,7 @@ class NFLProjectionsCollector:
 
         Checks config flag ENABLE_HISTORICAL_DATA_SAVE before proceeding.
         Checks if data/historical_data/{Season}/{WeekNumber}/ exists.
-        If not, creates it and copies players.csv, players_projected.csv, team_data/.
+        If not, creates it and copies game_data.csv (when present) and team_data/ (when present).
         If it exists, skips (files already saved for this week).
 
         Week numbers are zero-padded (01, 02, ..., 11, 12).
