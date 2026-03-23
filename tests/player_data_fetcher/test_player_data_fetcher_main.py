@@ -411,8 +411,6 @@ class TestHistoricalDataSave:
             # Create data folder with test files
             data_folder = tmp_path / "data"
             data_folder.mkdir()
-            (data_folder / "players.csv").write_text("test players")
-            (data_folder / "players_projected.csv").write_text("test projected")
             # Create team_data folder
             team_data_folder = data_folder / "team_data"
             team_data_folder.mkdir()
@@ -441,8 +439,7 @@ class TestHistoricalDataSave:
             # Create data folder with test files
             data_folder = tmp_path / "data"
             data_folder.mkdir()
-            (data_folder / "players.csv").write_text("test players data")
-            (data_folder / "players_projected.csv").write_text("test projected data")
+            (data_folder / "game_data.csv").write_text("test game data")
 
             # Create team_data folder with test team files
             team_data_folder = data_folder / "team_data"
@@ -454,14 +451,12 @@ class TestHistoricalDataSave:
 
             # Verify files and team_data folder were copied
             historical_folder = tmp_path / "data" / "historical_data" / "2025" / "11"
-            assert (historical_folder / "players.csv").exists()
-            assert (historical_folder / "players_projected.csv").exists()
+            assert (historical_folder / "game_data.csv").exists()
             assert (historical_folder / "team_data").exists()
             assert (historical_folder / "team_data" / "KC.csv").exists()
 
             # Verify file contents
-            assert (historical_folder / "players.csv").read_text() == "test players data"
-            assert (historical_folder / "players_projected.csv").read_text() == "test projected data"
+            assert (historical_folder / "game_data.csv").read_text() == "test game data"
             assert "31,17" in (historical_folder / "team_data" / "KC.csv").read_text()
 
             assert result is True
@@ -481,8 +476,6 @@ class TestHistoricalDataSave:
             # Create data folder with test files
             data_folder = tmp_path / "data"
             data_folder.mkdir()
-            (data_folder / "players.csv").write_text("test")
-            (data_folder / "players_projected.csv").write_text("test")
             # Create team_data folder
             team_data_folder = data_folder / "team_data"
             team_data_folder.mkdir()
@@ -534,8 +527,6 @@ class TestHistoricalDataSave:
             # Create data folder with test files
             data_folder = tmp_path / "data"
             data_folder.mkdir()
-            (data_folder / "players.csv").write_text("test")
-            (data_folder / "players_projected.csv").write_text("test")
             # Create team_data folder
             team_data_folder = data_folder / "team_data"
             team_data_folder.mkdir()
@@ -551,7 +542,7 @@ class TestHistoricalDataSave:
 
     @patch('player_data_fetcher.player_data_exporter.DataExporter')
     def test_save_handles_missing_source_file(self, mock_exporter, tmp_path):
-        """Test graceful handling when source file is missing"""
+        """tests that game_data.csv is copied, team_data (missing) is skipped gracefully"""
         settings = Settings(enable_historical_save=True, current_nfl_week=11, season=2025)
 
         with patch.object(NFLProjectionsCollector, '_derive_bye_weeks_from_schedule', return_value={}):
@@ -561,11 +552,10 @@ class TestHistoricalDataSave:
             collector.script_dir = tmp_path / "player_data_fetcher"
             collector.script_dir.mkdir()
 
-            # Create data folder but with only 2 files (missing team_data folder)
+            # Create data folder with only game_data.csv (missing team_data folder)
             data_folder = tmp_path / "data"
             data_folder.mkdir()
-            (data_folder / "players.csv").write_text("test")
-            (data_folder / "players_projected.csv").write_text("test")
+            (data_folder / "game_data.csv").write_text("test game data")
             # Intentionally not creating team_data folder
 
             # Call save method - should still succeed for existing files
@@ -574,10 +564,9 @@ class TestHistoricalDataSave:
             # Should still return True (partial success)
             assert result is True
 
-            # Verify 2 files were copied
+            # Verify game_data.csv was copied
             historical_folder = tmp_path / "data" / "historical_data" / "2025" / "11"
-            assert (historical_folder / "players.csv").exists()
-            assert (historical_folder / "players_projected.csv").exists()
+            assert (historical_folder / "game_data.csv").exists()
             # team_data folder should not exist
             assert not (historical_folder / "team_data").exists()
 
