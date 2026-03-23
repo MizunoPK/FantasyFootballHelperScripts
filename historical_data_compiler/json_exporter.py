@@ -194,7 +194,7 @@ class JSONSnapshotExporter:
 
         # Create DataExporter instance (just for calling stat extraction methods)
         # We don't actually use the output_dir since we only call the private methods
-        exporter = DataExporter(output_dir=str(Path.cwd()), create_latest_files=False)
+        exporter = DataExporter(output_dir=str(Path.cwd()))
 
         # Extract stats based on position (returns dict with arrays of 17 floats)
         result = {}

@@ -65,13 +65,13 @@ class TestSettingsDataclass:
         settings = Settings(season=2024)
         assert settings.season == 2024
 
-    def test_settings_has_all_19_required_fields(self):
-        """3.3: Settings has all 19 required fields"""
+    def test_settings_has_all_18_required_fields(self):
+        """3.3: Settings has all 18 required fields"""
         settings = Settings()
         required_fields = [
             'scoring_format', 'season', 'current_nfl_week', 'request_timeout',
             'rate_limit_delay', 'espn_player_limit', 'position_json_output',
-            'team_data_folder', 'game_data_csv', 'create_latest_files',
+            'team_data_folder', 'game_data_csv',
             'enable_historical_save', 'enable_game_data', 'load_drafted_data',
             'drafted_data_path', 'my_team_name', 'progress_frequency',
             'log_level', 'logging_to_file', 'e2e_test',

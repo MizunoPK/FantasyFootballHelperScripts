@@ -61,8 +61,6 @@ class Settings:
     position_json_output: str = '../data/player_data'
     team_data_folder: str = '../data/team_data'
     game_data_csv: str = '../data/game_data.csv'
-    create_latest_files: bool = True
-
     # Feature flags
     enable_historical_save: bool = False
     enable_game_data: bool = True
@@ -116,7 +114,6 @@ def create_settings_from_dict(args_dict: dict) -> Settings:
         position_json_output=args_dict['position_json_output'],
         team_data_folder=args_dict['team_data_folder'],
         game_data_csv=args_dict['game_data_csv'],
-        create_latest_files=True,
         enable_historical_save=args_dict['enable_historical_save'],
         enable_game_data=args_dict['enable_game_data'],
         load_drafted_data=args_dict['load_drafted_data'],
@@ -173,7 +170,6 @@ class NFLProjectionsCollector:
         output_path = self.script_dir / "data"
         self.exporter = DataExporter(
             output_dir=str(output_path),
-            create_latest_files=self.settings.create_latest_files,
             current_nfl_week=self.settings.current_nfl_week,
             position_json_output=self.settings.position_json_output,
             team_data_folder=self.settings.team_data_folder,
@@ -425,7 +421,7 @@ class NFLProjectionsCollector:
 
             # Define source files to copy
             data_folder = self.script_dir.parent / "data"
-            files_to_copy = ["players.csv", "players_projected.csv", "game_data.csv"]
+            files_to_copy = ["game_data.csv"]
 
             # Copy each file using shutil.copy2 to preserve metadata
             for filename in files_to_copy:

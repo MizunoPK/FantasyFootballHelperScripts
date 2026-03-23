@@ -25,7 +25,6 @@ class TestDataExporterInit:
         exporter = DataExporter(output_dir=output_dir)
 
         assert exporter.output_dir == Path(output_dir)
-        assert exporter.create_latest_files == True
 
     def test_exporter_creates_output_directory(self, tmp_path):
         """Test DataExporter creates output directory if it doesn't exist"""
@@ -33,14 +32,6 @@ class TestDataExporterInit:
         exporter = DataExporter(output_dir=output_dir)
 
         assert exporter.output_dir.exists()
-
-    def test_exporter_custom_latest_files_setting(self, tmp_path):
-        """Test DataExporter respects create_latest_files setting"""
-        output_dir = str(tmp_path / "output")
-        exporter = DataExporter(output_dir=output_dir, create_latest_files=False)
-
-        assert exporter.create_latest_files == False
-
 
 class TestSetTeamData:
     """Test setting team rankings and schedules"""
