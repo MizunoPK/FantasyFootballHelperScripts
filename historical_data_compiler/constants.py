@@ -23,7 +23,6 @@ ESPN_SCOREBOARD_API_URL = (
 )
 
 OPEN_METEO_ARCHIVE_URL = "https://archive-api.open-meteo.com/v1/archive"
-OPEN_METEO_FORECAST_URL = "https://api.open-meteo.com/v1/forecast"
 
 # =============================================================================
 # ESPN TEAM MAPPINGS
