@@ -138,7 +138,6 @@ class TestAccuracySimulationFeature01Integration:
         # Test with flag present (True)
         with patch('sys.argv', ['run_accuracy_simulation.py', '--enable-log-file']):
             with patch('run_accuracy_simulation.AccuracySimulationManager') as mock_manager:
-                mock_manager.return_value.run_weekly_optimization.return_value = None
 
                 import run_accuracy_simulation
                 # Force re-import to execute main
