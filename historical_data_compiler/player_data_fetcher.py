@@ -29,8 +29,6 @@ from .constants import (
     normalize_team_abbrev,
 )
 
-import sys
-sys.path.append(str(Path(__file__).parent.parent))
 from utils.LoggingManager import get_logger
 
 
@@ -137,16 +135,14 @@ class PlayerDataFetcher:
     - Extracts actual (statSourceId=0) and projected (statSourceId=1) points
     """
 
-    def __init__(self, http_client: BaseHTTPClient, ppr_id: int = 3):
+    def __init__(self, http_client: BaseHTTPClient):
         """
         Initialize PlayerDataFetcher.
 
         Args:
             http_client: Shared HTTP client instance
-            ppr_id: ESPN scoring format ID (1=Standard, 2=Half-PPR, 3=PPR)
         """
         self.http_client = http_client
-        self.ppr_id = ppr_id
         self.logger = get_logger()
 
     async def fetch_all_players(

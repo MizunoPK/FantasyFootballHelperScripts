@@ -16,7 +16,6 @@ import tempfile
 import json
 from league_helper.util.player_scoring import PlayerScoringCalculator
 from league_helper.util.ConfigManager import ConfigManager
-from league_helper.util.ProjectedPointsManager import ProjectedPointsManager
 from league_helper.util.TeamDataManager import TeamDataManager
 from league_helper.util.SeasonScheduleManager import SeasonScheduleManager
 from league_helper.util.GameDataManager import GameDataManager

@@ -34,7 +34,6 @@ class DataExporter:
     def __init__(
         self,
         output_dir: str,
-        create_latest_files: bool = True,
         current_nfl_week: int = 17,
         position_json_output: str = '../data/player_data',
         team_data_folder: str = '../data/team_data',
@@ -44,7 +43,6 @@ class DataExporter:
     ):
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(exist_ok=True, parents=True)
-        self.create_latest_files = create_latest_files
         self.current_nfl_week = current_nfl_week
         self.position_json_output = position_json_output
         self.team_data_folder = team_data_folder

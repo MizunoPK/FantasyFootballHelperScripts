@@ -563,155 +563,12 @@ class AccuracySimulationManager:
         # Evaluate all 4 weekly horizons
         # CRITICAL: _evaluate_config_weekly() takes Tuple[int, int] not string!
         # CRITICAL: Use week_key format (with underscores) to match add_result() expectations
-        # NOTE: WEEK_RANGES already imported at module level (line 45)
+        # NOTE: WEEK_RANGES already imported at module level (line 38)
 
         for week_key, week_range in WEEK_RANGES.items():
             results[week_key] = self._evaluate_config_weekly(config_dict, week_range)
 
         return results
-
-    def run_weekly_optimization(self) -> Path:
-        """
-        Run weekly optimization for all week ranges with auto-resume support.
-
-        Iteratively tests configurations to find optimal parameters
-        for predicting weekly player performance.
-
-        **Auto-Resume Feature:**
-            If interrupted mid-optimization, automatically resumes from the last completed
-            parameter based on existing accuracy_intermediate_*/ folders.
-
-        Returns:
-            Path: Path to optimal configuration folder
-        """
-        total_params = len(self.parameter_order)
-        self.logger.info(
-            f"Starting weekly accuracy optimization: "
-            f"{total_params} parameters × {self.config_generator.num_test_values} test values "
-            f"× 4 week ranges ({len(WEEK_RANGES)} horizons)"
-        )
-        self._setup_signal_handlers()
-
-        try:
-
-            # Detect if we should resume from a previous run
-            should_resume, start_idx, last_config_path = self._detect_resume_state('weekly')
-
-            if should_resume:
-                self.logger.info(f"Resuming from parameter {start_idx + 1}/{total_params}")
-                # Load intermediate results into results_manager
-                if last_config_path and self.results_manager.load_intermediate_results(last_config_path):
-                    self.logger.info(f"Loaded intermediate results from {last_config_path.name}")
-                else:
-                    self.logger.warning("Failed to load intermediate results, starting fresh")
-                    should_resume = False
-                    start_idx = 0
-            else:
-                # Starting fresh - cleanup any existing intermediate folders
-                intermediate_folders = [p for p in self.output_dir.glob("accuracy_intermediate_*") if p.is_dir()]
-                if intermediate_folders:
-                    self.logger.info(f"Cleaning up {len(intermediate_folders)} intermediate folders")
-                    for folder in intermediate_folders:
-                        try:
-                            shutil.rmtree(folder)
-                            self.logger.debug(f"  Deleted: {folder.name}")
-                        except Exception as e:
-                            self.logger.warning(f"  Failed to delete {folder.name}: {e}")
-                    self.logger.info("Cleanup complete")
-
-            # Run for each week range
-            for week_key, week_range in WEEK_RANGES.items():
-                self.logger.info(f"Optimizing for {week_key} (weeks {week_range[0]}-{week_range[1]})")
-
-                # Map week_key to horizon name
-                # week_1_5 -> '1-5', week_6_9 -> '6-9', etc.
-                horizon = week_key.replace('week_', '').replace('_', '-')
-
-                # Get current base config - either from results_manager or baseline
-                if should_resume:
-                    best_perf = self.results_manager.get_best_config(week_key)
-                    if best_perf:
-                        current_base_config = copy.deepcopy(best_perf.config_dict)
-                    else:
-                        current_base_config = copy.deepcopy(self.config_generator.baseline_configs[horizon])
-                else:
-                    # Reset to original baseline for each week range
-                    current_base_config = copy.deepcopy(self.config_generator.baseline_configs[horizon])
-
-                for param_idx, param_name in enumerate(self.parameter_order):
-                    # Skip already-completed parameters when resuming
-                    if should_resume and param_idx < start_idx:
-                        self.logger.debug(f"Skipping already-completed parameter {param_idx}: {param_name}")
-                        continue
-
-                    self.logger.info(
-                        f"[{week_key}] Optimizing parameter {param_idx + 1}/{total_params}: {param_name}"
-                    )
-
-                    # Generate test values for this parameter (per-horizon for WEEK_SPECIFIC_PARAMS)
-                    test_values_dict = self.config_generator.generate_horizon_test_values(param_name)
-
-                    # Get test values for this specific horizon
-                    if horizon in test_values_dict:
-                        test_values = test_values_dict[horizon]
-                    else:
-                        # Fallback for shared params (shouldn't happen in accuracy sim)
-                        test_values = test_values_dict['shared']
-
-                    progress = ProgressTracker(len(test_values), f"[{week_key}] Param {param_idx + 1}/{total_params}")
-
-                    for test_idx, test_value in enumerate(test_values):
-                        # Get config for this horizon with this test value
-                        config_dict = self.config_generator.get_config_for_horizon(horizon, param_name, test_idx)
-
-                        # Evaluate configuration for this week range
-                        result = self._evaluate_config_weekly(config_dict, week_range)
-
-                        # Record result (pass param_name and test_idx for config_value extraction)
-                        is_new_best = self.results_manager.add_result(
-                            week_key, config_dict, result,
-                            param_name=param_name,
-                            test_idx=test_idx
-                        )
-
-                        if is_new_best:
-                            self._current_optimal_config_path = self.results_manager.save_intermediate_results(
-                                param_idx, f"{week_key}_{param_name}"
-                            )
-
-                        progress.update()
-
-                    # Update ConfigGenerator baseline with best config for next parameter
-                    best_perf = self.results_manager.get_best_config(week_key)
-                    if best_perf:
-                        self.config_generator.update_baseline_for_horizon(horizon, best_perf.config_dict)
-                        current_base_config = copy.deepcopy(best_perf.config_dict)
-
-                # After completing all params for this week range, clear resume flag
-                # (next week range should not skip any params)
-                should_resume = False
-                start_idx = 0
-
-            # Clean up old optimal folders before creating new one (same pattern as win-rate simulation)
-            cleanup_old_accuracy_optimal_folders(self.output_dir)
-
-            # Save final optimal configs
-            optimal_path = self.results_manager.save_optimal_configs()
-            self._current_optimal_config_path = optimal_path
-
-            # Clean up intermediate folders now that optimization is complete
-            deleted_count = cleanup_accuracy_intermediate_folders(self.output_dir)
-            if deleted_count > 0:
-                self.logger.info(f"Cleaned up {deleted_count} intermediate folders")
-
-            self.logger.info(
-                f"Weekly optimization complete: Optimized {total_params} parameters "
-                f"across {len(WEEK_RANGES)} week ranges. Results saved to: {optimal_path}"
-            )
-            return optimal_path
-
-        finally:
-            self._restore_signal_handlers()
 
     def run_both(self) -> Path:
         """
@@ -785,7 +642,6 @@ class AccuracySimulationManager:
 
                 # Create progress tracker
                 # Note: Each config evaluates all 4 horizons in parallel, so we only track config completion
-                from simulation.shared.ProgressTracker import ProgressTracker
                 self.progress_tracker = ProgressTracker(
                     total=total_configs,
                     description="Configs (each tests 4 horizons)"

@@ -19,12 +19,10 @@ import datetime
 import shutil
 from dataclasses import dataclass
 from pathlib import Path
-from time import sleep
 from typing import Dict, List
 
 import pandas as pd
 
-from utils.csv_utils import read_csv_with_validation
 from utils.FantasyPlayer import FantasyPlayer
 from utils.LoggingManager import setup_logger, get_logger
 
@@ -61,8 +59,6 @@ class Settings:
     position_json_output: str = '../data/player_data'
     team_data_folder: str = '../data/team_data'
     game_data_csv: str = '../data/game_data.csv'
-    create_latest_files: bool = True
-
     # Feature flags
     enable_historical_save: bool = False
     enable_game_data: bool = True
@@ -116,7 +112,6 @@ def create_settings_from_dict(args_dict: dict) -> Settings:
         position_json_output=args_dict['position_json_output'],
         team_data_folder=args_dict['team_data_folder'],
         game_data_csv=args_dict['game_data_csv'],
-        create_latest_files=True,
         enable_historical_save=args_dict['enable_historical_save'],
         enable_game_data=args_dict['enable_game_data'],
         load_drafted_data=args_dict['load_drafted_data'],
@@ -173,7 +168,6 @@ class NFLProjectionsCollector:
         output_path = self.script_dir / "data"
         self.exporter = DataExporter(
             output_dir=str(output_path),
-            create_latest_files=self.settings.create_latest_files,
             current_nfl_week=self.settings.current_nfl_week,
             position_json_output=self.settings.position_json_output,
             team_data_folder=self.settings.team_data_folder,
@@ -393,7 +387,7 @@ class NFLProjectionsCollector:
 
         Checks config flag ENABLE_HISTORICAL_DATA_SAVE before proceeding.
         Checks if data/historical_data/{Season}/{WeekNumber}/ exists.
-        If not, creates it and copies players.csv, players_projected.csv, team_data/.
+        If not, creates it and copies game_data.csv (when present) and team_data/ (when present).
         If it exists, skips (files already saved for this week).
 
         Week numbers are zero-padded (01, 02, ..., 11, 12).
@@ -425,7 +419,7 @@ class NFLProjectionsCollector:
 
             # Define source files to copy
             data_folder = self.script_dir.parent / "data"
-            files_to_copy = ["players.csv", "players_projected.csv", "game_data.csv"]
+            files_to_copy = ["game_data.csv"]
 
             # Copy each file using shutil.copy2 to preserve metadata
             for filename in files_to_copy:
