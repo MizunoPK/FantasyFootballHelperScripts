@@ -563,7 +563,7 @@ class AccuracySimulationManager:
         # Evaluate all 4 weekly horizons
         # CRITICAL: _evaluate_config_weekly() takes Tuple[int, int] not string!
         # CRITICAL: Use week_key format (with underscores) to match add_result() expectations
-        # NOTE: WEEK_RANGES already imported at module level (line 45)
+        # NOTE: WEEK_RANGES already imported at module level (line 38)
 
         for week_key, week_range in WEEK_RANGES.items():
             results[week_key] = self._evaluate_config_weekly(config_dict, week_range)
