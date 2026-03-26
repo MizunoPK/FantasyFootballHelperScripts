@@ -176,7 +176,7 @@ class ScheduleFetcher:
         bye_weeks: Dict[str, Set[int]] = {team: set() for team in all_teams}
 
         # For each week, check which teams don't have games
-        for week in range(1, 18):  # Weeks 1-17 (18 is typically playoffs)
+        for week in range(1, 19):  # Weeks 1-18
             week_schedule = schedule.get(week, {})
             teams_playing = set(week_schedule.keys())
 
@@ -211,8 +211,8 @@ class ScheduleFetcher:
                 writer = csv.writer(f)
                 writer.writerow(['week', 'team', 'opponent'])
 
-                # Write schedule entries for weeks 1-17
-                for week in range(1, 18):
+                # Write schedule entries for weeks 1-18
+                for week in range(1, 19):
                     week_schedule = schedule.get(week, {})
 
                     # Get all teams (including those on bye)

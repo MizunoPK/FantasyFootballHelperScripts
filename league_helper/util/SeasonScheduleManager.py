@@ -88,7 +88,7 @@ class SeasonScheduleManager:
 
         Args:
             team: Team abbreviation (e.g., 'KC', 'PHI', 'BAL')
-            week: NFL week number (1-17)
+            week: NFL week number (1-18)
 
         Returns:
             Opponent team abbreviation, or None if bye week or not found
@@ -99,7 +99,7 @@ class SeasonScheduleManager:
             >>> manager.get_opponent('KC', 7)  # Bye week
             None
         """
-        if week < 1 or week > 17:
+        if week < 1 or week > 18:
             self.logger.debug(f"Invalid week number: {week}")
             return None
 
@@ -119,7 +119,7 @@ class SeasonScheduleManager:
             current_week: Current NFL week number
 
         Returns:
-            List of opponent abbreviations for weeks current_week+1 through 17.
+            List of opponent abbreviations for weeks current_week+1 through 18.
             Bye weeks are excluded from the list.
 
         Example:
@@ -129,7 +129,7 @@ class SeasonScheduleManager:
         """
         future_opponents = []
 
-        for week in range(current_week + 1, 18):  # Weeks current+1 to 17
+        for week in range(current_week + 1, 19):  # Weeks current+1 to 18
             opponent = self.get_opponent(team, week)
             if opponent:  # Skip None (bye weeks)
                 future_opponents.append(opponent)
@@ -146,7 +146,7 @@ class SeasonScheduleManager:
 
         Returns:
             Dict mapping week number to opponent (None for bye weeks).
-            Includes all weeks from current_week+1 through 17.
+            Includes all weeks from current_week+1 through 18.
 
         Example:
             >>> manager.get_remaining_schedule('KC', 5)
@@ -155,7 +155,7 @@ class SeasonScheduleManager:
         """
         remaining = {}
 
-        for week in range(current_week + 1, 18):
+        for week in range(current_week + 1, 19):
             remaining[week] = self.get_opponent(team, week)
 
         return remaining
