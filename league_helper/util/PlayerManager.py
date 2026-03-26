@@ -345,7 +345,7 @@ class PlayerManager:
                     json_data = json.load(f)
 
                 # Extract position key (e.g., "qb_data") (spec lines 287-288)
-                # JSON file contains array directly, not wrapped in object
+                # Support dict-wrapper format ({qb_data: [...]}) and legacy bare-list format for old files
                 position_key = position_file.replace('.json', '')
                 players_array = json_data if isinstance(json_data, list) else json_data.get(position_key, [])
 
