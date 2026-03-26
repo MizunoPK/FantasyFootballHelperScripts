@@ -139,12 +139,11 @@ class TestGetOpponent:
 
     def test_get_opponent_invalid_week_too_high(self, tmp_path):
         """Test get_opponent returns None for week > 18"""
-        import csv as _csv
         data_folder = tmp_path / "data"
         data_folder.mkdir()
         schedule_file = data_folder / "season_schedule.csv"
         with open(schedule_file, 'w', newline='') as f:
-            writer = _csv.writer(f)
+            writer = csv.writer(f)
             writer.writerows([
                 ['week', 'team', 'opponent'],
                 ['18', 'KC', 'LV'],
