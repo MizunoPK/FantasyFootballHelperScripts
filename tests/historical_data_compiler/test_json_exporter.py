@@ -209,7 +209,7 @@ class TestJSONSnapshotExporter:
 
     @patch('historical_data_compiler.json_exporter.DataExporter')
     def test_extract_stats_for_player_qb(self, mock_exporter_class, exporter):
-        """Should extract QB stats using bridge adapter"""
+        """Should extract QB stats using bridge adapter including receiving and misc."""
         mock_exporter = Mock()
         mock_exporter._extract_passing_stats.return_value = {
             'attempts': [30.0] * 17,
@@ -219,6 +219,13 @@ class TestJSONSnapshotExporter:
             'rush_att': [5.0] * 17,
             'rush_yds': [25.0] * 17
         }
+        mock_exporter._extract_receiving_stats.return_value = {
+            'targets': [0.0] * 17,
+            'receiving_yds': [0.0] * 17,
+            'receiving_tds': [0.0] * 17,
+            'receptions': [0.0] * 17
+        }
+        mock_exporter._extract_misc_stats.return_value = {'fumbles': [0.0] * 17}
         mock_exporter_class.return_value = mock_exporter
 
         player = PlayerData(
@@ -231,12 +238,14 @@ class TestJSONSnapshotExporter:
 
         stats = exporter._extract_stats_for_player(player, current_week=5)
 
-        # Should call QB stat extraction methods
         assert mock_exporter._extract_passing_stats.called
         assert mock_exporter._extract_rushing_stats.called
-        # Stats should be wrapped in position keys
+        assert mock_exporter._extract_receiving_stats.called
+        assert mock_exporter._extract_misc_stats.called
         assert 'passing' in stats
         assert 'rushing' in stats
+        assert 'receiving' in stats
+        assert 'misc' in stats
         assert 'attempts' in stats['passing']
         assert 'rush_att' in stats['rushing']
 
@@ -303,14 +312,14 @@ class TestJSONSnapshotExporter:
 
         assert output_file.exists()
 
-        # Verify JSON structure
         with open(output_file) as f:
             data = json.load(f)
 
-        assert isinstance(data, list)
-        assert len(data) == 2  # Both QB players
-        assert data[0]['position'] == 'QB'
-        assert data[1]['position'] == 'QB'
+        assert isinstance(data, dict)
+        assert 'qb_data' in data
+        assert len(data['qb_data']) == 2
+        assert data['qb_data'][0]['position'] == 'QB'
+        assert data['qb_data'][1]['position'] == 'QB'
 
     def test_generate_position_json_sorts_by_rating(self, exporter, sample_players, tmp_path):
         """Should sort players by rating descending"""
@@ -322,11 +331,10 @@ class TestJSONSnapshotExporter:
         with open(output_file) as f:
             data = json.load(f)
 
-        # Player 1 (95.0 rating) should be first
-        assert data[0]['id'] == "1001"
-        assert data[0]['player_rating'] == 95.0
-        assert data[1]['id'] == "1002"
-        assert data[1]['player_rating'] == 88.0
+        assert data['qb_data'][0]['id'] == "1001"
+        assert data['qb_data'][0]['player_rating'] == 95.0
+        assert data['qb_data'][1]['id'] == "1002"
+        assert data['qb_data'][1]['player_rating'] == 88.0
 
 
 class TestGenerateJSONSnapshots:
