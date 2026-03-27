@@ -65,6 +65,9 @@ class JSONSnapshotExporter:
     - player_rating: Week 1 uses draft-based, Week 2+ recalculated from cumulative actuals
 
     Uses bridge adapter pattern to call player_data_exporter stat extraction methods.
+    Output JSON files use dict-wrapper format: {"<position>_data": [list of player objects]}.
+    QB players include a "receiving" section (targets, receiving_yds, receiving_tds, receptions).
+    QB/RB/WR/TE players include a "misc" section with a "fumbles" array (17 elements).
     """
 
     def __init__(self):
@@ -402,6 +405,9 @@ class JSONSnapshotExporter:
     ) -> None:
         """
         Generate JSON file for a single position.
+
+        Output format: {"<position>_data": [list of player objects]} (dict-wrapper, not bare list).
+        Empty position list writes {"<position>_data": []} rather than [].
 
         Args:
             players: List of all PlayerData objects

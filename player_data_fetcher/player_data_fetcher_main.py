@@ -34,6 +34,8 @@ from player_data_fetcher.player_data_exporter import DataExporter
 from player_data_fetcher.config import LOG_NAME, LOGGING_FORMAT
 
 
+# Minimum total players (summed across all positions) required before writing output files.
+# Guards against silent overwrites when ESPN returns an empty or near-empty response.
 MIN_EXPECTED_PLAYER_COUNT = 100
 
 
