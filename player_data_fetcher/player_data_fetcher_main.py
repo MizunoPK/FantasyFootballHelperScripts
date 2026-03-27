@@ -608,7 +608,7 @@ async def main(settings_dict: dict | None = None) -> None:
         collector = NFLProjectionsCollector(settings)
         projection_data = await collector.collect_all_projections()
 
-        total_players = sum(pd.total_players for pd in projection_data.values())
+        total_players = sum(proj.total_players for proj in projection_data.values())
         if total_players < MIN_EXPECTED_PLAYER_COUNT:
             logger.error(
                 f"Insufficient player data: only {total_players} players collected "
