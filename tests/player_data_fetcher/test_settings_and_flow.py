@@ -11,9 +11,10 @@ Author: Kai Mizuno
 import inspect
 import os
 import pytest
-from unittest.mock import patch, AsyncMock, Mock
+from unittest.mock import patch, AsyncMock, Mock, MagicMock
 
 from player_data_fetcher.player_data_fetcher_main import Settings, create_settings_from_dict, main
+from player_data_fetcher.player_data_models import ProjectionData
 
 
 # ============================================================================
@@ -113,8 +114,11 @@ class TestMainSignature:
         """I-4: main(settings_dict) builds Settings from dict and runs"""
         settings_dict = _make_settings_dict()
         with patch('player_data_fetcher.player_data_fetcher_main.NFLProjectionsCollector') as mock_cls:
-            mock_collector = Mock()
-            mock_collector.collect_all_projections = AsyncMock(return_value=None)
+            mock_collector = MagicMock()
+            mock_collector.collect_all_projections = AsyncMock(return_value={
+                'qb': ProjectionData(season=2025, scoring_format='ppr', total_players=200, players=[])
+            })
+            mock_collector.export_data = AsyncMock(return_value=[])
             mock_cls.return_value = mock_collector
             with patch('player_data_fetcher.player_data_fetcher_main.setup_logger'):
                 # Should not raise
@@ -195,8 +199,11 @@ class TestE2EGracefulSkip:
             drafted_data_path=missing_path,
         )
         with patch('player_data_fetcher.player_data_fetcher_main.NFLProjectionsCollector') as mock_cls:
-            mock_collector = Mock()
-            mock_collector.collect_all_projections = AsyncMock(return_value=None)
+            mock_collector = MagicMock()
+            mock_collector.collect_all_projections = AsyncMock(return_value={
+                'qb': ProjectionData(season=2025, scoring_format='ppr', total_players=200, players=[])
+            })
+            mock_collector.export_data = AsyncMock(return_value=[])
             mock_cls.return_value = mock_collector
             with patch('player_data_fetcher.player_data_fetcher_main.setup_logger'):
                 # Should NOT raise FileNotFoundError
@@ -213,8 +220,11 @@ class TestE2EGracefulSkip:
             drafted_data_path=str(drafted_csv),
         )
         with patch('player_data_fetcher.player_data_fetcher_main.NFLProjectionsCollector') as mock_cls:
-            mock_collector = Mock()
-            mock_collector.collect_all_projections = AsyncMock(return_value=None)
+            mock_collector = MagicMock()
+            mock_collector.collect_all_projections = AsyncMock(return_value={
+                'qb': ProjectionData(season=2025, scoring_format='ppr', total_players=200, players=[])
+            })
+            mock_collector.export_data = AsyncMock(return_value=[])
             mock_cls.return_value = mock_collector
             with patch('player_data_fetcher.player_data_fetcher_main.setup_logger'):
                 await main(settings_dict)

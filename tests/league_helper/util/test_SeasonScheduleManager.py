@@ -137,11 +137,22 @@ class TestGetOpponent:
         assert manager.get_opponent('KC', 0) is None
         assert manager.get_opponent('KC', -1) is None
 
-    def test_get_opponent_invalid_week_too_high(self, temp_schedule_csv):
-        """Test get_opponent returns None for week > 17"""
-        manager = SeasonScheduleManager(temp_schedule_csv)
+    def test_get_opponent_invalid_week_too_high(self, tmp_path):
+        """Test get_opponent returns None for week > 18"""
+        data_folder = tmp_path / "data"
+        data_folder.mkdir()
+        schedule_file = data_folder / "season_schedule.csv"
+        with open(schedule_file, 'w', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerows([
+                ['week', 'team', 'opponent'],
+                ['18', 'KC', 'LV'],
+                ['18', 'LV', 'KC'],
+            ])
+        manager = SeasonScheduleManager(data_folder)
 
-        assert manager.get_opponent('KC', 18) is None
+        assert manager.get_opponent('KC', 18) == 'LV'
+        assert manager.get_opponent('KC', 19) is None
         assert manager.get_opponent('KC', 20) is None
 
     def test_get_opponent_nonexistent_team(self, temp_schedule_csv):
@@ -185,8 +196,8 @@ class TestGetFutureOpponents:
         """Test get_future_opponents returns empty list at end of season"""
         manager = SeasonScheduleManager(temp_schedule_csv)
 
-        # No future opponents after week 17
-        future = manager.get_future_opponents('KC', 17)
+        # No future opponents after week 18 (last week of regular season)
+        future = manager.get_future_opponents('KC', 18)
 
         assert future == []
 
@@ -233,7 +244,7 @@ class TestGetRemainingSchedule:
         """Test get_remaining_schedule returns empty dict at end of season"""
         manager = SeasonScheduleManager(temp_schedule_csv)
 
-        remaining = manager.get_remaining_schedule('KC', 17)
+        remaining = manager.get_remaining_schedule('KC', 18)
 
         assert remaining == {}
 
@@ -247,7 +258,7 @@ class TestGetRemainingSchedule:
 
         # Should return dict with None values for all weeks
         assert isinstance(remaining, dict)
-        for week in range(2, 18):
+        for week in range(2, 19):
             assert remaining[week] is None
 
 

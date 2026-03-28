@@ -65,6 +65,9 @@ class JSONSnapshotExporter:
     - player_rating: Week 1 uses draft-based, Week 2+ recalculated from cumulative actuals
 
     Uses bridge adapter pattern to call player_data_exporter stat extraction methods.
+    Output JSON files use dict-wrapper format: {"<position>_data": [list of player objects]}.
+    QB players include a "receiving" section (targets, receiving_yds, receiving_tds, receptions).
+    QB/RB/WR/TE players include a "misc" section with a "fumbles" array (17 elements).
     """
 
     def __init__(self):
@@ -218,6 +221,22 @@ class JSONSnapshotExporter:
                         stat_array, current_week, "stat"
                     )
 
+            receiving_stats = exporter._extract_receiving_stats(adapter)
+            result['receiving'] = {}
+            for stat_name, stat_array in receiving_stats.items():
+                if isinstance(stat_array, list):
+                    result['receiving'][stat_name] = self._apply_point_in_time_logic(
+                        stat_array, current_week, "stat"
+                    )
+
+            misc_stats = exporter._extract_misc_stats(adapter)
+            result['misc'] = {}
+            for stat_name, stat_array in misc_stats.items():
+                if isinstance(stat_array, list):
+                    result['misc'][stat_name] = self._apply_point_in_time_logic(
+                        stat_array, current_week, "stat"
+                    )
+
         elif player_data.position == 'RB':
             rushing_stats = exporter._extract_rushing_stats(adapter)
             receiving_stats = exporter._extract_receiving_stats(adapter)
@@ -236,6 +255,14 @@ class JSONSnapshotExporter:
                         stat_array, current_week, "stat"
                     )
 
+            misc_stats = exporter._extract_misc_stats(adapter)
+            result['misc'] = {}
+            for stat_name, stat_array in misc_stats.items():
+                if isinstance(stat_array, list):
+                    result['misc'][stat_name] = self._apply_point_in_time_logic(
+                        stat_array, current_week, "stat"
+                    )
+
         elif player_data.position in ['WR', 'TE']:
             rushing_stats = exporter._extract_rushing_stats(adapter)
             receiving_stats = exporter._extract_receiving_stats(adapter)
@@ -251,6 +278,14 @@ class JSONSnapshotExporter:
             for stat_name, stat_array in receiving_stats.items():
                 if isinstance(stat_array, list):
                     result['receiving'][stat_name] = self._apply_point_in_time_logic(
+                        stat_array, current_week, "stat"
+                    )
+
+            misc_stats = exporter._extract_misc_stats(adapter)
+            result['misc'] = {}
+            for stat_name, stat_array in misc_stats.items():
+                if isinstance(stat_array, list):
+                    result['misc'][stat_name] = self._apply_point_in_time_logic(
                         stat_array, current_week, "stat"
                     )
 
@@ -356,6 +391,8 @@ class JSONSnapshotExporter:
             player_obj['kicking'] = stats['kicking']
         if player_data.position == 'DST' and 'defense' in stats:
             player_obj['defense'] = stats['defense']
+        if player_data.position in ['QB', 'RB', 'WR', 'TE'] and 'misc' in stats:
+            player_obj['misc'] = stats['misc']
 
         return player_obj
 
@@ -368,6 +405,9 @@ class JSONSnapshotExporter:
     ) -> None:
         """
         Generate JSON file for a single position.
+
+        Output format: {"<position>_data": [list of player objects]} (dict-wrapper, not bare list).
+        Empty position list writes {"<position>_data": []} rather than [].
 
         Args:
             players: List of all PlayerData objects
@@ -382,7 +422,7 @@ class JSONSnapshotExporter:
             self.logger.warning(f"No players found for position {position} in week {current_week}")
             # Create empty JSON file
             with open(output_path, 'w') as f:
-                json.dump([], f, indent=2)
+                json.dump({f"{position.lower()}_data": []}, f, indent=2)
             return
 
         # Calculate player ratings for this week
@@ -400,7 +440,7 @@ class JSONSnapshotExporter:
 
         # Write JSON file
         with open(output_path, 'w') as f:
-            json.dump(json_objects, f, indent=2)
+            json.dump({f"{position.lower()}_data": json_objects}, f, indent=2)
 
         self.logger.debug(f"Generated {position} JSON: {len(json_objects)} players ({output_path.name})")
 

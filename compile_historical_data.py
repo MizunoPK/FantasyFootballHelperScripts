@@ -301,7 +301,6 @@ def main() -> int:
             asyncio.run(compile_season_data(current_year, output_dir))
 
             logger.info("Historical data compilation completed successfully!")
-            return 0
 
         except ValueError as e:
             logger.error(f"Validation error: {e}")
@@ -316,6 +315,8 @@ def main() -> int:
             if 'output_dir' in locals():
                 cleanup_on_error(output_dir)
             return 1
+
+    return 0
 
 
 if __name__ == "__main__":

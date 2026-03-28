@@ -17,6 +17,7 @@ import argparse
 import asyncio
 import datetime
 import shutil
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List
@@ -31,6 +32,11 @@ from player_data_fetcher.espn_client import ESPNClient
 from player_data_fetcher.player_data_exporter import DataExporter
 
 from player_data_fetcher.config import LOG_NAME, LOGGING_FORMAT
+
+
+# Minimum total players (summed across all positions) required before writing output files.
+# Guards against silent overwrites when ESPN returns an empty or near-empty response.
+MIN_EXPECTED_PLAYER_COUNT = 100
 
 
 @dataclass
@@ -604,9 +610,13 @@ async def main(settings_dict: dict | None = None) -> None:
         collector = NFLProjectionsCollector(settings)
         projection_data = await collector.collect_all_projections()
 
-        if not projection_data:
-            print("[ERROR] No projection data collected. Check your configuration.")
-            return
+        total_players = sum(proj.total_players for proj in projection_data.values())
+        if total_players < MIN_EXPECTED_PLAYER_COUNT:
+            logger.error(
+                f"Insufficient player data: only {total_players} players collected "
+                f"(minimum {MIN_EXPECTED_PLAYER_COUNT}). Aborting to protect existing files."
+            )
+            sys.exit(1)
 
         # Export data
         output_files = await collector.export_data(projection_data)
