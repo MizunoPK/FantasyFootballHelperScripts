@@ -48,7 +48,7 @@ def load_json_fixture(fixture_type: str, filename: str) -> dict:
 
 
 def assert_dataframe_output(
-    df: "pd.DataFrame",
+    df: pd.DataFrame,
     min_rows: int,
     required_columns: List[str],
     non_null_columns: List[str],
