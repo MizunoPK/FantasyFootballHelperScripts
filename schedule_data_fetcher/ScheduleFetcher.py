@@ -10,6 +10,8 @@ Author: Kai Mizuno
 
 import asyncio
 import csv
+import json
+import os
 from pathlib import Path
 from typing import Dict, Optional, Set
 from utils.LoggingManager import get_logger
@@ -60,6 +62,18 @@ class ScheduleFetcher:
         Raises:
             Exception: If request fails
         """
+        fixture_dir = os.environ.get("ESPN_FIXTURE_DIR")
+        if fixture_dir:
+            filename = f"scoreboard_week_{params['week']}_{params['dates']}.json"
+            fixture_path = Path(fixture_dir) / "espn_api" / filename
+            if not fixture_path.exists():
+                raise FileNotFoundError(
+                    f"Fixture file not found: {fixture_path}. "
+                    f"Set ESPN_FIXTURE_DIR to a directory containing fixture files, "
+                    f"or run the fixture recording mechanism to populate it."
+                )
+            return json.loads(fixture_path.read_text())
+
         await self._create_client()
 
         try:
