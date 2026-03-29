@@ -1,4 +1,11 @@
+"""
+Fixture Helper Utilities
+
+Provides shared path builders, fixture loaders, and DataFrame assertion utilities
+for KAI-15 e2e fixture infrastructure tests.
+"""
 from pathlib import Path
+from typing import List
 import json
 import pandas as pd
 
@@ -43,8 +50,8 @@ def load_json_fixture(fixture_type: str, filename: str) -> dict:
 def assert_dataframe_output(
     df: "pd.DataFrame",
     min_rows: int,
-    required_columns: list[str],
-    non_null_columns: list[str],
+    required_columns: List[str],
+    non_null_columns: List[str],
 ) -> None:
     """Assert that a DataFrame output meets minimum validity criteria.
 

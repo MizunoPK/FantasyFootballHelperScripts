@@ -1,3 +1,9 @@
+"""
+Integration Tests for F1: fixture_directory_and_helpers (KAI-15)
+
+Tests verify the fixture directory structure, helpers.py utilities,
+pytest live_api marker infrastructure, and run_all_tests.py changes.
+"""
 import pytest
 import json
 from pathlib import Path
