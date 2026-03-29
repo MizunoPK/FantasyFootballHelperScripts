@@ -98,7 +98,7 @@ class TestRunner:
             # Parse test results from output
             passed_count, total_count = self._parse_test_results(output)
 
-            # Success if all tests passed and exit code is 0
+            # Success if exit code 0 (tests passed) or 5 (no tests collected)
             success = (result.returncode in [0, 5] and passed_count == total_count)
 
             return success, passed_count, total_count, output
