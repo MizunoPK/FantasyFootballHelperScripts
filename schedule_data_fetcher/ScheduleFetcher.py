@@ -14,8 +14,8 @@ import json
 import os
 from pathlib import Path
 from typing import Dict, Optional, Set
-from utils.LoggingManager import get_logger
 import httpx
+from utils.LoggingManager import get_logger
 
 
 class ScheduleFetcher:

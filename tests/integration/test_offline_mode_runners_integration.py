@@ -8,18 +8,17 @@ All tests are fully offline — no live ESPN API calls made.
 import asyncio
 import json
 import types
-import pytest
-from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock
+import pytest
 from tenacity import RetryError
-
-project_root = Path(__file__).parent.parent.parent
 
 
 class TestScheduleFetcherOfflineMode:
+    """Tests for ScheduleFetcher._make_request() offline mode via ESPN_FIXTURE_DIR."""
 
     @pytest.mark.asyncio
     async def test_returns_fixture_when_file_exists(self, monkeypatch, tmp_path):
+        """Verify _make_request returns fixture JSON when ESPN_FIXTURE_DIR is set and file exists."""
         from schedule_data_fetcher.ScheduleFetcher import ScheduleFetcher
 
         fixture_data = {"events": [{"id": "401547353"}]}
@@ -37,6 +36,7 @@ class TestScheduleFetcherOfflineMode:
 
     @pytest.mark.asyncio
     async def test_no_http_client_created_on_hit(self, monkeypatch, tmp_path):
+        """Verify no HTTP client is created when fixture file is read (offline mode)."""
         from schedule_data_fetcher.ScheduleFetcher import ScheduleFetcher
 
         fixture_data = {"events": []}
@@ -54,6 +54,7 @@ class TestScheduleFetcherOfflineMode:
 
     @pytest.mark.asyncio
     async def test_raises_file_not_found_on_miss(self, monkeypatch, tmp_path):
+        """Verify FileNotFoundError is raised when fixture file is missing."""
         from schedule_data_fetcher.ScheduleFetcher import ScheduleFetcher
 
         espn_dir = tmp_path / "espn_api"
@@ -68,6 +69,7 @@ class TestScheduleFetcherOfflineMode:
 
     @pytest.mark.asyncio
     async def test_error_message_on_miss(self, monkeypatch, tmp_path):
+        """Verify FileNotFoundError message includes 'Fixture file not found' context."""
         from schedule_data_fetcher.ScheduleFetcher import ScheduleFetcher
 
         espn_dir = tmp_path / "espn_api"
@@ -84,6 +86,7 @@ class TestScheduleFetcherOfflineMode:
 
     @pytest.mark.asyncio
     async def test_create_client_called_without_env_var(self, monkeypatch, tmp_path):
+        """Verify HTTP client is created (live path taken) when ESPN_FIXTURE_DIR is not set."""
         from schedule_data_fetcher.ScheduleFetcher import ScheduleFetcher
 
         monkeypatch.delenv("ESPN_FIXTURE_DIR", raising=False)
@@ -108,9 +111,11 @@ class TestScheduleFetcherOfflineMode:
 
 
 class TestBaseAPIClientOfflineMode:
+    """Tests for BaseAPIClient._make_request() offline mode via ESPN_FIXTURE_DIR."""
 
     @pytest.mark.asyncio
     async def test_returns_fixture_when_file_exists(self, monkeypatch, tmp_path):
+        """Verify _make_request returns fixture JSON when ESPN_FIXTURE_DIR is set and file exists."""
         from player_data_fetcher.espn_client import BaseAPIClient
 
         fixture_data = {"players": [{"id": "12345"}]}
@@ -129,6 +134,7 @@ class TestBaseAPIClientOfflineMode:
 
     @pytest.mark.asyncio
     async def test_no_asyncio_sleep_on_hit(self, monkeypatch, tmp_path):
+        """Verify asyncio.sleep is not called when fixture file is read (no rate limiting)."""
         from player_data_fetcher.espn_client import BaseAPIClient
 
         fixture_data = {"players": []}
@@ -149,6 +155,7 @@ class TestBaseAPIClientOfflineMode:
 
     @pytest.mark.asyncio
     async def test_raises_file_not_found_on_miss(self, monkeypatch, tmp_path):
+        """Verify FileNotFoundError (or RetryError wrapping it) is raised when fixture is missing."""
         from player_data_fetcher.espn_client import BaseAPIClient
 
         espn_dir = tmp_path / "espn_api"
@@ -164,6 +171,7 @@ class TestBaseAPIClientOfflineMode:
 
     @pytest.mark.asyncio
     async def test_env_var_unset_calls_asyncio_sleep(self, monkeypatch, tmp_path):
+        """Verify asyncio.sleep is called (live path taken) when ESPN_FIXTURE_DIR is not set."""
         from player_data_fetcher.espn_client import BaseAPIClient
 
         monkeypatch.delenv("ESPN_FIXTURE_DIR", raising=False)
@@ -188,8 +196,10 @@ class TestBaseAPIClientOfflineMode:
 
 
 class TestGetFixtureFilename:
+    """Tests for BaseAPIClient._get_fixture_filename() URL-to-fixture-filename mapping."""
 
     def test_scoreboard_url(self):
+        """Verify scoreboard URL maps to scoreboard_week_{N}_{YYYY}.json."""
         from player_data_fetcher.espn_client import BaseAPIClient
 
         url = "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard"
@@ -198,6 +208,7 @@ class TestGetFixtureFilename:
         assert result == "scoreboard_week_5_2025.json"
 
     def test_teams_list_url(self):
+        """Verify teams list URL maps to teams_list.json."""
         from player_data_fetcher.espn_client import BaseAPIClient
 
         url = "https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams"
@@ -205,6 +216,7 @@ class TestGetFixtureFilename:
         assert result == "teams_list.json"
 
     def test_team_stats_url(self):
+        """Verify team stats URL maps to team_stats_{id}.json with extracted team ID."""
         from player_data_fetcher.espn_client import BaseAPIClient
 
         url = "https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/22/statistics"
@@ -212,6 +224,7 @@ class TestGetFixtureFilename:
         assert result == "team_stats_22.json"
 
     def test_season_projections_url(self):
+        """Verify leaguedefaults URL maps to season_projections_{season}.json with extracted year."""
         from player_data_fetcher.espn_client import BaseAPIClient
 
         url = "https://lm-api-reads.fantasy.espn.com/apis/v3/games/ffl/leaguedefaults/seasons/2025/segments/0/leaguetypes/0"
@@ -219,6 +232,7 @@ class TestGetFixtureFilename:
         assert result == "season_projections_2025.json"
 
     def test_unrecognized_url_raises_value_error(self):
+        """Verify unrecognized URL raises ValueError with descriptive message."""
         from player_data_fetcher.espn_client import BaseAPIClient
 
         url = "https://site.api.espn.com/apis/site/v2/sports/football/nfl/unknown_endpoint"
