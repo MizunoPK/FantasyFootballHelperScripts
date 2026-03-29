@@ -19,6 +19,8 @@ project_root = Path(__file__).parent.parent.parent
 from schedule_data_fetcher.ScheduleFetcher import ScheduleFetcher
 from utils.LoggingManager import setup_logger
 
+pytestmark = pytest.mark.live_api
+
 
 class TestE2EExecution:
     """Integration Tests I1-I6: E2E execution with/without flag"""
