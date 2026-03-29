@@ -4,9 +4,10 @@ Fixture Helper Utilities
 Provides shared path builders, fixture loaders, and DataFrame assertion utilities
 for KAI-15 e2e fixture infrastructure tests.
 """
+import json
 from pathlib import Path
 from typing import List
-import json
+
 import pandas as pd
 
 FIXTURES_ROOT = Path(__file__).parent
