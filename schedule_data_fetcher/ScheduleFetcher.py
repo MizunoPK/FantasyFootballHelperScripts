@@ -79,7 +79,16 @@ class ScheduleFetcher:
         try:
             response = await self.client.get(url, params=params)
             response.raise_for_status()
-            return response.json()
+            data = response.json()
+
+            record_dir = os.environ.get("ESPN_RECORD_FIXTURES_DIR")
+            if record_dir:
+                filename = f"scoreboard_week_{params['week']}_{params['dates']}.json"
+                record_path = Path(record_dir) / "espn_api" / filename
+                record_path.parent.mkdir(parents=True, exist_ok=True)
+                record_path.write_text(json.dumps(data, indent=2))
+
+            return data
         except httpx.RequestError as e:
             self.logger.error(f"HTTP request failed: {e}")
             raise

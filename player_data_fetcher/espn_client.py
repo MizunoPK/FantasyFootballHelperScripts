@@ -210,7 +210,17 @@ class BaseAPIClient:
             self.logger.debug("Request successful")
 
             # Parse and return JSON response data
-            return response.json()
+            data = response.json()
+
+            record_dir = os.environ.get("ESPN_RECORD_FIXTURES_DIR")
+            if record_dir:
+                params = kwargs.get("params", {}) or {}
+                filename = self._get_fixture_filename(url, params)
+                record_path = Path(record_dir) / "espn_api" / filename
+                record_path.parent.mkdir(parents=True, exist_ok=True)
+                record_path.write_text(json.dumps(data, indent=2))
+
+            return data
 
         except httpx.RequestError as e:
             # Network-level errors (DNS, connection timeout, etc.)
