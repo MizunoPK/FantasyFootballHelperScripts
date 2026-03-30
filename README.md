@@ -12,6 +12,7 @@ A comprehensive Python-based system for optimizing fantasy football draft decisi
 - [Project Structure](#project-structure)
 - [Configuration](#configuration)
 - [Testing](#testing)
+- [Testing & Fixture Mode](#testing--fixture-mode)
 - [Development Guidelines](#development-guidelines)
 - [Data Files](#data-files)
 
@@ -536,6 +537,51 @@ tests/
 - Mock external dependencies
 - Follow Arrange-Act-Assert pattern
 - See `tests/README.md` for detailed guidelines
+
+### Testing & Fixture Mode
+
+The ESPN API fetchers support two environment variables for offline testing and
+fixture recording.
+
+#### Offline Mode (`ESPN_FIXTURE_DIR`)
+
+Set `ESPN_FIXTURE_DIR` to a directory containing pre-recorded JSON fixtures.
+When set, all ESPN API requests read from local files instead of making HTTP calls.
+
+```bash
+# Run integration tests in offline mode using committed fixtures
+ESPN_FIXTURE_DIR=tests/fixtures python run_pre_commit_validation.py
+
+# Run a specific integration test offline
+ESPN_FIXTURE_DIR=tests/fixtures pytest tests/integration/
+```
+
+**Fixture directory layout:**
+```
+tests/fixtures/
+├── espn_api/       # ESPN scoreboard API responses (JSON)
+├── historical/     # Historical season data
+├── player_data/    # Player projection data
+└── league/         # League configuration data
+```
+
+When a requested fixture file is not found, a `FileNotFoundError` is raised with
+instructions to run the fixture recording mechanism to populate the directory.
+
+#### Recording Mode (`ESPN_RECORD_FIXTURES_DIR`)
+
+Set `ESPN_RECORD_FIXTURES_DIR` to a directory where live ESPN API responses should
+be saved. When set, real HTTP requests are made and responses are written as JSON
+files, creating fixtures for future offline use.
+
+```bash
+# Record live ESPN API responses into the fixture directory
+ESPN_RECORD_FIXTURES_DIR=tests/fixtures python run_schedule_fetcher.py
+```
+
+Recorded files are written to `{ESPN_RECORD_FIXTURES_DIR}/espn_api/` with
+filenames matching what offline mode expects (e.g.,
+`scoreboard_week_1_2024.json`).
 
 ## Development Guidelines
 

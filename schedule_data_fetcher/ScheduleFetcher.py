@@ -10,10 +10,12 @@ Author: Kai Mizuno
 
 import asyncio
 import csv
+import json
+import os
 from pathlib import Path
 from typing import Dict, Optional, Set
-from utils.LoggingManager import get_logger
 import httpx
+from utils.LoggingManager import get_logger
 
 
 class ScheduleFetcher:
@@ -60,12 +62,31 @@ class ScheduleFetcher:
         Raises:
             Exception: If request fails
         """
+        filename = f"scoreboard_week_{params.get('week', 'unknown')}_{params.get('dates', 'unknown')}.json"
+        fixture_dir = os.environ.get("ESPN_FIXTURE_DIR")
+        if fixture_dir:
+            fixture_path = Path(fixture_dir) / "espn_api" / filename
+            if not fixture_path.exists():
+                raise FileNotFoundError(
+                    f"Fixture file not found: {fixture_path}. "
+                    f"Run the fixture recording mechanism to populate the fixture directory."
+                )
+            return json.loads(fixture_path.read_text())
+
         await self._create_client()
 
         try:
             response = await self.client.get(url, params=params)
             response.raise_for_status()
-            return response.json()
+            data = response.json()
+
+            record_dir = os.environ.get("ESPN_RECORD_FIXTURES_DIR")
+            if record_dir:
+                record_path = Path(record_dir) / "espn_api" / filename
+                record_path.parent.mkdir(parents=True, exist_ok=True)
+                record_path.write_text(json.dumps(data, indent=2))
+
+            return data
         except httpx.RequestError as e:
             self.logger.error(f"HTTP request failed: {e}")
             raise
@@ -141,7 +162,8 @@ class ScheduleFetcher:
                 full_schedule[week] = week_schedule
 
                 # Rate limiting between requests
-                await asyncio.sleep(0.2)
+                if not os.environ.get("ESPN_FIXTURE_DIR"):
+                    await asyncio.sleep(0.2)
 
             self.logger.info(f"Successfully fetched schedule for {len(full_schedule)} weeks")
 

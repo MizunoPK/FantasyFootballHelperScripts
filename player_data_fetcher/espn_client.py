@@ -11,8 +11,12 @@ Author: Kai Mizuno
 import asyncio
 import csv
 from contextlib import asynccontextmanager
-from typing import Dict, List, Any, Optional, Set
+import json
 import math
+import os
+from pathlib import Path
+from typing import Dict, List, Any, Optional, Set
+from urllib.parse import urlparse
 
 import httpx
 from tenacity import retry, stop_after_attempt, wait_random_exponential
@@ -105,7 +109,44 @@ class BaseAPIClient:
                 await self._client.aclose()
                 self._client = None
                 self.logger.debug("Closed HTTP client session")
-    
+
+    @staticmethod
+    def _get_fixture_filename(url: str, params: dict) -> str:
+        """Map an ESPN API URL + params to a deterministic fixture filename.
+
+        Args:
+            url: ESPN API endpoint URL
+            params: Query parameters dict (may be empty)
+
+        Returns:
+            Fixture filename (without directory prefix)
+
+        Raises:
+            ValueError: If url does not match any known ESPN API endpoint
+        """
+        path = urlparse(url).path
+
+        if "nfl/scoreboard" in path:
+            week = params.get("week", "unknown")
+            dates = params.get("dates", "unknown")
+            return f"scoreboard_week_{week}_{dates}.json"
+        elif path.rstrip("/").endswith("/nfl/teams"):
+            return "teams_list.json"
+        elif "/nfl/teams/" in path and "/statistics" in path:
+            parts = path.split("/")
+            team_id = parts[parts.index("teams") + 1]
+            return f"team_stats_{team_id}.json"
+        elif "leaguedefaults" in path:
+            parts = path.split("/")
+            season_idx = parts.index("seasons") + 1
+            season = parts[season_idx]
+            return f"season_projections_{season}.json"
+        else:
+            raise ValueError(
+                f"No fixture filename defined for URL: {url}. "
+                f"Add a mapping to BaseAPIClient._get_fixture_filename()."
+            )
+
     @retry(stop=stop_after_attempt(3), wait=wait_random_exponential(multiplier=1, max=10))
     async def _make_request(self, method: str, url: str, **kwargs) -> Dict[str, Any]:
         """
@@ -130,6 +171,18 @@ class BaseAPIClient:
             ESPNAPIError: For other HTTP errors (400-499) or network failures
         """
         self.logger.debug(f"Making request to: {url}")
+
+        fixture_dir = os.environ.get("ESPN_FIXTURE_DIR")
+        if fixture_dir:
+            params = kwargs.get("params", {}) or {}
+            filename = self._get_fixture_filename(url, params)
+            fixture_path = Path(fixture_dir) / "espn_api" / filename
+            if not fixture_path.exists():
+                raise FileNotFoundError(
+                    f"Fixture file not found: {fixture_path}. "
+                    f"Run the fixture recording mechanism to populate the fixture directory."
+                )
+            return json.loads(fixture_path.read_text())
 
         # Rate limiting: Sleep before each request to avoid ESPN API throttling
         # Configured via settings.rate_limit_delay (typically 0.1-0.5 seconds)
@@ -156,7 +209,17 @@ class BaseAPIClient:
             self.logger.debug("Request successful")
 
             # Parse and return JSON response data
-            return response.json()
+            data = response.json()
+
+            record_dir = os.environ.get("ESPN_RECORD_FIXTURES_DIR")
+            if record_dir:
+                params = kwargs.get("params", {}) or {}
+                filename = self._get_fixture_filename(url, params)
+                record_path = Path(record_dir) / "espn_api" / filename
+                record_path.parent.mkdir(parents=True, exist_ok=True)
+                record_path.write_text(json.dumps(data, indent=2))
+
+            return data
 
         except httpx.RequestError as e:
             # Network-level errors (DNS, connection timeout, etc.)

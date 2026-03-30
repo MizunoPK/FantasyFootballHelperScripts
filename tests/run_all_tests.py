@@ -77,6 +77,7 @@ class TestRunner:
             str(self.venv_python),
             "-m", "pytest",
             str(test_file),
+            "-m", "not live_api",
             "-v" if self.verbose else "-q",
             "--tb=short"
         ]
@@ -97,8 +98,8 @@ class TestRunner:
             # Parse test results from output
             passed_count, total_count = self._parse_test_results(output)
 
-            # Success if all tests passed and exit code is 0
-            success = (result.returncode == 0 and passed_count == total_count)
+            # Success if exit code 0 (tests passed) or 5 (no tests collected)
+            success = (result.returncode in [0, 5] and passed_count == total_count)
 
             return success, passed_count, total_count, output
 
@@ -242,6 +243,7 @@ class TestRunner:
             str(self.venv_python),
             "-m", "pytest",
             str(self.tests_dir),
+            "-m", "not live_api",
             "-v" if self.verbose else "",
             "--tb=short"
         ]
@@ -269,7 +271,7 @@ class TestRunner:
             print()
             print("=" * 80)
 
-            if result.returncode == 0 and passed_count == total_count:
+            if result.returncode in [0, 5] and passed_count == total_count:
                 print(f"SUCCESS: ALL {total_count} TESTS PASSED (100%)")
                 print("=" * 80)
                 return True
