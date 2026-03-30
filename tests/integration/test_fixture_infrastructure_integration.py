@@ -44,12 +44,12 @@ class TestHelpersFunctions:
         assert result == FIXTURES_ROOT / "espn_api" / "test.json"
 
     def test_load_json_fixture_raises_on_missing_file(self):
-        """Verify load_json_fixture raises FileNotFoundError with F3 guidance message."""
+        """Verify load_json_fixture raises FileNotFoundError with descriptive message."""
         from tests.fixtures.helpers import load_json_fixture
         with pytest.raises(FileNotFoundError) as exc_info:
             load_json_fixture("espn_api", "nonexistent_fixture_xyz.json")
         assert "Fixture file not found" in str(exc_info.value)
-        assert "F3" in str(exc_info.value)
+        assert "fixture directory" in str(exc_info.value)
 
     def test_load_json_fixture_returns_dict_for_valid_file(self):
         """Verify load_json_fixture returns parsed dict when fixture file exists."""

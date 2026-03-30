@@ -42,7 +42,7 @@ def load_json_fixture(fixture_type: str, filename: str) -> Dict[str, Any]:
     path = get_fixture_path(fixture_type, filename)
     if not path.exists():
         raise FileNotFoundError(
-            f"Fixture file not found: {path}. Run the fixture recording mechanism (F3) to populate it."
+            f"Fixture file not found: {path}. Run the fixture recording mechanism to populate the fixture directory."
         )
     with open(path) as f:
         return json.load(f)
