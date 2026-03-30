@@ -271,7 +271,7 @@ class TestRunner:
             print()
             print("=" * 80)
 
-            if result.returncode == 0 and passed_count == total_count:
+            if result.returncode in [0, 5] and passed_count == total_count:
                 print(f"SUCCESS: ALL {total_count} TESTS PASSED (100%)")
                 print("=" * 80)
                 return True

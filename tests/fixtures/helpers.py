@@ -6,7 +6,7 @@ for KAI-15 e2e fixture infrastructure tests.
 """
 import json
 from pathlib import Path
-from typing import List
+from typing import Any, Dict, List
 
 import pandas as pd
 
@@ -26,7 +26,7 @@ def get_fixture_path(fixture_type: str, filename: str) -> Path:
     return FIXTURES_ROOT / fixture_type / filename
 
 
-def load_json_fixture(fixture_type: str, filename: str) -> dict:
+def load_json_fixture(fixture_type: str, filename: str) -> Dict[str, Any]:
     """Load and parse a JSON fixture file.
 
     Args:

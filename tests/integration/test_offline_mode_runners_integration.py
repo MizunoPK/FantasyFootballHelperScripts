@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Integration tests for offline_mode_runners feature (F2).
 

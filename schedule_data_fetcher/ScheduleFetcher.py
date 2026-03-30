@@ -64,13 +64,12 @@ class ScheduleFetcher:
         """
         fixture_dir = os.environ.get("ESPN_FIXTURE_DIR")
         if fixture_dir:
-            filename = f"scoreboard_week_{params['week']}_{params['dates']}.json"
+            filename = f"scoreboard_week_{params.get('week', 'unknown')}_{params.get('dates', 'unknown')}.json"
             fixture_path = Path(fixture_dir) / "espn_api" / filename
             if not fixture_path.exists():
                 raise FileNotFoundError(
                     f"Fixture file not found: {fixture_path}. "
-                    f"Set ESPN_FIXTURE_DIR to a directory containing fixture files, "
-                    f"or run the fixture recording mechanism to populate it."
+                    f"Run the fixture recording mechanism to populate the fixture directory."
                 )
             return json.loads(fixture_path.read_text())
 
@@ -83,7 +82,7 @@ class ScheduleFetcher:
 
             record_dir = os.environ.get("ESPN_RECORD_FIXTURES_DIR")
             if record_dir:
-                filename = f"scoreboard_week_{params['week']}_{params['dates']}.json"
+                filename = f"scoreboard_week_{params.get('week', 'unknown')}_{params.get('dates', 'unknown')}.json"
                 record_path = Path(record_dir) / "espn_api" / filename
                 record_path.parent.mkdir(parents=True, exist_ok=True)
                 record_path.write_text(json.dumps(data, indent=2))

@@ -180,8 +180,7 @@ class BaseAPIClient:
             if not fixture_path.exists():
                 raise FileNotFoundError(
                     f"Fixture file not found: {fixture_path}. "
-                    f"Set ESPN_FIXTURE_DIR to a directory containing fixture files, "
-                    f"or run the fixture recording mechanism to populate it."
+                    f"Run the fixture recording mechanism to populate the fixture directory."
                 )
             return json.loads(fixture_path.read_text())
 
