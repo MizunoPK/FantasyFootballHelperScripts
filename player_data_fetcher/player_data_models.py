@@ -30,21 +30,18 @@ class ESPNPlayerData(BaseModel):
     with proper field separation (no field reuse) and validation.
     """
 
-    # Core player identification
     id: str
     name: str
     team: str
     position: str
 
-    # Fantasy data
     bye_week: Optional[int] = None
     drafted_by: str = ""  # Team name (empty = free agent)
-    locked: int = 0   # 0 = not locked, 1 = locked
+    locked: int = 0
     fantasy_points: float = 0.0
-    average_draft_position: Optional[float] = None  # ESPN's ADP data
-    player_rating: Optional[float] = None  # 0-100 scale normalized from ESPN position-specific rankings (100=best, 1=worst within position)
+    average_draft_position: Optional[float] = None
+    player_rating: Optional[float] = None
 
-    # Weekly projections (weeks 1-17 fantasy regular season only)
     week_1_points: Optional[float] = None
     week_2_points: Optional[float] = None
     week_3_points: Optional[float] = None
@@ -63,21 +60,13 @@ class ESPNPlayerData(BaseModel):
     week_16_points: Optional[float] = None
     week_17_points: Optional[float] = None
 
-    # Injury information (proper field instead of reusing others)
     injury_status: str = "ACTIVE"  # ACTIVE, QUESTIONABLE, OUT, etc.
 
-    # Metadata
     api_source: str = "ESPN"
     updated_at: datetime = Field(default_factory=datetime.now)
 
-    # Projected weekly points (statSourceId=1 from ESPN API)
-    # Stored as dictionary: {week_number: projected_points}
-    # Used for players_projected.csv which contains projection-only values
     projected_weeks: Dict[int, float] = Field(default_factory=dict)
 
-    # Raw stats array from ESPN API for position JSON export stat extraction
-    # Stores complete stats array from ESPN response to enable detailed stat extraction
-    # Each entry contains: {scoringPeriodId, statSourceId, appliedTotal, appliedStats}
     raw_stats: Optional[List[Dict[str, Any]]] = Field(default_factory=list)
 
     def set_week_points(self, week: int, points: float):
@@ -143,7 +132,6 @@ class ProjectionData(BaseModel):
     generated_at: datetime = Field(default_factory=datetime.now)
 
 
-# Custom Exceptions
 class DataCollectionError(Exception):
     """Custom exception for data collection issues"""
     pass

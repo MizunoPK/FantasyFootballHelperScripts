@@ -15,7 +15,6 @@ from collections import deque
 from typing import Optional
 
 
-# Custom PROGRESS log level (set to highest level to always display, above CRITICAL)
 PROGRESS_LEVEL = 60
 
 class ProgressTracker:
@@ -50,11 +49,9 @@ class ProgressTracker:
         self.eta_window_size = eta_window_size
         self.logger = logger
 
-        # Progress tracking
         self.processed_players = 0
         self.start_time = time.time()
 
-        # Recent performance tracking for ETA calculation
         self.recent_times = deque(maxlen=eta_window_size)
         self.last_update_time = self.start_time
         self.last_update_count = 0
@@ -72,7 +69,6 @@ class ProgressTracker:
         self.processed_players += increment
         current_time = time.time()
 
-        # Track timing for recent players
         if self.processed_players > self.last_update_count:
             players_since_last = self.processed_players - self.last_update_count
             time_since_last = current_time - self.last_update_time
@@ -81,7 +77,6 @@ class ProgressTracker:
                 avg_time_per_player = time_since_last / players_since_last
                 self.recent_times.append(avg_time_per_player)
 
-        # Check if we should log progress
         should_log = (
             self.processed_players % self.update_frequency == 0 or
             self.processed_players >= self.total_players
@@ -123,33 +118,22 @@ class ProgressTracker:
         Returns:
             str: Formatted ETA string (e.g., "5m 32s") or empty string if can't calculate
         """
-        # Check if already complete
         if self.processed_players >= self.total_players:
             return "Complete"
 
-        # Calculate remaining work
         remaining_players = self.total_players - self.processed_players
 
         if not self.recent_times:
-            # No recent performance data yet (early in processing)
-            # Fall back to overall average since start
             elapsed_time = time.time() - self.start_time
             if self.processed_players > 0:
-                # Calculate average time per player since start
                 avg_time_per_player = elapsed_time / self.processed_players
-                # Estimate remaining time based on overall average
                 estimated_remaining_time = remaining_players * avg_time_per_player
             else:
-                # No data at all yet (shouldn't happen in practice)
                 return ""
         else:
-            # Use recent performance for more accurate ETA
-            # This adapts to changing speeds (e.g., API rate limiting, network conditions)
-            # By using last N players instead of overall average, ETA stays current
             recent_avg_time = sum(self.recent_times) / len(self.recent_times)
             estimated_remaining_time = remaining_players * recent_avg_time
 
-        # Convert seconds to human-readable format (e.g., "5m 32s")
         return self._format_duration(estimated_remaining_time)
 
     def _format_duration(self, seconds: float) -> str:
@@ -169,14 +153,14 @@ class ProgressTracker:
 
         if seconds < 60:
             return f"{seconds}s"
-        elif seconds < 3600:  # Less than 1 hour
+        elif seconds < 3600:
             minutes = seconds // 60
             remaining_seconds = seconds % 60
             if remaining_seconds == 0:
                 return f"{minutes}m"
             else:
                 return f"{minutes}m {remaining_seconds}s"
-        else:  # 1 hour or more
+        else:
             hours = seconds // 3600
             remaining_minutes = (seconds % 3600) // 60
             if remaining_minutes == 0:

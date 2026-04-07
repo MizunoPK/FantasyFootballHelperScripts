@@ -11,18 +11,13 @@ Author: Kai Mizuno
 
 COORDINATES_JSON = 'coordinates.json'  # Stadium coordinates for weather lookups
 
-# =============================================================================
-# LOGGING CONFIGURATION
-# =============================================================================
 
 LOG_NAME = "player_data_fetcher"
 LOGGING_FORMAT = 'standard'     # detailed / standard / simple
 
-# Progress Tracking Configuration
-PROGRESS_ETA_WINDOW_SIZE = 50          # Number of recent players to use for ETA calculation
+PROGRESS_ETA_WINDOW_SIZE = 50
 
-# =============================================================================
-# ESPN API CONFIGURATION
-# =============================================================================
 
 ESPN_USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+
+

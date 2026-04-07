@@ -27,11 +27,9 @@ from utils.LoggingManager import get_logger
 class FantasyPointsConfig:
     """Configuration for fantasy points calculation - Pure week-by-week system only"""
 
-    # Priority settings
-    prefer_actual_over_projected: bool = True  # Prefer statSourceId=0 (actuals) over statSourceId=1 (projections)
-    include_negative_dst_points: bool = True   # Allow negative points for DST positions
+    prefer_actual_over_projected: bool = True
+    include_negative_dst_points: bool = True
 
-    # Pure week-by-week system: No fallbacks, returns 0.0 when no ESPN data available
 
 
 class FantasyPointsExtractor:
@@ -79,14 +77,12 @@ class FantasyPointsExtractor:
             Fantasy points for the specified week, or 0.0 if no ESPN data available
         """
         try:
-            # Extract from ESPN stats (only source of data)
             points = self._extract_from_stats_array(player_data, week, position, current_nfl_week)
 
             if points is not None:
                 self.logger.debug(f"Extracted {points:.1f} points for {player_name} week {week}")
                 return points
 
-            # No ESPN data available - return 0.0 (pure week-by-week system)
             self.logger.debug(f"No week-by-week data available for {player_name} week {week}, returning 0.0 points")
             return 0.0
 
@@ -125,12 +121,10 @@ class FantasyPointsExtractor:
                 self.logger.debug("No stats array found in player data")
                 return None
 
-            # Separate entries by statSourceId
-            actual_points = None  # statSourceId=0
-            projected_points = None  # statSourceId=1
+            actual_points = None
+            projected_points = None
 
             for stat in stats:
-                # Validate stat entry structure
                 if not isinstance(stat, dict):
                     continue
 
@@ -138,9 +132,7 @@ class FantasyPointsExtractor:
                 scoring_period = stat.get('scoringPeriodId')
                 stat_source_id = stat.get('statSourceId')
 
-                # Only use current season data for the target week
                 if scoring_period == week and season_id == self.season:
-                    # Extract appliedTotal (the only points field in ESPN's API)
                     if 'appliedTotal' in stat and stat['appliedTotal'] is not None:
                         try:
                             points = float(stat['appliedTotal'])
@@ -154,27 +146,18 @@ class FantasyPointsExtractor:
                             projected_points = points
                             self.logger.debug(f"Found projection (statSourceId=1) for week {week}: {points}")
 
-            # SMART PRIORITY LOGIC based on week
-            # For past weeks: prefer actual scores
-            # For current/future weeks: prefer projections
-            # Legacy mode (no current_nfl_week): prefer actuals
             points = None
 
             if current_nfl_week is not None:
                 if week < current_nfl_week:
-                    # Past weeks: prefer actual, fallback to projection
                     points = actual_points if actual_points is not None else projected_points
                 else:
-                    # Current/Future weeks: prefer projection, fallback to actual
                     points = projected_points if projected_points is not None else actual_points
             else:
-                # Legacy behavior: prefer actual (for backward compatibility)
                 points = actual_points if actual_points is not None else projected_points
 
-            # Validate points (handle negative points based on position and config)
             if points is not None:
                 if points < 0:
-                    # Handle negative points
                     if position == 'DST' and self.config.include_negative_dst_points:
                         return points
                     else:
@@ -183,14 +166,12 @@ class FantasyPointsExtractor:
                 else:
                     return points
 
-            # No data found for this week
             return None
 
         except (ValueError, TypeError, KeyError) as e:
             self.logger.warning(f"Error parsing stats array: {str(e)}")
             return None
 
-    # Fallback methods removed - pure week-by-week system only
 
     def extract_stat_entry_points(self, stat_entry: Dict[str, Any]) -> float:
         """
@@ -209,11 +190,9 @@ class FantasyPointsExtractor:
             Fantasy points from the stat entry (appliedTotal value)
         """
         try:
-            # Handle None stat_entry
             if stat_entry is None:
                 return 0.0
 
-            # Extract appliedTotal (the only points field in ESPN's API)
             if 'appliedTotal' in stat_entry and stat_entry['appliedTotal'] is not None:
                 return float(stat_entry['appliedTotal'])
             else:
@@ -224,7 +203,6 @@ class FantasyPointsExtractor:
             return 0.0
 
 
-# Convenience functions for quick usage
 def extract_week_fantasy_points(
     player_data: Dict[str, Any],
     week: int,
@@ -267,7 +245,6 @@ def extract_stat_entry_fantasy_points(stat_entry: Dict[str, Any]) -> float:
     return extractor.extract_stat_entry_points(stat_entry)
 
 
-# Export main classes and functions
 __all__ = [
     'FantasyPointsConfig',
     'FantasyPointsExtractor',

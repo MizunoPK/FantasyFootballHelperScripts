@@ -68,12 +68,10 @@ class GameDataFetcher:
         self.rate_limit_delay = rate_limit_delay
         self.logger = get_logger()
 
-        # Initialize coordinates manager
         script_dir = Path(__file__).parent
         coords_file = script_dir / COORDINATES_JSON
         self.coords_manager = CoordinatesManager(coords_file)
 
-        # Output file path
         self.output_file = self.data_folder / "game_data.csv"
 
         self.logger.info(f"GameDataFetcher initialized for season {season}, week {current_week}")
@@ -94,7 +92,6 @@ class GameDataFetcher:
             games = []
 
             for _, row in df.iterrows():
-                # Convert CSV row to GameData, handling empty strings as None
                 game = GameData(
                     week=int(row["week"]),
                     home_team=row["home_team"],
@@ -192,7 +189,6 @@ class GameDataFetcher:
             API endpoint URL (Historical or Forecast)
         """
         try:
-            # Parse ISO 8601 date
             game_dt = datetime.fromisoformat(game_date.replace('Z', '+00:00'))
             five_days_ago = datetime.now(timezone.utc) - timedelta(days=5)
 
@@ -201,7 +197,6 @@ class GameDataFetcher:
             else:
                 return self.OPEN_METEO_FORECAST_URL
         except (ValueError, TypeError):
-            # Default to forecast API if date parsing fails
             return self.OPEN_METEO_FORECAST_URL
 
     def _fetch_weather_for_game(
@@ -227,11 +222,9 @@ class GameDataFetcher:
         Returns:
             Dict with temperature, gust, precipitation (or None values for indoor)
         """
-        # Skip weather for indoor games
         if is_indoor:
             return {"temperature": None, "gust": None, "precipitation": None}
 
-        # Get coordinates
         coords = self.coords_manager.get_or_fetch_coordinates(
             team_abbrev=home_team,
             city=city,
@@ -244,13 +237,10 @@ class GameDataFetcher:
             return {"temperature": None, "gust": None, "precipitation": None}
 
         try:
-            # Parse date and time
             date_only = game_date.split('T')[0]  # "2024-09-05"
 
-            # Determine API endpoint
             api_url = self._get_weather_api_endpoint(game_date)
 
-            # Build request parameters
             params = {
                 "latitude": coords["lat"],
                 "longitude": coords["lon"],
@@ -261,27 +251,20 @@ class GameDataFetcher:
                 "timezone": coords.get("tz", "UTC")
             }
 
-            # Add date parameters based on API type
             if api_url == self.OPEN_METEO_HISTORICAL_URL:
                 params["start_date"] = date_only
                 params["end_date"] = date_only
             else:
-                # Forecast API uses different parameters
-                # Calculate days from today
                 game_dt = datetime.fromisoformat(game_date.replace('Z', '+00:00'))
                 today = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
                 days_diff = (game_dt - today).days
 
                 if days_diff < 0:
-                    # Past game within 5 days - use past_days
                     params["past_days"] = abs(days_diff) + 1
                     params["forecast_days"] = 1
                 else:
-                    # Future game
                     params["forecast_days"] = min(days_diff + 1, 16)
                     params["past_days"] = 0
-                # Note: Forecast API uses past_days/forecast_days, NOT start_date/end_date
-                # These parameters are mutually exclusive
 
             response = httpx.get(api_url, params=params, timeout=self.request_timeout)
             response.raise_for_status()
@@ -297,9 +280,6 @@ class GameDataFetcher:
                 self.logger.warning(f"No weather data returned for {game_date}")
                 return {"temperature": None, "gust": None, "precipitation": None}
 
-            # Find the closest hour to game time
-            # API returns times in local timezone, so we need to convert game_date UTC to local
-            # Parse the game datetime in UTC and convert to local timezone
             try:
                 from zoneinfo import ZoneInfo
                 game_dt_utc = datetime.fromisoformat(game_date.replace('Z', '+00:00'))
@@ -307,7 +287,6 @@ class GameDataFetcher:
                 game_dt_local = game_dt_utc.astimezone(local_tz)
                 game_hour_local = game_dt_local.hour
             except Exception:
-                # Fallback: extract UTC hour if timezone conversion fails
                 time_part = game_date.split('T')[1] if 'T' in game_date else "00:00Z"
                 game_hour_local = int(time_part.split(':')[0])
 
@@ -345,15 +324,12 @@ class GameDataFetcher:
                 venue = competition.get("venue", {})
                 address = venue.get("address", {})
 
-                # Get indoor and neutral site flags
                 is_indoor = venue.get("indoor", False)
                 neutral_site = competition.get("neutralSite", False)
                 country = address.get("country", "USA")
 
-                # Determine if international
                 is_international = neutral_site and country != "USA"
 
-                # Get home team for coordinate lookup
                 competitors = competition.get("competitors", [])
                 home_team = ""
                 for competitor in competitors:
@@ -362,7 +338,6 @@ class GameDataFetcher:
                         home_team = "WSH" if home_team == "WAS" else home_team
                         break
 
-                # Fetch weather
                 game_date = event.get("date", "")
                 city = address.get("city", "")
 
@@ -375,7 +350,6 @@ class GameDataFetcher:
                     country=country
                 )
 
-                # Create GameData from ESPN data + weather
                 game = GameData.from_espn_data(week, event, weather)
                 games.append(game)
 
@@ -403,7 +377,6 @@ class GameDataFetcher:
         if previous_week < 1:
             return games
 
-        # Find games from previous week with missing scores
         games_to_update = [
             (i, g) for i, g in enumerate(games)
             if g.week == previous_week and (g.home_team_score is None or g.away_team_score is None)
@@ -414,7 +387,6 @@ class GameDataFetcher:
 
         self.logger.info(f"Backfilling scores for {len(games_to_update)} games from week {previous_week}")
 
-        # Fetch current data for previous week
         scoreboard = self._fetch_espn_scoreboard(previous_week)
 
         for event in scoreboard.get("events", []):
@@ -441,7 +413,6 @@ class GameDataFetcher:
                 home_team = home_data.get("team", {}).get("abbreviation", "")
                 home_team = "WSH" if home_team == "WAS" else home_team
 
-                # Find matching game in our list
                 for idx, game in games_to_update:
                     if game.home_team == home_team:
                         try:
@@ -468,19 +439,14 @@ class GameDataFetcher:
         Returns:
             Path to the saved file
         """
-        # Sort by week, then by date
         games_sorted = sorted(games, key=lambda g: (g.week, g.date))
 
-        # Convert to rows
         rows = [game.to_csv_row() for game in games_sorted]
 
-        # Create DataFrame with proper column order
         df = pd.DataFrame(rows, columns=GAME_DATA_CSV_COLUMNS)
 
-        # Ensure directory exists
         self.output_file.parent.mkdir(parents=True, exist_ok=True)
 
-        # Save to CSV
         df.to_csv(self.output_file, index=False)
         self.logger.info(f"Saved {len(games)} games to {self.output_file}")
 
@@ -495,20 +461,16 @@ class GameDataFetcher:
         Returns:
             List of all GameData objects
         """
-        # Load existing data
         existing_games = self._load_existing_data()
         existing_weeks = self._get_existing_weeks(existing_games)
 
-        # Determine weeks to fetch
         weeks_to_fetch = self._determine_weeks_to_fetch(existing_weeks)
 
-        # Fetch new weeks
         all_games = existing_games.copy()
         for week in weeks_to_fetch:
             new_games = self._fetch_games_for_week(week)
             all_games.extend(new_games)
 
-        # Backfill scores for previous week
         all_games = self._backfill_previous_week_scores(all_games)
 
         return all_games
@@ -538,7 +500,6 @@ def fetch_game_data(
     """
     logger = get_logger()
 
-    # Determine output folder
     if output_path:
         data_folder = output_path.parent
         output_file = output_path
@@ -547,7 +508,6 @@ def fetch_game_data(
         data_folder = script_dir.parent / "data"
         output_file = data_folder / "game_data.csv"
 
-    # Create fetcher
     fetcher = GameDataFetcher(
         data_folder=data_folder,
         season=season,
@@ -556,20 +516,17 @@ def fetch_game_data(
         rate_limit_delay=rate_limit_delay
     )
 
-    # Override output file if custom path provided
     if output_path:
         fetcher.output_file = output_path
 
-    # Fetch data
     if weeks:
-        # Fetch specific weeks
         all_games = []
         for week in weeks:
             games = fetcher._fetch_games_for_week(week)
             all_games.extend(games)
     else:
-        # Use default fetch_all logic
         all_games = fetcher.fetch_all()
 
-    # Save and return path
     return fetcher.save_to_csv(all_games)
+
+

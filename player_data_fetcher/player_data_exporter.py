@@ -27,9 +27,6 @@ from utils.DraftedRosterManager import DraftedRosterManager
 class DataExporter:
     """Handles exporting projection data to position JSON and team CSV formats with async I/O"""
 
-    # ============================================================================
-    # INITIALIZATION & CONFIGURATION
-    # ============================================================================
 
     def __init__(
         self,
@@ -51,16 +48,13 @@ class DataExporter:
         self.my_team_name = my_team_name
         self.logger = get_logger()
 
-        # Initialize file manager for automatic file caps
         self.file_manager = DataFileManager(str(self.output_dir), None)
 
-        # Initialize team rankings and schedule data (will be set by data collector)
         self.team_rankings = {}
         self.current_week_schedule = {}
         self.position_defense_rankings = {}
-        self.team_weekly_data = {}  # Per-team, per-week data for new format
+        self.team_weekly_data = {}
 
-        # Initialize drafted roster manager if enabled
         self.drafted_roster_manager = DraftedRosterManager(self.drafted_data_path, self.my_team_name)
         if self.load_drafted_data:
             self.drafted_roster_manager.load_drafted_data()
@@ -85,21 +79,14 @@ class DataExporter:
         self.team_weekly_data = data
         self.logger.info(f"Team weekly data set for {len(data)} teams")
 
-    # ============================================================================
-    # PLAYER CONVERSION (ESPN → FantasyPlayer)
-    # ============================================================================
 
     def _espn_player_to_fantasy_player(self, player_data: ESPNPlayerData) -> FantasyPlayer:
         """Convert ESPNPlayerData to FantasyPlayer object"""
 
-        # Get drafted_by value from ESPN data (initialized as empty string)
-        drafted_by_value = player_data.drafted_by  # DraftedRosterManager will populate team names in post-processing
+        drafted_by_value = player_data.drafted_by
 
-        # Locked value defaults to 0 (user can modify in exported files)
         locked_value = 0
 
-        # Build projected_points and actual_points arrays from weekly data
-        # (UPDATED for Sub-feature 2: Weekly Data Migration)
         projected_points = [
             player_data.week_1_points, player_data.week_2_points, player_data.week_3_points,
             player_data.week_4_points, player_data.week_5_points, player_data.week_6_points,
@@ -108,7 +95,6 @@ class DataExporter:
             player_data.week_13_points, player_data.week_14_points, player_data.week_15_points,
             player_data.week_16_points, player_data.week_17_points
         ]
-        # Initially, actual_points matches projected (will be updated as season progresses)
         actual_points = projected_points.copy()
 
         return FantasyPlayer(
@@ -121,10 +107,8 @@ class DataExporter:
             locked=locked_value,
             fantasy_points=player_data.fantasy_points,
             average_draft_position=player_data.average_draft_position,
-            # Enhanced scoring fields (NEW)
             player_rating=player_data.player_rating,
             injury_status=player_data.injury_status,
-            # Weekly projections as arrays (Sub-feature 2)
             projected_points=projected_points,
             actual_points=actual_points
         )
@@ -133,14 +117,10 @@ class DataExporter:
         """Convert ProjectionData to list of FantasyPlayer objects"""
         fantasy_players = [self._espn_player_to_fantasy_player(player) for player in data.players]
 
-        # Apply drafted data from CSV file to players using DraftedRosterManager
         fantasy_players = self.drafted_roster_manager.apply_drafted_state_to_players(fantasy_players)
 
         return fantasy_players
 
-    # ============================================================================
-    # HIGH-LEVEL EXPORT ORCHESTRATION
-    # ============================================================================
 
     async def export_position_json_files(self, data: ProjectionData) -> List[str]:
         """
@@ -157,24 +137,18 @@ class DataExporter:
         Returns:
             List of file paths created
         """
-        # Ensure output folder exists and create dedicated file manager (Spec: specs.md output location)
         output_path = Path(self.position_json_output)
         output_path.mkdir(parents=True, exist_ok=True)
 
-        # Create dedicated DataFileManager for position JSON exports
-        # This ensures files are saved to POSITION_JSON_OUTPUT, not OUTPUT_DIRECTORY
         position_file_manager = DataFileManager(str(output_path), None)
 
-        # Create tasks for parallel export (Spec: Reusable Pattern 1 - asyncio.gather)
         positions = ['QB', 'RB', 'WR', 'TE', 'K', 'DST']
         tasks = []
         for position in positions:
             tasks.append(self._export_single_position_json(data, position, position_file_manager))
 
-        # Execute concurrently
         results = await asyncio.gather(*tasks, return_exceptions=True)
 
-        # Filter out exceptions, log them, return successful paths
         file_paths = []
         for i, result in enumerate(results):
             if isinstance(result, Exception):
@@ -200,36 +174,26 @@ class DataExporter:
         Returns:
             File path of created JSON file
         """
-        # Get all fantasy players with drafted state applied
         fantasy_players = self.get_fantasy_players(data)
 
-        # Create mapping from player ID to ESPNPlayerData (for stat extraction)
         espn_player_map = {p.id: p for p in data.players}
 
-        # Filter to position (Spec: specs.md lines 14-19)
         position_players = [p for p in fantasy_players if p.position == position]
 
-        # Transform to JSON structure (Spec: Complete Data Structures)
         players_json = []
         for player in position_players:
-            # Get corresponding ESPN data for detailed stats
-            espn_data = espn_player_map.get(str(player.id))  # ESPNPlayerData.id is str
+            espn_data = espn_player_map.get(str(player.id))
             player_json = self._prepare_position_json_data(player, espn_data, position)
             players_json.append(player_json)
 
-        # Wrap in position-specific root key (Spec: example files analysis)
-        # Format: {"qb_data": [...]} or {"rb_data": [...]}
         root_key = f"{position.lower()}_data"
         output_data = {root_key: players_json}
 
-        # Save to configured output folder (respects E2E temp dir override via settings)
         file_path = Path(self.position_json_output) / f'{position.lower()}_data.json'
 
         try:
-            # Ensure the directory exists
             file_path.parent.mkdir(parents=True, exist_ok=True)
 
-            # Write JSON file asynchronously
             async with aiofiles.open(str(file_path), mode='w', encoding='utf-8') as f:
                 json_string = json.dumps(output_data, indent=2, ensure_ascii=False)
                 await f.write(json_string)
@@ -261,7 +225,6 @@ class DataExporter:
         Returns:
             Dictionary with player data in position-specific JSON format
         """
-        # Build common fields (Spec: specs.md lines 24-35)
         json_data = {
             "id": player.id,
             "name": player.name,
@@ -269,19 +232,14 @@ class DataExporter:
             "position": player.position,
             "bye_week": player.bye_week,
             "injury_status": player.injury_status,
-            # drafted_by uses get_team_name_for_player() (Spec: Decision 10)
             "drafted_by": self._get_drafted_by(player),
-            # locked is boolean (Spec: transformation table)
             "locked": bool(player.locked),
             "average_draft_position": player.average_draft_position,
             "player_rating": player.player_rating,
-            # projected_points array (17 elements, Spec: Decision 2) - uses statSourceId=1
             "projected_points": self._get_projected_points_array(espn_data),
-            # actual_points array (17 elements, Spec: Decision 5,8,9) - uses statSourceId=0
             "actual_points": self._get_actual_points_array(espn_data)
         }
 
-        # Add position-specific stat arrays (Spec: Complete Data Structures)
         if position == "QB":
             json_data["passing"] = self._extract_passing_stats(espn_data)
             json_data["rushing"] = self._extract_rushing_stats(espn_data)
@@ -338,7 +296,7 @@ class DataExporter:
             return [0.0] * 17
 
         projected_points = []
-        for week in range(1, 18):  # Weeks 1-17
+        for week in range(1, 18):
             projected = None
             for stat in espn_data.raw_stats:
                 if stat.get('scoringPeriodId') == week and stat.get('statSourceId') == 1:
@@ -369,10 +327,8 @@ class DataExporter:
             return [0.0] * 17
 
         actual_points = []
-        for week in range(1, 18):  # Weeks 1-17
+        for week in range(1, 18):
             actual = None
-            # Only use statSourceId=0 for completed weeks (weeks < current_nfl_week)
-            # ESPN pre-populates statSourceId=0 for current and future weeks with projections
             if week < self.current_nfl_week:
                 for stat in espn_data.raw_stats:
                     if stat.get('scoringPeriodId') == week and stat.get('statSourceId') == 0:
@@ -401,14 +357,11 @@ class DataExporter:
         Returns:
             Stat value as float, or 0.0 if not found
         """
-        # Only extract stats for completed weeks (weeks < current_nfl_week)
-        # ESPN pre-populates statSourceId=0 for current and future weeks
         if week >= self.current_nfl_week:
             return 0.0
 
         for stat in raw_stats:
             if stat.get('scoringPeriodId') == week and stat.get('statSourceId') == 0:
-                # ESPN uses 'stats' not 'appliedStats' in the API response
                 stats_dict = stat.get('stats', {})
                 value = stats_dict.get(stat_id, 0.0)
                 return float(value) if value else 0.0
@@ -505,12 +458,10 @@ class DataExporter:
                 misc_stats["ret_tds"] = [0.0] * 17
             return misc_stats
 
-        # Only fumbles - two_pt removed per user decision
         misc_stats = {
             "fumbles": [self._extract_stat_value(espn_data.raw_stats, week, '68') for week in range(1, 18)]
         }
 
-        # Only include return stats for DST (Spec: Decision 6)
         if include_return_stats:
             misc_stats["ret_yds"] = [self._extract_combined_stat(espn_data.raw_stats, week, ['114', '115']) for week in range(1, 18)]
             misc_stats["ret_tds"] = [self._extract_combined_stat(espn_data.raw_stats, week, ['101', '102']) for week in range(1, 18)]
@@ -571,9 +522,6 @@ class DataExporter:
             "ret_tds": [self._extract_combined_stat(espn_data.raw_stats, week, ['101', '102']) for week in range(1, 18)]
         }
 
-    # ============================================================================
-    # TEAM DATA EXPORTS
-    # ============================================================================
 
     async def export_teams_to_data(self, data: ProjectionData) -> str:
         """
@@ -588,15 +536,12 @@ class DataExporter:
             str: Path to the team_data folder
         """
         try:
-            # Resolve path to team_data folder (configured via constructor param)
             shared_team_data_folder = Path(__file__).parent / self.team_data_folder
 
-            # Get team weekly data from ESPN client (should be set by caller)
             if not hasattr(self, 'team_weekly_data') or not self.team_weekly_data:
                 self.logger.warning("No team weekly data available for export")
                 return ""
 
-            # Save to shared team_data folder
             save_team_weekly_data(str(shared_team_data_folder), self.team_weekly_data)
 
             self.logger.info(f"Exported team data for {len(self.team_weekly_data)} teams to: {shared_team_data_folder}")

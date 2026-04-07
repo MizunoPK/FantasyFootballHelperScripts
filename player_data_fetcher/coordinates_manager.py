@@ -33,8 +33,6 @@ class CoordinatesManager:
 
     GEOCODING_API_URL = "https://geocoding-api.open-meteo.com/v1/search"
 
-    # Country name normalization for geocoding API compatibility
-    # ESPN uses country subdivisions (England, Scotland, Wales) but geocoding API needs full country
     COUNTRY_NORMALIZATION = {
         "England": "United Kingdom",
         "Scotland": "United Kingdom",
@@ -131,17 +129,14 @@ class CoordinatesManager:
             Dictionary with lat, lon, tz, name or None if not found
         """
         if is_international and city and country:
-            # Check cache first
             coords = self.get_international_venue(city, country)
             if coords:
                 self.logger.debug(f"Found cached coordinates for {city}, {country}")
                 return coords
 
-            # Fetch from geocoding API
             self.logger.info(f"Fetching coordinates for international venue: {city}, {country}")
             coords = self._fetch_coordinates_from_api(city, country)
             if coords:
-                # Cache the result
                 key = f"{city},{country}"
                 if "international_venues" not in self.data:
                     self.data["international_venues"] = {}
@@ -170,8 +165,6 @@ class CoordinatesManager:
             Dictionary with lat, lon, tz, name or None if API fails
         """
         try:
-            # Normalize country name for geocoding API compatibility
-            # ESPN returns "England" but API needs "United Kingdom"
             normalized_country = self.COUNTRY_NORMALIZATION.get(country, country)
 
             params = {
@@ -212,3 +205,5 @@ class CoordinatesManager:
         except (KeyError, ValueError) as e:
             self.logger.error(f"Error parsing geocoding response: {e}")
             return None
+
+

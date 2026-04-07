@@ -12,7 +12,6 @@ from typing import Dict, List
 from dataclasses import dataclass
 from typing_extensions import TypedDict
 
-# ESPN Team ID to Abbreviation Mapping
 ESPN_TEAM_MAPPINGS: Dict[int, str] = {
     1: 'ATL', 2: 'BUF', 3: 'CHI', 4: 'CIN', 5: 'CLE', 6: 'DAL',
     7: 'DEN', 8: 'DET', 9: 'GB', 10: 'TEN', 11: 'IND', 12: 'KC',
@@ -22,7 +21,6 @@ ESPN_TEAM_MAPPINGS: Dict[int, str] = {
     33: 'BAL', 34: 'HOU'
 }
 
-# ESPN Position ID to Position Name Mapping
 ESPN_POSITION_MAPPINGS: Dict[int, str] = {
     1: 'QB', 
     2: 'RB', 
