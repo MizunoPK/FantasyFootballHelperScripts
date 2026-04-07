@@ -10,9 +10,6 @@ Author: Kai Mizuno
 
 from typing import Dict, List
 
-# =============================================================================
-# ESPN API ENDPOINTS
-# =============================================================================
 
 ESPN_FANTASY_API_URL = (
     "https://lm-api-reads.fantasy.espn.com/apis/v3/games/ffl/seasons/{year}/segments/0/leaguedefaults/3"
@@ -24,11 +21,7 @@ ESPN_SCOREBOARD_API_URL = (
 
 OPEN_METEO_ARCHIVE_URL = "https://archive-api.open-meteo.com/v1/archive"
 
-# =============================================================================
-# ESPN TEAM MAPPINGS
-# =============================================================================
 
-# ESPN Team ID (proTeamId) to Abbreviation Mapping
 ESPN_TEAM_MAPPINGS: Dict[int, str] = {
     1: 'ATL', 2: 'BUF', 3: 'CHI', 4: 'CIN', 5: 'CLE', 6: 'DAL',
     7: 'DEN', 8: 'DET', 9: 'GB', 10: 'TEN', 11: 'IND', 12: 'KC',
@@ -38,7 +31,6 @@ ESPN_TEAM_MAPPINGS: Dict[int, str] = {
     33: 'BAL', 34: 'HOU'
 }
 
-# All 32 NFL team abbreviations (canonical list)
 ALL_NFL_TEAMS: List[str] = [
     'ARI', 'ATL', 'BAL', 'BUF', 'CAR', 'CHI', 'CIN', 'CLE',
     'DAL', 'DEN', 'DET', 'GB', 'HOU', 'IND', 'JAX', 'KC',
@@ -46,11 +38,7 @@ ALL_NFL_TEAMS: List[str] = [
     'NYJ', 'PHI', 'PIT', 'SEA', 'SF', 'TB', 'TEN', 'WSH'
 ]
 
-# =============================================================================
-# ESPN POSITION MAPPINGS
-# =============================================================================
 
-# ESPN Position ID (defaultPositionId) to Position Name Mapping
 ESPN_POSITION_MAPPINGS: Dict[int, str] = {
     1: 'QB',
     2: 'RB',
@@ -60,13 +48,10 @@ ESPN_POSITION_MAPPINGS: Dict[int, str] = {
     16: 'DST'
 }
 
-# Position name to ID reverse mapping
 POSITION_TO_ID: Dict[str, int] = {v: k for k, v in ESPN_POSITION_MAPPINGS.items()}
 
-# Fantasy-relevant positions (6 positions)
 FANTASY_POSITIONS: List[str] = ['QB', 'RB', 'WR', 'TE', 'K', 'DST']
 
-# ESPN Slot IDs for ranking (different from position IDs)
 SLOT_ID_MAPPINGS: Dict[str, int] = {
     'QB': 0,
     'RB': 2,
@@ -76,49 +61,31 @@ SLOT_ID_MAPPINGS: Dict[str, int] = {
     'DST': 16
 }
 
-# =============================================================================
-# SEASON CONFIGURATION
-# =============================================================================
 
-# Supported years (weekly data available from 2021+)
 MIN_SUPPORTED_YEAR = 2021
 
-# Regular season weeks
 REGULAR_SEASON_WEEKS = 17
 
-# Weeks to generate for validation (includes week 18 for week 17 actuals)
 VALIDATION_WEEKS = 18
 
-# =============================================================================
-# HTTP CLIENT CONFIGURATION
-# =============================================================================
 
-# Default request timeout in seconds
 REQUEST_TIMEOUT = 30.0
 
-# Rate limit delay between requests (seconds)
 RATE_LIMIT_DELAY = 0.3
 
-# Maximum retry attempts
 MAX_RETRY_ATTEMPTS = 3
 
-# User agent for ESPN API requests
 ESPN_USER_AGENT = (
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
     "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 )
 
-# =============================================================================
-# OUTPUT FILE CONFIGURATION
-# =============================================================================
 
-# CSV file names
 SEASON_SCHEDULE_FILE = "season_schedule.csv"
 GAME_DATA_FILE = "game_data.csv"
 PLAYERS_FILE = "players.csv"
 PLAYERS_PROJECTED_FILE = "players_projected.csv"
 
-# JSON file names
 QB_DATA_FILE = "qb_data.json"
 RB_DATA_FILE = "rb_data.json"
 WR_DATA_FILE = "wr_data.json"
@@ -134,7 +101,6 @@ POSITION_JSON_FILES = {
     'DST': DST_DATA_FILE
 }
 
-# Folder names
 TEAM_DATA_FOLDER = "team_data"
 WEEKS_FOLDER = "weeks"
 
@@ -149,7 +115,8 @@ def normalize_team_abbrev(abbrev: str) -> str:
     Returns:
         Normalized abbreviation (e.g., 'WSH')
     """
-    # Handle Washington name change (WAS -> WSH)
     if abbrev == 'WAS':
         return 'WSH'
     return abbrev
+
+

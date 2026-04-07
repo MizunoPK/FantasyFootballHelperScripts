@@ -25,14 +25,12 @@ class LoggingManager:
     setup for all modules in the fantasy football system.
     """
 
-    # Standard log formats
     DETAILED_FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(funcName)s:%(lineno)d - %(message)s'
     STANDARD_FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     SIMPLE_FORMAT = '%(levelname)s: %(message)s'
     TIMESTAMP_FORMAT = '%Y-%m-%d %H:%M:%S'
     TIME_ONLY_FORMAT = '%H:%M:%S'
 
-    # Standard log levels mapping
     LEVEL_MAP = {
         'DEBUG': logging.DEBUG,
         'INFO': logging.INFO,
@@ -51,7 +49,7 @@ class LoggingManager:
                     log_file_path: Optional[Union[str, Path]] = None,
                     log_format: str = 'standard',
                     enable_console: bool = True,
-                    max_file_size: int = 10 * 1024 * 1024,  # 10MB
+                    max_file_size: int = 10 * 1024 * 1024,
                     backup_count: int = 5) -> logging.Logger:
         """
         Set up a standardized logger with consistent configuration.
@@ -71,50 +69,33 @@ class LoggingManager:
         """
         logger = logging.getLogger(name)
 
-        # Clear existing handlers to avoid duplicate log messages
-        # Multiple calls to setup_logger for the same name would otherwise accumulate handlers
         logger.handlers.clear()
-        # Disable propagation to prevent logs from bubbling up to root logger
-        # This prevents duplicate log messages when using hierarchical logger names (e.g., "app.module.submodule")
         logger.propagate = False
 
-        # Set logging level (convert string to logging constant if needed)
-        # Allows both "INFO" and logging.INFO to be passed
         if isinstance(level, str):
             level = self.LEVEL_MAP.get(level.upper(), logging.INFO)
         logger.setLevel(level)
 
-        # Get formatter
         formatter = self._get_formatter(log_format)
 
-        # Console handler
         if enable_console:
             console_handler = logging.StreamHandler(sys.stdout)
             console_handler.setFormatter(formatter)
             console_handler.setLevel(level)
             logger.addHandler(console_handler)
 
-        # File handler with rotation to prevent unbounded log file growth
         if log_to_file:
-            # Auto-generate timestamped log file path if none provided
             if log_file_path is None:
-                # Use default logs/ directory at project root
                 log_file_path = self._generate_log_file_path(Path('logs'), name)
 
             log_file_path = Path(log_file_path)
-            # Create parent directory if it doesn't exist (e.g., logs/)
             log_file_path.parent.mkdir(parents=True, exist_ok=True)
 
-            # LineBasedRotatingHandler rotates logs based on line count (not file size)
-            # Creates timestamped files: {name}-{YYYYMMDD_HHMMSS}.log
-            # Automatically cleans up old files when folder exceeds max_files limit
-            # Note: max_file_size and backup_count parameters are kept for backward
-            # compatibility but are not used by LineBasedRotatingHandler
             file_handler = LineBasedRotatingHandler(
                 filename=str(log_file_path),
                 mode='a',
-                max_lines=500,  # Rotate after 500 lines (hardcoded per spec)
-                max_files=50,   # Keep max 50 files per folder (hardcoded per spec)
+                max_lines=500,
+                max_files=50,
                 encoding='utf-8'
             )
             file_handler.setFormatter(formatter)
@@ -159,31 +140,22 @@ class LoggingManager:
         Raises:
             OSError: If folder creation fails due to permissions
         """
-        # Create script-specific subfolder: logs/{logger_name}/
         log_dir = log_path / logger_name
 
-        # Auto-create subfolder if it doesn't exist
         try:
             log_dir.mkdir(parents=True, exist_ok=True)
         except (PermissionError, OSError) as e:
-            # Log error to console (can't write to file yet)
             print(f"ERROR: Failed to create log directory {log_dir}: {e}", file=sys.stderr)
             raise
 
-        # Generate full timestamp: YYYYMMDD_HHMMSS (not just date)
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
 
-        # Generate filename with hyphen separator: {logger_name}-{timestamp}.log
         filename = f"{logger_name}-{timestamp}.log"
 
-        # Return full path: logs/{logger_name}/{logger_name}-{YYYYMMDD_HHMMSS}.log
         return log_dir / filename
 
 
 
-# Global logging manager instance (singleton-like pattern)
-# This ensures consistent logging configuration across all modules
-# Modules call setup_logger() or get_logger() convenience functions instead of creating their own manager
 _logging_manager = LoggingManager()
 
 
@@ -193,7 +165,7 @@ def setup_logger(name: str,
                 log_file_path: Optional[Union[str, Path]] = None,
                 log_format: str = 'standard',
                 enable_console: bool = True,
-                max_file_size: int = 10 * 1024 * 1024,  # 10MB
+                max_file_size: int = 10 * 1024 * 1024,
                 backup_count: int = 5) -> logging.Logger:
     """
     Convenience function to set up a logger using the global logging manager.
@@ -209,3 +181,5 @@ def setup_logger(name: str,
 
 def get_logger() -> logging.Logger:
     return _logging_manager.get_logger()
+
+

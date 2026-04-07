@@ -75,7 +75,6 @@ class ScheduleFetcher:
 
             data = await self.http_client.get(ESPN_SCOREBOARD_API_URL, params=params)
 
-            # Parse schedule for this week
             week_schedule = self._parse_week_schedule(data, week)
             full_schedule[week] = week_schedule
 
@@ -108,11 +107,9 @@ class ScheduleFetcher:
                 if len(competitors) != 2:
                     continue
 
-                # Get team abbreviations
                 team1 = competitors[0].get('team', {}).get('abbreviation', '')
                 team2 = competitors[1].get('team', {}).get('abbreviation', '')
 
-                # Normalize team names
                 team1 = normalize_team_abbrev(team1)
                 team2 = normalize_team_abbrev(team2)
 
@@ -143,7 +140,7 @@ class ScheduleFetcher:
                 week_schedule = schedule.get(week, {})
                 if team not in week_schedule:
                     bye_weeks[team] = week
-                    break  # Found bye week, move to next team
+                    break
 
         return bye_weeks
 
@@ -167,7 +164,6 @@ class ScheduleFetcher:
         """
         self.logger.info(f"Writing schedule to {output_path}")
 
-        # Get bye weeks for all teams
         bye_weeks = self.identify_bye_weeks(schedule)
 
         rows: List[List] = []
@@ -177,14 +173,11 @@ class ScheduleFetcher:
 
             for team in sorted(ALL_NFL_TEAMS):
                 if bye_weeks.get(team) == week:
-                    # Bye week - empty opponent
                     rows.append([week, team, ''])
                 else:
-                    # Regular game
                     opponent = week_schedule.get(team, '')
                     rows.append([week, team, opponent])
 
-        # Write CSV
         with open(output_path, 'w', newline='') as f:
             writer = csv.writer(f)
             writer.writerow(['week', 'team', 'opponent'])
@@ -216,3 +209,5 @@ async def fetch_and_write_schedule(
     fetcher.write_schedule_csv(schedule, output_path)
 
     return schedule
+
+

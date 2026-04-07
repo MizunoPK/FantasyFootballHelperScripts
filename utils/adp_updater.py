@@ -19,11 +19,9 @@ import pandas as pd
 
 from utils.LoggingManager import get_logger
 
-# Initialize logger
 logger = get_logger()
 
-# Constants
-CONFIDENCE_THRESHOLD = 0.75  # Proven threshold from DraftedRosterManager
+CONFIDENCE_THRESHOLD = 0.75
 POSITION_FILES = {
     'QB': 'qb_data.json',
     'RB': 'rb_data.json',
@@ -51,16 +49,12 @@ def normalize_name(name: str) -> str:
         >>> normalize_name("Amon-Ra St. Brown Jr.")
         'amonra st brown'
     """
-    # Lowercase and collapse whitespace
     normalized = re.sub(r'\s+', ' ', name.strip().lower())
 
-    # Remove suffixes (Jr., Sr., III, IV, II)
     normalized = re.sub(r'\b(jr\.?|sr\.?|iii?|iv|ii)\b', '', normalized)
 
-    # Remove punctuation
     normalized = normalized.replace('.', '').replace("'", '').replace('-', ' ')
 
-    # Final cleanup
     normalized = re.sub(r'\s+', ' ', normalized).strip()
 
     return normalized
@@ -107,10 +101,8 @@ def extract_dst_team_name(name: str) -> str:
         >>> extract_dst_team_name("Baltimore Ravens")
         'ravens'
     """
-    # Remove D/ST suffix if present
     name = re.sub(r'\s*d/st\s*$', '', name, flags=re.IGNORECASE)
 
-    # Get last word (team name)
     words = name.strip().split()
     if words:
         return words[-1].lower()
@@ -146,33 +138,25 @@ def find_best_match(
         >>> find_best_match("Ravens D/ST", csv_df, "DST")
         ("Baltimore Ravens", 120.7, 1.0)
     """
-    # Filter CSV by position
     position_players = csv_df[csv_df['position'] == position]
 
     if len(position_players) == 0:
         return None
 
-    # Special handling for DST: Extract team names for matching
-    # JSON: "Ravens D/ST" → "ravens", CSV: "Baltimore Ravens" → "ravens"
     if position == 'DST':
         json_team = extract_dst_team_name(json_player_name)
 
-        # Find exact team name match
         for _, row in position_players.iterrows():
             csv_name = row['player_name']
             csv_team = extract_dst_team_name(csv_name)
 
             if json_team == csv_team:
-                # Exact team name match for DST
                 return (csv_name, row['adp'], 1.0)
 
-        # No match found
         return None
 
-    # Regular player matching (non-DST)
     normalized_json = normalize_name(json_player_name)
 
-    # Find best match
     best_match = None
     best_score = 0.0
     best_adp = None
@@ -188,7 +172,6 @@ def find_best_match(
             best_match = csv_name
             best_adp = row['adp']
 
-    # Return only if above confidence threshold
     if best_score >= CONFIDENCE_THRESHOLD:
         return (best_match, best_adp, best_score)
 
@@ -254,7 +237,6 @@ def update_player_adp_values(
         >>> print(f"Matched: {report['summary']['matched']} players across 18 weeks")
         Matched: 11,700 players across 18 weeks  # 650 players × 18 weeks
     """
-    # Validate input DataFrame
     if adp_dataframe.empty:
         raise ValueError("ADP DataFrame is empty")
 
@@ -262,28 +244,21 @@ def update_player_adp_values(
     if not all(col in adp_dataframe.columns for col in required_cols):
         raise ValueError(f"DataFrame missing required columns: {required_cols}")
 
-    # Convert to Path object
     sim_data_folder = Path(sim_data_folder)
 
-    # Validate folder exists
     if not sim_data_folder.exists():
         raise FileNotFoundError(f"Simulation data folder not found: {sim_data_folder}")
 
-    # MULTI-WEEK DISCOVERY: Dynamically find all week_* folders (week_01, week_02, ..., week_18)
-    # Using glob pattern instead of hardcoding allows graceful handling of incomplete data
     week_folders = sorted(sim_data_folder.glob('week_*'))
 
     if len(week_folders) == 0:
         raise FileNotFoundError(f"No week folders found in: {sim_data_folder}")
 
-    # Warn if missing weeks, but continue processing (graceful degradation)
     if len(week_folders) < 18:
         logger.warning(f"Expected 18 weeks, found {len(week_folders)} in {sim_data_folder}")
 
     logger.info(f"Found {len(week_folders)} week folders to process")
 
-    # Initialize tracking variables - accumulate results across ALL weeks
-    # For 18 weeks × ~650 players = ~11,700 total player entries processed
     total_json_players = 0
     matched_count = 0
     unmatched_json = []
@@ -293,13 +268,10 @@ def update_player_adp_values(
 
     logger.info("Starting player matching and ADP updates across all weeks...")
 
-    # MULTI-WEEK ITERATION: Process each week folder sequentially
-    # For 18 weeks × 6 positions = 108 total JSON files to update
     for week_folder in week_folders:
         week_name = week_folder.name
-        logger.info(f"Processing {week_name}...")  # Per-week progress logging
+        logger.info(f"Processing {week_name}...")
 
-        # Process each position within this week
         for position, filename in POSITION_FILES.items():
             json_path = week_folder / filename
 
@@ -307,14 +279,10 @@ def update_player_adp_values(
                 logger.warning(f"JSON file not found: {json_path}")
                 continue
 
-            # DIRECT ARRAY LOADING: Simulation files use [{player1}, {player2}] structure
-            # NOT {"qb_data": [...]} like main data folder - this is critical difference!
             try:
                 with open(json_path, 'r', encoding='utf-8') as f:
-                    players = json.load(f)  # Returns list directly, not dict
+                    players = json.load(f)
 
-                # STRUCTURE VALIDATION: Verify direct array, fail fast if wrapper dict detected
-                # This catches incorrect file structure before attempting to process
                 if not isinstance(players, list):
                     raise ValueError(
                         f"Unexpected JSON structure in {json_path}: "
@@ -322,32 +290,25 @@ def update_player_adp_values(
                         f"Simulation files should NOT have wrapper dict."
                     )
             except json.JSONDecodeError as e:
-                # MALFORMED JSON: Fail entire operation if any file corrupted
-                # All-or-nothing approach prevents partial updates across 108 files
                 logger.error(f"Malformed JSON in {json_path}: {e}")
                 raise ValueError(f"Failed to parse JSON file {json_path}: {e}") from e
 
             total_json_players += len(players)
 
-            # Match each player
             for player in players:
                 player_name = player.get('name', '')
 
-                # Find best match in CSV
                 match_result = find_best_match(player_name, adp_dataframe, position)
 
                 if match_result:
                     csv_name, adp_value, confidence = match_result
 
-                    # Update ADP value
                     old_adp = player.get('average_draft_position', 170.0)
                     player['average_draft_position'] = adp_value
 
-                    # Track match
                     matched_count += 1
                     matched_csv_names.add(csv_name)
 
-                    # Record individual match
                     individual_matches.append({
                         'json_name': player_name,
                         'csv_name': csv_name,
@@ -357,7 +318,6 @@ def update_player_adp_values(
                         'confidence': confidence
                     })
 
-                    # Track confidence distribution
                     if confidence == 1.0:
                         confidence_dist['1.0'] += 1
                     elif confidence >= 0.9:
@@ -365,35 +325,26 @@ def update_player_adp_values(
                     else:
                         confidence_dist['0.75-0.89'] += 1
                 else:
-                    # No match found - keep existing 170.0 value
                     unmatched_json.append({
                         'name': player_name,
                         'position': position,
                         'adp': player.get('average_draft_position', 170.0)
                     })
 
-            # ATOMIC WRITE PATTERN: Write to .tmp, then replace original
-            # Critical for 108-file operation - prevents corruption if process interrupted
             tmp_path = json_path.with_suffix('.tmp')
             try:
-                # DIRECT ARRAY WRITE: Write [{player1}, {player2}] NOT {"key": [...]}
-                # This preserves simulation file structure (different from main data folder)
                 with open(tmp_path, 'w', encoding='utf-8') as f:
-                    json.dump(players, f, indent=2)  # players is list, not dict
+                    json.dump(players, f, indent=2)
 
-                # Atomic replace - only replace if write succeeded (prevents partial writes)
                 tmp_path.replace(json_path)
             except PermissionError as e:
-                # PERMISSION ERROR: Clean up temp file and fail
-                # Better to fail clean than leave .tmp files scattered across 108 locations
                 logger.error(f"Permission denied writing to {json_path}: {e}")
                 if tmp_path.exists():
-                    tmp_path.unlink()  # Clean up temp file
+                    tmp_path.unlink()
                 raise PermissionError(f"Cannot write to {json_path}: {e}") from e
 
             logger.info(f"Updated {week_name}/{filename}: {len(players)} players processed")
 
-    # Find unmatched CSV players
     unmatched_csv = []
     for _, row in adp_dataframe.iterrows():
         if row['player_name'] not in matched_csv_names:
@@ -403,7 +354,6 @@ def update_player_adp_values(
                 'adp': row['adp']
             })
 
-    # Log summary
     logger.info(f"Matching complete:")
     logger.info(f"  Total JSON players: {total_json_players}")
     logger.info(f"  Matched: {matched_count}")
@@ -411,7 +361,6 @@ def update_player_adp_values(
     logger.info(f"  Unmatched CSV: {len(unmatched_csv)}")
     logger.info(f"  Match rate: {matched_count / total_json_players * 100:.1f}%")
 
-    # Build comprehensive report
     report = {
         'summary': {
             'total_json_players': total_json_players,
@@ -426,3 +375,5 @@ def update_player_adp_values(
     }
 
     return report
+
+

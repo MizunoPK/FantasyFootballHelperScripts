@@ -26,7 +26,6 @@ def parse_args(argv=None):
         description='Fetch NFL player projection data from ESPN'
     )
 
-    # E2E / debug flags
     parser.add_argument(
         '--e2e-test',
         action='store_true',
@@ -47,7 +46,6 @@ def parse_args(argv=None):
         help='Enable file logging to logs/player_data_fetcher/'
     )
 
-    # Season / week
     parser.add_argument(
         '--week',
         type=int,
@@ -61,7 +59,6 @@ def parse_args(argv=None):
         help='NFL season year (default: 2025)'
     )
 
-    # Team / roster
     parser.add_argument(
         '--my-team-name',
         type=str,
@@ -81,7 +78,6 @@ def parse_args(argv=None):
         help='Path to drafted data CSV (default: ../data/drafted_data.csv)'
     )
 
-    # Output paths
     parser.add_argument(
         '--position-json-output',
         type=str,
@@ -101,7 +97,6 @@ def parse_args(argv=None):
         help='Output path for game data CSV (default: ../data/game_data.csv)'
     )
 
-    # Feature flags
     parser.add_argument(
         '--enable-historical-save',
         action='store_true',
@@ -115,7 +110,6 @@ def parse_args(argv=None):
         help='Fetch NFL game data (default: enabled)'
     )
 
-    # Performance tuning
     parser.add_argument(
         '--espn-player-limit',
         type=int,
@@ -146,11 +140,8 @@ def parse_args(argv=None):
 
 def create_settings_dict(args) -> dict:
     """Convert parsed args to a settings dict for player_data_fetcher_main.main()."""
-    # E2E override: cap ESPN player limit to 100 for fast test runs
     espn_player_limit = 100 if args.e2e_test else args.espn_player_limit
 
-    # E2E override: redirect all output paths to a temp directory so real
-    # data files are never overwritten during test runs
     if args.e2e_test:
         tmp_dir = tempfile.mkdtemp(prefix='player_fetcher_e2e_')
         position_json_output = str(Path(tmp_dir) / 'player_data')
@@ -186,3 +177,5 @@ if __name__ == "__main__":
     args = parse_args()
     settings_dict = create_settings_dict(args)
     asyncio.run(main(settings_dict))
+
+

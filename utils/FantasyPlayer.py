@@ -15,7 +15,6 @@ from utils.csv_utils import read_csv_with_validation, write_csv_with_backup
 from utils.LoggingManager import get_logger
 from league_helper.constants import FANTASY_TEAM_NAME
 
-# Import will be done dynamically to avoid circular imports
 logger = get_logger()
 
 def safe_int_conversion(value, default=None):
@@ -32,9 +31,7 @@ def safe_int_conversion(value, default=None):
     if value is None or value == '' or (isinstance(value, str) and value.lower() in ['nan', 'none', 'null']):
         return default
     try:
-        # Handle string representations of floats
         if isinstance(value, str):
-            # Remove any non-numeric characters except decimal points and negative signs
             cleaned = ''.join(c for c in value if c.isdigit() or c in '.-')
             if not cleaned or cleaned in ['-', '.', '-.']:
                 return default
@@ -42,13 +39,9 @@ def safe_int_conversion(value, default=None):
         else:
             float_val = float(value)
 
-        # Check for infinity and NaN values before converting to int
-        # float_val != float_val is the standard Python NaN check (NaN !=NaN is True)
-        # This prevents crashes when converting inf/NaN to int
         if float_val == float('inf') or float_val == float('-inf') or float_val != float_val:
             return default
 
-        # Safe to convert: truncates decimal part (e.g., 3.7 → 3)
         return int(float_val)
     except (ValueError, TypeError, OverflowError):
         return default
@@ -68,7 +61,6 @@ def safe_float_conversion(value, default=0.0):
         return default
     try:
         float_val = float(value)
-        # Check for infinity values
         if float_val == float('inf') or float_val == float('-inf') or float_val != float_val:  # NaN check
             return default
         return float_val
@@ -85,56 +77,43 @@ class FantasyPlayer:
     and provides a consistent interface for player data across multiple scripts.
     """
     
-    # Core identification
-    id: int  # Player ID (int to match CSV/dataframe format)
+    id: int
     name: str
     team: str
     position: str
     
-    # Fantasy relevant data
     bye_week: Optional[int] = None
     drafted_by: str = ""  # Team name (empty = not drafted, "Sea Sharp" = our team, other = opponent team)
-    locked: bool = False  # True = locked (cannot be drafted or traded)
+    locked: bool = False
     fantasy_points: float = 0.0
-    average_draft_position: Optional[float] = None  # ESPN's ADP data
-    player_rating: Optional[float] = None  # 0-100 scale from ESPN position-specific consensus rankings
+    average_draft_position: Optional[float] = None
+    player_rating: Optional[float] = None
 
-    # Weekly projection and actual points arrays (weeks 1-17)
-    # Spec: sub_feature_01_core_data_loading_spec.md lines 6, 32-37
     projected_points: List[float] = field(default_factory=lambda: [0.0] * 17)
     actual_points: List[float] = field(default_factory=lambda: [0.0] * 17)
 
-    # Position-specific stats (nested dictionaries with weekly arrays)
-    # Spec: sub_feature_01_core_data_loading_spec.md lines 39-49
-    passing: Optional[Dict[str, List[float]]] = None  # QB
-    rushing: Optional[Dict[str, List[float]]] = None  # QB/RB
-    receiving: Optional[Dict[str, List[float]]] = None  # RB/WR/TE
-    misc: Optional[Dict[str, List[float]]] = None  # QB/RB/WR/TE
-    extra_points: Optional[Dict[str, List[float]]] = None  # K only
-    field_goals: Optional[Dict[str, List[float]]] = None  # K only
-    defense: Optional[Dict[str, List[float]]] = None  # DST only
+    passing: Optional[Dict[str, List[float]]] = None
+    rushing: Optional[Dict[str, List[float]]] = None
+    receiving: Optional[Dict[str, List[float]]] = None
+    misc: Optional[Dict[str, List[float]]] = None
+    extra_points: Optional[Dict[str, List[float]]] = None
+    field_goals: Optional[Dict[str, List[float]]] = None
+    defense: Optional[Dict[str, List[float]]] = None
 
-    # Weekly projections now handled by projected_points and actual_points arrays
-    # (added in Sub-feature 1: Core Data Loading)
 
-    # Injury information
     injury_status: str = "UNKNOWN"  # ACTIVE, QUESTIONABLE, OUT, etc.
 
-    # League helper specific fields (computed later)
-    score: float = 0.0  # Overall score for draft ranking
-    weighted_projection: float = 0.0  # Normalized projection score
+    score: float = 0.0
+    weighted_projection: float = 0.0
     consistency: float = 0.0
     matchup_score: int = 0
 
-    # Enhanced scoring fields for team context
-    team_offensive_rank: Optional[int] = None  # Team offensive quality rank (lower is better)
-    team_defensive_rank: Optional[int] = None  # Team defensive quality rank (lower is better)
+    team_offensive_rank: Optional[int] = None
+    team_defensive_rank: Optional[int] = None
 
-    # Metadata
 
     def __post_init__(self):
         """Post-initialization setup."""
-        # Convert locked to boolean if it comes in as an int (for backward compatibility with tests)
         if isinstance(self.locked, int):
             object.__setattr__(self, 'locked', bool(self.locked))
 
@@ -149,11 +128,7 @@ class FantasyPlayer:
         Returns:
             FantasyPlayer instance
         """
-        # Handle both 'adp' (old format) and 'average_draft_position' (new format) for backward compatibility
-        # Old CSV files use 'adp', new files use 'average_draft_position'
-        # Prefer 'average_draft_position' if available, fall back to 'adp'
         adp_value = data.get('average_draft_position') or data.get('adp')
-        # Convert to float if value exists, otherwise keep as None (no ADP data available)
         processed_adp = safe_float_conversion(adp_value, 0.0) if adp_value is not None else None
 
         return cls(
@@ -162,13 +137,11 @@ class FantasyPlayer:
             team=str(data.get('team', '')),
             position=str(data.get('position', '')),
             bye_week=safe_int_conversion(data.get('bye_week'), 0),
-            # drafted removed - now derived from drafted_by via @property (Phase 3)
             drafted_by=str(data.get('drafted_by', '')),  # Team name string
             locked=safe_int_conversion(data.get('locked'), 0),
             fantasy_points=safe_float_conversion(data.get('fantasy_points'), 0.0),
             average_draft_position=processed_adp,
             player_rating=safe_float_conversion(data.get('player_rating'), None) if data.get('player_rating') is not None else None,
-            # Weekly projections now loaded via projected_points/actual_points arrays (Sub-feature 1)
             injury_status=str(data.get('injury_status', 'UNKNOWN')),
             score=safe_float_conversion(data.get('score'), 0.0),
             weighted_projection=safe_float_conversion(data.get('weighted_projection'), 0.0),
@@ -221,38 +194,24 @@ class FantasyPlayer:
 
         Spec Reference: sub_feature_01_core_data_loading_spec.md lines 161-240
         """
-        # Required fields validation (spec lines 178-180)
         if 'id' not in data or 'name' not in data or 'position' not in data:
             raise ValueError(f"Missing required field in player data: {data}")
 
-        # Convert id from string to int (spec line 183)
         player_id = safe_int_conversion(data.get('id'), 0)
 
-        # Load arrays with defaults and validate length (spec lines 186-191)
         projected_points = data.get('projected_points', [0.0] * 17)
         actual_points = data.get('actual_points', [0.0] * 17)
 
-        # Pad/truncate to exactly 17 elements (spec lines 190-191)
         projected_points = (projected_points + [0.0] * 17)[:17]
         actual_points = (actual_points + [0.0] * 17)[:17]
 
-        # Extract drafted_by field (team name string)
         drafted_by = data.get('drafted_by', '')
 
-        # NOTE: drafted field derivation removed - now handled by @property (Phase 3)
-        # Legacy derivation logic (for reference):
-        #   if drafted_by == '': drafted = 0 (free agent)
-        #   elif drafted_by == FANTASY_TEAM_NAME: drafted = 2 (our roster)
-        #   else: drafted = 1 (opponent team)
 
-        # Load locked as boolean (spec lines 202-204)
-        # Sub-feature 3 will update comparisons to use is_locked()
         locked = data.get('locked', False)
 
-        # Calculate fantasy_points (NOT in JSON) (spec lines 205-206)
         fantasy_points = sum(projected_points)
 
-        # Load position-specific nested stats (all Optional) (spec lines 208-216)
         passing = data.get('passing')
         rushing = data.get('rushing')
         receiving = data.get('receiving')
@@ -261,7 +220,6 @@ class FantasyPlayer:
         field_goals = data.get('field_goals')
         defense = data.get('defense')
 
-        # Return FantasyPlayer instance with all fields (spec lines 217-239)
         return cls(
             id=player_id,
             name=data.get('name'),
@@ -269,15 +227,13 @@ class FantasyPlayer:
             position=data.get('position'),
             bye_week=data.get('bye_week'),
             fantasy_points=fantasy_points,
-            # drafted removed - now derived from drafted_by via @property (Phase 3)
-            drafted_by=drafted_by,  # Store team name string
+            drafted_by=drafted_by,
             locked=locked,
             average_draft_position=data.get('average_draft_position'),
             player_rating=data.get('player_rating'),
             injury_status=data.get('injury_status', 'UNKNOWN'),
             projected_points=projected_points,
             actual_points=actual_points,
-            # Position-specific stats
             passing=passing,
             rushing=rushing,
             receiving=receiving,
@@ -304,7 +260,6 @@ class FantasyPlayer:
             pd.errors.ParserError: If the CSV file is malformed
         """
         try:
-            # Use csv_utils for standardized reading with error handling
             df = read_csv_with_validation(filepath)
         except Exception as e:
             logger.error(f"Error reading CSV file at {filepath}: {e}")
@@ -445,20 +400,13 @@ class FantasyPlayer:
         Returns:
             Risk level string: "LOW", "MEDIUM", "HIGH"
         """
-        # LOW risk: Player is fully healthy and expected to play
         if self.injury_status == 'ACTIVE':
             return "LOW"
-        # MEDIUM risk: Player may or may not play, monitor gameday status
         elif self.injury_status in ['QUESTIONABLE', 'OUT', 'DOUBTFUL']:
             return "MEDIUM"
-        # HIGH risk: Player definitely won't play or status unknown
-        # OUT/DOUBTFUL: Won't play this week
-        # INJURY_RESERVE/SUSPENSION: Out for extended period
-        # UNKNOWN: No status data, assume risky
         elif self.injury_status in ['INJURY_RESERVE', 'SUSPENSION', 'UNKNOWN']:
             return "HIGH"
         else:
-            # Catch-all for unrecognized statuses: assume moderate risk
             return "MEDIUM"
         
     def get_weekly_projections(self, config) -> List[float]:
@@ -485,9 +433,9 @@ class FantasyPlayer:
 
         for i in range(17):
             week_num = i + 1
-            if week_num < current_week:  # Past weeks - use actual
+            if week_num < current_week:
                 result.append(self.actual_points[i])
-            else:  # Current/future weeks - use projected
+            else:
                 result.append(self.projected_points[i])
 
         return result
@@ -540,10 +488,8 @@ class FantasyPlayer:
     
     def __str__(self) -> str:
         """String representation of the player for display."""
-        # Show injury status only if not ACTIVE (reduce clutter)
         status = f" ({self.injury_status})" if self.injury_status != 'ACTIVE' else ""
 
-        # Drafted status using helper methods
         if self.is_drafted_by_opponent():
             drafted = "DRAFTED"
         elif self.is_rostered():
@@ -551,10 +497,8 @@ class FantasyPlayer:
         else:
             drafted = "AVAILABLE"
 
-        # Show locked indicator for players that can't be drafted/traded
         locked_indicator = " [LOCKED]" if self.is_locked() else ""
 
-        # Example output: "Patrick Mahomes (KC QB) - 15.3 pts (QUESTIONABLE) [Bye=7] [ROSTERED] [LOCKED]"
         return f"{self.name} ({self.team} {self.position}) - {self.score:.1f} pts {status} [Bye={self.bye_week}] [{drafted}]{locked_indicator}"
     
     def __repr__(self) -> str:
@@ -571,14 +515,9 @@ class FantasyPlayer:
         Returns:
             'FLEX' for RB/WR players, original position otherwise (QB, TE, K, DEF)
         """
-        # FLEX eligible positions: RB and WR only
-        # This hardcoded value matches FLEX_ELIGIBLE_POSITIONS in league_config.json
-        # Kept hardcoded to avoid adding config dependency to FantasyPlayer data class
-        # QB, TE, K, DEF are NOT FLEX eligible
         FLEX_ELIGIBLE_POSITIONS = ['RB', 'WR']
         return 'FLEX' if self.position in FLEX_ELIGIBLE_POSITIONS else self.position
 
-    # Aliases for test compatibility
     @classmethod
     def load_from_csv(cls, filepath: str) -> List['FantasyPlayer']:
         """Alias for from_csv_file for test compatibility."""
@@ -604,7 +543,6 @@ class FantasyPlayer:
         """
         if not isinstance(other, FantasyPlayer):
             return False
-        # Use ID for equality (not name) to handle name changes/trades
         return self.id == other.id
 
     def __hash__(self):

@@ -26,7 +26,6 @@ import shutil
 import sys
 from pathlib import Path
 
-# Add project root to path for imports
 sys.path.insert(0, str(Path(__file__).parent))
 
 from utils.LoggingManager import setup_logger, get_logger
@@ -45,13 +44,9 @@ from historical_data_compiler.team_data_calculator import calculate_and_write_te
 from historical_data_compiler.weekly_snapshot_generator import generate_weekly_snapshots
 
 
-# =============================================================================
-# OUTPUT FORMAT TOGGLES
-# =============================================================================
 
-# Control which output formats are generated
-GENERATE_CSV = False   # Generate legacy CSV files (players.csv, players_projected.csv)
-GENERATE_JSON = True  # Generate new JSON files (qb_data.json, rb_data.json, etc.)
+GENERATE_CSV = False
+GENERATE_JSON = True
 
 YEARS = [2021, 2022, 2023, 2024, 2025]
 
@@ -135,15 +130,12 @@ def create_output_directories(output_dir: Path) -> None:
     """
     logger = get_logger()
 
-    # Create base directory
     output_dir.mkdir(parents=True, exist_ok=True)
     logger.info(f"Created output directory: {output_dir}")
 
-    # Create team_data subdirectory
     team_data_dir = output_dir / TEAM_DATA_FOLDER
     team_data_dir.mkdir(exist_ok=True)
 
-    # Create weeks subdirectories
     weeks_dir = output_dir / WEEKS_FOLDER
     weeks_dir.mkdir(exist_ok=True)
 
@@ -184,35 +176,28 @@ async def compile_season_data(year: int, output_dir: Path) -> None:
     logger = get_logger()
     logger.info(f"Starting compilation for {year} season")
 
-    # Create shared HTTP client
     http_client = BaseHTTPClient()
 
     try:
-        # Phase 1: Fetch schedule data
         logger.info("[1/5] Fetching schedule data...")
         schedule = await fetch_and_write_schedule(year, output_dir, http_client)
         logger.info(f"  - Schedule fetched for {len(schedule)} weeks")
 
-        # Derive bye weeks from schedule
         bye_weeks = _derive_bye_weeks(schedule)
         logger.info(f"  - Derived bye weeks for {len(bye_weeks)} teams")
 
-        # Phase 2: Fetch game data with weather
         logger.info("[2/5] Fetching game data...")
         game_data = await fetch_and_write_game_data(year, output_dir, http_client)
         logger.info(f"  - Game data fetched for {len(game_data)} games")
 
-        # Phase 3: Fetch player data
         logger.info("[3/5] Fetching player data...")
         players = await fetch_player_data(year, http_client, bye_weeks)
         logger.info(f"  - Player data fetched for {len(players)} players")
 
-        # Phase 4: Calculate team data
         logger.info("[4/5] Calculating team data...")
         team_data = calculate_and_write_team_data(players, schedule, game_data, output_dir)
         logger.info(f"  - Team data calculated for {len(team_data)} teams")
 
-        # Phase 5: Generate weekly snapshots
         logger.info("[5/5] Generating weekly snapshots...")
         generate_weekly_snapshots(players, output_dir, GENERATE_CSV, GENERATE_JSON)
         logger.info(f"  - Generated {REGULAR_SEASON_WEEKS} weekly snapshots")
@@ -221,7 +206,6 @@ async def compile_season_data(year: int, output_dir: Path) -> None:
         logger.info(f"Output written to: {output_dir}")
 
     finally:
-        # Always close HTTP client
         await http_client.close()
 
 
@@ -260,7 +244,6 @@ def main() -> int:
     """
     args = parse_args()
 
-    # Set up logging
     log_level = "DEBUG" if args.verbose else "INFO"
     setup_logger(
         name="historical_data_compiler",
@@ -279,25 +262,20 @@ def main() -> int:
 
     for current_year in year_array:
         try:
-            # Validate year
             validate_year(current_year)
 
-            # Determine output directory
             if args.output_dir:
                 output_dir = args.output_dir
             else:
                 output_dir = Path(__file__).parent / "simulation" / "sim_data" / str(current_year)
 
-            # Check if output already exists
             if output_dir.exists():
                 logger.warning(f"Output directory already exists: {output_dir}")
                 logger.warning("Existing data will be overwritten")
                 shutil.rmtree(output_dir)
 
-            # Create directory structure
             create_output_directories(output_dir)
 
-            # Run compilation
             asyncio.run(compile_season_data(current_year, output_dir))
 
             logger.info("Historical data compilation completed successfully!")
@@ -321,3 +299,5 @@ def main() -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
+
+

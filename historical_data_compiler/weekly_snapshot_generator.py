@@ -79,17 +79,13 @@ class WeeklySnapshotGenerator:
         ratings: Dict[str, float] = {}
 
         if current_week == 1:
-            # Week 1: Use original draft-based rating
             for player in players:
                 ratings[player.id] = player.player_rating if player.player_rating else 50.0
             return ratings
 
-        # Week 2+: Calculate from cumulative actual points through (current_week - 1)
-        # Group players by position
-        position_players: Dict[str, List[tuple]] = {}  # position -> [(player_id, cumulative_points)]
+        position_players: Dict[str, List[tuple]] = {}
 
         for player in players:
-            # Calculate cumulative actual points through (current_week - 1)
             cumulative_points = 0.0
             for week in range(1, current_week):
                 points = player.week_points.get(week, 0.0)
@@ -100,16 +96,13 @@ class WeeklySnapshotGenerator:
                 position_players[player.position] = []
             position_players[player.position].append((player.id, cumulative_points))
 
-        # Calculate ratings for each position
         for position, player_list in position_players.items():
-            # Sort by cumulative points descending (best performers first)
             player_list.sort(key=lambda x: x[1], reverse=True)
             total_in_position = len(player_list)
 
             for rank_index, (player_id, _) in enumerate(player_list):
-                position_rank = rank_index + 1  # 1-based rank
+                position_rank = rank_index + 1
                 if total_in_position > 1:
-                    # Formula: higher rank (lower number) = higher rating
                     rating = 100 - ((position_rank - 1) / (total_in_position - 1)) * 99
                 else:
                     rating = 100.0
@@ -160,17 +153,13 @@ class WeeklySnapshotGenerator:
         week_dir = weeks_dir / f"week_{current_week:02d}"
         week_dir.mkdir(parents=True, exist_ok=True)
 
-        # Generate CSV files (if enabled)
         if self.generate_csv:
-            # Generate players.csv (smart values based on current week)
             players_path = week_dir / PLAYERS_FILE
             self._write_players_snapshot(players, players_path, current_week)
 
-            # Generate players_projected.csv (point-in-time projections)
             projected_path = week_dir / PLAYERS_PROJECTED_FILE
             self._write_projected_snapshot(players, projected_path, current_week)
 
-        # Generate JSON files (if enabled)
         if self.generate_json:
             from .json_exporter import generate_json_snapshots
             generate_json_snapshots(players, week_dir, current_week)
@@ -202,34 +191,27 @@ class WeeklySnapshotGenerator:
             output_path: Output file path
             current_week: Current week (1-17)
         """
-        # Calculate player ratings for this week's snapshot
         player_ratings = self._calculate_player_ratings(players, current_week)
 
         rows = []
 
         for player in players:
-            # Build week points using actual for past, projected for future
             week_points = {}
             total_points = 0.0
 
             for week in range(1, REGULAR_SEASON_WEEKS + 1):
-                # Bye week is always 0, regardless of current week
                 if player.bye_week and week == player.bye_week:
                     points = 0.0
                 elif week < current_week:
-                    # Past weeks: use actual (from week_points, which has smart values)
                     points = player.week_points.get(week, 0.0)
                 else:
-                    # Current and future weeks: use projected
                     points = player.projected_weeks.get(week, 0.0)
 
                 week_points[week] = points
                 total_points += points if points else 0.0
 
-            # Get calculated rating for this snapshot
             rating = player_ratings.get(player.id)
 
-            # Build row
             row = {
                 "id": player.id,
                 "name": player.name,
@@ -244,17 +226,14 @@ class WeeklySnapshotGenerator:
                 "injury_status": player.injury_status,
             }
 
-            # Add weekly points
             for week in range(1, REGULAR_SEASON_WEEKS + 1):
                 points = week_points.get(week)
                 row[f"week_{week}_points"] = round(points, 1) if points else ""
 
             rows.append(row)
 
-        # Sort by fantasy points
         rows.sort(key=lambda r: r.get("fantasy_points", 0), reverse=True)
 
-        # Write CSV
         with open(output_path, 'w', newline='') as f:
             writer = csv.DictWriter(f, fieldnames=PLAYERS_CSV_COLUMNS)
             writer.writeheader()
@@ -286,39 +265,31 @@ class WeeklySnapshotGenerator:
             output_path: Output file path
             current_week: Current week (1-18)
         """
-        # Special case: Week 18 = all actuals (same as players.csv)
         if current_week == VALIDATION_WEEKS:
             self._write_players_snapshot(players, output_path, current_week)
             return
 
-        # Calculate player ratings for this week's snapshot
         player_ratings = self._calculate_player_ratings(players, current_week)
 
         rows = []
 
         for player in players:
-            # Get current week's projection for use in future weeks
             current_week_projection = player.projected_weeks.get(current_week, 0.0) or 0.0
 
-            # Build week points per spec
             week_points = {}
             total_projected = 0.0
 
             for week in range(1, REGULAR_SEASON_WEEKS + 1):
-                # Bye week is always 0, regardless of current week
                 if player.bye_week and week == player.bye_week:
                     points = 0.0
                 elif week < current_week:
-                    # Past weeks: use historical week-specific projection
                     points = player.projected_weeks.get(week, 0.0) or 0.0
                 else:
-                    # Current and future weeks: use current week's projection
                     points = current_week_projection
 
                 week_points[week] = points
                 total_projected += points
 
-            # Get calculated rating for this snapshot
             rating = player_ratings.get(player.id)
 
             row = {
@@ -335,17 +306,14 @@ class WeeklySnapshotGenerator:
                 "injury_status": player.injury_status,
             }
 
-            # Add projected weekly points
             for week in range(1, REGULAR_SEASON_WEEKS + 1):
                 points = week_points.get(week)
                 row[f"week_{week}_points"] = round(points, 1) if points else ""
 
             rows.append(row)
 
-        # Sort by fantasy points
         rows.sort(key=lambda r: r.get("fantasy_points", 0), reverse=True)
 
-        # Write CSV
         with open(output_path, 'w', newline='') as f:
             writer = csv.DictWriter(f, fieldnames=PLAYERS_CSV_COLUMNS)
             writer.writeheader()
@@ -369,3 +337,5 @@ def generate_weekly_snapshots(
     """
     generator = WeeklySnapshotGenerator(generate_csv=generate_csv, generate_json=generate_json)
     generator.generate_all_weeks(players, output_dir)
+
+

@@ -24,19 +24,16 @@ class TeamData:
     data organization and enables enhanced matchup analysis.
     """
 
-    # Core team identification
-    team: str  # Team abbreviation (e.g., 'PHI', 'KC', 'BUF')
+    team: str
 
-    # Team quality rankings (lower rank = better team)
-    offensive_rank: Optional[int] = None  # Team offensive quality ranking (1-32)
-    defensive_rank: Optional[int] = None  # Team defensive quality ranking (1-32)
+    offensive_rank: Optional[int] = None
+    defensive_rank: Optional[int] = None
 
-    # Position-specific defense rankings (lower rank = better defense vs that position)
-    def_vs_qb_rank: Optional[int] = None  # Defense rank vs QB (1-32, 1=best)
-    def_vs_rb_rank: Optional[int] = None  # Defense rank vs RB (1-32, 1=best)
-    def_vs_wr_rank: Optional[int] = None  # Defense rank vs WR (1-32, 1=best)
-    def_vs_te_rank: Optional[int] = None  # Defense rank vs TE (1-32, 1=best)
-    def_vs_k_rank: Optional[int] = None   # Defense rank vs K (1-32, 1=best)
+    def_vs_qb_rank: Optional[int] = None
+    def_vs_rb_rank: Optional[int] = None
+    def_vs_wr_rank: Optional[int] = None
+    def_vs_te_rank: Optional[int] = None
+    def_vs_k_rank: Optional[int] = None
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'TeamData':
@@ -88,9 +85,7 @@ def _safe_int_conversion(value, default=None):
     if value is None or value == '' or (isinstance(value, str) and value.lower() in ['nan', 'none', 'null']):
         return default
     try:
-        # Handle string representations of floats
         if isinstance(value, str):
-            # Remove any non-numeric characters except decimal points and negative signs
             cleaned = ''.join(c for c in value if c.isdigit() or c in '.-')
             if not cleaned or cleaned in ['-', '.', '-.']:
                 return default
@@ -98,7 +93,6 @@ def _safe_int_conversion(value, default=None):
         else:
             float_val = float(value)
 
-        # Check for infinity values
         if float_val == float('inf') or float_val == float('-inf') or float_val != float_val:  # NaN check
             return default
 
@@ -120,14 +114,12 @@ def _safe_string_conversion(value):
     if value is None:
         return None
 
-    # Handle pandas NaN values
     try:
         if pd.isna(value):
             return None
     except (TypeError, ValueError):
         pass
 
-    # Convert to string and check for NaN-like strings
     str_val = str(value).strip()
     if str_val.lower() in ['nan', 'none', 'null', '']:
         return None
@@ -157,9 +149,8 @@ def load_team_weekly_data(team_data_folder: str) -> Dict[str, List[Dict[str, Any
 
     team_weekly_data = {}
 
-    # Load each team's CSV file
     for csv_file in folder_path.glob("*.csv"):
-        team_abbr = csv_file.stem  # e.g., 'KC' from 'KC.csv'
+        team_abbr = csv_file.stem
         weekly_data = load_single_team_data(str(csv_file))
         team_weekly_data[team_abbr] = weekly_data
 
@@ -235,23 +226,19 @@ def save_single_team_data(file_path: str, weekly_data: List[Dict[str, Any]]) -> 
             Format: [{'week': 1, 'pts_allowed_to_QB': 18.5, 'pts_allowed_to_RB': 22.3, ...}, ...]
     """
     if not weekly_data:
-        # Create empty CSV with proper headers
         df = pd.DataFrame(columns=['week', 'pts_allowed_to_QB', 'pts_allowed_to_RB',
                                    'pts_allowed_to_WR', 'pts_allowed_to_TE', 'pts_allowed_to_K',
                                    'points_scored', 'points_allowed'])
     else:
         df = pd.DataFrame(weekly_data)
 
-    # Ensure consistent column order
     columns = ['week', 'pts_allowed_to_QB', 'pts_allowed_to_RB', 'pts_allowed_to_WR',
                'pts_allowed_to_TE', 'pts_allowed_to_K', 'points_scored', 'points_allowed']
     df = df[columns]
 
-    # Save to CSV
     write_csv_with_backup(df, file_path, create_backup=False)
 
 
-# NFL team abbreviations (all 32 teams)
 NFL_TEAMS = [
     'ARI', 'ATL', 'BAL', 'BUF', 'CAR', 'CHI', 'CIN', 'CLE',
     'DAL', 'DEN', 'DET', 'GB', 'HOU', 'IND', 'JAX', 'KC',

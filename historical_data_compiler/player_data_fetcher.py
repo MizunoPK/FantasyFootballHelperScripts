@@ -32,11 +32,9 @@ from .constants import (
 from utils.LoggingManager import get_logger
 
 
-# ESPN API constants
-ESPN_PLAYER_LIMIT = 1500  # Max players to fetch
+ESPN_PLAYER_LIMIT = 1500
 
 
-# CSV columns for players.csv
 PLAYERS_CSV_COLUMNS = [
     "id", "name", "team", "position", "bye_week", "drafted", "locked",
     "fantasy_points", "average_draft_position", "player_rating", "injury_status",
@@ -97,7 +95,6 @@ class PlayerData:
             "player_rating": round(self.player_rating, 1) if self.player_rating else "",
             "injury_status": self.injury_status,
         }
-        # Add weekly points
         for week in range(1, REGULAR_SEASON_WEEKS + 1):
             points = self.week_points.get(week)
             row[f"week_{week}_points"] = round(points, 1) if points is not None else ""
@@ -118,7 +115,6 @@ class PlayerData:
             "player_rating": round(self.player_rating, 1) if self.player_rating else "",
             "injury_status": self.injury_status,
         }
-        # Add projected weekly points
         for week in range(1, REGULAR_SEASON_WEEKS + 1):
             points = self.projected_weeks.get(week)
             row[f"week_{week}_points"] = round(points, 1) if points is not None else ""
@@ -162,16 +158,13 @@ class PlayerDataFetcher:
         """
         self.logger.info(f"Fetching all players for {year} season")
 
-        # Build API URL
         url = ESPN_FANTASY_API_URL.format(year=year)
 
-        # Request params
         params = {
             "view": "kona_player_info",
             "scoringPeriodId": 0  # 0 = all weeks
         }
 
-        # Headers with player filter
         headers = {
             "User-Agent": ESPN_USER_AGENT,
             "X-Fantasy-Filter": f'{{"players":{{"limit":{ESPN_PLAYER_LIMIT},"sortPercOwned":{{"sortPriority":4,"sortAsc":false}}}}}}'
@@ -179,7 +172,6 @@ class PlayerDataFetcher:
 
         data = await self.http_client.get(url, headers=headers, params=params)
 
-        # Parse player data
         players = await self._parse_players(data, year, bye_weeks)
         self.logger.info(f"Fetched {len(players)} players for {year} season")
 
@@ -207,7 +199,6 @@ class PlayerDataFetcher:
 
         self.logger.info(f"Processing {len(raw_players)} raw players from ESPN API")
 
-        # First pass: collect positional rank ranges for normalization
         position_rank_ranges: Dict[str, Dict[str, float]] = {}
         player_positional_ranks: Dict[str, float] = {}
 
@@ -222,7 +213,6 @@ class PlayerDataFetcher:
             if position == 'UNKNOWN' or position not in FANTASY_POSITIONS:
                 continue
 
-            # Extract positional rank from rankings
             positional_rank = self._extract_positional_rank(player_info, position)
 
             if positional_rank is not None:
@@ -238,7 +228,6 @@ class PlayerDataFetcher:
                         position_rank_ranges[position]['max'], positional_rank
                     )
 
-        # Second pass: parse all players
         processed = 0
         for player in raw_players:
             try:
@@ -269,16 +258,13 @@ class PlayerDataFetcher:
         Returns:
             Positional rank (averageRank) or None
         """
-        # Get slot ID for position
         slot_mapping = {
             'QB': 0, 'RB': 2, 'WR': 4, 'TE': 6, 'K': 17, 'DST': 16
         }
         expected_slot_id = slot_mapping.get(position, -1)
 
-        # Try to find rankings in 'rankings' dict
         all_rankings = player_info.get('rankings', {})
 
-        # Try current week's rankings (key '0' is often preseason/overall)
         for key in ['0', '1', '2', '3', '4', '5']:
             if key in all_rankings:
                 rankings_ros = all_rankings[key]
@@ -289,7 +275,6 @@ class PlayerDataFetcher:
                             'averageRank' in entry):
                             return entry['averageRank']
 
-        # Fallback: use draftRanksByRankType
         draft_ranks = player_info.get('draftRanksByRankType', {})
         ppr_rank_data = draft_ranks.get('PPR', {})
         if ppr_rank_data and 'rank' in ppr_rank_data:
@@ -320,12 +305,10 @@ class PlayerDataFetcher:
         """
         player_info = player.get('player', {})
 
-        # Extract basic info
         player_id = str(player_info.get('id', ''))
         if not player_id:
             return None
 
-        # Name
         name_parts = []
         if player_info.get('firstName'):
             name_parts.append(player_info['firstName'])
@@ -333,47 +316,38 @@ class PlayerDataFetcher:
             name_parts.append(player_info['lastName'])
         name = ' '.join(name_parts) if name_parts else 'Unknown'
 
-        # Team
         pro_team_id = player_info.get('proTeamId')
         team = ESPN_TEAM_MAPPINGS.get(pro_team_id, 'UNK')
         if team == 'UNK':
             return None
 
-        # Position
         position_id = player_info.get('defaultPositionId')
         position = ESPN_POSITION_MAPPINGS.get(position_id, 'UNKNOWN')
         if position == 'UNKNOWN' or position not in FANTASY_POSITIONS:
             return None
 
-        # Bye week
         bye_week = bye_weeks.get(team)
 
-        # ADP
         adp = None
         ownership = player_info.get('ownership', {})
         if ownership and 'averageDraftPosition' in ownership:
             adp = ownership['averageDraftPosition']
 
-        # Player rating (normalized 1-100)
         player_rating = None
         positional_rank = player_positional_ranks.get(player_id)
         if positional_rank is not None and position in position_rank_ranges:
             ranges = position_rank_ranges[position]
             if ranges['max'] > ranges['min']:
-                # Normalize: lower rank = better = higher rating
                 player_rating = 100 - ((positional_rank - ranges['min']) /
                                        (ranges['max'] - ranges['min']) * 99)
                 player_rating = max(1.0, min(100.0, player_rating))
 
-        # Injury status
         injury_status = player_info.get('injuryStatus', 'ACTIVE')
 
-        # Extract weekly points
         week_points, projected_weeks = await self._extract_weekly_points(
             player_info, year, position
         )
 
-        # Calculate total fantasy points (sum of smart week values)
         fantasy_points = sum(week_points.values())
 
         return PlayerData(
@@ -419,7 +393,6 @@ class PlayerDataFetcher:
         if not stats:
             return week_points, projected_weeks
 
-        # Group stats by week and source
         for week in range(1, REGULAR_SEASON_WEEKS + 1):
             actual_points = None
             projected_points = None
@@ -439,23 +412,20 @@ class PlayerDataFetcher:
                         try:
                             points = float(applied_total)
                             if not math.isnan(points):
-                                if stat_source == 0:  # Actual
+                                if stat_source == 0:
                                     actual_points = points
-                                elif stat_source == 1:  # Projected
+                                elif stat_source == 1:
                                     projected_points = points
                         except (ValueError, TypeError):
                             continue
 
-            # Smart value: actual if available, else projected
             if actual_points is not None:
-                # DST can have negative points
                 if position == 'DST' or actual_points > 0:
                     week_points[week] = actual_points
             elif projected_points is not None:
                 if position == 'DST' or projected_points > 0:
                     week_points[week] = projected_points
 
-            # Projected value (always projection)
             if projected_points is not None:
                 if position == 'DST' or projected_points > 0:
                     projected_weeks[week] = projected_points
@@ -476,7 +446,6 @@ class PlayerDataFetcher:
         """
         self.logger.info(f"Writing players to {output_path}")
 
-        # Sort by fantasy points (descending)
         players_sorted = sorted(players, key=lambda p: p.fantasy_points, reverse=True)
 
         with open(output_path, 'w', newline='') as f:
@@ -501,7 +470,6 @@ class PlayerDataFetcher:
         """
         self.logger.info(f"Writing projected players to {output_path}")
 
-        # Sort by fantasy points (descending)
         players_sorted = sorted(players, key=lambda p: p.fantasy_points, reverse=True)
 
         with open(output_path, 'w', newline='') as f:
@@ -536,3 +504,5 @@ async def fetch_player_data(
     fetcher = PlayerDataFetcher(http_client)
     players = await fetcher.fetch_all_players(year, bye_weeks)
     return players
+
+

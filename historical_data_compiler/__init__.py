@@ -52,7 +52,6 @@ from .weekly_snapshot_generator import (
 )
 
 __all__ = [
-    # Constants
     'ESPN_TEAM_MAPPINGS',
     'ESPN_POSITION_MAPPINGS',
     'ALL_NFL_TEAMS',
@@ -61,23 +60,19 @@ __all__ = [
     'ESPN_SCOREBOARD_API_URL',
     'REGULAR_SEASON_WEEKS',
     'MIN_SUPPORTED_YEAR',
-    # HTTP Client
     'BaseHTTPClient',
-    # Schedule
     'ScheduleFetcher',
     'fetch_and_write_schedule',
-    # Game Data
     'GameDataFetcher',
     'GameData',
     'fetch_and_write_game_data',
-    # Player Data
     'PlayerDataFetcher',
     'PlayerData',
     'fetch_player_data',
-    # Team Data
     'TeamDataCalculator',
     'calculate_and_write_team_data',
-    # Weekly Snapshots
     'WeeklySnapshotGenerator',
     'generate_weekly_snapshots',
 ]
+
+

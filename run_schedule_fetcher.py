@@ -29,7 +29,6 @@ NFL_SEASON = 2025
 
 async def main():
     """Main entry point for schedule fetcher."""
-    # Parse arguments (synchronous, runs before async operations)
     parser = argparse.ArgumentParser(description="Fetch NFL season schedule from ESPN API")
     parser.add_argument(
         '--enable-log-file',
@@ -38,7 +37,6 @@ async def main():
     )
     args = parser.parse_args()
 
-    # Setup logger (ONCE in entry script)
     logger = setup_logger(
         name="schedule_fetcher",
         level="INFO",
@@ -48,22 +46,18 @@ async def main():
     )
 
     try:
-        # Define output path
         output_path = Path(__file__).parent / "data" / "season_schedule.csv"
 
-        # Create fetcher
         fetcher = ScheduleFetcher(output_path)
 
         logger.info(f"Fetching NFL season schedule for {NFL_SEASON}...")
 
-        # Fetch schedule from ESPN API
         schedule = await fetcher.fetch_full_schedule(NFL_SEASON)
 
         if not schedule:
             logger.error("Failed to fetch schedule data")
             return 1
 
-        # Export to CSV
         fetcher.export_to_csv(schedule)
 
         logger.info(f"Schedule successfully exported to {output_path}")
@@ -81,3 +75,5 @@ async def main():
 if __name__ == "__main__":
     exit_code = asyncio.run(main())
     sys.exit(exit_code)
+
+

@@ -72,7 +72,6 @@ class LineBasedRotatingHandler(FileHandler):
         Raises:
             ValueError: If max_lines < 1 or max_files < 1
         """
-        # Validate parameters
         if max_lines < 1:
             raise ValueError(f"max_lines must be >= 1, got {max_lines}")
         if max_files < 1:
@@ -80,9 +79,8 @@ class LineBasedRotatingHandler(FileHandler):
 
         self.max_lines = max_lines
         self.max_files = max_files
-        self._line_counter = 0  # In-memory counter (NOT persistent)
+        self._line_counter = 0
 
-        # Initialize parent FileHandler
         super().__init__(filename, mode, encoding, delay)
 
     def emit(self, record):
@@ -100,17 +98,13 @@ class LineBasedRotatingHandler(FileHandler):
             Line counter increments even if emit fails. This is intentional
             to maintain consistency and prevent infinite loops.
         """
-        # Increment line counter BEFORE writing (eager counting)
         self._line_counter += 1
 
-        # Call parent emit to write log record
         try:
             super().emit(record)
         except Exception:
-            # Let parent class handle exceptions
             self.handleError(record)
 
-        # Check if rotation needed after emit
         if self.shouldRollover(record):
             try:
                 self.doRollover()
@@ -134,7 +128,6 @@ class LineBasedRotatingHandler(FileHandler):
             The 'record' parameter is unused but required for compatibility
             with the logging.Handler API.
         """
-        # Rotation needed if counter >= max_lines
         return self._line_counter >= self.max_lines
 
     def doRollover(self):
@@ -158,36 +151,26 @@ class LineBasedRotatingHandler(FileHandler):
         Raises:
             OSError: If file operations fail (logged but not propagated)
         """
-        # Close current file
         if self.stream:
             self.stream.close()
             self.stream = None
 
-        # Reset line counter to 0
         self._line_counter = 0
 
-        # Generate new timestamped filename with collision avoidance
         base_filename = self._get_base_filename()
         log_dir = Path(self.baseFilename).parent
 
-        # Add microsecond precision to avoid timestamp collisions
-        # Format: YYYYMMDD_HHMMSS_microseconds (ensures uniqueness even within same second)
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S_%f')
         new_filename = log_dir / f"{base_filename}-{timestamp}.log"
 
-        # Update baseFilename to new file
         self.baseFilename = str(new_filename)
 
-        # Open new log file
         self.stream = self._open()
 
-        # Log rotation event (DEBUG level)
-        # Note: This log line counts toward the new file's line counter
         self.stream.write(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] "
                          f"DEBUG - Log rotation triggered at {self.max_lines} lines\n")
         self.stream.flush()
 
-        # Cleanup old files if needed
         self._cleanup_old_files()
 
     def _get_base_filename(self) -> str:
@@ -209,16 +192,11 @@ class LineBasedRotatingHandler(FileHandler):
         """
         filename = Path(self.baseFilename).name
 
-        # Extract base name using regex
-        # Supports both formats:
-        #   - {name}-{YYYYMMDD_HHMMSS}.log (initial file from LoggingManager)
-        #   - {name}-{YYYYMMDD_HHMMSS_microseconds}.log (rotated files)
         match = re.match(r'^(.+?)-\d{8}_\d{6}(?:_\d{6})?\.log$', filename)
 
         if match:
             return match.group(1)
         else:
-            # Fallback: remove extension if regex doesn't match
             return Path(filename).stem
 
     def _cleanup_old_files(self):
@@ -246,27 +224,21 @@ class LineBasedRotatingHandler(FileHandler):
         """
         log_dir = Path(self.baseFilename).parent
 
-        # List all .log files in directory
         log_files = list(log_dir.glob('*.log'))
 
-        # Check if cleanup needed
         if len(log_files) <= self.max_files:
-            return  # No cleanup needed
+            return
 
-        # Sort by modification time (oldest first)
         log_files.sort(key=lambda f: f.stat().st_mtime)
 
-        # Calculate how many files to delete
         files_to_delete = len(log_files) - self.max_files
 
-        # Delete oldest files
         deleted_count = 0
         for old_file in log_files[:files_to_delete]:
             try:
                 old_file.unlink()
                 deleted_count += 1
             except OSError as e:
-                # Log error but continue cleanup
                 if self.stream:
                     self.stream.write(
                         f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] "
@@ -274,10 +246,11 @@ class LineBasedRotatingHandler(FileHandler):
                     )
                     self.stream.flush()
 
-        # Log cleanup summary (INFO level)
         if deleted_count > 0 and self.stream:
             self.stream.write(
                 f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] "
                 f"INFO - Cleaned up {deleted_count} old log files\n"
             )
             self.stream.flush()
+
+

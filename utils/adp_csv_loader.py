@@ -17,7 +17,6 @@ from utils.csv_utils import read_csv_with_validation
 from utils.LoggingManager import get_logger
 from utils.error_handler import DataProcessingError
 
-# Initialize logger
 logger = get_logger()
 
 
@@ -49,19 +48,14 @@ def load_adp_from_csv(csv_path: Union[str, Path]) -> pd.DataFrame:
         >>> print(f"Loaded {len(adp_df)} players")
         Loaded 988 players
     """
-    # Convert to Path object for consistent handling
     csv_path = Path(csv_path)
 
-    # Task 3: Validate file exists
     if not csv_path.exists():
         logger.error(f"CSV file not found: {csv_path}")
         raise FileNotFoundError(f"CSV file not found: {csv_path}")
 
-    # Task 4: Validate required columns and load CSV
-    # Note: Using on_bad_lines='skip' to handle malformed lines (e.g., names with apostrophes)
     required_columns = ['Player', 'POS', 'AVG']
 
-    # Load CSV with error handling for malformed lines
     try:
         df = pd.read_csv(csv_path, encoding='utf-8', on_bad_lines='skip')
         logger.info(f"CSV loaded: {csv_path} ({len(df)} rows)")
@@ -69,30 +63,22 @@ def load_adp_from_csv(csv_path: Union[str, Path]) -> pd.DataFrame:
         logger.error(f"Error reading CSV: {e}")
         raise DataProcessingError(f"Error reading CSV: {e}")
 
-    # Validate required columns exist
     missing_cols = [col for col in required_columns if col not in df.columns]
     if missing_cols:
         logger.error(f"Missing required columns: {missing_cols}")
         raise DataProcessingError(f"Missing required columns: {missing_cols}")
     logger.info(f"CSV validation passed: {csv_path}")
 
-    # Task 5: Extract only needed columns
     df = df[['Player', 'POS', 'AVG']].copy()
 
-    # Task 6: Clean position field (strip numeric suffixes: WR1 → WR, QB12 → QB)
     df['position'] = df['POS'].str.replace(r'\d+$', '', regex=True)
 
-    # Task 7: Parse AVG as float
     df['adp'] = df['AVG'].astype(float)
 
-    # Task 8: Rename columns to standard names
     df = df.rename(columns={'Player': 'player_name'})
 
-    # Keep only final columns in correct order
     df = df[['player_name', 'adp', 'position']]
 
-    # Task 9: Filter out rows with empty player names
-    # (Can occur from malformed CSV lines that were skipped during parsing)
     before_count = len(df)
     df = df[df['player_name'].notna() & (df['player_name'].str.len() > 0)]
     after_count = len(df)
@@ -101,13 +87,13 @@ def load_adp_from_csv(csv_path: Union[str, Path]) -> pd.DataFrame:
         logger.warning(f"Filtered out {before_count - after_count} rows with empty player names")
     logger.info(f"Validated {len(df)} player names")
 
-    # Task 10: Validate ADP values are positive
     if not (df['adp'] > 0).all():
         invalid_adps = df[df['adp'] <= 0]
         logger.error(f"Invalid ADP values found: {invalid_adps['adp'].tolist()}")
         raise DataProcessingError(f"Invalid ADP values found: ADP must be > 0")
     logger.info(f"Validated {len(df)} ADP values (all > 0)")
 
-    # Task 11: Return DataFrame
     logger.info(f"Successfully loaded {len(df)} ADP rankings from CSV")
     return df
+
+

@@ -100,7 +100,7 @@ class BaseHTTPClient:
         try:
             yield self._client
         finally:
-            pass  # Keep client alive for reuse
+            pass
 
     async def close(self):
         """Close the HTTP client session."""
@@ -145,10 +145,8 @@ class BaseHTTPClient:
         """
         self.logger.debug(f"Making {method} request to: {url}")
 
-        # Rate limiting: sleep before each request
         await asyncio.sleep(self.rate_limit_delay)
 
-        # Set default headers
         if headers is None:
             headers = {}
         if 'User-Agent' not in headers:
@@ -164,7 +162,6 @@ class BaseHTTPClient:
                     **kwargs
                 )
 
-                # Handle specific HTTP error codes
                 if response.status_code == 429:
                     raise RateLimitError(f"Rate limit exceeded: {response.status_code}")
                 elif response.status_code >= 500:
@@ -201,3 +198,5 @@ class BaseHTTPClient:
             JSON response as dict
         """
         return await self.request('GET', url, headers=headers, params=params, **kwargs)
+
+

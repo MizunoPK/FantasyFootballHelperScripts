@@ -29,7 +29,6 @@ sys.path.append(str(Path(__file__).parent.parent))
 from utils.LoggingManager import get_logger
 
 
-# Team data CSV columns
 TEAM_DATA_CSV_COLUMNS = [
     "week",
     "pts_allowed_to_QB",
@@ -75,13 +74,10 @@ class TeamDataCalculator:
         """
         self.logger.info("Calculating team data from player stats")
 
-        # Build lookup for game scores
         game_scores = self._build_game_scores_lookup(game_data)
 
-        # Build lookup for player points by team and week
         player_points = self._build_player_points_lookup(players)
 
-        # Calculate team data for each team
         team_data: Dict[str, List[Dict[str, Any]]] = {}
 
         for team in ALL_NFL_TEAMS:
@@ -92,7 +88,6 @@ class TeamDataCalculator:
                 opponent = week_schedule.get(team)
 
                 if not opponent:
-                    # Bye week - all zeros
                     week_data = {
                         "week": week,
                         "pts_allowed_to_QB": 0.0,
@@ -104,7 +99,6 @@ class TeamDataCalculator:
                         "points_allowed": 0.0
                     }
                 else:
-                    # Calculate stats from opponent's players
                     week_data = self._calculate_week_data(
                         team, opponent, week, player_points, game_scores
                     )
@@ -136,7 +130,6 @@ class TeamDataCalculator:
                 "home_score": game.home_team_score or 0,
                 "away_score": game.away_team_score or 0
             }
-            # Also store reverse lookup
             rev_key = (game.week, game.away_team, game.home_team)
             scores[rev_key] = {
                 "home_score": game.away_team_score or 0,
@@ -193,7 +186,6 @@ class TeamDataCalculator:
         Returns:
             Dict with week data
         """
-        # Points allowed to each position = opponent's players' points
         opponent_week_points = player_points.get(opponent, {}).get(week, {})
 
         pts_allowed_to_qb = opponent_week_points.get('QB', 0.0)
@@ -202,13 +194,10 @@ class TeamDataCalculator:
         pts_allowed_to_te = opponent_week_points.get('TE', 0.0)
         pts_allowed_to_k = opponent_week_points.get('K', 0.0)
 
-        # Points scored by team's players
         team_week_points = player_points.get(team, {}).get(week, {})
         points_scored = sum(team_week_points.values())
 
-        # NFL points allowed (from game data)
         points_allowed = 0.0
-        # Find game involving team and opponent
         for key, scores in game_scores.items():
             game_week, home, away = key
             if game_week == week:
@@ -282,3 +271,5 @@ def calculate_and_write_team_data(
     team_data = calculator.calculate_team_data(players, schedule, game_data)
     calculator.write_team_data_files(team_data, output_dir)
     return team_data
+
+

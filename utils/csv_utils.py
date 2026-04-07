@@ -22,7 +22,6 @@ from utils.error_handler import (
 
 logger = logging.getLogger(__name__)
 
-# Create error handler for this module
 error_handler = create_component_error_handler("csv_utils")
 
 
@@ -43,11 +42,9 @@ def validate_csv_columns(filepath: Union[str, Path], required_columns: List[str]
     """
     filepath = Path(filepath)
 
-    # error_context provides structured error logging with file path tracking
     with error_context("validate_csv_columns", component="csv_utils",
                       file_path=str(filepath)) as context:
 
-        # Early exit if file doesn't exist (fail fast pattern)
         if not filepath.exists():
             raise FileOperationError(
                 f"CSV file not found: {filepath}",
@@ -57,9 +54,7 @@ def validate_csv_columns(filepath: Union[str, Path], required_columns: List[str]
         try:
             with open(filepath, 'r', encoding='utf-8') as csvfile:
                 reader = csv.DictReader(csvfile)
-                # Use set for O(1) lookup when checking required columns
                 existing_columns = set(reader.fieldnames or [])
-                # Build list of missing columns for error reporting
                 missing_columns = [col for col in required_columns if col not in existing_columns]
 
                 if missing_columns:
@@ -102,11 +97,9 @@ def read_csv_with_validation(filepath: Union[str, Path],
         raise FileNotFoundError(f"CSV file not found: {filepath}")
 
     try:
-        # Validate columns if required
         if required_columns:
             validate_csv_columns(filepath, required_columns)
 
-        # Read CSV with pandas
         df = pd.read_csv(filepath, encoding=encoding)
         logger.info(f"Successfully loaded {len(df)} rows from {filepath}")
 
@@ -133,26 +126,17 @@ def write_csv_with_backup(df: pd.DataFrame,
     filepath = Path(filepath)
 
     try:
-        # Skip backup for temporary files (common in tests)
-        # This prevents pytest tmp_path from accumulating backups during test runs
         is_temp_file = 'tmp' in str(filepath) or 'temp' in str(filepath).lower()
 
-        # Create backup if file exists and backup is requested and not a temp file
-        # Backup strategy: rename original to .backup extension, then write new file
         if create_backup and filepath.exists() and not is_temp_file:
             backup_path = filepath.with_suffix(f'.backup{filepath.suffix}')
-            # Remove existing backup if it exists (keep only one backup level)
-            # This prevents unlimited backup accumulation
             if backup_path.exists():
                 backup_path.unlink()
-            # Use rename instead of copy for atomic operation
             filepath.rename(backup_path)
             logger.info(f"Created backup: {backup_path}")
 
-        # Ensure directory exists
         filepath.parent.mkdir(parents=True, exist_ok=True)
 
-        # Write CSV
         df.to_csv(filepath, index=False, encoding=encoding)
         logger.info(f"Successfully wrote {len(df)} rows to {filepath}")
 
@@ -175,12 +159,8 @@ async def write_csv_async(df: pd.DataFrame,
     filepath = Path(filepath)
 
     try:
-        # Ensure directory exists
         filepath.parent.mkdir(parents=True, exist_ok=True)
 
-        # Write CSV asynchronously using thread pool
-        # run_in_executor with None uses default ThreadPoolExecutor
-        # This prevents blocking the event loop during I/O operations
         await asyncio.get_event_loop().run_in_executor(
             None, lambda: df.to_csv(str(filepath), index=False, encoding=encoding)
         )
@@ -212,14 +192,10 @@ def read_dict_csv(filepath: Union[str, Path],
         raise FileNotFoundError(f"CSV file not found: {filepath}")
 
     try:
-        # Validate columns if required
-        # This happens before reading to fail fast on schema issues
         if required_columns:
             validate_csv_columns(filepath, required_columns)
 
         rows = []
-        # newline='' is required by csv module to handle line endings correctly
-        # See: https://docs.python.org/3/library/csv.html#csv.reader
         with open(filepath, 'r', encoding=encoding, newline='') as csvfile:
             reader = csv.DictReader(csvfile)
             rows = list(reader)
@@ -252,10 +228,8 @@ def write_dict_csv(data: List[Dict[str, Any]],
         return
 
     try:
-        # Ensure directory exists
         filepath.parent.mkdir(parents=True, exist_ok=True)
 
-        # Use provided fieldnames or extract from first row
         if fieldnames is None:
             fieldnames = list(data[0].keys())
 
@@ -299,17 +273,11 @@ def merge_csv_files(input_files: List[Union[str, Path]],
         if not dataframes:
             raise ValueError("No valid CSV files found to merge")
 
-        # Merge dataframes
-        # concat: Stack dataframes vertically (union all rows)
         if how == 'concat':
-            # ignore_index=True creates new sequential index (0, 1, 2...)
-            # This prevents duplicate index values from different files
             merged_df = pd.concat(dataframes, ignore_index=True)
         else:
-            # Currently only concat is supported; could add 'merge' for joins later
             raise ValueError(f"Unsupported merge method: {how}")
 
-        # Write merged data
         write_csv_with_backup(merged_df, output_file, create_backup=False)
 
         logger.info(f"Successfully merged {len(dataframes)} files into {output_file}")
@@ -320,8 +288,6 @@ def merge_csv_files(input_files: List[Union[str, Path]],
         raise
 
 
-# Decorator provides automatic error handling with logging
-# Returns empty DataFrame on any exception (graceful degradation)
 @handle_errors(default_return=pd.DataFrame(), component="csv_utils", operation="safe_csv_read")
 def safe_csv_read(filepath: Union[str, Path],
                  default_value: Optional[pd.DataFrame] = None) -> pd.DataFrame:

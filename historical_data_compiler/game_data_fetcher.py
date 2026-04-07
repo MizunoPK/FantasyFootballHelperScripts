@@ -30,7 +30,6 @@ sys.path.append(str(Path(__file__).parent.parent))
 from utils.LoggingManager import get_logger
 
 
-# CSV column order for game_data.csv
 GAME_DATA_CSV_COLUMNS = [
     "week",
     "home_team",
@@ -114,7 +113,6 @@ class GameDataFetcher:
     - Open-Meteo Historical API for weather (archive-api)
     """
 
-    # Country name normalization for geocoding
     COUNTRY_NORMALIZATION = {
         "England": "United Kingdom",
         "Scotland": "United Kingdom",
@@ -200,7 +198,7 @@ class GameDataFetcher:
                 all_games.extend(week_games)
             except Exception as e:
                 self.logger.error(f"Error fetching week {week}: {e}")
-                raise  # Fail-completely approach
+                raise
 
         self.logger.info(f"Fetched {len(all_games)} games for {year} season")
         return all_games
@@ -226,7 +224,7 @@ class GameDataFetcher:
                     games.append(game)
             except Exception as e:
                 self.logger.error(f"Error parsing game in week {week}: {e}")
-                raise  # Fail-completely
+                raise
 
         return games
 
@@ -246,7 +244,6 @@ class GameDataFetcher:
         address = venue.get("address", {})
         status = competition.get("status", {}).get("type", {})
 
-        # Venue info
         is_indoor = venue.get("indoor", False)
         neutral_site = competition.get("neutralSite", False)
         country = address.get("country", "USA")
@@ -254,10 +251,8 @@ class GameDataFetcher:
         state = address.get("state") if country == "USA" else None
         is_international = neutral_site and country != "USA"
 
-        # Game date
         game_date = event.get("date", "")
 
-        # Extract competitors
         competitors = competition.get("competitors", [])
         home_data = None
         away_data = None
@@ -272,7 +267,6 @@ class GameDataFetcher:
             self.logger.warning(f"Missing competitor data for game in week {week}")
             return None
 
-        # Get team abbreviations
         home_team = normalize_team_abbrev(
             home_data.get("team", {}).get("abbreviation", "")
         )
@@ -280,7 +274,6 @@ class GameDataFetcher:
             away_data.get("team", {}).get("abbreviation", "")
         )
 
-        # Get scores (historical data should always have scores)
         home_score = None
         away_score = None
         is_completed = status.get("completed", False)
@@ -292,7 +285,6 @@ class GameDataFetcher:
             except (ValueError, TypeError):
                 pass
 
-        # Fetch weather for outdoor games
         weather = {"temperature": None, "gust": None, "precipitation": None}
         if not is_indoor and game_date:
             weather = await self._fetch_weather(
@@ -349,10 +341,8 @@ class GameDataFetcher:
         self.logger.debug(f"Fetching weather for {game_date} at {coords['lat']},{coords['lon']}")
 
         try:
-            # Parse date
             date_only = game_date.split('T')[0]
 
-            # Historical API parameters
             params = {
                 "latitude": coords["lat"],
                 "longitude": coords["lon"],
@@ -375,7 +365,6 @@ class GameDataFetcher:
             if not temps:
                 return {"temperature": None, "gust": None, "precipitation": None}
 
-            # Get game hour (approximate from UTC time)
             try:
                 from zoneinfo import ZoneInfo
                 from datetime import datetime
@@ -384,7 +373,6 @@ class GameDataFetcher:
                 game_dt_local = game_dt_utc.astimezone(local_tz)
                 hour_index = game_dt_local.hour
             except Exception:
-                # Fallback: use 13:00 (common game time)
                 hour_index = 13
 
             hour_index = min(hour_index, len(temps) - 1)
@@ -413,10 +401,8 @@ class GameDataFetcher:
         """
         self.logger.info(f"Writing game data to {output_path}")
 
-        # Sort by week, then date
         games_sorted = sorted(games, key=lambda g: (g.week, g.date))
 
-        # Write CSV
         with open(output_path, 'w', newline='') as f:
             writer = csv.DictWriter(f, fieldnames=GAME_DATA_CSV_COLUMNS)
             writer.writeheader()
@@ -449,3 +435,5 @@ async def fetch_and_write_game_data(
     fetcher.write_game_data_csv(games, output_path)
 
     return games
+
+
