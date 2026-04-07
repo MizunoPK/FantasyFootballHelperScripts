@@ -69,19 +69,15 @@ class TeamDataManager:
         self.config_manager = config_manager
         self.team_data_folder = self.data_folder / 'team_data'
 
-        # Raw weekly data: {team: [{week: 1, QB: 18.5, ...}, ...]}
         self.team_weekly_data: Dict[str, List[Dict[str, Any]]] = {}
 
-        # Calculated rankings
         self.offensive_ranks: Dict[str, int] = {}
         self.defensive_ranks: Dict[str, int] = {}
-        self.position_ranks: Dict[str, Dict[str, int]] = {}  # {team: {QB: rank, RB: rank, ...}}
-        self.dst_fantasy_ranks: Dict[str, int] = {}  # D/ST fantasy performance rankings
+        self.position_ranks: Dict[str, Dict[str, int]] = {}
+        self.dst_fantasy_ranks: Dict[str, int] = {}
 
-        # D/ST player data: {team: [week_1_points, week_2_points, ..., week_17_points]}
         self.dst_player_data: Dict[str, List[Optional[float]]] = {}
 
-        # Legacy cache for compatibility (stores TeamData objects)
         self.team_data_cache: Dict[str, TeamData] = {}
 
         self.season_schedule_manager = season_schedule_manager
@@ -118,20 +114,17 @@ class TeamDataManager:
             - Logs error if dst_data.json is not found or has errors
         """
         try:
-            # Spec: sub_feature_06_team_data_manager_dst_migration_spec.md lines 77-92
             dst_json_path = self.data_folder / 'player_data' / 'dst_data.json'
 
             with open(dst_json_path, 'r') as f:
                 data = json.load(f)
 
-            # JSON file contains array directly, not wrapped in object
             dst_players = data if isinstance(data, list) else data.get('dst_data', [])
 
             for dst_player in dst_players:
                 team = dst_player.get('team', '').upper()
                 actual_points = dst_player.get('actual_points', [0.0] * 17)
 
-                # Store in same format: {team: [week_1, ..., week_17]}
                 self.dst_player_data[team] = actual_points
 
             self.logger.debug(f"Loaded D/ST data for {len(self.dst_player_data)} teams from {dst_json_path}")
@@ -158,21 +151,18 @@ class TeamDataManager:
             self.logger.debug("No team data available for ranking calculation")
             return
 
-        # Get MIN_WEEKS values from config
         team_quality_min_weeks = self.config_manager.get_team_quality_min_weeks()
         matchup_min_weeks = self.config_manager.get_matchup_min_weeks()
 
-        # Check if we have enough weeks of data (use smaller of the two)
         min_required = min(team_quality_min_weeks, matchup_min_weeks)
         if self.current_nfl_week <= min_required:
             self.logger.debug(f"Week {self.current_nfl_week} < MIN_WEEKS {min_required}, using neutral rankings")
             self._set_neutral_rankings()
             return
 
-        end_week = self.current_nfl_week - 1  # Last completed week
+        end_week = self.current_nfl_week - 1
         positions = ['QB', 'RB', 'WR', 'TE', 'K']
 
-        # Calculate offensive/defensive rankings using team_quality_min_weeks
         tq_start_week = max(1, end_week - team_quality_min_weeks + 1)
         self.logger.debug(f"Team quality rankings from weeks {tq_start_week}-{end_week}")
 
@@ -190,7 +180,6 @@ class TeamDataManager:
                     points_scored = week_data.get('points_scored', 0)
                     points_allowed = week_data.get('points_allowed', 0)
 
-                    # Skip bye weeks (all zeros)
                     if points_scored == 0 and points_allowed == 0:
                         continue
 
@@ -201,7 +190,6 @@ class TeamDataManager:
             offensive_totals[team] = (off_total, games)
             defensive_totals[team] = (def_total, games)
 
-        # Calculate position-specific rankings using matchup_min_weeks
         mu_start_week = max(1, end_week - matchup_min_weeks + 1)
         self.logger.debug(f"Position rankings from weeks {mu_start_week}-{end_week}")
 
@@ -216,7 +204,6 @@ class TeamDataManager:
                     points_scored = week_data.get('points_scored', 0)
                     points_allowed = week_data.get('points_allowed', 0)
 
-                    # Skip bye weeks (all zeros)
                     if points_scored == 0 and points_allowed == 0:
                         continue
 
@@ -227,32 +214,26 @@ class TeamDataManager:
 
             position_totals[team] = pos_totals
 
-        # Calculate D/ST fantasy rankings using team_quality_min_weeks (same window as offensive/defensive)
         dst_totals = {}
         for team, weekly_points in self.dst_player_data.items():
             dst_total = 0.0
             games = 0
 
-            # Loop through weeks in rolling window
             for week_num in range(tq_start_week, end_week + 1):
-                # week_num is 1-indexed, list is 0-indexed
                 week_index = week_num - 1
                 if week_index < len(weekly_points):
                     points = weekly_points[week_index]
-                    # Skip bye weeks (None or 0)
                     if points is not None and points != 0:
                         dst_total += points
                         games += 1
 
             dst_totals[team] = (dst_total, games)
 
-        # Calculate per-game averages and rank
         self._rank_offensive(offensive_totals)
         self._rank_defensive(defensive_totals)
         self._rank_dst_fantasy(dst_totals)
         self._rank_positions(position_totals, positions)
 
-        # Build team_data_cache for compatibility
         self._build_team_data_cache()
 
         self.logger.debug(f"Calculated rankings for {len(self.offensive_ranks)} teams")
@@ -270,13 +251,11 @@ class TeamDataManager:
 
     def _rank_offensive(self, totals: Dict[str, tuple]) -> None:
         """Rank teams by offensive production (higher points = better = rank 1)."""
-        # Calculate per-game averages
         averages = []
         for team, (total, games) in totals.items():
             avg = total / games if games > 0 else 0
             averages.append((team, avg))
 
-        # Sort by average descending (most points = rank 1)
         averages.sort(key=lambda x: x[1], reverse=True)
 
         for rank, (team, _) in enumerate(averages, 1):
@@ -284,13 +263,11 @@ class TeamDataManager:
 
     def _rank_defensive(self, totals: Dict[str, tuple]) -> None:
         """Rank teams by defensive production (fewer points allowed = better = rank 1)."""
-        # Calculate per-game averages
         averages = []
         for team, (total, games) in totals.items():
             avg = total / games if games > 0 else float('inf')
             averages.append((team, avg))
 
-        # Sort by average ascending (fewest points = rank 1)
         averages.sort(key=lambda x: x[1])
 
         for rank, (team, _) in enumerate(averages, 1):
@@ -310,13 +287,11 @@ class TeamDataManager:
         Side Effects:
             - Populates self.dst_fantasy_ranks with rankings (1-32)
         """
-        # Calculate per-game averages
         averages = []
         for team, (total, games) in totals.items():
             avg = total / games if games > 0 else 0
             averages.append((team, avg))
 
-        # Sort by average descending (most points = rank 1, like offensive)
         averages.sort(key=lambda x: x[1], reverse=True)
 
         for rank, (team, _) in enumerate(averages, 1):
@@ -331,7 +306,6 @@ class TeamDataManager:
                 avg = total / games if games > 0 else float('inf')
                 averages.append((team, avg))
 
-            # Sort by average ascending (fewest points allowed = rank 1)
             averages.sort(key=lambda x: x[1])
 
             for rank, (team, _) in enumerate(averages, 1):
@@ -416,7 +390,6 @@ class TeamDataManager:
         Returns:
             Position-specific defense rank (1-32) or None if not found.
         """
-        # Check if position is defense (use overall defensive rank)
         from league_helper.constants import DEFENSE_POSITIONS
 
         if position in DEFENSE_POSITIONS:
@@ -504,7 +477,6 @@ class TeamDataManager:
             self.logger.debug(f"No opponent found for team: {player_team}")
             return 0
 
-        # Check if player is on defense
         from league_helper.constants import DEFENSE_POSITIONS
         is_defense = position in DEFENSE_POSITIONS
 
@@ -526,3 +498,5 @@ class TeamDataManager:
         )
 
         return matchup_score
+
+

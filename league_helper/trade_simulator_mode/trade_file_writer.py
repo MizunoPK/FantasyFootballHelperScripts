@@ -53,70 +53,50 @@ class TradeFileWriter:
               I receive:
                 - Player Name (POS) - TEAM
         """
-        # STEP 1: Generate unique timestamp for filename (YYYYMMDD_HHMMSS format)
-        # Ensures each file has a unique name and is easily sortable by time
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
-        # STEP 2: Sanitize opponent name for filesystem compatibility
-        # Replace spaces with underscores (e.g., "Team Name" → "Team_Name")
         sanitized_name = opponent_name.replace(" ", "_")
 
-        # STEP 3: Construct filename with opponent name and timestamp
-        # Example: trade_info_Team_Name_20251017_143022.txt
         filename = f"./league_helper/trade_simulator_mode/trade_outputs/trade_info_{sanitized_name}_{timestamp}.txt"
 
-        # STEP 4: Calculate score improvements for both teams
         my_improvement = trade.my_new_team.team_score - original_my_score
-        # Determine sign for display (+ for gains, - for losses)
         my_improvement_sign = "+" if my_improvement >= 0.0 else "-"
         their_improvement = trade.their_new_team.team_score - original_their_score
         their_improvement_sign = "+" if their_improvement >= 0.0 else "-"
 
-        # STEP 5: Write trade details to file
         with open(filename, 'w') as file:
-            # Write header with opponent name
             file.write(f"Trade with {opponent_name}\n")
-            # Write score improvements with absolute values (sign already included)
             file.write(f"  My improvement: {my_improvement_sign}{abs(my_improvement):.2f} pts (New score: {trade.my_new_team.team_score:.2f})\n")
             file.write(f"  Their improvement: {their_improvement_sign}{abs(their_improvement):.2f} pts (New score: {trade.their_new_team.team_score:.2f})\n")
 
-            # Write players I'm giving up (original scores from old roster context)
             file.write(f"  I give:\n")
             for player in trade.my_original_players:
-                file.write(f"    - {player}\n")  # ScoredPlayer.__str__() includes score details
+                file.write(f"    - {player}\n")
 
-            # Write players I'm receiving (new scores from new roster context)
             file.write(f"  I receive:\n")
             for player in trade.my_new_players:
-                file.write(f"    - {player}\n")  # ScoredPlayer.__str__() includes score details
+                file.write(f"    - {player}\n")
 
-            # Write waiver recommendations if trade loses roster spots
-            # These are automatically suggested pickups to fill empty roster spots
             if trade.waiver_recommendations:
                 file.write(f"  Recommended Waiver Adds (for me):\n")
                 for player in trade.waiver_recommendations:
                     file.write(f"    - {player}\n")
 
-            # Write opponent waiver recommendations (if applicable)
             if trade.their_waiver_recommendations:
                 file.write(f"  Recommended Waiver Adds (for {opponent_name}):\n")
                 for player in trade.their_waiver_recommendations:
                     file.write(f"    - {player}\n")
 
-            # Write players I must drop (beyond the trade itself)
-            # Required when receiving more players than giving away violates MAX_PLAYERS
             if trade.my_dropped_players:
                 file.write(f"  Players I Must Drop (to make room):\n")
                 for player in trade.my_dropped_players:
                     file.write(f"    - {player}\n")
 
-            # Write opponent dropped players (if applicable)
             if trade.their_dropped_players:
                 file.write(f"  Players {opponent_name} Must Drop (to make room):\n")
                 for player in trade.their_dropped_players:
                     file.write(f"    - {player}\n")
 
-        # Return filename so caller can display success message
         return filename
 
     def save_manual_trade_to_excel(
@@ -154,40 +134,32 @@ class TradeFileWriter:
         try:
             self.logger.info(f"Creating Excel export for trade with {opponent_name}")
 
-            # STEP 1: Generate unique timestamp and filename
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             sanitized_name = opponent_name.replace(" ", "_")
             filename = f"./league_helper/trade_simulator_mode/trade_outputs/trade_info_{sanitized_name}_{timestamp}.xlsx"
 
-            # STEP 2: Calculate score improvements
             my_improvement = trade.my_new_team.team_score - original_my_score
             their_improvement = trade.their_new_team.team_score - original_their_score
 
-            # STEP 3: Create Excel writer
             with pd.ExcelWriter(filename, engine='openpyxl') as writer:
-                # Sheet 1: Summary
                 self._create_summary_sheet(
                     writer, trade, opponent_name,
                     my_improvement, their_improvement
                 )
 
-                # Sheet 2: Trade Impact Analysis (NEW - IDEA 1)
                 self._create_trade_impact_analysis_sheet(
                     writer, trade, my_original_team, their_original_team,
                     opponent_name, original_my_score, original_their_score
                 )
 
-                # Sheet 3: Initial Rosters
                 self._create_initial_rosters_sheet(
                     writer, my_original_team, their_original_team, opponent_name
                 )
 
-                # Sheet 4: Final Rosters
                 self._create_final_rosters_sheet(
                     writer, trade, opponent_name
                 )
 
-                # Sheet 5: Detailed Calculations
                 self._create_detailed_calculations_sheet(
                     writer, trade, my_original_team, their_original_team, opponent_name
                 )
@@ -211,76 +183,56 @@ class TradeFileWriter:
         File naming: trade_info_{timestamp}.txt (format: YYYY-MM-DD_HH-MM-SS)
         Location: ./league_helper/trade_simulator_mode/trade_outputs/
         """
-        # Generate unique timestamp for filename (YYYY-MM-DD_HH-MM-SS format)
         timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
-        # Construct filename (no opponent name - this file contains trades with ALL opponents)
         filename = f'./league_helper/trade_simulator_mode/trade_outputs/trade_info_{timestamp}.txt'
 
-        # Write all trade suggestions to file
         with open(filename, 'w') as file:
-            # Process each trade in ranked order (best first)
             for i, trade in enumerate(sorted_trades, 1):
-                # Calculate MY improvement (compare new score vs original my_team score)
                 my_improvement = trade.my_new_team.team_score - my_team.team_score
 
-                # Look up ORIGINAL opponent team score for comparison
-                # TradeSnapshot has NEW team scores, but we need original for improvement calculation
                 original_their_team = None
                 for opp in opponent_simulated_teams:
                     if opp.name == trade.their_new_team.name:
                         original_their_team = opp
                         break
 
-                # Calculate THEIR improvement (or 0 if opponent team not found)
                 their_improvement = trade.their_new_team.team_score - original_their_team.team_score if original_their_team else 0
 
-                # Write trade header with rank number
                 file.write(f"#{i} - Trade with {trade.their_new_team.name}\n")
-                # Note: Assumes positive improvements (trades are pre-filtered to be mutually beneficial)
                 file.write(f"  My improvement: +{my_improvement:.2f} pts (New score: {trade.my_new_team.team_score:.2f})\n")
                 file.write(f"  Their improvement: +{their_improvement:.2f} pts (New score: {trade.their_new_team.team_score:.2f})\n")
 
-                # Write players I give (original scores from old roster context)
                 file.write(f"  I give:\n")
                 for player in trade.my_original_players:
                     file.write(f"    - {player}\n")
 
-                # Write players I receive (new scores from new roster context)
                 file.write(f"  I receive:\n")
                 for player in trade.my_new_players:
                     file.write(f"    - {player}\n")
 
-                # Write waiver recommendations if trade loses roster spots
-                # These are automatically suggested pickups to fill empty roster spots
                 if trade.waiver_recommendations:
                     file.write(f"  Recommended Waiver Adds (for me):\n")
                     for player in trade.waiver_recommendations:
                         file.write(f"    - {player}\n")
 
-                # Write opponent waiver recommendations (if applicable)
                 if trade.their_waiver_recommendations:
                     file.write(f"  Recommended Waiver Adds (for {trade.their_new_team.name}):\n")
                     for player in trade.their_waiver_recommendations:
                         file.write(f"    - {player}\n")
 
-                # Write players I must drop (beyond the trade itself)
-                # Required when receiving more players than giving away violates MAX_PLAYERS
                 if trade.my_dropped_players:
                     file.write(f"  Players I Must Drop (to make room):\n")
                     for player in trade.my_dropped_players:
                         file.write(f"    - {player}\n")
 
-                # Write opponent dropped players (if applicable)
                 if trade.their_dropped_players:
                     file.write(f"  Players {trade.their_new_team.name} Must Drop (to make room):\n")
                     for player in trade.their_dropped_players:
                         file.write(f"    - {player}\n")
 
-                # Add blank line separator between trades for readability
                 file.write("\n")
 
-        # Log success message
         self.logger.info(f"Trades saved to {filename}")
 
     def save_waiver_trades_to_file(self, sorted_trades: List[TradeSnapshot], my_team: TradeSimTeam, mode: str = "Rest of Season") -> None:
@@ -295,70 +247,49 @@ class TradeFileWriter:
         File naming: waiver_{mode_suffix}_{timestamp}.txt (format: YYYY-MM-DD_HH-MM-SS)
         Location: ./league_helper/trade_simulator_mode/trade_outputs/
         """
-        # Generate unique timestamp for filename (YYYY-MM-DD_HH-MM-SS format)
         timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
-        # Determine mode suffix for filename (Q4: include mode in filename)
         mode_suffix = "weekly" if mode == "Current Week" else "ros"
 
-        # Construct filename with mode suffix
         filename = f'./league_helper/trade_simulator_mode/trade_outputs/waiver_{mode_suffix}_{timestamp}.txt'
 
-        # Write all waiver pickup suggestions to file
         with open(filename, 'w') as file:
-            # Write header with mode (Q3: minimal display - show mode name only)
             file.write("=" * 80 + "\n")
             file.write(f"WAIVER OPTIMIZER - {mode.upper()}\n")
             file.write("=" * 80 + "\n\n")
-            # Process each waiver pickup in ranked order (best first)
             for i, trade in enumerate(sorted_trades, 1):
-                # Calculate score improvement
                 improvement = trade.my_new_team.team_score - my_team.team_score
 
-                # Determine trade type label (1-for-1, 2-for-2, 3-for-3)
-                # All waivers are balanced (same number dropped as added)
                 num_players = len(trade.my_new_players)
                 trade_type = f"{num_players}-for-{num_players}"
 
-                # Write trade header with rank, type, and improvement (dynamic sign)
                 sign = "+" if improvement >= 0 else ""
                 file.write(f"#{i} - {trade_type} Trade - Improvement: {sign}{improvement:.2f} pts\n")
 
-                # Write players to DROP from roster (original scores from old roster context)
                 file.write(f"  DROP:\n")
                 for drop_player in trade.my_original_players:
                     file.write(f"    - {drop_player}\n")
 
-                # Write players to ADD from waivers (new scores from new roster context)
                 file.write(f"  ADD:\n")
                 for add_player in trade.my_new_players:
                     file.write(f"    - {add_player}\n")
 
-                # Write new total team score after waiver moves
                 file.write(f"  New team score: {trade.my_new_team.team_score:.2f}\n")
 
-                # Write additional waiver recommendations if trade loses roster spots
-                # These are automatically suggested pickups to fill empty roster spots
-                # (Note: Regular waiver mode usually has balanced trades, but unequal trades may generate these)
                 if trade.waiver_recommendations:
                     file.write(f"  Additional Waiver Recommendations:\n")
                     for player in trade.waiver_recommendations:
                         file.write(f"    - {player}\n")
 
-                # Write additional dropped players if needed
-                # Required when receiving more players than giving away violates MAX_PLAYERS
                 if trade.my_dropped_players:
                     file.write(f"  Additional Players to Drop (to make room):\n")
                     for player in trade.my_dropped_players:
                         file.write(f"    - {player}\n")
 
-                # Add blank line separator between pickups for readability
                 file.write("\n")
 
-        # Log success message
         self.logger.info(f"Waiver pickups saved to {filename}")
 
-    # ===== EXCEL EXPORT HELPER METHODS =====
 
     def _create_summary_sheet(
         self,
@@ -369,21 +300,17 @@ class TradeFileWriter:
         their_improvement: float
     ) -> None:
         """Create Summary sheet with trade overview."""
-        # Build summary data
         summary_data = []
 
-        # Row 1: Trade participants
         summary_data.append({"Category": "Trade Participants", "Details": f"My Team vs {opponent_name}"})
         summary_data.append({"Category": "", "Details": ""})  # Blank row
 
-        # Row 2: My improvement
         my_sign = "+" if my_improvement >= 0 else ""
         summary_data.append({
             "Category": "My Improvement",
             "Details": f"{my_sign}{my_improvement:.2f} pts (New score: {trade.my_new_team.team_score:.2f})"
         })
 
-        # Row 3: Their improvement
         their_sign = "+" if their_improvement >= 0 else ""
         summary_data.append({
             "Category": "Their Improvement",
@@ -391,7 +318,6 @@ class TradeFileWriter:
         })
         summary_data.append({"Category": "", "Details": ""})  # Blank row
 
-        # Players I give
         summary_data.append({"Category": "I Give", "Details": ""})
         for player in trade.my_original_players:
             summary_data.append({
@@ -400,7 +326,6 @@ class TradeFileWriter:
             })
         summary_data.append({"Category": "", "Details": ""})  # Blank row
 
-        # Players I receive
         summary_data.append({"Category": "I Receive", "Details": ""})
         for player in trade.my_new_players:
             summary_data.append({
@@ -408,11 +333,9 @@ class TradeFileWriter:
                 "Details": f"{player.player.name} ({player.player.position}) - {player.player.team} - {player.score:.2f} pts"
             })
 
-        # Create DataFrame and write to Excel
         df = pd.DataFrame(summary_data)
         df.to_excel(writer, sheet_name="Summary", index=False)
 
-        # Apply formatting
         self._apply_sheet_formatting(writer.sheets["Summary"], df, "Summary")
         self.logger.info("Created Summary sheet")
 
@@ -424,18 +347,15 @@ class TradeFileWriter:
         opponent_name: str
     ) -> None:
         """Create Initial Rosters sheet with side-by-side pre-trade rosters."""
-        # Get scored players lists
         my_players = list(my_original_team.scored_players.values())
         their_players = list(their_original_team.scored_players.values())
 
-        # Build roster data (side-by-side)
         roster_data = []
         max_players = max(len(my_players), len(their_players))
 
         for i in range(max_players):
             row = {}
 
-            # My team data
             if i < len(my_players):
                 player = my_players[i]
                 row["My Player"] = player.player.name
@@ -448,7 +368,6 @@ class TradeFileWriter:
                 row["My Team"] = ""
                 row["My Score"] = ""
 
-            # Their team data
             if i < len(their_players):
                 player = their_players[i]
                 row[f"{opponent_name} Player"] = player.player.name
@@ -463,7 +382,6 @@ class TradeFileWriter:
 
             roster_data.append(row)
 
-        # Add totals row
         roster_data.append({
             "My Player": "TOTAL",
             "My Pos": "",
@@ -475,11 +393,9 @@ class TradeFileWriter:
             f"{opponent_name} Score": their_original_team.team_score
         })
 
-        # Create DataFrame and write to Excel
         df = pd.DataFrame(roster_data)
         df.to_excel(writer, sheet_name="Initial Rosters", index=False)
 
-        # Apply formatting
         self._apply_sheet_formatting(writer.sheets["Initial Rosters"], df, "Initial Rosters")
         self.logger.info("Created Initial Rosters sheet")
 
@@ -490,25 +406,20 @@ class TradeFileWriter:
         opponent_name: str
     ) -> None:
         """Create Final Rosters sheet with post-trade rosters and status markers."""
-        # Get scored players lists
         my_players = list(trade.my_new_team.scored_players.values())
         their_players = list(trade.their_new_team.scored_players.values())
 
-        # Determine player statuses based on who was received in the trade
         my_new_ids = {p.player.id for p in trade.my_new_players}
         their_new_ids = {p.player.id for p in trade.their_new_players}
 
-        # Build roster data (side-by-side)
         roster_data = []
         max_players = max(len(my_players), len(their_players))
 
         for i in range(max_players):
             row = {}
 
-            # My team data
             if i < len(my_players):
                 player = my_players[i]
-                # Determine status
                 if player.player.id in my_new_ids:
                     status = "Received"
                 else:
@@ -526,10 +437,8 @@ class TradeFileWriter:
                 row["My Score"] = ""
                 row["My Status"] = ""
 
-            # Their team data
             if i < len(their_players):
                 player = their_players[i]
-                # Determine status
                 if player.player.id in their_new_ids:
                     status = "Received"
                 else:
@@ -549,7 +458,6 @@ class TradeFileWriter:
 
             roster_data.append(row)
 
-        # Add totals row
         roster_data.append({
             "My Player": "TOTAL",
             "My Pos": "",
@@ -563,7 +471,6 @@ class TradeFileWriter:
             f"{opponent_name} Status": ""
         })
 
-        # Add waiver recommendations section if present
         if trade.waiver_recommendations:
             roster_data.append({
                 "My Player": "",
@@ -588,11 +495,9 @@ class TradeFileWriter:
                     "My Status": "Waiver Add"
                 })
 
-        # Create DataFrame and write to Excel
         df = pd.DataFrame(roster_data)
         df.to_excel(writer, sheet_name="Final Rosters", index=False)
 
-        # Apply formatting
         self._apply_sheet_formatting(writer.sheets["Final Rosters"], df, "Final Rosters")
         self.logger.info("Created Final Rosters sheet")
 
@@ -623,7 +528,6 @@ class TradeFileWriter:
         Raises:
             ValueError: If scored_players dictionaries are empty
         """
-        # Validate input
         if not my_original_team.scored_players:
             self.logger.warning("My original team has no scored players")
         if not their_original_team.scored_players:
@@ -632,13 +536,11 @@ class TradeFileWriter:
         score_changes = {}
         threshold = 0.01
 
-        # Check for players on my team whose scores changed
         for player_id, original_player in my_original_team.scored_players.items():
             if player_id in trade.my_new_team.scored_players:
                 new_player = trade.my_new_team.scored_players[player_id]
                 delta = new_player.score - original_player.score
 
-                # If score changed by more than threshold, record it
                 if abs(delta) > threshold:
                     reason_summary = self._extract_change_reasons(
                         original_player.reason,
@@ -652,13 +554,11 @@ class TradeFileWriter:
                         'reason_summary': reason_summary
                     }
 
-        # Check for players on their team whose scores changed
         for player_id, original_player in their_original_team.scored_players.items():
             if player_id in trade.their_new_team.scored_players:
                 new_player = trade.their_new_team.scored_players[player_id]
                 delta = new_player.score - original_player.score
 
-                # If score changed by more than threshold, record it
                 if abs(delta) > threshold:
                     reason_summary = self._extract_change_reasons(
                         original_player.reason,
@@ -691,7 +591,6 @@ class TradeFileWriter:
         """
         changes = []
 
-        # Extract bye week reasons
         initial_bye = None
         final_bye = None
         for reason in initial_reasons:
@@ -701,7 +600,6 @@ class TradeFileWriter:
             if "Bye Overlaps:" in reason:
                 final_bye = reason
 
-        # If bye reason changed, include it
         if initial_bye != final_bye:
             if final_bye and not initial_bye:
                 changes.append(f"Bye penalty added: {final_bye}")
@@ -710,7 +608,6 @@ class TradeFileWriter:
             elif initial_bye and final_bye:
                 changes.append(f"Bye penalty changed: {initial_bye} → {final_bye}")
 
-        # Extract injury reasons
         initial_injury = None
         final_injury = None
         for reason in initial_reasons:
@@ -720,7 +617,6 @@ class TradeFileWriter:
             if "Injury:" in reason:
                 final_injury = reason
 
-        # If injury reason changed, include it
         if initial_injury != final_injury:
             if final_injury and not initial_injury:
                 changes.append(f"Injury penalty added: {final_injury}")
@@ -729,7 +625,6 @@ class TradeFileWriter:
             elif initial_injury and final_injury:
                 changes.append(f"Injury status changed: {initial_injury} → {final_injury}")
 
-        # If no specific changes found but score changed, note generic change
         if not changes:
             return "Score changed (reason not specific to bye/injury)"
 
@@ -778,17 +673,14 @@ class TradeFileWriter:
             'total_score_delta': final_scored_player.score - initial_scored_player.score
         }
 
-        # Extract bye week overlaps from initial state
         for reason in initial_scored_player.reason:
             if "Bye Overlaps:" in reason:
                 match = re.search(r'Bye Overlaps: (\d+) same-position, (\d+) different-position \(([+-]?[\d.]+) pts\)', reason)
                 if match:
                     result['initial_bye_same_pos'] = int(match.group(1))
                     result['initial_bye_diff_pos'] = int(match.group(2))
-                    # Note: The reason shows the negative penalty, so we store it as-is
                     initial_bye_penalty = float(match.group(3))
 
-        # Extract bye week overlaps from final state
         for reason in final_scored_player.reason:
             if "Bye Overlaps:" in reason:
                 match = re.search(r'Bye Overlaps: (\d+) same-position, (\d+) different-position \(([+-]?[\d.]+) pts\)', reason)
@@ -797,10 +689,8 @@ class TradeFileWriter:
                     result['final_bye_diff_pos'] = int(match.group(2))
                     final_bye_penalty = float(match.group(3))
 
-                    # Calculate delta (change in penalty, already negative)
                     result['bye_points_delta'] = final_bye_penalty - initial_bye_penalty
 
-        # Extract injury status from initial state
         for reason in initial_scored_player.reason:
             if "Injury:" in reason:
                 match = re.search(r'Injury: ([A-Z]+) \(([+-]?[\d.]+) pts\)', reason)
@@ -808,7 +698,6 @@ class TradeFileWriter:
                     result['initial_injury_status'] = match.group(1)
                     initial_injury_penalty = float(match.group(2))
 
-        # Extract injury status from final state
         for reason in final_scored_player.reason:
             if "Injury:" in reason:
                 match = re.search(r'Injury: ([A-Z]+) \(([+-]?[\d.]+) pts\)', reason)
@@ -816,7 +705,6 @@ class TradeFileWriter:
                     result['final_injury_status'] = match.group(1)
                     final_injury_penalty = float(match.group(2))
 
-                    # Calculate delta
                     result['injury_points_delta'] = final_injury_penalty - initial_injury_penalty
 
         return result
@@ -845,18 +733,15 @@ class TradeFileWriter:
         try:
             self.logger.info("Creating Score Change Breakdown sheet...")
 
-            # STEP 1: Get all players with score changes
             score_changes = self._calculate_score_changes(
                 my_original_team,
                 their_original_team,
                 trade
             )
 
-            # STEP 2: Analyze component changes for each player
             breakdown_rows = []
 
             for player_id, change_info in score_changes.items():
-                # Get the ScoredPlayer objects
                 owner = change_info['owner']
                 if owner == 'MY TEAM':
                     initial_team = my_original_team
@@ -865,26 +750,20 @@ class TradeFileWriter:
                     initial_team = their_original_team
                     final_team = trade.their_new_team
 
-                # Handle traded players (may not be in final team)
                 if player_id not in final_team.scored_players:
-                    # Player was traded away - skip for breakdown
                     continue
 
-                # Handle received players (may not be in initial team)
                 if player_id not in initial_team.scored_players:
-                    # Player was received - skip for breakdown (no "before" state to compare)
                     continue
 
                 initial_scored = initial_team.scored_players[player_id]
                 final_scored = final_team.scored_players[player_id]
 
-                # Analyze component changes
                 component_changes = self._analyze_score_component_changes(
                     initial_scored,
                     final_scored
                 )
 
-                # Check if there are any bye or injury changes
                 bye_changed = (
                     component_changes['initial_bye_same_pos'] != component_changes['final_bye_same_pos'] or
                     component_changes['initial_bye_diff_pos'] != component_changes['final_bye_diff_pos']
@@ -893,7 +772,6 @@ class TradeFileWriter:
                     component_changes['initial_injury_status'] != component_changes['final_injury_status']
                 )
 
-                # Only include if bye or injury changed (per user requirement Q3)
                 if bye_changed or injury_changed:
                     player = initial_scored.player
                     breakdown_rows.append({
@@ -910,28 +788,23 @@ class TradeFileWriter:
                         'Total Δ': f"{component_changes['total_score_delta']:.2f}"
                     })
 
-            # STEP 3: Create DataFrame
             if breakdown_rows:
                 df = pd.DataFrame(breakdown_rows)
                 self.logger.info(f"Found {len(breakdown_rows)} player(s) with bye/injury changes")
             else:
-                # Per user requirement Q4: Create empty sheet with informational message
                 df = pd.DataFrame([{
                     'Message': 'No bye week or injury changes detected from this trade.'
                 }])
                 self.logger.info("No bye/injury changes detected - creating informational message")
 
-            # STEP 4: Write to Excel
             df.to_excel(writer, sheet_name='Score Change Breakdown', index=False)
 
-            # STEP 5: Apply formatting
             self._apply_sheet_formatting(writer.sheets['Score Change Breakdown'], df, 'Score Change Breakdown')
 
             self.logger.info("Score Change Breakdown sheet created successfully")
 
         except Exception as e:
             self.logger.error(f"Error creating Score Change Breakdown sheet: {e}", exc_info=True)
-            # Create error message sheet as fallback
             error_df = pd.DataFrame([{
                 'Error': f'Failed to create breakdown: {str(e)}'
             }])
@@ -968,18 +841,14 @@ class TradeFileWriter:
         try:
             self.logger.info("Creating Trade Impact Analysis sheet")
 
-            # Get score changes for kept players
             score_changes = self._calculate_score_changes(my_original_team, their_original_team, trade)
 
-            # Get IDs for categorization
             my_traded_away_ids = {p.player.id for p in trade.my_original_players}
             my_received_ids = {p.player.id for p in trade.my_new_players}
             their_received_ids = {p.player.id for p in trade.their_new_players}
 
             impact_data = []
 
-            # === MY TEAM SECTION ===
-            # Add header row
             impact_data.append({
                 "Team": "MY TEAM",
                 "Status": f"(Before → After: {original_my_score:.2f} → {trade.my_new_team.team_score:.2f}, {trade.my_new_team.team_score - original_my_score:+.2f} pts)",
@@ -995,7 +864,6 @@ class TradeFileWriter:
             my_received_count = 0
             my_changed_count = 0
 
-            # Add traded away players
             for scored_player in trade.my_original_players:
                 my_traded_count += 1
                 impact_data.append({
@@ -1009,7 +877,6 @@ class TradeFileWriter:
                     "Reason for Change": "Sent to opponent"
                 })
 
-            # Add received players
             for scored_player in trade.my_new_players:
                 my_received_count += 1
                 impact_data.append({
@@ -1023,7 +890,6 @@ class TradeFileWriter:
                     "Reason for Change": "New to roster"
                 })
 
-            # Add waiver pickups
             for scored_player in (trade.waiver_recommendations or []):
                 impact_data.append({
                     "Team": "",
@@ -1036,7 +902,6 @@ class TradeFileWriter:
                     "Reason for Change": "Waiver wire pickup"
                 })
 
-            # Add dropped players
             for scored_player in (trade.my_dropped_players or []):
                 impact_data.append({
                     "Team": "",
@@ -1049,11 +914,9 @@ class TradeFileWriter:
                     "Reason for Change": "Dropped to make room"
                 })
 
-            # Add kept players with score changes
             for player_id, change_info in score_changes.items():
                 if change_info['owner'] == 'My Team':
                     my_changed_count += 1
-                    # Get player details from new team
                     scored_player = trade.my_new_team.scored_players[player_id]
                     impact_data.append({
                         "Team": "",
@@ -1066,7 +929,6 @@ class TradeFileWriter:
                         "Reason for Change": change_info['reason_summary']
                     })
 
-            # Blank row separator
             impact_data.append({
                 "Team": "",
                 "Status": "",
@@ -1078,8 +940,6 @@ class TradeFileWriter:
                 "Reason for Change": ""
             })
 
-            # === THEIR TEAM SECTION ===
-            # Add header row
             impact_data.append({
                 "Team": f"{opponent_name.upper()}",
                 "Status": f"(Before → After: {original_their_score:.2f} → {trade.their_new_team.team_score:.2f}, {trade.their_new_team.team_score - original_their_score:+.2f} pts)",
@@ -1095,10 +955,8 @@ class TradeFileWriter:
             their_received_count = 0
             their_changed_count = 0
 
-            # Add traded away players (players I received)
             for scored_player in trade.my_new_players:
                 their_traded_count += 1
-                # Find this player in their original team to get initial score
                 initial_score = "-"
                 for orig_player in their_original_team.scored_players.values():
                     if orig_player.player.id == scored_player.player.id:
@@ -1116,7 +974,6 @@ class TradeFileWriter:
                     "Reason for Change": "Sent to me"
                 })
 
-            # Add received players (players they got from me)
             for scored_player in trade.their_new_players:
                 their_received_count += 1
                 impact_data.append({
@@ -1130,7 +987,6 @@ class TradeFileWriter:
                     "Reason for Change": "New to roster"
                 })
 
-            # Add their waiver pickups
             for scored_player in (trade.their_waiver_recommendations or []):
                 impact_data.append({
                     "Team": "",
@@ -1143,7 +999,6 @@ class TradeFileWriter:
                     "Reason for Change": "Waiver wire pickup"
                 })
 
-            # Add their dropped players
             for scored_player in (trade.their_dropped_players or []):
                 impact_data.append({
                     "Team": "",
@@ -1156,11 +1011,9 @@ class TradeFileWriter:
                     "Reason for Change": "Dropped to make room"
                 })
 
-            # Add kept players with score changes
             for player_id, change_info in score_changes.items():
                 if change_info['owner'] != 'My Team':
                     their_changed_count += 1
-                    # Get player details from new team
                     scored_player = trade.their_new_team.scored_players[player_id]
                     impact_data.append({
                         "Team": "",
@@ -1173,7 +1026,6 @@ class TradeFileWriter:
                         "Reason for Change": change_info['reason_summary']
                     })
 
-            # Create DataFrame
             if not impact_data:
                 self.logger.warning("No trade impact data to display")
                 impact_data.append({
@@ -1190,7 +1042,6 @@ class TradeFileWriter:
             df = pd.DataFrame(impact_data)
             df.to_excel(writer, sheet_name="Trade Impact Analysis", index=False)
 
-            # Apply formatting
             self._apply_sheet_formatting(writer.sheets["Trade Impact Analysis"], df, "Trade Impact Analysis")
 
             self.logger.info(f"Created Trade Impact Analysis sheet with {len(impact_data)} rows")
@@ -1218,7 +1069,6 @@ class TradeFileWriter:
         1. Players directly involved in the trade
         2. Players whose scores changed due to the trade (e.g., bye week penalties changed)
         """
-        # Get IDs of players involved in the trade
         my_traded_away_ids = {p.player.id for p in trade.my_original_players}
         my_received_ids = {p.player.id for p in trade.my_new_players}
         their_received_ids = {p.player.id for p in trade.their_new_players}
@@ -1227,48 +1077,36 @@ class TradeFileWriter:
         my_dropped_ids = {p.player.id for p in (trade.my_dropped_players or [])}
         their_dropped_ids = {p.player.id for p in (trade.their_dropped_players or [])}
 
-        # Build set of all player IDs that should be included
         included_player_ids = set()
 
-        # Always include players directly involved in the trade
         included_player_ids.update(my_traded_away_ids)
         included_player_ids.update(my_received_ids)
         included_player_ids.update(their_received_ids)
 
-        # Include waiver pickups and dropped players
         included_player_ids.update(my_waiver_ids)
         included_player_ids.update(their_waiver_ids)
         included_player_ids.update(my_dropped_ids)
         included_player_ids.update(their_dropped_ids)
 
-        # Check for players whose scores changed (likely due to bye week penalty changes)
-        # For my team: compare original vs new scores
         for player_id, original_player in my_original_team.scored_players.items():
             if player_id in trade.my_new_team.scored_players:
                 new_player = trade.my_new_team.scored_players[player_id]
-                # If score changed by more than 0.01, include this player
                 if abs(original_player.score - new_player.score) > 0.01:
                     included_player_ids.add(player_id)
 
-        # For their team: compare original vs new scores
         for player_id, original_player in their_original_team.scored_players.items():
             if player_id in trade.their_new_team.scored_players:
                 new_player = trade.their_new_team.scored_players[player_id]
-                # If score changed by more than 0.01, include this player
                 if abs(original_player.score - new_player.score) > 0.01:
                     included_player_ids.add(player_id)
 
-        # Build player data map (player_id -> {initial_data, final_data, owner, status})
         player_data_map = {}
 
-        # Process my team players
         for player_id in included_player_ids:
-            # Check initial state
             initial_scored = my_original_team.scored_players.get(player_id)
             final_scored = trade.my_new_team.scored_players.get(player_id)
 
             if initial_scored or final_scored:
-                # Determine status
                 if player_id in my_traded_away_ids:
                     status = "TRADED AWAY"
                 elif player_id in my_received_ids:
@@ -1290,9 +1128,7 @@ class TradeFileWriter:
                     'final': final_scored
                 }
 
-        # Process their team players
         for player_id in included_player_ids:
-            # Skip if already processed (shouldn't happen, but safety check)
             if player_id in player_data_map:
                 continue
 
@@ -1300,7 +1136,6 @@ class TradeFileWriter:
             final_scored = trade.their_new_team.scored_players.get(player_id)
 
             if initial_scored or final_scored:
-                # Determine status
                 if player_id in their_received_ids:
                     status = "RECEIVED"
                 elif player_id in their_waiver_ids:
@@ -1320,7 +1155,6 @@ class TradeFileWriter:
                     'final': final_scored
                 }
 
-        # Build rows with side-by-side Initial/Final/Δ format
         calc_data = []
         for player_id, data in player_data_map.items():
             row = self._build_side_by_side_row(
@@ -1332,14 +1166,10 @@ class TradeFileWriter:
             )
             calc_data.append(row)
 
-        # Create DataFrame
         df = pd.DataFrame(calc_data)
 
-        # Filter out columns where all values are "-" or empty
-        # Only filter if we have data and df has iterable columns (not during testing with mocks)
         if calc_data:
             try:
-                # Keep base columns (Player, Position, NFL Team, Owner, Status)
                 base_columns = ['Player', 'Position', 'NFL Team', 'Owner', 'Status']
                 columns_to_keep = base_columns.copy()
 
@@ -1347,25 +1177,20 @@ class TradeFileWriter:
                     if col in base_columns:
                         continue
 
-                    # Check if column has any non-dash, non-null values
                     non_empty = df[col].dropna()
                     has_data = any(str(val) != "-" for val in non_empty)
 
                     if has_data:
                         columns_to_keep.append(col)
 
-                # Filter DataFrame to only keep non-empty columns
                 df = df[columns_to_keep]
 
                 self.logger.info(f"Filtered Detailed Calculations: kept {len(columns_to_keep)} columns (removed {len(calc_data[0]) - len(columns_to_keep)} empty columns)")
             except (TypeError, AttributeError):
-                # In test environment with mocks, skip filtering
                 pass
 
-        # Write to Excel
         df.to_excel(writer, sheet_name="Detailed Calculations", index=False)
 
-        # Apply formatting
         self._apply_sheet_formatting(writer.sheets["Detailed Calculations"], df, "Detailed Calculations")
         self.logger.info(f"Created Detailed Calculations sheet with {len(calc_data)} player entries (side-by-side format)")
         self.logger.info(f"Players included: {len(included_player_ids)} total ({len(my_traded_away_ids)} traded away, {len(my_received_ids)} received, {len(included_player_ids) - len(my_traded_away_ids) - len(my_received_ids)} score-changed)")
@@ -1391,7 +1216,6 @@ class TradeFileWriter:
         Returns:
             Dict with all columns for the row
         """
-        # Base columns
         row = {
             'Player': player.name,
             'Position': player.position,
@@ -1400,11 +1224,9 @@ class TradeFileWriter:
             'Status': status
         }
 
-        # Parse scoring reasons
         initial_parsed = self._parse_scoring_reasons(initial_scored.reason) if initial_scored else {}
         final_parsed = self._parse_scoring_reasons(final_scored.reason) if final_scored else {}
 
-        # Score columns
         initial_score = initial_scored.score if initial_scored else None
         final_score = final_scored.score if final_scored else None
         row['Initial Score'] = f"{initial_score:.2f}" if initial_score is not None else "-"
@@ -1416,8 +1238,6 @@ class TradeFileWriter:
         else:
             row['Δ Score'] = "-"
 
-        # Single-value components (intrinsic to player, don't change during trade)
-        # Only show one column since initial and final are always the same
         single_value_components = [
             ('Base Projected', 'Base Projected', float, 2),
             ('Weighted Proj', 'Weighted Proj', float, 2),
@@ -1440,7 +1260,6 @@ class TradeFileWriter:
         ]
 
         for col_name, parsed_key, data_type, precision in single_value_components:
-            # Use final value if available, otherwise initial (for traded away players)
             val = final_parsed.get(parsed_key) or initial_parsed.get(parsed_key)
 
             if val is not None:
@@ -1453,8 +1272,6 @@ class TradeFileWriter:
             else:
                 row[col_name] = "-"
 
-        # Multi-value components (change based on roster composition)
-        # Show Initial/Final/Δ for these
         multi_value_components = [
             ('Bye Same-Pos', 'Bye Same-Pos', int, 0),
             ('Bye Diff-Pos', 'Bye Diff-Pos', int, 0),
@@ -1465,7 +1282,6 @@ class TradeFileWriter:
             initial_val = initial_parsed.get(parsed_key)
             final_val = final_parsed.get(parsed_key)
 
-            # Initial column
             if initial_val is not None:
                 if data_type == int:
                     row[f'Initial {col_name}'] = str(int(initial_val))
@@ -1474,7 +1290,6 @@ class TradeFileWriter:
             else:
                 row[f'Initial {col_name}'] = "-"
 
-            # Final column
             if final_val is not None:
                 if data_type == int:
                     row[f'Final {col_name}'] = str(int(final_val))
@@ -1483,7 +1298,6 @@ class TradeFileWriter:
             else:
                 row[f'Final {col_name}'] = "-"
 
-            # Delta column
             if initial_val is not None and final_val is not None:
                 delta = final_val - initial_val
                 if abs(delta) > 0.001:
@@ -1514,35 +1328,30 @@ class TradeFileWriter:
             if not reason:
                 continue
 
-            # Step 1: Projected points
             if "Projected:" in reason:
                 match = re.search(r'Projected: ([\d.]+) pts, Weighted: ([\d.]+) pts', reason)
                 if match:
                     parsed["Base Projected"] = float(match.group(1))
                     parsed["Weighted Proj"] = float(match.group(2))
 
-            # Step 2: ADP
             elif "ADP:" in reason:
                 match = re.search(r'ADP: ([A-Z_]+) \(([\d.]+)x\)', reason)
                 if match:
                     parsed["ADP Rating"] = match.group(1)
                     parsed["ADP Multiplier"] = float(match.group(2))
 
-            # Step 3: Player Rating
             elif "Player Rating:" in reason:
                 match = re.search(r'Player Rating: ([A-Z_]+) \(([\d.]+)x\)', reason)
                 if match:
                     parsed["Player Rating"] = match.group(1)
                     parsed["Player Rating Multiplier"] = float(match.group(2))
 
-            # Step 4: Team Quality
             elif "Team Quality:" in reason:
                 match = re.search(r'Team Quality: ([A-Z_]+) \(([\d.]+)x\)', reason)
                 if match:
                     parsed["Team Quality"] = match.group(1)
                     parsed["Team Quality Multiplier"] = float(match.group(2))
 
-            # Step 5: Performance
             elif "Performance:" in reason:
                 match = re.search(r'Performance: ([A-Z_]+) \(([+-][\d.]+)%, ([\d.]+)x\)', reason)
                 if match:
@@ -1550,14 +1359,12 @@ class TradeFileWriter:
                     parsed["Perf %"] = match.group(2)
                     parsed["Performance Multiplier"] = float(match.group(3))
 
-            # Step 6: Matchup
             elif "Matchup:" in reason:
                 match = re.search(r'Matchup: ([A-Z_]+) \(([\d.]+)x\)', reason)
                 if match:
                     parsed["Matchup"] = match.group(1)
                     parsed["Matchup Multiplier"] = float(match.group(2))
 
-            # Step 7: Schedule
             elif "Schedule:" in reason:
                 match = re.search(r'Schedule: ([A-Z_]+) \(avg opp def rank: ([\d.]+), ([\d.]+)x\)', reason)
                 if match:
@@ -1565,13 +1372,11 @@ class TradeFileWriter:
                     parsed["Avg Opp Rank"] = float(match.group(2))
                     parsed["Schedule Multiplier"] = float(match.group(3))
 
-            # Step 8: Draft Order Bonus
             elif "Draft Order Bonus:" in reason:
                 match = re.search(r'Draft Order Bonus: ([A-Z_]+)', reason)
                 if match:
                     parsed["Draft Bonus"] = match.group(1)
 
-            # Step 9: Bye Week Penalty
             elif "Bye Overlaps:" in reason:
                 match = re.search(r'Bye Overlaps: (\d+) same-position, (\d+) different-position \(([+-]?[\d.]+) pts\)', reason)
                 if match:
@@ -1579,7 +1384,6 @@ class TradeFileWriter:
                     parsed["Bye Diff-Pos"] = int(match.group(2))
                     parsed["Bye Penalty"] = float(match.group(3))
 
-            # Step 10: Injury
             elif "Injury:" in reason:
                 match = re.search(r'Injury: ([A-Z]+)', reason)
                 if match:
@@ -1598,11 +1402,9 @@ class TradeFileWriter:
         """
         from openpyxl.styles import Font
 
-        # Bold the header row
         for cell in worksheet[1]:
             cell.font = Font(bold=True)
 
-        # Set column widths
         for column in worksheet.columns:
             max_length = 0
             column_letter = column[0].column_letter
@@ -1614,13 +1416,13 @@ class TradeFileWriter:
                 except:
                     pass
 
-            # Set width with some padding
-            adjusted_width = min(max_length + 2, 30)  # Cap at 30 chars
+            adjusted_width = min(max_length + 2, 30)
             worksheet.column_dimensions[column_letter].width = adjusted_width
 
-        # Format score columns with 2 decimal places
         for row in worksheet.iter_rows(min_row=2):
             for cell in row:
                 if cell.column_letter in ['D', 'H'] or 'Score' in str(worksheet.cell(1, cell.column).value):
                     if isinstance(cell.value, (int, float)):
                         cell.number_format = '0.00'
+
+

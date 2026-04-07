@@ -41,12 +41,10 @@ class ConfigKeys:
     - Nested: thresholds, multipliers, bonuses for each scoring category
     """
 
-    # Top Level Keys
     CONFIG_NAME = "config_name"
     DESCRIPTION = "description"
     PARAMETERS = "parameters"
 
-    # Parameter Keys
     CURRENT_NFL_WEEK = "CURRENT_NFL_WEEK"
     NFL_SEASON = "NFL_SEASON"
     NFL_SCORING_FORMAT = "NFL_SCORING_FORMAT"
@@ -72,11 +70,9 @@ class ConfigKeys:
     NFL_TEAM_PENALTY = "NFL_TEAM_PENALTY"
     NFL_TEAM_PENALTY_WEIGHT = "NFL_TEAM_PENALTY_WEIGHT"
 
-    # Draft Order scoring
     DRAFT_ORDER_PRIMARY_LABEL = "P"
     DRAFT_ORDER_SECONDARY_LABEL = "S"
 
-    # Nested Structure Keys
     MULTIPLIERS = "MULTIPLIERS"
     THRESHOLDS = "THRESHOLDS"
     MIN_WEEKS = "MIN_WEEKS"
@@ -84,39 +80,32 @@ class ConfigKeys:
     IDEAL_TEMPERATURE = "IDEAL_TEMPERATURE"
     IMPACT_SCALE = "IMPACT_SCALE"
 
-    # Location Modifier Keys
     LOCATION_HOME = "HOME"
     LOCATION_AWAY = "AWAY"
     LOCATION_INTERNATIONAL = "INTERNATIONAL"
 
-    # Injury Level Keys
     INJURY_LOW = "LOW"
     INJURY_MEDIUM = "MEDIUM"
     INJURY_HIGH = "HIGH"
 
-    # Bonus Type Keys
     BONUS_PRIMARY = "PRIMARY"
     BONUS_SECONDARY = "SECONDARY"
 
-    # Threshold/Multiplier Level Keys
     VERY_POOR = "VERY_POOR"
     POOR = "POOR"
     GOOD = "GOOD"
     EXCELLENT = "EXCELLENT"
     NEUTRAL = "NEUTRAL"
 
-    # Parameterized Threshold Keys (new system)
     BASE_POSITION = "BASE_POSITION"
     DIRECTION = "DIRECTION"
     STEPS = "STEPS"
 
-    # Direction Values
     DIRECTION_INCREASING = "INCREASING"
     DIRECTION_DECREASING = "DECREASING"
     DIRECTION_BI_EXCELLENT_HI = "BI_EXCELLENT_HI"
     DIRECTION_BI_EXCELLENT_LOW = "BI_EXCELLENT_LOW"
 
-    # Optional calculated field (for transparency in config files)
     CALCULATED = "_calculated"
 
 
@@ -152,9 +141,6 @@ class ConfigManager:
         >>> draft_bonus = config.get_draft_order_bonus("RB", 1)  # RB in round 1 → returns bonus
     """
 
-    # ============================================================================
-    # INITIALIZATION
-    # ============================================================================
 
     def __init__(self, data_folder: Path) -> None:
         """
@@ -177,25 +163,20 @@ class ConfigManager:
         self.parameters: Dict[str, Any] = {}
         self.logger = get_logger()
 
-        # Check for new folder structure: data/configs/
         configs_folder = data_folder / 'configs'
         if configs_folder.exists() and (configs_folder / 'league_config.json').exists():
-            # New structure: use configs subfolder
             self.config_path = configs_folder / 'league_config.json'
             self.configs_folder = configs_folder
             self.logger.debug(f"Using new config structure: {configs_folder}")
         else:
-            # Legacy structure: direct league_config.json in data folder
             self.config_path = data_folder / 'league_config.json'
             self.configs_folder = None
             self.logger.debug(f"Using legacy config structure: {self.config_path}")
 
-        # League settings
         self.current_nfl_week: int = 0
         self.nfl_season: int = 0
         self.nfl_scoring_format: str = ""
 
-        # Scoring parameters
         self.normalization_max_scale: float = 0.0
         self.same_pos_bye_weight: float = 0.0
         self.diff_pos_bye_weight: float = 0.0
@@ -203,7 +184,7 @@ class ConfigManager:
         self.adp_scoring: Dict[str, Any] = {}
         self.player_rating_scoring: Dict[str, Any] = {}
         self.team_quality_scoring: Dict[str, Any] = {}
-        self.consistency_scoring: Dict[str, Any] = {}  # Deprecated - kept for backwards compatibility
+        self.consistency_scoring: Dict[str, Any] = {}
         self.performance_scoring: Dict[str, Any] = {}
         self.matchup_scoring: Dict[str, Any] = {}
         self.schedule_scoring: Dict[str, Any] = {}
@@ -211,26 +192,19 @@ class ConfigManager:
         self.wind_scoring: Dict[str, Any] = {}
         self.location_modifiers: Dict[str, float] = {}
 
-        # Add to Roster mode settings
         self.draft_order_bonuses: Dict[str, float] = {}
         self.draft_order: List[Dict[str, str]] = []
 
-        # Roster construction limits
         self.max_positions: Dict[str, int] = {}
         self.flex_eligible_positions: List[str] = []
 
-        # NFL team penalty settings
         self.nfl_team_penalty: List[str] = []
         self.nfl_team_penalty_weight: float = 1.0
 
-        # Threshold calculation cache
         self._threshold_cache: Dict[Tuple[str, float, str, float], Dict[str, float]] = {}
 
         self._load_config()
 
-    # ============================================================================
-    # WEEK-SPECIFIC CONFIG LOADING
-    # ============================================================================
 
     def _get_week_config_filename(self, week: int) -> str:
         """
@@ -276,7 +250,6 @@ class ConfigManager:
             Dict[str, Any]: Week-specific parameters to merge, or empty dict
         """
         if self.configs_folder is None:
-            # Legacy mode - no week-specific configs
             self.logger.debug("Legacy config mode, skipping week-specific config")
             return {}
 
@@ -292,16 +265,12 @@ class ConfigManager:
                 week_data = json.load(f)
             self.logger.debug(f"Loaded week config: {week_filename}")
 
-            # Return the parameters section for merging
             return week_data.get(self.keys.PARAMETERS, {})
 
         except json.JSONDecodeError as e:
             self.logger.error(f"Invalid JSON in week config {week_filename}: {e}")
             raise
 
-    # ============================================================================
-    # PUBLIC CONFIGURATION ACCESS
-    # ============================================================================
 
     @property
     def max_players(self) -> int:
@@ -363,9 +332,6 @@ class ConfigManager:
         """
         return key in self.parameters
 
-    # ============================================================================
-    # PUBLIC MULTIPLIER GETTERS
-    # ============================================================================
 
     def get_adp_multiplier(self, adp_val) -> Tuple[float, str]:
         return self._get_multiplier(self.adp_scoring, adp_val, rising_thresholds=False)
@@ -393,7 +359,7 @@ class ConfigManager:
         return self._get_multiplier(
             self.schedule_scoring,
             schedule_value,
-            rising_thresholds=True  # Higher rank = better schedule
+            rising_thresholds=True
         )
 
     def get_performance_multiplier(self, deviation: float) -> Tuple[float, str]:
@@ -471,9 +437,6 @@ class ConfigManager:
         else:
             return self.location_modifiers.get(self.keys.LOCATION_AWAY, 0.0)
 
-    # ============================================================================
-    # PUBLIC MIN_WEEKS GETTERS
-    # ============================================================================
 
     def get_team_quality_min_weeks(self) -> int:
         """
@@ -502,9 +465,6 @@ class ConfigManager:
         """
         return self.schedule_scoring.get(self.keys.MIN_WEEKS, 5)
 
-    # ============================================================================
-    # PUBLIC BONUS/PENALTY GETTERS
-    # ============================================================================
 
     def get_draft_order_bonus(self, position : str, draft_round : int) -> Tuple[float, str]:
         """
@@ -529,30 +489,18 @@ class ConfigManager:
             - get_draft_order_bonus("WR", 1) → (5.0, "SECONDARY")
             - get_draft_order_bonus("QB", 1) → (0, "")
         """
-        # Convert position to FLEX-aware format
-        # For example, RB/WR might be labeled as FLEX in later rounds
         position_with_flex = self.get_position_with_flex(position)
 
-        # Get the ideal positions for this draft round
-        # This is a dictionary like {"RB": "P", "WR": "S", "FLEX": "P"}
         ideal_positions = self.draft_order[draft_round]
 
-        # Check if this position is listed in the draft strategy for this round
         if position_with_flex in ideal_positions:
-            # Get the priority label: "P" (PRIMARY) or "S" (SECONDARY)
             priority = ideal_positions.get(position_with_flex)
 
             if priority == self.keys.DRAFT_ORDER_PRIMARY_LABEL:
-                # This is a PRIMARY position for this round (highest bonus)
-                # Example: RB in round 1-2, QB in round 3
                 return self.draft_order_bonuses[self.keys.BONUS_PRIMARY], self.keys.BONUS_PRIMARY
             else:
-                # This is a SECONDARY position for this round (smaller bonus)
-                # Example: WR in round 1 when RB is PRIMARY
                 return self.draft_order_bonuses[self.keys.BONUS_SECONDARY], self.keys.BONUS_SECONDARY
         else:
-            # Position is not listed in this round's strategy (no bonus)
-            # Example: K or DST in early rounds
             return 0, ""
 
     def get_bye_week_penalty(self, same_pos_players: List[FantasyPlayer], diff_pos_players: List[FantasyPlayer]) -> float:
@@ -595,7 +543,6 @@ class ConfigManager:
             Filters out None and zero values, returns 0.0 if no valid data.
             """
             try:
-                # Collect valid weekly points (skip None and zeros)
                 valid_weeks = [
                     points for week in range(1, 18)
                     if (points := player.get_single_weekly_projection(week, self)) is not None
@@ -603,7 +550,6 @@ class ConfigManager:
                 ]
 
                 if not valid_weeks:
-                    # Expected for players who didn't play (retired, injured, rookies)
                     self.logger.debug(f"No valid weekly data for {player.name}, using 0.0 median")
                     return 0.0
 
@@ -618,11 +564,9 @@ class ConfigManager:
                 self.logger.error(f"Unexpected error calculating median for {player.name}: {e}")
                 return 0.0
 
-        # Calculate median totals for each list
         same_pos_median_total = sum(calculate_player_median(p) for p in same_pos_players)
         diff_pos_median_total = sum(calculate_player_median(p) for p in diff_pos_players)
 
-        # Apply scaling
         same_penalty = same_pos_median_total * self.same_pos_bye_weight
         diff_penalty = diff_pos_median_total * self.diff_pos_bye_weight
 
@@ -651,17 +595,11 @@ class ConfigManager:
             If an invalid risk level is provided, defaults to HIGH penalty
             for safety (conservative approach to injury risk)
         """
-        # Look up penalty for the given risk level
         if risk_level in self.injury_penalties:
             return self.injury_penalties[risk_level]
         else:
-            # Default to HIGH penalty if risk level is unrecognized
-            # This is a conservative fallback to avoid drafting risky players
             return self.injury_penalties[self.keys.INJURY_HIGH]
 
-    # ============================================================================
-    # PUBLIC DRAFT POSITION GETTERS
-    # ============================================================================
 
     def get_draft_position_for_round(self, round_number: int) -> Dict[str, str]:
         """
@@ -697,23 +635,12 @@ class ConfigManager:
             Round 1 strategy: {"RB": "P", "WR": "S"}
             → Returns "RB" (PRIMARY position)
         """
-        # Check if round number is within the draft order list
         if round_num < len(self.draft_order):
-            # Get the position with PRIMARY priority ("P") for this round
-            # IMPORTANT: Use min() not max() because in ASCII/Unicode:
-            # - 'P' (PRIMARY) = 80
-            # - 'S' (SECONDARY) = 83
-            # So 'P' < 'S', meaning min() returns the PRIMARY position
             best_position = min(self.draft_order[round_num], key=self.draft_order[round_num].get)
             return best_position
 
-        # If round number is out of range (beyond defined strategy), default to FLEX
-        # This allows flexible drafting in late rounds
         return 'FLEX'
 
-    # ============================================================================
-    # PUBLIC THRESHOLD UTILITIES
-    # ============================================================================
 
     def validate_threshold_params(self, base_pos: float, direction: str, steps: float) -> bool:
         """
@@ -732,17 +659,14 @@ class ConfigManager:
         """
         import math
 
-        # STEPS must be positive
         if steps <= 0:
             self.logger.error(f"STEPS must be positive, got {steps}")
             raise ValueError(f"STEPS must be positive, got {steps}")
 
-        # Must be finite
         if not math.isfinite(base_pos) or not math.isfinite(steps):
             self.logger.error("BASE_POSITION and STEPS must be finite")
             raise ValueError("BASE_POSITION and STEPS must be finite")
 
-        # DIRECTION must be valid
         valid_dirs = [
             self.keys.DIRECTION_INCREASING,
             self.keys.DIRECTION_DECREASING,
@@ -788,18 +712,13 @@ class ConfigManager:
             >>> config.calculate_thresholds(0, "BI_EXCELLENT_HI", 0.1)
             {'VERY_POOR': -0.2, 'POOR': -0.1, 'GOOD': 0.1, 'EXCELLENT': 0.2}
         """
-        # Check cache first
         cache_key = (scoring_type, base_pos, direction, steps)
         if cache_key in self._threshold_cache:
             return self._threshold_cache[cache_key]
 
-        # Validate parameters
         self.validate_threshold_params(base_pos, direction, steps)
 
-        # Calculate thresholds based on direction
         if direction == self.keys.DIRECTION_INCREASING:
-            # Higher values = better (e.g., player rating)
-            # Formula: VP=base+1s, P=base+2s, G=base+3s, E=base+4s
             thresholds = {
                 self.keys.VERY_POOR: base_pos + steps,
                 self.keys.POOR: base_pos + (2 * steps),
@@ -808,8 +727,6 @@ class ConfigManager:
             }
 
         elif direction == self.keys.DIRECTION_DECREASING:
-            # Lower values = better (e.g., ADP rank)
-            # Formula: E=base+1s, G=base+2s, P=base+3s, VP=base+4s
             thresholds = {
                 self.keys.EXCELLENT: base_pos + steps,
                 self.keys.GOOD: base_pos + (2 * steps),
@@ -818,8 +735,6 @@ class ConfigManager:
             }
 
         elif direction == self.keys.DIRECTION_BI_EXCELLENT_HI:
-            # Bidirectional: positive deviation = excellent
-            # Formula: VP=base-2s, P=base-1s, G=base+1s, E=base+2s (1x/2x multipliers per user Q4)
             thresholds = {
                 self.keys.VERY_POOR: base_pos - (steps * 2),
                 self.keys.POOR: base_pos - steps,
@@ -828,8 +743,6 @@ class ConfigManager:
             }
 
         elif direction == self.keys.DIRECTION_BI_EXCELLENT_LOW:
-            # Bidirectional: negative deviation = excellent (rare case)
-            # Formula: E=base-2s, G=base-1s, P=base+1s, VP=base+2s (1x/2x multipliers)
             thresholds = {
                 self.keys.EXCELLENT: base_pos - (steps * 2),
                 self.keys.GOOD: base_pos - steps,
@@ -838,16 +751,11 @@ class ConfigManager:
             }
 
         else:
-            # This should never happen due to validation, but included for safety
             raise ValueError(f"Invalid direction: {direction}")
 
-        # Store in cache
         self._threshold_cache[cache_key] = thresholds
         return thresholds
 
-    # ============================================================================
-    # PRIVATE LOADING AND VALIDATION
-    # ============================================================================
 
     def _load_config(self) -> None:
         """
@@ -881,10 +789,8 @@ class ConfigManager:
             self.logger.error(f"Invalid JSON in configuration file: {e}")
             raise
 
-        # Validate required fields
         self._validate_config_structure(data)
 
-        # Store configuration data
         self.config_name = data.get(self.keys.CONFIG_NAME, "")
         self.description = data.get(self.keys.DESCRIPTION, "")
         self.parameters = data.get(self.keys.PARAMETERS, {})
@@ -893,29 +799,23 @@ class ConfigManager:
         self.logger.debug(f"Description: {self.description}")
         self.logger.debug(f"Parameters count: {len(self.parameters)}")
 
-        # For new folder structure: load and merge week-specific or draft config
         if self.configs_folder is not None:
-            # Get CURRENT_NFL_WEEK from base config (required for week config selection)
             if self.keys.CURRENT_NFL_WEEK not in self.parameters:
                 raise ValueError("Base config missing required parameter: CURRENT_NFL_WEEK")
 
             current_week = self.parameters[self.keys.CURRENT_NFL_WEEK]
             self.logger.debug(f"Current NFL week: {current_week}")
 
-            # Load week-specific config
             prediction_params = self._load_week_config(current_week)
             config_source = self._get_week_config_filename(current_week)
 
             if prediction_params:
-                # Merge prediction params over base params
-                # Prediction-specific values override base values for the same keys
                 self.parameters.update(prediction_params)
                 self.logger.info(
                     f"Merged prediction config ({config_source}): "
                     f"{len(prediction_params)} parameters"
                 )
 
-        # Extract and validate all parameters
         self._extract_parameters()
         self.logger.debug("Configuration loaded and validated successfully")
 
@@ -944,7 +844,6 @@ class ConfigManager:
 
     def _extract_parameters(self) -> None:
         """Extract and validate all parameters from the config."""
-        # Required parameters
         required_params = [
             self.keys.CURRENT_NFL_WEEK,
             self.keys.NFL_SEASON,
@@ -971,7 +870,6 @@ class ConfigManager:
                 f"Config missing required parameters: {', '.join(missing_params)}"
             )
 
-        # Extract league-wide parameters
         self.current_nfl_week = self.parameters[self.keys.CURRENT_NFL_WEEK]
         self.nfl_season = self.parameters[self.keys.NFL_SEASON]
         self.nfl_scoring_format = self.parameters[self.keys.NFL_SCORING_FORMAT]
@@ -985,26 +883,20 @@ class ConfigManager:
         self.player_rating_scoring = self.parameters[self.keys.PLAYER_RATING_SCORING]
         self.team_quality_scoring = self.parameters[self.keys.TEAM_QUALITY_SCORING]
         self.performance_scoring = self.parameters[self.keys.PERFORMANCE_SCORING]
-        # Keep consistency_scoring as fallback for backwards compatibility
         self.consistency_scoring = self.parameters.get(self.keys.CONSISTENCY_SCORING, self.performance_scoring)
         self.matchup_scoring = self.parameters[self.keys.MATCHUP_SCORING]
 
-        # Schedule scoring is optional (for backward compatibility)
-        # Default to matchup_scoring structure if not present
         self.schedule_scoring = self.parameters.get(self.keys.SCHEDULE_SCORING, {
             "THRESHOLDS": {"VERY_POOR": 8, "POOR": 12, "GOOD": 20, "EXCELLENT": 24},
             "MULTIPLIERS": {"EXCELLENT": 1.0, "GOOD": 1.0, "POOR": 1.0, "VERY_POOR": 1.0},
             "WEIGHT": 0.0  # Weight 0 = disabled by default
         })
 
-        # Validate IMPACT_SCALE is present (required as of additive scoring)
         if 'IMPACT_SCALE' not in self.matchup_scoring:
             raise ValueError("MATCHUP_SCORING missing required parameter: IMPACT_SCALE")
         if 'IMPACT_SCALE' not in self.schedule_scoring:
             raise ValueError("SCHEDULE_SCORING missing required parameter: IMPACT_SCALE")
 
-        # Temperature scoring is optional (for backward compatibility)
-        # Default to disabled (WEIGHT=0) if not present
         self.temperature_scoring = self.parameters.get(self.keys.TEMPERATURE_SCORING, {
             "IDEAL_TEMPERATURE": 60,
             "IMPACT_SCALE": 50.0,
@@ -1022,8 +914,6 @@ class ConfigManager:
             "WEIGHT": 0.0  # Weight 0 = disabled by default
         })
 
-        # Wind scoring is optional (for backward compatibility)
-        # Default to disabled (WEIGHT=0) if not present
         self.wind_scoring = self.parameters.get(self.keys.WIND_SCORING, {
             "IMPACT_SCALE": 60.0,
             "THRESHOLDS": {
@@ -1040,23 +930,18 @@ class ConfigManager:
             "WEIGHT": 0.0  # Weight 0 = disabled by default
         })
 
-        # Location modifiers are optional (for backward compatibility)
-        # Default to neutral (0) if not present
         self.location_modifiers = self.parameters.get(self.keys.LOCATION_MODIFIERS, {
             "HOME": 0.0,
             "AWAY": 0.0,
             "INTERNATIONAL": 0.0
         })
 
-        # Extract Add to Roster mode parameters
         self.draft_order_bonuses = self.parameters[self.keys.DRAFT_ORDER_BONUSES]
         self.draft_order = self.parameters[self.keys.DRAFT_ORDER]
 
-        # Extract roster construction limits
         self.max_positions = self.parameters[self.keys.MAX_POSITIONS]
         self.flex_eligible_positions = self.parameters[self.keys.FLEX_ELIGIBLE_POSITIONS]
 
-        # Extract NFL team penalty settings (optional - backward compatible)
         self.nfl_team_penalty = self.parameters.get(
             self.keys.NFL_TEAM_PENALTY, []
         )
@@ -1064,7 +949,6 @@ class ConfigManager:
             self.keys.NFL_TEAM_PENALTY_WEIGHT, 1.0
         )
 
-        # Validate NFL_TEAM_PENALTY type and team abbreviations
         if not isinstance(self.nfl_team_penalty, list):
             raise ValueError(
                 f"NFL_TEAM_PENALTY must be a list, got {type(self.nfl_team_penalty).__name__}"
@@ -1080,7 +964,6 @@ class ConfigManager:
                 f"Valid teams: {', '.join(ALL_NFL_TEAMS)}"
             )
 
-        # Validate NFL_TEAM_PENALTY_WEIGHT type and range
         if not isinstance(self.nfl_team_penalty_weight, (int, float)):
             raise ValueError(
                 f"NFL_TEAM_PENALTY_WEIGHT must be a number (int or float), "
@@ -1093,10 +976,7 @@ class ConfigManager:
                 f"got {self.nfl_team_penalty_weight}"
             )
 
-        # Extract Starter Helper mode parameters (optional - not in current config)
-        # Note: matchup_multipliers are accessed directly from matchup_scoring[self.keys.MULTIPLIERS]
 
-        # Validate injury penalties structure
         required_injury_levels = [self.keys.INJURY_LOW, self.keys.INJURY_MEDIUM, self.keys.INJURY_HIGH]
         missing_levels = [
             level for level in required_injury_levels
@@ -1107,7 +987,6 @@ class ConfigManager:
                 f"INJURY_PENALTIES missing levels: {', '.join(missing_levels)}"
             )
 
-        # Validate draft order bonuses structure
         required_bonus_types = [self.keys.BONUS_PRIMARY, self.keys.BONUS_SECONDARY]
         missing_bonus_types = [
             bonus_type for bonus_type in required_bonus_types
@@ -1118,11 +997,9 @@ class ConfigManager:
                 f"DRAFT_ORDER_BONUSES missing types: {', '.join(missing_bonus_types)}"
             )
 
-        # Validate draft order is a list
         if not isinstance(self.draft_order, list):
             raise ValueError("DRAFT_ORDER must be a list")
 
-        # Validate MAX_POSITIONS structure (strict validation)
         required_positions = ['QB', 'RB', 'WR', 'TE', 'K', 'DST', 'FLEX']
         missing_positions = [pos for pos in required_positions if pos not in self.max_positions]
         if missing_positions:
@@ -1130,17 +1007,14 @@ class ConfigManager:
             self.logger.error(error_msg)
             raise ValueError(error_msg)
 
-        # Validate all values are positive integers
         for pos, limit in self.max_positions.items():
             if not isinstance(limit, int) or limit <= 0:
                 error_msg = f"MAX_POSITIONS[{pos}] must be a positive integer, got: {limit} (type: {type(limit).__name__})"
                 self.logger.error(error_msg)
                 raise ValueError(error_msg)
 
-        # Log successful validation
         self.logger.debug(f"MAX_POSITIONS validated: {sum(self.max_positions.values())} total roster spots")
 
-        # Validate FLEX_ELIGIBLE_POSITIONS structure
         if not isinstance(self.flex_eligible_positions, list):
             error_msg = f"FLEX_ELIGIBLE_POSITIONS must be a list, got: {type(self.flex_eligible_positions).__name__}"
             self.logger.error(error_msg)
@@ -1151,13 +1025,11 @@ class ConfigManager:
             self.logger.error(error_msg)
             raise ValueError(error_msg)
 
-        # Validate no circular reference (FLEX can't be in FLEX_ELIGIBLE_POSITIONS)
         if 'FLEX' in self.flex_eligible_positions:
             error_msg = "FLEX_ELIGIBLE_POSITIONS cannot contain 'FLEX' (circular reference)"
             self.logger.error(error_msg)
             raise ValueError(error_msg)
 
-        # Validate all positions are valid
         valid_positions = ['QB', 'RB', 'WR', 'TE', 'K', 'DST']
         invalid_positions = [pos for pos in self.flex_eligible_positions if pos not in valid_positions]
         if invalid_positions:
@@ -1165,26 +1037,19 @@ class ConfigManager:
             self.logger.error(error_msg)
             raise ValueError(error_msg)
 
-        # Log successful validation
         self.logger.debug(f"FLEX_ELIGIBLE_POSITIONS validated: {', '.join(self.flex_eligible_positions)}")
 
-        # Pre-calculate parameterized thresholds if needed (backward compatible)
-        # Skip CONSISTENCY_SCORING as it's deprecated
-        # Include TEMPERATURE_SCORING and WIND_SCORING (optional game condition scoring)
         for scoring_type in [self.keys.ADP_SCORING, self.keys.PLAYER_RATING_SCORING,
                              self.keys.TEAM_QUALITY_SCORING, self.keys.PERFORMANCE_SCORING,
                              self.keys.MATCHUP_SCORING, self.keys.SCHEDULE_SCORING,
                              self.keys.TEMPERATURE_SCORING, self.keys.WIND_SCORING]:
-            # Skip if scoring type not in config (e.g., SCHEDULE_SCORING, TEMPERATURE_SCORING are optional)
             if scoring_type not in self.parameters:
                 continue
 
             scoring_dict = self.parameters[scoring_type]
             thresholds_config = scoring_dict[self.keys.THRESHOLDS]
 
-            # Check if parameterized (new format with BASE_POSITION, DIRECTION, STEPS)
             if self.keys.BASE_POSITION in thresholds_config:
-                # Calculate thresholds from parameters
                 calculated = self.calculate_thresholds(
                     thresholds_config[self.keys.BASE_POSITION],
                     thresholds_config[self.keys.DIRECTION],
@@ -1192,9 +1057,6 @@ class ConfigManager:
                     scoring_type
                 )
 
-                # Add calculated values to thresholds dict for direct access
-                # This maintains backward compatibility - existing code can continue
-                # to access thresholds_config[VERY_POOR], etc.
                 thresholds_config[self.keys.VERY_POOR] = calculated[self.keys.VERY_POOR]
                 thresholds_config[self.keys.POOR] = calculated[self.keys.POOR]
                 thresholds_config[self.keys.GOOD] = calculated[self.keys.GOOD]
@@ -1204,9 +1066,6 @@ class ConfigManager:
                                  f"G={calculated[self.keys.GOOD]}, P={calculated[self.keys.POOR]}, "
                                  f"VP={calculated[self.keys.VERY_POOR]}")
 
-    # ============================================================================
-    # PRIVATE MULTIPLIER CALCULATION
-    # ============================================================================
 
     def _get_multiplier(self, scoring_dict : Dict[str, Any], val, rising_thresholds=True) -> Tuple[float, str]:
         """
@@ -1236,69 +1095,40 @@ class ConfigManager:
                 - val >= POOR threshold → POOR multiplier
                 - val >= VERY_POOR threshold → VERY_POOR multiplier
         """
-        # Handle None values - return neutral multiplier (1.0) when data is unavailable
-        # This prevents crashes when player data is incomplete
         if val == None:
             self.logger.debug(f"Multiplier calculation received None value, returning NEUTRAL (1.0)")
             multiplier, label = 1.0, self.keys.NEUTRAL
 
         elif rising_thresholds:
-            # RISING THRESHOLDS: Higher values are better
-            # Examples: player rating (80+ = excellent), performance deviation (+20% = excellent)
 
-            # Check thresholds from best to worst to find the appropriate multiplier
-            # The order is important: EXCELLENT → GOOD → (neutral) → POOR → VERY_POOR
 
             if val >= scoring_dict[self.keys.THRESHOLDS][self.keys.EXCELLENT]:
-                # Value exceeds EXCELLENT threshold (e.g., player rating >= 80)
                 multiplier, label = scoring_dict[self.keys.MULTIPLIERS][self.keys.EXCELLENT], self.keys.EXCELLENT
             elif val >= scoring_dict[self.keys.THRESHOLDS][self.keys.GOOD]:
-                # Value exceeds GOOD threshold but not EXCELLENT (e.g., 60 <= rating < 80)
                 multiplier, label = scoring_dict[self.keys.MULTIPLIERS][self.keys.GOOD], self.keys.GOOD
             elif val <= scoring_dict[self.keys.THRESHOLDS][self.keys.VERY_POOR]:
-                # Value is below VERY_POOR threshold (e.g., rating <= 20)
                 multiplier, label = scoring_dict[self.keys.MULTIPLIERS][self.keys.VERY_POOR], self.keys.VERY_POOR
             elif val <= scoring_dict[self.keys.THRESHOLDS][self.keys.POOR]:
-                # Value is below POOR threshold but above VERY_POOR (e.g., 20 < rating <= 40)
                 multiplier, label = scoring_dict[self.keys.MULTIPLIERS][self.keys.POOR], self.keys.POOR
             else:
-                # Value is in the neutral zone between POOR and GOOD thresholds
-                # No adjustment applied (1.0x multiplier)
                 multiplier, label = 1.0, self.keys.NEUTRAL
         else:
-            # DECREASING THRESHOLDS: Lower values are better
-            # Examples: ADP (20 or less = excellent), team rank (1-10 = excellent)
 
-            # Check thresholds from best to worst
-            # The comparison operators are reversed compared to rising_thresholds
 
             if val <= scoring_dict[self.keys.THRESHOLDS][self.keys.EXCELLENT]:
-                # Value is below EXCELLENT threshold (e.g., ADP <= 20, rank <= 10)
                 multiplier, label = scoring_dict[self.keys.MULTIPLIERS][self.keys.EXCELLENT], self.keys.EXCELLENT
             elif val <= scoring_dict[self.keys.THRESHOLDS][self.keys.GOOD]:
-                # Value is below GOOD threshold but above EXCELLENT (e.g., 20 < ADP <= 50)
                 multiplier, label = scoring_dict[self.keys.MULTIPLIERS][self.keys.GOOD], self.keys.GOOD
             elif val >= scoring_dict[self.keys.THRESHOLDS][self.keys.VERY_POOR]:
-                # Value exceeds VERY_POOR threshold (e.g., ADP >= 150, rank >= 25)
                 multiplier, label = scoring_dict[self.keys.MULTIPLIERS][self.keys.VERY_POOR], self.keys.VERY_POOR
             elif val >= scoring_dict[self.keys.THRESHOLDS][self.keys.POOR]:
-                # Value exceeds POOR threshold but below VERY_POOR (e.g., 100 <= ADP < 150)
                 multiplier, label = scoring_dict[self.keys.MULTIPLIERS][self.keys.POOR], self.keys.POOR
             else:
-                # Value is in the neutral zone between GOOD and POOR thresholds
-                # No adjustment applied (1.0x multiplier)
                 multiplier, label = 1.0, self.keys.NEUTRAL
 
-        # Apply weight exponent to the multiplier
-        # Weight > 1 amplifies the multiplier effect (e.g., 1.05^2 = 1.1025)
-        # Weight < 1 dampens the multiplier effect (e.g., 1.05^0.5 = 1.0247)
-        # This allows fine-tuning of how much each factor influences the final score
         multiplier = multiplier ** scoring_dict[self.keys.WEIGHT]
         return multiplier, label
 
-    # ============================================================================
-    # STRING REPRESENTATION
-    # ============================================================================
 
     def __repr__(self) -> str:
         """String representation of the config manager."""
@@ -1308,3 +1138,5 @@ class ConfigManager:
             f"season={self.nfl_season}, "
             f"format='{self.nfl_scoring_format}')"
         )
+
+

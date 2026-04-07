@@ -18,32 +18,16 @@ Author: Kai Mizuno
 
 FANTASY_TEAM_NAME = "Sea Sharp"
 
-# =============================================================================
-# LOGGING CONFIGURATION
-# =============================================================================
 LOGGING_LEVEL = 'INFO'      # DEBUG, INFO, WARNING, ERROR, CRITICAL (WARNING+ to reduce spam)
 LOG_NAME = "league_helper"     # Logger name
 LOGGING_FORMAT = 'detailed'    # detailed / standard / simple
 
-# LOGGING_TO_FILE removed - replaced by --enable-log-file CLI flag (run_league_helper.py, LeagueHelperManager.py)
-# LOGGING_FILE removed - Feature 01 auto-generates log file paths (logs/league_helper/)
 
-# =============================================================================
-# GENERAL SETTINGS
-# =============================================================================
-RECOMMENDATION_COUNT = 5  # Number of player recommendations to display
+RECOMMENDATION_COUNT = 5
 
-# =============================================================================
-# WAIVER OPTIMIZER CONSTANTS
-# =============================================================================
-MIN_WAIVER_IMPROVEMENT = 0  # Minimum score improvement to suggest a trade
-NUM_TRADE_RUNNERS_UP = 9   # Number of alternative trade suggestions to show
+MIN_WAIVER_IMPROVEMENT = 0
+NUM_TRADE_RUNNERS_UP = 9
 
-# Minimum position requirements for trade validation
-# Applies to Waiver Optimizer and Trade Suggestor modes
-# Ensures trades don't leave user's team below minimum thresholds
-# Note: Counts total players by position (including FLEX assignments)
-# Note: No FLEX entry - FLEX-eligible players counted toward natural position
 MIN_POSITIONS = {
     "QB": 1,
     "RB": 3,
@@ -53,37 +37,16 @@ MIN_POSITIONS = {
     "DST": 1
 }
 
-# TRADE SUGGESTOR
 MIN_TRADE_IMPROVEMENT = 0
 VALID_TEAMS = ["Fishoutawater", "Chase-ing points", "Annihilators", "The Injury Report", "Striking Shibas", "Bo Him-ian Rhapsody", "Saquon Deez", "The Eskimo Brothers", "Pidgin"]
-# VALID_TEAMS = ["Fishoutawater"]
 
-# =============================================================================
-# POSITION CONSTANTS
-# =============================================================================
 RB, WR, QB, TE, K, DST, FLEX = 'RB', 'WR', 'QB', 'TE', 'K', 'DST', 'FLEX'
 
-# Position groupings for scoring calculations
 ALL_POSITIONS = [RB, WR, QB, TE, K, DST]
 OFFENSE_POSITIONS = ["QB", "RB", "WR", "TE", "K"]  # Offensive positions
 DEFENSE_POSITIONS = ["DEF", "DST", "D/ST"]         # Defensive position variations
 
-# Wind-affected positions (passing game and kicking affected by wind)
-# Wind scoring only applies to these positions
 WIND_AFFECTED_POSITIONS = ["QB", "WR", "K"]
 
-# =============================================================================
-# ROSTER CONSTRUCTION
-# =============================================================================
-# NOTE: MAX_POSITIONS, MAX_PLAYERS, and FLEX_ELIGIBLE_POSITIONS have been moved
-# to league_config.json for runtime configuration. Access via:
-# - ConfigManager.max_positions
-# - ConfigManager.max_players
-# - ConfigManager.flex_eligible_positions
-# - ConfigManager.get_position_with_flex(position)
 
-# =============================================================================
-# BYE WEEKS
-# =============================================================================
-# Weeks in which NFL teams have bye weeks (no game)
 POSSIBLE_BYE_WEEKS = [5, 6, 7, 8, 9, 10, 11, 12, 13, 14]

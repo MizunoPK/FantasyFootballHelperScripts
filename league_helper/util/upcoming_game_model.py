@@ -67,7 +67,7 @@ class UpcomingGame:
             bool: True if team is the home team and not neutral site, False otherwise
         """
         if self.neutral_site:
-            return False  # Neither team is home at neutral site
+            return False
         return team == self.home_team
 
     def is_international(self) -> bool:
@@ -100,3 +100,5 @@ class UpcomingGame:
         elif team == self.away_team:
             return self.home_team
         return None
+
+

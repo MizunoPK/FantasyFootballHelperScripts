@@ -85,16 +85,11 @@ class ModifyPlayerDataModeManager:
         Args:
             player_manager (PlayerManager): Updated PlayerManager instance with current player data
         """
-        # STEP 1: Update manager reference to ensure we have latest player data
-        # This is crucial as players may have been modified in other modes
         self.set_managers(player_manager)
         self.logger.info("Entering Modify Player Data interactive mode")
 
-        # STEP 2: Main menu loop - continues until user exits or exception occurs
         while True:
             try:
-                # STEP 3: Display menu and get user's mode selection
-                # Options: Mark as Drafted, Drop Player, Lock Player, or Exit
                 choice = show_list_selection(
                     "MODIFY PLAYER DATA",
                     [
@@ -105,35 +100,27 @@ class ModifyPlayerDataModeManager:
                     "Return to Main Menu"           # Option 4 (exit)
                 )
 
-                # STEP 4: Route to appropriate sub-mode based on user selection
                 if choice == 1:
-                    # User wants to mark a player as drafted by a team
                     self.logger.info("User selected: Mark Player as Drafted")
                     self._mark_player_as_drafted()
                 elif choice == 2:
-                    # User wants to drop a player back to available status
                     self.logger.info("User selected: Drop Player")
                     self._drop_player()
                 elif choice == 3:
-                    # User wants to toggle a player's locked status
                     self.logger.info("User selected: Lock Player")
                     self._lock_player()
                 elif choice == 4:
-                    # User selected Return to Main Menu - exit the loop
                     print("Returning to Main Menu...")
                     self.logger.info("User exited Modify Player Data mode")
                     break
                 else:
-                    # Invalid choice (shouldn't happen with show_list_selection, but handle anyway)
                     print("Invalid choice. Please try again.")
 
             except KeyboardInterrupt:
-                # User pressed Ctrl+C - exit gracefully
                 print("\nReturning to Main Menu...")
                 self.logger.info("User interrupted Modify Player Data mode")
                 break
             except Exception as e:
-                # Unexpected error occurred - log and exit to prevent crash
                 print(f"Error in Modify Player Data mode: {e}")
                 self.logger.error(f"Error in Modify Player Data mode: {e}")
                 break
@@ -155,43 +142,29 @@ class ModifyPlayerDataModeManager:
         """
         self.logger.info("Starting Mark Player as Drafted mode")
 
-        # STEP 1: Search for an available player to mark as drafted
-        # Only show players with drafted=0 (available/undrafted)
-        # This prevents accidentally marking already-drafted players
         searcher = PlayerSearch(self.player_manager.players)
         selected_player = searcher.interactive_search(
-            drafted_filter=0,  # Filter to available players only
+            drafted_filter=0,
             prompt="Enter player name to mark as drafted (or press Enter to return): "
         )
 
-        # STEP 2: Handle user exit (pressed Enter without selecting)
-        # Return to main menu if no player was selected
         if selected_player is None:
             self.logger.info("User exited Mark Player as Drafted mode")
             return
 
-        # STEP 3: Get all unique team names from drafted players
-        # Extract team names from drafted_by field of all players
-        # This includes user's team (FANTASY_TEAM_NAME) and all opponent teams
         team_names = set()
         for player in self.player_manager.players:
             if player.drafted_by and player.drafted_by != "":
                 team_names.add(player.drafted_by)
 
-        # Always include user's team even if they have no players yet
         team_names.add(Constants.FANTASY_TEAM_NAME)
         team_names = sorted(list(team_names))
 
-        # STEP 4: Validate that teams exist
-        # If only user's team exists, that's still valid (new league scenario)
         if not team_names:
             print("Error: No teams found")
             self.logger.error("No teams found in player data")
             return
 
-        # STEP 5: Display team selection menu
-        # User selects which team drafted this player
-        # This determines the drafted status value (1 or 2)
         print(f"\nSelect the team that drafted {selected_player.name}:")
         team_choice = show_list_selection(
             "TEAM SELECTION",
@@ -199,34 +172,22 @@ class ModifyPlayerDataModeManager:
             "Cancel"  # Option to cancel the operation
         )
 
-        # STEP 6: Handle cancellation
-        # If user selects "Cancel" option (last option), abort the operation
         if team_choice == len(team_names) + 1:
             print("Cancelled.")
             self.logger.info("User cancelled team selection")
             return
 
-        # STEP 7: Get the selected team name
-        # Convert 1-based menu choice to 0-based list index
         selected_team = team_names[team_choice - 1]
 
-        # STEP 8: Set player's drafted_by field based on selected team
-        # drafted_by=FANTASY_TEAM_NAME: Player is on user's roster
-        # drafted_by=other team: Player is drafted by another team (not on user's roster)
-        # This distinction allows Trade Simulator to differentiate user's players from others
         if selected_team == Constants.FANTASY_TEAM_NAME:
-            # User's team - mark as rostered
             selected_player.drafted_by = Constants.FANTASY_TEAM_NAME
             print(f"✓ Added {selected_player.name} to your roster ({selected_team})!")
             self.logger.info(f"Player {selected_player.name} marked as drafted_by='{Constants.FANTASY_TEAM_NAME}' (user's team)")
         else:
-            # Another team - mark as drafted by opponent
             selected_player.drafted_by = selected_team
             print(f"✓ Marked {selected_player.name} as drafted by {selected_team}!")
             self.logger.info(f"Player {selected_player.name} marked as drafted_by='{selected_team}'")
 
-        # STEP 9: Persist changes to player JSON files
-        # This saves the updated drafted_by status to disk
         self.player_manager.update_players_file()
 
     def _drop_player(self):
@@ -244,39 +205,23 @@ class ModifyPlayerDataModeManager:
         """
         self.logger.info("Starting Drop Player mode")
 
-        # STEP 1: Search for a drafted/rostered player to drop
-        # Only show players with drafted != 0 (excludes available players)
-        # not_available=True filters to drafted=1 (other teams) or drafted=2 (user's roster)
         searcher = PlayerSearch(self.player_manager.players)
         selected_player = searcher.interactive_search(
-            drafted_filter=None,  # Don't filter by specific drafted value
+            drafted_filter=None,
             prompt="Enter player name to drop (or press Enter to return): ",
-            not_available=True  # Only show drafted/rostered players (drafted != 0)
+            not_available=True
         )
 
-        # STEP 2: Handle user exit (pressed Enter without selecting)
-        # Return to main menu if no player was selected
         if selected_player is None:
             self.logger.info("User exited Drop Player mode")
             return
 
-        # STEP 3: Determine the player's current status for user feedback
-        # is_rostered(): Player is on user's roster ("your roster")
-        # is_drafted_by_opponent(): Player is drafted by another team ("drafted players")
-        # This provides clear feedback about what the user is dropping
         old_status = "your roster" if selected_player.is_rostered() else "drafted players"
 
-        # STEP 4: Clear player's drafted_by field (mark as free agent)
-        # This makes the player available for drafting again
-        # Works for both opponent teams and user's roster
         selected_player.drafted_by = ""
 
-        # STEP 5: Persist changes to player JSON files
-        # This saves the updated drafted_by status to disk
         self.player_manager.update_players_file()
 
-        # STEP 6: Notify user of successful drop
-        # Use the old_status to provide context (e.g., "from your roster")
         print(f"✓ Dropped {selected_player.name} from {old_status}!")
         self.logger.info(f"Player {selected_player.name} dropped (set drafted_by='')")
 
@@ -303,7 +248,6 @@ class ModifyPlayerDataModeManager:
         """
         self.logger.info("Starting Lock Player mode")
 
-        # STEP 1: Display all currently locked players
         locked_players = [p for p in self.player_manager.players if p.is_locked()]
 
         if locked_players:
@@ -311,17 +255,14 @@ class ModifyPlayerDataModeManager:
             print("🔒 CURRENTLY LOCKED PLAYERS")
             print("=" * 80)
 
-            # Sort locked players by position, then by name
             locked_players.sort(key=lambda p: (p.position, p.name))
 
-            # Group by position for cleaner display
             current_position = None
             for player in locked_players:
                 if player.position != current_position:
                     current_position = player.position
                     print(f"\n{current_position}:")
 
-                # Display player with team and drafted status
                 drafted_status = ""
                 if player.is_rostered():
                     drafted_status = " [YOUR ROSTER]"
@@ -342,42 +283,27 @@ class ModifyPlayerDataModeManager:
 
         self.logger.info(f"Displayed {len(locked_players)} locked players")
 
-        # STEP 2: Search for any player to lock/unlock
-        # Search all players regardless of drafted status (drafted=0, 1, or 2)
-        # Locked players cannot be traded in Trade Simulator, but are included in roster validation
         searcher = PlayerSearch(self.player_manager.players)
         selected_player = searcher.interactive_search(
-            drafted_filter=None,  # Search all players (available, drafted, and rostered)
+            drafted_filter=None,
             prompt="Enter player name to lock/unlock (or press Enter to return): "
         )
 
-        # STEP 3: Handle user exit (pressed Enter without selecting)
-        # Return to main menu if no player was selected
         if selected_player is None:
             self.logger.info("User exited Lock Player mode")
             return
 
-        # STEP 4: Determine current locked state for toggle operation
-        # locked=True: Player is locked (cannot be traded)
-        # locked=False: Player is unlocked (can be traded)
         was_locked = selected_player.is_locked()
 
-        # STEP 5: Toggle the locked status
-        # If locked (True) → unlock (False)
-        # If unlocked (False) → lock (True)
-        # Locked players are excluded from Trade Simulator combinations
-        # but still count toward position limits in roster validation
         selected_player.locked = False if was_locked else True
 
-        # STEP 6: Persist changes to players.csv
-        # This saves the updated locked status to disk
         self.player_manager.update_players_file()
 
-        # STEP 7: Notify user with visual feedback
-        # Use lock/unlock emojis to clearly indicate the new state
         if selected_player.is_locked():
             print(f"🔒 Locked {selected_player.name}!")
         else:
             print(f"🔓 Unlocked {selected_player.name}!")
 
         self.logger.info(f"Player {selected_player.name} lock toggled (locked={selected_player.locked})")
+
+

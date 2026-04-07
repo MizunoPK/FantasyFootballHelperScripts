@@ -44,16 +44,12 @@ ENABLE_ONE_FOR_ONE = False
 ENABLE_TWO_FOR_TWO = True
 ENABLE_THREE_FOR_THREE = True
 
-# =============================================================================
-# UNEQUAL TRADE CONFIGURATION
-# =============================================================================
-# Toggle unequal trade types (user can modify these)
-ENABLE_TWO_FOR_ONE = True    # Give 2 players, get 1 player
-ENABLE_ONE_FOR_TWO = True    # Give 1 player, get 2 players
-ENABLE_THREE_FOR_ONE = False  # Give 3 players, get 1 player
-ENABLE_ONE_FOR_THREE = False  # Give 1 player, get 3 players
-ENABLE_THREE_FOR_TWO = True  # Give 3 players, get 2 players
-ENABLE_TWO_FOR_THREE = True  # Give 2 players, get 3 players
+ENABLE_TWO_FOR_ONE = True
+ENABLE_ONE_FOR_TWO = True
+ENABLE_THREE_FOR_ONE = False
+ENABLE_ONE_FOR_THREE = False
+ENABLE_THREE_FOR_TWO = True
+ENABLE_TWO_FOR_THREE = True
 
 class TradeSimulatorModeManager:
     """
@@ -96,7 +92,6 @@ class TradeSimulatorModeManager:
         self.opponent_simulated_teams : List[TradeSimTeam] = []
         self.trade_snapshots : List[TradeSnapshot] = []
 
-        # Initialize helper classes
         self.display_helper = TradeDisplayHelper()
         self.input_parser = TradeInputParser()
         self.analyzer = TradeAnalyzer(player_manager, config)
@@ -120,49 +115,34 @@ class TradeSimulatorModeManager:
         """
         loop = True
         while (loop):
-            # Refresh team data each iteration (in case rosters changed externally)
             self.init_team_data()
 
-            # Show mode selection menu
             choice = show_list_selection("TRADE SIMULATOR", ["Waiver Optimizer", "Trade Suggestor", "Manual Trade Visualizer"], "Back to Main Menu")
 
-            # Execute selected mode and capture results
-            # Each mode returns (continue_loop, sorted_trades) or (continue_loop, sorted_trades, mode_name)
-            my_team_for_file = None  # Will be set for waiver mode
+            my_team_for_file = None
             if choice == 1:
-                # Waiver Optimizer: Find best waiver wire pickups
                 loop, sorted_trades, mode_name, my_team_for_file = self.start_waiver_optimizer()
                 mode = "waiver"
             elif choice == 2:
-                # Trade Suggestor: Find mutually beneficial trades with opponents
                 loop, sorted_trades = self.start_trade_suggestor()
                 mode = "trade"
                 mode_name = ""
             elif choice == 3:
-                # Manual Trade Visualizer: Analyze specific user-proposed trade
                 loop, sorted_trades = self.start_manual_trade()
                 mode = "manual"
                 mode_name = ""
             else:
-                # User selected "Back to Main Menu"
                 loop, sorted_trades = False, []
                 mode = None
                 mode_name = ""
 
-            # Save results to file if mode completed successfully with trade data
             if loop and sorted_trades:
-                # Use mode-specific save method
                 if mode == "waiver":
-                    # Waiver file format: DROP/ADD with improvement per trade
-                    # Use mode-specific my_team if available, otherwise fall back to self.my_team
                     team_for_file = my_team_for_file if my_team_for_file else self.my_team
                     self.file_writer.save_waiver_trades_to_file(sorted_trades, team_for_file, mode_name)
                 elif mode == "trade":
-                    # Trade suggestor file format: numbered trades with both teams' improvements
                     self.file_writer.save_trades_to_file(sorted_trades, self.my_team, self.opponent_simulated_teams)
-                # Note: Manual trades are saved within start_manual_trade() method (user prompted for confirmation)
 
-                # Pause before returning to menu
                 input("Press enter to continue...")
 
     def init_team_data(self) -> None:
@@ -178,35 +158,20 @@ class TradeSimulatorModeManager:
             - Reloads all player data from JSON (resets drafted, locked, score state)
             - Populates self.team_rosters with Dict[team_name, List[FantasyPlayer]]
         """
-        # CRITICAL: Reload player data to reset any state changes
-        # This ensures drafted status, locked status, and scores are fresh
-        # Without this, simulations can become inconsistent (e.g., waiver recommendations
-        # may differ between runs due to stale locked/drafted state)
         self.player_manager.reload_player_data()
 
-        # Get all players from PlayerManager (includes projections, ADPs, and injury data)
         all_players = self.player_manager.players
         self.logger.info(f"Using {len(all_players)} players from PlayerManager")
 
-        # Load drafted data and organize by team
-        # players.json contains drafted_by field (team name) for each player
-        # Spec: sub_feature_07_drafted_roster_manager_consolidation_spec.md lines 40-50
         self.team_rosters = self.player_manager.get_players_by_team()
 
-        # Log team roster sizes for debugging
         self.logger.info(f"Organized players into {len(self.team_rosters)} team rosters")
 
-        # Create TradeSimTeam objects for scoring and analysis
-        # My team uses PlayerManager's roster (already has full player data)
-        # isOpponent=False means full scoring (ADP, player rating, team quality, etc.)
         self.my_team = TradeSimTeam(Constants.FANTASY_TEAM_NAME, self.player_manager.team.roster, self.player_manager, isOpponent=False)
 
-        # Reset opponent teams and trade snapshots
         self.opponent_simulated_teams = []
         self.trade_snapshots = []
 
-        # Create TradeSimTeam for each opponent
-        # isOpponent=True (default) means simplified scoring (projections only)
         for team_name, team_list in self.team_rosters.items():
             if team_name in Constants.VALID_TEAMS:
                 self.opponent_simulated_teams.append(TradeSimTeam(team_name, team_list, self.player_manager))
@@ -229,24 +194,20 @@ class TradeSimulatorModeManager:
         """
         self.logger.info("Starting Waiver Optimizer mode")
 
-        # STEP 1: Mode selection
         mode_choice = show_list_selection(
             "WAIVER OPTIMIZER - SELECT MODE",
             ["Rest of Season", "Current Week"],
             "Cancel"
         )
 
-        # Handle cancellation
-        if mode_choice > 2:  # User selected Cancel
+        if mode_choice > 2:
             self.logger.info("User cancelled Waiver Optimizer")
             return True, [], "", None
 
-        # Determine mode
         use_weekly_scoring = (mode_choice == 2)
         mode_name = "Current Week" if use_weekly_scoring else "Rest of Season"
         self.logger.info(f"Waiver Optimizer mode selected: {mode_name}")
 
-        # STEP 2: Set max_weekly_projection if using weekly scoring
         if use_weekly_scoring:
             max_weekly = self.player_manager.calculate_max_weekly_projection(
                 self.config.current_nfl_week
@@ -256,9 +217,6 @@ class TradeSimulatorModeManager:
                 f"Set max_weekly_projection to {max_weekly:.2f} for week {self.config.current_nfl_week}"
             )
 
-        # Get all waiver wire players (drafted=0)
-        # Only consider players with scores above our weakest roster players
-        # This filters out truly unrosterable players
         lowest_scores = self.player_manager.get_lowest_scores_on_roster()
         for pos, score in lowest_scores.items():
             lowest_scores[pos] = score + Constants.MIN_WAIVER_IMPROVEMENT
@@ -269,7 +227,6 @@ class TradeSimulatorModeManager:
             print("\nNo players available on waivers.")
             return True, [], mode_name, None
 
-        # Re-create my_team with mode-specific scoring
         my_team = TradeSimTeam(
             Constants.FANTASY_TEAM_NAME,
             self.player_manager.team.roster,
@@ -278,8 +235,6 @@ class TradeSimulatorModeManager:
             use_weekly_scoring=use_weekly_scoring
         )
 
-        # Create a TradeSimTeam for the waiver wire
-        # Waiver "team" is treated as opponent for scoring purposes
         waiver_team = TradeSimTeam(
             "Waiver Wire",
             waiver_players,
@@ -288,10 +243,6 @@ class TradeSimulatorModeManager:
             use_weekly_scoring=use_weekly_scoring
         )
 
-        # Generate all possible waiver pickups
-        # - 1-for-1 and 2-for-2 enabled, 3-for-3 disabled (too many combinations)
-        # - is_waivers=True: Skip validation of waiver "team" roster (doesn't apply)
-        # - ignore_max_positions=False: MUST respect position limits (real roster constraint)
         self.logger.info("Generating trade combinations...")
         trade_combos = self.analyzer.get_trade_combinations(
             my_team=my_team,
@@ -300,13 +251,13 @@ class TradeSimulatorModeManager:
             one_for_one=True,
             two_for_two=WAIVERS_TWO_FOR_TWO,
             three_for_three=WAIVERS_THREE_FOR_THREE,
-            two_for_one=False,  # Unequal trades disabled in waiver mode for now
+            two_for_one=False,
             one_for_two=False,
             three_for_one=False,
             one_for_three=False,
             three_for_two=False,
             two_for_three=False,
-            ignore_max_positions=False  # Enforce position limits
+            ignore_max_positions=False
         )
 
         self.logger.info(f"Found {len(trade_combos)} valid waiver pickups")
@@ -315,14 +266,12 @@ class TradeSimulatorModeManager:
             print("\nNo valid waiver pickups found that improve your team.")
             return True, [], mode_name, None
 
-        # Sort by improvement (highest improvement first)
         sorted_trades = sorted(
             trade_combos,
             key=lambda t: (t.my_new_team.team_score - my_team.team_score),
             reverse=True
         )
 
-        # Display header
         print("\n" + "="*80)
         print(f"WAIVER OPTIMIZER - {mode_name.upper()}")
         print("="*80)
@@ -330,37 +279,28 @@ class TradeSimulatorModeManager:
         print(f"Found {len(sorted_trades)} beneficial waiver pickups")
         print()
 
-        # Show top N trades (constants define how many to display)
         display_count = min(Constants.NUM_TRADE_RUNNERS_UP + 1, len(sorted_trades))
 
-        # Display each waiver pickup in numbered format
         for i, trade in enumerate(sorted_trades[:display_count], 1):
-            # Calculate improvement from trade (use local my_team with mode-specific scoring)
             improvement = trade.my_new_team.team_score - my_team.team_score
 
-            # Determine trade type label (1-for-1, 2-for-2, etc.)
             num_players = len(trade.my_new_players)
             trade_type = f"{num_players}-for-{num_players}"
 
-            # Display trade header with dynamic sign
             sign = "+" if improvement >= 0 else ""
             print(f"#{i} - {trade_type} Trade - Improvement: {sign}{improvement:.2f} pts")
 
-            # Show players being dropped
             print(f"  DROP:")
             for drop_player in trade.my_original_players:
-                print(f"    - {drop_player}")  # ScoredPlayer __str__ shows name, position, team, score
+                print(f"    - {drop_player}")
 
-            # Show players being added
             print(f"  ADD:")
             for add_player in trade.my_new_players:
                 print(f"    - {add_player}")
 
-            # Show new team score
             print(f"  New team score: {trade.my_new_team.team_score:.2f}")
             print()
 
-        # Return my_team with mode-specific scoring for file output
         return True, sorted_trades, mode_name, my_team
 
     def start_trade_suggestor(self) -> Tuple[bool, List[TradeSnapshot]]:
@@ -376,19 +316,15 @@ class TradeSimulatorModeManager:
             print("\nNo opponent teams found.")
             return True, []
 
-        # Check for teams exceeding MAX_PLAYERS and log warnings
         teams_over_limit = []
 
-        # Check my team
         if len(self.my_team.team) > self.config.max_players:
             teams_over_limit.append((self.my_team.name, self.my_team.team))
 
-        # Check opponent teams
         for opp_team in self.opponent_simulated_teams:
             if len(opp_team.team) > self.config.max_players:
                 teams_over_limit.append((opp_team.name, opp_team.team))
 
-        # Log warnings for teams over the limit
         if teams_over_limit:
             self.logger.warning("=" * 80)
             self.logger.warning(f"ROSTER SIZE WARNING: {len(teams_over_limit)} team(s) exceed MAX_PLAYERS ({self.config.max_players})")
@@ -401,14 +337,12 @@ class TradeSimulatorModeManager:
 
             self.logger.warning("=" * 80 + "\n")
 
-        # Log trade analysis start
         self.logger.info("=" * 80)
         self.logger.info("BEGINNING TRADE ANALYSIS")
         self.logger.info(f"My Team: {self.my_team.name} (Score: {self.my_team.team_score:.2f})")
         self.logger.info(f"Opponent Teams: {len(self.opponent_simulated_teams)}")
         self.logger.info("=" * 80 + "\n")
 
-        # Collect all possible trades from all opponents
         all_trades = []
 
         print("\nAnalyzing trades with opponent teams...")
@@ -416,15 +350,12 @@ class TradeSimulatorModeManager:
         for opponent_team in self.opponent_simulated_teams:
             start_time = time.time()
 
-            # Calculate expected combinations for this team
             my_unlocked = len([p for p in self.my_team.team if p.locked != 1])
             their_unlocked = len([p for p in opponent_team.team if p.locked != 1])
 
-            # Calculate combinations for each trade type
             one_for_one_combos = my_unlocked * their_unlocked
             two_for_two_combos = (my_unlocked * (my_unlocked - 1) // 2) * (their_unlocked * (their_unlocked - 1) // 2)
 
-            # New unequal trade combinations (only count if enabled)
             two_for_one_combos = (my_unlocked * (my_unlocked - 1) // 2) * their_unlocked if ENABLE_TWO_FOR_ONE else 0
             one_for_two_combos = my_unlocked * (their_unlocked * (their_unlocked - 1) // 2) if ENABLE_ONE_FOR_TWO else 0
             three_for_one_combos = (my_unlocked * (my_unlocked - 1) * (my_unlocked - 2) // 6) * their_unlocked if ENABLE_THREE_FOR_ONE else 0
@@ -445,10 +376,6 @@ class TradeSimulatorModeManager:
                            f"3:2={three_for_two_combos:,}, 2:3={two_for_three_combos:,}, Total={total_expected:,}")
             print(f"  Checking trades with {opponent_team.name} ({total_expected:,} combinations)...")
 
-            # Get trade combinations with configurable trade types
-            # - Uses ENABLE_* constants for flexible configuration
-            # - is_waivers=False: Both teams must improve
-            # - ignore_max_positions=False: Enforce position limits (BUG FIX from origin/main)
             trade_combos = self.analyzer.get_trade_combinations(
                 my_team=self.my_team,
                 their_team=opponent_team,
@@ -462,7 +389,7 @@ class TradeSimulatorModeManager:
                 one_for_three=ENABLE_ONE_FOR_THREE,
                 three_for_two=ENABLE_THREE_FOR_TWO,
                 two_for_three=ENABLE_TWO_FOR_THREE,
-                ignore_max_positions=False  # Enforce position limits (BUG FIX)
+                ignore_max_positions=False
             )
 
             elapsed = time.time() - start_time
@@ -475,14 +402,12 @@ class TradeSimulatorModeManager:
             print("\nNo mutually beneficial trades found.")
             return (True, [])
 
-        # Sort by my team's improvement (highest improvement first)
         sorted_trades = sorted(
             all_trades,
             key=lambda t: (t.my_new_team.team_score - self.my_team.team_score),
             reverse=True
         )
 
-        # Display header
         print("\n" + "="*80)
         print("TRADE SUGGESTOR - Top Trade Opportunities")
         print("="*80)
@@ -490,58 +415,46 @@ class TradeSimulatorModeManager:
         print(f"Found {len(sorted_trades)} mutually beneficial trades")
         print()
 
-        # Show top N trades (constants define how many to display)
         display_count = min(Constants.NUM_TRADE_RUNNERS_UP + 1, len(sorted_trades))
 
-        # Display each trade showing improvements for BOTH teams
         for i, trade in enumerate(sorted_trades[:display_count], 1):
-            # Calculate my improvement
             my_improvement = trade.my_new_team.team_score - self.my_team.team_score
 
-            # Find opponent's original team to calculate their improvement
             original_their_team = None
             for opp in self.opponent_simulated_teams:
                 if opp.name == trade.their_new_team.name:
                     original_their_team = opp
                     break
 
-            # Calculate their improvement (0 if team not found)
             their_improvement = trade.their_new_team.team_score - original_their_team.team_score if original_their_team else 0
 
-            # Display trade details
             print(f"#{i} - Trade with {trade.their_new_team.name}")
             print(f"  My improvement: +{my_improvement:.2f} pts (New score: {trade.my_new_team.team_score:.2f})")
             print(f"  Their improvement: +{their_improvement:.2f} pts (New score: {trade.their_new_team.team_score:.2f})")
 
-            # Show players I'm giving away
             print(f"  I give:")
             for player in trade.my_original_players:
-                print(f"    - {player}")  # ScoredPlayer __str__ shows name, position, team, score
+                print(f"    - {player}")
 
-            # Show players I'm receiving
             print(f"  I receive:")
             for player in trade.my_new_players:
                 print(f"    - {player}")
 
-            # Display waiver recommendations if trade loses roster spots
             if trade.waiver_recommendations:
                 print(f"  Recommended Waiver Adds (for me):")
                 for player in trade.waiver_recommendations:
                     print(f"    - {player}")
 
-            # Display opponent waiver recommendations
             if trade.their_waiver_recommendations:
                 print(f"  Recommended Waiver Adds (for {trade.their_new_team.name}):")
                 for player in trade.their_waiver_recommendations:
                     print(f"    - {player}")
 
-            # Display dropped players (beyond the trade itself)
             if trade.my_dropped_players:
                 print(f"  Players I Must Drop (to make room):")
                 for player in trade.my_dropped_players:
                     print(f"    - {player}")
 
-            # Display opponent dropped players
             if trade.their_dropped_players:
                 print(f"  Players {trade.their_new_team.name} Must Drop (to make room):")
                 for player in trade.their_dropped_players:
@@ -549,7 +462,6 @@ class TradeSimulatorModeManager:
 
             print()
 
-        # Pause before returning to menu
         return True, sorted_trades
 
     def start_manual_trade(self) -> Tuple[bool, List[TradeSnapshot]]:
@@ -572,15 +484,11 @@ class TradeSimulatorModeManager:
         """
         self.logger.info("Starting Manual Trade Visualizer mode")
 
-        # Validate that opponent teams exist
         if len(self.opponent_simulated_teams) == 0:
             print("\nNo opponent teams available for manual trade analysis.")
             self.logger.warning("No opponent teams available")
             return (True, [])
 
-        # ========== STEP 1: Select opponent team ==========
-        # Calculate waiver players for "Waiver" option
-        # Filter by MIN_WAIVER_IMPROVEMENT threshold (same as waiver optimizer)
         lowest_scores = self.player_manager.get_lowest_scores_on_roster()
         for pos, score in lowest_scores.items():
             lowest_scores[pos] = score + Constants.MIN_WAIVER_IMPROVEMENT
@@ -588,114 +496,78 @@ class TradeSimulatorModeManager:
         waiver_count = len(waiver_players)
         self.logger.info(f"Found {waiver_count} waiver players (filtered by MIN_WAIVER_IMPROVEMENT)")
 
-        # Sort teams alphabetically for consistent display
         sorted_teams = sorted(self.opponent_simulated_teams, key=lambda t: t.name)
         opponent_names = [team.name for team in sorted_teams]
 
-        # Add "Waiver" option at bottom of list
         opponent_names.append(f"Waiver ({waiver_count} players)")
 
-        # Show opponent selection menu
         print()
         choice = show_list_selection("SELECT OPPONENT TEAM", opponent_names, "Cancel")
 
-        # Handle cancellation
         if choice > len(opponent_names):
             print("Trade cancelled.")
             self.logger.info("Trade cancelled - no opponent selected")
             return (True, [])
 
-        # Check if "Waiver" option was selected (last option in list)
         if choice == len(opponent_names):
-            # Waiver selected - check if any players available
             if waiver_count == 0:
                 print("\nNo players available on waivers.")
                 self.logger.warning("No waiver players available")
                 return (True, [])
 
-            # Create TradeSimTeam for waiver wire
             opponent = TradeSimTeam("Waiver Wire", waiver_players, self.player_manager, isOpponent=True)
             is_waivers = True
             self.logger.info("Selected Waiver Wire for manual trade")
         else:
-            # Regular team selected
             opponent = sorted_teams[choice - 1]
             is_waivers = False
             self.logger.info(f"Selected opponent: {opponent.name}")
 
-        # ========== STEP 2-5: Input and processing loop ==========
-        # Loop until user provides valid trade or cancels
         my_dropped_players = []
         their_dropped_players = []
         my_selected_players = None
         their_selected_players = None
 
         while True:
-            # ========== STEP 2: Display combined roster ==========
-            # Shows both rosters side-by-side, organized by position and score
-            # Returns:
-            #   - roster_boundary: Index where opponent's roster starts
-            #   - my_display_order: Players from my team sorted by position/score
-            #   - their_display_order: Players from their team sorted by position/score
             roster_boundary, my_display_order, their_display_order = self.display_helper.display_combined_roster(
                 self.my_team.team,
                 opponent.team,
                 opponent.name
             )
 
-            # ========== STEP 3: Get unified player selection ==========
-            # Only prompt for player input if we don't have selections yet
-            # (On first iteration or after invalid input - not after drop selection)
             if my_selected_players is None:
-                # Calculate max valid index for input validation
                 max_index = len(self.my_team.team) + len(opponent.team)
 
-                # User enters comma-separated numbers (e.g., "4,17,18" for 1-for-2 trade)
                 print()
                 selection_input = input(
                     f"Enter player numbers to trade (comma-separated, or 'exit' to cancel): "
                 ).strip()
 
-                # Parse input with detailed error messages
                 parsed_result, error_message = self.input_parser.parse_with_error_message(
                     selection_input,
                     max_index,
                     roster_boundary
                 )
 
-                # Handle cancellation or invalid input
                 if parsed_result is None:
                     if error_message:
                         print(f"\n{error_message}\n")
-                        continue  # Loop back to input prompt
+                        continue
                     else:
                         print("Trade cancelled.")
                         self.logger.info("Trade cancelled by user")
                         return (True, [])
 
-                # Extract indices for each team
                 my_indices, their_indices = parsed_result
 
-                # Convert indices to actual FantasyPlayer objects
-                # IMPORTANT: Use DISPLAY order (sorted by position/score) not original roster order
                 my_selected_players = self.input_parser.get_players_by_indices(my_display_order, my_indices)
                 their_selected_players = self.input_parser.get_players_by_indices(their_display_order, their_indices)
 
-                # Log trade type
                 trade_type = f"{len(my_selected_players)}-for-{len(their_selected_players)}"
                 self.logger.info(f"Processing {trade_type} trade")
             else:
-                # We already have player selections from a previous iteration
-                # This happens when retrying after drop selection
                 self.logger.info("Retrying trade with previously selected players and new drops")
 
-            # ========== STEP 4: Process trade with shared waiver/drop logic ==========
-            # Use TradeAnalyzer's shared method for processing manual trades
-            # This handles:
-            #   - Calculating waiver needs based on net roster change
-            #   - Adding waiver recommendations
-            #   - Validating rosters
-            #   - Returning drop candidates if roster invalid
             snapshot, my_drop_candidates, their_drop_candidates = self.analyzer.process_manual_trade(
                 my_team=self.my_team,
                 their_team=opponent,
@@ -706,14 +578,11 @@ class TradeSimulatorModeManager:
                 is_waivers=is_waivers
             )
 
-            # ========== STEP 5: Handle drops if needed ==========
             if snapshot is None:
-                # Roster invalid - need to select players to drop
                 print("\n" + "="*80)
                 print("ROSTER CONSTRAINT VIOLATION")
                 print("="*80)
 
-                # Handle MY team drops
                 if my_drop_candidates:
                     print("\nYour roster would exceed limits. Select a player to drop:")
                     print()
@@ -738,7 +607,6 @@ class TradeSimulatorModeManager:
                         except ValueError:
                             print("Invalid input. Please enter a number.")
 
-                # Handle THEIR team drops (for display purposes)
                 if their_drop_candidates:
                     print(f"\n{opponent.name}'s roster would exceed limits. They would need to drop one of:")
                     print()
@@ -763,32 +631,24 @@ class TradeSimulatorModeManager:
                         except ValueError:
                             print("Invalid input. Please enter a number.")
 
-                # Retry trade processing with selected drops
                 print("\nRetrying trade with selected drops...")
                 continue
 
-            # ========== Trade valid - break out of loop ==========
             break
 
-        # ========== Display trade results ==========
-        # Capture original scores for impact calculation
         original_my_score = self.my_team.team_score
         original_their_score = opponent.team_score
 
-        # Display trade impact analysis (already shows waivers/drops if present)
         self.display_helper.display_trade_result(snapshot, original_my_score, original_their_score)
 
-        # ========== Optionally save to file ==========
         print()
         save_input = input("Save this trade to a file? (y/n): ").strip().lower()
 
         if save_input == 'y':
-            # Save to timestamped file in trade_outputs/
             filename = self.file_writer.save_manual_trade_to_file(snapshot, opponent.name, original_my_score, original_their_score)
             print(f"\nTrade saved to: {filename}")
             self.logger.info(f"Trade saved to {filename}")
 
-            # Always create Excel file alongside txt file
             try:
                 excel_filename = self.file_writer.save_manual_trade_to_excel(
                     snapshot,
@@ -805,3 +665,5 @@ class TradeSimulatorModeManager:
                 print("Note: Excel file could not be created (txt file saved successfully)")
 
         return (True, [snapshot])
+
+

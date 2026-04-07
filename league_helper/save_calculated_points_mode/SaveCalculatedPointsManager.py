@@ -75,54 +75,41 @@ class SaveCalculatedPointsManager:
 
         self.logger.info(f"Entering Save Calculated Points mode (Week {week}, Season {season})")
 
-        # Determine output path based on week
         if week == 0:
-            # Season-long scoring
             output_path = self.data_folder / "historical_data" / str(season) / "calculated_season_long_projected_points.json"
         else:
-            # Weekly scoring
             week_str = f"{week:02d}"
             output_path = self.data_folder / "historical_data" / str(season) / week_str / "calculated_projected_points.json"
 
         output_folder = output_path.parent
 
-        # Idempotent check: skip if folder already exists
         if output_folder.exists():
             self.logger.info(f"Folder already exists: {output_folder}. Skipping operation.")
             print(f"\nHistorical data already exists for Season {season}, Week {week}. Skipping.")
             return
 
-        # Collect projected points for all players
         self.logger.debug(f"Collecting projected points for {len(self.player_manager.players)} players...")
         results_dict = {}
 
         for player in self.player_manager.players:
             player_id = str(player.id)
 
-            # Get the appropriate projected points based on week
             if week == 0:
-                # Season-long: use total fantasy_points
                 projected_points = player.fantasy_points if player.fantasy_points is not None else 0.0
             else:
-                # Weekly: use specific week projection
                 projected_points = player.get_single_weekly_projection(week, self.config)
-                # Handle None values (player may not have projection for this week)
                 if projected_points is None:
                     projected_points = 0.0
 
-            # Round to 2 decimal places
             results_dict[player_id] = round(projected_points, 2)
 
-        # Create output folder
         output_folder.mkdir(parents=True, exist_ok=True)
         self.logger.debug(f"Created output folder: {output_folder}")
 
-        # Write JSON file
         with open(str(output_path), 'w') as f:
             json.dump(results_dict, f, indent=2)
         self.logger.info(f"Saved {len(results_dict)} player scores to {output_path}")
 
-        # Copy data files to historical_data folder
         files_to_copy = [
             "game_data.csv",
             "drafted_data.csv"
@@ -137,7 +124,6 @@ class SaveCalculatedPointsManager:
             else:
                 self.logger.warning(f"File not found: {filename}. Skipping.")
 
-        # Copy configs/ folder
         configs_src = self.data_folder / "configs"
         configs_dst = output_folder / "configs"
         if configs_src.exists():
@@ -146,7 +132,6 @@ class SaveCalculatedPointsManager:
         else:
             self.logger.warning("configs/ folder not found. Skipping.")
 
-        # Copy team_data/ folder
         team_data_src = self.data_folder / "team_data"
         team_data_dst = output_folder / "team_data"
         if team_data_src.exists():
@@ -155,10 +140,11 @@ class SaveCalculatedPointsManager:
         else:
             self.logger.warning("team_data/ folder not found. Skipping.")
 
-        # Summary message
         print(f"\n✓ Operation complete!")
         print(f"  Saved {len(results_dict)} player scores to:")
         print(f"  {output_path}")
         print(f"  Copied data files to: {output_folder}")
 
         self.logger.info("Exiting Save Calculated Points mode")
+
+

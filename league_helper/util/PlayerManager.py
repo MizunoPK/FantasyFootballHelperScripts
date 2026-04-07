@@ -105,15 +105,11 @@ class PlayerManager:
         self.team_data_manager = team_data_manager
         self.season_schedule_manager = season_schedule_manager
 
-        # Initialize GameDataManager for weather/location scoring (optional)
         self.game_data_manager = GameDataManager(data_folder, config.current_nfl_week)
 
-        # Initialize scoring calculator (max_projection will be updated in load_players_from_csv)
-        # Pass self (PlayerManager) instead of ProjectedPointsManager for consolidated projection access
-        # Spec: sub_feature_05_projected_points_manager_consolidation_spec.md, NEW-103
         self.scoring_calculator = PlayerScoringCalculator(
             config,
-            self,  # PlayerManager now provides projected points methods directly
+            self,
             0.0,
             team_data_manager,
             season_schedule_manager,
@@ -127,7 +123,7 @@ class PlayerManager:
         self.team: FantasyTeam
         self.players: List[FantasyPlayer] = []
         self.max_projection : int = 0
-        self.max_weekly_projections: Dict[int, float] = {}  # Cache for weekly max projections
+        self.max_weekly_projections: Dict[int, float] = {}
 
         self.load_players_from_json()
         self.load_team()
@@ -159,10 +155,8 @@ class PlayerManager:
 
         players: list[FantasyPlayer] = []
         self.max_projection = 0.0
-        self.max_weekly_projections = {}  # Clear weekly projection cache on reload
+        self.max_weekly_projections = {}
 
-        # Define required columns for basic player data
-        # These are the minimum fields needed to create a valid FantasyPlayer
         required_columns = ['id', 'name', 'team', 'position']
 
 
@@ -170,64 +164,42 @@ class PlayerManager:
             with open(self.file_str, newline='', encoding='utf-8') as csvfile:
                 reader = csv.DictReader(csvfile)
 
-                # Validate that all required columns are present in the CSV
-                # This catches corrupted or incomplete data files early
                 if not all(col in reader.fieldnames for col in required_columns):
                     missing_cols = [col for col in required_columns if col not in reader.fieldnames]
                     raise ValueError(f"Missing required columns in CSV: {missing_cols}")
 
-                # Track rows processed and errors encountered
                 row_count = 0
                 error_count = 0
 
-                # Process each row in the CSV file
-                # Start at row 2 to account for header row in error messages
                 for row_num, row in enumerate(reader, start=2):
                     row_count += 1
                     try:
-                        # Convert CSV row dictionary into FantasyPlayer object
-                        # This handles type conversion and sets default values for missing fields
                         player = FantasyPlayer.from_dict(row)
 
-                        # Validate player data before adding to roster
-                        # Empty names indicate corrupt data rows
                         if not player.name:
                             self.logger.warning(f"Warning: Empty player name on row {row_num}, skipping")
                             error_count += 1
                             continue
 
-                        # Validate position is one of the allowed values (QB, RB, WR, TE, K, DST)
-                        # Invalid positions would break roster management logic
                         if player.position not in self.config.max_positions:
                             self.logger.warning(f"Warning: Invalid position '{player.position}' for player {player.name} on row {row_num}, skipping")
                             error_count += 1
                             continue
 
-                        # Calculate rest-of-season projection by summing weeks from current week onwards
-                        # This adjusts for the current point in the season (early vs late season)
                         player.fantasy_points = player.get_rest_of_season_projection(self.config)
 
-                        # Load team quality rankings for scoring calculations
-                        # Offensive rank used for offensive players
                         player.team_offensive_rank = self.team_data_manager.get_team_offensive_rank(player.team)
 
-                        # D/ST uses fantasy performance rank (points scored), others use defensive rank (points allowed)
-                        # This ensures D/ST team quality reflects D/ST unit performance, not opponent offense strength
                         if player.position in Constants.DEFENSE_POSITIONS:
                             player.team_defensive_rank = self.team_data_manager.get_team_dst_fantasy_rank(player.team)
                         else:
                             player.team_defensive_rank = self.team_data_manager.get_team_defensive_rank(player.team)
 
-                        # Calculate matchup score (favorable/unfavorable matchup this week)
-                        # Uses position-specific defense rankings for more accurate matchup analysis
                         matchup_score = self.team_data_manager.get_rank_difference(player.team, player.position)
                         player.matchup_score = matchup_score
 
-                        # Add validated player to the list
                         players.append(player)
 
-                        # Track maximum projection across all players for normalization
-                        # This is used as the denominator when calculating weighted projections
                         if player.fantasy_points and player.fantasy_points > self.max_projection:
                             self.max_projection = player.fantasy_points
 
@@ -236,12 +208,9 @@ class PlayerManager:
                         self.logger.error(f"Error parsing row {row_num} for player {row.get('name', 'Unknown')}: {e}")
                         continue
 
-                # Log if any rows had parsing errors
                 if error_count > 0:
                     self.logger.warning(f"Warning: {error_count} rows had errors and were skipped out of {row_count} total rows")
 
-                # Update the scoring calculator with the final maximum projection
-                # This is needed for normalization calculations in score_player()
                 self.scoring_calculator.max_projection = self.max_projection
 
         except FileNotFoundError:
@@ -260,24 +229,16 @@ class PlayerManager:
             self.logger.error(f"Unexpected error loading CSV file {self.file_str}: {e}")
             return []
         
-        # Add computed properties needed by scoring calculations
         for player in players:
 
-            # Calculate weighted_projection (normalized between 0-N scale)
-            # This creates a comparable metric across all players by normalizing to max_projection
-            # Note: Actual scoring happens in PlayerScoringCalculator.score_player()
             if player.fantasy_points and self.max_projection > 0:
                 player.weighted_projection = self.scoring_calculator.weight_projection(player.fantasy_points)
             else:
-                # Handle edge case where player has no projection or max is zero
                 player.weighted_projection = 0.0
 
-            # Initialize draft helper specific properties if not already set
-            # The is_starter flag is used by simulation to track starting lineup
             if not hasattr(player, 'is_starter'):
-                player.is_starter = False  # Will be set to True when added to starting lineup
+                player.is_starter = False
 
-        # Calculate baseline scores for all players (now that max_projection is set)
         for player in players:
             player.score = self.score_player(player, 
                                              adp=False,
@@ -316,7 +277,6 @@ class PlayerManager:
 
         Spec Reference: sub_feature_01_core_data_loading_spec.md lines 242-319
         """
-        # Verify directory exists (fail fast - spec lines 258-265)
         player_data_dir = self.data_folder / 'player_data'
         if not player_data_dir.exists():
             raise FileNotFoundError(
@@ -330,58 +290,43 @@ class PlayerManager:
             'te_data.json', 'k_data.json', 'dst_data.json'
         ]
 
-        # Iterate through position files (spec lines 268-280)
         for position_file in position_files:
             filepath = player_data_dir / position_file
 
-            # Skip missing files with warning (spec line 278)
             if not filepath.exists():
                 self.logger.warning(f"Position file not found: {position_file}")
                 continue
 
             try:
-                # Load and parse JSON (spec lines 283-285)
                 with open(filepath, 'r') as f:
                     json_data = json.load(f)
 
-                # Extract position key (e.g., "qb_data") (spec lines 287-288)
-                # Support dict-wrapper format ({qb_data: [...]}) and legacy bare-list format for old files
                 position_key = position_file.replace('.json', '')
                 players_array = json_data if isinstance(json_data, list) else json_data.get(position_key, [])
 
-                # Convert each player (spec lines 291-299)
                 for player_data in players_array:
                     try:
                         player = FantasyPlayer.from_json(player_data)
                         all_players.append(player)
                     except ValueError as e:
-                        # Skip player with missing required fields (spec lines 295-298)
                         self.logger.warning(f"Skipping invalid player: {e}")
                         continue
 
                 self.logger.debug(f"Loaded {len(players_array)} players from {position_file}")
 
             except json.JSONDecodeError as e:
-                # Malformed JSON - fail fast (spec lines 302-305)
                 self.logger.error(f"Malformed JSON in {position_file}: {e}")
                 raise
 
-        # Store and return (spec lines 308-318)
         self.players = all_players
         self.logger.debug(f"All position files loaded: {len(self.players)} total players across all positions")
 
-        # Calculate max_projection (spec lines 312-313)
         if self.players:
             self.max_projection = max(p.fantasy_points for p in self.players)
 
-            # BUG FIX (Issue #7): Update scoring_calculator's max_projection
-            # PlayerScoringCalculator is initialized with 0.0 before players are loaded
-            # We must update it after calculating the actual max_projection
-            # Note: Defensive check for tests that use __new__() without __init__()
             if hasattr(self, 'scoring_calculator'):
                 self.scoring_calculator.max_projection = self.max_projection
 
-        # Load team roster (drafted == 2) (spec line 316)
         self.load_team()
 
         return True
@@ -399,19 +344,16 @@ class PlayerManager:
         Returns:
             float: Maximum weekly projection for the given week (0.0 if no valid projections)
         """
-        # Check cache first
         if week_num in self.max_weekly_projections:
             self.logger.debug(f"Week {week_num} max projection (cached): {self.max_weekly_projections[week_num]:.2f} pts")
             return self.max_weekly_projections[week_num]
 
-        # Calculate max weekly projection by iterating through all players
         max_weekly = 0.0
         for player in self.players:
             weekly_points = player.get_single_weekly_projection(week_num, self.config)
             if weekly_points is not None and weekly_points > max_weekly:
                 max_weekly = float(weekly_points)
 
-        # Cache the result for future calls
         self.max_weekly_projections[week_num] = max_weekly
 
         self.logger.debug(f"Week {week_num} max projection (calculated): {max_weekly:.2f} pts")
@@ -432,7 +374,6 @@ class PlayerManager:
         drafted_players = [p for p in self.players if p.is_rostered()]
         self.logger.debug(f"Loading team roster with {len(drafted_players)} drafted players")
         self.team = FantasyTeam(self.config, drafted_players)
-        # Go ahead and score the team
         for p in drafted_players:
             result = self.score_player(p, 
                                         adp=False,
@@ -445,7 +386,6 @@ class PlayerManager:
                                         injury=True
                                         )
             self.team.set_score(p.id, result.score)
-        # self.team.display_roster()
 
         self.logger.debug(f"Team loaded: {len(self.team.roster)} players on roster")
 
@@ -477,11 +417,8 @@ class PlayerManager:
         """
         self.logger.debug(f"Updating player JSON files: {len(self.players)} players across 6 position files")
 
-        # Task 1.2: Group players by position (spec line 159)
-        # Dict[str, List[FantasyPlayer]]
         players_by_position = {}
         for player in self.players:
-            # Defensive check: skip players with None or invalid position
             if player.position is None or player.position not in ['QB', 'RB', 'WR', 'TE', 'K', 'DST']:
                 self.logger.warning(f"Skipping player {player.id} with invalid position: {player.position}")
                 continue
@@ -491,7 +428,6 @@ class PlayerManager:
                 players_by_position[position_key] = []
             players_by_position[position_key].append(player)
 
-        # Task 1.1 & 1.4-1.7: For each position, update JSON files (spec lines 160-165)
         player_data_dir = self.data_folder / 'player_data'
         positions = ['qb', 'rb', 'wr', 'te', 'k', 'dst']
 
@@ -499,7 +435,6 @@ class PlayerManager:
             position_upper = position.upper()
             json_path = player_data_dir / f'{position}_data.json'
 
-            # Task 3.1: Check if file exists (spec lines 82-87)
             if not json_path.exists():
                 error_msg = (
                     f"{position}_data.json not found in player_data/ directory. "
@@ -509,73 +444,53 @@ class PlayerManager:
                 raise FileNotFoundError(error_msg)
 
             try:
-                # Task 1.1: Read existing JSON file (spec lines 157-161)
                 with open(json_path, 'r', encoding='utf-8') as f:
                     json_data = json.load(f)
 
-                # Extract position key (e.g., "qb_data")
                 position_key = f"{position}_data"
                 players_array = json_data.get(position_key, [])
 
-                # Task 1.3: Create ID → FantasyPlayer lookup for this position (spec lines 169-177)
                 position_players = players_by_position.get(position_upper, [])
                 player_updates = {p.id: p for p in position_players}
 
-                # Task 1.4: Selective update - ONLY drafted_by and locked (spec lines 169-177)
                 for player_dict in players_array:
                     player_id = player_dict.get('id')
 
-                    # Convert ID to int for lookup (JSON stores as string, FantasyPlayer.id is int)
                     if isinstance(player_id, str):
                         player_id = int(player_id)
 
                     if player_id in player_updates:
                         updated_player = player_updates[player_id]
 
-                        # Task 2.1: Update drafted_by field (spec lines 60-67)
-                        # Use drafted_by string if set, otherwise convert from drafted property for backward compatibility
                         if updated_player.drafted_by:
-                            # drafted_by is set - use it directly
                             player_dict['drafted_by'] = updated_player.drafted_by
                         else:
-                            # drafted_by not set - convert from drafted property (backward compatibility)
-                            # Note: After Phase 3, drafted is a property derived from drafted_by
                             if updated_player.is_free_agent():
                                 player_dict['drafted_by'] = ""
                             elif updated_player.is_rostered():
                                 player_dict['drafted_by'] = Constants.FANTASY_TEAM_NAME
-                            # elif is_drafted_by_opponent(): preserve existing opponent team name from JSON
 
-                        # Task 2.2: locked field (spec lines 65-67)
-                        # Already boolean in FantasyPlayer (Sub-feature 3)
                         player_dict['locked'] = updated_player.locked
 
-                        # Task 1.5: All other fields preserved (not modified)
 
-                # Task 1.6: Atomic write pattern (spec lines 162-165)
-                # Wrap array back in object with position key
                 json_data_to_write = {position_key: players_array}
                 tmp_path = json_path.with_suffix('.tmp')
                 with open(tmp_path, 'w', encoding='utf-8') as f:
                     json.dump(json_data_to_write, f, indent=2)
 
-                # Atomic replace (overwrites existing .json file)
                 tmp_path.replace(json_path)
 
                 self.logger.debug(f"Updated {position}_data.json ({len(position_players)} players in memory)")
 
             except json.JSONDecodeError as e:
-                # Task 3.3: Handle JSON parse errors (spec lines 48-56)
                 error_msg = f"Malformed JSON in {json_path}: {e}"
                 self.logger.error(error_msg)
                 raise
             except PermissionError as e:
-                # Task 3.2: Handle permission errors (spec lines 48-56)
                 error_msg = f"Permission denied writing to {json_path}: {e}"
                 self.logger.error(error_msg)
                 raise
 
-        # Success message (spec requires str return)
         success_msg = f"Player data updated successfully (6 JSON files updated)"
         self.logger.info(success_msg)
         return success_msg
@@ -589,16 +504,12 @@ class PlayerManager:
         try:
             self.logger.info("Reloading player data from JSON files")
 
-            # Store current roster size for comparison
             old_roster_size = len(self.team.roster)
 
-            # Reload players from JSON
             self.load_players_from_json()
 
-            # Reload team with updated data
             self.load_team()
 
-            # Log changes if any
             new_roster_size = len(self.team.roster)
             if old_roster_size != new_roster_size:
                 self.logger.info(f"Roster size changed: {old_roster_size} -> {new_roster_size}")
@@ -636,16 +547,14 @@ class PlayerManager:
         Note: Maintains backward compatibility with int API.
         Internally uses helper methods (is_free_agent(), is_drafted_by_opponent(), is_rostered()).
         """
-        # Define helper function to check locked status
         def is_unlocked(val: int) -> bool:
             if unlocked_only:
-                return val == 0  # Only unlocked players (locked=0)
-            return True  # All players if unlocked_only=False
+                return val == 0
+            return True
 
-        # Define helper function to check drafted status using helper methods
         def matches_drafted_status(player: FantasyPlayer, drafted_vals: List[int]) -> bool:
             if not drafted_vals:
-                return True  # No filter if empty list
+                return True
             for val in drafted_vals:
                 if val == 0 and player.is_free_agent():
                     return True
@@ -655,23 +564,20 @@ class PlayerManager:
                     return True
             return False
 
-        # Ensure all positions have a minimum score threshold (default to 0.0)
         for pos in Constants.ALL_POSITIONS:
             if pos not in min_scores:
                 min_scores[pos] = 0.0
 
-        # Filter players by drafted status, score threshold, and locked status
         player_list = [
             p for p in self.players
             if matches_drafted_status(p, drafted_vals) and p.score >= min_scores[p.position] and is_unlocked(p.locked)
         ]
 
-        # Apply additional roster/position limit filtering if can_draft is True
         if can_draft:
             player_list = [
                 p for p in player_list
-                if self.can_draft(p)  # Check if player can fit on current roster
-                and p.fantasy_points and p.fantasy_points > 0  # Exclude players with no projection
+                if self.can_draft(p)
+                and p.fantasy_points and p.fantasy_points > 0
             ]
 
         return player_list
@@ -682,21 +588,17 @@ class PlayerManager:
         print(f"\nCurrent Roster by Position:")
         print("-" * 40)
 
-        # Create a map from player ID to player object for quick lookup
         player_map = {player.id: player for player in self.team.roster}
 
-        # Display each position based on slot assignments (not original position)
         for pos in self.config.max_positions.keys():
             max_count = self.config.max_positions[pos]
 
-            # Get players assigned to this slot (using slot_assignments, not position filtering)
             assigned_player_ids = self.team.slot_assignments.get(pos, [])
             assigned_players = [player_map[pid] for pid in assigned_player_ids if pid in player_map]
             current_count = len(assigned_players)
 
             print(f"\n{pos} ({current_count}/{max_count}):")
             if assigned_players:
-                # Sort by fantasy points (highest first) for display
                 sorted_players = sorted(assigned_players, key=lambda p: p.fantasy_points, reverse=True)
                 for i, player in enumerate(sorted_players, 1):
                     locked_indicator = " (LOCKED)" if getattr(player, 'locked', False) else ""
@@ -725,7 +627,6 @@ class PlayerManager:
         print("SCORED ROSTER PLAYERS")
         print("="*80)
 
-        # Recalculate scores with bye penalties enabled for display
         scored_players = []
         for player in self.team.roster:
             scored_player = self.score_player(player, adp=False,
@@ -738,12 +639,11 @@ class PlayerManager:
                                              injury=True)
             scored_players.append(scored_player)
 
-        # Sort by score (highest first) for better readability
         scored_players.sort(key=lambda sp: sp.score, reverse=True)
 
         for scored_player in scored_players:
             print(str(scored_player))
-            print()  # Add blank line between players
+            print()
 
     def get_lowest_scores_on_roster(self) -> Dict[str, float]:
         lowest_scores = {
@@ -803,25 +703,17 @@ class PlayerManager:
             >>> if projected is not None:
             ...     print(f"Week 5 projection: {projected} points")
         """
-        # Validate week number (spec lines 63-64, todo lines 26, 32)
-        # Improvement over original ProjectedPointsManager: raise ValueError instead of None
         if week < 1 or week > 17:
             raise ValueError(f"Week must be between 1-17, got {week}")
 
-        # Check if projected_points array exists and has data
-        # Graceful degradation for missing data (todo line 33)
         if not player.projected_points or len(player.projected_points) < week:
             return None
 
-        # Access projected points for the requested week
-        # Array is 0-indexed, weeks are 1-indexed (spec lines 65-66)
         projected_value = player.projected_points[week - 1]
 
-        # Treat 0.0 as None (bye weeks) - spec lines 68-69, todo line 34
         if projected_value == 0.0:
             return None
 
-        # Return projected points as float (spec line 70)
         return float(projected_value)
 
     def get_projected_points_array(self, player: FantasyPlayer, start_week: int, end_week: int) -> List[Optional[float]]:
@@ -856,16 +748,11 @@ class PlayerManager:
             >>> # Returns [25.5, None, 27.0, 24.3] for weeks 1-4
             >>> # (week 2 is bye week with 0.0 projection → None)
         """
-        # Handle empty ranges gracefully (todo lines 45-47)
-        # If start > end, return empty list
         if start_week > end_week:
             return []
 
-        # Build array by delegating to get_projected_points() for each week
-        # Spec line 52, todo line 43: delegates validation and error handling
         result = []
         for week in range(start_week, end_week + 1):
-            # get_projected_points() will raise ValueError if week invalid
             projected = self.get_projected_points(player, week)
             result.append(projected)
 
@@ -902,17 +789,11 @@ class PlayerManager:
             >>> # Returns projections for weeks 1, 2, 3, 4
             >>> # (week 5 excluded since it's the current week)
         """
-        # Use config.current_nfl_week to determine historical range
-        # Spec line 58, todo line 55
         current_week = self.config.current_nfl_week
 
-        # If current week is 1, no historical data exists yet
-        # Return empty list (todo lines 58-59)
         if current_week <= 1:
             return []
 
-        # Delegate to get_projected_points_array for weeks 1 to current-1
-        # Spec line 59, todo line 56
         return self.get_projected_points_array(player, 1, current_week - 1)
 
     def score_player(self, p: FantasyPlayer, use_weekly_projection=False, adp=False, player_rating=True, team_quality=True, performance=False, matchup=False, schedule=False, draft_round=-1, bye=True, injury=True, roster: Optional[List[FantasyPlayer]] = None, temperature=False, wind=False, location=False, *, is_draft_mode: bool = False, nfl_team_penalty=False) -> ScoredPlayer:
@@ -961,7 +842,6 @@ class PlayerManager:
         Returns:
             ScoredPlayer: Scored player object with final score and reasons
         """
-        # Use empty roster if team hasn't been initialized yet (during load_players_from_csv)
         team_roster = self.team.roster if hasattr(self, 'team') and self.team else []
         return self.scoring_calculator.score_player(
             p, team_roster, use_weekly_projection, adp, player_rating,
@@ -993,15 +873,12 @@ class PlayerManager:
 
         self.logger.debug(f"Updating player data from cache ({len(player_data)} players)")
 
-        # Track max_projection for normalization
         new_max_projection = 0.0
 
-        # Update each existing player if we have data for them
         for player in self.players:
             if player.id in player_data:
                 data = player_data[player.id]
 
-                # Update weekly projections (most important for simulation)
                 for week in range(1, 18):
                     week_key = f'week_{week}_points'
                     if week_key in data:
@@ -1011,27 +888,22 @@ class PlayerManager:
                         except (ValueError, TypeError):
                             pass
 
-                # Update fantasy_points (ROS projection) if available
                 if 'fantasy_points' in data:
                     try:
                         player.fantasy_points = float(data['fantasy_points']) if data['fantasy_points'] else 0.0
                     except (ValueError, TypeError):
                         pass
 
-                # Update injury status if available
                 if 'injury_status' in data:
                     player.injury_status = str(data['injury_status'])
 
-            # Track max projection for normalization
             if player.fantasy_points and player.fantasy_points > new_max_projection:
                 new_max_projection = player.fantasy_points
 
-        # Update max_projection and scoring calculator
         if new_max_projection > 0:
             self.max_projection = new_max_projection
             self.scoring_calculator.max_projection = new_max_projection
 
-            # Recalculate weighted_projection for all players
             for player in self.players:
                 if player.fantasy_points and self.max_projection > 0:
                     player.weighted_projection = self.scoring_calculator.weight_projection(player.fantasy_points)
@@ -1063,20 +935,16 @@ class PlayerManager:
             >>> for team_name, roster in teams.items():
             >>>     print(f"{team_name}: {len(roster)} players")
         """
-        # Error handling: graceful degradation if no players loaded
-        # Spec: sub_feature_07_drafted_roster_manager_consolidation_spec.md
-        # Task 1.3: Handle edge cases without crashing
         if not self.players:
             self.logger.warning("No players loaded - cannot organize by team")
             return {}
 
-        # Group players by fantasy team using drafted_by field
-        # Spec: sub_feature_07_drafted_roster_manager_consolidation_spec.md lines 29-38
-        # Task 1.1: Filter on drafted_by (non-empty = drafted), create dict
         teams = {}
         for player in self.players:
-            if player.drafted_by:  # Non-empty = drafted
+            if player.drafted_by:
                 if player.drafted_by not in teams:
                     teams[player.drafted_by] = []
                 teams[player.drafted_by].append(player)
         return teams
+
+

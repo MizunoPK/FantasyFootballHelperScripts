@@ -49,7 +49,6 @@ class TradeSimTeam:
         """
         self.name = name
 
-        # Filter out injured reserve players
         self.team : List[FantasyPlayer] = []
         for p in team:
             if p.injury_status in ['ACTIVE', 'QUESTIONABLE', 'OUT']:
@@ -59,7 +58,7 @@ class TradeSimTeam:
         self.isOpponent = isOpponent
         self.use_weekly_scoring = use_weekly_scoring
         self.team_score = 0
-        self.scored_players : Dict[int, ScoredPlayer] = {}  # Maps player ID to ScoredPlayer
+        self.scored_players : Dict[int, ScoredPlayer] = {}
         self.score_team()
 
     def score_team(self) -> float:
@@ -79,34 +78,28 @@ class TradeSimTeam:
         """
         total = 0
 
-        # Iterate through all active players on the team roster
         for player in self.team:
-            # Determine scoring parameters based on mode
             if self.use_weekly_scoring:
-                # CURRENT WEEK MODE: Match Starter Helper EXACTLY
-                # Uses weekly projections with matchup and performance multipliers
                 scored_player = self.player_manager.score_player(
                     player,
-                    use_weekly_projection=True,  # Weekly, not seasonal
+                    use_weekly_projection=True,
                     adp=False,
-                    player_rating=False,         # Disabled for weekly
-                    team_quality=True,           # Included per Q2
-                    performance=True,            # Recent actual vs projected
-                    matchup=True,                # Enabled for weekly
-                    schedule=False,              # Disabled for weekly
-                    bye=False,                   # Never penalize in weekly mode
+                    player_rating=False,
+                    team_quality=True,
+                    performance=True,
+                    matchup=True,
+                    schedule=False,
+                    bye=False,
                     injury=False,
                     roster=self.team
                 )
             elif self.isOpponent:
-                # REST OF SEASON MODE - Opponent scoring (no bye penalties)
                 scored_player = self.player_manager.score_player(
                     player, adp=False, player_rating=True, team_quality=True,
                     performance=True, matchup=False, schedule=True, bye=False,
                     injury=False, roster=self.team
                 )
             else:
-                # REST OF SEASON MODE - User team scoring (includes bye penalties)
                 scored_player = self.player_manager.score_player(
                     player, adp=False, player_rating=True, team_quality=True,
                     performance=True, matchup=False, schedule=True, bye=True,
@@ -115,14 +108,10 @@ class TradeSimTeam:
 
             player.score = scored_player.score
 
-            # Cache the ScoredPlayer object for later retrieval
-            # Needed for displaying trade details with scoring breakdown
             self.scored_players[player.id] = scored_player
 
-            # Accumulate total team score
             total += scored_player.score
 
-        # Store computed team score and return
         self.team_score = total
         return total
 

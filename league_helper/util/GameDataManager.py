@@ -56,10 +56,8 @@ class GameDataManager:
         self.data_folder = data_folder
         self.current_week = current_week
 
-        # Games indexed by team (for current week lookup)
         self.games_by_team: Dict[str, UpcomingGame] = {}
 
-        # All games indexed by week (for simulation week-by-week lookup)
         self.all_games: Dict[int, Dict[str, UpcomingGame]] = {}
 
         self._load_game_data()
@@ -82,20 +80,17 @@ class GameDataManager:
                     if game is None:
                         continue
 
-                    # Index by week
                     if game.week not in self.all_games:
                         self.all_games[game.week] = {}
 
-                    # Index by both home and away team
                     self.all_games[game.week][game.home_team] = game
                     self.all_games[game.week][game.away_team] = game
 
-                    # If current week is set, also populate games_by_team for fast lookup
                     if self.current_week and game.week == self.current_week:
                         self.games_by_team[game.home_team] = game
                         self.games_by_team[game.away_team] = game
 
-            game_count = sum(len(games) // 2 for games in self.all_games.values())  # Divide by 2 since each game indexed twice
+            game_count = sum(len(games) // 2 for games in self.all_games.values())
             self.logger.debug(f"Loaded {game_count} games from game_data.csv "
                             f"({len(self.all_games)} weeks)")
 
@@ -105,7 +100,6 @@ class GameDataManager:
 
         except Exception as e:
             self.logger.error(f"Error loading game_data.csv: {e}")
-            # Graceful degradation - continue with empty data
 
     def _parse_game_row(self, row: Dict[str, str]) -> Optional[UpcomingGame]:
         """
@@ -122,23 +116,18 @@ class GameDataManager:
             home_team = row['home_team'].strip().upper()
             away_team = row['away_team'].strip().upper()
 
-            # Parse temperature (empty string = indoor/no data)
             temp_str = row.get('temperature', '').strip()
             temperature = int(float(temp_str)) if temp_str else None
 
-            # Parse wind gust (empty string = indoor/no data)
             gust_str = row.get('gust', '').strip()
             wind_gust = int(float(gust_str)) if gust_str else None
 
-            # Parse indoor flag
             indoor_str = row.get('indoor', 'False').strip()
             indoor = indoor_str.lower() == 'true'
 
-            # Parse neutral site flag
             neutral_str = row.get('neutral_site', 'False').strip()
             neutral_site = neutral_str.lower() == 'true'
 
-            # Parse country (default to USA)
             country = row.get('country', 'USA').strip() or 'USA'
 
             return UpcomingGame(
@@ -179,11 +168,9 @@ class GameDataManager:
             self.logger.warning("get_game called without week and no current_week set")
             return None
 
-        # Try week-specific lookup first (supports simulation)
         if target_week in self.all_games:
             return self.all_games[target_week].get(team)
 
-        # Fall back to games_by_team (only populated if current_week matches)
         if target_week == self.current_week:
             return self.games_by_team.get(team)
 
@@ -215,3 +202,5 @@ class GameDataManager:
             bool: True if game data is available, False otherwise
         """
         return len(self.all_games) > 0
+
+

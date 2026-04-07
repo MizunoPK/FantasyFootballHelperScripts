@@ -35,9 +35,8 @@ class SeasonScheduleManager:
         """
         self.logger = get_logger()
 
-        # Load season_schedule.csv
         self.schedule_file = data_folder / 'season_schedule.csv'
-        self.schedule_cache: Dict[tuple, Optional[str]] = {}  # {(team, week): opponent}
+        self.schedule_cache: Dict[tuple, Optional[str]] = {}
 
         try:
             self._load_schedule()
@@ -72,13 +71,10 @@ class SeasonScheduleManager:
             team = row['team']
             opponent = row['opponent']
 
-            # Handle NaN values (pandas converts empty strings to NaN)
             if pd.isna(opponent):
                 opponent = None
             elif isinstance(opponent, str) and not opponent.strip():
-                # Empty string = bye week (convert to None)
                 opponent = None
-            # else: opponent is a valid string, keep it as-is
 
             self.schedule_cache[(team, week)] = opponent
 
@@ -129,9 +125,9 @@ class SeasonScheduleManager:
         """
         future_opponents = []
 
-        for week in range(current_week + 1, 19):  # Weeks current+1 to 18
+        for week in range(current_week + 1, 19):
             opponent = self.get_opponent(team, week)
-            if opponent:  # Skip None (bye weeks)
+            if opponent:
                 future_opponents.append(opponent)
 
         return future_opponents
@@ -174,3 +170,5 @@ class SeasonScheduleManager:
             ...     print("Schedule data not available")
         """
         return len(self.schedule_cache) > 0
+
+
