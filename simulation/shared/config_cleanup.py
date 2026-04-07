@@ -16,7 +16,6 @@ from typing import List
 
 from utils.LoggingManager import get_logger
 
-# Maximum number of optimal folders to keep per type
 MAX_OPTIMAL_FOLDERS = 5
 
 
@@ -45,7 +44,6 @@ def cleanup_old_optimal_folders(config_dir: Path, max_folders: int = MAX_OPTIMAL
     if not config_dir.exists():
         return 0
 
-    # Find all optimal_* folders (excluding accuracy_optimal_*)
     optimal_folders: List[Path] = sorted([
         p for p in config_dir.iterdir()
         if p.is_dir() and p.name.startswith("optimal_") and not p.name.startswith("accuracy_optimal_")
@@ -53,17 +51,14 @@ def cleanup_old_optimal_folders(config_dir: Path, max_folders: int = MAX_OPTIMAL
 
     deleted_count = 0
 
-    # Delete oldest folders until we're under the limit
-    # We need to delete enough to make room for the new folder
     while len(optimal_folders) >= max_folders:
-        oldest = optimal_folders.pop(0)  # Remove from sorted list (oldest first)
+        oldest = optimal_folders.pop(0)
         try:
             shutil.rmtree(oldest)
             logger.info(f"Deleted old optimal folder: {oldest.name}")
             deleted_count += 1
         except Exception as e:
             logger.warning(f"Failed to delete {oldest.name}: {e}")
-            # Continue anyway - don't block new folder creation
 
     return deleted_count
 
@@ -92,7 +87,6 @@ def cleanup_old_accuracy_optimal_folders(config_dir: Path, max_folders: int = MA
     if not config_dir.exists():
         return 0
 
-    # Find all accuracy_optimal_* folders
     accuracy_folders: List[Path] = sorted([
         p for p in config_dir.iterdir()
         if p.is_dir() and p.name.startswith("accuracy_optimal_")
@@ -100,17 +94,14 @@ def cleanup_old_accuracy_optimal_folders(config_dir: Path, max_folders: int = MA
 
     deleted_count = 0
 
-    # Delete oldest folders until we're under the limit
-    # We need to delete enough to make room for the new folder
     while len(accuracy_folders) >= max_folders:
-        oldest = accuracy_folders.pop(0)  # Remove from sorted list (oldest first)
+        oldest = accuracy_folders.pop(0)
         try:
             shutil.rmtree(oldest)
             logger.info(f"Deleted old accuracy optimal folder: {oldest.name}")
             deleted_count += 1
         except Exception as e:
             logger.warning(f"Failed to delete {oldest.name}: {e}")
-            # Continue anyway - don't block new folder creation
 
     return deleted_count
 
@@ -136,7 +127,6 @@ def cleanup_intermediate_folders(config_dir: Path) -> int:
     if not config_dir.exists():
         return 0
 
-    # Find all intermediate_* folders (excluding accuracy_intermediate_*)
     intermediate_folders: List[Path] = [
         p for p in config_dir.iterdir()
         if p.is_dir() and p.name.startswith("intermediate_") and not p.name.startswith("accuracy_intermediate_")
@@ -151,7 +141,6 @@ def cleanup_intermediate_folders(config_dir: Path) -> int:
             deleted_count += 1
         except Exception as e:
             logger.warning(f"Failed to delete {folder.name}: {e}")
-            # Continue anyway
 
     return deleted_count
 
@@ -177,7 +166,6 @@ def cleanup_accuracy_intermediate_folders(config_dir: Path) -> int:
     if not config_dir.exists():
         return 0
 
-    # Find all accuracy_intermediate_* folders
     intermediate_folders: List[Path] = [
         p for p in config_dir.iterdir()
         if p.is_dir() and p.name.startswith("accuracy_intermediate_")
@@ -192,6 +180,7 @@ def cleanup_accuracy_intermediate_folders(config_dir: Path) -> int:
             deleted_count += 1
         except Exception as e:
             logger.warning(f"Failed to delete {folder.name}: {e}")
-            # Continue anyway
 
     return deleted_count
+
+

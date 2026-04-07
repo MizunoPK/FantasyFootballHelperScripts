@@ -107,7 +107,6 @@ class ResultsManager:
 
         self.results[config_id].add_week_results(week_results)
 
-        # Log summary
         wins = sum(1 for _, won, _ in week_results if won)
         losses = len(week_results) - wins
         points = sum(pts for _, _, pts in week_results)
@@ -221,7 +220,6 @@ class ResultsManager:
         if not self.results:
             return []
 
-        # Sort by win rate (descending), then by avg points (descending)
         sorted_configs = sorted(
             self.results.values(),
             key=lambda c: (c.get_win_rate(), c.get_avg_points_per_league()),
@@ -230,7 +228,6 @@ class ResultsManager:
 
         return sorted_configs[:n]
 
-    # Parameters that belong in base config (not week-specific)
     BASE_CONFIG_PARAMS = [
         'CURRENT_NFL_WEEK',
         'NFL_SEASON',
@@ -248,7 +245,6 @@ class ResultsManager:
         'PLAYER_RATING_SCORING'
     ]
 
-    # Parameters that belong in week-specific configs
     WEEK_SPECIFIC_PARAMS = [
         'NORMALIZATION_MAX_SCALE',
         'TEAM_QUALITY_SCORING',
@@ -330,15 +326,12 @@ class ResultsManager:
         if best_config is None:
             raise ValueError("No results available to save")
 
-        # Create output directory if it doesn't exist
         output_dir.mkdir(parents=True, exist_ok=True)
 
-        # Generate filename with timestamp
         timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         filename = f"optimal_{timestamp}.json"
         output_path = output_dir / filename
 
-        # Add performance metadata to config
         config_to_save = best_config.config_dict.copy()
         config_to_save['performance_metrics'] = {
             'config_id': best_config.config_id,
@@ -352,7 +345,6 @@ class ResultsManager:
             'timestamp': timestamp
         }
 
-        # Save to file
         with open(output_path, 'w') as f:
             json.dump(config_to_save, f, indent=2)
 
@@ -383,27 +375,21 @@ class ResultsManager:
             >>> folder_path = mgr.save_optimal_configs_folder(Path("simulation/optimal_configs"))
             >>> print(f"Saved configs to {folder_path}")
         """
-        # Get best overall config (for base params)
         best_overall = self.get_best_config()
         if best_overall is None:
             raise ValueError("No results available to save")
 
-        # Get best config for each week range
         best_per_range = self.get_best_configs_per_range()
 
-        # Create output directory if it doesn't exist
         output_dir.mkdir(parents=True, exist_ok=True)
 
-        # Clean up old optimal folders if we're at the limit
         cleanup_old_optimal_folders(output_dir)
 
-        # Generate folder name with timestamp
         timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         folder_name = f"optimal_{timestamp}"
         folder_path = output_dir / folder_name
         folder_path.mkdir(parents=True, exist_ok=True)
 
-        # Save base config (from best overall)
         base_config = self._extract_base_params(best_overall.config_dict)
         base_config['performance_metrics'] = {
             'config_id': best_overall.config_id,
@@ -418,7 +404,6 @@ class ResultsManager:
             json.dump(base_config, f, indent=2)
         self.logger.info(f"Saved base config from {best_overall.config_id}")
 
-        # Save week-specific configs (4 weekly horizons)
         week_range_files = {
             '1-5': 'week1-5.json',
             '6-9': 'week6-9.json',
@@ -427,7 +412,6 @@ class ResultsManager:
         }
 
         for week_range, filename in week_range_files.items():
-            # Use best config for each week range
             best_for_range = best_per_range.get(week_range)
 
             if best_for_range:
@@ -494,15 +478,12 @@ class ResultsManager:
             ...     week_range_performance={'1-5': {'win_rate': 0.70}, '6-9': {'win_rate': 0.65}, '10-13': {'win_rate': 0.62}, '14-17': {'win_rate': 0.60}}
             ... )
         """
-        # Create output directory if it doesn't exist
         output_dir.mkdir(parents=True, exist_ok=True)
 
-        # Generate folder name with index and parameter name
         folder_name = f"intermediate_{param_index:02d}_{param_name}"
         folder_path = output_dir / folder_name
         folder_path.mkdir(parents=True, exist_ok=True)
 
-        # Add performance metrics to base config if provided
         if overall_performance:
             base_config['performance_metrics'] = {
                 'optimized_parameter': param_name,
@@ -514,12 +495,10 @@ class ResultsManager:
                 'timestamp': datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             }
 
-        # Save base config (league_config.json)
         with open(folder_path / 'league_config.json', 'w') as f:
             json.dump(base_config, f, indent=2)
         self.logger.debug(f"Saved intermediate base config to {folder_path / 'league_config.json'}")
 
-        # Save week-specific configs (4 weekly horizons)
         week_range_files = {
             '1-5': 'week1-5.json',
             '6-9': 'week6-9.json',
@@ -531,7 +510,6 @@ class ResultsManager:
             if week_range in week_configs:
                 week_config = week_configs[week_range]
 
-                # Add week-specific performance metrics if provided
                 if week_range_performance and week_range in week_range_performance:
                     perf = week_range_performance[week_range]
                     week_config['performance_metrics'] = {
@@ -586,7 +564,6 @@ class ResultsManager:
         if not folder_path.is_dir():
             raise ValueError(f"Path is not a directory: {folder_path}")
 
-        # Required files (5-file structure)
         required_files = ['league_config.json', 'week1-5.json', 'week6-9.json', 'week10-13.json', 'week14-17.json']
         missing_files = []
 
@@ -599,12 +576,10 @@ class ResultsManager:
                 f"Missing required config files in {folder_path}: {', '.join(missing_files)}"
             )
 
-        # Load base config
         with open(folder_path / 'league_config.json', 'r') as f:
             base_config = json.load(f)
         logger.debug(f"Loaded base config from {folder_path / 'league_config.json'}")
 
-        # Load week-specific configs (4 weekly horizons)
         week_configs = {}
         week_file_mapping = {
             'week1-5.json': '1-5',
@@ -680,7 +655,6 @@ class ResultsManager:
             ...     Path("data/league_config.json")
             ... )
         """
-        # Parameters to preserve from original config
         PRESERVE_KEYS = [
             'CURRENT_NFL_WEEK',
             'NFL_SEASON',
@@ -689,30 +663,25 @@ class ResultsManager:
             'INJURY_PENALTIES'
         ]
 
-        # Load optimal config
         with open(optimal_config_path, 'r') as f:
             optimal_config = json.load(f)
 
-        # Load original league config
         with open(league_config_path, 'r') as f:
             original_config = json.load(f)
 
         self.logger.info(f"Updating league config from {optimal_config_path.name}")
 
-        # Start with optimal config (copy config_name and description as-is)
         updated_config = {
             'config_name': optimal_config.get('config_name', ''),
             'description': optimal_config.get('description', ''),
             'parameters': optimal_config['parameters'].copy()
         }
 
-        # Preserve specific keys from original config
         for key in PRESERVE_KEYS:
             if key in original_config['parameters']:
                 updated_config['parameters'][key] = original_config['parameters'][key]
                 self.logger.debug(f"Preserved {key} from original config")
 
-        # Apply MATCHUP -> SCHEDULE mapping
         if 'MATCHUP_SCORING' in updated_config['parameters']:
             matchup = updated_config['parameters']['MATCHUP_SCORING']
             schedule = updated_config['parameters'].get('SCHEDULE_SCORING', {})
@@ -724,11 +693,9 @@ class ResultsManager:
             updated_config['parameters']['SCHEDULE_SCORING'] = schedule
             self.logger.debug("Applied MATCHUP -> SCHEDULE mapping")
 
-        # Remove performance_metrics if present (not part of league config)
         if 'performance_metrics' in updated_config:
             del updated_config['performance_metrics']
 
-        # Write updated config
         with open(league_config_path, 'w') as f:
             json.dump(updated_config, f, indent=2)
 
@@ -764,7 +731,6 @@ class ResultsManager:
             - SCHEDULE_SCORING.IMPACT_SCALE = MATCHUP_SCORING.IMPACT_SCALE
             - SCHEDULE_SCORING.WEIGHT = MATCHUP_SCORING.WEIGHT
         """
-        # Parameters to preserve from original league_config.json
         PRESERVE_KEYS = [
             'CURRENT_NFL_WEEK',
             'NFL_SEASON',
@@ -773,10 +739,8 @@ class ResultsManager:
             'INJURY_PENALTIES'
         ]
 
-        # Config files to process
         CONFIG_FILES = ['league_config.json', 'week1-5.json', 'week6-9.json', 'week10-13.json', 'week14-17.json']
 
-        # Ensure target folder exists
         target_folder.mkdir(parents=True, exist_ok=True)
 
         for config_file in CONFIG_FILES:
@@ -787,17 +751,14 @@ class ResultsManager:
                 self.logger.warning(f"Optimal config not found: {optimal_path}")
                 continue
 
-            # Load optimal config
             with open(optimal_path, 'r') as f:
                 optimal_config = json.load(f)
 
-            # Check if target exists (for preservation)
             if target_path.exists():
                 with open(target_path, 'r') as f:
                     original_config = json.load(f)
 
                 if config_file == 'league_config.json':
-                    # Preserve specified keys from original
                     updated_config = optimal_config.copy()
                     if 'parameters' not in updated_config:
                         updated_config['parameters'] = {}
@@ -807,17 +768,14 @@ class ResultsManager:
                             updated_config['parameters'][key] = original_config['parameters'][key]
                             self.logger.debug(f"Preserved {key} from original config")
                 else:
-                    # Week files: apply MATCHUP -> SCHEDULE mapping
                     updated_config = optimal_config.copy()
                     self._apply_matchup_to_schedule_mapping(updated_config)
             else:
-                # Target doesn't exist - use optimal directly
                 updated_config = optimal_config.copy()
                 if config_file != 'league_config.json':
                     self._apply_matchup_to_schedule_mapping(updated_config)
                 self.logger.info(f"Created new config (no original to preserve): {config_file}")
 
-            # Write updated config
             with open(target_path, 'w') as f:
                 json.dump(updated_config, f, indent=2)
 
@@ -843,7 +801,6 @@ class ResultsManager:
         matchup = params['MATCHUP_SCORING']
         schedule = params.get('SCHEDULE_SCORING', {})
 
-        # Apply mapping
         if 'MIN_WEEKS' in matchup:
             schedule['MIN_WEEKS'] = matchup['MIN_WEEKS']
         if 'IMPACT_SCALE' in matchup:
@@ -873,7 +830,6 @@ class ResultsManager:
         print("=" * 80)
         print(f"\nTotal configurations tested: {len(self.results)}")
 
-        # Get best config
         best_config = self.get_best_config()
         if best_config:
             print(f"\nBest Configuration:")
@@ -883,7 +839,6 @@ class ResultsManager:
             print(f"  Avg Points/League: {best_config.get_avg_points_per_league():.2f}")
             print(f"  Simulations: {best_config.num_simulations}")
 
-        # Show top N configs
         print(f"\nTop {top_n} Configurations:")
         print("-" * 80)
         print(f"{'Rank':<6} {'Config ID':<15} {'Win Rate':<12} {'Record':<15} {'Avg Pts':<12} {'Sims':<8}")
@@ -928,3 +883,5 @@ class ResultsManager:
             'max_avg_points': max(avg_points) if avg_points else 0.0,
             'avg_avg_points': sum(avg_points) / len(avg_points) if avg_points else 0.0
         }
+
+

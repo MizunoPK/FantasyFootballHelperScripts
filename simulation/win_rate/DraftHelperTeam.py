@@ -73,7 +73,6 @@ class DraftHelperTeam:
 
         self.roster: List[FantasyPlayer] = []
 
-        # Managers created on-demand when needed
         self.add_to_roster_mgr: Optional[AddToRosterModeManager] = None
         self.starter_helper_mgr: Optional[StarterHelperModeManager] = None
 
@@ -95,10 +94,7 @@ class DraftHelperTeam:
             - Sets player.drafted_by = "Sea Sharp" in both projected_pm and actual_pm
             - Adds player to self.roster for local tracking
         """
-        # Use proper draft_player() method which enforces slot assignment system
-        # This ensures MAX_POSITIONS is respected and positional diversity is maintained
 
-        # Find the player instance in projected_pm and draft it
         for p in self.projected_pm.players:
             if p.id == player.id:
                 success = self.projected_pm.draft_player(p)
@@ -107,13 +103,11 @@ class DraftHelperTeam:
                     return
                 break
 
-        # Find the player instance in actual_pm and draft it
         for p in self.actual_pm.players:
             if p.id == player.id:
                 success = self.actual_pm.draft_player(p)
                 if not success:
                     self.logger.error(f"Failed to draft {p.name} in actual_pm (position limit reached?)")
-                    # Rollback projected_pm draft
                     for proj_p in self.projected_pm.players:
                         if proj_p.id == player.id:
                             self.projected_pm.team.remove_player(proj_p)
@@ -121,7 +115,6 @@ class DraftHelperTeam:
                     return
                 break
 
-        # Add to local roster for tracking
         self.roster.append(player)
 
     def get_draft_recommendation(self) -> FantasyPlayer:
@@ -138,20 +131,17 @@ class DraftHelperTeam:
             Creates a fresh AddToRosterModeManager each time to ensure
             recommendations reflect the current roster state.
         """
-        # Create fresh AddToRosterModeManager with current state
         self.add_to_roster_mgr = AddToRosterModeManager(
             self.config,
             self.projected_pm,
             self.team_data_mgr
         )
 
-        # Get recommendations (sorted by score, best first)
         recommendations = self.add_to_roster_mgr.get_recommendations()
 
         if not recommendations:
             raise ValueError("No draft recommendations available - roster may be full")
 
-        # ALWAYS pick #1 recommendation (no human error for DraftHelperTeam)
         top_pick = recommendations[0]
         self.logger.debug(f"DraftHelperTeam recommends: {top_pick.player.name} (score: {top_pick.score:.2f})")
 
@@ -176,27 +166,21 @@ class DraftHelperTeam:
             3. Calculate actual points from JSON player data (actual_pm)
             4. Return total points scored
         """
-        # Update config to current week
         self.config.current_nfl_week = week
 
-        # Create fresh StarterHelperModeManager for this week
         self.starter_helper_mgr = StarterHelperModeManager(
             self.config,
             self.projected_pm,
             self.team_data_mgr
         )
 
-        # Get optimal lineup based on projections
         lineup = self.starter_helper_mgr.optimize_lineup()
 
-        # Calculate and set max weekly projection for actual_pm (used to get actual points)
         max_weekly_actual = self.actual_pm.calculate_max_weekly_projection(week)
         self.actual_pm.scoring_calculator.max_weekly_projection = max_weekly_actual
 
-        # Calculate actual points scored
         total_actual_points = 0.0
 
-        # Get all starters from the lineup
         starters = [
             lineup.qb,
             lineup.rb1,
@@ -209,13 +193,10 @@ class DraftHelperTeam:
             lineup.dst
         ]
 
-        # Sum actual points for each starter
         starters_count = 0
         for starter in starters:
             if starter and starter.player:
                 starters_count += 1
-                # Get actual weekly points directly from actual_points array
-                # Array index: week 1 = index 0, week N = index N-1
                 if 1 <= week <= 17 and len(starter.player.actual_points) >= week:
                     actual_points = starter.player.actual_points[week - 1]
                     if actual_points is not None:
@@ -236,13 +217,11 @@ class DraftHelperTeam:
         Side Effects:
             - Sets player.drafted_by = "OPPONENT" in both projected_pm and actual_pm
         """
-        # Mark in projected PlayerManager
         for p in self.projected_pm.players:
             if p.id == player_id:
                 p.drafted_by = "OPPONENT"
                 break
 
-        # Mark in actual PlayerManager
         for p in self.actual_pm.players:
             if p.id == player_id:
                 p.drafted_by = "OPPONENT"
@@ -255,3 +234,5 @@ class DraftHelperTeam:
     def get_roster_players(self) -> List[FantasyPlayer]:
         """Get list of all rostered players."""
         return self.roster.copy()
+
+

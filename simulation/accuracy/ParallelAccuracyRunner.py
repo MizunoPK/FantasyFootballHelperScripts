@@ -44,10 +44,8 @@ def _evaluate_config_tournament_process(
         Uses underscore keys to match AccuracyResultsManager expectations:
         {'week_1_5': result_1_5, 'week_6_9': result_6_9, 'week_10_13': result_10_13, 'week_14_17': result_14_17}
     """
-    # Create calculator instance
     calculator = AccuracyCalculator()
 
-    # Week ranges for horizons (tuple format for compatibility with evaluation logic)
     WEEK_RANGES = {
         'week_1_5': (1, 5),
         'week_6_9': (6, 9),
@@ -57,20 +55,17 @@ def _evaluate_config_tournament_process(
 
     results = {}
 
-    # Extract metadata for logging (if available)
     metadata = config_dict.get('_eval_metadata', {})
     param_name = metadata.get('param_name', 'unknown')
     param_value = metadata.get('param_value', 'unknown')
     config_horizon = metadata.get('horizon', 'unknown')
 
-    # Evaluate all 4 weekly horizons
     for week_key, week_range in WEEK_RANGES.items():
         results[week_key] = _evaluate_config_weekly_worker(
             calculator, config_dict, data_folder, available_seasons, week_range, week_key,
             param_name, param_value, config_horizon
         )
 
-    # Log summary of all horizons for this config
     logger = calculator.logger
     config_label = f"{param_name}={param_value} [{config_horizon}]"
     logger.info(f"━━━ Config Complete: {config_label} ━━━")
@@ -104,38 +99,28 @@ def _evaluate_config_weekly_worker(
     for season_path in available_seasons:
         week_projections = {}
         week_actuals = {}
-        player_data_by_week = {}  # For ranking metrics
+        player_data_by_week = {}
 
         for week_num in range(start_week, end_week + 1):
             projected_path, actual_path = _load_season_data(season_path, week_num)
             if not projected_path or not actual_path:
-                # Skip if either folder missing
                 continue
 
-            # Create TWO player managers:
-            # 1. projected_mgr (from week_N folder) for projections
-            # 2. actual_mgr (from week_N+1 folder) for actuals
             projected_mgr = _create_player_manager(config_dict, projected_path, season_path, week_num)
             actual_mgr = _create_player_manager(config_dict, actual_path, season_path, week_num)
 
             try:
                 projections = {}
                 actuals = {}
-                player_data = []  # Player metadata for ranking metrics
+                player_data = []
 
-                # Calculate and set max weekly projection for this week's normalization
-                # This is required before scoring with use_weekly_projection=True
                 max_weekly = projected_mgr.calculate_max_weekly_projection(week_num)
                 projected_mgr.scoring_calculator.max_weekly_projection = max_weekly
 
-                # Get projections from week_N folder (projected_mgr)
                 for player in projected_mgr.players:
-                    # Get scored player with projected points
-                    # Use same flags as StarterHelperModeManager with
-                    # use_weekly_projection=True for weekly projections
                     scored = projected_mgr.score_player(
                         player,
-                        use_weekly_projection=True,  # Weekly projection
+                        use_weekly_projection=True,
                         adp=False,
                         player_rating=False,
                         team_quality=True,
@@ -151,17 +136,12 @@ def _evaluate_config_weekly_worker(
                     if scored:
                         projections[player.id] = scored.projected_points
 
-                # Get actuals from week_N+1 folder (actual_mgr)
-                # week_N+1 has actual_points[N-1] populated (week N complete)
                 for player in actual_mgr.players:
-                    # Get actual points for this specific week (from actual_points array)
-                    # Array index: week 1 = index 0, week N = index N-1
                     if 1 <= week_num <= 17 and len(player.actual_points) >= week_num:
                         actual = player.actual_points[week_num - 1]
                         if actual is not None and actual > 0:
                             actuals[player.id] = actual
 
-                            # Match with projection by player ID
                             if player.id in projections:
                                 player_data.append({
                                     'name': player.name,
@@ -178,12 +158,10 @@ def _evaluate_config_weekly_worker(
                 _cleanup_player_manager(projected_mgr)
                 _cleanup_player_manager(actual_mgr)
 
-        # Calculate MAE for this season's week range
         result = calculator.calculate_weekly_mae(
             week_projections, week_actuals, week_range
         )
 
-        # Calculate ranking metrics for this season
         overall_metrics, by_position = calculator.calculate_ranking_metrics_for_season(
             player_data_by_week
         )
@@ -192,7 +170,6 @@ def _evaluate_config_weekly_worker(
 
         season_results.append((season_path.name, result))
 
-    # Aggregate across seasons with config context
     config_label = f"{param_name}={param_value} [{config_horizon}]"
     return calculator.aggregate_season_results(season_results, horizon, config_label)
 
@@ -218,15 +195,11 @@ def _load_season_data(season_path: Path, week_num: int) -> Tuple[Path, Path]:
     """
     logger = get_logger()
 
-    # Week N folder for projections
     projected_folder = season_path / "weeks" / f"week_{week_num:02d}"
 
-    # Week N+1 folder for actuals
-    # For week 1: use week_02, for week 17: use week_18
     actual_week_num = week_num + 1
     actual_folder = season_path / "weeks" / f"week_{actual_week_num:02d}"
 
-    # Both folders must exist
     if not projected_folder.exists():
         logger.warning(f"Projected folder not found: {projected_folder}")
         return None, None
@@ -253,14 +226,11 @@ def _create_player_manager(config_dict: dict, week_data_path: Path, season_path:
     """
     logger = get_logger()
 
-    # Create temp directory
     temp_dir = Path(tempfile.mkdtemp(prefix="accuracy_sim_"))
 
-    # Create player_data subfolder for JSON files
     player_data_dir = temp_dir / "player_data"
     player_data_dir.mkdir(exist_ok=True)
 
-    # Copy 6 position JSON files from week folder to player_data/
     position_files = ['qb_data.json', 'rb_data.json', 'wr_data.json',
                       'te_data.json', 'k_data.json', 'dst_data.json']
     for filename in position_files:
@@ -270,40 +240,31 @@ def _create_player_manager(config_dict: dict, week_data_path: Path, season_path:
         else:
             logger.warning(f"Missing position file: {filename} in {week_data_path}")
 
-    # Copy season_schedule.csv from season folder
     season_schedule = season_path / "season_schedule.csv"
     if season_schedule.exists():
         shutil.copy(season_schedule, temp_dir / "season_schedule.csv")
 
-    # Copy game_data.csv from season folder if exists
     game_data = season_path / "game_data.csv"
     if game_data.exists():
         shutil.copy(game_data, temp_dir / "game_data.csv")
 
-    # Copy team_data folder from season folder
     team_data_source = season_path / "team_data"
     if team_data_source.exists():
         shutil.copytree(team_data_source, temp_dir / "team_data")
 
-    # FIX: Update CURRENT_NFL_WEEK to match the week being simulated
-    # This ensures get_weekly_projections() returns projected_points (not actual_points)
-    # for the week we're analyzing
     import copy
     config_dict_copy = copy.deepcopy(config_dict)
     config_dict_copy['parameters']['CURRENT_NFL_WEEK'] = week_num
 
-    # Write config
     config_path = temp_dir / "league_config.json"
     with open(config_path, 'w') as f:
         json.dump(config_dict_copy, f, indent=2)
 
-    # Create managers
     config_mgr = ConfigManager(temp_dir)
     schedule_mgr = SeasonScheduleManager(temp_dir)
     team_data_mgr = TeamDataManager(temp_dir, config_mgr, schedule_mgr, config_mgr.current_nfl_week)
     player_mgr = PlayerManager(temp_dir, config_mgr, team_data_mgr, schedule_mgr)
 
-    # Store temp_dir for cleanup
     player_mgr._temp_dir = temp_dir
 
     return player_mgr
@@ -363,7 +324,6 @@ class ParallelAccuracyRunner:
         if len(configs) == 0:
             return []
 
-        # Choose executor type
         executor_class = ProcessPoolExecutor if self.use_processes else ThreadPoolExecutor
         executor_name = "ProcessPoolExecutor" if self.use_processes else "ThreadPoolExecutor"
 
@@ -374,7 +334,6 @@ class ParallelAccuracyRunner:
         completed = 0
 
         with executor_class(max_workers=self.max_workers) as executor:
-            # Submit all configs
             future_to_config = {
                 executor.submit(
                     _evaluate_config_tournament_process,
@@ -385,7 +344,6 @@ class ParallelAccuracyRunner:
                 for config in configs
             }
 
-            # Collect results as they complete
             try:
                 for future in as_completed(future_to_config):
                     config = future_to_config[future]
@@ -394,7 +352,6 @@ class ParallelAccuracyRunner:
                         results.append(result)
                         completed += 1
 
-                        # DEBUG: Log progress every 10th config (throttled to avoid verbosity)
                         if completed % 10 == 0 or completed == len(configs):
                             progress_pct = (completed / len(configs)) * 100
                             self.logger.debug(
@@ -402,28 +359,25 @@ class ParallelAccuracyRunner:
                                 f"({progress_pct:.1f}% complete)"
                             )
 
-                        # Progress callback
                         if progress_callback is not None:
                             progress_callback(completed)
 
                     except Exception as e:
                         self.logger.error(f"Config evaluation failed: {e}", exc_info=True)
-                        raise  # Fail-fast
+                        raise
 
             except KeyboardInterrupt:
                 self.logger.warning("\nKeyboardInterrupt received - cancelling all workers...")
-                # Cancel all pending futures
                 for future in future_to_config:
                     future.cancel()
-                # Shutdown executor immediately
                 executor.shutdown(wait=False, cancel_futures=True)
                 self.logger.info("All workers cancelled")
                 raise
 
-        # Sort results to match input order (futures complete in arbitrary order)
-        # Use JSON serialization for proper dict keys
         import json
         config_to_result = {json.dumps(cfg, sort_keys=True): res for cfg, res in results}
         ordered_results = [(cfg, config_to_result[json.dumps(cfg, sort_keys=True)]) for cfg in configs]
 
         return ordered_results
+
+

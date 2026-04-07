@@ -19,15 +19,10 @@ from typing import Dict, List, Tuple, Optional
 import json
 
 
-# Week range definitions
 WEEK_RANGES = ["1-5", "6-9", "10-13", "14-17"]
 
-# Horizon definitions for 4 weekly horizons
-# Week ranges align with WEEK_RANGES above
 HORIZONS = ['1-5', '6-9', '10-13', '14-17']
 
-# Maps horizon names to their corresponding configuration filenames
-# Used for loading and saving 5-file configuration structure (1 base + 4 weekly)
 HORIZON_FILES = {
     '1-5': 'week1-5.json',
     '6-9': 'week6-9.json',
@@ -99,7 +94,6 @@ class ConfigPerformance:
         self.total_points = 0.0
         self.num_simulations = 0
 
-        # Per-week-range tracking
         self.week_range_wins: Dict[str, int] = {r: 0 for r in WEEK_RANGES}
         self.week_range_losses: Dict[str, int] = {r: 0 for r in WEEK_RANGES}
         self.week_range_points: Dict[str, float] = {r: 0.0 for r in WEEK_RANGES}
@@ -154,10 +148,8 @@ class ConfigPerformance:
         total_points = 0.0
 
         for week, won, points in week_results:
-            # Get the week range for this week
             week_range = get_week_range(week)
 
-            # Update per-range tracking
             if won:
                 self.week_range_wins[week_range] += 1
                 total_wins += 1
@@ -168,7 +160,6 @@ class ConfigPerformance:
             self.week_range_points[week_range] += points
             total_points += points
 
-        # Update overall totals
         self.total_wins += total_wins
         self.total_losses += total_losses
         self.total_points += total_points
@@ -261,20 +252,17 @@ class ConfigPerformance:
         self_win_rate = self.get_win_rate()
         other_win_rate = other.get_win_rate()
 
-        # Compare win rates (primary metric)
         win_rate_diff = self_win_rate - other_win_rate
-        if abs(win_rate_diff) > 0.0001:  # Not essentially equal
+        if abs(win_rate_diff) > 0.0001:
             return 1 if win_rate_diff > 0 else -1
 
-        # Win rates are essentially equal, use points as tiebreaker
         self_avg_points = self.get_avg_points_per_league()
         other_avg_points = other.get_avg_points_per_league()
 
         points_diff = self_avg_points - other_avg_points
-        if abs(points_diff) > 0.01:  # Not essentially equal
+        if abs(points_diff) > 0.01:
             return 1 if points_diff > 0 else -1
 
-        # Both metrics essentially equal
         return 0
 
     def to_dict(self) -> dict:
@@ -314,7 +302,6 @@ class ConfigPerformance:
             'week_range_performance': {}
         }
 
-        # Add per-week-range performance
         for week_range in WEEK_RANGES:
             result['week_range_performance'][week_range] = {
                 'wins': self.week_range_wins[week_range],
@@ -343,3 +330,5 @@ class ConfigPerformance:
             f"avg {self.get_avg_points_per_league():.1f} pts/league "
             f"({self.num_simulations} sims)"
         )
+
+

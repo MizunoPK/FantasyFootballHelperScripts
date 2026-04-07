@@ -27,14 +27,9 @@ from utils.LoggingManager import get_logger
 from simulation.win_rate.SimulatedLeague import SimulatedLeague
 
 
-# Garbage collection frequency - force GC every N simulations to prevent memory accumulation
-# Lower value = more aggressive memory management, slightly more overhead
 GC_FREQUENCY = 5
 
 
-# =============================================================================
-# Module-level functions for ProcessPoolExecutor (can't pickle instance methods)
-# =============================================================================
 
 def _run_simulation_process(args: Tuple[dict, int, Path]) -> Tuple[int, int, float]:
     """
@@ -182,14 +177,11 @@ class ParallelLeagueRunner:
             Exception: Any exception during simulation is logged and re-raised
         """
         try:
-            # Create league with this config
             league = SimulatedLeague(config_dict, self.data_folder)
 
-            # Run draft and season
             league.run_draft()
             league.run_season()
 
-            # Get results
             wins, losses, total_points = league.get_draft_helper_results()
 
             return wins, losses, total_points
@@ -198,10 +190,7 @@ class ParallelLeagueRunner:
             self.logger.error(f"[Sim {simulation_id}] Failed: {e}", exc_info=True)
             raise
         finally:
-            # Explicit cleanup to prevent memory accumulation
-            # Previously relied on __del__() which caused OOM when Python GC delayed cleanup
             league.cleanup()
-            # Explicitly delete to help garbage collector free memory immediately
             del league
 
     def run_single_simulation_with_weeks(
@@ -227,14 +216,11 @@ class ParallelLeagueRunner:
             Exception: Any exception during simulation is logged and re-raised
         """
         try:
-            # Create league with this config
             league = SimulatedLeague(config_dict, self.data_folder)
 
-            # Run draft and season
             league.run_draft()
             league.run_season()
 
-            # Get per-week results
             week_results = league.get_draft_helper_results_by_week()
 
             return week_results
@@ -243,7 +229,6 @@ class ParallelLeagueRunner:
             self.logger.error(f"[Sim {simulation_id}] Failed: {e}", exc_info=True)
             raise
         finally:
-            # Explicit cleanup to prevent memory accumulation
             league.cleanup()
             del league
 
@@ -278,12 +263,10 @@ class ParallelLeagueRunner:
         results = []
         completed_count = 0
 
-        # Choose executor type based on use_processes flag
         ExecutorClass = ProcessPoolExecutor if self.use_processes else ThreadPoolExecutor
 
         with ExecutorClass(max_workers=self.max_workers) as executor:
             if self.use_processes:
-                # ProcessPoolExecutor: use module-level function with args tuple
                 sim_args = [
                     (config_dict, sim_id, self.data_folder)
                     for sim_id in range(num_simulations)
@@ -293,13 +276,11 @@ class ParallelLeagueRunner:
                     for args in sim_args
                 }
             else:
-                # ThreadPoolExecutor: use instance method (can access self)
                 future_to_sim_id = {
                     executor.submit(self.run_single_simulation, config_dict, sim_id): sim_id
                     for sim_id in range(num_simulations)
                 }
 
-            # Collect results as they complete
             for future in as_completed(future_to_sim_id):
                 sim_id = future_to_sim_id[future]
 
@@ -307,21 +288,17 @@ class ParallelLeagueRunner:
                     result = future.result()
                     results.append(result)
 
-                    # Update progress (thread-safe)
                     with self.lock:
                         completed_count += 1
                         if self.progress_callback:
                             self.progress_callback(completed_count, num_simulations)
 
-                        # Force garbage collection periodically to prevent memory accumulation
-                        # Note: GC in main process doesn't affect worker processes
                         if completed_count % GC_FREQUENCY == 0:
                             gc.collect()
                             self.logger.debug(f"Forced GC after {completed_count} simulations")
 
                 except Exception as e:
                     self.logger.error(f"Simulation {sim_id} failed: {e}")
-                    # Continue with other simulations even if one fails
 
         self.logger.debug(
             f"Completed {len(results)}/{num_simulations} simulations successfully"
@@ -363,12 +340,10 @@ class ParallelLeagueRunner:
         results = []
         completed_count = 0
 
-        # Choose executor type based on use_processes flag
         ExecutorClass = ProcessPoolExecutor if self.use_processes else ThreadPoolExecutor
 
         with ExecutorClass(max_workers=self.max_workers) as executor:
             if self.use_processes:
-                # ProcessPoolExecutor: use module-level function with args tuple
                 sim_args = [
                     (config_dict, sim_id, self.data_folder)
                     for sim_id in range(num_simulations)
@@ -378,13 +353,11 @@ class ParallelLeagueRunner:
                     for args in sim_args
                 }
             else:
-                # ThreadPoolExecutor: use instance method (can access self)
                 future_to_sim_id = {
                     executor.submit(self.run_single_simulation_with_weeks, config_dict, sim_id): sim_id
                     for sim_id in range(num_simulations)
                 }
 
-            # Collect results as they complete
             for future in as_completed(future_to_sim_id):
                 sim_id = future_to_sim_id[future]
 
@@ -392,13 +365,11 @@ class ParallelLeagueRunner:
                     result = future.result()
                     results.append(result)
 
-                    # Update progress (thread-safe)
                     with self.lock:
                         completed_count += 1
                         if self.progress_callback:
                             self.progress_callback(completed_count, num_simulations)
 
-                        # Force garbage collection periodically
                         if completed_count % GC_FREQUENCY == 0:
                             gc.collect()
                             self.logger.debug(f"Forced GC after {completed_count} simulations")
@@ -450,7 +421,6 @@ class ParallelLeagueRunner:
                 f"[{idx}/{len(config_dicts)}] Running simulations for {config_name}"
             )
 
-            # Run simulations for this config
             results = self.run_simulations_for_config(config_dict, simulations_per_config)
             all_results[config_name] = results
 
@@ -474,3 +444,5 @@ class ParallelLeagueRunner:
         """
         self.logger.debug("Running single test simulation")
         return self.run_single_simulation(config_dict, simulation_id=0)
+
+

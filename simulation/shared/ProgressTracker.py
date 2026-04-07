@@ -86,7 +86,7 @@ class ProgressTracker:
             return None
 
         elapsed = self.get_elapsed_time()
-        rate = self.completed / elapsed  # items per second
+        rate = self.completed / elapsed
         remaining = self.total - self.completed
 
         if rate > 0:
@@ -138,7 +138,6 @@ class ProgressTracker:
         percentage = self.get_percentage()
         filled_width = int((percentage / 100.0) * width)
 
-        # Create bar with filled and empty sections
         if filled_width >= width:
             bar = "=" * width
         elif filled_width > 0:
@@ -160,7 +159,6 @@ class ProgressTracker:
         elapsed = self.get_elapsed_time()
         eta = self.get_eta()
 
-        # Build progress line
         line = (
             f"\r{self.description}: {bar} "
             f"{percentage:5.1f}% "
@@ -171,12 +169,10 @@ class ProgressTracker:
         if eta is not None:
             line += f" | ETA: {self.format_time(eta)}"
 
-        # Print without newline (overwrite previous line)
         print(line, end="", flush=True)
 
-        # Add newline when complete
         if self.completed >= self.total:
-            print()  # Final newline
+            print()
 
     def finish(self) -> None:
         """
@@ -311,10 +307,8 @@ class MultiLevelProgressTracker:
         eta = self.get_eta()
         elapsed = time.time() - self.start_time
 
-        # Outer progress
         outer_pct = (self.outer_completed / self.outer_total * 100.0) if self.outer_total > 0 else 0.0
 
-        # Inner progress
         inner_pct = (self.inner_completed / self.inner_total * 100.0) if self.inner_total > 0 else 0.0
 
         print(f"\r{self.outer_desc}: {self.outer_completed}/{self.outer_total} ({outer_pct:.1f}%) | "
@@ -327,7 +321,6 @@ class MultiLevelProgressTracker:
 
         print("    ", end="", flush=True)  # Extra spaces to clear previous text
 
-        # Add newline when complete
         if self.outer_completed >= self.outer_total:
             print()
 
@@ -346,3 +339,5 @@ class MultiLevelProgressTracker:
             f"{self.inner_total} {self.inner_desc.lower()}) "
             f"in {self.format_time(elapsed)}"
         )
+
+

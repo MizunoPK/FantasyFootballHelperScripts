@@ -42,8 +42,8 @@ class AccuracyResult:
         player_count: int,
         total_error: float,
         errors: Optional[List[float]] = None,
-        overall_metrics=None,  # RankingMetrics
-        by_position: Optional[dict] = None  # Dict[str, RankingMetrics]
+        overall_metrics=None,
+        by_position: Optional[dict] = None
     ) -> None:
         self.mae = mae
         self.player_count = player_count
@@ -92,7 +92,6 @@ class AccuracyCalculator:
             - Skips players with actual points <= 0 (didn't play)
             - Returns MAE of 0 with 0 players if no valid data
         """
-        # DEBUG: Log data transformation - before filtering
         self.logger.debug(
             f"calculate_mae: Processing {len(player_data)} players (before filtering)"
         )
@@ -104,16 +103,13 @@ class AccuracyCalculator:
             projected = player.get('projected', 0)
             actual = player.get('actual', 0)
 
-            # Skip players who didn't play (0 actual points)
             if actual <= 0:
                 skipped_count += 1
                 continue
 
-            # Calculate absolute error
             error = abs(actual - projected)
             errors.append(error)
 
-        # Calculate MAE
         if not errors:
             self.logger.warning("No valid players for MAE calculation")
             return AccuracyResult(mae=0.0, player_count=0, total_error=0.0)
@@ -215,32 +211,25 @@ class AccuracyCalculator:
 
         aggregated_mae = total_error / total_players
 
-        # Build descriptive log message
         if config_label and horizon:
-            # Full context: "Config: PARAM=value [config_horizon] | Evaluating: eval_horizon | MAE: ..."
-            # Use debug level for individual horizon evaluations (summary will be logged separately)
             self.logger.debug(
                 f"Config: {config_label} | Eval: {horizon} | MAE={aggregated_mae:.4f} | "
                 f"Players={total_players} | Seasons={len(season_results)}"
             )
         elif horizon:
-            # Just horizon context
             self.logger.info(
                 f"[{horizon}] Aggregated MAE: {aggregated_mae:.4f} from {total_players} players "
                 f"across {len(season_results)} seasons"
             )
         else:
-            # No context (backward compatibility)
             self.logger.info(
                 f"Aggregated MAE: {aggregated_mae:.4f} from {total_players} players "
                 f"across {len(season_results)} seasons"
             )
 
-        # Aggregate ranking metrics across seasons (Q18: simple average)
         overall_metrics = None
         by_position = {}
 
-        # Check if any season has ranking metrics
         has_ranking_metrics = any(
             result.overall_metrics is not None
             for _, result in season_results
@@ -249,7 +238,6 @@ class AccuracyCalculator:
         if has_ranking_metrics:
             import numpy as np
 
-            # Collect metrics from all seasons
             pairwise_values = []
             top_5_values = []
             top_10_values = []
@@ -273,12 +261,10 @@ class AccuracyCalculator:
                     top_10_values.append(result.overall_metrics.top_10_accuracy)
                     top_20_values.append(result.overall_metrics.top_20_accuracy)
 
-                    # Fisher z-transform for Spearman (Q9)
                     if not np.isnan(result.overall_metrics.spearman_correlation):
                         z = np.arctanh(result.overall_metrics.spearman_correlation)
                         spearman_z_values.append(z)
 
-                # Aggregate per-position metrics
                 if result.by_position:
                     for pos, metrics in result.by_position.items():
                         if pos in position_data:
@@ -291,10 +277,7 @@ class AccuracyCalculator:
                                 z = np.arctanh(metrics.spearman_correlation)
                                 position_data[pos]['spearman_z'].append(z)
 
-            # Calculate overall metrics (simple average)
             if pairwise_values:
-                # Import RankingMetrics from AccuracyResultsManager
-                # We need to do this dynamically to avoid circular import
                 from simulation.accuracy.AccuracyResultsManager import RankingMetrics
 
                 overall_spearman = 0.0
@@ -310,7 +293,6 @@ class AccuracyCalculator:
                     spearman_correlation=overall_spearman
                 )
 
-            # Calculate per-position metrics
             for pos, data in position_data.items():
                 if data['pairwise']:
                     from simulation.accuracy.AccuracyResultsManager import RankingMetrics
@@ -359,7 +341,6 @@ class AccuracyCalculator:
             - Skips tie comparisons (when actual points are equal)
             - Returns 0.0 if insufficient data or all ties
         """
-        # Filter to position and actual >= 3 (Q1, Q8 decisions)
         players = []
         for player in player_data:
             if player.get('position') == position and player.get('actual', 0) >= 3.0:
@@ -372,17 +353,14 @@ class AccuracyCalculator:
         correct = 0
         total = 0
 
-        # Compare all pairs
         for i in range(len(players)):
             for j in range(i + 1, len(players)):
                 proj_i, actual_i = players[i]
                 proj_j, actual_j = players[j]
 
-                # Skip ties (Q2 decision)
                 if actual_i == actual_j:
                     continue
 
-                # Check if prediction matches actual
                 predicted_order = proj_i > proj_j
                 actual_order = actual_i > actual_j
 
@@ -425,7 +403,6 @@ class AccuracyCalculator:
             - Returns 0.0 if fewer than N players available
             - Uses set intersection formula: overlap / N
         """
-        # Filter to position and actual >= 3 (Q1, Q8)
         players = []
         for player in player_data:
             if player.get('position') == position and player.get('actual', 0) >= 3.0:
@@ -441,19 +418,16 @@ class AccuracyCalculator:
             )
             return 0.0
 
-        # Sort by predicted score and get top-N names
         predicted_top_n = set([
             name for name, proj, _ in
             sorted(players, key=lambda x: x[1], reverse=True)[:n]
         ])
 
-        # Sort by actual points and get top-N names
         actual_top_n = set([
             name for name, _, actual in
             sorted(players, key=lambda x: x[2], reverse=True)[:n]
         ])
 
-        # Calculate overlap (Q6: set intersection)
         overlap = len(predicted_top_n & actual_top_n)
         accuracy = overlap / n
 
@@ -484,7 +458,6 @@ class AccuracyCalculator:
             - Returns 0.0 if insufficient data or zero variance
             - Handles NaN and division by zero gracefully
         """
-        # Filter to position and actual >= 3 (Q1, Q8)
         projected_scores = []
         actual_scores = []
 
@@ -500,7 +473,6 @@ class AccuracyCalculator:
         try:
             corr, pvalue = spearmanr(projected_scores, actual_scores)
 
-            # Handle NaN (zero variance - Q22)
             if np.isnan(corr):
                 self.logger.warning(
                     f"Zero variance in {position} predictions or actuals"
@@ -513,7 +485,6 @@ class AccuracyCalculator:
             return float(corr)
 
         except (ZeroDivisionError, ValueError) as e:
-            # Zero variance edge case (Q22)
             self.logger.warning(
                 f"Correlation calculation failed for {position}: {e}"
             )
@@ -544,7 +515,6 @@ class AccuracyCalculator:
 
         positions = ['QB', 'RB', 'WR', 'TE', 'K', 'DST']
 
-        # Accumulators for per-position metrics (average across weeks)
         position_data = {pos: {
             'pairwise_sum': 0.0,
             'top_5_sum': 0.0,
@@ -554,34 +524,28 @@ class AccuracyCalculator:
             'week_count': 0
         } for pos in positions}
 
-        # Calculate per week per position
         for week_num, player_list in player_data_by_week.items():
             for pos in positions:
-                # Calculate pairwise accuracy for this week/position
                 pairwise = self.calculate_pairwise_accuracy(
                     player_list, pos
                 )
                 position_data[pos]['pairwise_sum'] += pairwise
 
-                # Calculate top-N accuracies
                 for n in [5, 10, 20]:
                     top_n = self.calculate_top_n_accuracy(
                         player_list, n, pos
                     )
                     position_data[pos][f'top_{n}_sum'] += top_n
 
-                # Calculate Spearman correlation
                 corr = self.calculate_spearman_correlation(
                     player_list, pos
                 )
-                # Fisher z-transform for proper averaging
                 if not np.isnan(corr) and corr != 0.0:
                     z = np.arctanh(corr)
                     position_data[pos]['spearman_z_values'].append(z)
 
                 position_data[pos]['week_count'] += 1
 
-        # Aggregate per-position metrics
         by_position = {}
         for pos in positions:
             data = position_data[pos]
@@ -591,7 +555,6 @@ class AccuracyCalculator:
                 self.logger.debug(f"No data for {pos}, skipping ranking metrics")
                 continue
 
-            # Spearman: inverse Fisher z-transform
             if data['spearman_z_values']:
                 z_mean = np.mean(data['spearman_z_values'])
                 spearman = float(np.tanh(z_mean))
@@ -606,7 +569,6 @@ class AccuracyCalculator:
                 spearman_correlation=spearman
             )
 
-        # Calculate overall metrics (average across positions)
         if by_position:
             all_z_values = []
             for data in position_data.values():
@@ -625,7 +587,8 @@ class AccuracyCalculator:
                 spearman_correlation=overall_spearman
             )
         else:
-            # No data for any position
             overall_metrics = None
 
         return overall_metrics, by_position
+
+

@@ -36,7 +36,6 @@ def load_config(config_path: Path) -> dict:
     with open(config_path, 'r') as f:
         config_data = json.load(f)
 
-    # Return full config (ConfigManager expects config_name, description, parameters)
     return config_data
 
 
@@ -62,7 +61,6 @@ def print_draft_results(league: SimulatedLeague) -> None:
 
         roster = team.get_roster_players()
 
-        # Group by position
         by_position = {}
         for player in roster:
             pos = player.position
@@ -70,7 +68,6 @@ def print_draft_results(league: SimulatedLeague) -> None:
                 by_position[pos] = []
             by_position[pos].append(player)
 
-        # Print by position
         for pos in ['QB', 'RB', 'WR', 'TE', 'K', 'DST']:
             if pos in by_position:
                 print(f"  {pos}:")
@@ -102,17 +99,14 @@ def print_weekly_results(league: SimulatedLeague) -> None:
             result1 = results[team1]
             result2 = results[team2]
 
-            # Determine team names
             team1_name = "DraftHelperTeam" if team1 == league.draft_helper_team else "SimulatedOpponent"
             team2_name = "DraftHelperTeam" if team2 == league.draft_helper_team else "SimulatedOpponent"
 
-            # Add strategy info for opponents
             if team1 != league.draft_helper_team:
                 team1_name += f" ({team1.strategy})"
             if team2 != league.draft_helper_team:
                 team2_name += f" ({team2.strategy})"
 
-            # Format scores with winner indicator
             if result1.won:
                 print(f"  {team1_name:50s} {result1.points_scored:6.2f}  WIN")
                 print(f"  {team2_name:50s} {result2.points_scored:6.2f}  LOSS")
@@ -120,7 +114,6 @@ def print_weekly_results(league: SimulatedLeague) -> None:
                 print(f"  {team1_name:50s} {result1.points_scored:6.2f}  LOSS")
                 print(f"  {team2_name:50s} {result2.points_scored:6.2f}  WIN")
             else:
-                # Tie
                 print(f"  {team1_name:50s} {result1.points_scored:6.2f}  TIE")
                 print(f"  {team2_name:50s} {result2.points_scored:6.2f}  TIE")
 
@@ -140,10 +133,9 @@ def print_final_standings(league: SimulatedLeague) -> None:
 
     all_results = league.get_all_team_results()
 
-    # Sort by wins (descending), then by total points (descending)
     sorted_teams = sorted(
         all_results.items(),
-        key=lambda x: (x[1][0], x[1][2]),  # (wins, total_points)
+        key=lambda x: (x[1][0], x[1][2]),
         reverse=True
     )
 
@@ -154,7 +146,6 @@ def print_final_standings(league: SimulatedLeague) -> None:
         record = f"{wins}W - {losses}L"
         print(f"{team_name:<50s} {record:^12s} {total_points:>10.2f}")
 
-    # Highlight DraftHelperTeam result
     print("\n" + "="*80)
     draft_helper_result = None
     for team_name, result in all_results.items():
@@ -173,7 +164,6 @@ def main() -> None:
     logger = get_logger()
     logger.info("Starting manual simulation")
 
-    # Load baseline config
     config_path = Path("simulation/optimal_configs/optimal_2025-10-02_15-29-14.json.json")
     data_folder = Path("simulation/sim_data")
 
@@ -191,18 +181,15 @@ def main() -> None:
     print("  - 16-week regular season")
     print("  - Round-robin schedule (each team plays each other ~2x)")
 
-    # Load config
     config_dict = load_config(config_path)
     logger.info(f"Loaded config from {config_path}")
 
-    # Create league
     print(f"\n{'='*80}")
     print("INITIALIZING LEAGUE")
     print("="*80)
     league = SimulatedLeague(config_dict, data_folder)
     logger.debug("SimulatedLeague created")
 
-    # Run draft
     print(f"\n{'='*80}")
     print("RUNNING DRAFT")
     print("="*80)
@@ -210,10 +197,8 @@ def main() -> None:
     league.run_draft()
     logger.info("Draft complete")
 
-    # Print draft results
     print_draft_results(league)
 
-    # Run season
     print(f"\n{'='*80}")
     print("RUNNING SEASON")
     print("="*80)
@@ -221,13 +206,10 @@ def main() -> None:
     league.run_season()
     logger.info("Season complete")
 
-    # Print weekly results
     print_weekly_results(league)
 
-    # Print final standings
     print_final_standings(league)
 
-    # Cleanup
     league.cleanup()
     logger.info("Manual simulation complete")
 
@@ -238,3 +220,5 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
+

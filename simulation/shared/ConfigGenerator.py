@@ -52,7 +52,6 @@ from itertools import product
 from utils.LoggingManager import get_logger
 from simulation.shared.ResultsManager import ResultsManager
 
-# Import the class-level constants from ResultsManager
 BASE_CONFIG_PARAMS = ResultsManager.BASE_CONFIG_PARAMS
 WEEK_SPECIFIC_PARAMS = ResultsManager.WEEK_SPECIFIC_PARAMS
 
@@ -67,83 +66,45 @@ class ConfigGenerator:
         logger: Logger instance
     """
 
-    # Parameter definitions ordered to match league_config.json structure
-    # Format: (min_val, max_val)
-    #
-    # Design principles for ranges:
-    # - WEIGHT params: (0.0, 5.0) allows "disabled" to "very important"
-    # - IMPACT_SCALE params: (0.0, max) where max is meaningful additive impact
-    # - MIN_WEEKS params: (2, 14) covers early to late season data needs
-    # - STEPS params: Based on underlying metric granularity
-    # - All ranges should be wide enough to find optimal values
-    #
-    # PARAM_DEFINITIONS format: (min, max, precision)
-    # - precision 0 = integers
-    # - precision 1 = 0.1 steps
-    # - precision 2 = 0.01 steps
     PARAM_DEFINITIONS = {
-        # Normalization: Controls point spread scaling (50-200 gives good range)
-        # Expanded lower bound from 100 to 50 - optimal found at boundary
         'NORMALIZATION_MAX_SCALE': (50, 200, 0),
         'DRAFT_NORMALIZATION_MAX_SCALE': (100, 200, 0),  # Draft mode normalization scale
 
-        # Bye Penalties: Exponential weights for roster bye conflicts
-        # Higher = more penalty for overlapping byes
         'SAME_POS_BYE_WEIGHT': (0.0, 0.5, 2),      # Same position bye overlap
         'DIFF_POS_BYE_WEIGHT': (0.0, 0.3, 2),      # Different position bye overlap
 
-        # Draft Order Bonuses: Points added for drafting positions at right time
-        # Expanded ranges to keep optimal (87, 78) well within bounds
         'PRIMARY_BONUS': (25, 150, 0),          # Primary position bonus (e.g., RB early)
         'SECONDARY_BONUS': (25, 150, 0),        # Secondary position bonus
 
-        # Draft Order File: Discrete integer selecting draft strategy file (1-100)
         'DRAFT_ORDER_FILE': (1, 100, 0),
 
-        # ADP Scoring: Average Draft Position market wisdom
         'ADP_SCORING_WEIGHT': (0.50, 7.00, 2),       # How much ADP influences score
-        # Expanded upper bound - optimal (25) was at 80% of range
         'ADP_SCORING_STEPS': (5, 50, 0),       # ADP difference per tier (picks)
 
-        # Player Rating Scoring: Expert consensus rankings
         'PLAYER_RATING_SCORING_WEIGHT': (0.50, 4.00, 2),
 
-        # Team Quality Scoring: NFL team offensive/defensive strength
         'TEAM_QUALITY_SCORING_WEIGHT': (0.00, 4.00, 2),
-        # Expanded lower bound - optimal (3) was near minimum
         'TEAM_QUALITY_MIN_WEEKS': (1, 12, 0),      # Min weeks of data needed
 
-        # Performance Scoring: Actual vs projected deviation
-        # Expanded upper bound - optimal (4.44) was at 74% of range
         'PERFORMANCE_SCORING_WEIGHT': (0.00, 8.00, 2),
         'PERFORMANCE_SCORING_STEPS': (0.01, 0.30, 2),  # Deviation % per tier
         'PERFORMANCE_MIN_WEEKS': (1, 14, 0),       # Min weeks of data needed
 
-        # Matchup Scoring: Current week opponent strength (additive)
-        # Expanded lower bound - optimal (88) was at 25% of range
         'MATCHUP_IMPACT_SCALE': (25, 250, 0),   # Max additive points impact
-        # Expanded upper bound - optimal (2.16) was at 72% of range
         'MATCHUP_SCORING_WEIGHT': (0.0, 4.0, 2),   # Weight applied to impact
         'MATCHUP_MIN_WEEKS': (1, 14, 0),           # Min weeks of matchup data
 
-        # Temperature Scoring: Game weather temperature impact
-        # Expanded upper bound from 150 to 200 - optimal found at 121, trending high
         'TEMPERATURE_IMPACT_SCALE': (0.0, 200.0, 0),  # Max additive impact
         'TEMPERATURE_SCORING_WEIGHT': (0.0, 3.0, 2),
 
-        # Wind Scoring: Game weather wind impact (affects QB/WR/K most)
         'WIND_IMPACT_SCALE': (0.0, 150.0, 0),      # Max additive impact
-        # Expanded upper bound from 3.0 to 4.0 - optimal found near boundary (2.58)
         'WIND_SCORING_WEIGHT': (0.0, 4.0, 2),
 
-        # Location Modifiers: Home/away/international game adjustments
-        # Expanded lower bound - optimal (1.6) was at 16% of range
         'LOCATION_HOME': (-5.0, 15.0, 1),          # Home field advantage
         'LOCATION_AWAY': (-15.0, 5.0, 1),          # Away penalty (can be positive)
         'LOCATION_INTERNATIONAL': (-25.0, 5.0, 1),  # International game adjustment
     }
 
-    # Fixed threshold parameters (not varied during optimization)
     THRESHOLD_FIXED_PARAMS = {
         "ADP_SCORING": {
             "BASE_POSITION": 0,
@@ -165,10 +126,6 @@ class ConfigGenerator:
             "BASE_POSITION": 0,
             "DIRECTION": "INCREASING"  # Updated to match league_config.json (direct opponent rank 1-32)
         },
-        # "SCHEDULE_SCORING": {
-        #     "BASE_POSITION": 0,
-        #     "DIRECTION": "INCREASING"
-        # },
         "TEMPERATURE_SCORING": {
             "BASE_POSITION": 0,
             "DIRECTION": "DECREASING",  # Lower distance from ideal = better
@@ -182,21 +139,16 @@ class ConfigGenerator:
         }
     }
 
-    # Scoring sections that need weights applied
     SCORING_SECTIONS = [
         'ADP_SCORING',
         'PLAYER_RATING_SCORING',
         'PERFORMANCE_SCORING',
         'MATCHUP_SCORING',
-        # 'SCHEDULE_SCORING',  # DISABLED
         'TEMPERATURE_SCORING',  # Game conditions
         'WIND_SCORING',  # Game conditions (QB/WR/K only)
     ]
 
-    # Maps parameter names to their parent config section names
-    # Used to determine if a parameter is BASE or WEEK-SPECIFIC
     PARAM_TO_SECTION_MAP = {
-        # Base config parameters
         'NORMALIZATION_MAX_SCALE': 'NORMALIZATION_MAX_SCALE',  # Direct param
         'DRAFT_NORMALIZATION_MAX_SCALE': 'DRAFT_NORMALIZATION_MAX_SCALE',  # Direct param
         'SAME_POS_BYE_WEIGHT': 'SAME_POS_BYE_WEIGHT',          # Direct param
@@ -206,7 +158,6 @@ class ConfigGenerator:
         'DRAFT_ORDER_FILE': 'DRAFT_ORDER_FILE',                # Direct param
         'ADP_SCORING_WEIGHT': 'ADP_SCORING',                   # Nested
         'ADP_SCORING_STEPS': 'ADP_SCORING',                    # Nested
-        # Week-specific parameters
         'PLAYER_RATING_SCORING_WEIGHT': 'PLAYER_RATING_SCORING',
         'TEAM_QUALITY_SCORING_WEIGHT': 'TEAM_QUALITY_SCORING',
         'TEAM_QUALITY_MIN_WEEKS': 'TEAM_QUALITY_SCORING',
@@ -306,7 +257,6 @@ class ConfigGenerator:
         if not folder_path.is_dir():
             raise ValueError(f"Path is not a directory: {folder_path}")
 
-        # Required files (5-file structure)
         required_files = ['league_config.json', 'week1-5.json', 'week6-9.json', 'week10-13.json', 'week14-17.json']
         missing_files = []
 
@@ -319,14 +269,12 @@ class ConfigGenerator:
                 f"Missing required config files in {folder_path}: {', '.join(missing_files)}"
             )
 
-        # Load base config
         base_config_path = folder_path / 'league_config.json'
         with open(base_config_path, 'r') as f:
             base_config = json.load(f)
 
         logger.debug(f"Loaded base config from {base_config_path}")
 
-        # Load 4 weekly horizon-specific files
         horizon_files = {
             '1-5': 'week1-5.json',
             '6-9': 'week6-9.json',
@@ -341,16 +289,13 @@ class ConfigGenerator:
                 horizon_specific = json.load(f)
             logger.debug(f"Loaded {filename} for horizon '{horizon}'")
 
-            # Merge base + horizon-specific into single config for this horizon
             merged_config = copy.deepcopy(base_config)
             if 'parameters' not in merged_config:
                 merged_config['parameters'] = {}
 
-            # Merge horizon-specific params (horizon file wins on conflicts)
             horizon_params = horizon_specific.get('parameters', {})
             merged_config['parameters'].update(horizon_params)
 
-            # Preserve metadata from horizon file
             merged_config['config_name'] = horizon_specific.get('config_name', f'Horizon {horizon}')
             merged_config['description'] = horizon_specific.get('description', f'Config for horizon {horizon}')
 
@@ -382,7 +327,6 @@ class ConfigGenerator:
         self.logger = get_logger()
         baseline_config_path = Path(baseline_config_path)
 
-        # Validate: must be a folder, not a file
         if baseline_config_path.is_file():
             raise ValueError(
                 f"ConfigGenerator requires a folder path, not a file: {baseline_config_path}\n"
@@ -392,13 +336,11 @@ class ConfigGenerator:
         self.logger.info(f"Initializing ConfigGenerator with baseline folder: {baseline_config_path}")
         self.logger.info(f"Test values per parameter: {num_test_values} (total values: {num_test_values + 1})")
 
-        # Load 6 files and store 5 separate horizon configs
         self.baseline_configs = self.load_baseline_from_folder(baseline_config_path)
         self.param_definitions = self.PARAM_DEFINITIONS
         self.num_test_values = num_test_values
         self.baseline_folder = baseline_config_path
 
-        # Cache for generated test values (cleared when param changes)
         self._cached_test_values = {}
         self._current_param = None
 
@@ -443,7 +385,6 @@ class ConfigGenerator:
         with open(json_path, 'r') as f:
             config = json.load(f)
 
-        # Validate required structure
         if 'parameters' not in config:
             raise ValueError("Config missing 'parameters' section")
 
@@ -476,7 +417,6 @@ class ConfigGenerator:
         step = 10 ** (-precision)
         values = []
         current = min_val
-        # Account for floating-point errors with small tolerance
         while current <= max_val + step / 2:
             if precision > 0:
                 values.append(round(current, precision))
@@ -518,23 +458,19 @@ class ConfigGenerator:
         """
         possible_values = self._generate_discrete_range(min_val, max_val, precision)
 
-        # Round optimal to match precision
         if precision > 0:
             optimal_rounded = round(optimal_val, precision)
         else:
             optimal_rounded = int(round(optimal_val))
 
         if self.num_test_values >= len(possible_values):
-            # Return all values with optimal first
             if optimal_rounded in possible_values:
                 values = [optimal_rounded] + [v for v in possible_values if v != optimal_rounded]
             else:
-                # Optimal outside range, still include it first
                 values = [optimal_rounded] + possible_values
             self.logger.debug(f"{param_name}: {len(values)} values (all discrete, optimal first)")
             return values
         else:
-            # Sample subset: optimal first, then random samples
             values = [optimal_rounded]
             remaining = [v for v in possible_values if v != optimal_rounded]
             num_to_sample = min(self.num_test_values, len(remaining))
@@ -558,10 +494,8 @@ class ConfigGenerator:
         """
         draft_order_dir = Path(__file__).parent.parent / "sim_data" / "draft_order_possibilities"
 
-        # Try pattern with suffix first (e.g., 2_zero_rb.json)
         matches = list(draft_order_dir.glob(f"{file_num}_*.json"))
         if not matches:
-            # Try exact match (e.g., 1.json)
             matches = list(draft_order_dir.glob(f"{file_num}.json"))
 
         if not matches:
@@ -605,64 +539,49 @@ class ConfigGenerator:
         value_sets = {}
         params = self.baseline_config['parameters']
 
-        # NORMALIZATION_MAX_SCALE
         value_sets['NORMALIZATION_MAX_SCALE'] = self.generate_parameter_values(
             'NORMALIZATION_MAX_SCALE',
             params['NORMALIZATION_MAX_SCALE'],
             *self.param_definitions['NORMALIZATION_MAX_SCALE']
         )
 
-        # SAME_POS_BYE_WEIGHT
         value_sets['SAME_POS_BYE_WEIGHT'] = self.generate_parameter_values(
             'SAME_POS_BYE_WEIGHT',
             params['SAME_POS_BYE_WEIGHT'],
             *self.param_definitions['SAME_POS_BYE_WEIGHT']
         )
 
-        # DIFF_POS_BYE_WEIGHT
         value_sets['DIFF_POS_BYE_WEIGHT'] = self.generate_parameter_values(
             'DIFF_POS_BYE_WEIGHT',
             params['DIFF_POS_BYE_WEIGHT'],
             *self.param_definitions['DIFF_POS_BYE_WEIGHT']
         )
 
-        # PRIMARY_BONUS
         value_sets['PRIMARY_BONUS'] = self.generate_parameter_values(
             'PRIMARY_BONUS',
             params['DRAFT_ORDER_BONUSES']['PRIMARY'],
             *self.param_definitions['PRIMARY_BONUS']
         )
 
-        # SECONDARY_BONUS
         value_sets['SECONDARY_BONUS'] = self.generate_parameter_values(
             'SECONDARY_BONUS',
             params['DRAFT_ORDER_BONUSES']['SECONDARY'],
             *self.param_definitions['SECONDARY_BONUS']
         )
 
-        # ADP
         value_sets = self.generate_multiplier_parameter_values(value_sets, "ADP_SCORING")
 
-        # PLAYER RATING
         value_sets = self.generate_multiplier_parameter_values(value_sets, "PLAYER_RATING_SCORING")
 
-        # TEAM QUALITY
         value_sets = self.generate_multiplier_parameter_values(value_sets, "TEAM_QUALITY_SCORING")
 
-        # PERFORMANCE
         value_sets = self.generate_multiplier_parameter_values(value_sets, "PERFORMANCE_SCORING")
 
-        # MATCHUP
         value_sets = self.generate_multiplier_parameter_values(value_sets, "MATCHUP_SCORING")
 
-        # SCHEDULE - DISABLED
-        # value_sets = self.generate_multiplier_parameter_values(value_sets, "SCHEDULE_SCORING")
 
-        # Threshold STEPS parameters - only for sections with STEPS in PARAM_DEFINITIONS
-        # (PLAYER_RATING, TEAM_QUALITY, MATCHUP, SCHEDULE are disabled)
         for scoring_type in ["ADP_SCORING", "PERFORMANCE_SCORING"]:
             steps_param = f"{scoring_type}_STEPS"
-            # Check if using parameterized format (has STEPS key)
             if 'STEPS' in params[scoring_type]['THRESHOLDS']:
                 current_steps = params[scoring_type]['THRESHOLDS']['STEPS']
                 min_val, max_val, precision = self.param_definitions[steps_param]
@@ -674,8 +593,6 @@ class ConfigGenerator:
                     precision
                 )
 
-        # IMPACT_SCALE parameters (additive scoring - NEW)
-        # Only MATCHUP_SCORING - SCHEDULE_SCORING disabled
         for scoring_type in ["MATCHUP_SCORING"]:
             impact_param = scoring_type.replace('_SCORING', '_IMPACT_SCALE')
             current_impact = params[scoring_type]['IMPACT_SCALE']
@@ -688,7 +605,6 @@ class ConfigGenerator:
                 precision
             )
 
-        # MIN_WEEKS parameters for rolling window calculations
         for scoring_type in ["TEAM_QUALITY_SCORING", "PERFORMANCE_SCORING", "MATCHUP_SCORING"]:
             min_weeks_param = scoring_type.replace('_SCORING', '_MIN_WEEKS')
             current_min_weeks = params[scoring_type].get('MIN_WEEKS', 5)
@@ -701,11 +617,9 @@ class ConfigGenerator:
                 precision
             )
 
-        # Game conditions: Temperature and Wind scoring
         for section in ['TEMPERATURE', 'WIND']:
             scoring_key = f'{section}_SCORING'
             if scoring_key in params:
-                # IMPACT_SCALE
                 impact_param = f'{section}_IMPACT_SCALE'
                 if impact_param in self.param_definitions:
                     current_impact = params[scoring_key].get('IMPACT_SCALE', 50.0)
@@ -714,7 +628,6 @@ class ConfigGenerator:
                         impact_param, current_impact, min_val, max_val, precision
                     )
 
-                # WEIGHT
                 weight_param = f'{section}_SCORING_WEIGHT'
                 if weight_param in self.param_definitions:
                     current_weight = params[scoring_key].get('WEIGHT', 1.0)
@@ -723,12 +636,10 @@ class ConfigGenerator:
                         weight_param, current_weight, min_val, max_val, precision
                     )
 
-        # Game conditions: Location modifiers
         location_modifiers = params.get('LOCATION_MODIFIERS', {})
         for loc_type in ['HOME', 'AWAY', 'INTERNATIONAL']:
             param_name = f'LOCATION_{loc_type}'
             if param_name in self.param_definitions:
-                # Default values: HOME=2.0, AWAY=-2.0, INTERNATIONAL=-5.0
                 defaults = {'HOME': 2.0, 'AWAY': -2.0, 'INTERNATIONAL': -5.0}
                 current_val = location_modifiers.get(loc_type, defaults[loc_type])
                 min_val, max_val, precision = self.param_definitions[param_name]
@@ -753,10 +664,8 @@ class ConfigGenerator:
         """
         self.logger.info("Generating all parameter combinations")
 
-        # Generate value sets for all parameters
         value_sets = self.generate_all_parameter_value_sets()
 
-        # Create all combinations using itertools.product
         param_names = list(value_sets.keys())
         param_value_lists = [value_sets[name] for name in param_names]
 
@@ -795,11 +704,9 @@ class ConfigGenerator:
         Raises:
             ValueError: If param_name not in PARAMETER_ORDER
         """
-        # Task 2.0: Input Validation and Error Handling
         if param_name not in self.parameter_order:
             raise ValueError(f"Unknown parameter: {param_name}")
 
-        # Validate and cap num_parameters_to_test
         num_params_to_test = self.num_parameters_to_test
         if num_params_to_test < 1:
             self.logger.warning(f"num_parameters_to_test={num_params_to_test} is invalid, defaulting to 1")
@@ -810,7 +717,6 @@ class ConfigGenerator:
             self.logger.info(f"num_parameters_to_test={num_params_to_test} exceeds available parameters ({max_params}), capping at {max_params}")
             num_params_to_test = max_params
 
-        # Calculate and warn about performance
         num_values = self.num_test_values + 1
         expected_combinations = num_values ** num_params_to_test
         if expected_combinations > 1000:
@@ -821,36 +727,29 @@ class ConfigGenerator:
 
         self.logger.info(f"Generating configs with cartesian product strategy for {num_params_to_test} parameters")
 
-        # Task 2.1: Random Parameter Selection
         num_random = num_params_to_test - 1
         random_params = []
 
         if num_random > 0:
-            # Create pool excluding base parameter
             available_params = [p for p in self.parameter_order if p != param_name]
             random_params = random.sample(available_params, num_random)
             self.logger.info(f"Selected {num_random} random parameters: {random_params}")
         else:
             self.logger.info("NUM_PARAMETERS_TO_TEST=1, testing only base parameter (no random selection)")
 
-        # Task 2.2: Generate Individual Parameter Configs
         all_params = [param_name] + random_params
         param_configs = {}
 
-        # Generate configs for base parameter
         base_configs = self.generate_single_parameter_configs(param_name, base_config)
         param_configs[param_name] = base_configs
 
-        # Generate configs for each random parameter
         for random_param in random_params:
             configs = self.generate_single_parameter_configs(random_param, base_config)
             param_configs[random_param] = configs
 
-        # Task 2.3: Generate Combination Configs (Cartesian Product)
         combination_configs = []
 
         if num_params_to_test > 1:
-            # Extract parameter values from generated configs
             param_values = {}
             for param in all_params:
                 param_values[param] = []
@@ -858,32 +757,24 @@ class ConfigGenerator:
                     combination = self._extract_combination_from_config(config)
                     param_values[param].append(combination[param])
 
-            # Generate cartesian product of all values
             value_lists = [param_values[p] for p in all_params]
 
             for value_tuple in product(*value_lists):
-                # Create combination with all params from base_config
                 combination = self._extract_combination_from_config(base_config)
 
-                # Update with values from this tuple
                 for param, value in zip(all_params, value_tuple):
                     combination[param] = value
 
-                # Create full config
                 config = self.create_config_dict(combination)
                 combination_configs.append(config)
 
-        # Task 2.4: Merge All Configs and Add Logging
         all_configs = []
 
-        # Add all individual parameter configs
         for param in all_params:
             all_configs.extend(param_configs[param])
 
-        # Add combination configs
         all_configs.extend(combination_configs)
 
-        # Log detailed breakdown
         random_param_str = ', '.join(random_params) if random_params else 'none'
         individual_count = sum(len(param_configs[p]) for p in all_params)
 
@@ -921,10 +812,8 @@ class ConfigGenerator:
         """
         self.logger.info(f"Generating configs for parameter: {param_name}")
 
-        # Extract current value from base_config
         params = base_config['parameters']
 
-        # Determine range and bounds based on parameter type
         if param_name == 'NORMALIZATION_MAX_SCALE':
             current_val = params['NORMALIZATION_MAX_SCALE']
             min_val, max_val, precision = self.param_definitions['NORMALIZATION_MAX_SCALE']
@@ -944,40 +833,30 @@ class ConfigGenerator:
             current_val = params.get('DRAFT_ORDER_FILE', 1)
             min_val, max_val, precision = self.param_definitions['DRAFT_ORDER_FILE']
         elif '_WEIGHT' in param_name:
-            # Extract section and multiplier type
-            # Format: SECTION_SCORING_WEIGHT
             parts = param_name.split('_WEIGHT')
-            section = parts[0]  # e.g., 'ADP_SCORING'
+            section = parts[0]
 
             current_val = params[section]['WEIGHT']
             min_val, max_val, precision = self.param_definitions[param_name]
         elif '_STEPS' in param_name:
-            # Extract section for threshold STEPS
-            # Format: SECTION_SCORING_STEPS
             parts = param_name.split('_STEPS')
-            section = parts[0]  # e.g., 'ADP_SCORING'
+            section = parts[0]
 
             current_val = params[section]['THRESHOLDS']['STEPS']
             min_val, max_val, precision = self.param_definitions[param_name]
         elif '_IMPACT_SCALE' in param_name:
-            # Extract section for IMPACT_SCALE (additive scoring)
-            # Format: SECTION_IMPACT_SCALE (e.g., 'MATCHUP_IMPACT_SCALE')
             parts = param_name.split('_IMPACT_SCALE')
             section = parts[0] + '_SCORING'  # e.g., 'MATCHUP_SCORING'
 
             current_val = params[section]['IMPACT_SCALE']
             min_val, max_val, precision = self.param_definitions[param_name]
         elif '_MIN_WEEKS' in param_name:
-            # Extract section for MIN_WEEKS
-            # Format: SECTION_MIN_WEEKS (e.g., 'TEAM_QUALITY_MIN_WEEKS')
             parts = param_name.split('_MIN_WEEKS')
             section = parts[0] + '_SCORING'  # e.g., 'TEAM_QUALITY_SCORING'
 
             current_val = params[section].get('MIN_WEEKS', 5)
             min_val, max_val, precision = self.param_definitions[param_name]
         elif param_name.startswith('LOCATION_'):
-            # Location modifiers (HOME, AWAY, INTERNATIONAL)
-            # Format: LOCATION_TYPE (e.g., 'LOCATION_HOME')
             location_type = param_name.replace('LOCATION_', '')  # e.g., 'HOME'
             location_modifiers = params.get('LOCATION_MODIFIERS', {})
             current_val = location_modifiers.get(location_type, 0.0)
@@ -985,7 +864,6 @@ class ConfigGenerator:
         else:
             raise ValueError(f"Unknown parameter: {param_name}")
 
-        # Generate test values (unified precision-aware method)
         test_values = self.generate_parameter_values(
             param_name,
             current_val,
@@ -994,16 +872,12 @@ class ConfigGenerator:
             precision
         )
 
-        # Create config for each test value
         configs = []
         for test_val in test_values:
-            # Create combination dict with all parameters from base_config
             combination = self._extract_combination_from_config(base_config)
 
-            # Update only the parameter we're testing
             combination[param_name] = test_val
 
-            # Create full config
             config = self.create_config_dict(combination)
             configs.append(config)
 
@@ -1023,7 +897,6 @@ class ConfigGenerator:
         params = config['parameters']
         combination = {}
 
-        # Scalar parameters
         combination['NORMALIZATION_MAX_SCALE'] = params['NORMALIZATION_MAX_SCALE']
         combination['SAME_POS_BYE_WEIGHT'] = params['SAME_POS_BYE_WEIGHT']
         combination['DIFF_POS_BYE_WEIGHT'] = params['DIFF_POS_BYE_WEIGHT']
@@ -1031,52 +904,40 @@ class ConfigGenerator:
         combination['SECONDARY_BONUS'] = params['DRAFT_ORDER_BONUSES']['SECONDARY']
         combination['DRAFT_ORDER_FILE'] = params.get('DRAFT_ORDER_FILE', 1)
 
-        # WEIGHTS for each section (SCHEDULE disabled)
         for section in ['ADP', 'PLAYER_RATING', 'TEAM_QUALITY', 'PERFORMANCE', 'MATCHUP']:
             param_name = f'{section}_SCORING_WEIGHT'
             combination[param_name] = params[f'{section}_SCORING']['WEIGHT']
 
-        # MIN_WEEKS for relevant sections
         for section in ['TEAM_QUALITY', 'PERFORMANCE', 'MATCHUP']:
             param_name = f'{section}_MIN_WEEKS'
             combination[param_name] = params[f'{section}_SCORING'].get('MIN_WEEKS', 5)
 
-        # STEPS for each scoring type - extract all that are present in config
-        # Only ADP and PERFORMANCE STEPS are actively optimized, but others may be in PARAMETER_ORDER
         for section in ['ADP', 'PLAYER_RATING', 'TEAM_QUALITY', 'PERFORMANCE', 'MATCHUP']:
             param_name = f'{section}_SCORING_STEPS'
             scoring_key = f'{section}_SCORING'
             if scoring_key in params and 'THRESHOLDS' in params[scoring_key]:
                 thresholds = params[scoring_key]['THRESHOLDS']
-                # Check if using parameterized format (has STEPS key)
                 if 'STEPS' in thresholds:
                     combination[param_name] = thresholds['STEPS']
                 else:
-                    # Old format - use default value from baseline if it exists
-                    # This handles backward compatibility with test fixtures
                     if scoring_key in self.baseline_config['parameters']:
                         if 'THRESHOLDS' in self.baseline_config['parameters'][scoring_key]:
                             baseline_thresholds = self.baseline_config['parameters'][scoring_key]['THRESHOLDS']
                             if 'STEPS' in baseline_thresholds:
                                 combination[param_name] = baseline_thresholds['STEPS']
 
-        # IMPACT_SCALE for additive scoring (NEW) - Only MATCHUP, SCHEDULE disabled
         for section in ['MATCHUP']:
             param_name = f'{section}_IMPACT_SCALE'
             combination[param_name] = params[f'{section}_SCORING']['IMPACT_SCALE']
 
-        # Game conditions: Temperature and Wind scoring
         for section in ['TEMPERATURE', 'WIND']:
             scoring_key = f'{section}_SCORING'
             if scoring_key in params:
-                # Extract IMPACT_SCALE
                 impact_param = f'{section}_IMPACT_SCALE'
                 combination[impact_param] = params[scoring_key].get('IMPACT_SCALE', 50.0)
-                # Extract WEIGHT
                 weight_param = f'{section}_SCORING_WEIGHT'
                 combination[weight_param] = params[scoring_key].get('WEIGHT', 1.0)
 
-        # Game conditions: Location modifiers
         location_modifiers = params.get('LOCATION_MODIFIERS', {})
         combination['LOCATION_HOME'] = location_modifiers.get('HOME', 2.0)
         combination['LOCATION_AWAY'] = location_modifiers.get('AWAY', -2.0)
@@ -1099,38 +960,29 @@ class ConfigGenerator:
             2. Update varied parameters
             3. Apply weights to all scoring sections
         """
-        # Deep copy baseline to avoid mutations
         config = copy.deepcopy(self.baseline_config)
         params = config['parameters']
 
-        # Update scalar parameters
         params['NORMALIZATION_MAX_SCALE'] = combination['NORMALIZATION_MAX_SCALE']
         params['SAME_POS_BYE_WEIGHT'] = combination['SAME_POS_BYE_WEIGHT']
         params['DIFF_POS_BYE_WEIGHT'] = combination['DIFF_POS_BYE_WEIGHT']
         params['DRAFT_ORDER_BONUSES']['PRIMARY'] = combination['PRIMARY_BONUS']
         params['DRAFT_ORDER_BONUSES']['SECONDARY'] = combination['SECONDARY_BONUS']
 
-        # Update DRAFT_ORDER_FILE and load corresponding DRAFT_ORDER
         draft_order_file = int(combination.get('DRAFT_ORDER_FILE', 1))
         params['DRAFT_ORDER_FILE'] = draft_order_file
         params['DRAFT_ORDER'] = self._load_draft_order_from_file(draft_order_file)
 
-        # Update IMPACT_SCALE for additive scoring (NEW) - SCHEDULE disabled
         params['MATCHUP_SCORING']['IMPACT_SCALE'] = combination['MATCHUP_IMPACT_SCALE']
-        # params['SCHEDULE_SCORING']['IMPACT_SCALE'] = combination['SCHEDULE_IMPACT_SCALE']
 
-        # Update weights (SCHEDULE disabled)
         for parameter in ['ADP', 'PLAYER_RATING', 'TEAM_QUALITY', 'PERFORMANCE', 'MATCHUP']:
             params[f'{parameter}_SCORING']['WEIGHT'] = combination[f'{parameter}_SCORING_WEIGHT']
 
-        # Update MIN_WEEKS for sections that use it
         for parameter in ['TEAM_QUALITY', 'PERFORMANCE', 'MATCHUP']:
             min_weeks_param = f'{parameter}_MIN_WEEKS'
             if min_weeks_param in combination:
                 params[f'{parameter}_SCORING']['MIN_WEEKS'] = int(combination[min_weeks_param])
 
-        # Update threshold STEPS - only sections with STEPS in PARAM_DEFINITIONS
-        # (PLAYER_RATING, TEAM_QUALITY, MATCHUP, SCHEDULE disabled)
         for parameter in ['ADP', 'PERFORMANCE']:
             steps_param = f'{parameter}_SCORING_STEPS'
             if steps_param in combination:
@@ -1141,13 +993,11 @@ class ConfigGenerator:
                     'STEPS': combination[steps_param]
                 }
 
-        # Update game conditions: Temperature and Wind scoring
         for section in ['TEMPERATURE', 'WIND']:
             scoring_key = f'{section}_SCORING'
             impact_param = f'{section}_IMPACT_SCALE'
             weight_param = f'{section}_SCORING_WEIGHT'
 
-            # Ensure scoring section exists with default structure
             if scoring_key not in params:
                 params[scoring_key] = {
                     'MULTIPLIERS': {
@@ -1158,15 +1008,12 @@ class ConfigGenerator:
                     }
                 }
 
-            # Update IMPACT_SCALE if present in combination
             if impact_param in combination:
                 params[scoring_key]['IMPACT_SCALE'] = combination[impact_param]
 
-            # Update WEIGHT if present in combination
             if weight_param in combination:
                 params[scoring_key]['WEIGHT'] = combination[weight_param]
 
-            # Ensure threshold structure from fixed params
             if scoring_key in self.THRESHOLD_FIXED_PARAMS:
                 fixed_params = self.THRESHOLD_FIXED_PARAMS[scoring_key]
                 if 'THRESHOLDS' not in params[scoring_key]:
@@ -1174,11 +1021,9 @@ class ConfigGenerator:
                 params[scoring_key]['THRESHOLDS']['BASE_POSITION'] = fixed_params['BASE_POSITION']
                 params[scoring_key]['THRESHOLDS']['DIRECTION'] = fixed_params['DIRECTION']
                 params[scoring_key]['THRESHOLDS']['STEPS'] = fixed_params['STEPS']
-                # Preserve IDEAL_TEMPERATURE if present
                 if 'IDEAL_TEMPERATURE' in fixed_params:
                     params[scoring_key]['IDEAL_TEMPERATURE'] = fixed_params['IDEAL_TEMPERATURE']
 
-            # Ensure MULTIPLIERS exist (in case baseline config lacks them)
             if 'MULTIPLIERS' not in params[scoring_key]:
                 params[scoring_key]['MULTIPLIERS'] = {
                     'EXCELLENT': 1.05,
@@ -1187,7 +1032,6 @@ class ConfigGenerator:
                     'VERY_POOR': 0.95
                 }
 
-        # Update game conditions: Location modifiers
         if 'LOCATION_MODIFIERS' not in params:
             params['LOCATION_MODIFIERS'] = {}
 
@@ -1226,9 +1070,6 @@ class ConfigGenerator:
         self.logger.info(f"All {len(configs)} configurations generated")
         return configs
 
-    # ========================================================================
-    # NEW: Horizon-Based Interface for 6-File Structure
-    # ========================================================================
 
     def generate_horizon_test_values(self, param_name: str) -> Dict[str, List[float]]:
         """
@@ -1259,34 +1100,28 @@ class ConfigGenerator:
         if param_name not in self.PARAM_DEFINITIONS:
             raise ValueError(f"Unknown parameter: {param_name}")
 
-        # Check if we need to regenerate (param changed)
         if param_name != self._current_param:
             self._cached_test_values = {}
             self._current_param = param_name
 
-        # Return cached if available
         if param_name in self._cached_test_values:
             return self._cached_test_values[param_name]
 
-        # Determine if shared or horizon-specific
         is_shared = self.is_base_param(param_name)
 
         min_val, max_val, precision = self.PARAM_DEFINITIONS[param_name]
 
         if is_shared:
-            # Shared param: single array
             baseline_value = self._extract_param_value(self.baseline_configs['1-5'], param_name)
             test_values = self._generate_test_values_array(baseline_value, min_val, max_val, precision)
             result = {'shared': test_values}
         else:
-            # Horizon param: 4 independent arrays
             result = {}
             for horizon in ['1-5', '6-9', '10-13', '14-17']:
                 baseline_value = self._extract_param_value(self.baseline_configs[horizon], param_name)
                 test_values = self._generate_test_values_array(baseline_value, min_val, max_val, precision)
                 result[horizon] = test_values
 
-        # Cache and return
         self._cached_test_values[param_name] = result
         return result
 
@@ -1310,10 +1145,8 @@ class ConfigGenerator:
         if horizon not in self.baseline_configs:
             raise ValueError(f"Invalid horizon: {horizon}. Must be one of: {list(self.baseline_configs.keys())}")
 
-        # Get test values (will use cached if available)
         test_values = self.generate_horizon_test_values(param_name)
 
-        # Determine which array to use
         is_shared = 'shared' in test_values
         if is_shared:
             value_array = test_values['shared']
@@ -1325,7 +1158,6 @@ class ConfigGenerator:
 
         test_value = value_array[test_index]
 
-        # Create config with test value applied
         config = copy.deepcopy(self.baseline_configs[horizon])
         self._apply_param_value(config, param_name, test_value)
 
@@ -1349,14 +1181,9 @@ class ConfigGenerator:
         if horizon not in self.baseline_configs:
             raise ValueError(f"Invalid horizon: {horizon}")
 
-        # For shared params, detect by checking if params are in BASE_CONFIG_PARAMS
-        # Update all horizons with new base param values
-        # For horizon params, only update specified horizon
 
-        # Simple approach: detect which params changed and update accordingly
         new_params = new_config.get('parameters', {})
 
-        # Check if any BASE_CONFIG_PARAMS changed
         shared_params_changed = {}
         for param in BASE_CONFIG_PARAMS:
             if param in new_params:
@@ -1366,13 +1193,11 @@ class ConfigGenerator:
                     shared_params_changed[param] = new_val
 
         if shared_params_changed:
-            # Shared param changed - update all horizons
             for h in ['1-5', '6-9', '10-13', '14-17']:
                 for param, value in shared_params_changed.items():
                     self.baseline_configs[h]['parameters'][param] = copy.deepcopy(value)
             self.logger.debug(f"Updated shared params {list(shared_params_changed.keys())} in all horizons")
 
-        # Update horizon-specific params only for this horizon
         horizon_params_changed = {}
         for param in WEEK_SPECIFIC_PARAMS:
             if param in new_params:
@@ -1394,16 +1219,13 @@ class ConfigGenerator:
 
         params = config.get('parameters', {})
 
-        # Direct param (not nested)
         if section == param_name:
             return params.get(param_name, 0.0)
 
-        # Nested param
         section_data = params.get(section, {})
         if not isinstance(section_data, dict):
             raise ValueError(f"Section {section} is not a dict")
 
-        # Extract the sub-key (e.g., 'WEIGHT' from 'ADP_SCORING_WEIGHT')
         if param_name.endswith('_WEIGHT'):
             return section_data.get('WEIGHT', 0.0)
         elif param_name.endswith('_STEPS'):
@@ -1430,18 +1252,15 @@ class ConfigGenerator:
 
         params = config.get('parameters', {})
 
-        # Direct param
         if section == param_name:
             params[param_name] = value
             return
 
-        # Nested param - ensure section exists
         if section not in params:
             params[section] = {}
 
         section_data = params[section]
 
-        # Apply to correct sub-key
         if param_name.endswith('_WEIGHT'):
             section_data['WEIGHT'] = value
         elif param_name.endswith('_STEPS'):
@@ -1466,12 +1285,12 @@ class ConfigGenerator:
 
         for _ in range(self.num_test_values):
             if precision == 0:
-                # Integer values
                 val = random.randint(int(min_val), int(max_val))
             else:
-                # Float values
                 val = random.uniform(min_val, max_val)
                 val = round(val, precision)
             values.append(val)
 
         return values
+
+

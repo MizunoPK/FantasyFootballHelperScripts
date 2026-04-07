@@ -48,23 +48,19 @@ def generate_round_robin(teams: List[T]) -> List[List[Tuple[T, T]]]:
 
     schedule = []
 
-    # Circle method: Fix one team (teams[0]) and rotate others
     fixed = teams[0]
     rotating = teams[1:]
 
     for round_num in range(n - 1):
         week_matchups = []
 
-        # Match fixed team with rotating[0]
         week_matchups.append((fixed, rotating[0]))
 
-        # Match remaining teams from opposite ends
         for i in range(1, n // 2):
             week_matchups.append((rotating[i], rotating[n - 1 - i]))
 
         schedule.append(week_matchups)
 
-        # Rotate for next round (clockwise)
         rotating = [rotating[-1]] + rotating[:-1]
 
     return schedule
@@ -99,16 +95,13 @@ def generate_double_round_robin(teams: List[T]) -> List[List[Tuple[T, T]]]:
         2. Use week 18 if available
         3. Handle as needed by SimulatedLeague
     """
-    # Generate first round-robin (9 weeks for 10 teams)
     first_half = generate_round_robin(teams)
 
-    # Generate second round-robin by reversing matchups (home/away swap)
     second_half = []
     for week in first_half:
         reversed_week = [(team2, team1) for team1, team2 in week]
         second_half.append(reversed_week)
 
-    # Combine both halves
     full_schedule = first_half + second_half
 
     return full_schedule
@@ -136,7 +129,6 @@ def generate_schedule_for_nfl_season(teams: List[T], num_weeks: int = 16) -> Lis
     """
     full_schedule = generate_double_round_robin(teams)
 
-    # Trim to fit NFL season if needed
     if len(full_schedule) > num_weeks:
         return full_schedule[:num_weeks]
     else:
@@ -166,11 +158,9 @@ def validate_schedule(schedule: List[List[Tuple[T, T]]], teams: List[T]) -> bool
         teams_playing = set()
 
         for team1, team2 in week_matchups:
-            # Check no self-play
             if team1 == team2:
                 return False
 
-            # Check no duplicate team in same week
             if team1 in teams_playing or team2 in teams_playing:
                 return False
 
@@ -178,3 +168,5 @@ def validate_schedule(schedule: List[List[Tuple[T, T]]], teams: List[T]) -> bool
             teams_playing.add(team2)
 
     return True
+
+

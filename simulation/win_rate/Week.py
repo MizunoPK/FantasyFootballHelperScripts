@@ -19,7 +19,6 @@ from utils.LoggingManager import get_logger
 from simulation.win_rate.DraftHelperTeam import DraftHelperTeam
 from simulation.win_rate.SimulatedOpponent import SimulatedOpponent
 
-# Type alias for team (can be either DraftHelperTeam or SimulatedOpponent)
 Team = Union[DraftHelperTeam, SimulatedOpponent]
 
 
@@ -98,15 +97,12 @@ class Week:
         self.logger.debug(f"Simulating Week {self.week_number} with {len(self.matchups)} matchups")
 
         for team1, team2 in self.matchups:
-            # Both teams set their weekly lineup and get actual points scored
             points1 = team1.set_weekly_lineup(self.week_number)
             points2 = team2.set_weekly_lineup(self.week_number)
 
-            # Determine winner (ties = both lose)
             team1_won = points1 > points2
             team2_won = points2 > points1
 
-            # Store results
             self.results[team1] = WeekResult(team1, points1, points2, team1_won)
             self.results[team2] = WeekResult(team2, points2, points1, team2_won)
 
@@ -141,3 +137,5 @@ class Week:
 
     def __repr__(self) -> str:
         return f"Week({self.week_number}, {len(self.matchups)} matchups)"
+
+

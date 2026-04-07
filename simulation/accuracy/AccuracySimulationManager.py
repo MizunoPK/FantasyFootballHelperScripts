@@ -18,7 +18,6 @@ Unlike win-rate simulation:
 Author: Kai Mizuno
 """
 
-# Standard library imports
 import copy
 import json
 import re
@@ -27,7 +26,6 @@ import signal
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Any
 
-# Third-party imports
 import numpy as np
 
 from utils.LoggingManager import get_logger
@@ -93,31 +91,25 @@ class AccuracySimulationManager:
         self.num_test_values = num_test_values
         self.num_parameters_to_test = num_parameters_to_test
 
-        # Parallel processing
         self.max_workers = max_workers
         self.use_processes = use_processes
-        self.parallel_runner = None  # Lazy initialization
-        self.progress_tracker = None  # Created per parameter
+        self.parallel_runner = None
+        self.progress_tracker = None
 
-        # Track current optimal config for graceful shutdown
         self._current_optimal_config_path: Optional[Path] = None
         self._original_sigint_handler = None
         self._original_sigterm_handler = None
 
-        # Create output directory
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
-        # Initialize components
         self.config_generator = ConfigGenerator(
             baseline_config_path,
             num_test_values=num_test_values
         )
-        # Store parameter_order on manager (not passed to ConfigGenerator anymore)
         self.parameter_order = parameter_order
         self.accuracy_calculator = AccuracyCalculator()
         self.results_manager = AccuracyResultsManager(output_dir, baseline_config_path)
 
-        # Discover available historical seasons
         self.available_seasons = self._discover_seasons()
         self.logger.info(
             f"Discovered {len(self.available_seasons)} historical seasons: "
@@ -197,7 +189,6 @@ class AccuracySimulationManager:
         """
         self.logger.debug(f"_detect_resume_state: mode={mode}, output_dir={self.output_dir}")
 
-        # Get all intermediate folders for accuracy simulation
         intermediate_folders = [
             p for p in self.output_dir.glob("accuracy_intermediate_*")
             if p.is_dir()
@@ -208,11 +199,9 @@ class AccuracySimulationManager:
             self.logger.debug("_detect_resume_state exit: should_resume=False, start_idx=0, last_config=None")
             return (False, 0, None)
 
-        # Parse all folders and collect valid ones
         valid_folders = []
         param_order = self.parameter_order
 
-        # Pattern: accuracy_intermediate_XX_paramname or accuracy_intermediate_XX_weekrange_paramname
         pattern = r'accuracy_intermediate_(\d+)_(.+)'
 
         for folder_path in intermediate_folders:
@@ -227,10 +216,7 @@ class AccuracySimulationManager:
                 param_idx = int(match.group(1))
                 param_suffix = match.group(2)
 
-                # For weekly mode, the suffix might be "week1-5_PARAM_NAME"
-                # Extract just the param name part
                 if mode == 'weekly':
-                    # Check if any week range prefix exists
                     for week_key in ['week1-5', 'week6-9', 'week10-13', 'week14-17']:
                         if param_suffix.startswith(f"{week_key}_"):
                             param_name = param_suffix[len(week_key) + 1:]
@@ -240,13 +226,10 @@ class AccuracySimulationManager:
                 else:
                     param_name = param_suffix
 
-                # Validate parameter is in our parameter order
                 if param_name not in param_order:
                     self.logger.debug(f"Folder {folder_name}: param '{param_name}' not in parameter order")
                     continue
 
-                # Check that folder contains expected config files
-                # Standard config files: week1-5.json, week6-9.json, etc.
                 config_files = ['week1-5.json', 'week6-9.json',
                                'week10-13.json', 'week14-17.json']
                 has_config = any((folder_path / f).exists() for f in config_files)
@@ -254,30 +237,25 @@ class AccuracySimulationManager:
                     self.logger.warning(f"Skipping incomplete folder {folder_name}: no config files")
                     continue
 
-                # Folder is valid
                 valid_folders.append((param_idx, param_name, folder_path))
 
             except Exception as e:
                 self.logger.warning(f"Error processing {folder_name}: {e}")
                 continue
 
-        # No valid folders found
         if not valid_folders:
             self.logger.debug("No valid intermediate folders found after validation")
             self.logger.debug("_detect_resume_state exit: should_resume=False, start_idx=0, last_config=None")
             return (False, 0, None)
 
-        # Find highest valid index
         valid_folders.sort(key=lambda x: x[0])
         highest_idx, highest_param, highest_path = valid_folders[-1]
 
-        # Check if all parameters are complete
         if highest_idx >= len(param_order) - 1:
             self.logger.debug(f"All parameters complete (idx {highest_idx} >= {len(param_order) - 1})")
             self.logger.debug("_detect_resume_state exit: should_resume=False, start_idx=0, last_config=None (all complete)")
             return (False, 0, None)
 
-        # Resume from next parameter
         self.logger.debug(
             f"Found {len(valid_folders)} valid intermediate folders, "
             f"highest: {highest_param} (idx {highest_idx})"
@@ -311,15 +289,11 @@ class AccuracySimulationManager:
         """
         self.logger.debug(f"_load_season_data: season_path={season_path}, week_num={week_num}")
 
-        # Week N folder for projections
         projected_folder = season_path / "weeks" / f"week_{week_num:02d}"
 
-        # Week N+1 folder for actuals
-        # For week 1: use week_02, for week 17: use week_18
         actual_week_num = week_num + 1
         actual_folder = season_path / "weeks" / f"week_{actual_week_num:02d}"
 
-        # Both folders must exist
         if not projected_folder.exists():
             self.logger.warning(f"Projected folder not found: {projected_folder}")
             self.logger.debug("_load_season_data exit: projected=None, actual=None (projected folder missing)")
@@ -330,7 +304,6 @@ class AccuracySimulationManager:
                 f"Actual folder not found: {actual_folder} "
                 f"(needed for week {week_num} actuals). Using projected data as fallback."
             )
-            # Fallback to projected data (align with Win Rate Sim behavior)
             self.logger.debug(f"_load_season_data exit: projected={projected_folder}, actual={projected_folder} (fallback)")
             return projected_folder, projected_folder
 
@@ -361,11 +334,9 @@ class AccuracySimulationManager:
 
         temp_dir = Path(tempfile.mkdtemp(prefix="accuracy_sim_"))
 
-        # Create player_data subfolder for JSON files
         player_data_dir = temp_dir / "player_data"
         player_data_dir.mkdir(exist_ok=True)
 
-        # Copy 6 position JSON files from week folder to player_data/
         position_files = ['qb_data.json', 'rb_data.json', 'wr_data.json',
                           'te_data.json', 'k_data.json', 'dst_data.json']
         for filename in position_files:
@@ -375,39 +346,30 @@ class AccuracySimulationManager:
             else:
                 self.logger.warning(f"Missing position file: {filename} in {week_data_path}")
 
-        # Copy season_schedule.csv from season folder
         season_schedule = season_path / "season_schedule.csv"
         if season_schedule.exists():
             shutil.copy(season_schedule, temp_dir / "season_schedule.csv")
 
-        # Copy game_data.csv from season folder if exists
         game_data = season_path / "game_data.csv"
         if game_data.exists():
             shutil.copy(game_data, temp_dir / "game_data.csv")
 
-        # Copy team_data folder from season folder
         team_data_source = season_path / "team_data"
         if team_data_source.exists():
             shutil.copytree(team_data_source, temp_dir / "team_data")
 
-        # FIX: Update CURRENT_NFL_WEEK to match the week being simulated
-        # This ensures get_weekly_projections() returns projected_points (not actual_points)
-        # for the week we're analyzing
         config_dict_copy = copy.deepcopy(config_dict)
         config_dict_copy['parameters']['CURRENT_NFL_WEEK'] = week_num
 
-        # Write config
         config_path = temp_dir / "league_config.json"
         with open(config_path, 'w') as f:
             json.dump(config_dict_copy, f, indent=2)
 
-        # Create managers
         config_mgr = ConfigManager(temp_dir)
         schedule_mgr = SeasonScheduleManager(temp_dir)
         team_data_mgr = TeamDataManager(temp_dir, config_mgr, schedule_mgr, config_mgr.current_nfl_week)
         player_mgr = PlayerManager(temp_dir, config_mgr, team_data_mgr, schedule_mgr)
 
-        # Store temp_dir for cleanup
         player_mgr._temp_dir = temp_dir
 
         return player_mgr
@@ -439,38 +401,28 @@ class AccuracySimulationManager:
         for season_path in self.available_seasons:
             week_projections = {}
             week_actuals = {}
-            player_data_by_week = {}  # For ranking metrics
+            player_data_by_week = {}
 
             for week_num in range(start_week, end_week + 1):
                 projected_path, actual_path = self._load_season_data(season_path, week_num)
                 if not projected_path or not actual_path:
-                    # Skip if either folder missing
                     continue
 
-                # Create TWO player managers:
-                # 1. projected_mgr (from week_N folder) for projections
-                # 2. actual_mgr (from week_N+1 folder) for actuals
                 projected_mgr = self._create_player_manager(config_dict, projected_path, season_path, week_num)
                 actual_mgr = self._create_player_manager(config_dict, actual_path, season_path, week_num)
 
                 try:
                     projections = {}
                     actuals = {}
-                    player_data = []  # Player metadata for ranking metrics
+                    player_data = []
 
-                    # Calculate and set max weekly projection for this week's normalization
-                    # This is required before scoring with use_weekly_projection=True
                     max_weekly = projected_mgr.calculate_max_weekly_projection(week_num)
                     projected_mgr.scoring_calculator.max_weekly_projection = max_weekly
 
-                    # Get projections from week_N folder (projected_mgr)
                     for player in projected_mgr.players:
-                        # Get scored player with projected points
-                        # Use same flags as StarterHelperModeManager with
-                        # use_weekly_projection=True for weekly projections
                         scored = projected_mgr.score_player(
                             player,
-                            use_weekly_projection=True,  # Weekly projection
+                            use_weekly_projection=True,
                             adp=False,
                             player_rating=False,
                             team_quality=True,
@@ -486,18 +438,12 @@ class AccuracySimulationManager:
                         if scored:
                             projections[player.id] = scored.projected_points
 
-                    # Get actuals from week_N+1 folder (actual_mgr)
-                    # week_N+1 has actual_points[N-1] populated (week N complete)
                     for player in actual_mgr.players:
-                        # Get actual points for this specific week (from actual_points array)
-                        # Array index: week 1 = index 0, week N = index N-1
-                        # Default to 0.0 if array too short (align with Win Rate Sim behavior)
                         if 1 <= week_num <= 17:
                             actual = player.actual_points[week_num - 1] if len(player.actual_points) > week_num - 1 else 0.0
                             if actual is not None:
                                 actuals[player.id] = actual
 
-                                # Match with projection by player ID
                                 if player.id in projections:
                                     player_data.append({
                                         'name': player.name,
@@ -514,17 +460,14 @@ class AccuracySimulationManager:
                     self._cleanup_player_manager(projected_mgr)
                     self._cleanup_player_manager(actual_mgr)
 
-            # Calculate MAE for this season's week range
             result = self.accuracy_calculator.calculate_weekly_mae(
                 week_projections, week_actuals, week_range
             )
 
-            # Calculate ranking metrics for this season
             overall_metrics, by_position = self.accuracy_calculator.calculate_ranking_metrics_for_season(player_data_by_week)
             result.overall_metrics = overall_metrics
             result.by_position = by_position
 
-            # Log threshold warnings (Q34, Q35)
             if overall_metrics and overall_metrics.pairwise_accuracy < 0.65:
                 self.logger.warning(
                     f"[{season_path.name}] Low pairwise accuracy: "
@@ -539,7 +482,6 @@ class AccuracySimulationManager:
 
             season_results.append((season_path.name, result))
 
-        # Aggregate across seasons (including ranking metrics)
         return self.accuracy_calculator.aggregate_season_results(season_results)
 
     def _evaluate_config_tournament(
@@ -560,10 +502,6 @@ class AccuracySimulationManager:
         """
         results = {}
 
-        # Evaluate all 4 weekly horizons
-        # CRITICAL: _evaluate_config_weekly() takes Tuple[int, int] not string!
-        # CRITICAL: Use week_key format (with underscores) to match add_result() expectations
-        # NOTE: WEEK_RANGES already imported at module level (line 38)
 
         for week_key, week_range in WEEK_RANGES.items():
             results[week_key] = self._evaluate_config_weekly(config_dict, week_range)
@@ -591,71 +529,55 @@ class AccuracySimulationManager:
             f"(each config evaluated across all 4 week ranges)"
         )
 
-        # Setup signal handlers (existing pattern)
         self._setup_signal_handlers()
 
         try:
-            # Auto-resume detection
             should_resume, resume_param_idx, last_config_path = self._detect_resume_state()
 
-            # Determine which baseline to use: intermediate > optimal > original
             baseline_to_use = None
             if should_resume and last_config_path:
-                # Resuming from intermediate folder
                 baseline_to_use = last_config_path
                 self.logger.info(f"Resuming from parameter {resume_param_idx + 1}")
                 self.results_manager.load_intermediate_results(last_config_path)
             else:
-                # Check for latest optimal folder
                 optimal_folders = sorted(self.output_dir.glob("accuracy_optimal_*"))
                 if optimal_folders:
                     baseline_to_use = optimal_folders[-1]
                     self.logger.info(f"Using latest optimal config as baseline: {baseline_to_use.name}")
 
-            # Reload ConfigGenerator baseline if we found a better baseline
             if baseline_to_use:
                 self.logger.info(f"Reloading baseline configs from {baseline_to_use}")
                 self.config_generator.baseline_configs = ConfigGenerator.load_baseline_from_folder(baseline_to_use)
                 self.logger.info(f"Loaded {len(self.config_generator.baseline_configs)} horizon configs from {baseline_to_use.name}")
 
-            # Main optimization loop
             for param_idx, param_name in enumerate(self.parameter_order):
-                # Skip if resuming and before resume point
                 if should_resume and param_idx <= resume_param_idx:
                     continue
 
-                # Generate test values for all 4 weekly horizons
                 test_values_dict = self.config_generator.generate_horizon_test_values(param_name)
-                # Returns: {'1-5': [...], '6-9': [...], '10-13': [...], '14-17': [...]}
 
-                # Check for empty test values (fail fast)
                 for horizon, test_values in test_values_dict.items():
                     if len(test_values) == 0:
                         raise ValueError(f"No test values generated for parameter {param_name}, horizon {horizon}")
 
-                # Calculate total configs and evaluations for progress tracking
                 total_configs = sum(len(vals) for vals in test_values_dict.values())
-                total_evaluations = total_configs * 4  # Each config × 4 weekly horizons
+                total_evaluations = total_configs * 4
 
                 self.logger.info(f"Optimizing parameter {param_idx + 1}/{len(self.parameter_order)}: {param_name}")
                 self.logger.info(f"  Evaluating {total_configs} configs × 4 horizons = {total_evaluations} total evaluations")
 
-                # Create progress tracker
-                # Note: Each config evaluates all 4 horizons in parallel, so we only track config completion
                 self.progress_tracker = ProgressTracker(
                     total=total_configs,
                     description="Configs (each tests 4 horizons)"
                 )
 
-                # Collect all configs to evaluate
                 configs_to_evaluate = []
-                config_metadata = []  # Track (horizon, test_idx) for each config
+                config_metadata = []
 
                 for horizon, test_values in test_values_dict.items():
                     for test_idx, test_value in enumerate(test_values):
                         config_dict = self.config_generator.get_config_for_horizon(horizon, param_name, test_idx)
 
-                        # Add metadata for logging (will be stripped before saving)
                         config_dict['_eval_metadata'] = {
                             'param_name': param_name,
                             'param_value': test_value,
@@ -666,7 +588,6 @@ class AccuracySimulationManager:
                         configs_to_evaluate.append(config_dict)
                         config_metadata.append((horizon, test_idx))
 
-                # Initialize parallel runner (lazy)
                 if self.parallel_runner is None:
                     from simulation.accuracy.ParallelAccuracyRunner import ParallelAccuracyRunner
                     self.parallel_runner = ParallelAccuracyRunner(
@@ -676,22 +597,17 @@ class AccuracySimulationManager:
                         use_processes=self.use_processes
                     )
 
-                # Progress callback
                 def progress_update(completed):
-                    self.progress_tracker.update()  # Increment progress
+                    self.progress_tracker.update()
 
-                # Evaluate all configs in parallel with progress tracking
                 evaluation_results = self.parallel_runner.evaluate_configs_parallel(
                     configs_to_evaluate,
                     progress_callback=progress_update
                 )
 
-                # Finish progress tracker
                 self.progress_tracker.finish()
 
-                # Record all results
                 for (config_dict, results_dict), (horizon, test_idx) in zip(evaluation_results, config_metadata):
-                    # Record results for each horizon
                     for result_horizon, result in results_dict.items():
                         is_new_best = self.results_manager.add_result(
                             result_horizon,
@@ -702,18 +618,14 @@ class AccuracySimulationManager:
                             base_horizon=horizon
                         )
 
-                        # Log new bests
                         if is_new_best:
                             self.logger.info(f"    New best for {result_horizon}: MAE={result.mae:.4f} (test_{test_idx})")
 
-                # After all configs tested, save intermediate results
                 self.results_manager.save_intermediate_results(
                     param_idx,
                     param_name
                 )
 
-                # Update baselines for all 4 weekly horizons
-                # Map results manager keys (week_1_5) to config generator keys (1-5)
                 horizon_map = {
                     'week_1_5': '1-5',
                     'week_6_9': '6-9',
@@ -727,13 +639,10 @@ class AccuracySimulationManager:
                     else:
                         self.logger.warning(f"No best config found for {week_key} after parameter {param_name}")
 
-                # Log parameter summary (Q25, Q44 decisions)
                 self._log_parameter_summary(param_name)
 
-            # Save optimal configs
             optimal_path = self.results_manager.save_optimal_configs()
 
-            # Clean up intermediate folders now that optimization is complete
             deleted_count = cleanup_accuracy_intermediate_folders(self.output_dir)
             if deleted_count > 0:
                 self.logger.info(f"Cleaned up {deleted_count} intermediate folders")
@@ -752,13 +661,11 @@ class AccuracySimulationManager:
         """Log summary of best results for all horizons after parameter completes."""
         self.logger.info(f"Parameter {param_name} complete:")
 
-        # Use underscore keys to match best_configs dict
         for week_key in ['week_1_5', 'week_6_9', 'week_10_13', 'week_14_17']:
             best_perf = self.results_manager.best_configs.get(week_key)
             if best_perf:
                 test_idx = best_perf.test_idx if best_perf.test_idx is not None else '?'
 
-                # Show ranking metrics if available
                 if best_perf.overall_metrics:
                     self.logger.info(
                         f"  {week_key}: "
@@ -769,7 +676,8 @@ class AccuracySimulationManager:
                         f"(test_{test_idx})"
                     )
                 else:
-                    # Fallback for backward compatibility
                     self.logger.info(f"  {week_key}: MAE={best_perf.mae:.4f} (test_{test_idx})")
             else:
                 self.logger.info(f"  {week_key}: No results yet")
+
+

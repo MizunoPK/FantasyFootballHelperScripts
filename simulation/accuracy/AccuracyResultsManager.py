@@ -45,7 +45,6 @@ class RankingMetrics:
     spearman_correlation: float
 
 
-# Week ranges matching win-rate simulation
 WEEK_RANGES = {
     'week_1_5': (1, 5),
     'week_6_9': (6, 9),
@@ -90,11 +89,9 @@ class AccuracyConfigPerformance:
         self.total_error = total_error
         self.config_value = config_value if config_value is not None else self._extract_param_value(config_dict, param_name)
         self.timestamp = timestamp or datetime.now().isoformat()
-        # Tournament mode metadata (optional)
         self.param_name = param_name
         self.test_idx = test_idx
         self.base_horizon = base_horizon
-        # Ranking metrics (optional - for new ranking-based optimization)
         self.overall_metrics = overall_metrics
         self.by_position = by_position or {}
 
@@ -112,24 +109,19 @@ class AccuracyConfigPerformance:
         if not param_name:
             return None
 
-        # Handle configs with 'parameters' wrapper (from get_config_for_horizon)
         params = config.get('parameters', config)
 
-        # Handle LOCATION_* parameters (e.g., LOCATION_HOME, LOCATION_AWAY)
         if param_name.startswith('LOCATION_'):
             location_type = param_name[len('LOCATION_'):]  # e.g., "HOME", "AWAY"
             return params.get('LOCATION_MODIFIERS', {}).get(location_type)
 
-        # Handle top-level parameters (e.g., NORMALIZATION_MAX_SCALE)
         if param_name in params:
             return params[param_name]
 
-        # Handle nested parameters (e.g., WIND_SCORING_WEIGHT, MATCHUP_IMPACT_SCALE)
-        # Pattern: <SCORING_COMPONENT>_<PARAMETER>
         for suffix in ['_WEIGHT', '_IMPACT_SCALE', '_MIN_WEEKS', '_STEPS']:
             if param_name.endswith(suffix):
-                component = param_name[:-len(suffix)]  # e.g., "WIND_SCORING"
-                param = suffix[1:]  # e.g., "WEIGHT", "IMPACT_SCALE"
+                component = param_name[:-len(suffix)]
+                param = suffix[1:]
                 return params.get(component, {}).get(param)
 
         return None
@@ -149,28 +141,21 @@ class AccuracyConfigPerformance:
                   Returns False if this config has player_count=0 or missing overall_metrics.
                   Returns True if other is None or has missing overall_metrics.
         """
-        # Reject invalid configs FIRST (before checking if other is None)
-        # This prevents invalid configs from becoming "best" when no previous best exists
         if self.player_count == 0:
             return False
 
-        # Check if this config has ranking metrics (required for all configs)
         if not self.overall_metrics:
-            return False  # This config is invalid/incomplete, cannot be "best"
+            return False
 
-        # Now safe to check if other is None (we know self is valid)
         if other is None:
             return True
 
-        # Don't replace valid config with invalid one
         if other.player_count == 0:
             return False
 
-        # If other config missing ranking_metrics, replace it with this valid one
         if not other.overall_metrics:
-            return True   # Other config is invalid, replace it with this one
+            return True
 
-        # Both have ranking metrics - compare pairwise accuracy
         return self.overall_metrics.pairwise_accuracy > other.overall_metrics.pairwise_accuracy
 
     def to_dict(self) -> dict:
@@ -184,7 +169,6 @@ class AccuracyConfigPerformance:
             'config': self.config_dict
         }
 
-        # Add ranking metrics if available
         if self.overall_metrics:
             result['pairwise_accuracy'] = self.overall_metrics.pairwise_accuracy
             result['top_5_accuracy'] = self.overall_metrics.top_5_accuracy
@@ -215,10 +199,8 @@ class AccuracyConfigPerformance:
         """
         mae = data['mae']
         player_count = data['player_count']
-        # Calculate total_error if not provided (when loading from standard config files)
         total_error = data.get('total_error', mae * player_count)
 
-        # Load ranking metrics if available (Q25: backward compatibility)
         overall_metrics = None
         if 'pairwise_accuracy' in data:
             overall_metrics = RankingMetrics(
@@ -229,7 +211,6 @@ class AccuracyConfigPerformance:
                 spearman_correlation=data['spearman_correlation']
             )
 
-        # Load per-position metrics if available
         by_position = {}
         if 'by_position' in data:
             for pos, metrics_dict in data['by_position'].items():
@@ -284,7 +265,6 @@ class AccuracyResultsManager:
         self.baseline_config_path = baseline_config_path
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
-        # Track best config per week range (4 weekly ranges)
         self.best_configs: Dict[str, AccuracyConfigPerformance] = {
             'week_1_5': None,
             'week_6_9': None,
@@ -292,7 +272,6 @@ class AccuracyResultsManager:
             'week_14_17': None,
         }
 
-        # All tested configurations
         self.all_results: List[AccuracyConfigPerformance] = []
 
         self.logger.info(f"AccuracyResultsManager initialized: {output_dir}")
@@ -320,7 +299,6 @@ class AccuracyResultsManager:
         Returns:
             bool: True if this is the new best for the week range
         """
-        # Deep copy to prevent shared object references (defense in depth)
         config_copy = copy.deepcopy(config_dict)
 
         perf = AccuracyConfigPerformance(
@@ -338,13 +316,11 @@ class AccuracyResultsManager:
         self.all_results.append(perf)
         self.logger.debug(f"add_result({week_range_key}): MAE={perf.mae:.4f}, players={perf.player_count}")
 
-        # Check if better than current best
         current_best = self.best_configs.get(week_range_key)
         if perf.is_better_than(current_best):
             previous_mae = f"{current_best.mae:.4f}" if current_best else "N/A"
             self.best_configs[week_range_key] = perf
 
-            # Log with ranking metrics prominently (Q30)
             if perf.overall_metrics:
                 self.logger.info(
                     f"New best for {week_range_key}: "
@@ -355,7 +331,6 @@ class AccuracyResultsManager:
                     f"(prev MAE: {previous_mae})"
                 )
             else:
-                # Fallback for backward compatibility (no ranking metrics)
                 self.logger.info(
                     f"New best for {week_range_key}: MAE={perf.mae:.4f} "
                     f"(previous: {previous_mae})"
@@ -390,12 +365,10 @@ class AccuracyResultsManager:
         import copy
         synced = copy.deepcopy(config)
 
-        # Handle nested structure: MATCHUP_SCORING -> SCHEDULE_SCORING
         if 'MATCHUP_SCORING' in synced:
             matchup = synced['MATCHUP_SCORING']
             schedule = synced.get('SCHEDULE_SCORING', {})
 
-            # Copy relevant fields from MATCHUP to SCHEDULE
             if 'IMPACT_SCALE' in matchup:
                 schedule['IMPACT_SCALE'] = matchup['IMPACT_SCALE']
             if 'WEIGHT' in matchup:
@@ -438,12 +411,10 @@ class AccuracyResultsManager:
                         f"players={perf.player_count} | value={perf.config_value}"
                     )
                 else:
-                    # Fallback for backward compatibility
                     self.logger.info(f"  {week_key}: MAE={perf.mae:.4f}, players={perf.player_count}, value={perf.config_value}")
             else:
                 self.logger.info(f"  {week_key}: None")
 
-        # Clean up old optimal folders if we're at the limit
         cleanup_old_accuracy_optimal_folders(self.output_dir)
 
         timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
@@ -451,7 +422,6 @@ class AccuracyResultsManager:
         optimal_folder.mkdir(parents=True, exist_ok=True)
         self.logger.info(f"Creating optimal folder: {optimal_folder.name}")
 
-        # Copy league_config.json from baseline (unchanged - contains strategy params)
         baseline_league_config = self.baseline_config_path / 'league_config.json'
         if baseline_league_config.exists():
             shutil.copy(baseline_league_config, optimal_folder / 'league_config.json')
@@ -459,7 +429,6 @@ class AccuracyResultsManager:
         else:
             self.logger.warning(f"No league_config.json found in baseline: {self.baseline_config_path}")
 
-        # Map week range keys to output filenames and descriptions
         file_mapping = {
             'week_1_5': ('week1-5.json', 'Weeks 1-5 prediction parameters'),
             'week_6_9': ('week6-9.json', 'Weeks 6-9 prediction parameters'),
@@ -467,17 +436,13 @@ class AccuracyResultsManager:
             'week_14_17': ('week14-17.json', 'Weeks 14-17 prediction parameters'),
         }
 
-        # Save each optimal config with proper structure
         for week_key, (filename, description) in file_mapping.items():
             perf = self.best_configs.get(week_key)
             self.logger.info(f"Processing {week_key} -> {filename}")
             if perf:
                 self.logger.info(f"  Has results: MAE={perf.mae:.4f}, using real performance data")
-                # Sync SCHEDULE params with MATCHUP before saving
                 synced_config = self._sync_schedule_params(perf.config_dict)
 
-                # Extract only week-specific parameters (not base/strategy params)
-                # Use ResultsManager's helper to filter to WEEK_SPECIFIC_PARAMS
                 from simulation.shared.ResultsManager import ResultsManager
                 week_params_dict = {
                     key: synced_config.get('parameters', synced_config).get(key)
@@ -485,7 +450,6 @@ class AccuracyResultsManager:
                     if key in synced_config.get('parameters', synced_config)
                 }
 
-                # Create config with proper nested structure (matches win-rate format)
                 perf_metrics = {
                     'mae': perf.mae,
                     'player_count': perf.player_count,
@@ -493,7 +457,6 @@ class AccuracyResultsManager:
                     'config_value': perf.config_value,
                     'timestamp': perf.timestamp
                 }
-                # Include ranking metrics if available
                 if perf.overall_metrics:
                     perf_metrics['ranking_metrics'] = {
                         'pairwise_accuracy': perf.overall_metrics.pairwise_accuracy,
@@ -517,18 +480,14 @@ class AccuracyResultsManager:
                 self.logger.info(f"  Saved {filename}: MAE={perf.mae:.4f}")
             else:
                 self.logger.info(f"  No results - loading params from baseline")
-                # No results for this week range - load params from baseline
-                # but create proper accuracy format (don't copy win-rate metrics)
                 baseline_file = self.baseline_config_path / filename
                 if baseline_file.exists():
                     self.logger.info(f"  Baseline file exists: {baseline_file}")
                     with open(baseline_file, 'r') as f:
                         baseline_data = json.load(f)
 
-                    # Extract only parameters from baseline
                     baseline_params = baseline_data.get('parameters', {})
 
-                    # Create config with accuracy format (no performance data available)
                     config_output = {
                         'config_name': f"Accuracy Optimal {filename.replace('.json', '')} ({timestamp})",
                         'description': description,
@@ -551,8 +510,7 @@ class AccuracyResultsManager:
                 else:
                     self.logger.warning(f"  Baseline file NOT found: {baseline_file}")
 
-        # Count configs saved (1 league_config.json + 4 weekly configs)
-        configs_saved = len(file_mapping) + 1  # 4 weekly + 1 league config = 5 total
+        configs_saved = len(file_mapping) + 1
         self.logger.info(
             f"Saved {configs_saved} optimal config files "
             f"(1 league config + {len(file_mapping)} weekly configs). "
@@ -595,12 +553,10 @@ class AccuracyResultsManager:
 
         timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
-        # Copy league_config.json from baseline
         baseline_league_config = self.baseline_config_path / 'league_config.json'
         if baseline_league_config.exists():
             shutil.copy(baseline_league_config, intermediate_folder / 'league_config.json')
 
-        # Map week range keys to standard config filenames
         file_mapping = {
             'week_1_5': 'week1-5.json',
             'week_6_9': 'week6-9.json',
@@ -608,14 +564,10 @@ class AccuracyResultsManager:
             'week_14_17': 'week14-17.json',
         }
 
-        # Save standard config files only (spec says 5-JSON structure, no extra tracking files)
         for week_key, perf in self.best_configs.items():
             if perf:
-                # Sync SCHEDULE params before saving
                 synced_config = self._sync_schedule_params(perf.config_dict)
 
-                # Extract only week-specific parameters (not base/strategy params)
-                # Use ResultsManager's helper to filter to WEEK_SPECIFIC_PARAMS
                 from simulation.shared.ResultsManager import ResultsManager
                 week_params_dict = {
                     key: synced_config.get('parameters', synced_config).get(key)
@@ -623,7 +575,6 @@ class AccuracyResultsManager:
                     if key in synced_config.get('parameters', synced_config)
                 }
 
-                # Save standard config file (for use as baseline and resume)
                 standard_filename = file_mapping.get(week_key)
                 if standard_filename:
                     perf_metrics = {
@@ -631,7 +582,6 @@ class AccuracyResultsManager:
                         'player_count': perf.player_count,
                         'config_value': perf.config_value
                     }
-                    # Include ranking metrics if available
                     if perf.overall_metrics:
                         perf_metrics['ranking_metrics'] = {
                             'pairwise_accuracy': perf.overall_metrics.pairwise_accuracy,
@@ -640,7 +590,6 @@ class AccuracyResultsManager:
                             'top_20_accuracy': perf.overall_metrics.top_20_accuracy,
                             'spearman_correlation': perf.overall_metrics.spearman_correlation
                         }
-                        # Include per-position breakdown if available
                         if perf.by_position:
                             perf_metrics['ranking_metrics']['by_position'] = {
                                 pos: {
@@ -662,8 +611,6 @@ class AccuracyResultsManager:
                     with open(intermediate_folder / standard_filename, 'w') as f:
                         json.dump(config_output, f, indent=2)
 
-        # For any week ranges without results yet, load params from baseline
-        # but create proper accuracy format (don't copy win-rate metrics)
         for week_key, standard_filename in file_mapping.items():
             if not self.best_configs.get(week_key):
                 baseline_file = self.baseline_config_path / standard_filename
@@ -671,10 +618,8 @@ class AccuracyResultsManager:
                     with open(baseline_file, 'r') as f:
                         baseline_data = json.load(f)
 
-                    # Extract only parameters from baseline
                     baseline_params = baseline_data.get('parameters', {})
 
-                    # Create config with accuracy format (no performance data available)
                     config_output = {
                         'config_name': f"Accuracy Intermediate {standard_filename.replace('.json', '')} ({timestamp})",
                         'description': f"From baseline (no optimization yet)",
@@ -693,7 +638,6 @@ class AccuracyResultsManager:
                     with open(config_path, 'w') as f:
                         json.dump(config_output, f, indent=2)
 
-        # Create metadata.json for tournament mode tracking
         metadata = {
             "param_idx": param_idx,
             "param_name": param_name,
@@ -708,7 +652,6 @@ class AccuracyResultsManager:
                     "mae": best_perf.mae,
                     "test_idx": best_perf.test_idx if best_perf.test_idx is not None else -1
                 }
-                # Include ranking metrics if available
                 if best_perf.overall_metrics:
                     horizon_data["ranking_metrics"] = {
                         "pairwise_accuracy": best_perf.overall_metrics.pairwise_accuracy,
@@ -749,7 +692,6 @@ class AccuracyResultsManager:
             self.logger.warning(f"Intermediate folder not found: {folder_path}")
             return False
 
-        # Map week keys to standard config filenames
         file_mapping = {
             'week_1_5': 'week1-5.json',
             'week_6_9': 'week6-9.json',
@@ -768,17 +710,10 @@ class AccuracyResultsManager:
                 with open(config_path, 'r') as f:
                     data = json.load(f)
 
-                # Extract performance metrics and config from standard format
                 if 'performance_metrics' in data and 'parameters' in data:
                     metrics = data['performance_metrics']
 
-                    # Only load if this is an accuracy config (has 'mae' field)
-                    # Skip win-rate configs which have 'win_rate' instead
                     if 'mae' in metrics and metrics['mae'] is not None:
-                        # NOTE: We load intermediate files for resume detection only
-                        # Do NOT populate best_configs with old metrics
-                        # Metrics are for user visibility, not for comparison
-                        # Each run evaluates configs fresh with current ranking metrics
                         loaded_count += 1
                         self.logger.debug(
                             f"Found intermediate config {standard_filename} for {week_key} "
@@ -805,3 +740,5 @@ class AccuracyResultsManager:
         lines.append(f"Total configs tested: {len(self.all_results)}")
 
         return "\n".join(lines)
+
+

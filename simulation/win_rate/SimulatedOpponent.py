@@ -44,13 +44,12 @@ class SimulatedOpponent:
         logger: Logger instance
     """
 
-    # Strategy constants
     STRATEGY_ADP_AGGRESSIVE = 'adp_aggressive'
     STRATEGY_PROJECTED_POINTS_AGGRESSIVE = 'projected_points_aggressive'
     STRATEGY_ADP_WITH_DRAFT_ORDER = 'adp_with_draft_order'
     STRATEGY_PROJECTED_POINTS_WITH_DRAFT_ORDER = 'projected_points_with_draft_order'
 
-    HUMAN_ERROR_RATE = 0.2  # 20% chance to pick from top 5 instead of #1
+    HUMAN_ERROR_RATE = 0.2
 
     def __init__(
         self,
@@ -108,7 +107,6 @@ class SimulatedOpponent:
         """
         self.roster.append(player)
 
-        # Mark as drafted by opponent in both PlayerManagers
         for p in self.projected_pm.players:
             if p.id == player.id:
                 p.drafted_by = "OPPONENT"
@@ -133,8 +131,6 @@ class SimulatedOpponent:
         Raises:
             ValueError: If no players are available
         """
-        # Get available players (free agents AND has valid fantasy_points projection)
-        # Filter out players with 0/null fantasy_points (retired, injured, inactive players)
         available_players = [
             p for p in self.projected_pm.players
             if p.is_free_agent() and p.fantasy_points and p.fantasy_points > 0
@@ -143,10 +139,8 @@ class SimulatedOpponent:
         if not available_players:
             raise ValueError("No available players to draft")
 
-        # Get current draft round (based on roster size)
         current_round = len(self.roster)
 
-        # Apply strategy to get ranked list of players
         if self.strategy == self.STRATEGY_ADP_AGGRESSIVE:
             ranked_players = self._rank_by_adp(available_players)
         elif self.strategy == self.STRATEGY_PROJECTED_POINTS_AGGRESSIVE:
@@ -158,7 +152,6 @@ class SimulatedOpponent:
         else:
             raise ValueError(f"Unknown strategy: {self.strategy}")
 
-        # Apply human error
         selected_player = self._apply_human_error(ranked_players)
 
         return selected_player
@@ -178,10 +171,8 @@ class SimulatedOpponent:
         Uses config.draft_order to prioritize certain positions in each round.
         """
         def score_player(player: FantasyPlayer) -> float:
-            # Start with ADP (lower is better, so negate for sorting)
             base_score = -(player.average_draft_position if player.average_draft_position else 999.0)
 
-            # Add draft order bonus if position is prioritized this round
             bonus, _ = self.config.get_draft_order_bonus(player.position, draft_round)
             base_score += bonus
 
@@ -196,10 +187,8 @@ class SimulatedOpponent:
         Uses config.draft_order to prioritize certain positions in each round.
         """
         def score_player(player: FantasyPlayer) -> float:
-            # Start with projected points
             base_score = player.fantasy_points if player.fantasy_points else 0.0
 
-            # Add draft order bonus if position is prioritized this round
             bonus, _ = self.config.get_draft_order_bonus(player.position, draft_round)
             base_score += bonus
 
@@ -221,11 +210,9 @@ class SimulatedOpponent:
             FantasyPlayer: Selected player (with possible error)
         """
         if random.random() < self.HUMAN_ERROR_RATE:
-            # Human error: pick randomly from top 5
             top_5 = ranked_players[:min(5, len(ranked_players))]
             return random.choice(top_5)
         else:
-            # Pick #1 recommendation
             return ranked_players[0]
 
     def set_weekly_lineup(self, week: int) -> float:
@@ -246,15 +233,12 @@ class SimulatedOpponent:
             Uses same position counts as StarterHelper:
             1 QB, 2 RB, 2 WR, 1 TE, 1 FLEX (RB/WR/TE), 1 K, 1 DST
         """
-        # Calculate and set max weekly projection for this week's normalization
         max_weekly = self.projected_pm.calculate_max_weekly_projection(week)
         self.projected_pm.scoring_calculator.max_weekly_projection = max_weekly
 
-        # Also set for actual_pm (used to get actual points scored)
         max_weekly_actual = self.actual_pm.calculate_max_weekly_projection(week)
         self.actual_pm.scoring_calculator.max_weekly_projection = max_weekly_actual
 
-        # Get roster players grouped by position
         qbs = [p for p in self.roster if p.position == 'QB']
         rbs = [p for p in self.roster if p.position == 'RB']
         wrs = [p for p in self.roster if p.position == 'WR']
@@ -262,12 +246,10 @@ class SimulatedOpponent:
         ks = [p for p in self.roster if p.position == 'K']
         dsts = [p for p in self.roster if p.position == 'DST' or p.position == 'DEF']
 
-        # Get weekly projected points for sorting
         def get_weekly_projection(player: FantasyPlayer) -> float:
             projected, _ = self.projected_pm.get_weekly_projection(player, week)
             return projected if projected else 0.0
 
-        # Sort each position by weekly projected points (descending)
         qbs.sort(key=get_weekly_projection, reverse=True)
         rbs.sort(key=get_weekly_projection, reverse=True)
         wrs.sort(key=get_weekly_projection, reverse=True)
@@ -275,24 +257,18 @@ class SimulatedOpponent:
         ks.sort(key=get_weekly_projection, reverse=True)
         dsts.sort(key=get_weekly_projection, reverse=True)
 
-        # Select starters (highest projected for each position)
         starters = []
 
-        # 1 QB
         if qbs:
             starters.append(qbs[0])
 
-        # 2 RBs
         starters.extend(rbs[:2])
 
-        # 2 WRs
         starters.extend(wrs[:2])
 
-        # 1 TE
         if tes:
             starters.append(tes[0])
 
-        # 1 FLEX (best remaining RB/WR/TE)
         flex_candidates = []
         if len(rbs) > 2:
             flex_candidates.extend(rbs[2:])
@@ -305,19 +281,14 @@ class SimulatedOpponent:
             flex_candidates.sort(key=get_weekly_projection, reverse=True)
             starters.append(flex_candidates[0])
 
-        # 1 K
         if ks:
             starters.append(ks[0])
 
-        # 1 DST
         if dsts:
             starters.append(dsts[0])
 
-        # Calculate actual points scored
         total_actual_points = 0.0
         for starter in starters:
-            # Get actual weekly points directly from actual_points array
-            # Array index: week 1 = index 0, week N = index N-1
             if 1 <= week <= 17 and len(starter.actual_points) >= week:
                 actual_points = starter.actual_points[week - 1]
                 if actual_points is not None:
@@ -336,13 +307,11 @@ class SimulatedOpponent:
         Args:
             player_id (int): ID of the player drafted by another team
         """
-        # Mark in projected PlayerManager
         for p in self.projected_pm.players:
             if p.id == player_id:
                 p.drafted_by = "OPPONENT"
                 break
 
-        # Mark in actual PlayerManager
         for p in self.actual_pm.players:
             if p.id == player_id:
                 p.drafted_by = "OPPONENT"
@@ -355,3 +324,5 @@ class SimulatedOpponent:
     def get_roster_players(self) -> List[FantasyPlayer]:
         """Get list of all rostered players."""
         return self.roster.copy()
+
+
