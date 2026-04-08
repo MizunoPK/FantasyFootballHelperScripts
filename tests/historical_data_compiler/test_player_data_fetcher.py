@@ -126,10 +126,10 @@ class TestPlayerDataCSVConversion:
         )
         csv_row = player.to_csv_row()
 
-        # raw_stats should not be in CSV output
         assert 'raw_stats' not in csv_row
 
-        # Standard fields should be present
         assert 'id' in csv_row
         assert 'name' in csv_row
         assert 'position' in csv_row
+
+

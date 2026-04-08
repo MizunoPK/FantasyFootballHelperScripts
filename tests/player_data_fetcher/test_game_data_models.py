@@ -446,7 +446,6 @@ class TestGameDataFromEspnData:
             }]
         }
 
-        # Weather provided but should be ignored for indoor
         weather = {"temperature": 95, "gust": 15, "precipitation": 0.0}
 
         game = GameData.from_espn_data(5, espn_event, weather)
@@ -677,7 +676,6 @@ class TestIntegrationScenarios:
 
         row = original.to_csv_row()
 
-        # Create new GameData from row
         reconstructed = GameData(
             week=row["week"],
             home_team=row["home_team"],
@@ -699,3 +697,5 @@ class TestIntegrationScenarios:
         assert original.home_team == reconstructed.home_team
         assert original.temperature == reconstructed.temperature
         assert original.home_team_score == reconstructed.home_team_score
+
+

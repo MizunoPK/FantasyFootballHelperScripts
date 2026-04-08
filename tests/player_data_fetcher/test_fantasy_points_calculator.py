@@ -88,7 +88,6 @@ class TestExtractStatEntryPoints:
 
         result = extractor.extract_stat_entry_points(stat_entry)
 
-        # appliedTotal is the only field - returns 0.0 when missing
         assert result == 0.0
 
     def test_extract_ignores_extra_fields(self):
@@ -128,7 +127,6 @@ class TestExtractStatEntryPoints:
 
         result = extractor.extract_stat_entry_points(stat_entry)
 
-        # Since projectedTotal doesn't exist in ESPN API, returns 0.0
         assert result == 0.0
 
     def test_extract_handles_null_applied_total_with_other_fields(self):
@@ -445,7 +443,7 @@ class TestExtractWeekPoints:
     def test_extract_week_points_handles_exception(self):
         """Test handles exceptions gracefully"""
         extractor = FantasyPointsExtractor(season=2024)
-        player_data = None  # Will cause exception
+        player_data = None
 
         result = extractor.extract_week_points(player_data, 5, 'QB', 'Test Player')
 
@@ -624,7 +622,6 @@ class TestEdgeCases:
             }
         }
 
-        # Should return last matching entry for the same statSourceId
         result = extractor.extract_week_points(player_data, 5, 'RB', 'Test Player')
 
         assert result == 25.5
@@ -681,25 +678,21 @@ class TestIntegrationScenarios:
         player_data = {
             'player': {
                 'stats': [
-                    # Week 1: actual only
                     {'seasonId': 2024, 'scoringPeriodId': 1, 'statSourceId': 0, 'appliedTotal': 20.0},
-                    # Week 2: projection only
                     {'seasonId': 2024, 'scoringPeriodId': 2, 'statSourceId': 1, 'appliedTotal': 22.0},
-                    # Week 3: both actual and projection
                     {'seasonId': 2024, 'scoringPeriodId': 3, 'statSourceId': 0, 'appliedTotal': 25.0},
                     {'seasonId': 2024, 'scoringPeriodId': 3, 'statSourceId': 1, 'appliedTotal': 23.0}
                 ]
             }
         }
 
-        # Without current_nfl_week, defaults to preferring actuals
         week1 = extractor.extract_week_points(player_data, 1, 'WR', 'Player')
         week2 = extractor.extract_week_points(player_data, 2, 'WR', 'Player')
         week3 = extractor.extract_week_points(player_data, 3, 'WR', 'Player')
 
-        assert week1 == 20.0  # actual (only source)
-        assert week2 == 22.0  # projection (only source)
-        assert week3 == 25.0  # actual (preferred in legacy mode)
+        assert week1 == 20.0
+        assert week2 == 22.0
+        assert week3 == 25.0
 
     def test_dst_with_negative_and_positive_points(self):
         """Test DST with both negative and positive performances"""
@@ -719,13 +712,10 @@ class TestIntegrationScenarios:
         week3 = extractor.extract_week_points(player_data, 3, 'DST', 'Defense')
 
         assert week1 == 15.0
-        assert week2 == -5.0  # Negative allowed for DST
+        assert week2 == -5.0
         assert week3 == 8.0
 
 
-# ============================================================================
-# KAI-10 Refactoring Tests (Task 11 — Tests 8.1-8.2, E-13)
-# ============================================================================
 
 class TestFantasyPointsCalculatorKAI10:
     """
@@ -749,3 +739,5 @@ class TestFantasyPointsCalculatorKAI10:
         """E-13: FantasyPointsExtractor accepts explicit season override"""
         extractor = FantasyPointsExtractor(season=2024)
         assert extractor.season == 2024
+
+

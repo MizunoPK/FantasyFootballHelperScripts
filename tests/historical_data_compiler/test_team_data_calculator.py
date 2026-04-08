@@ -127,22 +127,17 @@ class TestTeamDataCalculator:
         calculator = TeamDataCalculator()
         result = calculator.calculate_team_data(sample_players, sample_schedule, sample_game_data)
 
-        # Should have data for all teams that have players
         assert 'KC' in result
         assert 'DEN' in result
 
-        # KC week 1 should have DEN's players' points as "allowed"
         kc_week1 = result['KC'][0]
         assert kc_week1['week'] == 1
-        # DEN's QB scored 18.0 in week 1
         assert kc_week1['pts_allowed_to_QB'] == 18.0
-        # DEN's RB scored 12.0 in week 1
         assert kc_week1['pts_allowed_to_RB'] == 12.0
 
     def test_bye_week_handling(self, sample_players, sample_schedule, sample_game_data):
         """Bye week should have all zeros"""
         calculator = TeamDataCalculator()
-        # Add a bye week for KC
         schedule_with_bye = {
             1: {'DEN': 'LV', 'LV': 'DEN'},  # KC not playing
             2: {'KC': 'DEN', 'DEN': 'KC'},
@@ -188,11 +183,9 @@ class TestWriteTeamDataFiles:
         team_data = calculator.calculate_team_data(sample_players, sample_schedule, sample_game_data)
         calculator.write_team_data_files(team_data, tmp_path)
 
-        # Check that team_data folder was created
         team_data_dir = tmp_path / "team_data"
         assert team_data_dir.exists()
 
-        # Check that team files were created
         kc_file = team_data_dir / "KC.csv"
         assert kc_file.exists()
 
@@ -209,9 +202,9 @@ class TestCalculateAndWriteTeamData:
             tmp_path
         )
 
-        # Should return team data dict
         assert isinstance(result, dict)
         assert 'KC' in result
 
-        # Should write files
         assert (tmp_path / "team_data" / "KC.csv").exists()
+
+

@@ -31,8 +31,6 @@ class TestRunner:
         self.tests_dir = Path(__file__).parent
         self.project_root = self.tests_dir.parent
 
-        # Detect platform and use appropriate venv path
-        # Try both 'venv' and '.venv' folder names
         if platform.system() == "Windows":
             venv_candidates = [
                 self.project_root / "venv" / "Scripts" / "python.exe",
@@ -44,7 +42,6 @@ class TestRunner:
                 self.project_root / ".venv" / "bin" / "python",
             ]
 
-        # Use first venv that exists, or fall back to system python
         self.venv_python = None
         for candidate in venv_candidates:
             if candidate.exists():
@@ -58,7 +55,6 @@ class TestRunner:
         """Recursively find all test files in tests directory"""
         test_files = []
 
-        # Find all test_*.py files
         for test_file in self.tests_dir.rglob("test_*.py"):
             if test_file.is_file():
                 test_files.append(test_file)
@@ -72,7 +68,6 @@ class TestRunner:
         Returns:
             (success, passed_count, total_count, output)
         """
-        # Build pytest command
         cmd = [
             str(self.venv_python),
             "-m", "pytest",
@@ -95,10 +90,8 @@ class TestRunner:
 
             output = result.stdout + result.stderr
 
-            # Parse test results from output
             passed_count, total_count = self._parse_test_results(output)
 
-            # Success if exit code 0 (tests passed) or 5 (no tests collected)
             success = (result.returncode in [0, 5] and passed_count == total_count)
 
             return success, passed_count, total_count, output
@@ -108,18 +101,14 @@ class TestRunner:
 
     def _parse_test_results(self, output: str) -> Tuple[int, int]:
         """Parse pytest output to extract passed/total counts"""
-        # Look for pattern like "60 passed in 0.30s" or "47 passed, 13 failed"
         import re
 
-        # Pattern: "X passed"
         passed_match = re.search(r'(\d+) passed', output)
         passed_count = int(passed_match.group(1)) if passed_match else 0
 
-        # Pattern: "X failed"
         failed_match = re.search(r'(\d+) failed', output)
         failed_count = int(failed_match.group(1)) if failed_match else 0
 
-        # Pattern: "X error"
         error_match = re.search(r'(\d+) error', output)
         error_count = int(error_match.group(1)) if error_match else 0
 
@@ -141,7 +130,6 @@ class TestRunner:
         print(f"Python: {self.venv_python}")
         print()
 
-        # Discover test files
         test_files = self.discover_test_files()
 
         if not test_files:
@@ -155,7 +143,6 @@ class TestRunner:
             print(f"  • {rel_path}")
         print()
 
-        # Run tests
         print("=" * 80)
         print("RUNNING TESTS")
         print("=" * 80)
@@ -176,7 +163,6 @@ class TestRunner:
             total_passed += passed
             total_tests += total
 
-            # Show results for this file
             if success:
                 print(f"[PASS] {passed}/{total} tests")
             else:
@@ -187,7 +173,6 @@ class TestRunner:
 
             print()
 
-        # Summary
         print("=" * 80)
         print("TEST SUMMARY")
         print("=" * 80)
@@ -200,7 +185,6 @@ class TestRunner:
         print()
         print("=" * 80)
 
-        # Final verdict
         all_passed = all(success for _, success, _, _, _ in all_results)
 
         if all_passed and total_passed == total_tests and total_tests > 0:
@@ -217,7 +201,6 @@ class TestRunner:
             print("STRICT REQUIREMENT: 100% of tests must pass")
             print()
 
-            # Show which files failed
             failed_files = [(path, passed, total) for path, success, passed, total, _ in all_results if not success]
             if failed_files:
                 print("Failed test files:")
@@ -248,7 +231,6 @@ class TestRunner:
             "--tb=short"
         ]
 
-        # Remove empty strings
         cmd = [c for c in cmd if c]
 
         if self.detailed:
@@ -265,7 +247,6 @@ class TestRunner:
             output = result.stdout + result.stderr
             print(output)
 
-            # Parse results
             passed_count, total_count = self._parse_test_results(output)
 
             print()
@@ -317,9 +298,10 @@ def main():
     else:
         success = runner.run_all_tests()
 
-    # Exit with appropriate code
     sys.exit(0 if success else 1)
 
 
 if __name__ == "__main__":
     main()
+
+

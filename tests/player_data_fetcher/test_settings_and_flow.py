@@ -17,9 +17,6 @@ from player_data_fetcher.player_data_fetcher_main import Settings, create_settin
 from player_data_fetcher.player_data_models import ProjectionData
 
 
-# ============================================================================
-# Helper: build minimal valid settings dict
-# ============================================================================
 
 def _make_settings_dict(**overrides):
     """Build a minimal valid settings dict, with all required keys."""
@@ -46,9 +43,6 @@ def _make_settings_dict(**overrides):
     return base
 
 
-# ============================================================================
-# Tests 3.1-3.5 + 2.3: Settings @dataclass and create_settings_from_dict
-# ============================================================================
 
 class TestSettingsDataclass:
     """Test Settings @dataclass construction and fields"""
@@ -102,9 +96,6 @@ class TestSettingsDataclass:
         assert params['settings_dict'].default is None
 
 
-# ============================================================================
-# Tests I-4, I-5, I-13, I-14: main() integration
-# ============================================================================
 
 class TestMainSignature:
     """Test main() function signature and integration with settings"""
@@ -121,7 +112,6 @@ class TestMainSignature:
             mock_collector.export_data = AsyncMock(return_value=[])
             mock_cls.return_value = mock_collector
             with patch('player_data_fetcher.player_data_fetcher_main.setup_logger'):
-                # Should not raise
                 await main(settings_dict)
 
     def test_main_settings_dict_parameter_exists(self):
@@ -142,9 +132,6 @@ class TestMainSignature:
         assert settings.log_level == 'WARNING'
 
 
-# ============================================================================
-# Tests E-8, E-9, E-19, C-9: edge cases for settings construction
-# ============================================================================
 
 class TestSettingsEdgeCases:
     """Edge case tests for Settings construction"""
@@ -153,7 +140,6 @@ class TestSettingsEdgeCases:
         """E-8: Extra keys in args_dict are ignored (not accessed by create_settings_from_dict)"""
         d = _make_settings_dict()
         d['completely_unknown_key'] = 'surprise_value'
-        # create_settings_from_dict only reads known keys
         settings = create_settings_from_dict(d)
         assert settings.season == d['season']
 
@@ -161,11 +147,10 @@ class TestSettingsEdgeCases:
         """E-9: NFL_PROJ_* env vars no longer override settings (pydantic removed)"""
         with patch.dict(os.environ, {'NFL_PROJ_SEASON': '1999'}):
             settings = Settings()
-            assert settings.season != 1999  # Env var is ignored
+            assert settings.season != 1999
 
     def test_week_to_current_nfl_week_mapping(self):
         """E-19: Runner's --week arg maps to 'current_nfl_week' in dict → Settings.current_nfl_week"""
-        # Simulate the runner's create_settings_dict storing --week as current_nfl_week
         d = _make_settings_dict(current_nfl_week=7)
         settings = create_settings_from_dict(d)
         assert settings.current_nfl_week == 7
@@ -182,9 +167,6 @@ class TestSettingsEdgeCases:
         assert settings.espn_player_limit == 500
 
 
-# ============================================================================
-# Tests 11.2, 11.3, E-1, E-2: E2E graceful skip behavior
-# ============================================================================
 
 class TestE2EGracefulSkip:
     """Test E2E graceful skip for missing drafted data file"""
@@ -206,7 +188,6 @@ class TestE2EGracefulSkip:
             mock_collector.export_data = AsyncMock(return_value=[])
             mock_cls.return_value = mock_collector
             with patch('player_data_fetcher.player_data_fetcher_main.setup_logger'):
-                # Should NOT raise FileNotFoundError
                 await main(settings_dict)
 
     @pytest.mark.asyncio
@@ -252,9 +233,6 @@ class TestE2EGracefulSkip:
         assert settings.e2e_test is True
 
 
-# ============================================================================
-# Test 13.2: log level wiring
-# ============================================================================
 
 class TestLogLevelWiring:
     """Test that log_level flows correctly from settings dict through to Settings"""
@@ -265,3 +243,5 @@ class TestLogLevelWiring:
             d = _make_settings_dict(log_level=level)
             settings = create_settings_from_dict(d)
             assert settings.log_level == level
+
+

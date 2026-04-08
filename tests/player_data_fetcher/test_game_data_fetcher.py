@@ -25,7 +25,6 @@ class TestGameDataFetcherInitialization:
         data_folder = tmp_path / "data"
         data_folder.mkdir()
 
-        # Create a minimal coordinates file
         coords_file = Path(__file__).parent.parent.parent / "player_data_fetcher" / "coordinates.json"
 
         with patch.object(GameDataFetcher, '__init__', lambda self, **kwargs: None):
@@ -97,9 +96,6 @@ class TestLoadExistingData:
         data_folder = tmp_path / "data"
         data_folder.mkdir()
 
-        # Indoor games have no weather data (temperature, gust, precipitation are empty)
-        # Future games have no scores (home_team_score, away_team_score are empty)
-        # Column order: week,home_team,away_team,temperature,gust,precipitation,home_team_score,away_team_score,indoor,neutral_site,country,city,state,date
         csv_content = """week,home_team,away_team,temperature,gust,precipitation,home_team_score,away_team_score,indoor,neutral_site,country,city,state,date
 1,DAL,NYG,,,,,,True,False,USA,Arlington,TX,2024-09-08T12:00Z"""
 
@@ -196,7 +192,6 @@ class TestGetWeatherApiEndpoint:
             fetcher.OPEN_METEO_HISTORICAL_URL = "https://archive-api.open-meteo.com/v1/archive"
             fetcher.OPEN_METEO_FORECAST_URL = "https://api.open-meteo.com/v1/forecast"
 
-            # Game from 10 days ago
             old_date = (datetime.now(timezone.utc) - timedelta(days=10)).isoformat()
 
             endpoint = fetcher._get_weather_api_endpoint(old_date)
@@ -210,7 +205,6 @@ class TestGetWeatherApiEndpoint:
             fetcher.OPEN_METEO_HISTORICAL_URL = "https://archive-api.open-meteo.com/v1/archive"
             fetcher.OPEN_METEO_FORECAST_URL = "https://api.open-meteo.com/v1/forecast"
 
-            # Game from 2 days ago
             recent_date = (datetime.now(timezone.utc) - timedelta(days=2)).isoformat()
 
             endpoint = fetcher._get_weather_api_endpoint(recent_date)
@@ -224,7 +218,6 @@ class TestGetWeatherApiEndpoint:
             fetcher.OPEN_METEO_HISTORICAL_URL = "https://archive-api.open-meteo.com/v1/archive"
             fetcher.OPEN_METEO_FORECAST_URL = "https://api.open-meteo.com/v1/forecast"
 
-            # Game in 3 days
             future_date = (datetime.now(timezone.utc) + timedelta(days=3)).isoformat()
 
             endpoint = fetcher._get_weather_api_endpoint(future_date)
@@ -294,7 +287,6 @@ class TestFetchWeatherForGame:
             fetcher.OPEN_METEO_HISTORICAL_URL = "https://archive-api.open-meteo.com/v1/archive"
             fetcher.OPEN_METEO_FORECAST_URL = "https://api.open-meteo.com/v1/forecast"
 
-            # Use a date > 5 days ago
             old_date = "2024-09-05T00:20Z"
             fetcher._get_weather_api_endpoint = Mock(return_value=fetcher.OPEN_METEO_HISTORICAL_URL)
             fetcher.request_timeout = 30
@@ -502,7 +494,7 @@ class TestBackfillPreviousWeekScores:
 
             result = fetcher._backfill_previous_week_scores(games)
 
-            assert result == games  # No changes
+            assert result == games
 
 
 class TestFetchGameDataConvenienceFunction:
@@ -516,7 +508,6 @@ class TestFetchGameDataConvenienceFunction:
         mock_fetcher.save_to_csv.return_value = tmp_path / "game_data.csv"
         mock_fetcher_class.return_value = mock_fetcher
 
-        # Create the output file so it exists
         output_file = tmp_path / "game_data.csv"
         output_file.write_text("week,home_team\n")
 
@@ -581,7 +572,6 @@ class TestIntegrationScenarios:
         data_folder = tmp_path / "data"
         data_folder.mkdir()
 
-        # Create coordinates file
         coords_file = data_folder / "coordinates.json"
         coords_data = {
             "nfl_stadiums": {
@@ -632,9 +622,6 @@ class TestIntegrationScenarios:
             assert games[0].home_team_score == 27
 
 
-# ============================================================================
-# KAI-10 Refactoring Tests (Task 11 — Tests 9.1-9.2, I-9, I-16)
-# ============================================================================
 
 class TestGameDataFetcherKAI10:
     """
@@ -673,6 +660,7 @@ class TestGameDataFetcherKAI10:
         params = sig.parameters
         assert 'request_timeout' in params
         assert 'rate_limit_delay' in params
-        # Verify defaults match old config values
         assert params['request_timeout'].default == 30
         assert params['rate_limit_delay'].default == 0.2
+
+

@@ -113,20 +113,14 @@ class TestPositionJSONExport:
             ]
         )
 
-        # Set team data required for export
         exporter.set_team_rankings({'KC': {'offense': 1, 'defense': 5}, 'SF': {'offense': 2, 'defense': 3}})
 
-        # Export position JSON files directly
         files = await exporter.export_position_json_files(projection_data)
 
-        # Verify JSON files were created
         assert len(files) > 0, "Position JSON files should be created"
         assert all(f.endswith('.json') for f in files), "All files should be JSON"
 
 
-# ============================================================================
-# KAI-10 Refactoring Tests (Task 11 — Tests 7.1-7.3, I-8, E-14, E-18)
-# ============================================================================
 
 class TestDataExporterKAI10:
     """
@@ -154,7 +148,6 @@ class TestDataExporterKAI10:
     def test_exporter_backward_compat_no_new_params(self, tmp_path):
         """7.3: DataExporter(output_dir=...) still works without new params (backward compat)"""
         exporter = DataExporter(output_dir=str(tmp_path))
-        # Defaults should match old config values
         assert exporter.current_nfl_week == 17
         assert exporter.my_team_name == 'Sea Sharp'
         assert exporter.load_drafted_data is True
@@ -182,3 +175,5 @@ class TestDataExporterKAI10:
             drafted_data_path=custom_path,
         )
         assert exporter.drafted_data_path == custom_path
+
+

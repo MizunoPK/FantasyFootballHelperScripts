@@ -107,7 +107,7 @@ class TestGameData:
             temperature=None,
             gust=None,
             precipitation=None,
-            home_team_score=None,  # Future game
+            home_team_score=None,
             away_team_score=None,
             indoor=True,
             neutral_site=False,
@@ -186,7 +186,6 @@ class TestGameDataFetcher:
         mock_client = Mock()
         fetcher = GameDataFetcher(mock_client)
 
-        # Should have loaded NFL stadiums
         assert 'nfl_stadiums' in fetcher.coordinates
         assert 'KC' in fetcher.coordinates['nfl_stadiums']
 
@@ -239,7 +238,6 @@ class TestWriteGameDataCSV:
 
         assert output_path.exists()
 
-        # Verify contents
         with open(output_path, 'r') as f:
             reader = csv.DictReader(f)
             rows = list(reader)
@@ -270,7 +268,6 @@ class TestGetCoordinates:
 
         coords = fetcher._get_coordinates('JAX', 'London', 'England', True)
 
-        # Should find London coordinates
         assert coords is not None
 
     def test_unknown_venue_returns_none(self):
@@ -281,3 +278,5 @@ class TestGetCoordinates:
         coords = fetcher._get_coordinates('UNKNOWN', 'Unknown City', 'Unknown Country', True)
 
         assert coords is None
+
+

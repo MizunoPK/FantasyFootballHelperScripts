@@ -129,11 +129,8 @@ class TestJSONSnapshotExporter:
 
     def test_calculate_player_ratings_week_2_plus(self, exporter, sample_players):
         """Week 2+ should recalculate from cumulative actual points"""
-        # Week 2: Only week 1 actuals count
         ratings_week2 = exporter._calculate_player_ratings(sample_players, current_week=2)
 
-        # Player 1 had 25.5 points in week 1 (better than Player 2's 22.0)
-        # Player 1 should have higher rating
         assert ratings_week2["1001"] > ratings_week2["1002"]
         assert 1.0 <= ratings_week2["1001"] <= 100.0
         assert 1.0 <= ratings_week2["1002"] <= 100.0
@@ -150,13 +147,11 @@ class TestJSONSnapshotExporter:
             "actual"
         )
 
-        # Weeks 1-4: actual values
         assert result[0] == 10.0
         assert result[1] == 20.0
         assert result[2] == 30.0
         assert result[3] == 40.0
 
-        # Weeks 5-17: 0.0
         assert result[4] == 0.0
         assert result[5] == 0.0
         assert result[16] == 0.0
@@ -175,13 +170,11 @@ class TestJSONSnapshotExporter:
             current_week_value=current_week_value
         )
 
-        # Weeks 1-4: historical projections
         assert result[0] == 10.0
         assert result[1] == 20.0
         assert result[2] == 30.0
         assert result[3] == 40.0
 
-        # Weeks 5-17: current week projection
         assert result[4] == 99.9
         assert result[5] == 99.9
         assert result[16] == 99.9
@@ -198,11 +191,9 @@ class TestJSONSnapshotExporter:
             "stat"
         )
 
-        # Weeks 1-2: actual stats
         assert result[0] == 5.0
         assert result[1] == 10.0
 
-        # Weeks 3-17: 0.0
         assert result[2] == 0.0
         assert result[3] == 0.0
         assert result[16] == 0.0
@@ -267,7 +258,6 @@ class TestJSONSnapshotExporter:
         with patch.object(exporter, '_extract_stats_for_player', return_value={}):
             result = exporter._build_player_json_object(player, current_week=3, player_rating=95.0)
 
-        # Check all required fields
         assert result['id'] == "1001"
         assert result['name'] == "Test Player"
         assert result['team'] == "KC"
@@ -290,8 +280,8 @@ class TestJSONSnapshotExporter:
             name="Test Player",
             team="KC",
             position="QB",
-            bye_week=5,  # Week 5 is bye
-            week_points={1: 25.5, 2: 30.2, 5: 10.0},  # Week 5 shouldn't count
+            bye_week=5,
+            week_points={1: 25.5, 2: 30.2, 5: 10.0},
             projected_weeks={1: 24.0, 2: 28.0, 5: 27.0},
             raw_stats=[]
         )
@@ -299,7 +289,6 @@ class TestJSONSnapshotExporter:
         with patch.object(exporter, '_extract_stats_for_player', return_value={}):
             result = exporter._build_player_json_object(player, current_week=10, player_rating=95.0)
 
-        # Bye week (week 5, index 4) should be 0.0
         assert result['actual_points'][4] == 0.0
         assert result['projected_points'][4] == 0.0
 
@@ -360,11 +349,11 @@ class TestGenerateJSONSnapshots:
 
         generate_json_snapshots(sample_players, tmp_path, current_week=5)
 
-        # Should call generate_position_json 6 times (one per position)
         assert mock_exporter.generate_position_json.call_count == 6
 
-        # Verify each position was called
         calls = mock_exporter.generate_position_json.call_args_list
         positions_called = [call[0][1] for call in calls]
         expected_positions = ['QB', 'RB', 'WR', 'TE', 'K', 'DST']
         assert set(positions_called) == set(expected_positions)
+
+

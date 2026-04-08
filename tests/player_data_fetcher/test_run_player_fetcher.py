@@ -16,9 +16,6 @@ import run_player_fetcher
 from run_player_fetcher import parse_args, create_settings_dict
 
 
-# ============================================================================
-# Tests 1.1-1.8: parse_args() argparse unit tests
-# ============================================================================
 
 class TestParseArgs:
     """Test parse_args() produces correct argparse namespace"""
@@ -69,9 +66,6 @@ class TestParseArgs:
         assert args.load_drafted_data is False
 
 
-# ============================================================================
-# Tests 2.1-2.2: create_settings_dict() unit tests
-# ============================================================================
 
 class TestCreateSettingsDict:
     """Test create_settings_dict() builds correct dict from argparse namespace"""
@@ -97,9 +91,6 @@ class TestCreateSettingsDict:
         assert settings_dict['espn_player_limit'] == 500
 
 
-# ============================================================================
-# Tests I-1, I-2, I-3, I-6: runner integration tests
-# ============================================================================
 
 class TestRunnerIntegration:
     """Integration tests for parse_args and create_settings_dict working together"""
@@ -135,9 +126,6 @@ class TestRunnerIntegration:
         assert callable(main)
 
 
-# ============================================================================
-# Tests E-3, E-4, E-5, E-6, E-7, E-10, E-15, E-16: edge case tests
-# ============================================================================
 
 class TestEdgeCases:
     """Edge case tests for parse_args and create_settings_dict"""
@@ -185,9 +173,6 @@ class TestEdgeCases:
         assert args.log_level == 'DEBUG'
 
 
-# ============================================================================
-# Tests C-1–C-6: default values match old config.py values
-# ============================================================================
 
 class TestDefaultValuesMatchOldConfig:
     """Verify default argument values match old config.py constants (backward compat)"""
@@ -223,9 +208,6 @@ class TestDefaultValuesMatchOldConfig:
         assert args.progress_frequency == 10
 
 
-# ============================================================================
-# Tests 11.1, 12.1, 13.1: E2E mode, no debug flag, log level
-# ============================================================================
 
 class TestE2EAndLogLevel:
     """Tests for E2E mode, absent debug flag, and log level handling"""
@@ -250,3 +232,5 @@ class TestE2EAndLogLevel:
 
         with pytest.raises(SystemExit):
             parse_args(['--log-level', 'VERBOSE'])
+
+

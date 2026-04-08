@@ -97,13 +97,12 @@ class TestProgressTrackerUpdate:
             update_frequency=10
         )
 
-        # Update to the logging threshold
         for i in range(9):
             result = tracker.update()
-            assert result == False  # Should not log yet
+            assert result == False
 
-        result = tracker.update()  # 10th update
-        assert result == True  # Should log now
+        result = tracker.update()
+        assert result == True
 
     def test_update_returns_true_on_completion(self):
         """Test update() returns True when reaching total"""
@@ -111,15 +110,14 @@ class TestProgressTrackerUpdate:
         tracker = ProgressTracker(
             total_players=5,
             logger=mock_logger,
-            update_frequency=100  # High frequency so only completion triggers
+            update_frequency=100
         )
 
-        # Update to completion
         for i in range(4):
             tracker.update()
 
-        result = tracker.update()  # Final update
-        assert result == True  # Should log on completion
+        result = tracker.update()
+        assert result == True
 
 
 class TestProgressTrackerTiming:
@@ -131,7 +129,6 @@ class TestProgressTrackerTiming:
         start = time.time()
         tracker = ProgressTracker(total_players=100, logger=mock_logger)
 
-        # Start time should be close to current time
         assert tracker.start_time >= start
         assert tracker.start_time <= time.time()
 
@@ -145,10 +142,9 @@ class TestProgressTrackerTiming:
         )
 
         initial_time = tracker.last_update_time
-        time.sleep(0.01)  # Small delay
+        time.sleep(0.01)
         tracker.update()
 
-        # Last update time should have changed
         assert tracker.last_update_time >= initial_time
 
 
@@ -158,7 +154,6 @@ class TestEdgeCases:
     def test_tracker_with_zero_total(self):
         """Test tracker handles zero total players gracefully"""
         mock_logger = Mock()
-        # Should not crash with zero total
         tracker = ProgressTracker(total_players=0, logger=mock_logger)
 
         assert tracker.total_players == 0
@@ -182,3 +177,5 @@ class TestEdgeCases:
 
         tracker.update(increment=50)
         assert tracker.processed_players == 100
+
+

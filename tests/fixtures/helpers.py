@@ -81,3 +81,5 @@ def assert_dataframe_output(
             raise AssertionError(
                 f"Column '{col}' contains {nan_count} NaN values (expected none)"
             )
+
+

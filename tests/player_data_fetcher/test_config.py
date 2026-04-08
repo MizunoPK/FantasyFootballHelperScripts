@@ -47,9 +47,6 @@ class TestESPNAPIConfiguration:
         assert len(config.ESPN_USER_AGENT) > 0
 
 
-# ============================================================================
-# KAI-10 Refactoring Tests (Task 11 — Tests C-7, C-8, I-15, C-10)
-# ============================================================================
 
 class TestKAI10ConfigRefactoring:
     """
@@ -83,7 +80,6 @@ class TestKAI10ConfigRefactoring:
 
     def test_config_module_has_exactly_kept_constants(self):
         """I-15: config module exposes only the expected non-CLI constants"""
-        # Verify all 5 kept constants are accessible
         assert hasattr(config, 'COORDINATES_JSON')
         assert hasattr(config, 'ESPN_USER_AGENT')
         assert hasattr(config, 'LOG_NAME')
@@ -95,3 +91,5 @@ class TestKAI10ConfigRefactoring:
         assert isinstance(config.COORDINATES_JSON, str)
         assert len(config.COORDINATES_JSON) > 0
         assert config.COORDINATES_JSON.endswith('.json')
+
+

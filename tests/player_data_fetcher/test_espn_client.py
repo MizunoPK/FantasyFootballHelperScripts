@@ -103,7 +103,6 @@ class TestBaseAPIClientSession:
         settings = Settings()
         client = BaseAPIClient(settings)
 
-        # Should not raise any exceptions
         async with client.session() as http_client:
             assert http_client is not None
 
@@ -113,7 +112,6 @@ class TestBaseAPIClientSession:
         settings = Settings()
         client = BaseAPIClient(settings)
 
-        # Should not raise any exception
         await client.close()
 
 
@@ -212,7 +210,6 @@ class TestPositionToSlotId:
 
     def test_lowercase_position(self, client):
         """Test lowercase position (not handled, returns -1)"""
-        # Our implementation is case-sensitive
         assert client._position_to_slot_id('qb') == -1
 
 
@@ -228,7 +225,6 @@ class TestGetPositionalRankFromOverall:
     @pytest.fixture
     def mock_players_simple(self):
         """Create simple mock player data for testing"""
-        # 3 QBs, 3 RBs
         return [
             {'draft_rank': 12, 'position_id': 1},  # QB1
             {'draft_rank': 25, 'position_id': 1},  # QB2
@@ -302,7 +298,7 @@ class TestGetPositionalRankFromOverall:
             {'draft_rank': 20, 'position_id': 1},   # QB2
         ]
         result = client._get_positional_rank_from_overall(20, 'QB', mock_players)
-        assert result == 2.0  # QB2, not QB3
+        assert result == 2.0
 
     def test_players_missing_position_id(self, client):
         """Test players with missing position_id are ignored"""
@@ -362,13 +358,9 @@ class TestPositionToPositionId:
 
     def test_lowercase_position(self, client):
         """Test lowercase position (not handled, returns -1)"""
-        # Our implementation is case-sensitive
         assert client._position_to_position_id('qb') == -1
 
 
-# ============================================================================
-# KAI-10 Refactoring Tests (Task 11 — Tests 6.1-6.3, I-7, E-17)
-# ============================================================================
 
 class TestESPNClientSettingsKAI10:
     """
@@ -405,3 +397,5 @@ class TestESPNClientSettingsKAI10:
         settings = Settings(progress_frequency=25)
         client = ESPNClient(settings)
         assert client.settings.progress_frequency == 25
+
+

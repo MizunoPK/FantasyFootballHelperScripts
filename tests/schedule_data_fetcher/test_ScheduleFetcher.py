@@ -48,7 +48,6 @@ class TestClientManagement:
 
         assert fetcher.client is not None
 
-        # Cleanup
         await fetcher._close_client()
 
     @pytest.mark.asyncio
@@ -69,7 +68,6 @@ class TestClientManagement:
         output_path = tmp_path / "season_schedule.csv"
         fetcher = ScheduleFetcher(output_path)
 
-        # Should not raise any exception
         await fetcher._close_client()
 
 
@@ -82,7 +80,6 @@ class TestFetchFullSchedule:
         output_path = tmp_path / "season_schedule.csv"
         fetcher = ScheduleFetcher(output_path)
 
-        # Mock API response for a single week
         mock_response = {
             'events': [
                 {
@@ -98,15 +95,13 @@ class TestFetchFullSchedule:
             ]
         }
 
-        # Mock _make_request to return mock response
         with patch.object(fetcher, '_make_request', new_callable=AsyncMock) as mock_request:
             mock_request.return_value = mock_response
 
-            # Fetch schedule for weeks 1-18
             result = await fetcher.fetch_full_schedule(2025)
 
             assert isinstance(result, dict)
-            assert len(result) == 18  # Weeks 1-18
+            assert len(result) == 18
             assert 1 in result
             assert 'KC' in result[1]
             assert result[1]['KC'] == 'BAL'
@@ -118,7 +113,6 @@ class TestFetchFullSchedule:
         output_path = tmp_path / "season_schedule.csv"
         fetcher = ScheduleFetcher(output_path)
 
-        # Mock API response with WAS (should be converted to WSH)
         mock_response = {
             'events': [
                 {
@@ -139,7 +133,6 @@ class TestFetchFullSchedule:
 
             result = await fetcher.fetch_full_schedule(2025)
 
-            # WAS should be converted to WSH
             assert 'WSH' in result[1]
             assert 'WAS' not in result[1]
             assert result[1]['WSH'] == 'PHI'
@@ -150,13 +143,11 @@ class TestFetchFullSchedule:
         output_path = tmp_path / "season_schedule.csv"
         fetcher = ScheduleFetcher(output_path)
 
-        # Mock _make_request to raise an exception
         with patch.object(fetcher, '_make_request', new_callable=AsyncMock) as mock_request:
             mock_request.side_effect = Exception("API error")
 
             result = await fetcher.fetch_full_schedule(2025)
 
-            # Should return empty dict on error
             assert result == {}
 
 
@@ -168,7 +159,6 @@ class TestIdentifyByeWeeks:
         output_path = tmp_path / "season_schedule.csv"
         fetcher = ScheduleFetcher(output_path)
 
-        # Create schedule where KC has bye in week 5
         schedule = {
             1: {'KC': 'BAL', 'BAL': 'KC', 'PHI': 'DAL', 'DAL': 'PHI'},
             5: {'BAL': 'CIN', 'CIN': 'BAL', 'PHI': 'DAL', 'DAL': 'PHI'}  # KC missing
@@ -176,7 +166,6 @@ class TestIdentifyByeWeeks:
 
         bye_weeks = fetcher._identify_bye_weeks(schedule)
 
-        # KC should have bye week 5
         assert 5 in bye_weeks['KC']
 
     def test_identify_bye_weeks_no_byes(self, tmp_path):
@@ -184,7 +173,6 @@ class TestIdentifyByeWeeks:
         output_path = tmp_path / "season_schedule.csv"
         fetcher = ScheduleFetcher(output_path)
 
-        # Schedule with all 32 teams playing in week 1
         all_teams = [
             'ARI', 'ATL', 'BAL', 'BUF', 'CAR', 'CHI', 'CIN', 'CLE',
             'DAL', 'DEN', 'DET', 'GB', 'HOU', 'IND', 'JAX', 'KC',
@@ -201,7 +189,6 @@ class TestIdentifyByeWeeks:
 
         bye_weeks = fetcher._identify_bye_weeks(schedule)
 
-        # No team should have bye week 1
         for team in all_teams:
             assert 1 not in bye_weeks[team]
 
@@ -214,7 +201,6 @@ class TestExportToCsv:
         output_path = tmp_path / "season_schedule.csv"
         fetcher = ScheduleFetcher(output_path)
 
-        # Create simple schedule
         schedule = {
             1: {'KC': 'BAL', 'BAL': 'KC'},
             2: {'KC': 'PHI', 'PHI': 'KC'}
@@ -222,15 +208,12 @@ class TestExportToCsv:
 
         fetcher.export_to_csv(schedule)
 
-        # Verify file was created
         assert output_path.exists()
 
-        # Read and verify CSV contents
         with open(output_path, 'r', newline='') as f:
             reader = csv.DictReader(f)
             rows = list(reader)
 
-            # Should have header: week,team,opponent
             assert 'week' in rows[0]
             assert 'team' in rows[0]
             assert 'opponent' in rows[0]
@@ -240,7 +223,6 @@ class TestExportToCsv:
         output_path = tmp_path / "season_schedule.csv"
         fetcher = ScheduleFetcher(output_path)
 
-        # Schedule where KC has bye in week 5 (missing from week 5)
         schedule = {
             1: {'KC': 'BAL', 'BAL': 'KC', 'PHI': 'DAL', 'DAL': 'PHI'},
             5: {'BAL': 'CIN', 'CIN': 'BAL', 'PHI': 'DAL', 'DAL': 'PHI'}
@@ -248,12 +230,10 @@ class TestExportToCsv:
 
         fetcher.export_to_csv(schedule)
 
-        # Read CSV and verify KC has empty opponent in week 5
         with open(output_path, 'r', newline='') as f:
             reader = csv.DictReader(f)
             rows = list(reader)
 
-            # Find KC's week 5 entry
             kc_week_5 = [r for r in rows if r['team'] == 'KC' and r['week'] == '5']
             assert len(kc_week_5) > 0
             assert kc_week_5[0]['opponent'] == ''  # Empty opponent = bye week
@@ -263,13 +243,11 @@ class TestExportToCsv:
         output_path = tmp_path / "new_dir" / "season_schedule.csv"
         fetcher = ScheduleFetcher(output_path)
 
-        # Directory doesn't exist yet
         assert not output_path.parent.exists()
 
         schedule = {1: {'KC': 'BAL', 'BAL': 'KC'}}
         fetcher.export_to_csv(schedule)
 
-        # Directory should be created
         assert output_path.parent.exists()
         assert output_path.exists()
 
@@ -278,7 +256,6 @@ class TestExportToCsv:
         output_path = tmp_path / "season_schedule.csv"
         fetcher = ScheduleFetcher(output_path)
 
-        # Create schedule out of order
         schedule = {
             2: {'PHI': 'KC', 'KC': 'PHI'},
             1: {'BAL': 'KC', 'KC': 'BAL'}
@@ -290,7 +267,6 @@ class TestExportToCsv:
             reader = csv.DictReader(f)
             rows = list(reader)
 
-            # Should be sorted by week
             weeks = [int(r['week']) for r in rows]
             assert weeks == sorted(weeks)
 
@@ -303,3 +279,5 @@ class TestModuleImports:
         from schedule_data_fetcher.ScheduleFetcher import ScheduleFetcher
 
         assert ScheduleFetcher is not None
+
+

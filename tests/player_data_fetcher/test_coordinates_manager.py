@@ -100,7 +100,6 @@ class TestGetNflStadium:
 
     def test_get_all_32_teams(self, tmp_path):
         """Test getting coordinates for all 32 NFL teams"""
-        # Create minimal data for all teams
         teams = ["ARI", "ATL", "BAL", "BUF", "CAR", "CHI", "CIN", "CLE",
                  "DAL", "DEN", "DET", "GB", "HOU", "IND", "JAX", "KC",
                  "LV", "LAC", "LA", "MIA", "MIN", "NE", "NO", "NYG",
@@ -217,7 +216,6 @@ class TestGetOrFetchCoordinates:
         coords_file = tmp_path / "coordinates.json"
         coords_file.write_text('{"nfl_stadiums": {}, "international_venues": {}}')
 
-        # Mock API response
         mock_response = Mock()
         mock_response.status_code = 200
         mock_response.json.return_value = {
@@ -242,7 +240,6 @@ class TestGetOrFetchCoordinates:
         assert result["lon"] == -46.6333
         assert result["tz"] == "America/Sao_Paulo"
 
-        # Verify it was cached
         cached = manager.get_international_venue("Sao Paulo", "Brazil")
         assert cached["lat"] == -23.5505
 
@@ -272,7 +269,6 @@ class TestGetOrFetchCoordinates:
             is_international=True
         )
 
-        # Read file and verify
         saved_data = json.loads(coords_file.read_text())
         assert "Berlin,Germany" in saved_data["international_venues"]
         assert saved_data["international_venues"]["Berlin,Germany"]["lat"] == 52.5200
@@ -364,7 +360,6 @@ class TestFetchCoordinatesFromApi:
                 "latitude": 35.6762,
                 "longitude": 139.6503,
                 "name": "Tokyo"
-                # No timezone field
             }]
         }
         mock_get.return_value = mock_response
@@ -418,7 +413,6 @@ class TestEdgeCases:
 
         manager = CoordinatesManager(coords_file)
 
-        # Must use exact format
         result = manager.get_international_venue("London", "United Kingdom")
         assert result is not None
 
@@ -438,7 +432,6 @@ class TestEdgeCases:
         manager = CoordinatesManager(coords_file)
         manager._save_coordinates()
 
-        # Reload and verify
         saved_data = json.loads(coords_file.read_text())
         assert saved_data["nfl_stadiums"]["KC"]["lat"] == 39.0489
         assert "London,UK" in saved_data["international_venues"]
@@ -495,7 +488,6 @@ class TestCountryNormalization:
         manager = CoordinatesManager(coords_file)
         result = manager._fetch_coordinates_from_api("London", "England")
 
-        # Verify the API was called with normalized country
         call_args = mock_get.call_args
         params = call_args.kwargs.get('params') or call_args[1].get('params')
         assert "United Kingdom" in params["name"]
@@ -519,7 +511,6 @@ class TestIntegrationScenarios:
 
         manager = CoordinatesManager(coords_file)
 
-        # Look up coordinates for home team
         home_coords = manager.get_or_fetch_coordinates(team_abbrev="KC")
         away_coords = manager.get_or_fetch_coordinates(team_abbrev="BAL")
 
@@ -534,7 +525,6 @@ class TestIntegrationScenarios:
         coords_file = tmp_path / "coordinates.json"
         coords_file.write_text('{"nfl_stadiums": {}, "international_venues": {}}')
 
-        # Mock API response
         mock_response = Mock()
         mock_response.status_code = 200
         mock_response.json.return_value = {
@@ -549,14 +539,12 @@ class TestIntegrationScenarios:
 
         manager = CoordinatesManager(coords_file)
 
-        # First lookup - fetches from API
         result1 = manager.get_or_fetch_coordinates(
             city="Sao Paulo",
             country="Brazil",
             is_international=True
         )
 
-        # Second lookup - should use cache
         mock_get.reset_mock()
         result2 = manager.get_or_fetch_coordinates(
             city="Sao Paulo",
@@ -565,7 +553,7 @@ class TestIntegrationScenarios:
         )
 
         assert result1["lat"] == result2["lat"]
-        mock_get.assert_not_called()  # Second call should use cache
+        mock_get.assert_not_called()
 
     def test_mixed_stadium_lookups(self, tmp_path):
         """Test looking up multiple stadiums in sequence"""
@@ -590,3 +578,5 @@ class TestIntegrationScenarios:
         assert results["SF"] is not None
         assert results["DAL"] is not None
         assert results["XXX"] is None
+
+

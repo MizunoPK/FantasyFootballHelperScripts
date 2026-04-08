@@ -108,7 +108,6 @@ class TestESPNPlayerDataInitialization:
             ESPNPlayerData(
                 name="Test Player",
                 team="TB"
-                # Missing id and position
             )
 
     def test_init_sets_updated_at(self):
@@ -166,7 +165,6 @@ class TestESPNPlayerDataWeeklyPoints:
 
         player.set_week_points(0, 25.5)
 
-        # Should not set anything
         assert not hasattr(player, 'week_0_points')
 
     def test_set_week_points_invalid_week_high(self):
@@ -180,7 +178,6 @@ class TestESPNPlayerDataWeeklyPoints:
 
         player.set_week_points(18, 25.5)
 
-        # Should not set anything
         assert not hasattr(player, 'week_18_points')
 
     def test_get_week_points_set_value(self):
@@ -318,7 +315,7 @@ class TestESPNPlayerDataValidation:
             name="Test Player",
             team="TB",
             position="TE",
-            fantasy_points=100  # Int
+            fantasy_points=100
         )
 
         assert player.fantasy_points == 100.0
@@ -386,7 +383,6 @@ class TestProjectionData:
             ProjectionData(
                 season=2024,
                 scoring_format="ppr"
-                # Missing total_players and players
             )
 
     def test_projection_data_sets_generated_at(self):
@@ -419,7 +415,6 @@ class TestProjectionData:
 
     def test_projection_data_total_players_mismatch(self):
         """Test ProjectionData allows total_players != len(players)"""
-        # Pydantic doesn't enforce this relationship by default
         players = [
             ESPNPlayerData(id="1", name="Player 1", team="TB", position="QB")
         ]
@@ -427,7 +422,7 @@ class TestProjectionData:
         projection_data = ProjectionData(
             season=2024,
             scoring_format="ppr",
-            total_players=100,  # Doesn't match len(players)
+            total_players=100,
             players=players
         )
 
@@ -576,16 +571,15 @@ class TestIntegrationScenarios:
             fantasy_points=300.0
         )
 
-        # Set projections for all weeks except bye
         for week in range(1, 18):
-            if week != 7:  # Skip bye week
+            if week != 7:
                 player.set_week_points(week, 20.0)
 
         all_points = player.get_all_weekly_points()
         non_bye_weeks = [w for w in range(1, 18) if w != 7]
 
         assert all(all_points[w] == 20.0 for w in non_bye_weeks)
-        assert all_points[7] is None  # Bye week
+        assert all_points[7] is None
 
     def test_projection_data_with_multiple_positions(self):
         """Test ProjectionData with players from all positions"""
@@ -624,7 +618,6 @@ class TestIntegrationScenarios:
             fantasy_points=0.0
         )
 
-        # Update as season progresses
         player.drafted_by = "Opponent Team"
         player.fantasy_points = 150.5
         player.set_week_points(1, 15.0)
@@ -791,11 +784,11 @@ class TestESPNPlayerDataProjectedWeeks:
             team="TB",
             position="QB"
         )
-        # Set different values for actual and projected
-        player.set_week_points(1, 38.76)  # Actual score
-        player.set_week_projected(1, 20.83)  # Projected score
+        player.set_week_points(1, 38.76)
+        player.set_week_projected(1, 20.83)
 
-        # They should be independent
         assert player.get_week_points(1) == 38.76
         assert player.get_week_projected(1) == 20.83
         assert player.get_week_points(1) != player.get_week_projected(1)
+
+
