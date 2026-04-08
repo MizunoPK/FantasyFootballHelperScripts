@@ -108,7 +108,6 @@ class TestLoadDraftedData:
 
         manager.load_drafted_data()
 
-        # Should only have 1 entry (first occurrence)
         assert len(manager.drafted_players) == 1
 
     def test_load_drafted_data_returns_false_for_missing_file(self, manager):
@@ -132,11 +131,9 @@ class TestLoadDraftedData:
         csv_path = tmp_path / "drafted.csv"
         csv_path.write_text('Josh Allen QB - BUF,Team Alpha\n')
 
-        # First load
         manager.load_drafted_data()
         first_count = len(manager.drafted_players)
 
-        # Modify file and reload
         csv_path.write_text('Tyreek Hill WR - MIA,Team Beta\n')
         manager.load_drafted_data()
 
@@ -255,7 +252,6 @@ class TestGetPlayersByTeam:
         """Test initializes dict with all team names."""
         teams = manager.get_players_by_team(sample_players)
 
-        # All teams from CSV should be in dict, even if no players matched
         all_team_names = manager.get_all_team_names()
         for team_name in all_team_names:
             assert team_name in teams
@@ -319,7 +315,6 @@ class TestApplyDraftedStateToPlayers:
 
         manager.apply_drafted_state_to_players(sample_players)
 
-        # All players should remain as free agents
         for player in sample_players:
             assert player.drafted_by == ""
 
@@ -394,7 +389,6 @@ class TestExtractPlayerComponents:
         """Test returns empty strings for invalid format."""
         name, pos, team = manager._extract_player_components("Invalid Format")
 
-        # At least one should be empty if parse fails
         assert name == "" or pos == "" or team == ""
 
 
@@ -540,7 +534,6 @@ class TestFindOriginalInfoForKey:
 
     def test_find_original_info_returns_match(self, manager):
         """Test returns original info for normalized key."""
-        # Normalize the player info to get key
         key = manager._normalize_player_info("Josh Allen QB - BUF")
 
         result = manager._find_original_info_for_key(key)
@@ -654,7 +647,6 @@ class TestFindDefenseMatch:
 
         result = manager._find_defense_match("Seattle Seahawks", "DEF", "SEA", lookup)
 
-        # Result may be None or the player, depending on name matching logic
         assert result is None or result.position in ["DST", "DEF", "D/ST"]
 
 
@@ -713,7 +705,6 @@ class TestFuzzyMatchPlayer:
         """Test finds match with high similarity score."""
         result = manager._fuzzy_match_player("Josh Allan", "QB", "BUF", sample_players)
 
-        # May or may not find match depending on similarity threshold
         assert result is None or result.position == "QB"
 
     def test_fuzzy_match_returns_none_for_low_similarity(self, manager, sample_players):
@@ -726,5 +717,6 @@ class TestFuzzyMatchPlayer:
         """Test validates position and team even with fuzzy match."""
         result = manager._fuzzy_match_player("Josh Allen", "WR", "BUF", sample_players)
 
-        # Should not match because position is wrong
         assert result is None
+
+

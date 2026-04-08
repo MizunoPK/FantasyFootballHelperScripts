@@ -16,7 +16,6 @@ class TestFantasyPlayerLockedIndicator:
 
     def test_str_shows_locked_indicator_when_locked_is_one(self):
         """Test that [LOCKED] appears at end of string when locked=1."""
-        # Arrange
         player = FantasyPlayer(
             id=1,
             name="Test Player",
@@ -24,21 +23,18 @@ class TestFantasyPlayerLockedIndicator:
             position="QB",
             bye_week=7,
             drafted_by="",
-            locked=1,  # Player is locked
+            locked=1,
             score=85.5,
             fantasy_points=250.0
         )
 
-        # Act
         player_str = str(player)
 
-        # Assert
         assert " [LOCKED]" in player_str, "Expected [LOCKED] indicator in player string"
         assert player_str.endswith("[LOCKED]"), "Expected [LOCKED] to be at the end of string"
 
     def test_str_no_locked_indicator_when_locked_is_zero(self):
         """Test that [LOCKED] does NOT appear when locked=0."""
-        # Arrange
         player = FantasyPlayer(
             id=2,
             name="Available Player",
@@ -46,21 +42,18 @@ class TestFantasyPlayerLockedIndicator:
             position="RB",
             bye_week=7,
             drafted_by="",
-            locked=0,  # Player is NOT locked
+            locked=0,
             score=75.0,
             fantasy_points=200.0
         )
 
-        # Act
         player_str = str(player)
 
-        # Assert
         assert " [LOCKED]" not in player_str, "Did not expect [LOCKED] indicator when locked=0"
         assert not player_str.endswith("[LOCKED]"), "[LOCKED] should not be at end when locked=0"
 
     def test_str_locked_indicator_with_drafted_status(self):
         """Test that [LOCKED] works correctly with different drafted statuses."""
-        # Test with drafted=0 (AVAILABLE)
         player_available = FantasyPlayer(
             id=3,
             name="Available Locked",
@@ -74,7 +67,6 @@ class TestFantasyPlayerLockedIndicator:
         )
         assert "[AVAILABLE] [LOCKED]" in str(player_available)
 
-        # Test with drafted=1 (DRAFTED)
         player_drafted = FantasyPlayer(
             id=4,
             name="Drafted Locked",
@@ -88,7 +80,6 @@ class TestFantasyPlayerLockedIndicator:
         )
         assert "[DRAFTED] [LOCKED]" in str(player_drafted)
 
-        # Test with drafted=2 (ROSTERED)
         player_rostered = FantasyPlayer(
             id=5,
             name="Rostered Locked",
@@ -104,7 +95,6 @@ class TestFantasyPlayerLockedIndicator:
 
     def test_str_locked_indicator_format(self):
         """Test that the full format includes [LOCKED] in correct position."""
-        # Arrange
         player = FantasyPlayer(
             id=6,
             name="Patrick Mahomes",
@@ -118,18 +108,14 @@ class TestFantasyPlayerLockedIndicator:
             injury_status="ACTIVE"
         )
 
-        # Act
         player_str = str(player)
 
-        # Assert
-        # Expected format: "Name (Team Position) - Score pts [Bye=X] [STATUS] [LOCKED]"
         assert "Patrick Mahomes" in player_str
         assert "(KC QB)" in player_str
         assert "92.3 pts" in player_str
         assert "[Bye=10]" in player_str
         assert "[ROSTERED]" in player_str
         assert "[LOCKED]" in player_str
-        # Ensure [LOCKED] comes after [ROSTERED]
         assert player_str.index("[ROSTERED]") < player_str.index("[LOCKED]")
 
 
@@ -149,9 +135,9 @@ class TestFantasyPlayerInit:
         assert player.name == "Test Player"
         assert player.team == "KC"
         assert player.position == "QB"
-        assert player.is_free_agent()  # Default
-        assert player.locked == 0  # Default
-        assert player.fantasy_points == 0.0  # Default
+        assert player.is_free_agent()
+        assert player.locked == 0
+        assert player.fantasy_points == 0.0
 
     def test_initialization_with_all_fields(self):
         """Test initialization with all available fields (UPDATED for Sub-feature 2)."""
@@ -166,8 +152,8 @@ class TestFantasyPlayerInit:
             fantasy_points=310.5,
             average_draft_position=5.2,
             player_rating=95.8,
-            projected_points=[25.3] * 17,  # Array-based (Sub-feature 1)
-            actual_points=[0.0] * 17,      # Array-based (Sub-feature 1)
+            projected_points=[25.3] * 17,
+            actual_points=[0.0] * 17,
             injury_status="ACTIVE",
             score=92.5,
             weighted_projection=88.0,
@@ -180,7 +166,7 @@ class TestFantasyPlayerInit:
         assert player.id == 2
         assert player.average_draft_position == 5.2
         assert player.player_rating == 95.8
-        assert player.projected_points[0] == 25.3  # Array-based (Sub-feature 1)
+        assert player.projected_points[0] == 25.3
         assert player.injury_status == "ACTIVE"
         assert player.team_offensive_rank == 3
 
@@ -223,7 +209,7 @@ class TestFromDict:
 
         assert player.id == 2
         assert player.name == 'Minimal Player'
-        assert player.bye_week == 0  # Default from safe_int_conversion
+        assert player.bye_week == 0
         assert player.is_free_agent()
         assert player.average_draft_position is None
 
@@ -261,13 +247,12 @@ class TestFromDict:
         player = FantasyPlayer.from_dict(data)
 
         assert player.id == 4
-        assert player.bye_week == 0  # Default for NaN
+        assert player.bye_week == 0
         assert player.average_draft_position is None
         assert player.player_rating is None
 
     def test_from_dict_backward_compatibility_with_adp(self):
         """Test from_dict supports both 'adp' and 'average_draft_position' keys."""
-        # Test with 'adp' key (old format)
         data_old = {
             'id': 5,
             'name': 'Old Format',
@@ -279,7 +264,6 @@ class TestFromDict:
         player = FantasyPlayer.from_dict(data_old)
         assert player.average_draft_position == 8.5
 
-        # Test with 'average_draft_position' key (new format)
         data_new = {
             'id': 6,
             'name': 'New Format',
@@ -412,11 +396,10 @@ class TestWeeklyProjections:
 
     def test_get_weekly_projections_returns_all_weeks(self, mock_config):
         """Test get_weekly_projections returns list of 17 weeks with hybrid logic."""
-        # Create projected points array
         projected = [0.0] * 17
-        projected[0] = 25.0   # Week 1
-        projected[1] = 22.5   # Week 2
-        projected[16] = 30.0  # Week 17
+        projected[0] = 25.0
+        projected[1] = 22.5
+        projected[16] = 30.0
 
         player = FantasyPlayer(
             id=1, name="Projected", team="KC", position="QB",
@@ -424,18 +407,18 @@ class TestWeeklyProjections:
             actual_points=[0.0] * 17
         )
 
-        config = mock_config(current_week=1)  # Week 1, so all projected
+        config = mock_config(current_week=1)
         projections = player.get_weekly_projections(config)
 
         assert len(projections) == 17
-        assert projections[0] == 25.0  # Week 1
-        assert projections[1] == 22.5  # Week 2
-        assert projections[16] == 30.0  # Week 17
+        assert projections[0] == 25.0
+        assert projections[1] == 22.5
+        assert projections[16] == 30.0
 
     def test_get_single_weekly_projection_returns_correct_week(self, mock_config):
         """Test get_single_weekly_projection returns correct week value."""
         projected = [0.0] * 17
-        projected[4] = 28.5  # Week 5
+        projected[4] = 28.5
 
         player = FantasyPlayer(
             id=2, name="Projected", team="KC", position="QB",
@@ -449,11 +432,11 @@ class TestWeeklyProjections:
     def test_get_rest_of_season_projection_sums_remaining_weeks(self, mock_config):
         """Test get_rest_of_season_projection sums from current week to week 17."""
         projected = [0.0] * 17
-        projected[0] = 20.0  # Week 1
-        projected[1] = 25.0  # Week 2
-        projected[2] = 22.0  # Week 3
-        projected[3] = 24.0  # Week 4
-        projected[4] = 26.0  # Week 5
+        projected[0] = 20.0
+        projected[1] = 25.0
+        projected[2] = 22.0
+        projected[3] = 24.0
+        projected[4] = 26.0
 
         player = FantasyPlayer(
             id=3, name="Projected", team="KC", position="QB",
@@ -462,7 +445,6 @@ class TestWeeklyProjections:
         )
 
         config = mock_config(current_week=3)
-        # From week 3 to end (weeks 3, 4, 5 = 22 + 24 + 26 = 72)
         total = player.get_rest_of_season_projection(config)
 
         assert total == 72.0
@@ -470,9 +452,9 @@ class TestWeeklyProjections:
     def test_get_rest_of_season_projection_handles_none_values(self, mock_config):
         """Test get_rest_of_season_projection skips None weeks."""
         projected = [0.0] * 17
-        projected[0] = 20.0  # Week 1
-        projected[1] = None  # Week 2 - Missing projection
-        projected[2] = 22.0  # Week 3
+        projected[0] = 20.0
+        projected[1] = None
+        projected[2] = 22.0
 
         player = FantasyPlayer(
             id=4, name="Projected", team="KC", position="QB",
@@ -481,7 +463,6 @@ class TestWeeklyProjections:
         )
 
         config = mock_config(current_week=1)
-        # From week 1 to end (weeks 1, 3 = 20 + 22 = 42, week 2 skipped)
         total = player.get_rest_of_season_projection(config)
 
         assert total == 42.0
@@ -601,7 +582,6 @@ class TestEqualityAndHashing:
 
         player_set = {player1, player2, player3}
 
-        # player1 and player3 have same ID, so only 2 unique players
         assert len(player_set) == 2
 
 
@@ -689,7 +669,6 @@ class TestFantasyPlayerFromJSON:
 
     def test_from_json_with_complete_qb_data(self):
         """Test from_json() loads QB with all fields populated."""
-        # Arrange - Complete QB data with all stats
         json_data = {
             "id": "12345",
             "name": "Patrick Mahomes",
@@ -719,43 +698,37 @@ class TestFantasyPlayerFromJSON:
             }
         }
 
-        # Act
         player = FantasyPlayer.from_json(json_data)
 
-        # Assert - Core fields
         assert player.id == 12345
         assert player.name == "Patrick Mahomes"
         assert player.team == "KC"
         assert player.position == "QB"
         assert player.bye_week == 7
-        assert player.is_free_agent()  # Empty drafted_by → 0
+        assert player.is_free_agent()
         assert player.locked == False
         assert player.average_draft_position == 15.3
         assert player.player_rating == 95.5
         assert player.injury_status == "ACTIVE"
 
-        # Assert - Arrays
         assert len(player.projected_points) == 17
         assert player.projected_points[0] == 25.3
         assert player.projected_points[1] == 28.1
         assert len(player.actual_points) == 17
         assert player.actual_points[0] == 0.0
 
-        # Assert - Calculated fantasy_points
         expected_fantasy_points = sum([25.3, 28.1, 22.5] + [20.0] * 14)
         assert player.fantasy_points == expected_fantasy_points
 
-        # Assert - Position-specific stats
         assert player.passing is not None
         assert player.passing["completions"] == [22.5] * 17
         assert player.rushing is not None
         assert player.misc is not None
-        assert player.receiving is None  # QB doesn't have receiving
-        assert player.defense is None  # QB doesn't have defense
+        assert player.receiving is None
+        assert player.defense is None
 
     def test_from_json_with_partial_rb_data(self):
         """Test from_json() loads RB with partial fields (verify Optional fields = None)."""
-        # Arrange - Minimal RB data
         json_data = {
             "id": "67890",
             "name": "Christian McCaffrey",
@@ -775,27 +748,23 @@ class TestFantasyPlayerFromJSON:
             }
         }
 
-        # Act
         player = FantasyPlayer.from_json(json_data)
 
-        # Assert - Core fields with defaults
         assert player.id == 67890
         assert player.name == "Christian McCaffrey"
-        assert player.bye_week is None  # Not provided
-        assert player.is_free_agent()  # Default (no drafted_by)
-        assert player.locked == False  # Default
-        assert player.average_draft_position is None  # Not provided
+        assert player.bye_week is None
+        assert player.is_free_agent()
+        assert player.locked == False
+        assert player.average_draft_position is None
         assert player.injury_status == "UNKNOWN"  # Default
 
-        # Assert - Position-specific stats
         assert player.rushing is not None
         assert player.receiving is not None
-        assert player.passing is None  # RB doesn't have passing
+        assert player.passing is None
         assert player.defense is None
 
     def test_from_json_with_kicker_no_passing_rushing(self):
         """Test from_json() loads K without passing/rushing stats."""
-        # Arrange - Kicker data
         json_data = {
             "id": "11111",
             "name": "Justin Tucker",
@@ -813,10 +782,8 @@ class TestFantasyPlayerFromJSON:
             }
         }
 
-        # Act
         player = FantasyPlayer.from_json(json_data)
 
-        # Assert
         assert player.position == "K"
         assert player.field_goals is not None
         assert player.extra_points is not None
@@ -827,7 +794,6 @@ class TestFantasyPlayerFromJSON:
 
     def test_from_json_with_dst_defense_stats(self):
         """Test from_json() loads DST with defense stats."""
-        # Arrange - DST data
         json_data = {
             "id": "99999",
             "name": "San Francisco",
@@ -844,10 +810,8 @@ class TestFantasyPlayerFromJSON:
             }
         }
 
-        # Act
         player = FantasyPlayer.from_json(json_data)
 
-        # Assert
         assert player.position == "DST"
         assert player.defense is not None
         assert player.defense["sacks"] == [3.0] * 17
@@ -857,7 +821,6 @@ class TestFantasyPlayerFromJSON:
 
     def test_from_json_id_conversion_string_to_int(self):
         """Test from_json() converts id from string to int."""
-        # Arrange
         json_data = {
             "id": "12345",
             "name": "Test Player",
@@ -865,16 +828,13 @@ class TestFantasyPlayerFromJSON:
             "position": "QB"
         }
 
-        # Act
         player = FantasyPlayer.from_json(json_data)
 
-        # Assert
         assert isinstance(player.id, int)
         assert player.id == 12345
 
     def test_from_json_drafted_by_conversion_undrafted(self):
         """Test from_json() converts drafted_by empty string to drafted=0."""
-        # Arrange
         json_data = {
             "id": "12345",
             "name": "Test Player",
@@ -883,15 +843,12 @@ class TestFantasyPlayerFromJSON:
             "drafted_by": ""
         }
 
-        # Act
         player = FantasyPlayer.from_json(json_data)
 
-        # Assert
         assert player.is_free_agent()
 
     def test_from_json_drafted_by_conversion_our_team(self):
         """Test from_json() loads drafted_by='Sea Sharp' correctly."""
-        # Arrange
         json_data = {
             "id": "12345",
             "name": "Test Player",
@@ -900,16 +857,12 @@ class TestFantasyPlayerFromJSON:
             "drafted_by": "Sea Sharp"
         }
 
-        # Act
         player = FantasyPlayer.from_json(json_data)
 
-        # Assert - verify drafted_by is loaded
         assert player.drafted_by == "Sea Sharp"
-        # Note: drafted property derivation will be tested in Phase 4 (REQ-016)
 
     def test_from_json_drafted_by_conversion_other_team(self):
         """Test from_json() loads drafted_by='Opponent Team' correctly."""
-        # Arrange
         json_data = {
             "id": "12345",
             "name": "Test Player",
@@ -918,16 +871,12 @@ class TestFantasyPlayerFromJSON:
             "drafted_by": "Opponent Team"
         }
 
-        # Act
         player = FantasyPlayer.from_json(json_data)
 
-        # Assert - verify drafted_by is loaded
         assert player.drafted_by == "Opponent Team"
-        # Note: drafted property derivation will be tested in Phase 4 (REQ-016)
 
     def test_from_json_locked_boolean_loading(self):
         """Test from_json() loads locked as boolean directly."""
-        # Arrange
         json_data_locked = {
             "id": "12345",
             "name": "Locked Player",
@@ -943,17 +892,14 @@ class TestFantasyPlayerFromJSON:
             "locked": False
         }
 
-        # Act
         player_locked = FantasyPlayer.from_json(json_data_locked)
         player_unlocked = FantasyPlayer.from_json(json_data_unlocked)
 
-        # Assert
         assert player_locked.locked == True
         assert player_unlocked.locked == False
 
     def test_from_json_fantasy_points_calculated_from_projected_points(self):
         """Test from_json() calculates fantasy_points as sum of projected_points."""
-        # Arrange
         projected = [25.0, 28.0, 22.0] + [20.0] * 14
         json_data = {
             "id": "12345",
@@ -963,16 +909,13 @@ class TestFantasyPlayerFromJSON:
             "projected_points": projected
         }
 
-        # Act
         player = FantasyPlayer.from_json(json_data)
 
-        # Assert
         expected_sum = sum(projected)
         assert player.fantasy_points == expected_sum
 
     def test_from_json_array_padding_short_array(self):
         """Test from_json() pads arrays with less than 17 elements."""
-        # Arrange - Only 15 elements
         json_data = {
             "id": "12345",
             "name": "Test Player",
@@ -982,21 +925,18 @@ class TestFantasyPlayerFromJSON:
             "actual_points": [10.0] * 10
         }
 
-        # Act
         player = FantasyPlayer.from_json(json_data)
 
-        # Assert
         assert len(player.projected_points) == 17
         assert len(player.actual_points) == 17
         assert player.projected_points[14] == 25.0
-        assert player.projected_points[15] == 0.0  # Padded
-        assert player.projected_points[16] == 0.0  # Padded
+        assert player.projected_points[15] == 0.0
+        assert player.projected_points[16] == 0.0
         assert player.actual_points[9] == 10.0
-        assert player.actual_points[10] == 0.0  # Padded
+        assert player.actual_points[10] == 0.0
 
     def test_from_json_array_truncation_long_array(self):
         """Test from_json() truncates arrays with more than 17 elements."""
-        # Arrange - 20 elements
         json_data = {
             "id": "12345",
             "name": "Test Player",
@@ -1006,16 +946,13 @@ class TestFantasyPlayerFromJSON:
             "actual_points": [10.0] * 18
         }
 
-        # Act
         player = FantasyPlayer.from_json(json_data)
 
-        # Assert
         assert len(player.projected_points) == 17
         assert len(player.actual_points) == 17
 
     def test_from_json_missing_arrays_default_to_zeros(self):
         """Test from_json() creates default [0.0]*17 arrays when missing."""
-        # Arrange - No arrays provided
         json_data = {
             "id": "12345",
             "name": "Test Player",
@@ -1023,10 +960,8 @@ class TestFantasyPlayerFromJSON:
             "position": "QB"
         }
 
-        # Act
         player = FantasyPlayer.from_json(json_data)
 
-        # Assert
         assert len(player.projected_points) == 17
         assert len(player.actual_points) == 17
         assert all(p == 0.0 for p in player.projected_points)
@@ -1034,7 +969,6 @@ class TestFantasyPlayerFromJSON:
 
     def test_from_json_empty_arrays(self):
         """Test from_json() handles empty arrays by padding to 17."""
-        # Arrange
         json_data = {
             "id": "12345",
             "name": "Test Player",
@@ -1044,52 +978,43 @@ class TestFantasyPlayerFromJSON:
             "actual_points": []
         }
 
-        # Act
         player = FantasyPlayer.from_json(json_data)
 
-        # Assert
         assert len(player.projected_points) == 17
         assert len(player.actual_points) == 17
         assert all(p == 0.0 for p in player.projected_points)
 
     def test_from_json_missing_required_field_raises_value_error(self):
         """Test from_json() raises ValueError when required field is missing."""
-        # Arrange - Missing 'name'
         json_data_no_name = {
             "id": "12345",
             "team": "KC",
             "position": "QB"
         }
 
-        # Act & Assert
         with pytest.raises(ValueError, match="Missing required field"):
             FantasyPlayer.from_json(json_data_no_name)
 
-        # Arrange - Missing 'id'
         json_data_no_id = {
             "name": "Test Player",
             "team": "KC",
             "position": "QB"
         }
 
-        # Act & Assert
         with pytest.raises(ValueError, match="Missing required field"):
             FantasyPlayer.from_json(json_data_no_id)
 
-        # Arrange - Missing 'position'
         json_data_no_position = {
             "id": "12345",
             "name": "Test Player",
             "team": "KC"
         }
 
-        # Act & Assert
         with pytest.raises(ValueError, match="Missing required field"):
             FantasyPlayer.from_json(json_data_no_position)
 
     def test_from_json_nested_stats_preservation(self):
         """Test from_json() preserves nested stat dictionaries exactly."""
-        # Arrange
         passing_stats = {
             "completions": [22.5] * 17,
             "attempts": [35.0] * 17,
@@ -1105,10 +1030,8 @@ class TestFantasyPlayerFromJSON:
             "passing": passing_stats
         }
 
-        # Act
         player = FantasyPlayer.from_json(json_data)
 
-        # Assert - Nested dict preserved exactly
         assert player.passing == passing_stats
         assert player.passing["completions"] == [22.5] * 17
         assert player.passing["interceptions"] == [0.8] * 17
@@ -1141,126 +1064,96 @@ class TestFantasyPlayerHybridWeeklyData:
 
     def test_get_weekly_projections_hybrid_past_weeks(self, sample_player, mock_config):
         """Test get_weekly_projections() returns actual for past weeks."""
-        # Arrange
         config = mock_config(current_week=5)
 
-        # Act
         result = sample_player.get_weekly_projections(config)
 
-        # Assert - Past weeks (1-4) use actual_points
-        assert result[0] == 15.0  # Week 1 - actual
-        assert result[1] == 25.0  # Week 2 - actual
-        assert result[2] == 35.0  # Week 3 - actual
-        assert result[3] == 45.0  # Week 4 - actual
+        assert result[0] == 15.0
+        assert result[1] == 25.0
+        assert result[2] == 35.0
+        assert result[3] == 45.0
 
-        # Assert - Current/future weeks (5-17) use projected_points
-        assert result[4] == 50.0   # Week 5 - projected
-        assert result[5] == 60.0   # Week 6 - projected
-        assert result[16] == 170.0 # Week 17 - projected
+        assert result[4] == 50.0
+        assert result[5] == 60.0
+        assert result[16] == 170.0
 
     def test_get_weekly_projections_hybrid_at_current_week_boundary(self, sample_player, mock_config):
         """Test get_weekly_projections() at current week boundary."""
-        # Arrange
         config = mock_config(current_week=10)
 
-        # Act
         result = sample_player.get_weekly_projections(config)
 
-        # Assert - Week 9 (past) uses actual
-        assert result[8] == 95.0  # Week 9 - actual
+        assert result[8] == 95.0
 
-        # Assert - Week 10 (current) uses projected
-        assert result[9] == 100.0 # Week 10 - projected
+        assert result[9] == 100.0
 
     def test_get_weekly_projections_edge_case_week_1(self, sample_player, mock_config):
         """Test get_weekly_projections() when current_week=1 (all projected)."""
-        # Arrange
         config = mock_config(current_week=1)
 
-        # Act
         result = sample_player.get_weekly_projections(config)
 
-        # Assert - All weeks use projected (no past weeks)
-        assert result[0] == 10.0   # Week 1 - projected
-        assert result[8] == 90.0   # Week 9 - projected
-        assert result[16] == 170.0 # Week 17 - projected
+        assert result[0] == 10.0
+        assert result[8] == 90.0
+        assert result[16] == 170.0
 
     def test_get_weekly_projections_edge_case_week_18(self, sample_player, mock_config):
         """Test get_weekly_projections() when current_week=18 (all actual)."""
-        # Arrange
         config = mock_config(current_week=18)
 
-        # Act
         result = sample_player.get_weekly_projections(config)
 
-        # Assert - All weeks use actual (all are past)
-        assert result[0] == 15.0   # Week 1 - actual
-        assert result[8] == 95.0   # Week 9 - actual
-        assert result[16] == 175.0 # Week 17 - actual
+        assert result[0] == 15.0
+        assert result[8] == 95.0
+        assert result[16] == 175.0
 
     def test_get_single_weekly_projection_with_config(self, sample_player, mock_config):
         """Test get_single_weekly_projection() delegates to hybrid logic."""
-        # Arrange
         config = mock_config(current_week=8)
 
-        # Act - Past week
         past_result = sample_player.get_single_weekly_projection(5, config)
-        # Act - Future week
         future_result = sample_player.get_single_weekly_projection(12, config)
 
-        # Assert
-        assert past_result == 55.0   # Week 5 is past - uses actual
-        assert future_result == 120.0 # Week 12 is future - uses projected
+        assert past_result == 55.0
+        assert future_result == 120.0
 
     def test_get_single_weekly_projection_validation_week_0(self, sample_player, mock_config):
         """Test get_single_weekly_projection() raises ValueError for week_num=0."""
-        # Arrange
         config = mock_config(current_week=5)
 
-        # Act & Assert
         with pytest.raises(ValueError, match="week_num must be between 1 and 17"):
             sample_player.get_single_weekly_projection(0, config)
 
     def test_get_single_weekly_projection_validation_week_negative(self, sample_player, mock_config):
         """Test get_single_weekly_projection() raises ValueError for negative week_num."""
-        # Arrange
         config = mock_config(current_week=5)
 
-        # Act & Assert
         with pytest.raises(ValueError, match="week_num must be between 1 and 17"):
             sample_player.get_single_weekly_projection(-1, config)
 
     def test_get_single_weekly_projection_validation_week_18(self, sample_player, mock_config):
         """Test get_single_weekly_projection() raises ValueError for week_num=18."""
-        # Arrange
         config = mock_config(current_week=5)
 
-        # Act & Assert
         with pytest.raises(ValueError, match="week_num must be between 1 and 17"):
             sample_player.get_single_weekly_projection(18, config)
 
     def test_get_rest_of_season_projection_with_config(self, sample_player, mock_config):
         """Test get_rest_of_season_projection() uses hybrid data."""
-        # Arrange
         config = mock_config(current_week=10)
 
-        # Act
         result = sample_player.get_rest_of_season_projection(config)
 
-        # Assert - Sum of weeks 10-17 (all projected since week 10 is current)
-        # Weeks 10-17: 100.0 + 110.0 + 120.0 + 130.0 + 140.0 + 150.0 + 160.0 + 170.0
         expected = 100.0 + 110.0 + 120.0 + 130.0 + 140.0 + 150.0 + 160.0 + 170.0
         assert result == expected
 
     def test_get_rest_of_season_projection_includes_current_week_actual(self, sample_player, mock_config):
         """Test ROS projection uses actual if current week already played."""
-        # Arrange
         config = mock_config(current_week=6)
 
-        # Act
         result = sample_player.get_rest_of_season_projection(config)
 
-        # Assert - Sum of weeks 6-17 (week 6+ use projected)
-        # Weeks 6-17: 60.0 + 70.0 + 80.0 + 90.0 + 100.0 + 110.0 + 120.0 + 130.0 + 140.0 + 150.0 + 160.0 + 170.0
         expected = sum([60.0, 70.0, 80.0, 90.0, 100.0, 110.0, 120.0, 130.0, 140.0, 150.0, 160.0, 170.0])
         assert result == expected
+
+

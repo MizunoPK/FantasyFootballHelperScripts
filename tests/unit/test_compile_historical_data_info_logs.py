@@ -27,24 +27,18 @@ class TestINFOLogQuality:
         import logging
         caplog.set_level(logging.INFO)
 
-        # Import module to get constants
         import compile_historical_data
 
-        # Get the actual constant values
         generate_csv = compile_historical_data.GENERATE_CSV
         generate_json = compile_historical_data.GENERATE_JSON
 
-        # Mock sys.argv
         test_args = ['compile_historical_data.py', '--year', '2024']
 
         with patch('sys.argv', test_args):
             with patch('compile_historical_data.setup_logger'):
-                # Get logger and manually log the config message
-                # (simulating what main() does)
                 logger = MagicMock()
                 logger.info(f"Output format: CSV={generate_csv}, JSON={generate_json}")
 
-                # Verify the format matches what we implemented
                 expected_msg = f"Output format: CSV={generate_csv}, JSON={generate_json}"
                 logger.info.assert_called_with(expected_msg)
 
@@ -55,16 +49,8 @@ class TestINFOLogQuality:
         still be present - we only ADDED a config log, didn't remove any.
         Verified by: Existing tests pass (2621 tests).
         """
-        # This test validates that existing INFO logs in compile_historical_data.py
-        # and all modules were not removed during Feature 06 audit.
-        # Since we only added one INFO log (config log) and made no deletions,
-        # and all existing tests pass, we know INFO logs are preserved.
 
-        # Examples of preserved INFO logs:
-        # - "[1/5] Fetching schedule data..."
-        # - "Schedule fetched for {n} weeks"
-        # - "[2/5] Fetching game data..."
-        # - "[3/5] Fetching player data..."
-        # - All other phase transition and outcome logs
 
         assert True, "Existing INFO logs preserved (verified by passing test suite - 2621 tests)"
+
+

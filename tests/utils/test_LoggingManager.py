@@ -61,13 +61,11 @@ class TestLoggingManager:
         """Test setup_logger clears previous handlers."""
         manager = LoggingManager()
 
-        # Setup logger twice
         logger1 = manager.setup_logger("test")
         initial_handler_count = len(logger1.handlers)
 
         logger2 = manager.setup_logger("test")
 
-        # Should have same number of handlers, not double
         assert len(logger2.handlers) == initial_handler_count
 
     def test_setup_logger_with_console_enabled(self):
@@ -76,7 +74,6 @@ class TestLoggingManager:
 
         logger = manager.setup_logger("test", enable_console=True)
 
-        # Should have at least one StreamHandler
         stream_handlers = [h for h in logger.handlers if isinstance(h, logging.StreamHandler)]
         assert len(stream_handlers) > 0
 
@@ -86,7 +83,6 @@ class TestLoggingManager:
 
         logger = manager.setup_logger("test", enable_console=False, log_to_file=False)
 
-        # Should have no StreamHandler
         stream_handlers = [h for h in logger.handlers if isinstance(h, logging.StreamHandler)]
         assert len(stream_handlers) == 0
 
@@ -97,11 +93,8 @@ class TestLoggingManager:
 
         logger = manager.setup_logger("test", log_to_file=True, log_file_path=log_file, enable_console=False)
 
-        # Should have LineBasedRotatingHandler (replaced RotatingFileHandler)
         file_handlers = [h for h in logger.handlers if isinstance(h, LineBasedRotatingHandler)]
         assert len(file_handlers) > 0
-        # Note: log_file path is used as base, but actual file will have timestamp
-        # Just verify handler was created
         assert len(logger.handlers) > 0
 
     def test_setup_logger_creates_log_directory(self, tmp_path):
@@ -159,7 +152,6 @@ class TestLogFormats:
 
         formatter = manager._get_formatter('unknown_format')
 
-        # Should default to standard format
         assert formatter._fmt == manager.STANDARD_FORMAT
 
     def test_setup_logger_applies_format(self):
@@ -168,7 +160,6 @@ class TestLogFormats:
 
         logger = manager.setup_logger("test", log_format='simple')
 
-        # Check that handlers have the correct formatter
         for handler in logger.handlers:
             assert handler.formatter is not None
 
@@ -209,10 +200,8 @@ class TestFileHandlerConfiguration:
         """Test file handler accepts max_file_size for backward compatibility (ignored)."""
         manager = LoggingManager()
         log_file = tmp_path / "test.log"
-        max_size = 5 * 1024 * 1024  # 5MB
+        max_size = 5 * 1024 * 1024
 
-        # max_file_size is kept for backward compatibility but ignored
-        # LineBasedRotatingHandler uses max_lines instead
         logger = manager.setup_logger(
             "test",
             log_to_file=True,
@@ -222,8 +211,7 @@ class TestFileHandlerConfiguration:
         )
 
         file_handler = [h for h in logger.handlers if isinstance(h, LineBasedRotatingHandler)][0]
-        # Verify LineBasedRotatingHandler was created (not RotatingFileHandler)
-        assert file_handler.max_lines == 500  # Default from spec
+        assert file_handler.max_lines == 500
 
     def test_rotating_file_handler_backup_count(self, tmp_path):
         """Test file handler accepts backup_count for backward compatibility (ignored)."""
@@ -231,8 +219,6 @@ class TestFileHandlerConfiguration:
         log_file = tmp_path / "test.log"
         backup_count = 3
 
-        # backup_count is kept for backward compatibility but ignored
-        # LineBasedRotatingHandler uses max_files instead
         logger = manager.setup_logger(
             "test",
             log_to_file=True,
@@ -242,8 +228,7 @@ class TestFileHandlerConfiguration:
         )
 
         file_handler = [h for h in logger.handlers if isinstance(h, LineBasedRotatingHandler)][0]
-        # Verify LineBasedRotatingHandler was created with default max_files
-        assert file_handler.max_files == 50  # Default from spec
+        assert file_handler.max_files == 50
 
     def test_file_handler_encoding(self, tmp_path):
         """Test file handler uses UTF-8 encoding."""
@@ -258,7 +243,6 @@ class TestFileHandlerConfiguration:
         )
 
         file_handler = [h for h in logger.handlers if isinstance(h, LineBasedRotatingHandler)][0]
-        # LineBasedRotatingHandler stores encoding in stream.encoding
         assert file_handler.stream.encoding == 'utf-8'
 
 
@@ -279,12 +263,8 @@ class TestGenerateLogFilePath:
 
         path = manager._generate_log_file_path(tmp_path, "test")
 
-        # Format: test-YYYYMMDD_HHMMSS.log
-        # stem is: test-YYYYMMDD_HHMMSS
-        # Split by '-' gives ['test', 'YYYYMMDD_HHMMSS']
         timestamp_part = path.stem.split('-')[-1]
-        # Should be YYYYMMDD_HHMMSS format (15 characters)
-        assert len(timestamp_part) == 15  # YYYYMMDD_HHMMSS
+        assert len(timestamp_part) == 15
 
     def test_generate_log_file_path_has_log_extension(self, tmp_path):
         """Test generated path has .log extension."""
@@ -354,8 +334,6 @@ class TestMultipleHandlers:
             log_file_path=log_file
         )
 
-        # Should have both types of handlers
-        # Note: LineBasedRotatingHandler is a FileHandler, not a StreamHandler
         stream_handlers = [h for h in logger.handlers if isinstance(h, logging.StreamHandler) and not isinstance(h, LineBasedRotatingHandler)]
         file_handlers = [h for h in logger.handlers if isinstance(h, LineBasedRotatingHandler)]
 
@@ -370,3 +348,5 @@ class TestMultipleHandlers:
 
         for handler in logger.handlers:
             assert handler.level == logging.ERROR
+
+

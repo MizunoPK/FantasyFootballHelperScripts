@@ -68,7 +68,6 @@ class TestGetFilesByType:
 
     def test_get_files_by_type_returns_files_sorted_by_time(self, manager, tmp_path):
         """Test files are returned sorted by modification time (oldest first)."""
-        # Create files with different timestamps
         file1 = tmp_path / "file1.csv"
         file2 = tmp_path / "file2.csv"
         file3 = tmp_path / "file3.csv"
@@ -82,9 +81,9 @@ class TestGetFilesByType:
         files = manager.get_files_by_type('csv')
 
         assert len(files) == 3
-        assert files[0] == file1  # Oldest first
+        assert files[0] == file1
         assert files[1] == file2
-        assert files[2] == file3  # Newest last
+        assert files[2] == file3
 
     def test_get_files_by_type_filters_by_extension(self, manager, tmp_path):
         """Test only files with matching extension are returned."""
@@ -109,7 +108,6 @@ class TestGetFilesByType:
 
     def test_get_files_by_type_case_insensitive(self, manager, tmp_path):
         """Test file type matching handles lowercase extension parameter."""
-        # Note: glob is case-sensitive on Linux, so only lowercase files will match
         (tmp_path / "data.csv").touch()
         (tmp_path / "info.csv").touch()
 
@@ -128,7 +126,6 @@ class TestDeleteOldestFiles:
 
     def test_delete_oldest_files_deletes_correct_count(self, manager, tmp_path):
         """Test deletes the specified number of oldest files."""
-        # Create 5 files
         for i in range(5):
             (tmp_path / f"file{i}.csv").touch()
             time.sleep(0.01)
@@ -139,7 +136,6 @@ class TestDeleteOldestFiles:
         assert "file0.csv" in deleted
         assert "file1.csv" in deleted
 
-        # Verify files were actually deleted
         remaining = manager.get_files_by_type('csv')
         assert len(remaining) == 3
 
@@ -172,7 +168,6 @@ class TestEnforceFileCaps:
 
     def test_enforce_file_caps_deletes_excess_files(self, manager, tmp_path):
         """Test deletes excess files when cap is exceeded."""
-        # Create 5 files (cap is 3, so 2 should be deleted)
         for i in range(5):
             (tmp_path / f"file{i}.csv").touch()
             time.sleep(0.01)
@@ -185,7 +180,6 @@ class TestEnforceFileCaps:
 
     def test_enforce_file_caps_keeps_newest_files(self, manager, tmp_path):
         """Test keeps the newest files when enforcing caps."""
-        # Create 5 files
         file_names = []
         for i in range(5):
             name = f"file{i}.csv"
@@ -198,7 +192,6 @@ class TestEnforceFileCaps:
         remaining = manager.get_files_by_type('csv')
         remaining_names = [f.name for f in remaining]
 
-        # Should keep the newest 3 files
         assert len(remaining) == 3
         assert file_names[2] in remaining_names
         assert file_names[3] in remaining_names
@@ -215,7 +208,6 @@ class TestEnforceFileCaps:
         """Test returns empty dict when cap is set to 0 (disabled)."""
         manager = DataFileManager(str(tmp_path), file_caps={'csv': 0})
 
-        # Create multiple files
         for i in range(5):
             (tmp_path / f"file{i}.csv").touch()
 
@@ -225,7 +217,6 @@ class TestEnforceFileCaps:
 
     def test_enforce_file_caps_does_not_delete_when_under_cap(self, manager, tmp_path):
         """Test does not delete files when count is under cap."""
-        # Create 2 files (cap is 3)
         (tmp_path / "file1.csv").touch()
         (tmp_path / "file2.csv").touch()
 
@@ -244,7 +235,6 @@ class TestCleanupAllFileTypes:
 
     def test_cleanup_all_file_types_enforces_all_caps(self, manager, tmp_path):
         """Test enforces caps for all configured file types."""
-        # Create excess files for each type
         for i in range(4):
             (tmp_path / f"file{i}.csv").touch()
             (tmp_path / f"data{i}.json").touch()
@@ -264,7 +254,6 @@ class TestCleanupAllFileTypes:
         """Test skips file types with cap set to 0."""
         manager = DataFileManager(str(tmp_path), file_caps={'csv': 2, 'json': 0})
 
-        # Create excess files
         for i in range(4):
             (tmp_path / f"file{i}.csv").touch()
             (tmp_path / f"data{i}.json").touch()
@@ -277,7 +266,6 @@ class TestCleanupAllFileTypes:
 
     def test_cleanup_all_file_types_returns_empty_when_under_caps(self, manager, tmp_path):
         """Test returns empty dict when all file counts are under caps."""
-        # Create 1 file of each type (caps are 2)
         (tmp_path / "file.csv").touch()
         (tmp_path / "data.json").touch()
 
@@ -296,7 +284,6 @@ class TestGetFileCounts:
 
     def test_get_file_counts_returns_correct_counts(self, manager, tmp_path):
         """Test returns accurate file counts for each type."""
-        # Create different numbers of each file type
         for i in range(3):
             (tmp_path / f"file{i}.csv").touch()
         for i in range(2):
@@ -384,11 +371,9 @@ class TestTimestampedFilenames:
 
         assert filename.startswith('players_')
         assert filename.endswith('.csv')
-        # Format is: players_YYYYMMDD_HHMMSS.csv
-        # Split by '_' gives: ['players', 'YYYYMMDD', 'HHMMSS.csv']
         parts = filename.split('_')
         assert len(parts) == 3
-        assert len(parts[1]) == 8  # YYYYMMDD
+        assert len(parts[1]) == 8
         assert len(parts[2].split('.')[0]) == 6  # HHMMSS
 
     def test_generate_timestamped_filename_without_time(self, manager):
@@ -461,16 +446,13 @@ class TestSaveDataframeCsv:
         """Test enforces file caps after saving."""
         manager = DataFileManager(str(tmp_path), file_caps={'csv': 2})
 
-        # Manually create old files with different timestamps to test cap enforcement
         (tmp_path / "test_20200101_120000.csv").touch()
         (tmp_path / "test_20200101_120001.csv").touch()
         (tmp_path / "test_20200101_120002.csv").touch()
 
-        # Save new file - should trigger cap enforcement and delete oldest
         df = pd.DataFrame({'data': [1]})
         await manager.save_dataframe_csv(df, 'test', create_latest=False)
 
-        # Should only have 2 timestamped files (cap) after enforcement
         csv_files = [f for f in tmp_path.glob('test_*.csv') if 'latest' not in f.name]
         assert len(csv_files) == 2
 
@@ -512,7 +494,6 @@ class TestSaveDataframeExcel:
 
         timestamped, _ = await manager.save_dataframe_excel(df, 'report', sheet_name='CustomSheet')
 
-        # Read back and verify sheet name
         loaded = pd.read_excel(timestamped, sheet_name='CustomSheet')
         assert len(loaded) == 1
 
@@ -592,7 +573,6 @@ class TestExportMultiFormat:
         assert 'xlsx' in results
         assert 'json' in results
 
-        # Verify all files exist
         csv_path, _ = results['csv']
         xlsx_path, _ = results['xlsx']
         json_path, _ = results['json']
@@ -619,7 +599,6 @@ class TestExportMultiFormat:
 
         results = await manager.export_multi_format(df, 'latest_test', create_latest=True)
 
-        # Check that all formats have latest copies
         for format_name, (timestamped, latest) in results.items():
             assert latest is not None
             assert latest.exists()
@@ -652,9 +631,8 @@ class TestBackupOperations:
 
         backup_path = manager.create_backup_copy(source)
 
-        # Filename should be: file_backup_YYYYMMDD_HHMMSS.json
         parts = backup_path.stem.split('_')
-        assert len(parts) >= 3  # file, backup, timestamp parts
+        assert len(parts) >= 3
 
     def test_create_backup_copy_handles_missing_source(self, manager, tmp_path):
         """Test handles missing source file gracefully."""
@@ -662,12 +640,10 @@ class TestBackupOperations:
 
         backup_path = manager.create_backup_copy(nonexistent)
 
-        # Should return path but not create backup
         assert not backup_path.exists()
 
     def test_cleanup_old_backups_keeps_recent_backups(self, manager, tmp_path):
         """Test keeps only the most recent backups."""
-        # Create 5 backup files
         for i in range(5):
             backup = tmp_path / f"file_backup_{i}.csv"
             backup.touch()
@@ -677,13 +653,11 @@ class TestBackupOperations:
 
         assert len(deleted) == 3
 
-        # Verify only 2 backups remain
         remaining = list(tmp_path.glob("file_backup_*.csv"))
         assert len(remaining) == 2
 
     def test_cleanup_old_backups_does_nothing_when_under_limit(self, manager, tmp_path):
         """Test does nothing when backup count is under limit."""
-        # Create 2 backups with keep_count=3
         (tmp_path / "backup1.csv").touch()
         (tmp_path / "backup2.csv").touch()
 
@@ -697,7 +671,6 @@ class TestModuleLevelFunctions:
 
     def test_enforce_caps_for_new_file_uses_file_parent_as_data_folder(self, tmp_path):
         """Test auto-detects data folder from file path."""
-        # Create some existing files
         for i in range(4):
             (tmp_path / f"file{i}.csv").touch()
             time.sleep(0.01)
@@ -705,10 +678,8 @@ class TestModuleLevelFunctions:
         new_file = tmp_path / "new_file.csv"
         new_file.touch()
 
-        # Should use default cap of 5 and delete 0 files (4 existing + 1 new = 5)
         deleted = enforce_caps_for_new_file(str(new_file))
 
-        # With default cap of 5, no files should be deleted
         assert deleted == {}
 
     def test_enforce_caps_for_new_file_accepts_explicit_data_folder(self, tmp_path):
@@ -718,5 +689,6 @@ class TestModuleLevelFunctions:
 
         deleted = enforce_caps_for_new_file(str(new_file), data_folder=str(tmp_path))
 
-        # Should work without errors
         assert isinstance(deleted, dict)
+
+

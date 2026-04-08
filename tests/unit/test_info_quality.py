@@ -19,13 +19,9 @@ Created: 2026-02-11 (Feature 05 S6 Phase 3)
 import pytest
 from pathlib import Path
 
-# Get project root
 project_root = Path(__file__).parent.parent.parent
 
 
-# ============================================================================
-# TEST CATEGORY 1: SIMULATION MANAGER INFO QUALITY (R3.1) - 5 TESTS
-# ============================================================================
 
 class TestSimulationManagerINFOQuality:
     """R3.1: Verify INFO logging quality in SimulationManager.py"""
@@ -39,11 +35,9 @@ class TestSimulationManagerINFOQuality:
         module_path = project_root / 'simulation' / 'win_rate' / 'SimulationManager.py'
         source = module_path.read_text()
 
-        # Script start with config summary
         assert 'logger.info("Initializing SimulationManager")' in source
         assert 'logger.info(\n            f"SimulationManager initialized' in source
 
-        # Script complete
         assert 'OPTIMIZATION PROCESS COMPLETE' in source or 'OPTIMIZATION COMPLETE' in source
 
     def test_simulation_manager_info_major_phases(self):
@@ -55,7 +49,6 @@ class TestSimulationManagerINFOQuality:
         module_path = project_root / 'simulation' / 'win_rate' / 'SimulationManager.py'
         source = module_path.read_text()
 
-        # Major phase markers
         major_phases = [
             'STARTING FULL CONFIGURATION OPTIMIZATION',
             'STARTING ITERATIVE PARAMETER OPTIMIZATION',
@@ -75,7 +68,6 @@ class TestSimulationManagerINFOQuality:
         module_path = project_root / 'simulation' / 'win_rate' / 'SimulationManager.py'
         source = module_path.read_text()
 
-        # Significant outcomes
         outcomes = [
             'Generated {len(combinations)} parameter combinations',
             'Registered {len(combinations)} configurations',
@@ -95,7 +87,6 @@ class TestSimulationManagerINFOQuality:
         module_path = project_root / 'simulation' / 'win_rate' / 'SimulationManager.py'
         source = module_path.read_text()
 
-        # These should be DEBUG (not INFO)
         implementation_details = [
             'Updated all horizon baselines',
             'Saved intermediate folder',
@@ -104,7 +95,6 @@ class TestSimulationManagerINFOQuality:
         ]
 
         for detail in implementation_details:
-            # Should be logger.debug, not logger.info
             assert f'logger.info(f"{detail}' not in source, (
                 f"Implementation detail should be DEBUG: {detail}"
             )
@@ -118,23 +108,17 @@ class TestSimulationManagerINFOQuality:
         module_path = project_root / 'simulation' / 'win_rate' / 'SimulationManager.py'
         source = module_path.read_text()
 
-        # Count INFO calls with user-friendly terms
         info_calls = source.count('logger.info(')
 
-        # Should have substantial INFO logging (user-facing script)
         assert info_calls >= 70, (
             f"Too few INFO calls ({info_calls}) - may have over-removed"
         )
 
-        # User-friendly terms should be present
         friendly_terms = ['configs', 'simulations', 'parameters', 'optimiz']
         for term in friendly_terms:
             assert term.lower() in source.lower()
 
 
-# ============================================================================
-# TEST CATEGORY 2: OTHER MODULES INFO QUALITY (R3.2-R3.7) - 6 TESTS
-# ============================================================================
 
 class TestOtherModulesINFOQuality:
     """R3.2-R3.7: Verify INFO logging quality in other win_rate modules"""
@@ -148,7 +132,6 @@ class TestOtherModulesINFOQuality:
         module_path = project_root / 'simulation' / 'win_rate' / 'ParallelLeagueRunner.py'
         source = module_path.read_text()
 
-        # Count INFO calls - should be minimal (internal component)
         info_count = source.count('logger.info(')
 
         assert info_count == 0, (
@@ -165,7 +148,6 @@ class TestOtherModulesINFOQuality:
         module_path = project_root / 'simulation' / 'win_rate' / 'SimulatedLeague.py'
         source = module_path.read_text()
 
-        # Count INFO calls - should be 0 (per-simulation detail)
         info_count = source.count('logger.info(')
 
         assert info_count == 0, (
@@ -215,7 +197,6 @@ class TestOtherModulesINFOQuality:
         module_path = project_root / 'simulation' / 'win_rate' / 'manual_simulation.py'
         source = module_path.read_text()
 
-        # Should have exactly 5 INFO calls (script phases)
         info_count = source.count('logger.info(')
 
         assert info_count == 5, (
@@ -223,7 +204,6 @@ class TestOtherModulesINFOQuality:
             f"found {info_count}"
         )
 
-        # Verify key phases present
         phases = [
             'Starting manual simulation',
             'Loaded config from',
@@ -236,9 +216,6 @@ class TestOtherModulesINFOQuality:
             assert phase in source, f"Missing phase log: {phase}"
 
 
-# ============================================================================
-# TEST CATEGORY 3: AUDIT COMPLETION VERIFICATION (R3.AC) - 1 TEST
-# ============================================================================
 
 class TestINFOAuditCompletion:
     """R3.AC: Verify INFO audit was completed across all modules"""
@@ -268,26 +245,21 @@ class TestINFOAuditCompletion:
             total_info_calls += count
             files_checked.append((py_file.name, count))
 
-        # After Phase 3: ~83 INFO calls total (100 - 17 removed/downgraded)
         assert 80 <= total_info_calls <= 90, (
             f"Unexpected INFO call count ({total_info_calls}): "
             + ", ".join(f"{name}={count}" for name, count in files_checked if count > 0)
         )
 
-        # Verify expected distribution
         info_by_module = {name: count for name, count in files_checked if count > 0}
 
-        # SimulationManager should have most (user-facing)
         assert info_by_module.get('SimulationManager.py', 0) >= 70, (
             "SimulationManager should have most INFO calls (user-facing script)"
         )
 
-        # manual_simulation should have exactly 5
         assert info_by_module.get('manual_simulation.py', 0) == 5, (
             "manual_simulation should have exactly 5 INFO calls"
         )
 
-        # Internal components should have 0
         internal_modules = [
             'ParallelLeagueRunner.py',
             'SimulatedLeague.py',
@@ -300,3 +272,5 @@ class TestINFOAuditCompletion:
             assert info_by_module.get(module, 0) == 0, (
                 f"{module} should have 0 INFO calls (internal component)"
             )
+
+

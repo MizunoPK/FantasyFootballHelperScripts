@@ -206,7 +206,6 @@ class TestSafeIntConversion:
     def test_safe_int_conversion_invalid_string(self):
         """Test returns default for non-numeric string."""
         assert _safe_int_conversion('abc') is None
-        # Note: '12abc' extracts the '12' digits, so it returns 12 not default
         assert _safe_int_conversion('12abc', default=0) == 12
 
     def test_safe_int_conversion_string_with_extras(self):
@@ -252,5 +251,7 @@ class TestSafeStringConversion:
     def test_safe_string_conversion_strips_whitespace(self):
         """Test strips leading/trailing whitespace."""
         assert _safe_string_conversion('  PHI  ') == 'PHI'
+
+
 
 

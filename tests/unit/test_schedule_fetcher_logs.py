@@ -27,17 +27,14 @@ class TestScheduleFetcherLogs:
         import logging
         caplog.set_level(logging.WARNING)
 
-        # Create fetcher instance
         http_client = AsyncMock()
 
-        # Mock API response with malformed event data
         http_client.get = AsyncMock(return_value={
             "week": {
                 "number": 1
             },
             "events": [
                 {
-                    # Valid event
                     "shortName": "NE @ KC",
                     "date": "2024-09-05T20:20Z",
                     "competitions": [{
@@ -48,24 +45,20 @@ class TestScheduleFetcherLogs:
                     }]
                 },
                 {
-                    # Malformed event (missing required fields)
                     "shortName": "BAD EVENT",
-                    # Missing date and competitions
                 }
             ]
         })
 
         fetcher = ScheduleFetcher(http_client)
 
-        # Call _parse_week_events (this will trigger error parsing)
         try:
             result = await fetcher._parse_week_events(1, {"events": [
                 {"shortName": "BAD", "invalid": "data"}  # Will cause parsing error
             ]})
         except:
-            pass  # Expected - parsing may fail
+            pass
 
-        # Alternative: Just verify that WARNING level is used for parsing errors
-        # by checking the actual code uses logger.warning()
-        # This test validates the log level change was made
         assert True, "Test validates warning level is used (code inspection)"
+
+

@@ -168,7 +168,6 @@ class TestErrorHandler:
         """Test log_error() creates default context when none provided."""
         error = ValueError("Test")
 
-        # Should not raise exception
         handler.log_error(error)
 
         assert "ValueError" in handler.error_counts
@@ -258,7 +257,7 @@ class TestRetryHandler:
         """Test calculate_delay() respects max_delay."""
         handler = RetryHandler(base_delay=10.0, max_delay=15.0, backoff_factor=2.0)
 
-        delay = handler.calculate_delay(5)  # Would be 320.0 without max
+        delay = handler.calculate_delay(5)
 
         assert delay == 15.0
 
@@ -276,7 +275,7 @@ class TestRetryHandler:
     def test_retry_sync_succeeds_after_failures(self):
         """Test retry_sync() retries until success."""
         handler = RetryHandler(max_attempts=3, base_delay=0.01)
-        handler.logger = Mock()  # Mock logger since RetryHandler doesn't initialize it
+        handler.logger = Mock()
         attempts = []
 
         def flaky_func():
@@ -293,7 +292,7 @@ class TestRetryHandler:
     def test_retry_sync_raises_after_max_attempts(self):
         """Test retry_sync() raises last exception after max attempts."""
         handler = RetryHandler(max_attempts=2, base_delay=0.01)
-        handler.logger = Mock()  # Mock logger
+        handler.logger = Mock()
 
         def always_fails():
             raise ValueError("Always fails")
@@ -317,7 +316,7 @@ class TestRetryHandler:
     async def test_retry_async_retries_on_failure(self):
         """Test retry_async() retries async function failures."""
         handler = RetryHandler(max_attempts=3, base_delay=0.01)
-        handler.logger = Mock()  # Mock logger
+        handler.logger = Mock()
         attempts = []
 
         async def flaky_async():
@@ -396,7 +395,6 @@ class TestRetryWithBackoffDecorator:
 
     def test_retry_with_backoff_sync_function(self):
         """Test decorator works with synchronous functions (success case)."""
-        # Test successful function (doesn't trigger retry/logger path)
         @retry_with_backoff(max_attempts=2, base_delay=0.01)
         def success_sync():
             return "success"
@@ -408,7 +406,6 @@ class TestRetryWithBackoffDecorator:
     @pytest.mark.asyncio
     async def test_retry_with_backoff_async_function(self):
         """Test decorator works with async functions (success case)."""
-        # Test successful function (doesn't trigger retry/logger path)
         @retry_with_backoff(max_attempts=2, base_delay=0.01)
         async def success_async():
             return "async_success"
@@ -498,7 +495,6 @@ class TestValidateFileOperation:
         test_file = tmp_path / "exists.txt"
         test_file.touch()
 
-        # Should not raise exception
         validate_file_operation(test_file, operation="read")
 
     def test_validate_file_operation_read_missing_file(self, tmp_path):
@@ -512,7 +508,6 @@ class TestValidateFileOperation:
         """Test write operation creates parent directory."""
         new_file = tmp_path / "subdir" / "newfile.txt"
 
-        # Should not raise exception and create parent
         validate_file_operation(new_file, operation="write")
 
         assert new_file.parent.exists()
@@ -521,7 +516,6 @@ class TestValidateFileOperation:
         """Test write operation with existing parent directory."""
         new_file = tmp_path / "newfile.txt"
 
-        # Should not raise exception
         validate_file_operation(new_file, operation="write")
 
 
@@ -571,3 +565,5 @@ class TestConvenienceFunctions:
         result = log_and_return_empty_dict(error)
 
         assert result == {}
+
+

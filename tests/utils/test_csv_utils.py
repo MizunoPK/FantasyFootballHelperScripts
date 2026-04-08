@@ -148,41 +148,30 @@ class TestWriteCsvWithBackup:
 
     def test_write_csv_creates_backup_of_existing_file(self, tmp_path):
         """Test writing CSV creates backup when file exists."""
-        # Note: csv_utils skips backup for paths containing 'tmp' or 'temp'
-        # Since pytest tmp_path contains 'tmp', we cannot fully test backup behavior here.
-        # This test verifies that the function doesn't error when backup=True is passed.
         csv_file = tmp_path / "existing.csv"
 
-        # Create original file
         original_data = pd.DataFrame({'old': [1, 2]})
         original_data.to_csv(csv_file, index=False)
 
-        # Write new data with backup requested
         new_data = pd.DataFrame({'new': [3, 4]})
         write_csv_with_backup(new_data, csv_file, create_backup=True)
 
-        # Check new file was written correctly
         assert csv_file.exists()
         loaded = pd.read_csv(csv_file)
         assert 'new' in loaded.columns
         assert 'old' not in loaded.columns
 
-        # Note: backup will not be created because path contains 'tmp'
-        # This is expected behavior - temp files don't get backed up
 
     def test_write_csv_skips_backup_for_temp_files(self, tmp_path):
         """Test writing CSV skips backup for temporary files."""
         csv_file = tmp_path / "tmp_test.csv"
 
-        # Create original file
         original_data = pd.DataFrame({'old': [1]})
         original_data.to_csv(csv_file, index=False)
 
-        # Write new data - should not create backup for tmp files
         new_data = pd.DataFrame({'new': [2]})
         write_csv_with_backup(new_data, csv_file, create_backup=True)
 
-        # Backup should not exist for temp files
         backup_file = csv_file.with_suffix('.backup.csv')
         assert not backup_file.exists()
 
@@ -320,7 +309,6 @@ class TestWriteDictCsv:
 
         assert csv_file.exists()
 
-        # Read back and verify
         with open(csv_file, 'r', newline='', encoding='utf-8') as f:
             reader = csv.DictReader(f)
             rows = list(reader)
@@ -349,7 +337,6 @@ class TestWriteDictCsv:
 
         write_dict_csv([], csv_file)
 
-        # File should not be created for empty data
         assert not csv_file.exists()
 
     def test_write_dict_csv_creates_parent_directories(self, tmp_path):
@@ -399,7 +386,6 @@ class TestMergeCsvFiles:
         files_to_merge = sample_csvs + [nonexistent]
         merged_df = merge_csv_files(files_to_merge, output_file, how='concat')
 
-        # Should still merge the existing files
         assert len(merged_df) == 4
 
     def test_merge_csv_files_raises_error_for_no_valid_files(self, tmp_path):
@@ -461,7 +447,6 @@ class TestSafeCsvRead:
 
     def test_safe_csv_read_returns_default_on_read_error(self, tmp_path):
         """Test safe_csv_read returns default on read error."""
-        # Create a malformed CSV file
         csv_file = tmp_path / "malformed.csv"
         with open(csv_file, 'w') as f:
             f.write("col1,col2\n")
@@ -471,7 +456,6 @@ class TestSafeCsvRead:
 
         result = safe_csv_read(csv_file, default_value=default_df)
 
-        # Should return default or empty depending on pandas behavior
         assert isinstance(result, pd.DataFrame)
 
 
@@ -505,10 +489,11 @@ class TestCsvColumnExists:
 
     def test_csv_column_exists_handles_read_errors_gracefully(self, tmp_path):
         """Test csv_column_exists returns False on read errors."""
-        # Create an invalid file
         invalid_file = tmp_path / "invalid.csv"
         invalid_file.write_bytes(b'\xff\xfe')  # Invalid UTF-8
 
         result = csv_column_exists(invalid_file, 'col')
 
         assert result is False
+
+

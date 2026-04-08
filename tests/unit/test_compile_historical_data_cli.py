@@ -24,14 +24,12 @@ class TestCLIFlagParsing:
         When user provides --enable-log-file flag, argument parser should
         set enable_log_file attribute to True.
         """
-        # Mock sys.argv with flag
         test_args = ['compile_historical_data.py', '--year', '2024', '--enable-log-file']
 
         with patch('sys.argv', test_args):
             import compile_historical_data
             args = compile_historical_data.parse_args()
 
-            # Verify flag parsed correctly
             assert args.enable_log_file is True, "Flag should be True when --enable-log-file provided"
             assert args.year == 2024, "Year should be parsed correctly"
 
@@ -41,14 +39,12 @@ class TestCLIFlagParsing:
         When user does NOT provide --enable-log-file flag, argument parser
         should default enable_log_file to False (file logging disabled).
         """
-        # Mock sys.argv without flag
         test_args = ['compile_historical_data.py', '--year', '2024']
 
         with patch('sys.argv', test_args):
             import compile_historical_data
             args = compile_historical_data.parse_args()
 
-            # Verify flag defaults to False
             assert args.enable_log_file is False, "Flag should default to False when not provided"
             assert args.year == 2024, "Year should be parsed correctly"
 
@@ -58,22 +54,20 @@ class TestCLIFlagParsing:
         Help output should document the --enable-log-file flag with clear
         description of its purpose.
         """
-        # Mock sys.argv for help
         test_args = ['compile_historical_data.py', '--help']
 
         with patch('sys.argv', test_args):
             import compile_historical_data
 
-            # Capture help output (argparse raises SystemExit)
             try:
                 compile_historical_data.parse_args()
             except SystemExit:
-                pass  # Expected - argparse exits after showing help
+                pass
 
-            # Get captured output
             captured = capsys.readouterr()
             help_text = captured.out
 
-            # Verify flag in help
             assert '--enable-log-file' in help_text, "Help should show --enable-log-file flag"
             assert 'Enable file logging' in help_text, "Help should describe flag purpose"
+
+

@@ -124,18 +124,15 @@ class TestFindBestMatch:
 
     def test_filters_by_position(self, sample_csv_df):
         """Test that position filtering works"""
-        # Add RB player
         df = pd.concat([sample_csv_df, pd.DataFrame({
             'player_name': ['Christian McCaffrey'],
             'adp': [2.0],
             'position': ['RB']
         })], ignore_index=True)
 
-        # Should not match QB to RB
         result = find_best_match("Christian McCaffrey", df, "QB")
-        assert result is None  # No QB with that name
+        assert result is None
 
-        # Should match RB to RB
         result = find_best_match("Christian McCaffrey", df, "RB")
         assert result is not None
         assert result[0] == "Christian McCaffrey"
@@ -153,13 +150,12 @@ class TestFindBestMatch:
             'position': ['DST', 'DST', 'DST']
         })
 
-        # JSON format should match CSV format
         result = find_best_match("Ravens D/ST", dst_df, "DST")
         assert result is not None
         csv_name, adp, confidence = result
         assert csv_name == "Baltimore Ravens"
         assert adp == 120.7
-        assert confidence == 1.0  # Exact team name match
+        assert confidence == 1.0
 
     def test_matches_dst_all_teams(self):
         """Test DST matching for multiple teams"""
@@ -169,7 +165,6 @@ class TestFindBestMatch:
             'position': ['DST', 'DST', 'DST']
         })
 
-        # Test multiple DST teams
         test_cases = [
             ("Ravens D/ST", "Baltimore Ravens", 120.7),
             ("49ers D/ST", "San Francisco 49ers", 105.2),
@@ -213,12 +208,10 @@ class TestUpdatePlayerAdpValues:
         """Create test simulation data folder with multi-week structure (direct arrays)"""
         sim_data_folder = tmp_path / 'simulation' / 'sim_data' / '2025' / 'weeks'
 
-        # Create 3 test weeks (week_01, week_02, week_03)
         for week_num in range(1, 4):
             week_folder = sim_data_folder / f'week_{week_num:02d}'
             week_folder.mkdir(parents=True)
 
-            # Create QB JSON file with direct array structure (no wrapper dict)
             qb_data = [
                 {
                     'name': 'Patrick Mahomes II',
@@ -236,66 +229,54 @@ class TestUpdatePlayerAdpValues:
 
             qb_path = week_folder / 'qb_data.json'
             with open(qb_path, 'w', encoding='utf-8') as f:
-                json.dump(qb_data, f, indent=2)  # Direct array, no wrapper
+                json.dump(qb_data, f, indent=2)
 
-            # Create empty files for other positions
             for pos_file in ['rb_data.json', 'wr_data.json', 'te_data.json', 'k_data.json', 'dst_data.json']:
                 pos_path = week_folder / pos_file
                 with open(pos_path, 'w', encoding='utf-8') as f:
-                    json.dump([], f)  # Direct empty array, no wrapper
+                    json.dump([], f)
 
         return sim_data_folder
 
     def test_matches_and_updates_players(self, sample_adp_df, test_sim_data_folder):
         """Test that players are matched and ADP values updated across all weeks"""
-        # Act
         report = update_player_adp_values(sample_adp_df, test_sim_data_folder)
 
-        # Assert - 3 weeks × 2 players per week = 6 total
         assert report['summary']['total_json_players'] == 6
         assert report['summary']['matched'] >= 3  # Patrick Mahomes in each week
 
-        # Verify JSON file updated in first week (direct array structure)
         qb_path = test_sim_data_folder / 'week_01' / 'qb_data.json'
         with open(qb_path, 'r', encoding='utf-8') as f:
-            qb_data = json.load(f)  # Direct array, not wrapped dict
+            qb_data = json.load(f)
 
-        # Verify it's a direct array
         assert isinstance(qb_data, list)
 
-        # Patrick Mahomes II should be matched and updated
         mahomes = [p for p in qb_data if 'Mahomes' in p['name']][0]
         assert mahomes['average_draft_position'] == 15.5  # Updated from 170.0
 
     def test_unmatched_players_keep_170(self, sample_adp_df, test_sim_data_folder):
         """Test that unmatched players keep 170.0 ADP value"""
-        # Act
         report = update_player_adp_values(sample_adp_df, test_sim_data_folder)
 
-        # Assert - "Unmatched QB" in each of 3 weeks
         assert len(report['unmatched_json_players']) >= 3
 
-        # Verify JSON file - unmatched player keeps 170.0 (check week_01)
         qb_path = test_sim_data_folder / 'week_01' / 'qb_data.json'
         with open(qb_path, 'r', encoding='utf-8') as f:
-            qb_data = json.load(f)  # Direct array
+            qb_data = json.load(f)
 
         unmatched = [p for p in qb_data if p['name'] == 'Unmatched QB'][0]
         assert unmatched['average_draft_position'] == 170.0  # Unchanged
 
     def test_returns_comprehensive_report(self, sample_adp_df, test_sim_data_folder):
         """Test that comprehensive match report is returned (aggregated across weeks)"""
-        # Act
         report = update_player_adp_values(sample_adp_df, test_sim_data_folder)
 
-        # Assert
         assert 'summary' in report
         assert 'unmatched_json_players' in report
         assert 'unmatched_csv_players' in report
         assert 'confidence_distribution' in report
         assert 'individual_matches' in report
 
-        # Verify summary structure
         assert 'total_json_players' in report['summary']
         assert 'matched' in report['summary']
         assert 'unmatched_json' in report['summary']
@@ -324,29 +305,23 @@ class TestUpdatePlayerAdpValues:
 
     def test_atomic_write_creates_tmp_file(self, sample_adp_df, test_sim_data_folder):
         """Test that atomic write pattern is used across all weeks"""
-        # Act
         report = update_player_adp_values(sample_adp_df, test_sim_data_folder)
 
-        # Assert - after atomic write, tmp files should be cleaned up in all weeks
         for week_folder in test_sim_data_folder.glob('week_*'):
             tmp_files = list(week_folder.glob('*.tmp'))
-            assert len(tmp_files) == 0  # Tmp files replaced
+            assert len(tmp_files) == 0
 
-            # JSON files should exist and be valid (direct arrays)
             qb_path = week_folder / 'qb_data.json'
             assert qb_path.exists()
 
-            # Should be able to load JSON as direct array (not corrupted)
             with open(qb_path, 'r', encoding='utf-8') as f:
                 qb_data = json.load(f)
-            assert isinstance(qb_data, list)  # Direct array, not wrapped dict
+            assert isinstance(qb_data, list)
 
     def test_updates_all_week_folders(self, sample_adp_df, test_sim_data_folder):
         """Test that all week folders are processed and updated (Task 12)"""
-        # Act
         report = update_player_adp_values(sample_adp_df, test_sim_data_folder)
 
-        # Assert - verify all 3 weeks were processed
         for week_num in range(1, 4):
             week_folder = test_sim_data_folder / f'week_{week_num:02d}'
             qb_path = week_folder / 'qb_data.json'
@@ -356,19 +331,15 @@ class TestUpdatePlayerAdpValues:
             with open(qb_path, 'r', encoding='utf-8') as f:
                 qb_data = json.load(f)
 
-            # Verify direct array structure
             assert isinstance(qb_data, list)
 
-            # Verify Patrick Mahomes was updated in this week
             mahomes = [p for p in qb_data if 'Mahomes' in p['name']][0]
             assert mahomes['average_draft_position'] == 15.5
 
     def test_consistent_updates_across_weeks(self, sample_adp_df, test_sim_data_folder):
         """Test that same player gets same ADP value in all weeks (Task 13)"""
-        # Act
         report = update_player_adp_values(sample_adp_df, test_sim_data_folder)
 
-        # Collect Patrick Mahomes ADP from all weeks
         mahomes_adp_values = []
         for week_num in range(1, 4):
             week_folder = test_sim_data_folder / f'week_{week_num:02d}'
@@ -380,6 +351,7 @@ class TestUpdatePlayerAdpValues:
             mahomes = [p for p in qb_data if 'Mahomes' in p['name']][0]
             mahomes_adp_values.append(mahomes['average_draft_position'])
 
-        # Assert - all weeks should have same ADP value
-        assert len(set(mahomes_adp_values)) == 1  # All values are identical
-        assert mahomes_adp_values[0] == 15.5  # Correct value
+        assert len(set(mahomes_adp_values)) == 1
+        assert mahomes_adp_values[0] == 15.5
+
+
