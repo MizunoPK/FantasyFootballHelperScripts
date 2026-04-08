@@ -149,7 +149,7 @@ class TestProgressTrackerGetElapsedTime:
         elapsed = tracker.get_elapsed_time()
 
         assert elapsed >= 0
-        assert elapsed < 1  # Should be very small
+        assert elapsed < 1
 
     def test_get_elapsed_time_after_delay(self):
         """Test elapsed time after a delay"""
@@ -159,7 +159,7 @@ class TestProgressTrackerGetElapsedTime:
         elapsed = tracker.get_elapsed_time()
 
         assert elapsed >= 0.1
-        assert elapsed < 0.5  # Reasonable upper bound
+        assert elapsed < 0.5
 
     def test_get_elapsed_time_increases(self):
         """Test that elapsed time increases"""
@@ -188,13 +188,11 @@ class TestProgressTrackerGetETA:
         tracker = ProgressTracker(total=100)
         tracker.completed = 50
 
-        # Simulate some time elapsed
-        tracker.start_time = time.time() - 10.0  # 10 seconds elapsed
+        tracker.start_time = time.time() - 10.0
 
         eta = tracker.get_eta()
 
         assert eta is not None
-        # 50% done in 10 seconds -> ~10 seconds remaining
         assert 8 < eta < 12
 
     def test_get_eta_near_completion(self):
@@ -206,7 +204,7 @@ class TestProgressTrackerGetETA:
         eta = tracker.get_eta()
 
         assert eta is not None
-        assert eta < 2  # Should be very small
+        assert eta < 2
 
     def test_get_eta_complete(self):
         """Test ETA when complete"""
@@ -296,7 +294,7 @@ class TestProgressTrackerFormatTime:
         """Test formatting large hour values"""
         tracker = ProgressTracker(total=100)
 
-        result = tracker.format_time(36000)  # 10 hours
+        result = tracker.format_time(36000)
         assert "10h" in result
 
 
@@ -339,7 +337,7 @@ class TestProgressTrackerCreateProgressBar:
 
         bar = tracker.create_progress_bar(width=10)
 
-        assert len(bar) == 12  # width + 2 brackets
+        assert len(bar) == 12
 
     def test_create_progress_bar_near_start(self):
         """Test progress bar with small progress"""
@@ -387,7 +385,6 @@ class TestProgressTrackerDisplay:
 
         tracker.display()
 
-        # Should have two print calls: main display and final newline
         assert mock_print.call_count == 2
 
     @patch('builtins.print')
@@ -398,7 +395,6 @@ class TestProgressTrackerDisplay:
 
         tracker.display()
 
-        # Should have only one print call (no final newline)
         assert mock_print.call_count == 1
 
 
@@ -544,7 +540,6 @@ class TestMultiLevelProgressTrackerGetOverallPercentage:
         tracker = MultiLevelProgressTracker(outer_total=10, inner_total=100)
         tracker.outer_completed = 1
 
-        # 1 out of 10 outer = 100 out of 1000 total = 10%
         assert tracker.get_overall_percentage() == 10.0
 
     def test_get_overall_percentage_partial_inner(self):
@@ -553,7 +548,6 @@ class TestMultiLevelProgressTrackerGetOverallPercentage:
         tracker.outer_completed = 1
         tracker.inner_completed = 50
 
-        # 1*100 + 50 = 150 out of 1000 = 15%
         assert tracker.get_overall_percentage() == 15.0
 
     def test_get_overall_percentage_complete(self):
@@ -586,12 +580,11 @@ class TestMultiLevelProgressTrackerGetETA:
         tracker = MultiLevelProgressTracker(outer_total=10, inner_total=100)
         tracker.outer_completed = 5
         tracker.inner_completed = 50
-        tracker.start_time = time.time() - 100.0  # 100 seconds elapsed
+        tracker.start_time = time.time() - 100.0
 
         eta = tracker.get_eta()
 
         assert eta is not None
-        # 550/1000 complete in 100s -> ~82s remaining
         assert 70 < eta < 95
 
     def test_get_eta_near_completion(self):
@@ -647,7 +640,6 @@ class TestMultiLevelProgressTrackerDisplay:
         tracker.display()
 
         mock_print.assert_called()
-        # Check all calls since display() calls print() multiple times
         all_calls = str(mock_print.call_args_list)
         assert "Configs" in all_calls
         assert "Sims" in all_calls
@@ -660,7 +652,6 @@ class TestMultiLevelProgressTrackerDisplay:
 
         tracker.display()
 
-        # Should call print at least twice (main display + newline)
         assert mock_print.call_count >= 2
 
 
@@ -740,9 +731,8 @@ class TestMultiLevelProgressTrackerEdgeCases:
         tracker.outer_completed = 1
         tracker.inner_completed = 3
 
-        # 1*7 + 3 = 10 out of 21 total
         percentage = tracker.get_overall_percentage()
-        assert 47 < percentage < 48  # ~47.6%
+        assert 47 < percentage < 48
 
 
 class TestProgressTrackerIntegration:
@@ -753,7 +743,6 @@ class TestProgressTrackerIntegration:
         """Test realistic progress sequence"""
         tracker = ProgressTracker(total=100, description="Processing")
 
-        # Simulate processing 10 items at a time
         for i in range(10):
             tracker.update(increment=10)
 
@@ -771,7 +760,6 @@ class TestProgressTrackerIntegration:
             inner_desc="Simulations"
         )
 
-        # Simulate processing 5 configs, each with 20 simulations
         for config_num in range(5):
             for sim_num in range(1, 21):
                 tracker.update_inner(sim_num)
@@ -779,3 +767,5 @@ class TestProgressTrackerIntegration:
 
         assert tracker.outer_completed == 5
         assert tracker.get_overall_percentage() == 100.0
+
+

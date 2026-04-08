@@ -21,9 +21,6 @@ from simulation.win_rate.manual_simulation import (
 )
 
 
-# ============================================================================
-# FIXTURES
-# ============================================================================
 
 @pytest.fixture
 def sample_config_dict():
@@ -65,7 +62,6 @@ def mock_team(mock_player):
     team = Mock()
     team.strategy = "balanced"
 
-    # Create mock roster
     qb = Mock()
     qb.name = "Josh Allen"
     qb.position = "QB"
@@ -93,7 +89,6 @@ def mock_draft_helper_team():
     """Create a mock DraftHelperTeam"""
     team = Mock()
 
-    # Create roster
     qb = Mock()
     qb.name = "Patrick Mahomes"
     qb.position = "QB"
@@ -110,7 +105,6 @@ def mock_week_result():
     week_result = Mock()
     week_result.week_number = 1
 
-    # Create mock team results
     team1_result = Mock()
     team1_result.points_scored = 125.5
     team1_result.won = True
@@ -119,7 +113,6 @@ def mock_week_result():
     team2_result.points_scored = 98.3
     team2_result.won = False
 
-    # Create mock teams
     team1 = Mock()
     team1.strategy = "aggressive"
 
@@ -142,7 +135,6 @@ def mock_league(mock_draft_helper_team, mock_team, mock_week_result):
     week_result, team1, team2 = mock_week_result
     league.week_results = [week_result]
 
-    # Mock get_all_team_results
     league.get_all_team_results.return_value = {
         "DraftHelperTeam": (10, 7, 1875.5),
         "SimulatedOpponent (balanced)": (8, 9, 1654.3)
@@ -151,9 +143,6 @@ def mock_league(mock_draft_helper_team, mock_team, mock_week_result):
     return league
 
 
-# ============================================================================
-# LOAD CONFIG TESTS
-# ============================================================================
 
 class TestLoadConfig:
     """Test configuration loading functionality"""
@@ -214,9 +203,6 @@ class TestLoadConfig:
         assert "parameters" in result
 
 
-# ============================================================================
-# PRINT DRAFT RESULTS TESTS
-# ============================================================================
 
 class TestPrintDraftResults:
     """Test draft results printing functionality"""
@@ -270,7 +256,6 @@ class TestPrintDraftResults:
 
     def test_print_draft_results_handles_missing_stats(self, mock_league, capsys):
         """Test handling of players with missing stats"""
-        # Create player with None values
         player_no_stats = Mock()
         player_no_stats.name = "Unknown Player"
         player_no_stats.position = "RB"
@@ -287,9 +272,6 @@ class TestPrintDraftResults:
         assert "Proj: N/A" in captured.out
 
 
-# ============================================================================
-# PRINT WEEKLY RESULTS TESTS
-# ============================================================================
 
 class TestPrintWeeklyResults:
     """Test weekly results printing functionality"""
@@ -327,7 +309,6 @@ class TestPrintWeeklyResults:
 
     def test_print_weekly_results_handles_tie(self, mock_league, capsys):
         """Test handling of tied games"""
-        # Modify mock to create a tie
         team1_result = Mock()
         team1_result.points_scored = 100.0
         team1_result.won = False
@@ -347,7 +328,7 @@ class TestPrintWeeklyResults:
         week_result.get_matchups.return_value = [(team1, team2)]
 
         mock_league.week_results = [week_result]
-        mock_league.draft_helper_team = Mock()  # Neither team is draft helper
+        mock_league.draft_helper_team = Mock()
 
         print_weekly_results(mock_league)
 
@@ -356,7 +337,6 @@ class TestPrintWeeklyResults:
 
     def test_print_weekly_results_multiple_weeks(self, mock_league, capsys):
         """Test printing multiple weeks of results"""
-        # Create multiple week results
         week1 = Mock()
         week1.week_number = 1
         week1.get_all_results.return_value = {}
@@ -376,9 +356,6 @@ class TestPrintWeeklyResults:
         assert "Week 2:" in captured.out
 
 
-# ============================================================================
-# PRINT FINAL STANDINGS TESTS
-# ============================================================================
 
 class TestPrintFinalStandings:
     """Test final standings printing functionality"""
@@ -408,7 +385,6 @@ class TestPrintFinalStandings:
 
     def test_print_final_standings_sorted_by_wins(self, mock_league, capsys):
         """Test that standings are sorted by wins"""
-        # Modify mock to have different win totals
         mock_league.get_all_team_results.return_value = {
             "Team A": (12, 5, 2000.0),
             "Team B": (10, 7, 1900.0),
@@ -418,7 +394,6 @@ class TestPrintFinalStandings:
         print_final_standings(mock_league)
 
         captured = capsys.readouterr()
-        # Team A should appear before Team B
         team_a_pos = captured.out.find("Team A")
         team_b_pos = captured.out.find("Team B")
         team_c_pos = captured.out.find("Team C")
@@ -434,7 +409,6 @@ class TestPrintFinalStandings:
 
     def test_print_final_standings_handles_no_draft_helper(self, mock_league, capsys):
         """Test standings when no DraftHelperTeam exists"""
-        # Remove DraftHelperTeam from results
         mock_league.get_all_team_results.return_value = {
             "SimulatedOpponent 1": (10, 7, 1800.0),
             "SimulatedOpponent 2": (9, 8, 1750.0)
@@ -444,12 +418,8 @@ class TestPrintFinalStandings:
 
         captured = capsys.readouterr()
         assert "FINAL STANDINGS" in captured.out
-        # Should not crash even without DraftHelperTeam
 
 
-# ============================================================================
-# MAIN FUNCTION TESTS
-# ============================================================================
 
 class TestMain:
     """Test main simulation orchestration"""
@@ -464,7 +434,6 @@ class TestMain:
                                 mock_print_draft, mock_get_logger, mock_load_config,
                                 mock_league_class, sample_config_dict, capsys):
         """Test full main workflow execution"""
-        # Setup mocks
         mock_logger = Mock()
         mock_get_logger.return_value = mock_logger
         mock_load_config.return_value = sample_config_dict
@@ -472,17 +441,14 @@ class TestMain:
         mock_league = Mock()
         mock_league_class.return_value = mock_league
 
-        # Run main
         main()
 
-        # Verify workflow
         mock_load_config.assert_called_once()
         mock_league_class.assert_called_once()
         mock_league.run_draft.assert_called_once()
         mock_league.run_season.assert_called_once()
         mock_league.cleanup.assert_called_once()
 
-        # Verify printing functions called
         mock_print_draft.assert_called_once_with(mock_league)
         mock_print_weekly.assert_called_once_with(mock_league)
         mock_print_standings.assert_called_once_with(mock_league)
@@ -495,7 +461,6 @@ class TestMain:
         """Test that league is created with loaded config"""
         mock_load_config.return_value = sample_config_dict
         mock_league = Mock()
-        # Add required attributes for print functions
         mock_league.teams = []
         mock_league.draft_helper_team = Mock()
         mock_league.week_results = []
@@ -504,7 +469,6 @@ class TestMain:
 
         main()
 
-        # Verify league created with config dict
         assert mock_league_class.call_count == 1
         args = mock_league_class.call_args[0]
         assert args[0] == sample_config_dict
@@ -519,7 +483,6 @@ class TestMain:
         mock_load_config.return_value = {}
 
         mock_league = Mock()
-        # Add required attributes for print functions
         mock_league.teams = []
         mock_league.draft_helper_team = Mock()
         mock_league.week_results = []
@@ -528,7 +491,6 @@ class TestMain:
 
         main()
 
-        # Verify logging calls
         assert mock_logger.info.call_count >= 4
         log_messages = [call[0][0] for call in mock_logger.info.call_args_list]
         assert any("Starting manual simulation" in msg for msg in log_messages)
@@ -543,7 +505,6 @@ class TestMain:
         """Test that configuration info is printed"""
         mock_load_config.return_value = {}
         mock_league = Mock()
-        # Add required attributes for print functions
         mock_league.teams = []
         mock_league.draft_helper_team = Mock()
         mock_league.week_results = []
@@ -565,7 +526,6 @@ class TestMain:
         """Test that cleanup is called after simulation"""
         mock_load_config.return_value = {}
         mock_league = Mock()
-        # Add required attributes for print functions
         mock_league.teams = []
         mock_league.draft_helper_team = Mock()
         mock_league.week_results = []
@@ -584,7 +544,6 @@ class TestMain:
         """Test that completion message is printed"""
         mock_load_config.return_value = {}
         mock_league = Mock()
-        # Add required attributes for print functions
         mock_league.teams = []
         mock_league.draft_helper_team = Mock()
         mock_league.week_results = []
@@ -599,3 +558,5 @@ class TestMain:
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
+
+

@@ -22,7 +22,6 @@ class TestCleanupOldOptimalFolders:
 
     def test_no_cleanup_when_under_limit(self, tmp_path):
         """Should not delete any folders when count is under limit."""
-        # Create 3 optimal folders (under default limit of 5)
         for i in range(3):
             (tmp_path / f"optimal_2025010{i}_120000").mkdir()
 
@@ -33,7 +32,6 @@ class TestCleanupOldOptimalFolders:
 
     def test_no_cleanup_when_at_limit_minus_one(self, tmp_path):
         """Should not delete when count is exactly limit - 1."""
-        # Create 4 folders (one less than limit of 5)
         for i in range(4):
             (tmp_path / f"optimal_2025010{i}_120000").mkdir()
 
@@ -44,7 +42,6 @@ class TestCleanupOldOptimalFolders:
 
     def test_deletes_oldest_when_at_limit(self, tmp_path):
         """Should delete oldest folder when count equals limit."""
-        # Create 5 folders (at limit)
         folders = []
         for i in range(5):
             folder = tmp_path / f"optimal_2025010{i}_120000"
@@ -54,13 +51,12 @@ class TestCleanupOldOptimalFolders:
         deleted = cleanup_old_optimal_folders(tmp_path)
 
         assert deleted == 1
-        assert not folders[0].exists()  # Oldest deleted
-        assert all(f.exists() for f in folders[1:])  # Rest remain
+        assert not folders[0].exists()
+        assert all(f.exists() for f in folders[1:])
         assert len(list(tmp_path.glob("optimal_*"))) == 4
 
     def test_deletes_multiple_when_over_limit(self, tmp_path):
         """Should delete multiple folders when count exceeds limit."""
-        # Create 7 folders (2 over limit)
         folders = []
         for i in range(7):
             folder = tmp_path / f"optimal_2025010{i}_120000"
@@ -69,7 +65,7 @@ class TestCleanupOldOptimalFolders:
 
         deleted = cleanup_old_optimal_folders(tmp_path)
 
-        assert deleted == 3  # Need to delete 3 to get to 4 (room for new one)
+        assert deleted == 3
         assert not folders[0].exists()
         assert not folders[1].exists()
         assert not folders[2].exists()
@@ -78,11 +74,9 @@ class TestCleanupOldOptimalFolders:
 
     def test_respects_custom_limit(self, tmp_path):
         """Should respect custom max_folders parameter."""
-        # Create 4 folders
         for i in range(4):
             (tmp_path / f"optimal_2025010{i}_120000").mkdir()
 
-        # With limit of 2, should delete 3 folders
         deleted = cleanup_old_optimal_folders(tmp_path, max_folders=2)
 
         assert deleted == 3
@@ -90,7 +84,6 @@ class TestCleanupOldOptimalFolders:
 
     def test_only_matches_optimal_pattern(self, tmp_path):
         """Should only count/delete folders matching optimal_* pattern."""
-        # Create mix of folder types
         (tmp_path / "optimal_20250101_120000").mkdir()
         (tmp_path / "optimal_20250102_120000").mkdir()
         (tmp_path / "intermediate_01_TEST").mkdir()
@@ -99,16 +92,13 @@ class TestCleanupOldOptimalFolders:
         deleted = cleanup_old_optimal_folders(tmp_path, max_folders=2)
 
         assert deleted == 1
-        # Only optimal folders should be affected
         assert not (tmp_path / "optimal_20250101_120000").exists()
         assert (tmp_path / "optimal_20250102_120000").exists()
-        # Non-optimal folders should remain
         assert (tmp_path / "intermediate_01_TEST").exists()
         assert (tmp_path / "other_folder").exists()
 
     def test_sorts_by_name_for_oldest(self, tmp_path):
         """Should determine oldest by alphabetical sort of folder names."""
-        # Create folders out of order
         (tmp_path / "optimal_20250103_120000").mkdir()
         (tmp_path / "optimal_20250101_120000").mkdir()  # Oldest
         (tmp_path / "optimal_20250102_120000").mkdir()
@@ -118,7 +108,6 @@ class TestCleanupOldOptimalFolders:
         deleted = cleanup_old_optimal_folders(tmp_path)
 
         assert deleted == 1
-        # The alphabetically first (oldest) should be deleted
         assert not (tmp_path / "optimal_20250101_120000").exists()
         assert (tmp_path / "optimal_20250102_120000").exists()
 
@@ -152,32 +141,26 @@ class TestCleanupOldOptimalFolders:
     @patch('shutil.rmtree')
     def test_continues_on_deletion_error(self, mock_rmtree, tmp_path):
         """Should log warning and continue if deletion fails."""
-        # Create 6 folders
         for i in range(6):
             (tmp_path / f"optimal_2025010{i}_120000").mkdir()
 
-        # Make rmtree fail for first call, succeed for second
         mock_rmtree.side_effect = [PermissionError("Access denied"), None]
 
         deleted = cleanup_old_optimal_folders(tmp_path)
 
-        # Should have attempted to delete 2 folders
         assert mock_rmtree.call_count == 2
-        # Only 1 successful deletion
         assert deleted == 1
 
     def test_ignores_files_matching_pattern(self, tmp_path):
         """Should only count directories, not files matching pattern."""
-        # Create folders
         for i in range(4):
             (tmp_path / f"optimal_2025010{i}_120000").mkdir()
 
-        # Create a file matching the pattern (should be ignored)
         (tmp_path / "optimal_20250105_120000.json").touch()
 
         deleted = cleanup_old_optimal_folders(tmp_path)
 
-        assert deleted == 0  # 4 folders, under limit of 5
+        assert deleted == 0
         assert (tmp_path / "optimal_20250105_120000.json").exists()
 
 
@@ -186,7 +169,6 @@ class TestCleanupOldAccuracyOptimalFolders:
 
     def test_no_cleanup_when_under_limit(self, tmp_path):
         """Should not delete any folders when count is under limit."""
-        # Create 3 accuracy_optimal folders (under default limit of 5)
         for i in range(3):
             (tmp_path / f"accuracy_optimal_2025-01-0{i}_12-00-00").mkdir()
 
@@ -197,7 +179,6 @@ class TestCleanupOldAccuracyOptimalFolders:
 
     def test_no_cleanup_when_at_limit_minus_one(self, tmp_path):
         """Should not delete when count is exactly limit - 1."""
-        # Create 4 folders (one less than limit of 5)
         for i in range(4):
             (tmp_path / f"accuracy_optimal_2025-01-0{i}_12-00-00").mkdir()
 
@@ -208,7 +189,6 @@ class TestCleanupOldAccuracyOptimalFolders:
 
     def test_deletes_oldest_when_at_limit(self, tmp_path):
         """Should delete oldest folder when count equals limit."""
-        # Create 5 folders (at limit)
         folders = []
         for i in range(5):
             folder = tmp_path / f"accuracy_optimal_2025-01-0{i}_12-00-00"
@@ -218,13 +198,12 @@ class TestCleanupOldAccuracyOptimalFolders:
         deleted = cleanup_old_accuracy_optimal_folders(tmp_path)
 
         assert deleted == 1
-        assert not folders[0].exists()  # Oldest deleted
-        assert all(f.exists() for f in folders[1:])  # Rest remain
+        assert not folders[0].exists()
+        assert all(f.exists() for f in folders[1:])
         assert len(list(tmp_path.glob("accuracy_optimal_*"))) == 4
 
     def test_deletes_multiple_when_over_limit(self, tmp_path):
         """Should delete multiple folders when count exceeds limit."""
-        # Create 7 folders (2 over limit)
         folders = []
         for i in range(7):
             folder = tmp_path / f"accuracy_optimal_2025-01-0{i}_12-00-00"
@@ -233,7 +212,7 @@ class TestCleanupOldAccuracyOptimalFolders:
 
         deleted = cleanup_old_accuracy_optimal_folders(tmp_path)
 
-        assert deleted == 3  # Need to delete 3 to get to 4 (room for new one)
+        assert deleted == 3
         assert not folders[0].exists()
         assert not folders[1].exists()
         assert not folders[2].exists()
@@ -242,11 +221,9 @@ class TestCleanupOldAccuracyOptimalFolders:
 
     def test_respects_custom_limit(self, tmp_path):
         """Should respect custom max_folders parameter."""
-        # Create 4 folders
         for i in range(4):
             (tmp_path / f"accuracy_optimal_2025-01-0{i}_12-00-00").mkdir()
 
-        # With limit of 2, should delete 3 folders
         deleted = cleanup_old_accuracy_optimal_folders(tmp_path, max_folders=2)
 
         assert deleted == 3
@@ -254,7 +231,6 @@ class TestCleanupOldAccuracyOptimalFolders:
 
     def test_only_matches_accuracy_optimal_pattern(self, tmp_path):
         """Should only count/delete folders matching accuracy_optimal_* pattern."""
-        # Create mix of folder types
         (tmp_path / "accuracy_optimal_2025-01-01_12-00-00").mkdir()
         (tmp_path / "accuracy_optimal_2025-01-02_12-00-00").mkdir()
         (tmp_path / "optimal_20250101_120000").mkdir()  # Win-rate optimal (should ignore)
@@ -264,17 +240,14 @@ class TestCleanupOldAccuracyOptimalFolders:
         deleted = cleanup_old_accuracy_optimal_folders(tmp_path, max_folders=2)
 
         assert deleted == 1
-        # Only accuracy_optimal folders should be affected
         assert not (tmp_path / "accuracy_optimal_2025-01-01_12-00-00").exists()
         assert (tmp_path / "accuracy_optimal_2025-01-02_12-00-00").exists()
-        # Other folders should remain untouched
         assert (tmp_path / "optimal_20250101_120000").exists()
         assert (tmp_path / "intermediate_01_TEST").exists()
         assert (tmp_path / "other_folder").exists()
 
     def test_sorts_by_name_for_oldest(self, tmp_path):
         """Should determine oldest by alphabetical sort of folder names."""
-        # Create folders out of order
         (tmp_path / "accuracy_optimal_2025-01-03_12-00-00").mkdir()
         (tmp_path / "accuracy_optimal_2025-01-01_12-00-00").mkdir()  # Oldest
         (tmp_path / "accuracy_optimal_2025-01-02_12-00-00").mkdir()
@@ -284,7 +257,6 @@ class TestCleanupOldAccuracyOptimalFolders:
         deleted = cleanup_old_accuracy_optimal_folders(tmp_path)
 
         assert deleted == 1
-        # The alphabetically first (oldest) should be deleted
         assert not (tmp_path / "accuracy_optimal_2025-01-01_12-00-00").exists()
         assert (tmp_path / "accuracy_optimal_2025-01-02_12-00-00").exists()
 
@@ -305,32 +277,26 @@ class TestCleanupOldAccuracyOptimalFolders:
     @patch('shutil.rmtree')
     def test_continues_on_deletion_error(self, mock_rmtree, tmp_path):
         """Should log warning and continue if deletion fails."""
-        # Create 6 folders
         for i in range(6):
             (tmp_path / f"accuracy_optimal_2025-01-0{i}_12-00-00").mkdir()
 
-        # Make rmtree fail for first call, succeed for second
         mock_rmtree.side_effect = [PermissionError("Access denied"), None]
 
         deleted = cleanup_old_accuracy_optimal_folders(tmp_path)
 
-        # Should have attempted to delete 2 folders
         assert mock_rmtree.call_count == 2
-        # Only 1 successful deletion
         assert deleted == 1
 
     def test_ignores_files_matching_pattern(self, tmp_path):
         """Should only count directories, not files matching pattern."""
-        # Create folders
         for i in range(4):
             (tmp_path / f"accuracy_optimal_2025-01-0{i}_12-00-00").mkdir()
 
-        # Create a file matching the pattern (should be ignored)
         (tmp_path / "accuracy_optimal_2025-01-05_12-00-00.json").touch()
 
         deleted = cleanup_old_accuracy_optimal_folders(tmp_path)
 
-        assert deleted == 0  # 4 folders, under limit of 5
+        assert deleted == 0
         assert (tmp_path / "accuracy_optimal_2025-01-05_12-00-00.json").exists()
 
 
@@ -340,3 +306,5 @@ class TestMaxOptimalFoldersConstant:
     def test_default_value_is_five(self):
         """Verify default constant is 5."""
         assert MAX_OPTIMAL_FOLDERS == 5
+
+

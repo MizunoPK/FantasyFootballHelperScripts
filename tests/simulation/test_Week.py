@@ -63,7 +63,6 @@ class TestWeekResult:
         """Test that tied scores are treated as losses"""
         team = Mock()
 
-        # In ties, both teams should have won=False
         result = WeekResult(team, 100.0, 100.0, False)
 
         assert result.points_scored == result.points_against
@@ -110,11 +109,9 @@ class TestWeek:
         """Test week number edge cases - valid boundaries"""
         matchups = []
 
-        # Week 1 should be valid
         week1 = Week(1, matchups)
         assert week1.week_number == 1
 
-        # Week 17 should be valid (updated from 16)
         week17 = Week(17, matchups)
         assert week17.week_number == 17
 
@@ -131,11 +128,9 @@ class TestWeek:
 
         results = week.simulate_week()
 
-        # Verify both teams set their lineup
         team1.set_weekly_lineup.assert_called_once_with(5)
         team2.set_weekly_lineup.assert_called_once_with(5)
 
-        # Verify results
         assert len(results) == 2
         assert results[team1].won is True
         assert results[team1].points_scored == 125.5
@@ -157,7 +152,6 @@ class TestWeek:
 
         results = week.simulate_week()
 
-        # Verify results
         assert results[team1].won is False
         assert results[team2].won is True
 
@@ -174,7 +168,6 @@ class TestWeek:
 
         results = week.simulate_week()
 
-        # In a tie, both teams should lose
         assert results[team1].won is False
         assert results[team2].won is False
         assert results[team1].points_scored == 100.0
@@ -199,14 +192,11 @@ class TestWeek:
 
         results = week.simulate_week()
 
-        # Verify all teams have results
         assert len(results) == 4
 
-        # Matchup 1: team1 wins
         assert results[team1].won is True
         assert results[team2].won is False
 
-        # Matchup 2: team4 wins
         assert results[team3].won is False
         assert results[team4].won is True
 
@@ -223,7 +213,6 @@ class TestWeek:
 
         results = week.simulate_week()
 
-        # Team1 should win by the smallest margin
         assert results[team1].won is True
         assert results[team2].won is False
 
@@ -253,7 +242,7 @@ class TestWeek:
         team2 = Mock()
         team2.set_weekly_lineup = Mock(return_value=100.0)
 
-        team3 = Mock()  # Not in matchups
+        team3 = Mock()
 
         matchups = [(team1, team2)]
         week = Week(6, matchups)
@@ -276,11 +265,9 @@ class TestWeek:
 
         all_results = week.get_all_results()
 
-        # Verify it's a copy
         assert all_results == week.results
         assert all_results is not week.results
 
-        # Verify contents
         assert len(all_results) == 2
         assert team1 in all_results
         assert team2 in all_results
@@ -297,11 +284,9 @@ class TestWeek:
 
         returned_matchups = week.get_matchups()
 
-        # Verify it's a copy
         assert returned_matchups == matchups
         assert returned_matchups is not matchups
 
-        # Verify contents
         assert len(returned_matchups) == 2
 
     def test_week_repr(self):
@@ -327,15 +312,12 @@ class TestWeek:
         matchups = [(team1, team2)]
         week = Week(11, matchups)
 
-        # First simulation
         results1 = week.simulate_week()
         assert results1[team1].points_scored == 120.0
 
-        # Second simulation - should overwrite
         results2 = week.simulate_week()
         assert results2[team1].points_scored == 130.0
 
-        # Final results should match second simulation
         final = week.get_result(team1)
         assert final.points_scored == 130.0
 
@@ -352,7 +334,6 @@ class TestWeek:
 
         results = week.simulate_week()
 
-        # Both teams scored 0, should be tie (both lose)
         assert results[team1].won is False
         assert results[team2].won is False
 
@@ -369,7 +350,6 @@ class TestWeek:
 
         results = week.simulate_week()
 
-        # team2 has "higher" score (-5 > -10)
         assert results[team2].won is True
         assert results[team1].won is False
 
@@ -410,11 +390,11 @@ class TestWeek:
         matchups = [(team1, team2)]
         week = Week(16, matchups)
 
-        # Before simulation
         assert len(week.results) == 0
 
-        # After simulation
         week.simulate_week()
         assert len(week.results) == 2
         assert team1 in week.results
         assert team2 in week.results
+
+

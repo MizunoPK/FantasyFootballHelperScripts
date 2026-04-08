@@ -117,7 +117,6 @@ class TestDraftPlayer:
 
     def test_draft_player_adds_to_roster(self, draft_helper_team, mock_player, mock_projected_pm, mock_actual_pm):
         """Test drafting player adds to roster"""
-        # Setup player in both managers
         proj_player = Mock(spec=FantasyPlayer)
         proj_player.id = mock_player.id
         proj_player.drafted_by = ""
@@ -149,7 +148,6 @@ class TestDraftPlayer:
 
         draft_helper_team.draft_player(mock_player)
 
-        # Verify draft_player was called with the player instances
         assert mock_projected_pm.draft_player.called
         assert mock_actual_pm.draft_player.called
 
@@ -169,7 +167,6 @@ class TestDraftPlayer:
 
         draft_helper_team.draft_player(mock_player)
 
-        # Verify draft_player was called with the player instances
         assert mock_projected_pm.draft_player.called
         assert mock_actual_pm.draft_player.called
 
@@ -189,13 +186,11 @@ class TestDraftPlayer:
 
         draft_helper_team.draft_player(mock_player)
 
-        # Verify draft_player was called on both PlayerManagers
         mock_projected_pm.draft_player.assert_called_once_with(proj_player)
         mock_actual_pm.draft_player.assert_called_once_with(actual_player)
 
     def test_draft_player_multiple_players(self, draft_helper_team, mock_player, mock_player2, mock_projected_pm, mock_actual_pm):
         """Test drafting multiple players accumulates roster"""
-        # Setup player 1
         proj_player1 = Mock(spec=FantasyPlayer)
         proj_player1.id = mock_player.id
         proj_player1.drafted_by = ""
@@ -204,7 +199,6 @@ class TestDraftPlayer:
         actual_player1.id = mock_player.id
         actual_player1.drafted_by = ""
 
-        # Setup player 2
         proj_player2 = Mock(spec=FantasyPlayer)
         proj_player2.id = mock_player2.id
         proj_player2.drafted_by = ""
@@ -230,7 +224,6 @@ class TestDraftPlayer:
         proj_player.name = "Test Player"
         proj_player.drafted_by = ""
         mock_projected_pm.players = [proj_player]
-        # First call succeeds, second call fails (already drafted)
         mock_projected_pm.draft_player.side_effect = [True, False]
 
         actual_player = Mock(spec=FantasyPlayer)
@@ -243,10 +236,9 @@ class TestDraftPlayer:
         draft_helper_team.draft_player(mock_player)
         draft_helper_team.draft_player(mock_player)
 
-        # Should only be called once successfully (second call returns False)
         assert mock_projected_pm.draft_player.call_count == 2
-        assert mock_actual_pm.draft_player.call_count == 1  # Rollback prevents second call
-        assert draft_helper_team.get_roster_size() == 1  # Only added once
+        assert mock_actual_pm.draft_player.call_count == 1
+        assert draft_helper_team.get_roster_size() == 1
 
 
 @patch('simulation.win_rate.DraftHelperTeam.AddToRosterModeManager')
@@ -255,7 +247,6 @@ class TestGetDraftRecommendation:
 
     def test_get_draft_recommendation_returns_top_pick(self, mock_add_to_roster_class, draft_helper_team, mock_player):
         """Test get_draft_recommendation returns top recommendation"""
-        # Setup mock recommendation
         mock_rec = Mock()
         mock_rec.player = mock_player
         mock_rec.score = 95.5
@@ -311,7 +302,7 @@ class TestGetDraftRecommendation:
 
         result = draft_helper_team.get_draft_recommendation()
 
-        assert result == mock_player  # First, not second
+        assert result == mock_player
         assert result != mock_player2
 
     def test_get_draft_recommendation_stores_manager(self, mock_add_to_roster_class, draft_helper_team, mock_player):
@@ -335,7 +326,6 @@ class TestSetWeeklyLineup:
 
     def test_set_weekly_lineup_returns_total_points(self, mock_starter_helper_class, draft_helper_team, mock_actual_pm):
         """Test set_weekly_lineup returns total actual points"""
-        # Setup mock lineup with 9 starters
         mock_lineup = Mock()
 
         positions = ['QB', 'RB', 'RB', 'WR', 'WR', 'TE', 'RB', 'K', 'DST']
@@ -346,7 +336,7 @@ class TestSetWeeklyLineup:
             starter.player.id = i
             starter.player.name = f"Player{i}"
             starter.player.position = positions[i]
-            starter.player.actual_points = [10.0] * 17  # 17 weeks, 10 points each
+            starter.player.actual_points = [10.0] * 17
             starters.append(starter)
 
         mock_lineup.qb = starters[0]
@@ -363,12 +353,11 @@ class TestSetWeeklyLineup:
         mock_starter_helper_mgr.optimize_lineup.return_value = mock_lineup
         mock_starter_helper_class.return_value = mock_starter_helper_mgr
 
-        # Mock calculate_max_weekly_projection
         mock_actual_pm.calculate_max_weekly_projection.return_value = 100.0
 
         result = draft_helper_team.set_weekly_lineup(week=5)
 
-        assert result == 90.0  # 9 players × 10 points each
+        assert result == 90.0
 
     def test_set_weekly_lineup_updates_config_week(self, mock_starter_helper_class, draft_helper_team, mock_config):
         """Test set_weekly_lineup updates config.current_nfl_week"""
@@ -456,7 +445,7 @@ class TestSetWeeklyLineup:
 
         result = draft_helper_team.set_weekly_lineup(week=1)
 
-        assert result == 0.0  # No starters = 0 points
+        assert result == 0.0
 
     def test_set_weekly_lineup_uses_actual_pm_for_scoring(self, mock_starter_helper_class, draft_helper_team, mock_actual_pm):
         """Test set_weekly_lineup uses actual_pm player data for scoring"""
@@ -467,7 +456,7 @@ class TestSetWeeklyLineup:
         starter.player.id = 1
         starter.player.name = "Test Player"
         starter.player.position = "QB"
-        starter.player.actual_points = [25.5] * 17  # Week 10 (index 9) = 25.5
+        starter.player.actual_points = [25.5] * 17
 
         mock_lineup.qb = starter
         mock_lineup.rb1 = None
@@ -483,12 +472,10 @@ class TestSetWeeklyLineup:
         mock_starter_helper_mgr.optimize_lineup.return_value = mock_lineup
         mock_starter_helper_class.return_value = mock_starter_helper_mgr
 
-        # Mock calculate_max_weekly_projection
         mock_actual_pm.calculate_max_weekly_projection.return_value = 100.0
 
         result = draft_helper_team.set_weekly_lineup(week=10)
 
-        # Should read from actual_points array
         assert result == 25.5
 
     def test_set_weekly_lineup_stores_manager(self, mock_starter_helper_class, draft_helper_team):
@@ -582,7 +569,6 @@ class TestMarkPlayerDrafted:
         mock_projected_pm.players = []
         mock_actual_pm.players = []
 
-        # Should not raise exception
         draft_helper_team.mark_player_drafted(999)
 
 
@@ -595,7 +581,6 @@ class TestGetRosterSize:
 
     def test_get_roster_size_with_players(self, draft_helper_team, mock_player, mock_player2, mock_projected_pm, mock_actual_pm):
         """Test roster size with players"""
-        # Setup players
         proj_player1 = Mock(spec=FantasyPlayer)
         proj_player1.id = mock_player.id
         proj_player1.drafted_by = ""
@@ -623,7 +608,6 @@ class TestGetRosterSize:
 
     def test_get_roster_size_at_max(self, draft_helper_team, mock_projected_pm, mock_actual_pm):
         """Test roster size at maximum (15 players)"""
-        # Add 15 players
         for i in range(15):
             player = Mock(spec=FantasyPlayer)
             player.id = i
@@ -713,7 +697,6 @@ class TestDraftHelperTeamIntegration:
     @patch('simulation.win_rate.DraftHelperTeam.StarterHelperModeManager')
     def test_full_draft_and_week_cycle(self, mock_starter_helper_class, mock_add_to_roster_class, draft_helper_team, mock_player, mock_projected_pm, mock_actual_pm):
         """Test complete draft and weekly lineup cycle"""
-        # Setup draft recommendation
         mock_rec = Mock()
         mock_rec.player = mock_player
         mock_rec.score = 95.5
@@ -722,7 +705,6 @@ class TestDraftHelperTeamIntegration:
         mock_add_to_roster_mgr.get_recommendations.return_value = [mock_rec]
         mock_add_to_roster_class.return_value = mock_add_to_roster_mgr
 
-        # Setup player in both managers
         proj_player = Mock(spec=FantasyPlayer)
         proj_player.id = mock_player.id
         proj_player.drafted_by = ""
@@ -733,17 +715,15 @@ class TestDraftHelperTeamIntegration:
         actual_player.drafted_by = ""
         mock_actual_pm.players = [actual_player]
 
-        # Draft player
         recommended = draft_helper_team.get_draft_recommendation()
         draft_helper_team.draft_player(recommended)
 
         assert draft_helper_team.get_roster_size() == 1
 
-        # Setup weekly lineup
         mock_lineup = Mock()
         starter = Mock()
         starter.player = mock_player
-        starter.player.actual_points = [20.5] * 17  # Week 1 (index 0) = 20.5
+        starter.player.actual_points = [20.5] * 17
         mock_lineup.qb = starter
         mock_lineup.rb1 = None
         mock_lineup.rb2 = None
@@ -758,17 +738,14 @@ class TestDraftHelperTeamIntegration:
         mock_starter_helper_mgr.optimize_lineup.return_value = mock_lineup
         mock_starter_helper_class.return_value = mock_starter_helper_mgr
 
-        # Mock calculate_max_weekly_projection
         mock_actual_pm.calculate_max_weekly_projection.return_value = 100.0
 
-        # Set weekly lineup
         points = draft_helper_team.set_weekly_lineup(week=1)
 
         assert points == 20.5
 
     def test_draft_multiple_mark_opponents(self, draft_helper_team, mock_player, mock_player2, mock_projected_pm, mock_actual_pm):
         """Test drafting own players and marking opponents' drafts"""
-        # Setup player 1 (will draft)
         proj_player1 = Mock(spec=FantasyPlayer)
         proj_player1.id = mock_player.id
         proj_player1.drafted_by = ""
@@ -777,7 +754,6 @@ class TestDraftHelperTeamIntegration:
         actual_player1.id = mock_player.id
         actual_player1.drafted_by = ""
 
-        # Setup player 2 (will mark as opponent's)
         proj_player2 = Mock(spec=FantasyPlayer)
         proj_player2.id = mock_player2.id
         proj_player2.drafted_by = ""
@@ -791,14 +767,13 @@ class TestDraftHelperTeamIntegration:
         mock_actual_pm.players = [actual_player1, actual_player2]
         mock_actual_pm.draft_player.return_value = True
 
-        # Draft player 1 for our team
         draft_helper_team.draft_player(mock_player)
 
-        # Mark player 2 as drafted by opponent
         draft_helper_team.mark_player_drafted(mock_player2.id)
 
-        # Verify states
         assert proj_player2.drafted_by == "OPPONENT"  # Drafted by opponent
         assert draft_helper_team.get_roster_size() == 1
         assert mock_player in draft_helper_team.get_roster_players()
         assert mock_player2 not in draft_helper_team.get_roster_players()
+
+

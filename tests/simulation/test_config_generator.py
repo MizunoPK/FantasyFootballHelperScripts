@@ -24,8 +24,6 @@ from unittest.mock import patch, Mock
 
 from simulation.shared.ConfigGenerator import ConfigGenerator
 
-# Standard parameter order for testing
-# This mirrors the production PARAMETER_ORDER from run_simulation.py
 TEST_PARAMETER_ORDER = [
     'NORMALIZATION_MAX_SCALE',
     'SAME_POS_BYE_WEIGHT',
@@ -73,10 +71,8 @@ def create_test_config_folder(base_config: dict, tmp_path: Path) -> Path:
     config_folder = tmp_path / "test_configs"
     config_folder.mkdir(parents=True, exist_ok=True)
 
-    # Split base config into base and week-specific parts
     params = base_config.get('parameters', {})
 
-    # Base parameters (non-week-specific)
     base_params = {
         'NORMALIZATION_MAX_SCALE': params.get('NORMALIZATION_MAX_SCALE', 100.0),
         'SAME_POS_BYE_WEIGHT': params.get('SAME_POS_BYE_WEIGHT', 1.0),
@@ -93,7 +89,6 @@ def create_test_config_folder(base_config: dict, tmp_path: Path) -> Path:
         }),
     }
 
-    # Week-specific parameters
     week_params = {
         'PLAYER_RATING_SCORING': params.get('PLAYER_RATING_SCORING', {
             'WEIGHT': 1.0,
@@ -144,7 +139,6 @@ def create_test_config_folder(base_config: dict, tmp_path: Path) -> Path:
         }),
     }
 
-    # Write league_config.json
     league_config = {
         'config_name': base_config.get('config_name', 'test_baseline'),
         'description': 'Test base config',
@@ -153,7 +147,6 @@ def create_test_config_folder(base_config: dict, tmp_path: Path) -> Path:
     with open(config_folder / 'league_config.json', 'w') as f:
         json.dump(league_config, f, indent=2)
 
-    # Write week-specific files (all with same params for testing)
     for week_file in ['week1-5.json', 'week6-9.json', 'week10-13.json', 'week14-17.json']:
         week_config = {
             'config_name': f'Test {week_file}',
@@ -297,8 +290,7 @@ class TestConfigGeneratorInitialization:
         """Test successful loading of baseline configuration"""
         gen = ConfigGenerator(temp_baseline_config)
 
-        config = gen.baseline_config  # Backward compat property returns '1-5' horizon config
-        # New API loads separate horizons (no merging), baseline_config returns '1-5' horizon
+        config = gen.baseline_config
         assert config['config_name'] == 'Test week1-5.json'
         assert config['parameters']['NORMALIZATION_MAX_SCALE'] == 100.0
         assert config['parameters']['SAME_POS_BYE_WEIGHT'] == 1.0
@@ -308,12 +300,10 @@ class TestConfigGeneratorInitialization:
         """Test that param_definitions dict exists and is non-empty"""
         gen = ConfigGenerator(temp_baseline_config)
 
-        # param_definitions should exist and contain entries
         assert hasattr(gen, 'param_definitions')
         assert isinstance(gen.param_definitions, dict)
         assert len(gen.param_definitions) > 0
 
-        # Each param definition should be a tuple of (min_val, max_val, precision)
         for param_name, definition in gen.param_definitions.items():
             assert isinstance(definition, tuple), f"{param_name} should be a tuple"
             assert len(definition) == 3, f"{param_name} should have (min, max, precision)"
@@ -329,18 +319,15 @@ class TestParameterValueGeneration:
         """Create a ConfigGenerator instance for testing"""
         config = {"config_name": "test_config", "parameters": {}}
         config_folder = create_test_config_folder(config, tmp_path)
-        return ConfigGenerator(config_folder, num_test_values=2)  # Use 2 for faster tests
+        return ConfigGenerator(config_folder, num_test_values=2)
 
     def test_generate_parameter_values_correct_count(self, generator):
         """Test that correct number of values are generated"""
-        # With precision=0 (integers) for range 60-140, there are 81 possible values
-        # Since num_test_values=2 < 81, we get 3 values (optimal + 2 random)
         values = generator.generate_parameter_values(
             'TEST_PARAM', 100, 60, 140, 0
         )
 
-        # Should have num_test_values + 1 (optimal + N random)
-        assert len(values) == 3  # 1 + 2
+        assert len(values) == 3
 
     def test_generate_parameter_values_includes_optimal(self, generator):
         """Test that optimal value is included as first value"""
@@ -367,7 +354,6 @@ class TestParameterValueGeneration:
             'TEST_PARAM', optimal, 60, 140, 0
         )
 
-        # At least one value should differ from optimal
         non_optimal_values = [v for v in values[1:] if v != optimal]
         assert len(non_optimal_values) >= 1
 
@@ -386,12 +372,9 @@ class TestParameterValueGeneration:
             'TEST_PARAM', 0.3, 0.0, 0.5, 1
         )
 
-        # With 6 possible values [0.0, 0.1, 0.2, 0.3, 0.4, 0.5] and num_test_values=2,
-        # we get 3 values (optimal + 2 random)
         assert len(values) == 3
         assert values[0] == 0.3
         for val in values:
-            # Check each value is at 0.1 precision
             assert round(val, 1) == val
 
     def test_generate_parameter_values_precision_2(self, generator):
@@ -402,27 +385,21 @@ class TestParameterValueGeneration:
 
         assert values[0] == 1.50
         for val in values:
-            # Check each value is at 0.01 precision
             assert round(val, 2) == val
 
     def test_generate_parameter_values_full_enumeration(self, generator):
         """Test that when num_test_values >= possible values, all values returned"""
-        # Range 0.0 to 0.5 with precision 1 = 6 possible values
-        # num_test_values = 2, but if we bump it higher, we should get all 6
         config = {"config_name": "test_config", "parameters": {}}
         import tempfile
         from tests.simulation.test_config_generator import create_test_config_folder
         with tempfile.TemporaryDirectory() as tmp:
             from pathlib import Path
             config_folder = create_test_config_folder(config, Path(tmp))
-            gen = ConfigGenerator(config_folder, num_test_values=10)  # > 6 possible values
+            gen = ConfigGenerator(config_folder, num_test_values=10)
             values = gen.generate_parameter_values('TEST_PARAM', 0.3, 0.0, 0.5, 1)
 
-        # Should return all 6 possible values
         assert len(values) == 6
-        # Optimal should be first
         assert values[0] == 0.3
-        # Should contain all possible values
         assert set(values) == {0.0, 0.1, 0.2, 0.3, 0.4, 0.5}
 
     def test_generate_discrete_range_precision_0(self, generator):
@@ -451,33 +428,29 @@ class TestParameterValueGeneration:
 
     def test_generate_discrete_range_negative_values(self, generator):
         """Test _generate_discrete_range handles negative values"""
-        # precision=1 means 0.1 steps, so -10.0 to 0.0 has 101 values
         values = generator._generate_discrete_range(-10.0, 0.0, 1)
 
-        assert len(values) == 101  # (-10.0, -9.9, ..., -0.1, 0.0)
+        assert len(values) == 101
         assert values[0] == -10.0
-        assert values[-1] == 0.0  # -0.0 equals 0.0
+        assert values[-1] == 0.0
 
     def test_generate_discrete_range_integer_negative(self, generator):
         """Test _generate_discrete_range with precision=0 for negative integers"""
         values = generator._generate_discrete_range(-5, 0, 0)
 
-        assert len(values) == 6  # [-5, -4, -3, -2, -1, 0]
+        assert len(values) == 6
         assert values == [-5, -4, -3, -2, -1, 0]
 
     def test_generate_all_parameter_value_sets_returns_all_params(self, generator):
         """Test that value sets are generated with valid structure"""
         value_sets = generator.generate_all_parameter_value_sets()
 
-        # Should return a non-empty dict with value sets
         assert isinstance(value_sets, dict)
         assert len(value_sets) > 0
 
-        # Each value set should be a list of numeric values
         for param_name, values in value_sets.items():
             assert isinstance(values, list), f"{param_name} should be a list"
             assert len(values) > 0, f"{param_name} should have values"
-            # Values should be numeric
             for val in values:
                 assert isinstance(val, (int, float)), f"{param_name} values should be numeric"
 
@@ -485,7 +458,6 @@ class TestParameterValueGeneration:
         """Test that each value set has correct number of values"""
         value_sets = generator.generate_all_parameter_value_sets()
 
-        # Each parameter should have num_test_values + 1 values
         expected_count = generator.num_test_values + 1
         for param_name, values in value_sets.items():
             assert len(values) == expected_count, f"{param_name} has {len(values)} values, expected {expected_count}"
@@ -499,37 +471,28 @@ class TestCombinationGeneration:
         """Create a ConfigGenerator with minimal test values"""
         config = {"config_name": "test_config", "parameters": {}}
         config_folder = create_test_config_folder(config, tmp_path)
-        return ConfigGenerator(config_folder, num_test_values=1)  # Use 1 for minimal combinations
+        return ConfigGenerator(config_folder, num_test_values=1)
 
     def test_generate_all_combinations_structure(self, generator):
         """Test that combinations have correct structure"""
-        # Don't actually generate all combinations (could be millions)
-        # Instead, test that the method structure works by checking value sets
         value_sets = generator.generate_all_parameter_value_sets()
 
-        # Verify value sets are generated (number may vary based on enabled params)
         assert isinstance(value_sets, dict)
         assert len(value_sets) > 0
 
-        # Each value set should have correct number of values
         expected_count = generator.num_test_values + 1
         for param_name, values in value_sets.items():
             assert len(values) == expected_count, f"{param_name} has {len(values)} values, expected {expected_count}"
 
     def test_generate_all_combinations_each_has_all_params(self, generator):
         """Test that each combination contains all generated value set params"""
-        # Generate a single test combination manually
         value_sets = generator.generate_all_parameter_value_sets()
 
-        # Create one test combination by taking first value of each parameter
         test_combo = {param: values[0] for param, values in value_sets.items()}
 
-        # Verify all parameters that have value sets are in the combination
-        # (not all param_definitions are extractable from every config)
         for param_name in value_sets:
             assert param_name in test_combo, f"Missing {param_name} in test combination"
 
-        # Verify test_combo has valid structure
         assert isinstance(test_combo, dict)
         assert len(test_combo) > 0
 
@@ -585,7 +548,6 @@ class TestConfigDictCreation:
         assert params['DRAFT_ORDER_BONUSES']['PRIMARY'] == 55.0
         assert params['DRAFT_ORDER_BONUSES']['SECONDARY'] == 45.0
         assert params['MATCHUP_SCORING']['IMPACT_SCALE'] == 175.0
-        # SCHEDULE_SCORING.IMPACT_SCALE not tested (not optimized)
 
     def test_create_config_dict_updates_multipliers(self, generator_and_combo):
         """Test that weights are updated in all sections"""
@@ -594,23 +556,19 @@ class TestConfigDictCreation:
 
         params = config['parameters']
 
-        # Check weights for optimized scoring sections
         assert params['ADP_SCORING']['WEIGHT'] == 1.5
         assert params['PLAYER_RATING_SCORING']['WEIGHT'] == 1.3
         assert params['TEAM_QUALITY_SCORING']['WEIGHT'] == 1.2
         assert params['PERFORMANCE_SCORING']['WEIGHT'] == 1.1
         assert params['MATCHUP_SCORING']['WEIGHT'] == 1.4
-        # SCHEDULE_SCORING.WEIGHT not tested (not optimized)
 
     def test_create_config_dict_immutability(self, generator_and_combo):
         """Test that creating configs doesn't mutate baseline"""
         gen, combination = generator_and_combo
         original_baseline = gen.baseline_config['parameters']['NORMALIZATION_MAX_SCALE']
 
-        # Create a config with different values
         config = gen.create_config_dict(combination)
 
-        # Baseline should remain unchanged
         assert gen.baseline_config['parameters']['NORMALIZATION_MAX_SCALE'] == original_baseline
 
 
@@ -629,18 +587,15 @@ class TestIterativeOptimizationSupport:
         base_config = generator.baseline_config
         configs = generator.generate_single_parameter_configs('NORMALIZATION_MAX_SCALE', base_config)
 
-        # Should have num_test_values + 1 configs
-        assert len(configs) == 3  # 1 + 2
+        assert len(configs) == 3
 
     def test_generate_single_parameter_configs_varies_target_param(self, generator):
         """Test that target parameter varies across configs"""
         base_config = generator.baseline_config
         configs = generator.generate_single_parameter_configs('NORMALIZATION_MAX_SCALE', base_config)
 
-        # Extract values of target parameter
         values = [c['parameters']['NORMALIZATION_MAX_SCALE'] for c in configs]
 
-        # Should have variation in values
         assert len(set(values)) > 1
 
     def test_extract_combination_from_config(self, generator):
@@ -648,15 +603,12 @@ class TestIterativeOptimizationSupport:
         config = generator.baseline_config
         combination = generator._extract_combination_from_config(config)
 
-        # Should return a non-empty dict with parameter values
         assert isinstance(combination, dict)
         assert len(combination) > 0
 
-        # All extracted values should be numeric
         for param_name, value in combination.items():
             assert isinstance(value, (int, float)), f"{param_name} should be numeric"
 
-        # Core parameters should always be present
         core_params = [
             'NORMALIZATION_MAX_SCALE',
             'SAME_POS_BYE_WEIGHT',
@@ -672,11 +624,10 @@ class TestIterativeOptimizationSupport:
         base_config = generator.baseline_config
         configs = generator.generate_single_parameter_configs('ADP_SCORING_WEIGHT', base_config)
 
-        assert len(configs) == 3  # num_test_values + 1
+        assert len(configs) == 3
 
-        # Extract weight values
         values = [c['parameters']['ADP_SCORING']['WEIGHT'] for c in configs]
-        assert len(set(values)) > 1  # Should have variation
+        assert len(set(values)) > 1
 
 
 class TestEdgeCases:
@@ -689,7 +640,6 @@ class TestEdgeCases:
 
     def test_config_file_instead_of_folder(self, tmp_path):
         """Test that passing a file instead of folder raises ValueError"""
-        # Create a single JSON file (not a folder)
         config_file = tmp_path / "config.json"
         config_file.write_text('{"config_name": "test"}')
 
@@ -698,7 +648,6 @@ class TestEdgeCases:
 
     def test_missing_required_files_in_folder(self, tmp_path):
         """Test that folder missing required files raises ValueError"""
-        # Create folder with only league_config.json (missing week files)
         config_folder = tmp_path / "incomplete_config"
         config_folder.mkdir()
 
@@ -714,9 +663,7 @@ class TestEdgeCases:
         config_folder = tmp_path / "bad_config"
         config_folder.mkdir()
 
-        # Write invalid JSON
         (config_folder / "league_config.json").write_text("{invalid json")
-        # Write valid week files (5-file structure)
         for week_file in ['week1-5.json', 'week6-9.json', 'week10-13.json', 'week14-17.json']:
             with open(config_folder / week_file, 'w') as f:
                 json.dump({"config_name": week_file, "parameters": {}}, f)
@@ -724,9 +671,6 @@ class TestEdgeCases:
         with pytest.raises(json.JSONDecodeError):
             ConfigGenerator(config_folder)
 
-    # NOTE: parameter_order validation tests removed - parameter_order is no longer
-    # passed to ConfigGenerator.__init__() in the new API. It's managed by the
-    # simulation managers (SimulationManager, AccuracySimulationManager) instead.
 
 
 class TestDraftOrderFile:
@@ -748,22 +692,18 @@ class TestDraftOrderFile:
         assert 'DRAFT_ORDER_FILE' in ConfigGenerator.PARAM_DEFINITIONS
         min_val, max_val, precision = ConfigGenerator.PARAM_DEFINITIONS['DRAFT_ORDER_FILE']
         assert min_val == 1
-        assert max_val == 100  # Range expanded to include 100 draft order strategies
-        assert precision == 0  # Integers
+        assert max_val == 100
+        assert precision == 0
 
     def test_draft_order_file_not_in_parameter_order(self):
         """Test DRAFT_ORDER_FILE is NOT in PARAMETER_ORDER (handled by separate script)"""
-        # DRAFT_ORDER_FILE is intentionally excluded from PARAMETER_ORDER
-        # because it's optimized by the dedicated run_draft_order_simulation.py script
         assert 'DRAFT_ORDER_FILE' not in TEST_PARAMETER_ORDER
-        # But it IS in PARAM_DEFINITIONS for use by the draft order simulation
         assert 'DRAFT_ORDER_FILE' in ConfigGenerator.PARAM_DEFINITIONS
 
     def test_generate_parameter_values_for_draft_order(self, baseline_config_with_draft_order, tmp_path):
         """Test discrete integer value generation for DRAFT_ORDER_FILE (precision=0)"""
         config_folder = create_test_config_folder(baseline_config_with_draft_order, tmp_path)
         generator = ConfigGenerator(config_folder, num_test_values=5)
-        # Use unified method with precision=0 for integers
         values = generator.generate_parameter_values('DRAFT_ORDER_FILE', 1, 1, 30, 0)
 
         assert len(values) == 6
@@ -787,7 +727,6 @@ class TestDraftOrderFile:
         config_folder = create_test_config_folder(baseline_config_with_draft_order, tmp_path)
         generator = ConfigGenerator(config_folder, num_test_values=3)
 
-        # Mock _load_draft_order_from_file to avoid file system dependency
         mock_draft_order = [{"FLEX": "P", "QB": "S"}] * 15
         with patch.object(generator, '_load_draft_order_from_file', return_value=mock_draft_order):
             configs = generator.generate_single_parameter_configs(
@@ -823,9 +762,6 @@ class TestDraftOrderFile:
             generator._load_draft_order_from_file(999)
 
 
-# ============================================================================
-# NEW: Horizon-Based Interface Tests (6-File Structure)
-# ============================================================================
 
 class TestHorizonBasedInterface:
     """Test new horizon-based ConfigGenerator interface for 6-file structure"""
@@ -835,7 +771,6 @@ class TestHorizonBasedInterface:
         config_folder = tmp_path / "test_configs"
         config_folder.mkdir()
 
-        # Base config (league_config.json)
         base_config = {
             "config_name": "Test Config",
             "parameters": {
@@ -846,7 +781,6 @@ class TestHorizonBasedInterface:
             }
         }
 
-        # Week-specific configs (4 weekly files)
         week_config_template = {
             "config_name": "Test Week Config",
             "parameters": {
@@ -855,7 +789,6 @@ class TestHorizonBasedInterface:
             }
         }
 
-        # Save all 5 files
         (config_folder / "league_config.json").write_text(json.dumps(base_config, indent=2))
         (config_folder / "week1-5.json").write_text(json.dumps({**week_config_template, "config_name": "Week 1-5"}, indent=2))
         (config_folder / "week6-9.json").write_text(json.dumps({**week_config_template, "config_name": "Week 6-9"}, indent=2))
@@ -870,7 +803,6 @@ class TestHorizonBasedInterface:
 
         generator = ConfigGenerator(config_folder, num_test_values=5)
 
-        # Should have 4 baseline configs (one per weekly horizon)
         assert hasattr(generator, 'baseline_configs')
         assert len(generator.baseline_configs) == 4
         assert '1-5' in generator.baseline_configs
@@ -883,7 +815,6 @@ class TestHorizonBasedInterface:
         config_folder = tmp_path / "test_configs"
         config_folder.mkdir()
 
-        # Create only 4 files (missing week14-17.json)
         base_config = {"parameters": {}}
         (config_folder / "league_config.json").write_text(json.dumps(base_config))
         (config_folder / "week1-5.json").write_text(json.dumps(base_config))
@@ -898,13 +829,10 @@ class TestHorizonBasedInterface:
         config_folder = self.create_6_file_config_folder(tmp_path)
         generator = ConfigGenerator(config_folder, num_test_values=5)
 
-        # Each weekly horizon config should have both base and week-specific params
         for horizon in ['1-5', '6-9', '10-13', '14-17']:
             config = generator.baseline_configs[horizon]
             assert 'parameters' in config
-            # Base params from league_config.json
             assert 'ADP_SCORING' in config['parameters']
-            # Week-specific params from horizon file
             assert 'PLAYER_RATING_SCORING' in config['parameters']
 
     def test_generate_horizon_test_values_for_shared_param(self, tmp_path):
@@ -912,17 +840,13 @@ class TestHorizonBasedInterface:
         config_folder = self.create_6_file_config_folder(tmp_path)
         generator = ConfigGenerator(config_folder, num_test_values=5)
 
-        # ADP_SCORING_WEIGHT is a base/shared param
         test_values = generator.generate_horizon_test_values('ADP_SCORING_WEIGHT')
 
-        # Should have 'shared' key only
         assert 'shared' in test_values
         assert len(test_values) == 1
 
-        # Should have 6 values (baseline + 5 test values)
         assert len(test_values['shared']) == 6
 
-        # First value should be baseline
         assert test_values['shared'][0] == 1.5
 
     def test_generate_horizon_test_values_for_horizon_param(self, tmp_path):
@@ -930,20 +854,16 @@ class TestHorizonBasedInterface:
         config_folder = self.create_6_file_config_folder(tmp_path)
         generator = ConfigGenerator(config_folder, num_test_values=5)
 
-        # TEAM_QUALITY_SCORING_WEIGHT is week-specific
         test_values = generator.generate_horizon_test_values('TEAM_QUALITY_SCORING_WEIGHT')
 
-        # Should have all 4 weekly horizon keys
         assert '1-5' in test_values
         assert '6-9' in test_values
         assert '10-13' in test_values
         assert '14-17' in test_values
         assert len(test_values) == 4
 
-        # Each horizon should have 6 values
         for horizon in ['1-5', '6-9', '10-13', '14-17']:
             assert len(test_values[horizon]) == 6
-            # First value should be baseline (1.5)
             assert test_values[horizon][0] == 1.5
 
     def test_get_config_for_horizon_with_shared_param(self, tmp_path):
@@ -951,16 +871,12 @@ class TestHorizonBasedInterface:
         config_folder = self.create_6_file_config_folder(tmp_path)
         generator = ConfigGenerator(config_folder, num_test_values=5)
 
-        # Generate test values first
         test_values = generator.generate_horizon_test_values('ADP_SCORING_WEIGHT')
 
-        # Get config for horizon '1-5' with test_index 1
         config = generator.get_config_for_horizon('1-5', 'ADP_SCORING_WEIGHT', 1)
 
-        # Should have the test value applied
         assert config['parameters']['ADP_SCORING']['WEIGHT'] == test_values['shared'][1]
 
-        # Should still have week-specific params from week1-5.json
         assert 'PLAYER_RATING_SCORING' in config['parameters']
 
     def test_get_config_for_horizon_with_horizon_param(self, tmp_path):
@@ -970,10 +886,8 @@ class TestHorizonBasedInterface:
 
         test_values = generator.generate_horizon_test_values('TEAM_QUALITY_SCORING_WEIGHT')
 
-        # Get config for '1-5' horizon with test_index 2
         config = generator.get_config_for_horizon('1-5', 'TEAM_QUALITY_SCORING_WEIGHT', 2)
 
-        # Should have the test value from '1-5' array
         assert config['parameters']['TEAM_QUALITY_SCORING']['WEIGHT'] == test_values['1-5'][2]
 
     def test_update_baseline_for_horizon_with_shared_param(self, tmp_path):
@@ -981,14 +895,11 @@ class TestHorizonBasedInterface:
         config_folder = self.create_6_file_config_folder(tmp_path)
         generator = ConfigGenerator(config_folder, num_test_values=5)
 
-        # Create new config with updated shared param
         new_config = copy.deepcopy(generator.baseline_configs['1-5'])
         new_config['parameters']['ADP_SCORING']['WEIGHT'] = 3.5
 
-        # Update baseline (horizon doesn't matter for shared params)
         generator.update_baseline_for_horizon('1-5', new_config)
 
-        # All 4 weekly horizons should have updated value
         for horizon in ['1-5', '6-9', '10-13', '14-17']:
             assert generator.baseline_configs[horizon]['parameters']['ADP_SCORING']['WEIGHT'] == 3.5
 
@@ -997,17 +908,13 @@ class TestHorizonBasedInterface:
         config_folder = self.create_6_file_config_folder(tmp_path)
         generator = ConfigGenerator(config_folder, num_test_values=5)
 
-        # Create new config with updated horizon param
         new_config = copy.deepcopy(generator.baseline_configs['1-5'])
         new_config['parameters']['TEAM_QUALITY_SCORING']['WEIGHT'] = 5.0
 
-        # Update only '1-5' horizon
         generator.update_baseline_for_horizon('1-5', new_config)
 
-        # Only '1-5' should be updated
         assert generator.baseline_configs['1-5']['parameters']['TEAM_QUALITY_SCORING']['WEIGHT'] == 5.0
 
-        # Other horizons should still have original value (1.5)
         assert generator.baseline_configs['6-9']['parameters']['TEAM_QUALITY_SCORING']['WEIGHT'] == 1.5
         assert generator.baseline_configs['10-13']['parameters']['TEAM_QUALITY_SCORING']['WEIGHT'] == 1.5
         assert generator.baseline_configs['14-17']['parameters']['TEAM_QUALITY_SCORING']['WEIGHT'] == 1.5
@@ -1016,8 +923,6 @@ class TestHorizonBasedInterface:
         """__init__ should not accept parameter_order parameter"""
         config_folder = self.create_6_file_config_folder(tmp_path)
 
-        # Old signature had parameter_order as second param
-        # New signature should not accept it
         with pytest.raises(TypeError):
             ConfigGenerator(config_folder, ['NORMALIZATION_MAX_SCALE'], num_test_values=5)
 
@@ -1025,8 +930,6 @@ class TestHorizonBasedInterface:
         """__init__ should not accept num_parameters_to_test parameter"""
         config_folder = self.create_6_file_config_folder(tmp_path)
 
-        # Old signature had num_parameters_to_test param
-        # New signature should not accept it
         with pytest.raises(TypeError):
             ConfigGenerator(config_folder, num_test_values=5, num_parameters_to_test=2)
 
@@ -1035,10 +938,8 @@ class TestHorizonBasedInterface:
         config_folder = self.create_6_file_config_folder(tmp_path)
         generator = ConfigGenerator(config_folder, num_test_values=5)
 
-        # TEAM_QUALITY_MIN_WEEKS is nested in TEAM_QUALITY_SCORING
         test_values = generator.generate_horizon_test_values('TEAM_QUALITY_MIN_WEEKS')
 
-        # Should extract nested value correctly (4 from baseline)
         for horizon in ['1-5', '6-9', '10-13', '14-17']:
             assert test_values[horizon][0] == 4
 
@@ -1054,5 +955,6 @@ class TestHorizonBasedInterface:
         random.seed(42)
         values2 = generator2.generate_horizon_test_values('ADP_SCORING_WEIGHT')
 
-        # Should be identical
         assert values1['shared'] == values2['shared']
+
+

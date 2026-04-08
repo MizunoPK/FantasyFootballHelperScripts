@@ -47,7 +47,6 @@ class TestRegisterConfig:
         mgr.register_config("config_001", config_dict)
 
         assert "config_001" in mgr.results
-        # Verify it's a ConfigPerformance-like object by checking attributes
         assert hasattr(mgr.results["config_001"], 'config_id')
         assert hasattr(mgr.results["config_001"], 'add_league_result')
         assert mgr.results["config_001"].config_id == "config_001"
@@ -72,10 +71,8 @@ class TestRegisterConfig:
         mgr.register_config("config_001", {'param': 1.0})
         mgr.record_result("config_001", 10, 7, 1234.56)
 
-        # Register again with different config
         mgr.register_config("config_001", {'param': 2.0})
 
-        # Should have new ConfigPerformance with no results
         assert mgr.results["config_001"].num_simulations == 0
 
 
@@ -166,15 +163,12 @@ class TestGetBestConfig:
         """Test best config selected by highest win rate"""
         mgr = ResultsManager()
 
-        # Config 1: 10-7 (58.8% win rate)
         mgr.register_config("config_001", {})
         mgr.record_result("config_001", 10, 7, 1200.00)
 
-        # Config 2: 12-5 (70.6% win rate) - BEST
         mgr.register_config("config_002", {})
         mgr.record_result("config_002", 12, 5, 1300.00)
 
-        # Config 3: 9-8 (52.9% win rate)
         mgr.register_config("config_003", {})
         mgr.record_result("config_003", 9, 8, 1100.00)
 
@@ -186,11 +180,9 @@ class TestGetBestConfig:
         """Test best config uses points as tiebreaker when win rates equal"""
         mgr = ResultsManager()
 
-        # Config 1: 10-7, 1200 pts
         mgr.register_config("config_001", {})
         mgr.record_result("config_001", 10, 7, 1200.00)
 
-        # Config 2: 10-7, 1400 pts - BEST (same win rate, higher points)
         mgr.register_config("config_002", {})
         mgr.record_result("config_002", 10, 7, 1400.00)
 
@@ -202,10 +194,8 @@ class TestGetBestConfig:
         """Test best config selection with many configs"""
         mgr = ResultsManager()
 
-        # Create 10 configs with varying performance
         for i in range(10):
             mgr.register_config(f"config_{i:03d}", {})
-            # Varying win rates from 50% to 95%
             wins = 10 + i
             losses = 17 - wins
             points = 1000.0 + (i * 50)
@@ -213,7 +203,6 @@ class TestGetBestConfig:
 
         best = mgr.get_best_config()
 
-        # Config 009 should have highest win rate
         assert best.config_id == "config_009"
 
 
@@ -246,7 +235,6 @@ class TestGetTopNConfigs:
         """Test get_top_n returns configs in correct order"""
         mgr = ResultsManager()
 
-        # Create configs with different win rates
         mgr.register_config("worst", {})
         mgr.record_result("worst", 8, 9, 1000.00)
 
@@ -267,12 +255,11 @@ class TestGetTopNConfigs:
         """Test get_top_n uses default n=10"""
         mgr = ResultsManager()
 
-        # Create 15 configs
         for i in range(15):
             mgr.register_config(f"config_{i:03d}", {})
             mgr.record_result(f"config_{i:03d}", 10, 7, 1200.00)
 
-        top = mgr.get_top_n_configs()  # Default n=10
+        top = mgr.get_top_n_configs()
 
         assert len(top) == 10
 
@@ -285,7 +272,6 @@ class TestSaveOptimalConfig:
     @patch('pathlib.Path.mkdir')
     def test_save_optimal_config_success(self, mock_mkdir, mock_file, mock_datetime):
         """Test saving optimal config to file"""
-        # Mock datetime for consistent filename
         mock_datetime.now.return_value.strftime.return_value = "2024-01-15_10-30-45"
 
         mgr = ResultsManager()
@@ -295,13 +281,10 @@ class TestSaveOptimalConfig:
         output_dir = Path("/test/output")
         result_path = mgr.save_optimal_config(output_dir)
 
-        # Verify directory creation
         mock_mkdir.assert_called_once_with(parents=True, exist_ok=True)
 
-        # Verify file write
         mock_file.assert_called_once()
 
-        # Verify returned path
         assert result_path == output_dir / "optimal_2024-01-15_10-30-45.json"
 
     def test_save_optimal_config_no_results_raises_error(self):
@@ -324,11 +307,9 @@ class TestSaveOptimalConfig:
 
         mgr.save_optimal_config(Path("/test"))
 
-        # Get the data that was written
         written_data = ''.join(call.args[0] for call in mock_file().write.call_args_list)
         saved_config = json.loads(written_data)
 
-        # Verify performance metrics are included
         assert 'performance_metrics' in saved_config
         assert saved_config['performance_metrics']['config_id'] == 'config_001'
         assert saved_config['performance_metrics']['total_wins'] == 10
@@ -353,17 +334,13 @@ class TestSaveAllResults:
         output_path = Path("/test/all_results.json")
         mgr.save_all_results(output_path)
 
-        # Verify parent directory creation
         mock_mkdir.assert_called_once_with(parents=True, exist_ok=True)
 
-        # Verify file write
         mock_file.assert_called_once_with(output_path, 'w')
 
-        # Get written data
         written_data = ''.join(call.args[0] for call in mock_file().write.call_args_list)
         saved_data = json.loads(written_data)
 
-        # Verify structure
         assert 'total_configs' in saved_data
         assert saved_data['total_configs'] == 2
         assert 'configs' in saved_data
@@ -379,10 +356,8 @@ class TestSaveAllResults:
         output_path = Path("/test/empty_results.json")
         mgr.save_all_results(output_path)
 
-        # Verify file was written
         mock_file.assert_called_once()
 
-        # Get written data
         written_data = ''.join(call.args[0] for call in mock_file().write.call_args_list)
         saved_data = json.loads(written_data)
 
@@ -417,15 +392,12 @@ class TestGetStats:
         """Test get_stats calculates correct aggregate statistics"""
         mgr = ResultsManager()
 
-        # Config 1: 10-7 (58.8%)
         mgr.register_config("config_001", {})
         mgr.record_result("config_001", 10, 7, 1000.00)
 
-        # Config 2: 12-5 (70.6%)
         mgr.register_config("config_002", {})
         mgr.record_result("config_002", 12, 5, 1500.00)
 
-        # Config 3: 8-9 (47.1%)
         mgr.register_config("config_003", {})
         mgr.record_result("config_003", 8, 9, 900.00)
 
@@ -448,7 +420,6 @@ class TestPrintSummary:
 
         mgr.print_summary()
 
-        # Should print "No results available"
         mock_print.assert_called_with("No results available")
 
     @patch('builtins.print')
@@ -464,8 +435,7 @@ class TestPrintSummary:
 
         mgr.print_summary(top_n=2)
 
-        # Verify print was called multiple times (for the summary)
-        assert mock_print.call_count > 5  # Multiple lines printed
+        assert mock_print.call_count > 5
 
     @patch('builtins.print')
     def test_print_summary_custom_top_n(self, mock_print):
@@ -478,7 +448,6 @@ class TestPrintSummary:
 
         mgr.print_summary(top_n=5)
 
-        # Should print, but we just verify it doesn't crash
         assert mock_print.called
 
 
@@ -489,14 +458,12 @@ class TestIntegrationScenarios:
         """Test realistic workflow with multiple configs and results"""
         mgr = ResultsManager()
 
-        # Register 5 configs
         configs = ["baseline", "variant_a", "variant_b", "variant_c", "variant_d"]
         for config_id in configs:
             mgr.register_config(config_id, {'name': config_id})
 
-        # Run 10 simulations per config with varying results
         import random
-        random.seed(42)  # For reproducibility
+        random.seed(42)
 
         for config_id in configs:
             for _ in range(10):
@@ -505,15 +472,12 @@ class TestIntegrationScenarios:
                 points = random.uniform(1000, 1600)
                 mgr.record_result(config_id, wins, losses, points)
 
-        # Get best config
         best = mgr.get_best_config()
         assert best is not None
 
-        # Get top 3
         top_3 = mgr.get_top_n_configs(3)
         assert len(top_3) == 3
 
-        # Get stats
         stats = mgr.get_stats()
         assert stats['total_configs'] == 5
 
@@ -523,22 +487,17 @@ class TestIntegrationScenarios:
         """Test complete optimization workflow"""
         mgr = ResultsManager()
 
-        # Register configs
         mgr.register_config("config_001", {'param': 1.0})
         mgr.register_config("config_002", {'param': 2.0})
 
-        # Record results
         mgr.record_result("config_001", 10, 7, 1234.56)
         mgr.record_result("config_002", 12, 5, 1345.67)
 
-        # Get best
         best = mgr.get_best_config()
         assert best.config_id == "config_002"
 
-        # Save results
         mgr.save_all_results(Path("/test/results.json"))
 
-        # Verify save was attempted
         assert mock_file.called
 
 
@@ -547,7 +506,6 @@ class TestUpdateLeagueConfig:
 
     def test_update_league_config_preserves_required_keys(self, tmp_path):
         """Test that preserved keys are kept from original config"""
-        # Create original league config
         original_config = {
             "config_name": "original",
             "description": "Original config",
@@ -574,7 +532,6 @@ class TestUpdateLeagueConfig:
         with open(league_config_path, 'w') as f:
             json.dump(original_config, f)
 
-        # Create optimal config with different values
         optimal_config = {
             "config_name": "optimal",
             "description": "Win Rate: 0.85",
@@ -601,15 +558,12 @@ class TestUpdateLeagueConfig:
         with open(optimal_config_path, 'w') as f:
             json.dump(optimal_config, f)
 
-        # Update league config
         mgr = ResultsManager()
         mgr.update_league_config(optimal_config_path, league_config_path)
 
-        # Read updated config
         with open(league_config_path, 'r') as f:
             updated_config = json.load(f)
 
-        # Verify preserved keys are from original
         assert updated_config["parameters"]["CURRENT_NFL_WEEK"] == 1
         assert updated_config["parameters"]["NFL_SEASON"] == 2025
         assert updated_config["parameters"]["MAX_POSITIONS"] == {"QB": 2, "RB": 4, "WR": 4}
@@ -617,7 +571,6 @@ class TestUpdateLeagueConfig:
 
     def test_update_league_config_copies_other_parameters(self, tmp_path):
         """Test that non-preserved parameters are copied from optimal"""
-        # Create original league config
         original_config = {
             "config_name": "original",
             "description": "Original config",
@@ -636,7 +589,6 @@ class TestUpdateLeagueConfig:
         with open(league_config_path, 'w') as f:
             json.dump(original_config, f)
 
-        # Create optimal config
         optimal_config = {
             "config_name": "optimal",
             "description": "Win Rate: 0.80",
@@ -655,20 +607,16 @@ class TestUpdateLeagueConfig:
         with open(optimal_config_path, 'w') as f:
             json.dump(optimal_config, f)
 
-        # Update league config
         mgr = ResultsManager()
         mgr.update_league_config(optimal_config_path, league_config_path)
 
-        # Read updated config
         with open(league_config_path, 'r') as f:
             updated_config = json.load(f)
 
-        # Verify non-preserved parameter is from optimal
         assert updated_config["parameters"]["NORMALIZATION_MAX_SCALE"] == 150.0
 
     def test_update_league_config_matchup_to_schedule_mapping(self, tmp_path):
         """Test that MATCHUP_SCORING values are copied to SCHEDULE_SCORING"""
-        # Create original league config
         original_config = {
             "config_name": "original",
             "description": "Original",
@@ -697,7 +645,6 @@ class TestUpdateLeagueConfig:
         with open(league_config_path, 'w') as f:
             json.dump(original_config, f)
 
-        # Create optimal config with specific MATCHUP values
         optimal_config = {
             "config_name": "optimal",
             "description": "Win Rate: 0.80",
@@ -726,15 +673,12 @@ class TestUpdateLeagueConfig:
         with open(optimal_config_path, 'w') as f:
             json.dump(optimal_config, f)
 
-        # Update league config
         mgr = ResultsManager()
         mgr.update_league_config(optimal_config_path, league_config_path)
 
-        # Read updated config
         with open(league_config_path, 'r') as f:
             updated_config = json.load(f)
 
-        # Verify MATCHUP values are copied to SCHEDULE
         schedule = updated_config["parameters"]["SCHEDULE_SCORING"]
         matchup = updated_config["parameters"]["MATCHUP_SCORING"]
 
@@ -742,14 +686,11 @@ class TestUpdateLeagueConfig:
         assert schedule["IMPACT_SCALE"] == matchup["IMPACT_SCALE"] == 107.45
         assert schedule["WEIGHT"] == matchup["WEIGHT"] == 0.409
 
-        # Verify THRESHOLDS and MULTIPLIERS are NOT copied from MATCHUP
-        # (They should remain from optimal's SCHEDULE_SCORING)
         assert schedule["THRESHOLDS"]["BASE_POSITION"] == 16
         assert schedule["MULTIPLIERS"]["GOOD"] == 1.05
 
     def test_update_league_config_copies_config_name_and_description(self, tmp_path):
         """Test that config_name and description are copied from optimal"""
-        # Create original league config
         original_config = {
             "config_name": "original_name",
             "description": "Original description",
@@ -766,7 +707,6 @@ class TestUpdateLeagueConfig:
         with open(league_config_path, 'w') as f:
             json.dump(original_config, f)
 
-        # Create optimal config
         optimal_config = {
             "config_name": "simulation/optimal_iterative_20251126.json",
             "description": "Win Rate: 0.85",
@@ -783,21 +723,17 @@ class TestUpdateLeagueConfig:
         with open(optimal_config_path, 'w') as f:
             json.dump(optimal_config, f)
 
-        # Update league config
         mgr = ResultsManager()
         mgr.update_league_config(optimal_config_path, league_config_path)
 
-        # Read updated config
         with open(league_config_path, 'r') as f:
             updated_config = json.load(f)
 
-        # Verify config_name and description are from optimal
         assert updated_config["config_name"] == "simulation/optimal_iterative_20251126.json"
         assert updated_config["description"] == "Win Rate: 0.85"
 
     def test_update_league_config_removes_performance_metrics(self, tmp_path):
         """Test that performance_metrics are removed from saved config"""
-        # Create original league config
         original_config = {
             "config_name": "original",
             "description": "Original",
@@ -814,7 +750,6 @@ class TestUpdateLeagueConfig:
         with open(league_config_path, 'w') as f:
             json.dump(original_config, f)
 
-        # Create optimal config with performance_metrics
         optimal_config = {
             "config_name": "optimal",
             "description": "Win Rate: 0.80",
@@ -837,26 +772,21 @@ class TestUpdateLeagueConfig:
         with open(optimal_config_path, 'w') as f:
             json.dump(optimal_config, f)
 
-        # Update league config
         mgr = ResultsManager()
         mgr.update_league_config(optimal_config_path, league_config_path)
 
-        # Read updated config
         with open(league_config_path, 'r') as f:
             updated_config = json.load(f)
 
-        # Verify performance_metrics is not present
         assert "performance_metrics" not in updated_config
 
     def test_update_league_config_handles_missing_preserved_keys(self, tmp_path):
         """Test graceful handling when original config missing preserved keys"""
-        # Create original league config WITHOUT all preserved keys
         original_config = {
             "config_name": "original",
             "description": "Original",
             "parameters": {
                 "CURRENT_NFL_WEEK": 1,
-                # Missing NFL_SEASON, MAX_POSITIONS, FLEX_ELIGIBLE_POSITIONS
                 "MATCHUP_SCORING": {"MIN_WEEKS": 5, "IMPACT_SCALE": 50.0, "WEIGHT": 1.0},
                 "SCHEDULE_SCORING": {"MIN_WEEKS": 3, "IMPACT_SCALE": 75.0, "WEIGHT": 0.5}
             }
@@ -865,7 +795,6 @@ class TestUpdateLeagueConfig:
         with open(league_config_path, 'w') as f:
             json.dump(original_config, f)
 
-        # Create optimal config
         optimal_config = {
             "config_name": "optimal",
             "description": "Win Rate: 0.80",
@@ -882,26 +811,19 @@ class TestUpdateLeagueConfig:
         with open(optimal_config_path, 'w') as f:
             json.dump(optimal_config, f)
 
-        # Update league config - should not raise error
         mgr = ResultsManager()
         mgr.update_league_config(optimal_config_path, league_config_path)
 
-        # Read updated config
         with open(league_config_path, 'r') as f:
             updated_config = json.load(f)
 
-        # Verify CURRENT_NFL_WEEK was preserved (it existed)
         assert updated_config["parameters"]["CURRENT_NFL_WEEK"] == 1
 
-        # Other preserved keys should be from optimal (since they didn't exist in original)
         assert updated_config["parameters"]["NFL_SEASON"] == 2024
         assert updated_config["parameters"]["MAX_POSITIONS"] == {"QB": 2}
         assert updated_config["parameters"]["FLEX_ELIGIBLE_POSITIONS"] == ["RB"]
 
 
-# ============================================================================
-# Test: Per-Week-Range Methods
-# ============================================================================
 
 class TestPerWeekRangeMethods:
     """Tests for week-by-week config optimization methods."""
@@ -915,19 +837,15 @@ class TestPerWeekRangeMethods:
         Week ranges: 1-5, 6-9, 10-13, 14-17
         """
         week_results = []
-        # Weeks 1-5 (early season)
         for week in range(1, 6):
             won = (week <= wins_early)
             week_results.append((week, won, 100.0 + week))
-        # Weeks 6-9 (mid-early season)
         for week in range(6, 10):
             won = (week - 5 <= wins_mid_early)
             week_results.append((week, won, 110.0 + week))
-        # Weeks 10-13 (mid-late season)
         for week in range(10, 14):
             won = (week - 9 <= wins_mid_late)
             week_results.append((week, won, 120.0 + week))
-        # Weeks 14-17 (late season)
         for week in range(14, 18):
             won = (week - 13 <= wins_late)
             week_results.append((week, won, 130.0 + week))
@@ -944,8 +862,8 @@ class TestPerWeekRangeMethods:
 
         config = mgr.results["config_0001"]
         assert config.num_simulations == 1
-        assert config.total_wins == 10  # 3 + 2 + 2 + 3
-        assert config.total_losses == 7  # (5-3) + (4-2) + (4-2) + (4-3) = 2 + 2 + 2 + 1 = 7
+        assert config.total_wins == 10
+        assert config.total_losses == 7
 
     def test_record_week_results_unregistered_config_raises_error(self):
         """record_week_results should raise KeyError for unregistered config."""
@@ -961,7 +879,6 @@ class TestPerWeekRangeMethods:
         config_dict = {"config_name": "test", "parameters": {}}
         mgr.register_config("config_0001", config_dict)
 
-        # Run two simulations
         week_results_1 = self.create_sample_week_results(wins_early=3, wins_mid_early=2, wins_mid_late=2, wins_late=3)
         week_results_2 = self.create_sample_week_results(wins_early=2, wins_mid_early=1, wins_mid_late=1, wins_late=2)
 
@@ -970,18 +887,16 @@ class TestPerWeekRangeMethods:
 
         config = mgr.results["config_0001"]
         assert config.num_simulations == 2
-        assert config.total_wins == 10 + 6  # (3+2+2+3) + (2+1+1+2) = 16
-        assert config.total_losses == 7 + 11  # (2+2+2+1) + (3+3+3+2) = 18
+        assert config.total_wins == 10 + 6
+        assert config.total_losses == 7 + 11
 
     def test_get_best_config_for_range_returns_best_for_early_season(self):
         """get_best_config_for_range should return config with best win rate for range."""
         mgr = ResultsManager()
 
-        # Config A: Good early season (4/5 wins), bad late (1/4 wins)
         mgr.register_config("config_A", {"config_name": "A", "parameters": {}})
         mgr.record_week_results("config_A", self.create_sample_week_results(wins_early=4, wins_mid_early=2, wins_mid_late=2, wins_late=1))
 
-        # Config B: Bad early season (2/5 wins), good late (4/4 wins)
         mgr.register_config("config_B", {"config_name": "B", "parameters": {}})
         mgr.record_week_results("config_B", self.create_sample_week_results(wins_early=2, wins_mid_early=2, wins_mid_late=2, wins_late=4))
 
@@ -992,11 +907,9 @@ class TestPerWeekRangeMethods:
         """get_best_config_for_range should correctly identify best late season config."""
         mgr = ResultsManager()
 
-        # Config A: Good early season (4/5 wins), bad late (1/4 wins)
         mgr.register_config("config_A", {"config_name": "A", "parameters": {}})
         mgr.record_week_results("config_A", self.create_sample_week_results(wins_early=4, wins_mid_early=2, wins_mid_late=2, wins_late=1))
 
-        # Config B: Bad early season (2/5 wins), good late (4/4 wins)
         mgr.register_config("config_B", {"config_name": "B", "parameters": {}})
         mgr.record_week_results("config_B", self.create_sample_week_results(wins_early=2, wins_mid_early=2, wins_mid_late=2, wins_late=4))
 
@@ -1022,7 +935,6 @@ class TestPerWeekRangeMethods:
         """get_best_configs_per_range should return dict with all four ranges."""
         mgr = ResultsManager()
 
-        # Register configs with different strengths
         mgr.register_config("config_early", {"config_name": "early", "parameters": {}})
         mgr.record_week_results("config_early", self.create_sample_week_results(wins_early=5, wins_mid_early=1, wins_mid_late=1, wins_late=1))
 
@@ -1054,7 +966,6 @@ class TestPerWeekRangeMethods:
 
         mgr = ResultsManager()
 
-        # Create config with week-specific parameters
         config_dict = {
             "config_name": "Test Config",
             "parameters": {
@@ -1071,11 +982,9 @@ class TestPerWeekRangeMethods:
 
         folder_path = mgr.save_optimal_configs_folder(tmp_path)
 
-        # Verify folder created
         assert folder_path.exists()
         assert folder_path.name == "optimal_2025-01-01_12-00-00"
 
-        # Verify all 5 files created
         assert (folder_path / "league_config.json").exists()
         assert (folder_path / "week1-5.json").exists()
         assert (folder_path / "week6-9.json").exists()
@@ -1103,11 +1012,9 @@ class TestPerWeekRangeMethods:
 
         folder_path = mgr.save_optimal_configs_folder(tmp_path)
 
-        # Read base config
         with open(folder_path / "league_config.json", 'r') as f:
             base_config = json.load(f)
 
-        # Base config should have base params (including PLAYER_RATING_SCORING which moved to base)
         assert "CURRENT_NFL_WEEK" in base_config["parameters"]
         assert "NFL_SEASON" in base_config["parameters"]
         assert "PLAYER_RATING_SCORING" in base_config["parameters"]
@@ -1134,14 +1041,11 @@ class TestPerWeekRangeMethods:
 
         folder_path = mgr.save_optimal_configs_folder(tmp_path)
 
-        # Read week config
         with open(folder_path / "week1-5.json", 'r') as f:
             week_config = json.load(f)
 
-        # Week config should have week-specific params
         assert "MATCHUP_SCORING" in week_config["parameters"]
 
-        # Week config should NOT have base params (including PLAYER_RATING_SCORING which moved to base)
         assert "CURRENT_NFL_WEEK" not in week_config["parameters"]
         assert "NFL_SEASON" not in week_config["parameters"]
         assert "PLAYER_RATING_SCORING" not in week_config["parameters"]
@@ -1153,9 +1057,6 @@ class TestPerWeekRangeMethods:
             mgr.save_optimal_configs_folder(Path("/tmp"))
 
 
-# ============================================================================
-# Test: update_configs_folder() Method
-# ============================================================================
 
 class TestUpdateConfigsFolder:
     """Tests for update_configs_folder functionality."""
@@ -1164,7 +1065,6 @@ class TestUpdateConfigsFolder:
         """Create sample optimal config files in a folder."""
         folder.mkdir(parents=True, exist_ok=True)
 
-        # league_config.json
         league_config = {
             "config_name": "optimal_test",
             "description": "Win Rate: 0.85",
@@ -1185,7 +1085,6 @@ class TestUpdateConfigsFolder:
         with open(folder / "league_config.json", 'w') as f:
             json.dump(league_config, f)
 
-        # Week files with MATCHUP_SCORING and SCHEDULE_SCORING
         for week_file in ["week1-5.json", "week6-9.json", "week10-13.json", "week14-17.json"]:
             week_config = {
                 "config_name": f"optimal_test_{week_file}",
@@ -1216,7 +1115,6 @@ class TestUpdateConfigsFolder:
         """Create sample original config files in target folder."""
         folder.mkdir(parents=True, exist_ok=True)
 
-        # league_config.json with user-maintained values
         league_config = {
             "config_name": "original",
             "description": "Original config",
@@ -1232,7 +1130,6 @@ class TestUpdateConfigsFolder:
         with open(folder / "league_config.json", 'w') as f:
             json.dump(league_config, f)
 
-        # Week files
         for week_file in ["week1-5.json", "week6-9.json", "week10-13.json", "week14-17.json"]:
             week_config = {
                 "config_name": f"original_{week_file}",
@@ -1263,18 +1160,15 @@ class TestUpdateConfigsFolder:
         mgr = ResultsManager()
         mgr.update_configs_folder(optimal_folder, target_folder)
 
-        # Read updated league_config
         with open(target_folder / "league_config.json", 'r') as f:
             updated = json.load(f)
 
-        # Verify preserved parameters are from original
         assert updated["parameters"]["CURRENT_NFL_WEEK"] == 1
         assert updated["parameters"]["NFL_SEASON"] == 2025
         assert updated["parameters"]["MAX_POSITIONS"] == {"QB": 2, "RB": 4}
         assert updated["parameters"]["FLEX_ELIGIBLE_POSITIONS"] == ["RB", "WR", "DST"]
         assert updated["parameters"]["INJURY_PENALTIES"] == {"OUT": -50, "DOUBTFUL": -25}
 
-        # Verify non-preserved parameters are from optimal
         assert updated["parameters"]["NORMALIZATION_MAX_SCALE"] == 150.0
 
     def test_update_configs_folder_applies_matchup_to_schedule_mapping(self, tmp_path):
@@ -1288,7 +1182,6 @@ class TestUpdateConfigsFolder:
         mgr = ResultsManager()
         mgr.update_configs_folder(optimal_folder, target_folder)
 
-        # Check each week file
         for week_file in ["week1-5.json", "week6-9.json", "week10-13.json", "week14-17.json"]:
             with open(target_folder / week_file, 'r') as f:
                 updated = json.load(f)
@@ -1296,12 +1189,10 @@ class TestUpdateConfigsFolder:
             matchup = updated["parameters"]["MATCHUP_SCORING"]
             schedule = updated["parameters"]["SCHEDULE_SCORING"]
 
-            # Verify MATCHUP values copied to SCHEDULE
             assert schedule["MIN_WEEKS"] == matchup["MIN_WEEKS"] == 3
             assert schedule["IMPACT_SCALE"] == matchup["IMPACT_SCALE"] == 107.45
             assert schedule["WEIGHT"] == matchup["WEIGHT"] == 0.409
 
-            # Verify other SCHEDULE values preserved (THRESHOLDS not mapped)
             assert schedule["THRESHOLDS"]["BASE_POSITION"] == 16
 
     def test_update_configs_folder_handles_missing_target_files(self, tmp_path):
@@ -1310,19 +1201,16 @@ class TestUpdateConfigsFolder:
         target_folder = tmp_path / "data" / "configs"
 
         self.create_optimal_configs(optimal_folder)
-        # Do NOT create original configs - target folder is empty
 
         mgr = ResultsManager()
         mgr.update_configs_folder(optimal_folder, target_folder)
 
-        # Verify all files were created
         assert (target_folder / "league_config.json").exists()
         assert (target_folder / "week1-5.json").exists()
         assert (target_folder / "week6-9.json").exists()
         assert (target_folder / "week10-13.json").exists()
         assert (target_folder / "week14-17.json").exists()
 
-        # Verify league_config has optimal values (no preservation possible)
         with open(target_folder / "league_config.json", 'r') as f:
             league_config = json.load(f)
 
@@ -1334,10 +1222,8 @@ class TestUpdateConfigsFolder:
         optimal_folder = tmp_path / "optimal"
         target_folder = tmp_path / "data" / "configs"
 
-        # Create optimal folder
         optimal_folder.mkdir(parents=True, exist_ok=True)
 
-        # Create league_config.json
         league_config = {
             "config_name": "optimal",
             "parameters": {
@@ -1348,7 +1234,6 @@ class TestUpdateConfigsFolder:
         with open(optimal_folder / "league_config.json", 'w') as f:
             json.dump(league_config, f)
 
-        # Create week file WITHOUT MATCHUP_SCORING
         week_config = {
             "config_name": "optimal_week",
             "parameters": {
@@ -1362,14 +1247,11 @@ class TestUpdateConfigsFolder:
         with open(optimal_folder / "week1-5.json", 'w') as f:
             json.dump(week_config, f)
 
-        # Should complete without error (warning logged internally)
         mgr = ResultsManager()
         mgr.update_configs_folder(optimal_folder, target_folder)
 
-        # Verify file was still created
         assert (target_folder / "week1-5.json").exists()
 
-        # Verify SCHEDULE_SCORING unchanged (MATCHUP mapping couldn't apply)
         with open(target_folder / "week1-5.json", 'r') as f:
             updated = json.load(f)
         assert updated["parameters"]["SCHEDULE_SCORING"]["MIN_WEEKS"] == 5
@@ -1385,7 +1267,6 @@ class TestUpdateConfigsFolder:
         mgr = ResultsManager()
         mgr.update_configs_folder(optimal_folder, target_folder)
 
-        # Verify performance_metrics are preserved
         with open(target_folder / "league_config.json", 'r') as f:
             league_config = json.load(f)
         assert "performance_metrics" in league_config
@@ -1400,7 +1281,6 @@ class TestUpdateConfigsFolder:
         optimal_folder = tmp_path / "optimal"
         target_folder = tmp_path / "data" / "configs"
 
-        # Create only league_config.json in optimal folder
         optimal_folder.mkdir(parents=True, exist_ok=True)
         league_config = {
             "config_name": "optimal",
@@ -1409,12 +1289,10 @@ class TestUpdateConfigsFolder:
         with open(optimal_folder / "league_config.json", 'w') as f:
             json.dump(league_config, f)
 
-        # Do NOT create week files
 
         mgr = ResultsManager()
         mgr.update_configs_folder(optimal_folder, target_folder)
 
-        # Only league_config.json should exist in target
         assert (target_folder / "league_config.json").exists()
         assert not (target_folder / "week1-5.json").exists()
 
@@ -1425,13 +1303,11 @@ class TestUpdateConfigsFolder:
 
         self.create_optimal_configs(optimal_folder)
 
-        # Target folder doesn't exist
         assert not target_folder.exists()
 
         mgr = ResultsManager()
         mgr.update_configs_folder(optimal_folder, target_folder)
 
-        # Target folder should now exist with files
         assert target_folder.exists()
         assert (target_folder / "league_config.json").exists()
 
@@ -1465,7 +1341,6 @@ class TestApplyMatchupToScheduleMapping:
         assert schedule["MIN_WEEKS"] == 3
         assert schedule["IMPACT_SCALE"] == 107.0
         assert schedule["WEIGHT"] == 0.4
-        # THRESHOLDS should NOT be mapped
         assert schedule["THRESHOLDS"]["BASE_POSITION"] == 16
 
     def test_handles_missing_parameters_key(self):
@@ -1473,7 +1348,6 @@ class TestApplyMatchupToScheduleMapping:
         config = {"config_name": "test"}
 
         mgr = ResultsManager()
-        # Should not raise error
         mgr._apply_matchup_to_schedule_mapping(config)
 
     def test_creates_schedule_scoring_if_missing(self):
@@ -1498,9 +1372,6 @@ class TestApplyMatchupToScheduleMapping:
         assert schedule["WEIGHT"] == 0.4
 
 
-# ============================================================================
-# NEW: 6-File Structure Support Tests
-# ============================================================================
 
 class TestSixFileStructureSupport:
     """Test 6-file configuration structure (league + draft + 4 week files)"""
@@ -1532,7 +1403,6 @@ class TestSixFileStructureSupport:
 
         folder_path = mgr.save_optimal_configs_folder(tmp_path)
 
-        # Verify all 5 files created
         assert (folder_path / "league_config.json").exists()
         assert (folder_path / "week1-5.json").exists()
         assert (folder_path / "week6-9.json").exists()
@@ -1542,17 +1412,14 @@ class TestSixFileStructureSupport:
     @patch('simulation.shared.ResultsManager.datetime')
     def test_load_from_folder_requires_all_weekly_files(self, mock_datetime, tmp_path):
         """load_from_folder should fail if a weekly config file is missing."""
-        # Create folder with only 4 files (missing week14-17.json)
         folder_path = tmp_path / "test_configs"
         folder_path.mkdir()
 
-        # Create only league_config and 3 week files
         (folder_path / "league_config.json").write_text('{"parameters": {}}')
         (folder_path / "week1-5.json").write_text('{"parameters": {}}')
         (folder_path / "week6-9.json").write_text('{"parameters": {}}')
         (folder_path / "week10-13.json").write_text('{"parameters": {}}')
 
-        # Should raise ValueError for missing week14-17.json
         with pytest.raises(ValueError, match="Missing required config files.*week14-17.json"):
             ResultsManager.load_configs_from_folder(folder_path)
 
@@ -1562,7 +1429,6 @@ class TestSixFileStructureSupport:
         folder_path = tmp_path / "test_configs"
         folder_path.mkdir()
 
-        # Create all 5 files
         base_config = {"parameters": {"ADP_SCORING": {"WEIGHT": 1.0}}}
         week_config = {"parameters": {"TEAM_QUALITY_SCORING": {"WEIGHT": 1.5}}}
 
@@ -1572,13 +1438,10 @@ class TestSixFileStructureSupport:
         (folder_path / "week10-13.json").write_text(json.dumps(week_config))
         (folder_path / "week14-17.json").write_text(json.dumps(week_config))
 
-        # Should load without error
         loaded_base, loaded_weeks = ResultsManager.load_configs_from_folder(folder_path)
 
-        # Verify base config loaded
         assert "ADP_SCORING" in loaded_base["parameters"]
 
-        # Verify 4 week configs loaded
         assert "1-5" in loaded_weeks
         assert "6-9" in loaded_weeks
         assert "10-13" in loaded_weeks
@@ -1602,19 +1465,17 @@ class TestSixFileStructureSupport:
         mgr.register_config("config_0001", original_config)
         mgr.record_week_results("config_0001", self.create_sample_week_results())
 
-        # Save
         folder_path = mgr.save_optimal_configs_folder(tmp_path)
 
-        # Load
         loaded_base, loaded_weeks = ResultsManager.load_configs_from_folder(folder_path)
 
-        # Verify base params preserved (including PLAYER_RATING_SCORING which moved to base)
         assert loaded_base["parameters"]["ADP_SCORING"]["WEIGHT"] == 1.0
         assert "PLAYER_RATING_SCORING" in loaded_base["parameters"]
         assert loaded_base["parameters"]["PLAYER_RATING_SCORING"]["WEIGHT"] == 2.0
 
-        # Verify week params preserved in all 4 weekly horizons
         for horizon in ['1-5', '6-9', '10-13', '14-17']:
             assert horizon in loaded_weeks
             assert "TEAM_QUALITY_SCORING" in loaded_weeks[horizon]["parameters"]
             assert loaded_weeks[horizon]["parameters"]["TEAM_QUALITY_SCORING"]["WEIGHT"] == 1.5
+
+

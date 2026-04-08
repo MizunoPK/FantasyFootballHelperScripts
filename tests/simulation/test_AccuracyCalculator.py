@@ -63,7 +63,7 @@ class TestAccuracyCalculator:
 
         assert result.player_count == 3
         assert result.total_error == 9.0
-        assert result.mae == 3.0  # 9/3
+        assert result.mae == 3.0
 
     def test_calculate_mae_perfect_prediction(self, calculator):
         """Test MAE with perfect predictions."""
@@ -135,10 +135,6 @@ class TestAccuracyCalculator:
         ]
         result = calculator.calculate_mae(player_data)
 
-        # Two valid: the second (actual > 0, projected defaults to 0) and the third
-        # The second has error |12.0 - 0| = 12.0
-        # The third has error |15.0 - 15.0| = 0.0
-        # Total = 12.0, count = 2, MAE = 6.0
         assert result.player_count == 2
         assert result.mae == 6.0
 
@@ -158,8 +154,8 @@ class TestAccuracyCalculatorWeekly:
             2: {1: 16.0, 2: 21.0},
         }
         week_actuals = {
-            1: {1: 12.0, 2: 22.0},  # errors: 3, 2
-            2: {1: 14.0, 2: 19.0},  # errors: 2, 2
+            1: {1: 12.0, 2: 22.0},
+            2: {1: 14.0, 2: 19.0},
         }
 
         result = calculator.calculate_weekly_mae(
@@ -167,18 +163,15 @@ class TestAccuracyCalculatorWeekly:
         )
 
         assert result.player_count == 4
-        # total error = 3 + 2 + 2 + 2 = 9, mae = 9/4 = 2.25
         assert result.mae == 2.25
 
     def test_calculate_weekly_mae_missing_week(self, calculator):
         """Test weekly MAE skips missing weeks."""
         week_projections = {
             1: {1: 15.0},
-            # week 2 missing
         }
         week_actuals = {
             1: {1: 12.0},
-            # week 2 missing
         }
 
         result = calculator.calculate_weekly_mae(
@@ -197,7 +190,7 @@ class TestAccuracyCalculatorWeekly:
         )
 
         assert result.player_count == 2
-        assert result.mae == 5.0  # errors: 5, 5
+        assert result.mae == 5.0
 
 
 class TestAccuracyCalculatorAggregation:
@@ -219,7 +212,7 @@ class TestAccuracyCalculatorAggregation:
 
         assert result.player_count == 200
         assert result.total_error == 900.0
-        assert result.mae == 4.5  # 900/200
+        assert result.mae == 4.5
 
     def test_aggregate_season_results_weighted(self, calculator):
         """Test aggregation properly weights by player count."""
@@ -232,7 +225,7 @@ class TestAccuracyCalculatorAggregation:
 
         assert result.player_count == 200
         assert result.total_error == 700.0
-        assert result.mae == 3.5  # 700/200 (not 4.0 which would be unweighted avg)
+        assert result.mae == 3.5
 
     def test_aggregate_season_results_empty(self, calculator):
         """Test aggregation with no results."""
@@ -269,7 +262,7 @@ class TestPairwiseAccuracy:
             {'position': 'QB', 'projected': 20.0, 'actual': 18.0},
         ]
         accuracy = calculator.calculate_pairwise_accuracy(player_data, 'QB')
-        assert accuracy == 1.0  # All 3 pairs correct
+        assert accuracy == 1.0
 
     def test_pairwise_inverse_ranking(self, calculator):
         """Test pairwise accuracy with completely wrong predictions."""
@@ -279,7 +272,7 @@ class TestPairwiseAccuracy:
             {'position': 'QB', 'projected': 20.0, 'actual': 30.0},
         ]
         accuracy = calculator.calculate_pairwise_accuracy(player_data, 'QB')
-        assert accuracy == 0.0  # All 3 pairs wrong
+        assert accuracy == 0.0
 
     def test_pairwise_filters_low_actual(self, calculator):
         """Test that players with actual < 3 are excluded."""
@@ -289,7 +282,6 @@ class TestPairwiseAccuracy:
             {'position': 'QB', 'projected': 20.0, 'actual': 18.0},
         ]
         accuracy = calculator.calculate_pairwise_accuracy(player_data, 'QB')
-        # Only 1 pair (28 vs 18), which is correct
         assert accuracy == 1.0
 
     def test_pairwise_skips_ties(self, calculator):
@@ -299,7 +291,7 @@ class TestPairwiseAccuracy:
             {'position': 'QB', 'projected': 25.0, 'actual': 20.0},  # Tie
         ]
         accuracy = calculator.calculate_pairwise_accuracy(player_data, 'QB')
-        assert accuracy == 0.0  # No valid comparisons (tie skipped)
+        assert accuracy == 0.0
 
     def test_pairwise_insufficient_players(self, calculator):
         """Test with fewer than 2 players."""
@@ -317,7 +309,7 @@ class TestPairwiseAccuracy:
             {'position': 'RB', 'projected': 25.0, 'actual': 22.0},  # Different position
         ]
         accuracy = calculator.calculate_pairwise_accuracy(player_data, 'QB')
-        assert accuracy == 1.0  # Only QBs compared
+        assert accuracy == 1.0
 
     def test_pairwise_accuracy_k_position(self, calculator):
         """Test pairwise accuracy with K position (discrete scoring: 0, 3, 6, 9)."""
@@ -327,9 +319,9 @@ class TestPairwiseAccuracy:
             {'position': 'K', 'projected': 3.0, 'actual': 3.0},
         ]
         accuracy = calculator.calculate_pairwise_accuracy(player_data, 'K')
-        assert accuracy == 1.0  # Perfect ranking
+        assert accuracy == 1.0
         assert accuracy is not None
-        assert not (accuracy != accuracy)  # Not NaN
+        assert not (accuracy != accuracy)
 
     def test_pairwise_accuracy_dst_position_with_negatives(self, calculator):
         """Test pairwise accuracy with DST position including negative scores."""
@@ -339,9 +331,9 @@ class TestPairwiseAccuracy:
             {'position': 'DST', 'projected': 5.0, 'actual': 3.0},  # Above filter threshold
         ]
         accuracy = calculator.calculate_pairwise_accuracy(player_data, 'DST')
-        assert accuracy == 1.0  # Perfect ranking
+        assert accuracy == 1.0
         assert accuracy is not None
-        assert not (accuracy != accuracy)  # Not NaN
+        assert not (accuracy != accuracy)
 
 
 class TestTopNAccuracy:
@@ -362,7 +354,7 @@ class TestTopNAccuracy:
             {'position': 'WR', 'name': 'Player E', 'projected': 10.0, 'actual': 8.0},
         ]
         accuracy = calculator.calculate_top_n_accuracy(player_data, 5, 'WR')
-        assert accuracy == 1.0  # All 5 match
+        assert accuracy == 1.0
 
     def test_top_n_no_overlap(self, calculator):
         """Test top-N accuracy with no overlap."""
@@ -375,9 +367,6 @@ class TestTopNAccuracy:
             {'position': 'WR', 'name': 'Player F', 'projected': 5.0, 'actual': 28.0},
         ]
         accuracy = calculator.calculate_top_n_accuracy(player_data, 5, 'WR')
-        # Top 5 projected: A,B,C,D,E
-        # Top 5 actual: F,E,D,C,B
-        # Overlap: B,C,D,E (4/5)
         assert accuracy == 0.8
 
     def test_top_n_filters_low_actual(self, calculator):
@@ -388,7 +377,6 @@ class TestTopNAccuracy:
             {'position': 'RB', 'name': 'Player C', 'projected': 20.0, 'actual': 18.0},
         ]
         accuracy = calculator.calculate_top_n_accuracy(player_data, 2, 'RB')
-        # After filtering, only A and C remain
         assert accuracy == 1.0
 
     def test_top_n_insufficient_players(self, calculator):
@@ -398,22 +386,19 @@ class TestTopNAccuracy:
             {'position': 'TE', 'name': 'Player B', 'projected': 25.0, 'actual': 22.0},
         ]
         accuracy = calculator.calculate_top_n_accuracy(player_data, 5, 'TE')
-        assert accuracy == 0.0  # Not enough players
+        assert accuracy == 0.0
 
     def test_top_n_accuracy_k_dst_small_sample(self, calculator):
         """Test top-N accuracy with K/DST small sample sizes."""
-        # Test with 10 K players (realistic small sample)
         k_player_data = [
             {'position': 'K', 'name': f'K{i}', 'projected': 10.0 - i, 'actual': 10.0 - i}
             for i in range(10)
         ]
-        # Top-5 accuracy with perfect predictions
         accuracy_top5 = calculator.calculate_top_n_accuracy(k_player_data, 5, 'K')
         assert accuracy_top5 == 1.0
         assert accuracy_top5 is not None
-        assert not (accuracy_top5 != accuracy_top5)  # Not NaN
+        assert not (accuracy_top5 != accuracy_top5)
 
-        # Test with 10 DST players
         dst_player_data = [
             {'position': 'DST', 'name': f'DST{i}', 'projected': 15.0 - i, 'actual': 15.0 - i}
             for i in range(10)
@@ -440,7 +425,7 @@ class TestSpearmanCorrelation:
             {'position': 'QB', 'projected': 15.0, 'actual': 12.0},
         ]
         corr = calculator.calculate_spearman_correlation(player_data, 'QB')
-        assert abs(corr - 1.0) < 0.01  # Should be ~1.0
+        assert abs(corr - 1.0) < 0.01
 
     def test_spearman_inverse_correlation(self, calculator):
         """Test Spearman with perfect negative correlation."""
@@ -451,7 +436,7 @@ class TestSpearmanCorrelation:
             {'position': 'QB', 'projected': 15.0, 'actual': 28.0},
         ]
         corr = calculator.calculate_spearman_correlation(player_data, 'QB')
-        assert abs(corr - (-1.0)) < 0.01  # Should be ~-1.0
+        assert abs(corr - (-1.0)) < 0.01
 
     def test_spearman_zero_variance(self, calculator):
         """Test Spearman handles zero variance gracefully."""
@@ -461,7 +446,7 @@ class TestSpearmanCorrelation:
             {'position': 'QB', 'projected': 20.0, 'actual': 20.0},
         ]
         corr = calculator.calculate_spearman_correlation(player_data, 'QB')
-        assert corr == 0.0  # Should return 0 for zero variance
+        assert corr == 0.0
 
     def test_spearman_filters_low_actual(self, calculator):
         """Test that players with actual < 3 are excluded."""
@@ -471,7 +456,6 @@ class TestSpearmanCorrelation:
             {'position': 'WR', 'projected': 20.0, 'actual': 18.0},
         ]
         corr = calculator.calculate_spearman_correlation(player_data, 'WR')
-        # Only 2 players remain, should still calculate
         assert abs(corr - 1.0) < 0.01
 
     def test_spearman_insufficient_players(self, calculator):
@@ -484,7 +468,6 @@ class TestSpearmanCorrelation:
 
     def test_spearman_correlation_k_dst(self, calculator):
         """Test Spearman correlation with K and DST positions."""
-        # Test K position with discrete scoring pattern
         k_player_data = [
             {'position': 'K', 'projected': 9.0, 'actual': 12.0},
             {'position': 'K', 'projected': 8.0, 'actual': 6.0},
@@ -492,11 +475,10 @@ class TestSpearmanCorrelation:
             {'position': 'K', 'projected': 6.0, 'actual': 3.0},
         ]
         corr_k = calculator.calculate_spearman_correlation(k_player_data, 'K')
-        assert -1.0 <= corr_k <= 1.0  # Valid correlation range
+        assert -1.0 <= corr_k <= 1.0
         assert corr_k is not None
-        assert not (corr_k != corr_k)  # Not NaN
+        assert not (corr_k != corr_k)
 
-        # Test DST position
         dst_player_data = [
             {'position': 'DST', 'projected': 10.0, 'actual': 15.0},
             {'position': 'DST', 'projected': 8.0, 'actual': 5.0},
@@ -504,9 +486,11 @@ class TestSpearmanCorrelation:
             {'position': 'DST', 'projected': 4.0, 'actual': 3.0},
         ]
         corr_dst = calculator.calculate_spearman_correlation(dst_player_data, 'DST')
-        assert -1.0 <= corr_dst <= 1.0  # Valid correlation range
+        assert -1.0 <= corr_dst <= 1.0
         assert corr_dst is not None
 
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
+
+

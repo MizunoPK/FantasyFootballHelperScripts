@@ -15,9 +15,6 @@ from unittest.mock import Mock, MagicMock, patch, mock_open, call
 from simulation.win_rate.SimulatedLeague import SimulatedLeague
 
 
-# ============================================================================
-# FIXTURES
-# ============================================================================
 
 @pytest.fixture
 def sample_config_dict():
@@ -38,11 +35,9 @@ def mock_data_folder(tmp_path):
     data_folder = tmp_path / "sim_data"
     data_folder.mkdir()
 
-    # Create required CSV files
     (data_folder / "players_projected.csv").write_text("id,name,position\n1,Player1,QB\n")
     (data_folder / "players_actual.csv").write_text("id,name,position\n1,Player1,QB\n")
 
-    # Create team ranking files for weeks 1-16
     for week in range(1, 17):
         (data_folder / f"teams_week_{week}.csv").write_text("team,rank\nNE,1\n")
 
@@ -69,9 +64,6 @@ def mock_week_result():
     return result
 
 
-# ============================================================================
-# INITIALIZATION TESTS
-# ============================================================================
 
 class TestSimulatedLeagueInitialization:
     """Test SimulatedLeague initialization"""
@@ -156,9 +148,6 @@ class TestSimulatedLeagueInitialization:
         assert isinstance(league.week_results, list)
 
 
-# ============================================================================
-# TEAM INITIALIZATION TESTS
-# ============================================================================
 
 class TestTeamInitialization:
     """Test team initialization logic"""
@@ -175,14 +164,12 @@ class TestTeamInitialization:
 
         league = SimulatedLeague(sample_config_dict, tmp_path / "data")
 
-        # Verify strategy distribution constants
         assert SimulatedLeague.TEAM_STRATEGIES['draft_helper'] == 1
         assert SimulatedLeague.TEAM_STRATEGIES['adp_aggressive'] == 2
         assert SimulatedLeague.TEAM_STRATEGIES['projected_points_aggressive'] == 2
         assert SimulatedLeague.TEAM_STRATEGIES['adp_with_draft_order'] == 2
         assert SimulatedLeague.TEAM_STRATEGIES['projected_points_with_draft_order'] == 3
 
-        # Total should be 10 teams
         assert sum(SimulatedLeague.TEAM_STRATEGIES.values()) == 10
 
     @patch('simulation.win_rate.SimulatedLeague.tempfile.mkdtemp')
@@ -197,7 +184,6 @@ class TestTeamInitialization:
 
         league = SimulatedLeague(sample_config_dict, tmp_path / "data")
 
-        # Verify that _initialize_teams was called
         mock_init_teams.assert_called_once()
 
     @patch('simulation.win_rate.SimulatedLeague.tempfile.mkdtemp')
@@ -212,14 +198,10 @@ class TestTeamInitialization:
 
         league = SimulatedLeague(sample_config_dict, tmp_path / "data")
 
-        # Verify teams list exists
         assert hasattr(league, 'teams')
         assert isinstance(league.teams, list)
 
 
-# ============================================================================
-# SCHEDULE GENERATION TESTS
-# ============================================================================
 
 class TestScheduleGeneration:
     """Test schedule generation"""
@@ -250,7 +232,6 @@ class TestScheduleGeneration:
         temp_dir.mkdir()
         mock_mkdtemp.return_value = str(temp_dir)
 
-        # Mock 17 weeks of schedule
         mock_schedule = [[Mock()] for _ in range(17)]
         mock_gen_schedule.return_value = mock_schedule
 
@@ -259,9 +240,6 @@ class TestScheduleGeneration:
         assert len(league.season_schedule) == 17
 
 
-# ============================================================================
-# DRAFT TESTS
-# ============================================================================
 
 class TestDraft:
     """Test draft simulation"""
@@ -278,7 +256,6 @@ class TestDraft:
         temp_dir.mkdir()
         mock_mkdtemp.return_value = str(temp_dir)
 
-        # Create mock teams
         mock_teams = [Mock() for _ in range(10)]
         for team in mock_teams:
             team.config = Mock()
@@ -289,7 +266,6 @@ class TestDraft:
 
         league.run_draft()
 
-        # shuffle should be called once to randomize draft order
         assert mock_shuffle.call_count >= 1
 
     @patch('simulation.win_rate.SimulatedLeague.tempfile.mkdtemp')
@@ -302,7 +278,6 @@ class TestDraft:
         temp_dir.mkdir()
         mock_mkdtemp.return_value = str(temp_dir)
 
-        # Create mock teams
         mock_teams = [Mock() for _ in range(10)]
         for team in mock_teams:
             team.config = Mock()
@@ -314,7 +289,6 @@ class TestDraft:
 
         league.run_draft()
 
-        # All teams should have week set to 1
         for team in mock_teams:
             assert team.config.current_nfl_week == 1
 
@@ -328,9 +302,8 @@ class TestDraft:
         temp_dir.mkdir()
         mock_mkdtemp.return_value = str(temp_dir)
 
-        # Create mock teams
         mock_teams = [Mock() for _ in range(10)]
-        player_counter = [0]  # Mutable counter
+        player_counter = [0]
 
         def get_draft_rec():
             player_counter[0] += 1
@@ -349,7 +322,6 @@ class TestDraft:
 
         league.run_draft()
 
-        # Each team should draft 15 players (150 total picks)
         for team in mock_teams:
             assert team.draft_player.call_count == 15
 
@@ -363,8 +335,7 @@ class TestDraft:
         temp_dir.mkdir()
         mock_mkdtemp.return_value = str(temp_dir)
 
-        # Create mock teams
-        mock_teams = [Mock() for _ in range(2)]  # Use 2 teams for simplicity
+        mock_teams = [Mock() for _ in range(2)]
         for team in mock_teams:
             team.config = Mock()
             team.get_draft_recommendation.return_value = Mock(id=1, name="Test", position="QB")
@@ -374,14 +345,10 @@ class TestDraft:
 
         league.run_draft()
 
-        # Each team should mark other team's picks as drafted
         for team in mock_teams:
             assert team.mark_player_drafted.call_count > 0
 
 
-# ============================================================================
-# SEASON SIMULATION TESTS
-# ============================================================================
 
 class TestSeasonSimulation:
     """Test season simulation"""
@@ -398,7 +365,6 @@ class TestSeasonSimulation:
         temp_dir.mkdir()
         mock_mkdtemp.return_value = str(temp_dir)
 
-        # Create mock schedule (17 weeks)
         mock_schedule = [[(Mock(), Mock())] for _ in range(17)]
 
         league = SimulatedLeague(sample_config_dict, tmp_path / "data")
@@ -406,7 +372,6 @@ class TestSeasonSimulation:
 
         league.run_season()
 
-        # Week class should be instantiated 17 times
         assert mock_week_class.call_count == 17
 
     @patch('simulation.win_rate.SimulatedLeague.tempfile.mkdtemp')
@@ -422,7 +387,6 @@ class TestSeasonSimulation:
         temp_dir.mkdir()
         mock_mkdtemp.return_value = str(temp_dir)
 
-        # Create mock schedule (17 weeks)
         mock_schedule = [[(Mock(), Mock())] for _ in range(17)]
 
         league = SimulatedLeague(sample_config_dict, tmp_path / "data")
@@ -430,7 +394,6 @@ class TestSeasonSimulation:
 
         league.run_season()
 
-        # Rankings should be updated 17 times (once per week)
         assert mock_update_rankings.call_count == 17
 
     @patch('simulation.win_rate.SimulatedLeague.tempfile.mkdtemp')
@@ -445,7 +408,6 @@ class TestSeasonSimulation:
         temp_dir.mkdir()
         mock_mkdtemp.return_value = str(temp_dir)
 
-        # Create mock schedule (17 weeks)
         mock_schedule = [[(Mock(), Mock())] for _ in range(17)]
 
         league = SimulatedLeague(sample_config_dict, tmp_path / "data")
@@ -453,13 +415,9 @@ class TestSeasonSimulation:
 
         league.run_season()
 
-        # 17 week results should be stored
         assert len(league.week_results) == 17
 
 
-# ============================================================================
-# UPDATE TEAM RANKINGS TESTS
-# ============================================================================
 
 class TestUpdateTeamRankings:
     """Test team ranking updates"""
@@ -475,19 +433,15 @@ class TestUpdateTeamRankings:
         temp_dir.mkdir()
         mock_mkdtemp.return_value = str(temp_dir)
 
-        # Create team directories
         for i in range(10):
             (temp_dir / f"team_{i}").mkdir()
 
         league = SimulatedLeague(sample_config_dict, mock_data_folder)
 
-        # Verify league has correct data folder
         assert league.data_folder == mock_data_folder
 
-        # Verify week file exists for the test
         assert (mock_data_folder / "teams_week_5.csv").exists()
 
-        # Should not raise an exception
         league._update_team_rankings(5)
 
     @patch('simulation.win_rate.SimulatedLeague.tempfile.mkdtemp')
@@ -503,23 +457,16 @@ class TestUpdateTeamRankings:
 
         data_folder = tmp_path / "data"
         data_folder.mkdir()
-        # Only create week 1 file
         (data_folder / "teams_week_1.csv").write_text("team,rank\n")
 
-        # Create team directories
         for i in range(10):
             (temp_dir / f"team_{i}").mkdir()
 
         league = SimulatedLeague(sample_config_dict, data_folder)
 
-        # Try to update to week 99 (doesn't exist) - should fall back to week 1
-        # Should not raise exception
         league._update_team_rankings(99)
 
 
-# ============================================================================
-# RESULTS TESTS
-# ============================================================================
 
 class TestResults:
     """Test result retrieval"""
@@ -537,15 +484,13 @@ class TestResults:
 
         league = SimulatedLeague(sample_config_dict, tmp_path / "data")
 
-        # Create mock draft helper team
         draft_helper = Mock()
         league.draft_helper_team = draft_helper
 
-        # Create mock week results
         mock_week = Mock()
         mock_week.get_result.return_value = mock_week_result
 
-        league.week_results = [mock_week] * 3  # 3 weeks
+        league.week_results = [mock_week] * 3
 
         wins, losses, points = league.get_draft_helper_results()
 
@@ -584,11 +529,9 @@ class TestResults:
 
         league = SimulatedLeague(sample_config_dict, tmp_path / "data")
 
-        # Create mock teams
         league.teams = [Mock() for _ in range(3)]
         league.draft_helper_team = league.teams[0]
 
-        # Create mock week results
         result_win = Mock()
         result_win.won = True
         result_win.points_scored = 120.0
@@ -601,12 +544,9 @@ class TestResults:
         results = league.get_all_team_results()
 
         assert isinstance(results, dict)
-        assert len(results) == 3  # 3 teams
+        assert len(results) == 3
 
 
-# ============================================================================
-# CLEANUP TESTS
-# ============================================================================
 
 class TestCleanup:
     """Test cleanup functionality"""
@@ -627,7 +567,6 @@ class TestCleanup:
 
         league.cleanup()
 
-        # Check that rmtree was called with the temp_dir
         mock_rmtree.assert_any_call(league.temp_dir)
 
     @patch('simulation.win_rate.SimulatedLeague.tempfile.mkdtemp')
@@ -637,16 +576,14 @@ class TestCleanup:
                                               mock_mkdtemp, sample_config_dict, tmp_path):
         """Test that cleanup handles missing temp directory gracefully"""
         temp_dir = tmp_path / "temp_league"
-        temp_dir.mkdir()  # Create it for init
+        temp_dir.mkdir()
         mock_mkdtemp.return_value = str(temp_dir)
 
         league = SimulatedLeague(sample_config_dict, tmp_path / "data")
 
-        # Now set to nonexistent path and cleanup
         nonexistent = tmp_path / "nonexistent_temp"
         league.temp_dir = nonexistent
 
-        # Should not raise exception
         league.cleanup()
 
     @patch('simulation.win_rate.SimulatedLeague.tempfile.mkdtemp')
@@ -663,27 +600,20 @@ class TestCleanup:
 
         league = SimulatedLeague(sample_config_dict, tmp_path / "data")
 
-        # Call destructor
         league.__del__()
 
-        # cleanup should have been called (which calls rmtree)
         assert mock_rmtree.call_count >= 1
 
 
-# ============================================================================
-# JSON LOADING TESTS (Feature 01 - Win Rate Sim JSON Verification)
-# ============================================================================
 
 class TestJSONLoading:
     """Test JSON player data loading functionality"""
 
     def test_parse_players_json_valid_data(self, tmp_path):
         """Test _parse_players_json with valid JSON data"""
-        # Create temp week folder with JSON files
         week_folder = tmp_path / "week_01"
         week_folder.mkdir()
 
-        # Create sample QB data
         qb_data = [
             {
                 "id": "12345",
@@ -697,14 +627,11 @@ class TestJSONLoading:
         ]
         (week_folder / "qb_data.json").write_text(json.dumps(qb_data))
 
-        # Create empty files for other positions
         for pos in ['rb', 'wr', 'te', 'k', 'dst']:
             (week_folder / f"{pos}_data.json").write_text("[]")
 
-        # Import and test
         from simulation.win_rate.SimulatedLeague import SimulatedLeague
 
-        # Create minimal league instance
         config = {"config_name": "test", "description": "test", "parameters": {"num_teams": 2, "draft_rounds": 1}}
         data_folder = tmp_path / "data"
         data_folder.mkdir()
@@ -731,7 +658,6 @@ class TestJSONLoading:
         week_folder = tmp_path / "week_05"
         week_folder.mkdir()
 
-        # Create data with varying values per week
         rb_data = [
             {
                 "id": "67890",
@@ -764,7 +690,6 @@ class TestJSONLoading:
             league = SimulatedLeague(config, data_folder)
             players = league._parse_players_json(week_folder, week_num=5)
 
-        # Week 5 should extract index 4 (week_num - 1)
         assert players[67890]["projected_points"] == "14.0"
         assert players[67890]["actual_points"] == "13.5"
 
@@ -814,7 +739,6 @@ class TestJSONLoading:
             league = SimulatedLeague(config, data_folder)
             players = league._parse_players_json(week_folder, week_num=1)
 
-        # Verify boolean → string conversion
         assert players[11111]["locked"] == "1"
         assert players[22222]["locked"] == "0"
 
@@ -854,21 +778,19 @@ class TestJSONLoading:
             league = SimulatedLeague(config, data_folder)
             players = league._parse_players_json(week_folder, week_num=1)
 
-        # Verify all 6 positions loaded
         assert len(players) == 6
-        assert 0 in players  # QB (converted "00000" to int 0)
-        assert 10000 in players  # RB
-        assert 20000 in players  # WR
-        assert 30000 in players  # TE
-        assert 40000 in players  # K
-        assert 50000 in players  # DST
+        assert 0 in players
+        assert 10000 in players
+        assert 20000 in players
+        assert 30000 in players
+        assert 40000 in players
+        assert 50000 in players
 
     def test_parse_players_json_missing_file(self, tmp_path):
         """Test error handling for missing JSON files"""
         week_folder = tmp_path / "week_01"
         week_folder.mkdir()
 
-        # Only create QB file, missing other 5 positions
         qb_data = [{"id": "12345", "name": "QB Test", "position": "QB", "drafted_by": "",
                     "locked": False, "projected_points": [10.0] * 17, "actual_points": [11.0] * 17}]
         (week_folder / "qb_data.json").write_text(json.dumps(qb_data))
@@ -888,10 +810,8 @@ class TestJSONLoading:
 
             league = SimulatedLeague(config, data_folder)
 
-            # Should not crash, should log warnings and continue
             players = league._parse_players_json(week_folder, week_num=1)
 
-        # Should still have QB data
         assert len(players) == 1
         assert 12345 in players
 
@@ -900,10 +820,8 @@ class TestJSONLoading:
         week_folder = tmp_path / "week_01"
         week_folder.mkdir()
 
-        # Create malformed JSON (invalid syntax)
         (week_folder / "qb_data.json").write_text("{invalid json syntax")
 
-        # Create valid files for other positions
         for pos in ['rb', 'wr', 'te', 'k', 'dst']:
             (week_folder / f"{pos}_data.json").write_text("[]")
 
@@ -922,10 +840,8 @@ class TestJSONLoading:
 
             league = SimulatedLeague(config, data_folder)
 
-            # Should not crash, should handle error gracefully
             players = league._parse_players_json(week_folder, week_num=1)
 
-        # Should return empty or partial data (other positions loaded)
         assert isinstance(players, dict)
 
     def test_parse_players_json_empty_arrays(self, tmp_path):
@@ -965,7 +881,6 @@ class TestJSONLoading:
             league = SimulatedLeague(config, data_folder)
             players = league._parse_players_json(week_folder, week_num=1)
 
-        # Should default to 0.0 for missing array values
         assert players[33333]["projected_points"] == "0.0"
         assert players[33333]["actual_points"] == "0.0"
 
@@ -979,7 +894,6 @@ class TestJSONLoading:
                 "id": "44444",
                 "name": "Minimal Data Kicker",
                 "position": "K"
-                # Missing: drafted_by, locked, projected_points, actual_points
             }
         ]
         (week_folder / "k_data.json").write_text(json.dumps(k_data))
@@ -1003,23 +917,18 @@ class TestJSONLoading:
             league = SimulatedLeague(config, data_folder)
             players = league._parse_players_json(week_folder, week_num=1)
 
-        # Should use defaults for missing fields
         assert players[44444]["drafted_by"] == ""
         assert players[44444]["locked"] == "0"  # False → "0"
         assert players[44444]["projected_points"] == "0.0"
         assert players[44444]["actual_points"] == "0.0"
 
 
-# ============================================================================
-# WEEK 17 SPECIFIC TESTS (Feature 01 - Week 17 Edge Case)
-# ============================================================================
 
 class TestWeek17EdgeCase:
     """Test Week 17 specific data loading logic"""
 
     def test_week_17_uses_week_18_for_actuals(self, tmp_path):
         """Test week 17 loads projected from week_17, actual from week_18"""
-        # Create week folders
         weeks_folder = tmp_path / "weeks"
         weeks_folder.mkdir()
 
@@ -1028,7 +937,6 @@ class TestWeek17EdgeCase:
         week_18 = weeks_folder / "week_18"
         week_18.mkdir()
 
-        # Week 17 data: projected_points[16] = 20.0, actual_points[16] = 0.0 (incomplete)
         week17_qb = [
             {
                 "id": "99999",
@@ -1041,7 +949,6 @@ class TestWeek17EdgeCase:
             }
         ]
 
-        # Week 18 data: actual_points[16] = 23.2 (week 17 actual score)
         week18_qb = [
             {
                 "id": "99999",
@@ -1075,27 +982,19 @@ class TestWeek17EdgeCase:
 
             league = SimulatedLeague(config, data_folder)
 
-            # Parse week 17 projected data
             projected = league._parse_players_json(week_17, week_num=17)
 
-            # Parse week 18 actual data with week_num_for_actual=17 (to get index 16)
             actual = league._parse_players_json(week_18, week_num=17, week_num_for_actual=17)
 
-        # Verify projected_points from week_17 (index 16)
         assert projected[99999]["projected_points"] == "20.0"
 
-        # Verify actual_points from week_18 (index 16)
-        # week_num_for_actual=17 means actual_week=17, index=16
-        # Week 17's actual score is at index 16 in week_18 data
         assert actual[99999]["actual_points"] == "23.2"
 
     def test_preload_all_weeks_week_17_pattern(self, tmp_path):
         """Test _preload_all_weeks correctly implements week_N+1 for week 17"""
-        # Create minimal week structure
         weeks_folder = tmp_path / "weeks"
         weeks_folder.mkdir()
 
-        # Create week 16, 17, 18
         for week_num in [16, 17, 18]:
             week_folder = weeks_folder / f"week_{week_num:02d}"
             week_folder.mkdir()
@@ -1131,23 +1030,16 @@ class TestWeek17EdgeCase:
             league = SimulatedLeague(config, data_folder)
             league._preload_all_weeks()
 
-        # Verify week 17 cache
         assert 17 in league.week_data_cache
         week17_data = league.week_data_cache[17]
 
-        # Projected should come from week_17 folder
         assert 88888 in week17_data['projected']
         assert week17_data['projected'][88888]["projected_points"] == "17.0"
 
-        # Actual should come from week_18 folder
         assert 88888 in week17_data['actual']
-        # Week 18 data has actual_points = [18.5] * 17, extracting index 16 should give 18.5
         assert week17_data['actual'][88888]["actual_points"] == "18.5"
 
 
-# ============================================================================
-# EDGE CASE BEHAVIOR TESTS (Feature 01 - Edge Case Verification)
-# ============================================================================
 
 class TestEdgeCaseBehavior:
     """Test edge case handling for JSON loading"""
@@ -1157,7 +1049,6 @@ class TestEdgeCaseBehavior:
         weeks_folder = tmp_path / "weeks"
         weeks_folder.mkdir()
 
-        # Create week_17 but NOT week_18
         week_17 = weeks_folder / "week_17"
         week_17.mkdir()
 
@@ -1192,11 +1083,9 @@ class TestEdgeCaseBehavior:
             league = SimulatedLeague(config, data_folder)
             league._preload_all_weeks()
 
-        # Verify week 17 uses projected as fallback for actual
         assert 17 in league.week_data_cache
         week17_data = league.week_data_cache[17]
 
-        # Both projected and actual should exist
         assert 77777 in week17_data['projected'] or len(week17_data['projected']) >= 0
         assert 77777 in week17_data['actual'] or len(week17_data['actual']) >= 0
 
@@ -1205,7 +1094,6 @@ class TestEdgeCaseBehavior:
         week_folder = tmp_path / "week_10"
         week_folder.mkdir()
 
-        # Create data with short arrays (only 5 elements instead of 17)
         dst_data = [
             {
                 "id": "66666",
@@ -1237,13 +1125,13 @@ class TestEdgeCaseBehavior:
 
             league = SimulatedLeague(config, data_folder)
 
-            # Parse week 10 (index 9, out of bounds for 5-element array)
             players = league._parse_players_json(week_folder, week_num=10)
 
-        # Should default to 0.0, not raise IndexError
         assert players[66666]["projected_points"] == "0.0"
         assert players[66666]["actual_points"] == "0.0"
 
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
+
+

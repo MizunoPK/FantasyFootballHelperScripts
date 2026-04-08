@@ -39,7 +39,7 @@ class TestAccuracyConfigPerformance:
         assert perf.mae == 5.5
         assert perf.player_count == 100
         assert perf.total_error == 550.0
-        assert perf.config_value is None  # No param_name provided
+        assert perf.config_value is None
         assert perf.timestamp is not None
 
     def test_config_performance_with_value(self):
@@ -56,7 +56,6 @@ class TestAccuracyConfigPerformance:
 
     def test_config_value_extraction_nested_params(self):
         """Test that config_value is extracted from nested parameters."""
-        # Test WIND_SCORING_WEIGHT extraction
         config = {
             'parameters': {
                 'WIND_SCORING': {
@@ -74,7 +73,6 @@ class TestAccuracyConfigPerformance:
         )
         assert perf.config_value == 0.25
 
-        # Test LOCATION_AWAY extraction
         config2 = {
             'parameters': {
                 'LOCATION_MODIFIERS': {
@@ -93,7 +91,6 @@ class TestAccuracyConfigPerformance:
         )
         assert perf2.config_value == 3.9
 
-        # Test top-level param extraction
         config3 = {
             'parameters': {
                 'NORMALIZATION_MAX_SCALE': 150
@@ -211,7 +208,6 @@ class TestAccuracyResultsManager:
         """Create mock baseline config folder with required files."""
         baseline = temp_dir / "baseline"
         baseline.mkdir()
-        # Create league_config.json
         league_config = {
             'config_name': 'Test Baseline',
             'description': 'Test baseline config',
@@ -219,7 +215,6 @@ class TestAccuracyResultsManager:
         }
         with open(baseline / "league_config.json", 'w') as f:
             json.dump(league_config, f)
-        # Create week files
         for filename in ['week1-5.json', 'week6-9.json', 'week10-13.json', 'week14-17.json']:
             week_config = {
                 'config_name': f'Test {filename}',
@@ -273,7 +268,6 @@ class TestAccuracyResultsManager:
         config1 = {'version': 1}
         config2 = {'version': 2}
 
-        # Create ranking metrics for both results
         metrics1 = RankingMetrics(
             pairwise_accuracy=0.65,
             top_5_accuracy=0.80,
@@ -282,7 +276,7 @@ class TestAccuracyResultsManager:
             spearman_correlation=0.82
         )
         metrics2 = RankingMetrics(
-            pairwise_accuracy=0.70,  # Better pairwise accuracy
+            pairwise_accuracy=0.70,
             top_5_accuracy=0.80,
             top_10_accuracy=0.75,
             top_20_accuracy=0.70,
@@ -310,14 +304,14 @@ class TestAccuracyResultsManager:
         config1 = {'version': 1}
         config2 = {'version': 2}
         metrics1 = RankingMetrics(
-            pairwise_accuracy=0.70,  # Better
+            pairwise_accuracy=0.70,
             top_5_accuracy=0.80,
             top_10_accuracy=0.75,
             top_20_accuracy=0.70,
             spearman_correlation=0.82
         )
         metrics2 = RankingMetrics(
-            pairwise_accuracy=0.65,  # Worse
+            pairwise_accuracy=0.65,
             top_5_accuracy=0.80,
             top_10_accuracy=0.75,
             top_20_accuracy=0.70,
@@ -375,8 +369,6 @@ class TestAccuracyResultsManager:
 
     def test_save_optimal_configs(self, results_manager):
         """Test saving optimal configs to folder."""
-        # Add results for two week ranges
-        # Use real WEEK_SPECIFIC_PARAMS parameters with nested structure
         config_week_1_5 = {'TEAM_QUALITY_SCORING': {'WEIGHT': 1.5}}
         config_week_6_9 = {'MATCHUP_SCORING': {'WEIGHT': 1.2}}
         metrics = RankingMetrics(
@@ -394,22 +386,17 @@ class TestAccuracyResultsManager:
         results_manager.add_result('week_1_5', config_week_1_5, result)
         results_manager.add_result('week_6_9', config_week_6_9, result)
 
-        # Save
         optimal_path = results_manager.save_optimal_configs()
 
-        # Verify folder created
         assert optimal_path.exists()
         assert optimal_path.name.startswith("accuracy_optimal_")
 
-        # Verify all files created (league_config.json + 4 weekly configs)
-        # No separate performance_metrics.json - metrics are embedded in each config
         assert (optimal_path / "league_config.json").exists()  # Copied from baseline
         assert (optimal_path / "week1-5.json").exists()
         assert (optimal_path / "week6-9.json").exists()
         assert (optimal_path / "week10-13.json").exists()
         assert (optimal_path / "week14-17.json").exists()
 
-        # Verify week1-5.json has proper nested structure
         with open(optimal_path / "week1-5.json") as f:
             saved_config = json.load(f)
         assert 'config_name' in saved_config
@@ -440,26 +427,20 @@ class TestAccuracyResultsManager:
 
         assert intermediate_path.exists()
         assert "accuracy_intermediate_00_NORMALIZATION" in intermediate_path.name
-        # Standard config files (can be used as baseline and for resume)
         assert (intermediate_path / "league_config.json").exists()
-        # Week files copied from baseline since no results for them
         assert (intermediate_path / "week1-5.json").exists()
         assert (intermediate_path / "week6-9.json").exists()
         assert (intermediate_path / "week10-13.json").exists()
         assert (intermediate_path / "week14-17.json").exists()
-        # Metadata file for tournament mode tracking (new in Phase 2)
         assert (intermediate_path / "metadata.json").exists()
-        # Config files + metadata.json = 6 files
         all_files = list(intermediate_path.glob("*.json"))
-        assert len(all_files) == 6  # league_config + 4 week files + metadata.json
+        assert len(all_files) == 6
 
     def test_load_intermediate_results(self, results_manager, temp_dir):
         """Test loading intermediate results from standard config files."""
-        # Create intermediate folder with saved config in standard format
         intermediate_path = temp_dir / "accuracy_intermediate_00_TEST"
         intermediate_path.mkdir()
 
-        # Standard config format with nested structure
         config_data = {
             'config_name': 'Test Config',
             'description': 'Test description',
@@ -473,13 +454,9 @@ class TestAccuracyResultsManager:
         with open(intermediate_path / "week1-5.json", 'w') as f:
             json.dump(config_data, f)
 
-        # Load
         success = results_manager.load_intermediate_results(intermediate_path)
 
-        # Should return True indicating files were found
         assert success
-        # best_configs should NOT be populated (metrics are for user visibility only)
-        # Each run evaluates configs fresh with current ranking metrics
         assert results_manager.best_configs['week_1_5'] is None
 
     def test_load_intermediate_results_not_found(self, results_manager, temp_dir):
@@ -538,18 +515,15 @@ class TestAccuracyResultsManager:
             overall_metrics=metrics2
         )
 
-        # Record different configs for ros and week_1_5
         results_manager.add_result('ros', config1, result1)
         results_manager.add_result('week_1_5', config2, result2)
 
-        # Verify they're stored independently
         ros_config = results_manager.best_configs['ros'].config_dict
         week_config = results_manager.best_configs['week_1_5'].config_dict
 
         assert ros_config['parameters']['NORMALIZATION_MAX_SCALE'] == 100
         assert week_config['parameters']['NORMALIZATION_MAX_SCALE'] == 150
 
-        # Modify ros config and verify week_1_5 is unaffected
         ros_config['parameters']['NORMALIZATION_MAX_SCALE'] = 200
         assert week_config['parameters']['NORMALIZATION_MAX_SCALE'] == 150  # Should still be 150
 
@@ -569,7 +543,6 @@ class TestScheduleSync:
         """Create mock baseline config folder."""
         baseline = temp_dir / "baseline"
         baseline.mkdir()
-        # Create required config files
         for filename in ['league_config.json', 'week1-5.json',
                         'week6-9.json', 'week10-13.json', 'week14-17.json']:
             config = {'config_name': f'Test {filename}', 'parameters': {}}
@@ -640,14 +613,11 @@ class TestScheduleSync:
 
         synced = results_manager._sync_schedule_params(config)
 
-        # Original unchanged
         assert config['SCHEDULE_SCORING']['IMPACT_SCALE'] == 0.5
-        # Synced has MATCHUP value
         assert synced['SCHEDULE_SCORING']['IMPACT_SCALE'] == 0.8
 
     def test_save_optimal_configs_syncs_schedule(self, results_manager):
         """Test that save_optimal_configs applies SCHEDULE sync."""
-        # Use nested structure matching actual config format
         config = {
             'MATCHUP_SCORING': {
                 'IMPACT_SCALE': 0.8,
@@ -673,7 +643,6 @@ class TestScheduleSync:
         with open(optimal_path / "week1-5.json") as f:
             saved_config = json.load(f)
 
-        # SCHEDULE params should mirror MATCHUP in parameters section (nested structure)
         params = saved_config['parameters']
         assert 'SCHEDULE_SCORING' in params
         assert params['SCHEDULE_SCORING']['IMPACT_SCALE'] == 0.8
@@ -682,7 +651,6 @@ class TestScheduleSync:
 
     def test_save_intermediate_results_syncs_schedule(self, results_manager):
         """Test that save_intermediate_results applies SCHEDULE sync."""
-        # Use nested structure matching actual config format
         config = {
             'MATCHUP_SCORING': {
                 'IMPACT_SCALE': 0.7
@@ -703,18 +671,15 @@ class TestScheduleSync:
 
         intermediate_path = results_manager.save_intermediate_results(0, 'TEST')
 
-        # Check the standard config file (week1-5.json for 'week_1_5')
         with open(intermediate_path / "week1-5.json") as f:
             saved_data = json.load(f)
 
-        # SCHEDULE params should mirror MATCHUP in parameters section (nested structure)
         assert 'SCHEDULE_SCORING' in saved_data['parameters']
         assert saved_data['parameters']['SCHEDULE_SCORING']['IMPACT_SCALE'] == 0.7
 
 
     def test_is_better_than_rejects_zero_players(self):
         """Test that is_better_than() rejects configs with player_count=0."""
-        # Valid config
         config_a = AccuracyConfigPerformance(
             config_dict={},
             mae=2.5,
@@ -722,7 +687,6 @@ class TestScheduleSync:
             total_error=250.0
         )
 
-        # Invalid config (better MAE but no players)
         config_b = AccuracyConfigPerformance(
             config_dict={},
             mae=2.0,
@@ -730,10 +694,8 @@ class TestScheduleSync:
             total_error=0.0
         )
 
-        # Valid config should not beat invalid config
         assert config_a.is_better_than(config_b) == False
 
-        # Invalid config should not beat valid config
         assert config_b.is_better_than(config_a) == False
 
     def test_is_better_than_both_zero_players(self):
@@ -752,13 +714,11 @@ class TestScheduleSync:
             total_error=0.0
         )
 
-        # Neither invalid config beats the other
         assert config_a.is_better_than(config_b) == False
         assert config_b.is_better_than(config_a) == False
 
     def test_is_better_than_zero_vs_none(self):
         """Test that invalid config (player_count=0) does not beat None (no previous best)."""
-        # Invalid config
         config_invalid = AccuracyConfigPerformance(
             config_dict={},
             mae=1.0,
@@ -766,7 +726,6 @@ class TestScheduleSync:
             total_error=0.0
         )
 
-        # Invalid config should not become "best" even when no previous best exists
         assert config_invalid.is_better_than(None) == False
 
 
@@ -844,7 +803,7 @@ class TestAccuracyConfigPerformanceRanking:
 
         metrics2 = RankingMetrics(
             pairwise_accuracy=0.65,
-            top_5_accuracy=0.85,  # Better top_5, but pairwise_accuracy is what matters
+            top_5_accuracy=0.85,
             top_10_accuracy=0.80,
             top_20_accuracy=0.75,
             spearman_correlation=0.85
@@ -852,7 +811,7 @@ class TestAccuracyConfigPerformanceRanking:
 
         perf1 = AccuracyConfigPerformance(
             config_dict={'test': 'config1'},
-            mae=10.0,  # Worse MAE, but better pairwise_accuracy
+            mae=10.0,
             player_count=100,
             total_error=1000.0,
             overall_metrics=metrics1
@@ -860,13 +819,12 @@ class TestAccuracyConfigPerformanceRanking:
 
         perf2 = AccuracyConfigPerformance(
             config_dict={'test': 'config2'},
-            mae=5.0,  # Better MAE, but worse pairwise_accuracy
+            mae=5.0,
             player_count=100,
             total_error=500.0,
             overall_metrics=metrics2
         )
 
-        # perf1 should be better because pairwise_accuracy (0.70) > (0.65)
         assert perf1.is_better_than(perf2)
         assert not perf2.is_better_than(perf1)
 
@@ -877,7 +835,6 @@ class TestAccuracyConfigPerformanceRanking:
             mae=5.0,
             player_count=100,
             total_error=500.0
-            # No overall_metrics - invalid config
         )
 
         perf2 = AccuracyConfigPerformance(
@@ -885,14 +842,11 @@ class TestAccuracyConfigPerformanceRanking:
             mae=10.0,
             player_count=100,
             total_error=1000.0
-            # No overall_metrics - invalid config
         )
 
-        # Both configs invalid, neither should be "better"
         assert not perf1.is_better_than(perf2)
         assert not perf2.is_better_than(perf1)
 
-        # Invalid config should not beat None (cannot become "best")
         assert not perf1.is_better_than(None)
 
     def test_to_dict_includes_ranking_metrics(self):
@@ -932,7 +886,6 @@ class TestAccuracyConfigPerformanceRanking:
 
         result = perf.to_dict()
 
-        # Should not have ranking metrics keys
         assert 'pairwise_accuracy' not in result
         assert 'top_5_accuracy' not in result
         assert result['mae'] == 5.5
@@ -1029,13 +982,11 @@ class TestAccuracyConfigPerformanceRanking:
         assert perf.by_position['QB'].pairwise_accuracy == 0.71
         assert perf.by_position['RB'].pairwise_accuracy == 0.66
 
-        # Test to_dict includes by_position
         result = perf.to_dict()
         assert 'by_position' in result
         assert result['by_position']['QB']['pairwise_accuracy'] == 0.71
         assert result['by_position']['RB']['pairwise_accuracy'] == 0.66
 
-        # Test from_dict loads by_position
         perf2 = AccuracyConfigPerformance.from_dict(result)
         assert perf2.by_position['QB'].pairwise_accuracy == 0.71
         assert perf2.by_position['RB'].pairwise_accuracy == 0.66
@@ -1043,3 +994,5 @@ class TestAccuracyConfigPerformanceRanking:
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
+
+

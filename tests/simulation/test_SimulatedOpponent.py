@@ -295,7 +295,6 @@ class TestMarkPlayerDrafted:
             SimulatedOpponent.STRATEGY_ADP_AGGRESSIVE
         )
 
-        # Should not raise an error
         opponent.mark_player_drafted(999)
 
 
@@ -322,7 +321,6 @@ class TestGetDraftRecommendation:
     @patch('simulation.win_rate.SimulatedOpponent.random.random')
     def test_adp_aggressive_strategy_picks_lowest_adp(self, mock_random):
         """Test ADP aggressive strategy picks player with lowest ADP"""
-        # Mock random to always return 1.0 (no human error)
         mock_random.return_value = 1.0
 
         player1 = Mock()
@@ -363,13 +361,11 @@ class TestGetDraftRecommendation:
 
         recommendation = opponent.get_draft_recommendation()
 
-        # Should pick player2 (ADP = 5.0, lowest)
         assert recommendation == player2
 
     @patch('simulation.win_rate.SimulatedOpponent.random.random')
     def test_projected_points_aggressive_picks_highest_points(self, mock_random):
         """Test projected points aggressive strategy picks highest points"""
-        # Mock random to always return 1.0 (no human error)
         mock_random.return_value = 1.0
 
         player1 = Mock()
@@ -407,14 +403,12 @@ class TestGetDraftRecommendation:
 
         recommendation = opponent.get_draft_recommendation()
 
-        # Should pick player2 (150 points, highest)
         assert recommendation == player2
 
     @patch('simulation.win_rate.SimulatedOpponent.random.random')
     @patch('simulation.win_rate.SimulatedOpponent.random.choice')
     def test_human_error_picks_from_top_5(self, mock_choice, mock_random):
         """Test human error causes pick from top 5 instead of #1"""
-        # Mock random to always return 0.1 (< 0.2, triggers human error)
         mock_random.return_value = 0.1
 
         players = []
@@ -423,12 +417,11 @@ class TestGetDraftRecommendation:
             player.id = i
             player.name = f"Player{i}"
             player.average_draft_position = float(i + 1)
-            player.fantasy_points = float(100 - i * 5)  # Valid fantasy points
+            player.fantasy_points = float(100 - i * 5)
             player.drafted_by = ""
             player.drafted = 0
             players.append(player)
 
-        # Mock choice to return 3rd best player
         mock_choice.return_value = players[2]
 
         projected_pm = Mock()
@@ -445,12 +438,10 @@ class TestGetDraftRecommendation:
 
         recommendation = opponent.get_draft_recommendation()
 
-        # Should have called random.choice with top 5 players
         mock_choice.assert_called_once()
         top_5_called = mock_choice.call_args[0][0]
         assert len(top_5_called) == 5
 
-        # Should return the mocked choice (player 2)
         assert recommendation == players[2]
 
 
@@ -480,7 +471,6 @@ class TestRankingMethods:
 
         ranked = opponent._rank_by_adp([player1, player2, player3])
 
-        # Should be sorted by ADP: player2 (5.0), player3 (10.0), player1 (20.0)
         assert ranked[0] == player2
         assert ranked[1] == player3
         assert ranked[2] == player1
@@ -508,7 +498,6 @@ class TestRankingMethods:
 
         ranked = opponent._rank_by_projected_points([player1, player2, player3])
 
-        # Should be sorted by points desc: player2 (200), player3 (150), player1 (100)
         assert ranked[0] == player2
         assert ranked[1] == player3
         assert ranked[2] == player1
@@ -533,7 +522,6 @@ class TestRankingMethods:
 
         ranked = opponent._rank_by_adp([player1, player2])
 
-        # player1 should be first (has ADP), player2 last (None -> 999.0)
         assert ranked[0] == player1
         assert ranked[1] == player2
 
@@ -557,7 +545,6 @@ class TestRankingMethods:
 
         ranked = opponent._rank_by_projected_points([player1, player2])
 
-        # player1 should be first (100 points), player2 last (None -> 0.0)
         assert ranked[0] == player1
         assert ranked[1] == player2
 
@@ -631,7 +618,6 @@ class TestRosterAccessors:
 
         roster_copy = opponent.get_roster_players()
 
-        # Should be equal but not same object
         assert roster_copy == opponent.roster
         assert roster_copy is not opponent.roster
 
@@ -667,3 +653,5 @@ class TestConstants:
         """Test that HUMAN_ERROR_RATE constant is defined"""
         assert hasattr(SimulatedOpponent, 'HUMAN_ERROR_RATE')
         assert SimulatedOpponent.HUMAN_ERROR_RATE == 0.2
+
+

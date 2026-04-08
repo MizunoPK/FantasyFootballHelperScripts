@@ -124,7 +124,7 @@ class TestTotalGamesProperty:
         perf.add_league_result(11, 6, 1345.67)
         perf.add_league_result(9, 8, 1123.45)
 
-        assert perf.total_games == 51  # 17 + 17 + 17
+        assert perf.total_games == 51
 
 
 class TestGetWinRate:
@@ -146,10 +146,9 @@ class TestGetWinRate:
     def test_get_win_rate_multiple_results(self):
         """Test win rate with multiple results"""
         perf = ConfigPerformance("config_001", {})
-        perf.add_league_result(10, 7, 1234.56)  # 10/17
-        perf.add_league_result(12, 5, 1345.67)  # 12/17
+        perf.add_league_result(10, 7, 1234.56)
+        perf.add_league_result(12, 5, 1345.67)
 
-        # Total: 22 wins, 12 losses = 22/34
         assert perf.get_win_rate() == pytest.approx(22/34)
 
     def test_get_win_rate_perfect_record(self):
@@ -197,7 +196,6 @@ class TestGetAvgPointsPerLeague:
         perf.add_league_result(11, 6, 1400.00)
         perf.add_league_result(9, 8, 1000.00)
 
-        # Avg: (1200 + 1400 + 1000) / 3 = 1200
         assert perf.get_avg_points_per_league() == pytest.approx(1200.00)
 
     def test_get_avg_points_high_variance(self):
@@ -206,7 +204,6 @@ class TestGetAvgPointsPerLeague:
         perf.add_league_result(17, 0, 2000.00)
         perf.add_league_result(0, 17, 500.00)
 
-        # Avg: (2000 + 500) / 2 = 1250
         assert perf.get_avg_points_per_league() == pytest.approx(1250.00)
 
 
@@ -216,20 +213,20 @@ class TestCompareTo:
     def test_compare_to_self_is_better_win_rate(self):
         """Test comparison when self has higher win rate"""
         config1 = ConfigPerformance("config_001", {})
-        config1.add_league_result(12, 5, 1300.00)  # 70.6% win rate
+        config1.add_league_result(12, 5, 1300.00)
 
         config2 = ConfigPerformance("config_002", {})
-        config2.add_league_result(10, 7, 1200.00)  # 58.8% win rate
+        config2.add_league_result(10, 7, 1200.00)
 
         assert config1.compare_to(config2) == 1
 
     def test_compare_to_other_is_better_win_rate(self):
         """Test comparison when other has higher win rate"""
         config1 = ConfigPerformance("config_001", {})
-        config1.add_league_result(10, 7, 1200.00)  # 58.8% win rate
+        config1.add_league_result(10, 7, 1200.00)
 
         config2 = ConfigPerformance("config_002", {})
-        config2.add_league_result(12, 5, 1300.00)  # 70.6% win rate
+        config2.add_league_result(12, 5, 1300.00)
 
         assert config1.compare_to(config2) == -1
 
@@ -266,18 +263,13 @@ class TestCompareTo:
     def test_compare_to_win_rate_within_threshold(self):
         """Test comparison when win rates within threshold (0.0001)"""
         config1 = ConfigPerformance("config_001", {})
-        # Create result where win rate difference < 0.0001
-        config1.add_league_result(1000, 1000, 10000.00)  # 50.00% exactly
+        config1.add_league_result(1000, 1000, 10000.00)
 
         config2 = ConfigPerformance("config_002", {})
-        config2.add_league_result(1000, 1001, 10100.00)  # 49.975% (diff = 0.00025)
+        config2.add_league_result(1000, 1001, 10100.00)
 
-        # Should use points as tiebreaker since win rates essentially equal
         result = config1.compare_to(config2)
-        # config2 has slightly higher points, but win rate diff might matter
-        # Let's check: 1000/2000 = 0.5, 1000/2001 = 0.4997...
-        # Diff = 0.0002... which is > 0.0001, so win rate determines result
-        assert result == 1  # config1 has higher win rate
+        assert result == 1
 
     def test_compare_to_points_within_threshold(self):
         """Test comparison when points within threshold (0.01)"""
@@ -285,9 +277,8 @@ class TestCompareTo:
         config1.add_league_result(10, 7, 1234.560)
 
         config2 = ConfigPerformance("config_002", {})
-        config2.add_league_result(10, 7, 1234.565)  # Diff = 0.005
+        config2.add_league_result(10, 7, 1234.565)
 
-        # Points diff < 0.01, should be tied
         assert config1.compare_to(config2) == 0
 
     def test_compare_to_both_empty(self):
@@ -295,7 +286,6 @@ class TestCompareTo:
         config1 = ConfigPerformance("config_001", {})
         config2 = ConfigPerformance("config_002", {})
 
-        # Both have 0.0 win rate and 0.0 avg points
         assert config1.compare_to(config2) == 0
 
 
@@ -360,7 +350,6 @@ class TestToDict:
         }
         assert set(result.keys()) == expected_keys
 
-        # Verify week_range_performance structure
         assert set(result['week_range_performance'].keys()) == {'1-5', '6-9', '10-13', '14-17'}
         for week_range in result['week_range_performance'].values():
             assert set(week_range.keys()) == {'wins', 'losses', 'points', 'win_rate'}
@@ -430,7 +419,6 @@ class TestEdgeCases:
         """Test with very large numbers"""
         perf = ConfigPerformance("config_001", {})
 
-        # Add 1000 simulations
         for _ in range(1000):
             perf.add_league_result(10, 7, 1234.56)
 
@@ -451,19 +439,17 @@ class TestEdgeCases:
         perf.add_league_result(0, 0, 0.0)
 
         assert perf.total_games == 0
-        assert perf.get_win_rate() == 0.0  # Should handle division by zero
+        assert perf.get_win_rate() == 0.0
 
     def test_compare_to_after_many_simulations(self):
         """Test comparison with many simulations"""
         config1 = ConfigPerformance("config_001", {})
         config2 = ConfigPerformance("config_002", {})
 
-        # Add 100 simulations to each
         for _ in range(100):
             config1.add_league_result(10, 7, 1200.00)
             config2.add_league_result(10, 7, 1300.00)
 
-        # Same win rate, but config2 has higher points
         assert config1.compare_to(config2) == -1
 
 
@@ -474,7 +460,6 @@ class TestIntegrationScenarios:
         """Test realistic optimization scenario"""
         perf = ConfigPerformance("baseline", {'param1': 1.0, 'param2': 2.0})
 
-        # Run 10 simulations with varying results
         results = [
             (10, 7, 1234.56),
             (11, 6, 1345.67),
@@ -491,27 +476,21 @@ class TestIntegrationScenarios:
         for wins, losses, points in results:
             perf.add_league_result(wins, losses, points)
 
-        # Verify aggregation
         assert perf.num_simulations == 10
         assert perf.total_wins == 105
         assert perf.total_losses == 65
         assert perf.total_games == 170
 
-        # Verify metrics
         win_rate = perf.get_win_rate()
-        assert 0.6 < win_rate < 0.65  # Around 61.8%
+        assert 0.6 < win_rate < 0.65
 
         avg_points = perf.get_avg_points_per_league()
         assert 1200 < avg_points < 1400
 
-        # Verify serialization
         data = perf.to_dict()
         assert data['num_simulations'] == 10
 
 
-# ============================================================================
-# NEW: Per-Week Range Tracking Tests
-# ============================================================================
 
 class TestGetWeekRange:
     """Test get_week_range() function."""
@@ -560,7 +539,6 @@ class TestAddWeekResults:
         """add_week_results should update overall totals."""
         perf = ConfigPerformance("config_001", {})
 
-        # 5 wins, 3 losses across weeks 1-8
         week_results = [
             (1, True, 120.0),
             (2, True, 110.0),
@@ -584,30 +562,25 @@ class TestAddWeekResults:
         perf = ConfigPerformance("config_001", {})
 
         week_results = [
-            # Week 1-5 range: 3 wins, 2 losses
             (1, True, 120.0),
             (2, True, 110.0),
             (3, False, 90.0),
             (4, True, 130.0),
             (5, False, 85.0),
-            # Week 6-11 range: 2 wins, 2 losses
             (6, True, 125.0),
             (7, False, 95.0),
             (8, True, 115.0),
             (9, False, 100.0),
-            # Week 12-17 range: 1 win, 1 loss
             (12, True, 140.0),
             (13, False, 80.0),
         ]
 
         perf.add_week_results(week_results)
 
-        # Check per-range wins
         assert perf.week_range_wins["1-5"] == 3
         assert perf.week_range_wins["6-9"] == 2
         assert perf.week_range_wins["10-13"] == 1
 
-        # Check per-range losses
         assert perf.week_range_losses["1-5"] == 2
         assert perf.week_range_losses["6-9"] == 2
         assert perf.week_range_losses["10-13"] == 1
@@ -616,14 +589,12 @@ class TestAddWeekResults:
         """Adding multiple leagues should accumulate results."""
         perf = ConfigPerformance("config_001", {})
 
-        # League 1
         perf.add_week_results([
             (1, True, 100.0),
             (2, False, 90.0),
             (6, True, 110.0),
         ])
 
-        # League 2
         perf.add_week_results([
             (1, False, 80.0),
             (2, True, 120.0),
@@ -674,7 +645,6 @@ class TestGetWinRateForRange:
             (4, True, 120.0),
             (5, False, 85.0),
         ])
-        # 3 wins, 2 losses = 60%
         assert perf.get_win_rate_for_range("1-5") == pytest.approx(0.6)
 
 
@@ -685,27 +655,21 @@ class TestWeekRangePerformanceIntegration:
         """Test tracking a full 16-week season."""
         perf = ConfigPerformance("config_001", {})
 
-        # Simulate a 10-6 season with varying performance by range
         week_results = [
-            # Weeks 1-5: 4-1 (strong start)
             (1, True, 120.0), (2, True, 115.0), (3, True, 125.0),
             (4, False, 90.0), (5, True, 130.0),
-            # Weeks 6-11: 3-3 (mid-season slump)
             (6, True, 110.0), (7, False, 95.0), (8, True, 105.0),
             (9, False, 88.0), (10, True, 118.0), (11, False, 92.0),
-            # Weeks 12-16: split between 10-13 and 14-17 ranges
             (12, True, 140.0), (13, False, 85.0), (14, True, 135.0),
             (15, False, 82.0), (16, True, 142.0),
         ]
 
         perf.add_week_results(week_results)
 
-        # Overall: 10-6
         assert perf.total_wins == 10
         assert perf.total_losses == 6
         assert perf.get_win_rate() == pytest.approx(10/16)
 
-        # Per-range performance with new 4-range split
         assert perf.get_win_rate_for_range("1-5") == pytest.approx(4/5)  # 80%
         assert perf.get_win_rate_for_range("6-9") == pytest.approx(2/4)  # 50% (weeks 6-9: 2 wins, 2 losses)
         assert perf.get_win_rate_for_range("10-13") == pytest.approx(2/4)  # 50% (weeks 10-13: 2 wins, 2 losses)
@@ -716,35 +680,28 @@ class TestWeekRangePerformanceIntegration:
         config_a = ConfigPerformance("config_a", {})
         config_b = ConfigPerformance("config_b", {})
 
-        # Config A: Strong early, weak late
         config_a.add_week_results([
             (1, True, 120.0), (2, True, 115.0), (3, True, 125.0),
-            (4, True, 110.0), (5, True, 130.0),  # 5-0 in weeks 1-5
+            (4, True, 110.0), (5, True, 130.0),
             (12, False, 85.0), (13, False, 80.0), (14, False, 75.0),
-            (15, False, 70.0), (16, False, 65.0),  # 0-5 in weeks 12-16
+            (15, False, 70.0), (16, False, 65.0),
         ])
 
-        # Config B: Weak early, strong late
         config_b.add_week_results([
             (1, False, 85.0), (2, False, 80.0), (3, False, 75.0),
-            (4, False, 70.0), (5, False, 65.0),  # 0-5 in weeks 1-5
+            (4, False, 70.0), (5, False, 65.0),
             (12, True, 140.0), (13, True, 135.0), (14, True, 145.0),
-            (15, True, 150.0), (16, True, 155.0),  # 5-0 in weeks 12-16
+            (15, True, 150.0), (16, True, 155.0),
         ])
 
-        # Same overall record (5-5 each)
         assert config_a.get_win_rate() == config_b.get_win_rate()
 
-        # But different range performance
         assert config_a.get_win_rate_for_range("1-5") == 1.0
         assert config_b.get_win_rate_for_range("1-5") == 0.0
         assert config_a.get_win_rate_for_range("14-17") == 0.0
         assert config_b.get_win_rate_for_range("14-17") == 1.0
 
 
-# ============================================================================
-# NEW: Horizon Constants Tests (6-File Structure Support)
-# ============================================================================
 
 class TestHorizonsConstant:
     """Test HORIZONS constant for 6-file structure support"""
@@ -841,9 +798,10 @@ class TestHorizonsAndFilesCompatibility:
             filename = HORIZON_FILES[horizon]
             files.append(filename)
 
-        # Should have 4 unique files
         assert len(files) == 4
         assert 'week1-5.json' in files
         assert 'week6-9.json' in files
         assert 'week10-13.json' in files
         assert 'week14-17.json' in files
+
+

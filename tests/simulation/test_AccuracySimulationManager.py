@@ -15,10 +15,6 @@ import shutil
 from simulation.accuracy.AccuracySimulationManager import AccuracySimulationManager
 
 
-# Test parameter order - mirrors the PARAMETER_ORDER in run_accuracy_simulation.py
-# These affect how projected points are calculated (prediction params)
-# NOTE: PLAYER_RATING_SCORING_WEIGHT is excluded because the consuming mode
-# (StarterHelperModeManager) has player_rating=False, so it has no effect.
 TEST_PARAMETER_ORDER = [
     'NORMALIZATION_MAX_SCALE',
     'TEAM_QUALITY_SCORING_WEIGHT',
@@ -55,7 +51,6 @@ class TestAccuracyParameterOrder:
 
     def test_parameter_order_excludes_strategy_params(self):
         """Test that test parameter order excludes win-rate strategy params."""
-        # These are strategy params optimized by win-rate sim, not accuracy
         strategy_params = [
             'SAME_POS_BYE_WEIGHT',
             'DIFF_POS_BYE_WEIGHT',
@@ -69,8 +64,6 @@ class TestAccuracyParameterOrder:
 
     def test_parameter_order_excludes_unused_params(self):
         """Test that params disabled in consuming mode are excluded."""
-        # PLAYER_RATING_SCORING_WEIGHT is excluded because StarterHelperModeManager
-        # has player_rating=False, so optimizing it has no effect
         unused_params = [
             'PLAYER_RATING_SCORING_WEIGHT',
         ]
@@ -108,19 +101,16 @@ class TestAccuracySimulationManagerInit:
         data_folder = tmp_path / "sim_data"
         data_folder.mkdir()
 
-        # Create a season folder
         season_folder = data_folder / "2024"
         season_folder.mkdir()
 
         weeks_folder = season_folder / "weeks"
         weeks_folder.mkdir()
 
-        # Create week folders with minimal files
         for week in range(1, 18):
             week_folder = weeks_folder / f"week_{week:02d}"
             week_folder.mkdir()
 
-            # Create minimal CSV files
             (week_folder / "players.csv").write_text("id,name\n1,Player1\n")
             (week_folder / "players_projected.csv").write_text("id,name\n1,Player1\n")
 
@@ -193,7 +183,6 @@ class TestAccuracySimulationManagerInit:
         tmp_path
     ):
         """Test discovery of multiple seasons."""
-        # Add another season
         season_2023 = mock_data_folder / "2023"
         season_2023.mkdir()
         (season_2023 / "weeks").mkdir()
@@ -283,7 +272,6 @@ class TestAccuracySimulationManagerSignalHandlers:
 
         manager._setup_signal_handlers()
 
-        # Verify signal.signal was called for SIGINT and SIGTERM
         assert mock_signal.call_count >= 2
 
 
@@ -293,13 +281,11 @@ class TestAccuracySimulationManagerDataLoading:
     @pytest.fixture
     def manager_with_data(self, tmp_path):
         """Create manager with mock data folder."""
-        # Create config
         config = {'config_name': 'test'}
         config_path = tmp_path / "baseline.json"
         with open(config_path, 'w') as f:
             json.dump(config, f)
 
-        # Create data folder
         data_folder = tmp_path / "sim_data"
         data_folder.mkdir()
 
@@ -308,7 +294,7 @@ class TestAccuracySimulationManagerDataLoading:
         weeks = season / "weeks"
         weeks.mkdir()
 
-        for week in [1, 2, 5]:  # Only some weeks
+        for week in [1, 2, 5]:
             week_folder = weeks / f"week_{week:02d}"
             week_folder.mkdir()
             (week_folder / "players.csv").write_text("id,name\n1,Test\n")
@@ -346,13 +332,11 @@ class TestAccuracySimulationManagerDataLoading:
 
     def test_load_season_data_returns_two_folders(self, tmp_path):
         """Test that _load_season_data returns two different folders (week_N and week_N+1)."""
-        # Create config
         config = {'config_name': 'test'}
         config_path = tmp_path / "baseline.json"
         with open(config_path, 'w') as f:
             json.dump(config, f)
 
-        # Create data folder with week_01, week_02, week_17, week_18
         data_folder = tmp_path / "sim_data"
         data_folder.mkdir()
         season = data_folder / "2024"
@@ -378,31 +362,27 @@ class TestAccuracySimulationManagerDataLoading:
 
         season_path = manager.available_seasons[0]
 
-        # Test week 1: should return (week_01, week_02)
         projected, actual = manager._load_season_data(season_path, 1)
         assert projected is not None
         assert actual is not None
         assert projected.name == "week_01"
         assert actual.name == "week_02"
-        assert projected != actual  # Different folders
+        assert projected != actual
 
-        # Test week 17: should return (week_17, week_18)
         projected, actual = manager._load_season_data(season_path, 17)
         assert projected is not None
         assert actual is not None
         assert projected.name == "week_17"
         assert actual.name == "week_18"
-        assert projected != actual  # Different folders
+        assert projected != actual
 
     def test_load_season_data_handles_missing_actual_folder(self, tmp_path):
         """Test that _load_season_data handles missing week_N+1 folder gracefully."""
-        # Create config
         config = {'config_name': 'test'}
         config_path = tmp_path / "baseline.json"
         with open(config_path, 'w') as f:
             json.dump(config, f)
 
-        # Create data folder with week_18 but NO week_19
         data_folder = tmp_path / "sim_data"
         data_folder.mkdir()
         season = data_folder / "2024"
@@ -412,7 +392,6 @@ class TestAccuracySimulationManagerDataLoading:
 
         week_18 = weeks / "week_18"
         week_18.mkdir()
-        # week_19 intentionally NOT created
 
         output_dir = tmp_path / "output"
 
@@ -428,35 +407,28 @@ class TestAccuracySimulationManagerDataLoading:
 
         season_path = manager.available_seasons[0]
 
-        # Test missing actual folder (week_19) - should fallback to projected folder
         projected, actual = manager._load_season_data(season_path, 18)
 
-        # Should return (week_18, week_18) as fallback (Task 11 alignment with Win Rate Sim)
         assert projected is not None
         assert actual is not None
         assert projected.name == "week_18"
         assert actual.name == "week_18"
-        assert projected == actual  # Same folder used for both (fallback)
+        assert projected == actual
 
-        # No exception should be raised (test passes if we get here)
-        # Note: Warning IS logged (visible in test output), but logger not captured by caplog
 
     def test_load_season_data_handles_missing_projected_folder(self, tmp_path):
         """Test that _load_season_data handles missing week_N folder gracefully."""
-        # Create config
         config = {'config_name': 'test'}
         config_path = tmp_path / "baseline.json"
         with open(config_path, 'w') as f:
             json.dump(config, f)
 
-        # Create data folder with NO week_01
         data_folder = tmp_path / "sim_data"
         data_folder.mkdir()
         season = data_folder / "2024"
         season.mkdir()
         weeks = season / "weeks"
         weeks.mkdir()
-        # week_01 intentionally NOT created
 
         output_dir = tmp_path / "output"
 
@@ -472,26 +444,20 @@ class TestAccuracySimulationManagerDataLoading:
 
         season_path = manager.available_seasons[0]
 
-        # Test missing projected folder (week_01) - should return (None, None) gracefully
         projected, actual = manager._load_season_data(season_path, 1)
 
-        # Should return (None, None)
         assert projected is None
         assert actual is None
 
-        # No exception should be raised (test passes if we get here)
-        # Note: Warning IS logged (visible in test output), but logger not captured by caplog
 
 
     def test_evaluate_config_weekly_uses_two_player_managers(self, tmp_path):
         """Test that _evaluate_config_weekly creates TWO PlayerManager instances (projected and actual)."""
-        # Create config
         config = {'config_name': 'test', 'parameters': {}}
         config_path = tmp_path / "baseline.json"
         with open(config_path, 'w') as f:
             json.dump(config, f)
 
-        # Create data folder with week_01 and week_02
         data_folder = tmp_path / "sim_data"
         data_folder.mkdir()
         season = data_folder / "2024"
@@ -505,7 +471,6 @@ class TestAccuracySimulationManagerDataLoading:
 
         output_dir = tmp_path / "output"
 
-        # Mock the accuracy calculator methods
         mock_calc = MagicMock()
         mock_calc.calculate_weekly_mae.return_value = MagicMock(mae=5.0)
         mock_calc.calculate_ranking_metrics_for_season.return_value = ({}, {})
@@ -522,7 +487,6 @@ class TestAccuracySimulationManagerDataLoading:
 
         season_path = manager.available_seasons[0]
 
-        # Mock _create_player_manager to track calls
         mock_projected_mgr = MagicMock()
         mock_actual_mgr = MagicMock()
         mock_projected_mgr.players = []
@@ -539,21 +503,16 @@ class TestAccuracySimulationManagerDataLoading:
 
         with patch.object(manager, '_create_player_manager', side_effect=create_manager_side_effect) as mock_create:
             with patch.object(manager, '_cleanup_player_manager') as mock_cleanup:
-                # Call _evaluate_config_weekly for week 1
                 result = manager._evaluate_config_weekly(config, (1, 1))
 
-        # Verify _create_player_manager called TWICE (once for projected, once for actual)
         assert mock_create.call_count == 2, f"Expected 2 calls to _create_player_manager, got {mock_create.call_count}"
 
-        # Verify first call used week_01 (projected_path)
         first_call_folder = mock_create.call_args_list[0][0][1]
         assert first_call_folder.name == "week_01", f"First call should use week_01, got {first_call_folder.name}"
 
-        # Verify second call used week_02 (actual_path)
         second_call_folder = mock_create.call_args_list[1][0][1]
         assert second_call_folder.name == "week_02", f"Second call should use week_02, got {second_call_folder.name}"
 
-        # Verify both managers cleaned up
         assert mock_cleanup.call_count == 2, f"Expected 2 cleanup calls, got {mock_cleanup.call_count}"
 
 
@@ -563,13 +522,11 @@ class TestAccuracySimulationManagerResumeState:
     @pytest.fixture
     def manager_with_output(self, tmp_path):
         """Create manager with output directory for resume testing."""
-        # Create config
         config = {'config_name': 'test'}
         config_path = tmp_path / "baseline.json"
         with open(config_path, 'w') as f:
             json.dump(config, f)
 
-        # Create data folder
         data_folder = tmp_path / "sim_data"
         data_folder.mkdir()
         season = data_folder / "2024"
@@ -601,7 +558,6 @@ class TestAccuracySimulationManagerResumeState:
 
     def test_detect_resume_with_valid_folder(self, manager_with_output):
         """Test resume detection with valid intermediate folder."""
-        # Create an intermediate folder with a valid config file
         intermediate = manager_with_output.output_dir / "accuracy_intermediate_02_TEAM_QUALITY_SCORING_WEIGHT"
         intermediate.mkdir()
         (intermediate / "week1-5.json").write_text('{"config_name": "test", "parameters": {}, "performance_metrics": {"mae": 10.5}}')
@@ -609,12 +565,11 @@ class TestAccuracySimulationManagerResumeState:
         should_resume, start_idx, path = manager_with_output._detect_resume_state('weekly')
 
         assert should_resume is True
-        assert start_idx == 3  # Next parameter after index 2
+        assert start_idx == 3
         assert path == intermediate
 
     def test_detect_resume_with_weekly_prefix(self, manager_with_output):
         """Test resume detection with weekly prefix in folder name."""
-        # Create folder with week range prefix
         intermediate = manager_with_output.output_dir / "accuracy_intermediate_01_week1-5_TEAM_QUALITY_SCORING_WEIGHT"
         intermediate.mkdir()
         (intermediate / "week1-5.json").write_text('{"config_name": "test", "parameters": {}, "performance_metrics": {"mae": 10.5}}')
@@ -622,14 +577,12 @@ class TestAccuracySimulationManagerResumeState:
         should_resume, start_idx, path = manager_with_output._detect_resume_state('weekly')
 
         assert should_resume is True
-        assert start_idx == 2  # Next parameter after index 1
+        assert start_idx == 2
 
     def test_detect_resume_incomplete_folder(self, manager_with_output):
         """Test resume detection skips folders without best.json files."""
-        # Create folder without best.json
         intermediate = manager_with_output.output_dir / "accuracy_intermediate_01_TEAM_QUALITY_SCORING_WEIGHT"
         intermediate.mkdir()
-        # No *_best.json file
 
         should_resume, start_idx, path = manager_with_output._detect_resume_state('weekly')
 
@@ -639,7 +592,6 @@ class TestAccuracySimulationManagerResumeState:
 
     def test_detect_resume_all_params_complete(self, manager_with_output):
         """Test resume detection when all parameters are complete."""
-        # Create folder for last parameter
         last_param = TEST_PARAMETER_ORDER[-1]
         last_idx = len(TEST_PARAMETER_ORDER) - 1
         intermediate = manager_with_output.output_dir / f"accuracy_intermediate_{last_idx:02d}_{last_param}"
@@ -648,26 +600,22 @@ class TestAccuracySimulationManagerResumeState:
 
         should_resume, start_idx, path = manager_with_output._detect_resume_state('weekly')
 
-        # All params complete, should start fresh
         assert should_resume is False
         assert start_idx == 0
 
     def test_detect_resume_ros_mode(self, manager_with_output):
         """Test resume detection in ROS mode."""
-        # Create ROS-style intermediate folder (no week prefix)
         intermediate = manager_with_output.output_dir / "accuracy_intermediate_03_TEAM_QUALITY_MIN_WEEKS"
         intermediate.mkdir()
-        # Use standard config file (week1-5.json for week_1_5 mode)
         (intermediate / "week1-5.json").write_text('{"config_name": "test", "parameters": {}, "performance_metrics": {"mae": 10.5}}')
 
         should_resume, start_idx, path = manager_with_output._detect_resume_state('ros')
 
         assert should_resume is True
-        assert start_idx == 4  # Next parameter after index 3
+        assert start_idx == 4
 
     def test_detect_resume_invalid_folder_name(self, manager_with_output):
         """Test resume detection ignores folders with invalid names."""
-        # Create folder with invalid name format
         invalid = manager_with_output.output_dir / "accuracy_intermediate_invalid"
         invalid.mkdir()
         (invalid / "week1-5.json").write_text('{"config_name": "test", "parameters": {}, "performance_metrics": {"mae": 10.5}}')
@@ -679,7 +627,6 @@ class TestAccuracySimulationManagerResumeState:
 
     def test_detect_resume_unknown_param(self, manager_with_output):
         """Test resume detection ignores folders with unknown parameter names."""
-        # Create folder with unknown parameter
         unknown = manager_with_output.output_dir / "accuracy_intermediate_01_UNKNOWN_PARAM"
         unknown.mkdir()
         (unknown / "week1-5_best.json").write_text('{"mae": 10.5}')
@@ -692,3 +639,5 @@ class TestAccuracySimulationManagerResumeState:
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
+
+
