@@ -32,7 +32,6 @@ class TestE2EExecution:
         if logs_dir.exists():
             shutil.rmtree(logs_dir)
         yield
-        # Cleanup after test
         if logs_dir.exists():
             shutil.rmtree(logs_dir)
 
@@ -43,29 +42,23 @@ class TestE2EExecution:
         Links to: R3 (get_logger integration)
         Priority: HIGH
         """
-        # Setup logger (simulating what main() does)
         logger = setup_logger(
             name="schedule_fetcher",
             level="INFO",
-            log_to_file=False,  # Console only for this test
+            log_to_file=False,
             log_format="standard"
         )
 
-        # Create ScheduleFetcher instance
         temp_output = project_root / "data" / "test_schedule.csv"
         fetcher = ScheduleFetcher(temp_output)
 
-        # Verify logger was retrieved successfully
         assert fetcher.logger is not None, "ScheduleFetcher.logger should not be None"
 
-        # Verify logger name is correct
         assert fetcher.logger.name == "schedule_fetcher", \
             "ScheduleFetcher.logger should have name 'schedule_fetcher'"
 
-        # Verify ScheduleFetcher can log messages successfully
         try:
             fetcher.logger.info("Test message from integration test")
-            # If we get here, logging worked
             assert True
         except Exception as e:
             pytest.fail(f"ScheduleFetcher.logger.info() failed: {e}")
@@ -78,14 +71,10 @@ class TestE2EExecution:
         Priority: MEDIUM
         Note: May need to mock or use test data to trigger parse errors
         """
-        # This test verifies the mechanism works, even if no warnings occur
-        # We'll check that IF a warning is logged, it appears with correct level
 
-        # Create temp log file
         logs_dir = project_root / "logs" / "schedule_fetcher"
         logs_dir.mkdir(parents=True, exist_ok=True)
 
-        # Setup logger with file output
         logger = setup_logger(
             name="schedule_fetcher",
             level="INFO",
@@ -93,22 +82,17 @@ class TestE2EExecution:
             log_format="standard"
         )
 
-        # Create ScheduleFetcher and trigger a warning
         temp_output = project_root / "data" / "test_schedule.csv"
         fetcher = ScheduleFetcher(temp_output)
 
-        # Manually trigger a WARNING log (simulating parse error)
         fetcher.logger.warning("Error parsing event in week 1: Test error")
 
-        # Find log file
         log_files = list(logs_dir.glob("schedule_fetcher-*.log"))
         assert len(log_files) > 0, "Log file should exist"
 
-        # Read log content
         with open(log_files[0], 'r') as f:
             log_content = f.read()
 
-        # Verify WARNING appears in log
         assert "WARNING" in log_content, "Log should contain WARNING level entries"
         assert "Error parsing event" in log_content, \
             "Log should contain parse error message"
@@ -135,7 +119,6 @@ class TestEdgeCases:
         Priority: HIGH
         Rationale: Argparse is synchronous, must verify no async/await conflicts
         """
-        # Run script and verify it completes without async/await errors
         script_path = project_root / "run_schedule_fetcher.py"
         result = subprocess.run(
             [sys.executable, str(script_path), '--enable-log-file'],
@@ -144,17 +127,14 @@ class TestEdgeCases:
             timeout=60
         )
 
-        # Check for async-related errors
         stderr_lower = result.stderr.lower()
         stdout_lower = result.stdout.lower()
 
-        # Verify no async/await errors
         assert "coroutine" not in stderr_lower, \
             "Should not have 'coroutine not awaited' errors"
         assert "asyncio" not in stderr_lower or "error" not in stderr_lower, \
             "Should not have asyncio-related errors"
 
-        # Verify script completed (even if ESPN API failed, should not crash on async issues)
         assert result.returncode in [0, 1], \
             f"Script should complete gracefully, got return code {result.returncode}"
 
@@ -166,10 +146,7 @@ class TestEdgeCases:
         Priority: LOW
         Note: Feature 01 tests cover rotation; this verifies integration
         """
-        # This test verifies rotation mechanism exists
-        # We don't force >500 lines (would require mocking), but verify rotation config
 
-        # Setup logger with file output
         logger = setup_logger(
             name="schedule_fetcher",
             level="DEBUG",  # More verbose to increase line count
@@ -177,10 +154,8 @@ class TestEdgeCases:
             log_format="standard"
         )
 
-        # Verify logger has handlers
         assert len(logger.handlers) > 0, "Logger should have handlers"
 
-        # Find file handler
         file_handler = None
         for handler in logger.handlers:
             if hasattr(handler, 'baseFilename'):
@@ -188,12 +163,10 @@ class TestEdgeCases:
                 break
 
         if file_handler:
-            # Verify it's a LineBasedRotatingHandler (or RotatingFileHandler)
             handler_class = file_handler.__class__.__name__
             assert "Rotating" in handler_class or "Handler" in handler_class, \
                 f"File handler should support rotation, got {handler_class}"
 
-        # Verify log directory structure
         logs_dir = project_root / "logs" / "schedule_fetcher"
         assert logs_dir.exists(), "Log directory should exist"
 
@@ -219,7 +192,6 @@ class TestConfiguration:
         Priority: HIGH
         Rationale: Critical UX requirement - must default to console only
         """
-        # Run script without any CLI arguments
         script_path = project_root / "run_schedule_fetcher.py"
         result = subprocess.run(
             [sys.executable, str(script_path)],
@@ -228,17 +200,16 @@ class TestConfiguration:
             timeout=60
         )
 
-        # Verify no log files created
         logs_dir = project_root / "logs" / "schedule_fetcher"
         if logs_dir.exists():
             log_files = list(logs_dir.glob("schedule_fetcher-*.log"))
             assert len(log_files) == 0, \
                 "No log files should be created by default (file logging OFF)"
 
-        # Verify console logging active (stderr should have output)
-        # Even if script fails, should have some console output
         total_output = len(result.stderr) + len(result.stdout)
         assert total_output > 0, "Console logging should be active by default"
 
 if __name__ == '__main__':
     pytest.main([__file__, '-v'])
+
+

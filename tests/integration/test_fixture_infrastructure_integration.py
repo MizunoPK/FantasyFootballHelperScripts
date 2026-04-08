@@ -129,3 +129,5 @@ class TestRunAllTestsChanges:
         run_all_tests = project_root / "tests" / "run_all_tests.py"
         content = run_all_tests.read_text()
         assert "returncode in [0, 5]" in content
+
+

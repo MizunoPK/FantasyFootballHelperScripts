@@ -23,7 +23,6 @@ from simulation.win_rate.ParallelLeagueRunner import ParallelLeagueRunner
 from simulation.shared.ResultsManager import ResultsManager
 from simulation.shared.ConfigPerformance import ConfigPerformance
 
-# Standard parameter order for testing
 TEST_PARAMETER_ORDER = [
     'NORMALIZATION_MAX_SCALE',
     'SAME_POS_BYE_WEIGHT',
@@ -55,23 +54,18 @@ def create_mock_historical_season(data_folder: Path, year: str = "2024") -> None
     season_folder = data_folder / year
     season_folder.mkdir(parents=True, exist_ok=True)
 
-    # Create required root files
     (season_folder / "season_schedule.csv").write_text("week,home,away\n1,KC,DET\n")
     (season_folder / "game_data.csv").write_text("week,home,away\n1,KC,DET\n")
 
-    # Create team_data folder
     (season_folder / "team_data").mkdir(exist_ok=True)
     (season_folder / "team_data" / "KC.csv").write_text("week,points\n1,30\n")
 
-    # Create weeks folder with all 17 weeks
     weeks_folder = season_folder / "weeks"
     weeks_folder.mkdir(exist_ok=True)
     for week_num in range(1, 18):
         week_folder = weeks_folder / f"week_{week_num:02d}"
         week_folder.mkdir(exist_ok=True)
 
-        # Create 6 position JSON files (new JSON-based format)
-        # Each file contains a list of players with 17-element arrays for points
         position_files = {
             'qb_data.json': [{"id": 1, "name": "Test QB", "position": "QB", "team": "KC", "drafted_by": "", "locked": False,
                               "projected_points": [20.0]*17, "actual_points": [18.0]*17}],
@@ -97,10 +91,8 @@ def temp_simulation_data(tmp_path):
     data_folder = tmp_path / "sim_data"
     data_folder.mkdir()
 
-    # Create mock historical season folder structure
     create_mock_historical_season(data_folder)
 
-    # Create minimal players_projected.csv with correct column names
     players_csv = data_folder / "players_projected.csv"
     players_csv.write_text("""id,name,position,team,bye_week,fantasy_points,injury_status,average_draft_position
 1,Patrick Mahomes,QB,KC,7,350.5,ACTIVE,1.2
@@ -113,7 +105,6 @@ def temp_simulation_data(tmp_path):
 8,Mark Andrews,TE,BAL,13,210.3,ACTIVE,5.1
 """)
 
-    # Create minimal players_actual.csv
     players_actual_csv = data_folder / "players_actual.csv"
     players_actual_csv.write_text("""Name,Position,Team,Week 1,Week 2,Week 3
 Patrick Mahomes,QB,KC,25.5,22.3,28.1
@@ -122,7 +113,6 @@ Christian McCaffrey,RB,SF,22.1,19.5,25.2
 Travis Kelce,TE,KC,12.3,10.2,15.1
 """)
 
-    # Create minimal teams_week_1.csv
     teams_week_1_csv = data_folder / "teams_week_1.csv"
     teams_week_1_csv.write_text("""Team Name,Position,Player Name
 TestTeam,QB,
@@ -145,10 +135,8 @@ def create_test_config_folder(tmp_path: Path) -> Path:
     config_folder = tmp_path / "test_configs"
     config_folder.mkdir(parents=True, exist_ok=True)
 
-    # Try to load from actual data/configs folder if it exists
     actual_configs = project_root / "data" / "configs"
     if actual_configs.exists():
-        # Copy from real configs (5-file structure)
         for config_file in ['league_config.json', 'week1-5.json', 'week6-9.json', 'week10-13.json', 'week14-17.json']:
             src = actual_configs / config_file
             if src.exists():
@@ -158,7 +146,6 @@ def create_test_config_folder(tmp_path: Path) -> Path:
                     json.dump(data, f, indent=2)
         return config_folder
 
-    # Fallback: create minimal config structure
     base_config = {
         'config_name': 'test_baseline',
         'description': 'Test base config',
@@ -220,7 +207,6 @@ def create_test_config_folder(tmp_path: Path) -> Path:
         'LOCATION_MODIFIERS': {'HOME': 2.0, 'AWAY': -2.0, 'INTERNATIONAL': -5.0},
     }
 
-    # Create 4 week files
     for week_file in ['week1-5.json', 'week6-9.json', 'week10-13.json', 'week14-17.json']:
         week_config = {
             'config_name': f'Test {week_file}',
@@ -248,19 +234,16 @@ class TestConfigGeneratorIntegration:
 
         assert generator is not None
         assert hasattr(generator, 'baseline_configs')  # New API has baseline_configs (plural)
-        assert len(generator.baseline_configs) == 4  # 4 weekly horizons
+        assert len(generator.baseline_configs) == 4
 
     def test_config_generator_creates_combinations(self, baseline_config):
         """Test config generator creates horizon test values"""
         generator = ConfigGenerator(baseline_config, num_test_values=1)
 
-        # New API: generate_horizon_test_values returns dict with 'shared' or horizon keys
-        # Test a BASE_CONFIG_PARAM (shared across horizons)
         test_values_shared = generator.generate_horizon_test_values('SAME_POS_BYE_WEIGHT')
         assert 'shared' in test_values_shared
         assert len(test_values_shared['shared']) >= 1  # At least baseline + test values
 
-        # Test a WEEK_SPECIFIC_PARAM (per-horizon test values)
         test_values_horizon = generator.generate_horizon_test_values('NORMALIZATION_MAX_SCALE')
         assert '1-5' in test_values_horizon
         assert '6-9' in test_values_horizon
@@ -270,10 +253,8 @@ class TestConfigGeneratorIntegration:
         """Test generated config dicts have all required fields"""
         generator = ConfigGenerator(baseline_config, num_test_values=1)
 
-        # New API: get_config_for_horizon returns complete config
         config_dict = generator.get_config_for_horizon('1-5', 'NORMALIZATION_MAX_SCALE', 0)
 
-        # Verify config structure
         assert "parameters" in config_dict
         assert "NORMALIZATION_MAX_SCALE" in config_dict["parameters"]
         assert "SAME_POS_BYE_WEIGHT" in config_dict["parameters"]
@@ -295,7 +276,7 @@ class TestSimulationManagerIntegration:
             data_folder=temp_simulation_data,
             parameter_order=TEST_PARAMETER_ORDER,
             num_test_values=2,
-            auto_update_league_config=False  # Disable to avoid modifying real config
+            auto_update_league_config=False
         )
 
         assert manager is not None
@@ -329,30 +310,25 @@ class TestResultsManagerIntegration:
         """Test results manager can register configs"""
         manager = ResultsManager()
 
-        # Load config from folder
         with open(baseline_config / 'league_config.json') as f:
             config_dict = json.load(f)
 
         manager.register_config("test_config_1", config_dict)
 
-        # Should be registered (no exception)
         assert manager is not None
 
     def test_results_manager_records_results(self, baseline_config):
         """Test results manager can record simulation results"""
         manager = ResultsManager()
 
-        # Load and register config from folder
         with open(baseline_config / 'league_config.json') as f:
             config_dict = json.load(f)
 
         manager.register_config("test_config_1", config_dict)
 
-        # Record some results
         manager.record_result("test_config_1", wins=10, losses=4, points=1500.5)
         manager.record_result("test_config_1", wins=9, losses=5, points=1480.2)
 
-        # Get best config
         best = manager.get_best_config()
 
         assert best is not None
@@ -365,7 +341,6 @@ class TestConfigPerformanceIntegration:
 
     def test_config_performance_initialization(self, baseline_config):
         """Test ConfigPerformance initializes correctly"""
-        # Load config from folder
         with open(baseline_config / 'league_config.json') as f:
             config_dict = json.load(f)
 
@@ -376,7 +351,6 @@ class TestConfigPerformanceIntegration:
 
     def test_config_performance_adds_results(self, baseline_config):
         """Test ConfigPerformance can add simulation results"""
-        # Load config from folder
         with open(baseline_config / 'league_config.json') as f:
             config_dict = json.load(f)
 
@@ -391,7 +365,6 @@ class TestConfigPerformanceIntegration:
 
     def test_config_performance_calculates_win_rate(self, baseline_config):
         """Test ConfigPerformance calculates win rate correctly"""
-        # Load config from folder
         with open(baseline_config / 'league_config.json') as f:
             config_dict = json.load(f)
 
@@ -401,10 +374,11 @@ class TestConfigPerformanceIntegration:
 
         win_rate = perf.get_win_rate()
 
-        # Win rate should be wins / (wins + losses)
         expected_rate = 10 / (10 + 4)
         assert abs(win_rate - expected_rate) < 0.001
 
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
+
+

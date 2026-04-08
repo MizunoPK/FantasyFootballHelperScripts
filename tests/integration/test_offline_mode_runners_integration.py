@@ -238,3 +238,5 @@ class TestGetFixtureFilename:
         with pytest.raises(ValueError) as exc_info:
             BaseAPIClient._get_fixture_filename(url, {})
         assert "No fixture filename defined for URL" in str(exc_info.value)
+
+

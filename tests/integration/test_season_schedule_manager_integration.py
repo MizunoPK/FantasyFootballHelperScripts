@@ -47,3 +47,5 @@ class TestWeek18ScheduleIntegration:
         remaining = manager.get_remaining_schedule('KC', 17)
         assert 18 in remaining
         assert remaining[18] == 'LV'
+
+

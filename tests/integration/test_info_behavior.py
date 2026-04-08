@@ -15,13 +15,9 @@ Created: 2026-02-11 (Feature 05 S6 Phase 3)
 import pytest
 from pathlib import Path
 
-# Get project root
 project_root = Path(__file__).parent.parent.parent
 
 
-# ============================================================================
-# INFO LOG BEHAVIOR INTEGRATION TESTS (R3.8) - 2 TESTS
-# ============================================================================
 
 class TestINFOLogBehavior:
     """R3.8: Verify INFO logging behavior after quality improvements"""
@@ -33,10 +29,7 @@ class TestINFOLogBehavior:
         simulation modules should still be importable and functional. This
         verifies no syntax errors or import regressions from log changes.
         """
-        # Verify all win_rate modules can be imported successfully
-        # (INFO changes should not break module loading)
 
-        # Import key modules (will fail if syntax errors from INFO changes)
         try:
             from simulation.win_rate.SimulationManager import SimulationManager
             from simulation.win_rate.ParallelLeagueRunner import ParallelLeagueRunner
@@ -49,7 +42,6 @@ class TestINFOLogBehavior:
                 f"Module import failed after INFO changes: {e}"
             )
 
-        # Verify classes are accessible
         assert SimulationManager is not None, (
             "SimulationManager class not found"
         )
@@ -63,34 +55,27 @@ class TestINFOLogBehavior:
         INFO logs should use clear, non-technical language readable by users
         who aren't developers. Verify key user-facing messages are present.
         """
-        # Check SimulationManager for user-friendly INFO messages
         sim_manager_path = project_root / 'simulation' / 'win_rate' / 'SimulationManager.py'
         source = sim_manager_path.read_text()
 
-        # User-friendly phrases that should be in INFO logs
         user_friendly_phrases = [
-            # Initialization and setup
             'Initializing SimulationManager',
             'initialized:',
 
-            # Major phases (not implementation details)
             'STARTING',
             'COMPLETE',
             'SAVING',
 
-            # Progress and results
             'Generated',
             'Registered',
             'configurations',
             'simulations',
             'parameters',
 
-            # Outcomes
             'Saved optimal',
             'Total time:',
             'Win Rate:',
 
-            # Configuration summary
             'workers',
             'configs'
         ]
@@ -100,8 +85,6 @@ class TestINFOLogBehavior:
                 f"User-friendly phrase missing from INFO logs: {phrase}"
             )
 
-        # Technical jargon that should NOT be in INFO logs
-        # (should be in DEBUG or removed entirely)
         technical_jargon = [
             'logger.info(f"Updated all horizon baselines',  # Implementation detail
             'logger.info(f"Saved intermediate folder',  # Internal checkpoint
@@ -113,7 +96,6 @@ class TestINFOLogBehavior:
                 f"Technical jargon should be DEBUG, not INFO: {jargon}"
             )
 
-        # Verify manual_simulation.py has user-friendly script phases
         manual_sim_path = project_root / 'simulation' / 'win_rate' / 'manual_simulation.py'
         manual_source = manual_sim_path.read_text()
 
@@ -129,3 +111,5 @@ class TestINFOLogBehavior:
             assert phase in manual_source, (
                 f"User-friendly script phase missing: {phase}"
             )
+
+

@@ -50,3 +50,5 @@ class TestCompileHistoricalDataMultiYear:
             result = compile_historical_data.main()
         assert mock_run.call_count == 1
         assert result == 1
+
+

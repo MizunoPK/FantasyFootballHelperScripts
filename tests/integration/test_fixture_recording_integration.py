@@ -304,3 +304,5 @@ class TestBaseAPIClientRecording:
         await client._make_request("GET", scoreboard_url, params={"week": 1, "dates": 2025})
 
         assert not list(record_dir.rglob("*.json"))
+
+

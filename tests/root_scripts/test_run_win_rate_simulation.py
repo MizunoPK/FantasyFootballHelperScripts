@@ -8,7 +8,6 @@ for the win rate simulation runner script.
 Author: Kai Mizuno
 """
 
-# Standard library imports
 import argparse
 import inspect
 import re
@@ -17,15 +16,11 @@ import sys
 from pathlib import Path
 from unittest.mock import Mock, MagicMock, patch
 
-# Third-party imports
 import pytest
 
 project_root = Path(__file__).parent.parent.parent
 
 
-# ============================================================================
-# HELPER FUNCTIONS
-# ============================================================================
 
 def create_test_parser():
     """Helper to create argparse parser matching run_win_rate_simulation.py main().
@@ -36,7 +31,6 @@ def create_test_parser():
         description='Win Rate Simulation Runner - Test Parser'
     )
 
-    # --enable-log-file flag (the Feature 05 addition)
     parser.add_argument(
         '--enable-log-file',
         action='store_true',
@@ -44,7 +38,6 @@ def create_test_parser():
         help='Enable logging to file (default: console only)'
     )
 
-    # Common arguments from main parser
     parser.add_argument('--sims', type=int, default=5)
     parser.add_argument('--baseline', type=str, default='')
     parser.add_argument('--output', type=str, default='simulation/simulation_configs')
@@ -53,7 +46,6 @@ def create_test_parser():
     parser.add_argument('--test-values', type=int, default=5)
     parser.add_argument('--use-processes', action='store_true', default=False)
 
-    # Mode subparsers
     subparsers = parser.add_subparsers(dest='mode', required=False)
     subparsers.add_parser('single')
     subparsers.add_parser('full')
@@ -62,9 +54,6 @@ def create_test_parser():
     return parser
 
 
-# ============================================================================
-# TEST CATEGORY 1: CLI FLAG UNIT TESTS (R1.1) - 6 TESTS
-# ============================================================================
 
 class TestWinRateSimulationCLIFlagUnit:
     """Test Category 1: CLI Flag Unit Tests (Task 11)"""
@@ -121,9 +110,6 @@ class TestWinRateSimulationCLIFlagUnit:
         assert enable_log_file_action.default is False
 
 
-# ============================================================================
-# TEST CATEGORY 2: CLI FLAG INTEGRATION TESTS (R1.2) - 8 TESTS
-# ============================================================================
 
 class TestWinRateSimulationCLIFlagIntegration:
     """Test Category 2: CLI Flag Integration Tests (Task 12)"""
@@ -133,7 +119,6 @@ class TestWinRateSimulationCLIFlagIntegration:
         parser = create_test_parser()
         args = parser.parse_args(['--sims', '1', 'single'])
 
-        # Flag should be False when omitted
         assert args.enable_log_file is False
         assert args.mode == 'single'
 
@@ -151,10 +136,7 @@ class TestWinRateSimulationCLIFlagIntegration:
         """R1.2.3: Verify logger name maps to logs/win_rate_simulation/ folder"""
         import run_win_rate_simulation
 
-        # Logger name determines folder: logs/{LOG_NAME}/
         assert run_win_rate_simulation.LOG_NAME == "win_rate_simulation"
-        # When setup_logger(name="win_rate_simulation", log_to_file=True) is called,
-        # LoggingManager creates logs/win_rate_simulation/ folder
 
     def test_enable_log_file_works_in_single_mode(self):
         """R1.2.4: Verify --enable-log-file accepted alongside single mode"""
@@ -181,9 +163,6 @@ class TestWinRateSimulationCLIFlagIntegration:
         assert args.mode == 'iterative'
 
 
-# ============================================================================
-# TEST CATEGORY 3: DEBUG LOG QUALITY - UNIT TESTS (R2) - 12 TESTS
-# ============================================================================
 
 class TestWinRateSimulationDEBUGQualityUnit:
     """Test Category 3: DEBUG Log Quality Unit Tests (Task 13)
@@ -207,9 +186,7 @@ class TestWinRateSimulationDEBUGQualityUnit:
 
         source = inspect.getsource(SimulationManager)
 
-        # Per-folder deletion debug logging should have been removed
         assert 'Deleting intermediate folder' not in source
-        # Per-player validation debug logging should not exist
         assert 'valid player' not in source.lower() or source.count('logger.debug') < 15
 
     def test_simulation_manager_debug_function_entry_selective(self):
@@ -222,14 +199,12 @@ class TestWinRateSimulationDEBUGQualityUnit:
 
         source = inspect.getsource(SimulationManager)
 
-        # Complex methods should retain debug logging
         detect_resume = inspect.getsource(SimulationManager._detect_resume_state)
         assert 'logger.debug' in detect_resume  # Resume logic is complex
 
-        # Validate that _validate_season_data has minimal debug (only result logging)
         validate_method = inspect.getsource(SimulationManager._validate_season_data)
         debug_count = validate_method.count('logger.debug')
-        assert debug_count <= 2  # At most validation result, not per-player
+        assert debug_count <= 2
 
     def test_simulation_manager_debug_data_transformations(self):
         """R2.1.3: Verify data transformations log contextual values
@@ -242,21 +217,18 @@ class TestWinRateSimulationDEBUGQualityUnit:
 
         source = inspect.getsource(SimulationManager)
 
-        # Find all debug call blocks (handling multi-line calls)
         debug_blocks = re.findall(
             r'logger\.debug\([^)]+\)',
             source,
             re.DOTALL
         )
 
-        # Acceptable static messages (conditional branch indicators)
         acceptable_static = [
             'No intermediate folders found',
             'No valid intermediate folders',
         ]
 
         for block in debug_blocks:
-            # Allow f-strings with variables OR acceptable static branch messages
             has_context = 'f"' in block or "f'" in block or '%' in block or '.format' in block
             is_acceptable_static = any(msg in block for msg in acceptable_static)
             assert has_context or is_acceptable_static, \
@@ -272,7 +244,6 @@ class TestWinRateSimulationDEBUGQualityUnit:
 
         detect_resume = inspect.getsource(SimulationManager._detect_resume_state)
 
-        # Should log different conditions: no folders, completed run, valid resume
         assert 'No intermediate folders found' in detect_resume
         assert 'No valid intermediate folders' in detect_resume
         assert 'All parameters complete' in detect_resume
@@ -287,11 +258,9 @@ class TestWinRateSimulationDEBUGQualityUnit:
 
         source = inspect.getsource(SimulationManager)
 
-        # Count debug calls vs method count - ratio should be reasonable
         debug_count = source.count('logger.debug')
         method_count = source.count('def ')
 
-        # Should not have excessive debug logging per method
         if method_count > 0:
             ratio = debug_count / method_count
             assert ratio < 3, f"Too many debug calls per method: {debug_count}/{method_count} = {ratio:.1f}"
@@ -306,12 +275,10 @@ class TestWinRateSimulationDEBUGQualityUnit:
 
         source = inspect.getsource(ParallelLeagueRunner)
 
-        # Per-simulation tight-loop logging should be removed
         assert 'Starting simulation' not in source or 'logger.debug' not in source.split('Starting simulation')[0][-100:]
         assert 'Draft complete for sim' not in source
         assert 'Season complete for sim' not in source
 
-        # Completion summaries should exist
         run_sims = inspect.getsource(ParallelLeagueRunner.run_simulations_for_config)
         assert 'Completed' in run_sims and 'simulations successfully' in run_sims
 
@@ -327,14 +294,12 @@ class TestWinRateSimulationDEBUGQualityUnit:
 
         source = inspect.getsource(SimulatedLeague)
 
-        # Removed per-iteration logging
         assert 'Creating team' not in source or source.count('Creating team') == 0
         assert 'Cached week' not in source
         assert 'Parsed' not in source or 'Parsed' not in [
             line for line in source.split('\n') if 'logger.debug' in line and 'Parsed' in line
         ]
 
-        # Retained summary logging
         assert 'Initializing' in source  # Init summary
         assert 'Draft complete' in source
         assert 'Season complete' in source
@@ -349,7 +314,6 @@ class TestWinRateSimulationDEBUGQualityUnit:
 
         source = inspect.getsource(DraftHelperTeam)
 
-        # Should have exactly 1 debug call (recommendation)
         debug_count = source.count('logger.debug')
         assert debug_count == 1, f"Expected 1 debug call, found {debug_count}"
         assert 'recommends' in source
@@ -383,9 +347,7 @@ class TestWinRateSimulationDEBUGQualityUnit:
         debug_count = source.count('logger.debug')
         assert debug_count == 3, f"Expected 3 debug calls, found {debug_count}"
 
-        # Verify no per-matchup logging
         simulate_method = inspect.getsource(Week.simulate_week)
-        # The for loop body should not contain debug calls
         assert 'team1_won' not in [
             line for line in simulate_method.split('\n')
             if 'logger.debug' in line
@@ -396,11 +358,9 @@ class TestWinRateSimulationDEBUGQualityUnit:
 
         manual_simulation.py has 1 DEBUG call (SimulatedLeague created - internal detail).
         """
-        # Import the module's source file directly
         module_path = project_root / 'simulation' / 'win_rate' / 'manual_simulation.py'
         source = module_path.read_text()
 
-        # Count debug calls (should be exactly 1)
         debug_count = source.count('logger.debug(')
         assert debug_count == 1, f"Expected 1 DEBUG call, found {debug_count}"
 
@@ -422,22 +382,15 @@ class TestWinRateSimulationDEBUGQualityUnit:
             total_debug_calls += count
             files_checked.append((py_file.name, count))
 
-        # After Phase 2 (DEBUG audit): ~26 calls kept from original ~60
-        # After Phase 3 (INFO audit): +13 INFO calls downgraded to DEBUG
-        # Current expected: ~45 calls across all files
         assert total_debug_calls <= 50, (
             f"Too many DEBUG calls remaining ({total_debug_calls}): "
             + ", ".join(f"{name}={count}" for name, count in files_checked if count > 0)
         )
-        # Should still have some debug logging (not all removed)
         assert total_debug_calls >= 40, (
             f"Too few DEBUG calls ({total_debug_calls}) - may have over-removed"
         )
 
 
-# ============================================================================
-# TEST CATEGORY 4: DEBUG LOG QUALITY - INTEGRATION TESTS (R2.8) - 2 TESTS
-# ============================================================================
 
 class TestWinRateSimulationDEBUGQualityIntegration:
     """Test Category 4: DEBUG Log Quality Integration Tests (Task 13)
@@ -446,9 +399,6 @@ class TestWinRateSimulationDEBUGQualityIntegration:
     """
 
 
-# ============================================================================
-# TEST SUMMARY
-# ============================================================================
 
 """
 Test Coverage Summary for Feature 05 (win_rate_sim_logging):
@@ -460,3 +410,5 @@ Category 4: DEBUG Quality Integration Tests (R2.8) - 2 tests
 
 TOTAL: 28 tests (24 active + 4 integration skips)
 """
+
+

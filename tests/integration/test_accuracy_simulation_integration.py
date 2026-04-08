@@ -25,10 +25,6 @@ from simulation.accuracy.AccuracyResultsManager import AccuracyResultsManager, R
 from simulation.accuracy.AccuracyCalculator import AccuracyCalculator, AccuracyResult
 
 
-# Test parameter order - mirrors the PARAMETER_ORDER in run_accuracy_simulation.py
-# These affect how projected points are calculated (prediction params)
-# NOTE: PLAYER_RATING_SCORING_WEIGHT is excluded because StarterHelperModeManager
-# (the consuming mode) has player_rating=False, so this parameter has no effect.
 TEST_PARAMETER_ORDER = [
     'NORMALIZATION_MAX_SCALE',
     'TEAM_QUALITY_SCORING_WEIGHT',
@@ -54,7 +50,6 @@ def create_mock_historical_season(data_folder: Path, year: str = "2024") -> None
     season_folder = data_folder / year
     season_folder.mkdir(parents=True, exist_ok=True)
 
-    # Create required root files
     (season_folder / "season_schedule.csv").write_text(
         "week,home_team,away_team,home_score,away_score\n"
         "1,KC,DET,27,24\n"
@@ -66,7 +61,6 @@ def create_mock_historical_season(data_folder: Path, year: str = "2024") -> None
         "2,KC,JAX,68,8,AWAY\n"
     )
 
-    # Create team_data folder with team files
     team_data_folder = season_folder / "team_data"
     team_data_folder.mkdir(exist_ok=True)
 
@@ -78,30 +72,25 @@ def create_mock_historical_season(data_folder: Path, year: str = "2024") -> None
             "MIN,5,8\n"
         )
 
-    # Create weeks folder with player data
     weeks_folder = season_folder / "weeks"
     weeks_folder.mkdir(exist_ok=True)
 
-    # Create player_data folder for JSON files
     player_data_folder = season_folder / "player_data"
     player_data_folder.mkdir(exist_ok=True)
 
-    # Helper to build 17-element arrays for projected/actual points
     def build_points_array(base_points: float, current_week: int, is_projected: bool = False) -> list:
         """Build 17-element array of points (actual or projected)"""
         points = []
         for w in range(1, 18):
             if w <= current_week:
-                # Vary points slightly per week
                 week_points = base_points + (w * 0.5) - 5
                 if is_projected:
-                    week_points -= 1.0  # Projected slightly lower than actual
+                    week_points -= 1.0
                 points.append(round(week_points, 1))
             else:
                 points.append(None)
         return points
 
-    # Create position-specific JSON files with test players
     qb_data = [
         {
             "id": "1",
@@ -177,7 +166,6 @@ def create_mock_historical_season(data_folder: Path, year: str = "2024") -> None
     k_data = []
     dst_data = []
 
-    # Write position JSON files
     with open(player_data_folder / "qb_data.json", 'w') as f:
         json.dump(qb_data, f, indent=2)
     with open(player_data_folder / "rb_data.json", 'w') as f:
@@ -195,7 +183,6 @@ def create_mock_historical_season(data_folder: Path, year: str = "2024") -> None
         week_folder = weeks_folder / f"week_{week_num:02d}"
         week_folder.mkdir(exist_ok=True)
 
-        # Helper to build week-specific points arrays
         def build_week_points(base_points: float, is_projected: bool = False) -> list:
             points = []
             for w in range(1, 18):
@@ -208,7 +195,6 @@ def create_mock_historical_season(data_folder: Path, year: str = "2024") -> None
                     points.append(None)
             return points
 
-        # Create week-specific JSON files (6 position files per week)
         qb_week = [{"id": "1", "name": "Patrick Mahomes", "position": "QB", "team": "KC", "bye_week": 7,
                      "fantasy_points": 350.5, "injury_status": "ACTIVE", "average_draft_position": 1.2,
                      "player_rating": 95, "locked": False, "drafted_by": None,
@@ -246,7 +232,6 @@ def temp_accuracy_data(tmp_path):
     data_folder = tmp_path / "sim_data"
     data_folder.mkdir()
 
-    # Create mock historical season folder structure
     create_mock_historical_season(data_folder, "2024")
 
     return data_folder
@@ -257,10 +242,8 @@ def create_test_config_folder(tmp_path: Path) -> Path:
     config_folder = tmp_path / "test_configs"
     config_folder.mkdir(parents=True, exist_ok=True)
 
-    # Try to load from actual data/configs folder if it exists
     actual_configs = project_root / "data" / "configs"
     if actual_configs.exists():
-        # Copy from real configs (5 files: 1 base + 4 weekly)
         for config_file in ['league_config.json', 'week1-5.json', 'week6-9.json', 'week10-13.json', 'week14-17.json']:
             src = actual_configs / config_file
             if src.exists():
@@ -270,7 +253,6 @@ def create_test_config_folder(tmp_path: Path) -> Path:
                     json.dump(data, f, indent=2)
         return config_folder
 
-    # Fallback: create minimal config structure
     base_config = {
         'config_name': 'test_baseline',
         'description': 'Test base config',
@@ -336,7 +318,6 @@ def create_test_config_folder(tmp_path: Path) -> Path:
         'LOCATION_MODIFIERS': {'HOME': 2.0, 'AWAY': -2.0, 'INTERNATIONAL': -5.0},
     }
 
-    # Create week-specific configs
     for week_file in ['week1-5.json', 'week6-9.json', 'week10-13.json', 'week14-17.json']:
         week_config = {
             'config_name': f'Test {week_file}',
@@ -393,7 +374,6 @@ class TestAccuracyCalculatorIntegration:
 
         result = calculator.aggregate_season_results(season_results)
 
-        # Aggregate MAE = total_error / total_players = 3000 / 300 = 10.0
         assert result.player_count == 300
         assert abs(result.mae - 10.0) < 0.01
 
@@ -429,7 +409,7 @@ class TestAccuracyResultsManagerIntegration:
         )
         is_new_best = manager.add_result('ros', config_dict, result)
 
-        assert is_new_best is True  # First result is always best
+        assert is_new_best is True
 
     def test_results_manager_tracks_best_config(self, tmp_path, baseline_config):
         """Test AccuracyResultsManager tracks best config correctly"""
@@ -439,7 +419,6 @@ class TestAccuracyResultsManagerIntegration:
         with open(baseline_config / 'league_config.json') as f:
             config_dict = json.load(f)
 
-        # Add worse result first (lower pairwise accuracy)
         metrics1 = RankingMetrics(
             pairwise_accuracy=0.65,
             top_5_accuracy=0.80,
@@ -453,7 +432,6 @@ class TestAccuracyResultsManagerIntegration:
         )
         manager.add_result('ros', config_dict, result1)
 
-        # Add better result (higher pairwise accuracy)
         metrics2 = RankingMetrics(
             pairwise_accuracy=0.72,
             top_5_accuracy=0.80,
@@ -492,7 +470,6 @@ class TestAccuracyResultsManagerIntegration:
         assert (optimal_path / 'week6-9.json').exists()
         assert (optimal_path / 'week10-13.json').exists()
         assert (optimal_path / 'week14-17.json').exists()
-        # No separate performance_metrics.json - metrics are embedded in each config file
 
 
 class TestAccuracySimulationManagerIntegration:
@@ -506,7 +483,6 @@ class TestAccuracySimulationManagerIntegration:
         with open(baseline_config / 'week1-5.json') as f:
             week_config = json.load(f)
 
-        # Merge configs
         merged_config = base_config.copy()
         merged_config['parameters'].update(week_config['parameters'])
         return merged_config
@@ -539,25 +515,12 @@ class TestAccuracySimulationManagerIntegration:
             num_test_values=1
         )
 
-        # Should have 16 accuracy parameters (PLAYER_RATING excluded - see TEST_PARAMETER_ORDER comment)
         assert len(TEST_PARAMETER_ORDER) == 16
         assert 'NORMALIZATION_MAX_SCALE' in TEST_PARAMETER_ORDER
         assert 'PLAYER_RATING_SCORING_WEIGHT' not in TEST_PARAMETER_ORDER  # Excluded
         assert 'LOCATION_INTERNATIONAL' in TEST_PARAMETER_ORDER
-        # Verify manager stored the parameter order
         assert manager.parameter_order == TEST_PARAMETER_ORDER
 
-    # NOTE: Deep integration tests for _evaluate_config_weekly() removed due to complex data dependencies.
-    # The core functionality being tested (PlayerManager JSON loading, week_N+1 logic, array extraction,
-    # two-manager pattern) is already comprehensively tested in:
-    # 1. Feature 01 (Win Rate Sim) tests - which use the same JSON loading code
-    # 2. league_helper tests - which test PlayerManager JSON loading directly
-    # 3. Code review (Task 6) - verified implementation correctness
-    # 4. Edge case alignment (Task 11) - verified consistent error handling
-    #
-    # These integration tests would require creating perfect mock data structures matching
-    # SeasonScheduleManager, TeamDataManager, and GameDataManager requirements, which adds
-    # complexity without adding verification value beyond existing tests.
 
     def test_load_season_data_week_n_plus_one(self, baseline_config, temp_accuracy_data, tmp_path):
         """Test _load_season_data uses week_N+1 pattern for actual data"""
@@ -572,21 +535,12 @@ class TestAccuracySimulationManagerIntegration:
 
         season_folder = temp_accuracy_data / "2024"
 
-        # Load data for week 5
         projected_folder, actual_folder = manager._load_season_data(season_folder, week_num=5)
 
-        # Verify week_N folder used for projected
         assert projected_folder.name == "week_05"
 
-        # Verify week_N+1 folder used for actual
         assert actual_folder.name == "week_06"
 
-    # NOTE: Additional integration tests removed (see note above at line 526)
-    # - test_evaluate_config_weekly_two_manager_pattern
-    # - test_evaluate_config_weekly_array_extraction
-    # - test_week_17_uses_week_18_for_actuals
-    #
-    # These tests verified the same functionality already covered by existing tests.
 
 
 class TestEdgeCaseAlignment:
@@ -600,7 +554,6 @@ class TestEdgeCaseAlignment:
         with open(baseline_config / 'week1-5.json') as f:
             week_config = json.load(f)
 
-        # Merge configs
         merged_config = base_config.copy()
         merged_config['parameters'].update(week_config['parameters'])
         return merged_config
@@ -618,39 +571,25 @@ class TestEdgeCaseAlignment:
 
         season_folder = temp_accuracy_data / "2024"
 
-        # Test with week 16 where week_17 might not exist yet
-        # Delete week_17 to simulate missing week_N+1
         week_17_folder = season_folder / "weeks" / "week_17"
         week_18_folder = season_folder / "weeks" / "week_18"
 
-        # Remove week_17 if it exists (we'll use week 16 → week 17 which might not exist)
         if week_17_folder.exists():
-            # Test with week 16 (week_N+1 = week_17)
             projected_folder, actual_folder = manager._load_season_data(season_folder, week_num=16)
 
-            # Verify week_16 used for projected
             assert projected_folder.name == "week_16"
 
-            # Verify week_17 used for actual (should exist in test data)
             assert actual_folder.name == "week_17"
 
-        # Remove week_18 to test fallback
         if week_18_folder.exists():
             shutil.rmtree(week_18_folder)
 
-        # Now test week 17 with missing week_18 (fallback scenario)
         projected_folder, actual_folder = manager._load_season_data(season_folder, week_num=17)
 
-        # Verify week_17 used for projected
         assert projected_folder.name == "week_17"
 
-        # Verify fallback: actual_folder should also be week_17 (projected used as fallback)
         assert actual_folder.name == "week_17", "Should fallback to projected folder when week_18 missing"
 
-    # NOTE: Removed test_array_bounds_default_to_zero, test_null_values_in_array, test_all_position_files_missing
-    # These tests require complex mocking of PlayerManager internals. Edge case handling is verified
-    # implicitly through the existing integration tests and through Feature 01 (Win Rate Sim) tests
-    # which use the same JSON loading logic.
 
 
 class TestWeekRanges:
@@ -679,7 +618,6 @@ class TestErrorHandling:
         """Test handles missing data folder gracefully"""
         nonexistent_path = tmp_path / "nonexistent"
 
-        # FileNotFoundError when folder doesn't exist, ValueError when folder exists but has no seasons
         with pytest.raises((ValueError, FileNotFoundError)):
             AccuracySimulationManager(
                 baseline_config_path=baseline_config,
@@ -693,7 +631,6 @@ class TestErrorHandling:
         """Test handles empty projections gracefully"""
         calculator = AccuracyCalculator()
 
-        # Use calculate_weekly_mae with empty dicts
         result = calculator.calculate_weekly_mae({}, {}, (1, 5))
 
         assert result.mae == 0.0
@@ -702,3 +639,5 @@ class TestErrorHandling:
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
+
+

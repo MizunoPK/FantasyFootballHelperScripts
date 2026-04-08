@@ -107,3 +107,5 @@ class TestPlayerDataFetcherMainIntegration:
         error_call_str = str(mock_setup.return_value.error.call_args)
         assert '0' in error_call_str
         assert '100' in error_call_str
+
+

@@ -17,9 +17,6 @@ from io import StringIO
 project_root = Path(__file__).parent.parent.parent
 
 
-# ============================================================================
-# TEST RUN_LEAGUE_HELPER.PY
-# ============================================================================
 
 class TestRunLeagueHelper:
     """Test run_league_helper.py"""
@@ -49,9 +46,6 @@ class TestRunLeagueHelper:
         assert 'main()' in content
 
 
-# ============================================================================
-# TEST RUN_PLAYER_FETCHER.PY
-# ============================================================================
 
 class TestRunPlayerFetcher:
     """Test run_player_fetcher.py (KAI-10: direct import pattern, no subprocess)"""
@@ -74,9 +68,6 @@ class TestRunPlayerFetcher:
         assert not hasattr(run_player_fetcher, 'subprocess')
 
 
-# ============================================================================
-# TEST RUN_PRE_COMMIT_VALIDATION.PY
-# ============================================================================
 
 class TestRunPreCommitValidation:
     """Test run_pre_commit_validation.py"""
@@ -92,7 +83,6 @@ class TestRunPreCommitValidation:
         assert exit_code == 0
         mock_run.assert_called_once()
 
-        # Verify test runner is called
         call_args = mock_run.call_args[0][0]
         assert call_args[0] == sys.executable
         assert "run_all_tests.py" in call_args[1]
@@ -123,17 +113,12 @@ class TestRunPreCommitValidation:
         mock_run.return_value = Mock(returncode=1)
 
         from run_pre_commit_validation import run_validation
-        # Should not raise exception even with returncode=1
         exit_code = run_validation()
 
         assert exit_code == 1
-        # Verify check=False was used
         assert mock_run.call_args[1]['check'] == False
 
 
-# ============================================================================
-# TEST RUN_SIMULATION.PY
-# ============================================================================
 
 class TestRunSimulation:
     """Test run_win_rate_simulation.py main function and argument parsing"""
@@ -142,27 +127,22 @@ class TestRunSimulation:
     @patch('run_win_rate_simulation.Path')
     def test_single_mode_argument_parsing(self, mock_path_class, mock_sim_manager):
         """Test single mode argument parsing"""
-        # Create a mock config folder that supports the / operator for file paths
         mock_folder = Mock()
         mock_folder.name = "optimal_test_folder"
         mock_folder.is_dir.return_value = True
         mock_folder.stat.return_value = Mock(st_mtime=1.0)
 
-        # Mock file that exists
         mock_file = Mock()
         mock_file.exists.return_value = True
 
-        # Mock the / operator to return file paths
         mock_folder.__truediv__ = Mock(return_value=mock_file)
 
-        # Mock Path behavior - now uses folder-based configs
         mock_path = Mock()
         mock_path.glob.return_value = [mock_folder]
         mock_path.name = "optimal_test_folder"
         mock_path.exists.return_value = True
         mock_path_class.return_value = mock_path
 
-        # Mock data folder existence
         mock_data_path = Mock()
         mock_data_path.exists.return_value = True
 
@@ -173,37 +153,32 @@ class TestRunSimulation:
 
         mock_path_class.side_effect = path_side_effect
 
-        # Mock SimulationManager
         mock_manager = Mock()
         mock_sim_manager.return_value = mock_manager
 
-        # Test single mode
         from run_win_rate_simulation import main
         with patch('sys.argv', ['run_win_rate_simulation.py', 'single', '--sims', '10']):
             try:
                 main()
             except SystemExit:
-                pass  # main() calls sys.exit() on error
+                pass
 
     def test_simulation_modes_defined(self):
         """Test that all simulation modes are properly defined"""
         from run_win_rate_simulation import main
 
-        # Verify the function exists and is callable
         assert callable(main)
 
     @patch('run_win_rate_simulation.SimulationManager')
     @patch('run_win_rate_simulation.Path')
     def test_full_mode_shows_total_configs(self, mock_path_class, mock_sim_manager):
         """Test that full mode calculates and displays total configs"""
-        # Mock Path
         mock_path = Mock()
         mock_path.glob.return_value = [Mock(stat=Mock(return_value=Mock(st_mtime=1.0)))]
         mock_path.name = "optimal_test.json"
         mock_path.exists.return_value = True
         mock_path_class.return_value = mock_path
 
-        # This test verifies the structure is in place
         from run_win_rate_simulation import main
         assert callable(main)
 
@@ -211,7 +186,6 @@ class TestRunSimulation:
     @patch('run_win_rate_simulation.Path')
     def test_iterative_mode_shows_parameter_count(self, mock_path_class, mock_sim_manager):
         """Test that iterative mode shows parameter optimization info"""
-        # Mock Path
         mock_path = Mock()
         mock_path.glob.return_value = [Mock(stat=Mock(return_value=Mock(st_mtime=1.0)))]
         mock_path.name = "optimal_test.json"
@@ -233,13 +207,9 @@ class TestRunSimulation:
         """Test that default argument values are reasonable"""
         import run_win_rate_simulation
 
-        # Verify the module loads without error
         assert run_win_rate_simulation.LOGGING_LEVEL in ['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']
 
 
-# ============================================================================
-# INTEGRATION TESTS
-# ============================================================================
 
 class TestRootScriptsIntegration:
     """Integration tests for root scripts"""
@@ -258,7 +228,6 @@ class TestRootScriptsIntegration:
             script_path = project_root / script
             assert script_path.exists(), f"{script} not found"
 
-            # Read file and check for __main__ block
             with open(script_path, 'r') as f:
                 content = f.read()
                 assert '__name__' in content, f"{script} missing __main__ block"
@@ -278,7 +247,6 @@ class TestRootScriptsIntegration:
             script_path = project_root / script
             with open(script_path, 'r') as f:
                 content = f.read()
-                # Check for triple-quote docstring
                 assert '"""' in content or "'''" in content, f"{script} missing docstring"
 
     def test_all_scripts_have_author_attribution(self):
@@ -317,3 +285,5 @@ class TestRootScriptsIntegration:
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
+
+

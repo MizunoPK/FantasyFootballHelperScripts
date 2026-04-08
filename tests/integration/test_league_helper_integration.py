@@ -29,7 +29,6 @@ def temp_data_folder(tmp_path):
     data_folder = tmp_path / "data"
     data_folder.mkdir()
 
-    # Create minimal players.csv with correct column names
     players_csv = data_folder / "players.csv"
     players_csv.write_text("""id,name,position,team,bye_week,fantasy_points,injury_status,average_draft_position
 1,Patrick Mahomes,QB,KC,7,350.5,ACTIVE,1.2
@@ -42,7 +41,6 @@ def temp_data_folder(tmp_path):
 8,Mark Andrews,TE,BAL,13,210.3,ACTIVE,5.1
 """)
 
-    # Create minimal players_projected.csv (required by ProjectedPointsManager)
     players_projected_csv = data_folder / "players_projected.csv"
     players_projected_csv.write_text("""id,name,week_1_points,week_2_points,week_3_points,week_4_points,week_5_points,week_6_points,week_7_points,week_8_points,week_9_points,week_10_points,week_11_points,week_12_points,week_13_points,week_14_points,week_15_points,week_16_points,week_17_points
 1,Patrick Mahomes,22.5,21.3,23.1,20.5,22.0,21.5,0.0,23.5,22.8,21.9,22.3,20.8,21.2,22.6,23.0,21.7,22.4
@@ -55,13 +53,10 @@ def temp_data_folder(tmp_path):
 8,Mark Andrews,13.5,12.8,14.2,13.0,13.7,12.5,13.9,14.1,13.3,14.5,13.9,14.3,0.0,13.6,14.0,13.2,13.8
 """)
 
-    # Note: teams.csv no longer used - team data is now in team_data folder
 
-    # Create team_data folder with per-team weekly data (new format)
     team_data_folder = data_folder / "team_data"
     team_data_folder.mkdir()
 
-    # Create KC team data (teams from players.csv)
     kc_csv = team_data_folder / "KC.csv"
     kc_csv.write_text("""week,QB,RB,WR,TE,K,points_scored,points_allowed
 1,20.5,25.3,35.2,8.1,9.0,31,17
@@ -72,7 +67,6 @@ def temp_data_folder(tmp_path):
 6,20.8,25.5,34.9,8.6,9.5,31,19
 """)
 
-    # Create BUF team data
     buf_csv = team_data_folder / "BUF.csv"
     buf_csv.write_text("""week,QB,RB,WR,TE,K,points_scored,points_allowed
 1,22.1,24.0,33.5,7.5,8.8,32,15
@@ -83,26 +77,20 @@ def temp_data_folder(tmp_path):
 6,21.5,24.8,34.2,7.8,9.1,31,17
 """)
 
-    # Copy player_data folder with JSON files (JSON-based loading from Sub-feature 1)
     source_player_data_folder = project_root / "data" / "player_data"
     dest_player_data_folder = data_folder / "player_data"
 
     if source_player_data_folder.exists():
-        # Copy the entire player_data folder with all position JSON files
         shutil.copytree(source_player_data_folder, dest_player_data_folder)
 
-    # Copy configs folder structure from actual data folder (new folder-based config system)
     source_configs_folder = project_root / "data" / "configs"
     dest_configs_folder = data_folder / "configs"
 
     if source_configs_folder.exists():
-        # Copy the entire configs folder
         shutil.copytree(source_configs_folder, dest_configs_folder)
     else:
-        # Create minimal config folder structure if source doesn't exist
         dest_configs_folder.mkdir()
 
-        # Create base league_config.json
         base_config = dest_configs_folder / "league_config.json"
         base_config.write_text("""{
     "config_name": "Test Config",
@@ -128,7 +116,6 @@ def temp_data_folder(tmp_path):
     }
 }""")
 
-        # Create week-specific configs with week-specific parameters
         week_params_base = """{
     "config_name": "Test Config",
     "description": "Week-specific test configuration",
@@ -181,7 +168,6 @@ def temp_data_folder(tmp_path):
     }
 }"""
 
-        # Write week config files
         (dest_configs_folder / "week1-5.json").write_text(week_params_base)
         (dest_configs_folder / "week6-9.json").write_text(week_params_base)
         (dest_configs_folder / "week10-13.json").write_text(week_params_base)
@@ -206,7 +192,6 @@ class TestLeagueHelperIntegrationBasic:
         """Test that player data is loaded during initialization"""
         manager = LeagueHelperManager(temp_data_folder)
 
-        # Verify player manager has loaded players
         assert manager.player_manager is not None
         assert len(manager.player_manager.get_player_list(drafted_vals=[0, 1, 2])) > 0
 
@@ -214,7 +199,6 @@ class TestLeagueHelperIntegrationBasic:
         """Test that team data is loaded during initialization"""
         manager = LeagueHelperManager(temp_data_folder)
 
-        # Verify team data manager has loaded teams
         assert manager.team_data_manager is not None
         assert len(manager.team_data_manager.get_available_teams()) > 0
 
@@ -226,7 +210,6 @@ class TestAddToRosterIntegration:
         """Test that Add to Roster mode can be entered and exited"""
         manager = LeagueHelperManager(temp_data_folder)
 
-        # Mock the start_interactive_mode method on the instance
         with patch.object(manager.add_to_roster_mode_manager, 'start_interactive_mode', return_value=None) as mock_start:
             manager._run_add_to_roster_mode()
             assert mock_start.called
@@ -235,10 +218,7 @@ class TestAddToRosterIntegration:
         """Test complete workflow of adding a player to roster"""
         manager = LeagueHelperManager(temp_data_folder)
 
-        # Mock the start_interactive_mode to avoid stdin issues
         with patch.object(manager.add_to_roster_mode_manager, 'start_interactive_mode', return_value=None):
-            # This would test the actual add workflow
-            # For now, verify the manager is set up correctly
             assert manager.team_data_manager is not None
 
 
@@ -249,7 +229,6 @@ class TestStarterHelperIntegration:
         """Test that Starter Helper mode can be entered"""
         manager = LeagueHelperManager(temp_data_folder)
 
-        # Mock the show_recommended_starters method on the instance
         with patch.object(manager.starter_helper_mode_manager, 'show_recommended_starters', return_value=None) as mock_show:
             manager._run_starter_helper_mode()
             assert mock_show.called
@@ -258,7 +237,6 @@ class TestStarterHelperIntegration:
         """Test starter helper with empty roster"""
         manager = LeagueHelperManager(temp_data_folder)
 
-        # Verify manager can handle empty roster
         assert manager.team_data_manager is not None
 
 
@@ -269,7 +247,6 @@ class TestTradeSimulatorIntegration:
         """Test that Trade Simulator mode can be entered"""
         manager = LeagueHelperManager(temp_data_folder)
 
-        # Mock the run_interactive_mode method on the instance
         with patch.object(manager.trade_simulator_mode_manager, 'run_interactive_mode', return_value=None) as mock_run:
             manager._run_trade_simulator_mode()
             assert mock_run.called
@@ -282,7 +259,6 @@ class TestModifyPlayerDataIntegration:
         """Test that Modify Player Data mode can be entered"""
         manager = LeagueHelperManager(temp_data_folder)
 
-        # Mock the start_interactive_mode method on the instance
         with patch.object(manager.modify_player_data_mode_manager, 'start_interactive_mode', return_value=None) as mock_start:
             manager.run_modify_player_data_mode()
             assert mock_start.called
@@ -295,17 +271,13 @@ class TestModeTransitions:
         """Test transition from Add to Roster to Starter Helper"""
         manager = LeagueHelperManager(temp_data_folder)
 
-        # Mock both mode managers
         with patch.object(manager.add_to_roster_mode_manager, 'start_interactive_mode', return_value=None) as mock_add, \
              patch.object(manager.starter_helper_mode_manager, 'show_recommended_starters', return_value=None) as mock_starter:
 
-            # Run add to roster mode
             manager._run_add_to_roster_mode()
 
-            # Run starter helper mode
             manager._run_starter_helper_mode()
 
-            # Both modes should have been called
             assert mock_add.called
             assert mock_starter.called
 
@@ -313,17 +285,13 @@ class TestModeTransitions:
         """Test transition from Add to Roster to Trade Simulator"""
         manager = LeagueHelperManager(temp_data_folder)
 
-        # Mock both mode managers
         with patch.object(manager.add_to_roster_mode_manager, 'start_interactive_mode', return_value=None) as mock_add, \
              patch.object(manager.trade_simulator_mode_manager, 'run_interactive_mode', return_value=None) as mock_trade:
 
-            # Run add to roster mode
             manager._run_add_to_roster_mode()
 
-            # Run trade simulator mode
             manager._run_trade_simulator_mode()
 
-            # Both modes should have been called
             assert mock_add.called
             assert mock_trade.called
 
@@ -335,14 +303,11 @@ class TestDataPersistence:
         """Test that player data persists when switching modes"""
         manager = LeagueHelperManager(temp_data_folder)
 
-        # Get initial player count
         initial_players = manager.player_manager.get_player_list(drafted_vals=[0, 1, 2])
         initial_count = len(initial_players)
 
-        # Create new manager (simulating mode transition)
         manager2 = LeagueHelperManager(temp_data_folder)
 
-        # Verify same player count
         new_players = manager2.player_manager.get_player_list(drafted_vals=[0, 1, 2])
         assert len(new_players) == initial_count
 
@@ -350,14 +315,11 @@ class TestDataPersistence:
         """Test that team data persists when switching modes"""
         manager = LeagueHelperManager(temp_data_folder)
 
-        # Get initial team count
         initial_teams = manager.team_data_manager.get_available_teams()
         initial_count = len(initial_teams)
 
-        # Create new manager (simulating mode transition)
         manager2 = LeagueHelperManager(temp_data_folder)
 
-        # Verify same team count
         new_teams = manager2.team_data_manager.get_available_teams()
         assert len(new_teams) == initial_count
 
@@ -375,13 +337,10 @@ class TestErrorRecovery:
         data_folder = tmp_path / "data"
         data_folder.mkdir()
 
-        # Create invalid players CSV
         players_csv = data_folder / "players_projected.csv"
         players_csv.write_text("Invalid,CSV,Header\nBad,Data,Here\n")
 
-        # Note: teams.csv no longer used - team data is now in team_data folder
 
-        # Create minimal config
         config_json = data_folder / "league_config.json"
         config_json.write_text("""{
     "config_name": "Test",
@@ -390,7 +349,6 @@ class TestErrorRecovery:
     "thresholds": {"projected_points_multiplier": 1.0}
 }""")
 
-        # Should raise an error or handle gracefully (bad CSV data)
         with pytest.raises(Exception):
             LeagueHelperManager(data_folder)
 
@@ -404,10 +362,6 @@ class TestEndToEndWorkflow:
         """Test complete workflow: draft player, then check starters"""
         manager = LeagueHelperManager(temp_data_folder)
 
-        # This is a simplified test - real workflow would involve:
-        # 1. Add players to roster
-        # 2. Run starter helper to optimize lineup
-        # 3. Verify correct players are in starting lineup
 
         assert manager is not None
 
@@ -417,10 +371,6 @@ class TestEndToEndWorkflow:
         """Test complete workflow: draft players, then simulate trade"""
         manager = LeagueHelperManager(temp_data_folder)
 
-        # This is a simplified test - real workflow would involve:
-        # 1. Add players to roster
-        # 2. Run trade simulator to evaluate trades
-        # 3. Verify trade analysis is correct
 
         assert manager is not None
 
@@ -430,20 +380,15 @@ class TestDraftedRosterManagerConsolidation:
 
     def test_get_players_by_team_with_real_json(self, tmp_path):
         """Test PlayerManager.get_players_by_team() with real JSON data"""
-        # Create data folder with JSON file containing drafted_by field
         data_folder = tmp_path / "data"
         data_folder.mkdir()
 
-        # Create team_data folder to avoid warnings
         team_data_folder = data_folder / "team_data"
         team_data_folder.mkdir()
 
-        # Create player_data folder to avoid D/ST warnings
         player_data_folder = data_folder / "player_data"
         player_data_folder.mkdir()
 
-        # Create position-specific JSON files (Sub-feature 1 format)
-        # QBs
         qb_json = player_data_folder / "qb_data.json"
         qb_json.write_text("""{
     "qb_data": [
@@ -472,7 +417,6 @@ class TestDraftedRosterManagerConsolidation:
     ]
 }""")
 
-        # RBs
         rb_json = player_data_folder / "rb_data.json"
         rb_json.write_text("""{
     "rb_data": [
@@ -490,7 +434,6 @@ class TestDraftedRosterManagerConsolidation:
     ]
 }""")
 
-        # WRs
         wr_json = player_data_folder / "wr_data.json"
         wr_json.write_text("""{
     "wr_data": [
@@ -519,55 +462,45 @@ class TestDraftedRosterManagerConsolidation:
     ]
 }""")
 
-        # Empty files for other positions to avoid warnings
         for position in ["te", "k", "dst"]:
             pos_json = player_data_folder / f"{position}_data.json"
             pos_json.write_text(f'{{"{position}_data": []}}')
 
-        # Create required config files
         import json
         import shutil
 
-        # Copy configs folder from actual data
         source_configs = Path(__file__).parent.parent.parent / "data" / "configs"
         dest_configs = data_folder / "configs"
 
         if source_configs.exists():
             shutil.copytree(source_configs, dest_configs)
 
-        # Import after setting up files
         from league_helper.util.PlayerManager import PlayerManager
         from league_helper.util.ConfigManager import ConfigManager
         from league_helper.util.TeamDataManager import TeamDataManager
         from league_helper.util.SeasonScheduleManager import SeasonScheduleManager
 
-        # Initialize managers
         config = ConfigManager(data_folder)
         team_data = TeamDataManager(data_folder, config.current_nfl_week)
         schedule = SeasonScheduleManager(data_folder)
         player_manager = PlayerManager(data_folder, config, team_data, schedule)
 
-        # Test get_players_by_team() - this is the new method from Sub-feature 7
         teams = player_manager.get_players_by_team()
 
-        # Verify results
         assert isinstance(teams, dict)
         assert "Sea Sharp" in teams
         assert "Team Alpha" in teams
 
-        # Verify Sea Sharp roster (players 1 and 3)
         assert len(teams["Sea Sharp"]) == 2
         sea_sharp_names = [p.name for p in teams["Sea Sharp"]]
         assert "Patrick Mahomes" in sea_sharp_names
         assert "Justin Jefferson" in sea_sharp_names
 
-        # Verify Team Alpha roster (players 2 and 5)
         assert len(teams["Team Alpha"]) == 2
         team_alpha_names = [p.name for p in teams["Team Alpha"]]
         assert "Josh Allen" in team_alpha_names
         assert "Christian McCaffrey" in team_alpha_names
 
-        # Verify player 4 (Tyreek Hill) is NOT in any team (drafted_by="")
         all_drafted_players = []
         for roster in teams.values():
             all_drafted_players.extend([p.name for p in roster])
@@ -575,20 +508,15 @@ class TestDraftedRosterManagerConsolidation:
 
     def test_trade_simulator_uses_get_players_by_team(self, tmp_path):
         """Test TradeSimulator integration with PlayerManager.get_players_by_team()"""
-        # Create data folder with JSON
         data_folder = tmp_path / "data"
         data_folder.mkdir()
 
-        # Create team_data folder to avoid warnings
         team_data_folder = data_folder / "team_data"
         team_data_folder.mkdir()
 
-        # Create player_data folder to avoid D/ST warnings
         player_data_folder = data_folder / "player_data"
         player_data_folder.mkdir()
 
-        # Create position-specific JSON files (Sub-feature 1 format)
-        # QBs
         qb_json = player_data_folder / "qb_data.json"
         qb_json.write_text("""{
     "qb_data": [
@@ -597,7 +525,6 @@ class TestDraftedRosterManagerConsolidation:
     ]
 }""")
 
-        # RBs
         rb_json = player_data_folder / "rb_data.json"
         rb_json.write_text("""{
     "rb_data": [
@@ -606,7 +533,6 @@ class TestDraftedRosterManagerConsolidation:
     ]
 }""")
 
-        # WRs
         wr_json = player_data_folder / "wr_data.json"
         wr_json.write_text("""{
     "wr_data": [
@@ -615,7 +541,6 @@ class TestDraftedRosterManagerConsolidation:
     ]
 }""")
 
-        # TEs
         te_json = player_data_folder / "te_data.json"
         te_json.write_text("""{
     "te_data": [
@@ -624,12 +549,10 @@ class TestDraftedRosterManagerConsolidation:
     ]
 }""")
 
-        # Empty files for other positions to avoid warnings
         for position in ["k", "dst"]:
             pos_json = player_data_folder / f"{position}_data.json"
             pos_json.write_text(f'{{"{position}_data": []}}')
 
-        # Create required config and team data
         import json
         import shutil
 
@@ -638,38 +561,31 @@ class TestDraftedRosterManagerConsolidation:
         if source_configs.exists():
             shutil.copytree(source_configs, dest_configs)
 
-        # Import managers
         from league_helper.util.PlayerManager import PlayerManager
         from league_helper.util.ConfigManager import ConfigManager
         from league_helper.util.TeamDataManager import TeamDataManager
         from league_helper.util.SeasonScheduleManager import SeasonScheduleManager
         from league_helper.trade_simulator_mode.TradeSimulatorModeManager import TradeSimulatorModeManager
 
-        # Initialize managers
         config = ConfigManager(data_folder)
         team_data = TeamDataManager(data_folder, config.current_nfl_week)
         schedule = SeasonScheduleManager(data_folder)
         player_manager = PlayerManager(data_folder, config, team_data, schedule)
 
-        # Initialize TradeSimulator
         trade_sim = TradeSimulatorModeManager(data_folder, player_manager, config)
 
-        # Initialize team data (this should use get_players_by_team() internally)
         trade_sim.init_team_data()
 
-        # Verify team_rosters was populated correctly
         assert hasattr(trade_sim, 'team_rosters')
         assert isinstance(trade_sim.team_rosters, dict)
         assert "Sea Sharp" in trade_sim.team_rosters
         assert "Team Alpha" in trade_sim.team_rosters
 
-        # Verify each team has 4 players
         assert len(trade_sim.team_rosters["Sea Sharp"]) == 4
         assert len(trade_sim.team_rosters["Team Alpha"]) == 4
 
-        # Verify NO CSV file was accessed (new approach doesn't use CSV)
         drafted_csv = data_folder / "drafted_data.csv"
-        assert not drafted_csv.exists()  # CSV should NOT exist
+        assert not drafted_csv.exists()
 
 
 class TestCSVDeprecation:
@@ -686,62 +602,51 @@ class TestCSVDeprecation:
 
         Spec: sub_feature_08_csv_deprecation_cleanup_spec.md lines 92-97
         """
-        # Remove players.csv to simulate production environment after CSV deprecation
         players_csv = temp_data_folder / "players.csv"
         if players_csv.exists():
-            players_csv.unlink()  # Delete the CSV file
+            players_csv.unlink()
 
-        # Also remove players_projected.csv (deprecated in Sub-feature 5)
         players_projected_csv = temp_data_folder / "players_projected.csv"
         if players_projected_csv.exists():
             players_projected_csv.unlink()
 
-        # Verify CSV files do NOT exist (using JSON only)
         assert not players_csv.exists(), "Test should not have players.csv (using JSON only)"
         assert not players_projected_csv.exists(), "Test should not have players_projected.csv (deprecated)"
 
-        # Verify player_data folder DOES exist
         player_data_folder = temp_data_folder / "player_data"
         assert player_data_folder.exists(), "Test must have player_data folder with JSON files"
 
-        # Initialize League Helper Manager (should load from JSON)
         manager = LeagueHelperManager(temp_data_folder)
 
-        # Verify players were loaded successfully from JSON
         assert manager.player_manager is not None
         assert len(manager.player_manager.players) > 0, "Players should be loaded from JSON files"
 
-        # Verify all mode managers initialized successfully
         assert manager.add_to_roster_mode_manager is not None
         assert manager.starter_helper_mode_manager is not None
         assert manager.trade_simulator_mode_manager is not None
         assert manager.modify_player_data_mode_manager is not None
 
-        # Test Mode 1: Add to Roster Mode
         with patch.object(manager.add_to_roster_mode_manager, 'start_interactive_mode', return_value=None) as mock_add:
             manager._run_add_to_roster_mode()
             assert mock_add.called, "Add to Roster mode should be callable with JSON loading"
 
-        # Test Mode 2: Starter Helper Mode
         with patch.object(manager.starter_helper_mode_manager, 'show_recommended_starters', return_value=None) as mock_starter:
             manager._run_starter_helper_mode()
             assert mock_starter.called, "Starter Helper mode should be callable with JSON loading"
 
-        # Test Mode 3: Trade Simulator Mode
         with patch.object(manager.trade_simulator_mode_manager, 'run_interactive_mode', return_value=None) as mock_trade:
             manager._run_trade_simulator_mode()
             assert mock_trade.called, "Trade Simulator mode should be callable with JSON loading"
 
-        # Test Mode 4: Modify Player Data Mode
         with patch.object(manager.modify_player_data_mode_manager, 'start_interactive_mode', return_value=None) as mock_modify:
             manager.run_modify_player_data_mode()
             assert mock_modify.called, "Modify Player Data mode should be callable with JSON loading"
 
-        # Verify NO CSV files were accessed during initialization or mode execution
         assert not (temp_data_folder / "players.csv").exists()
 
-        # Success: All 4 modes work with JSON-only loading ✅
 
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
+
+

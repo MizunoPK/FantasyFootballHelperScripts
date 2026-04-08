@@ -113,3 +113,5 @@ class TestJSONExporterIntegration:
             data = json.load(f)
 
         assert data == {'qb_data': []}
+
+
