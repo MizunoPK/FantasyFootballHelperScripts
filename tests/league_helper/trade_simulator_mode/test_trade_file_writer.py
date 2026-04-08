@@ -27,22 +27,18 @@ def mock_trade():
     """Create a mock TradeSnapshot"""
     trade = Mock(spec=TradeSnapshot)
 
-    # Mock my_new_team
     trade.my_new_team = Mock()
     trade.my_new_team.team_score = 85.0
     trade.my_new_team.name = "My Team"
 
-    # Mock their_new_team
     trade.their_new_team = Mock()
     trade.their_new_team.team_score = 75.0
     trade.their_new_team.name = "Their Team"
 
-    # Mock players
     trade.my_original_players = ["QB1 (QB) - KC", "RB1 (RB) - SF"]
     trade.my_new_players = ["WR1 (WR) - MIA", "TE1 (TE) - KC"]
     trade.their_new_players = ["QB1 (QB) - KC", "RB1 (RB) - SF"]
 
-    # Add new unequal trade fields (default to None/empty for basic tests)
     trade.waiver_recommendations = None
     trade.their_waiver_recommendations = None
     trade.my_dropped_players = None
@@ -92,17 +88,13 @@ class TestSaveManualTradeToFile:
             original_their_score=70.0
         )
 
-        # Verify filename format
         assert filename == "./league_helper/trade_simulator_mode/trade_outputs/trade_info_Opponent_Team_20251017_120000.txt"
 
-        # Verify file was opened for writing
         mock_file.assert_called_once_with(filename, 'w')
 
-        # Verify file content
         handle = mock_file()
         assert handle.write.called
 
-        # Check key content was written
         calls = [str(call) for call in handle.write.call_args_list]
         assert any("Trade with Opponent Team" in call for call in calls)
         assert any("My improvement: +5.00 pts" in call for call in calls)
@@ -114,9 +106,8 @@ class TestSaveManualTradeToFile:
         """Test saving trade with negative improvements"""
         mock_datetime.now.return_value.strftime.return_value = "20251017_120000"
 
-        # Adjust scores for negative improvement
-        mock_trade.my_new_team.team_score = 75.0  # Down from 80.0
-        mock_trade.their_new_team.team_score = 65.0  # Down from 70.0
+        mock_trade.my_new_team.team_score = 75.0
+        mock_trade.their_new_team.team_score = 65.0
 
         writer.save_manual_trade_to_file(
             mock_trade,
@@ -128,7 +119,6 @@ class TestSaveManualTradeToFile:
         handle = mock_file()
         calls = [str(call) for call in handle.write.call_args_list]
 
-        # Verify negative signs
         assert any("My improvement: -5.00 pts" in call for call in calls)
         assert any("Their improvement: -5.00 pts" in call for call in calls)
 
@@ -179,7 +169,6 @@ class TestSaveManualTradeToFile:
         handle = mock_file()
         calls = [str(call) for call in handle.write.call_args_list]
 
-        # Verify structure: Trade header, improvements, give/receive sections
         assert any("I give:" in call for call in calls)
         assert any("I receive:" in call for call in calls)
         assert any("QB1 (QB) - KC" in call for call in calls)
@@ -218,12 +207,10 @@ class TestSaveTradesToFile:
 
         writer.save_trades_to_file([mock_trade], mock_team, [opponent])
 
-        # Verify file was opened
         mock_file.assert_called_once()
         filename = mock_file.call_args[0][0]
         assert "trade_info_2025-10-17_12-00-00.txt" in filename
 
-        # Verify content written
         handle = mock_file()
         assert handle.write.called
 
@@ -233,7 +220,6 @@ class TestSaveTradesToFile:
         """Test saving multiple trades"""
         mock_datetime.now.return_value.strftime.return_value = "2025-10-17_12-00-00"
 
-        # Create second trade
         trade2 = Mock(spec=TradeSnapshot)
         trade2.my_new_team = Mock()
         trade2.my_new_team.team_score = 82.0
@@ -243,7 +229,6 @@ class TestSaveTradesToFile:
         trade2.their_new_team.name = "Other Team"
         trade2.my_original_players = ["RB2 (RB) - BUF"]
         trade2.my_new_players = ["WR2 (WR) - DAL"]
-        # Add new unequal trade fields
         trade2.waiver_recommendations = None
         trade2.their_waiver_recommendations = None
         trade2.my_dropped_players = None
@@ -262,7 +247,6 @@ class TestSaveTradesToFile:
         handle = mock_file()
         calls = [str(call) for call in handle.write.call_args_list]
 
-        # Verify both trades are numbered
         assert any("#1 - Trade with" in call for call in calls)
         assert any("#2 - Trade with" in call for call in calls)
 
@@ -281,7 +265,6 @@ class TestSaveTradesToFile:
         handle = mock_file()
         calls = [str(call) for call in handle.write.call_args_list]
 
-        # Verify format elements
         assert any("#1 - Trade with" in call for call in calls)
         assert any("My improvement:" in call for call in calls)
         assert any("Their improvement:" in call for call in calls)
@@ -300,7 +283,6 @@ class TestSaveTradesToFile:
 
         writer.save_trades_to_file([mock_trade], mock_team, [opponent])
 
-        # Verify logger was called
         assert writer.logger.info.called
 
     @patch('builtins.open', new_callable=mock_open)
@@ -309,12 +291,10 @@ class TestSaveTradesToFile:
         """Test that opponent team is correctly looked up"""
         mock_datetime.now.return_value.strftime.return_value = "2025-10-17_12-00-00"
 
-        # Create opponent with specific name
         opponent = Mock()
         opponent.name = "Their Team"
         opponent.team_score = 70.0
 
-        # Trade references "Their Team"
         mock_trade.their_new_team.name = "Their Team"
 
         writer.save_trades_to_file([mock_trade], mock_team, [opponent])
@@ -322,7 +302,6 @@ class TestSaveTradesToFile:
         handle = mock_file()
         calls = [str(call) for call in handle.write.call_args_list]
 
-        # Should calculate their improvement correctly
         assert any("Their improvement:" in call for call in calls)
 
 
@@ -337,7 +316,6 @@ class TestSaveWaiverTradesToFile:
 
         writer.save_waiver_trades_to_file([mock_trade], mock_team)
 
-        # Verify file was opened with correct name (defaults to Rest of Season mode)
         mock_file.assert_called_once()
         filename = mock_file.call_args[0][0]
         assert "waiver_ros_2025-10-17_12-00-00.txt" in filename
@@ -348,13 +326,11 @@ class TestSaveWaiverTradesToFile:
         """Test saving multiple waiver trades"""
         mock_datetime.now.return_value.strftime.return_value = "2025-10-17_12-00-00"
 
-        # Create second waiver trade
         trade2 = Mock(spec=TradeSnapshot)
         trade2.my_new_team = Mock()
         trade2.my_new_team.team_score = 83.0
         trade2.my_original_players = ["K1 (K) - BAL"]
         trade2.my_new_players = ["K2 (K) - SF"]
-        # Add new unequal trade fields
         trade2.waiver_recommendations = None
         trade2.my_dropped_players = None
 
@@ -363,7 +339,6 @@ class TestSaveWaiverTradesToFile:
         handle = mock_file()
         calls = [str(call) for call in handle.write.call_args_list]
 
-        # Verify both trades are numbered
         assert any("#1 -" in call for call in calls)
         assert any("#2 -" in call for call in calls)
 
@@ -378,7 +353,6 @@ class TestSaveWaiverTradesToFile:
         handle = mock_file()
         calls = [str(call) for call in handle.write.call_args_list]
 
-        # Verify DROP/ADD format (not "I give"/"I receive")
         assert any("DROP:" in call for call in calls)
         assert any("ADD:" in call for call in calls)
         assert not any("I give:" in call for call in calls)
@@ -392,7 +366,6 @@ class TestSaveWaiverTradesToFile:
 
         writer.save_waiver_trades_to_file([mock_trade], mock_team)
 
-        # Verify logger was called
         assert writer.logger.info.called
 
     @patch('builtins.open', new_callable=mock_open)
@@ -401,13 +374,11 @@ class TestSaveWaiverTradesToFile:
         """Test that trade type label is correct (1-for-1, 2-for-2, etc.)"""
         mock_datetime.now.return_value.strftime.return_value = "2025-10-17_12-00-00"
 
-        # Create trade with 2 players
         trade = Mock(spec=TradeSnapshot)
         trade.my_new_team = Mock()
         trade.my_new_team.team_score = 85.0
         trade.my_original_players = ["QB1", "RB1"]  # 2 players
         trade.my_new_players = ["WR1", "TE1"]  # 2 players
-        # Add new unequal trade fields
         trade.waiver_recommendations = None
         trade.my_dropped_players = None
 
@@ -416,7 +387,6 @@ class TestSaveWaiverTradesToFile:
         handle = mock_file()
         calls = [str(call) for call in handle.write.call_args_list]
 
-        # Verify "2-for-2" label appears
         assert any("2-for-2" in call for call in calls)
 
     @patch('builtins.open', new_callable=mock_open)
@@ -430,7 +400,6 @@ class TestSaveWaiverTradesToFile:
         handle = mock_file()
         calls = [str(call) for call in handle.write.call_args_list]
 
-        # Verify new team score appears
         assert any("New team score:" in call for call in calls)
         assert any("85.00" in call for call in calls)  # mock_trade.my_new_team.team_score
 
@@ -474,17 +443,14 @@ class TestSaveManualTradeToExcel:
         """Create a mock TradeSnapshot for Excel export"""
         trade = Mock(spec=TradeSnapshot)
 
-        # Mock teams
         trade.my_new_team = mock_team_for_excel
         trade.their_new_team = mock_team_for_excel
 
-        # Mock player lists
         trade.my_original_players = [mock_scored_player]
         trade.my_new_players = [mock_scored_player]
         trade.their_original_players = [mock_scored_player]
         trade.their_new_players = [mock_scored_player]
 
-        # Mock optional lists
         trade.waiver_recommendations = None
         trade.their_waiver_recommendations = None
         trade.my_dropped_players = None
@@ -503,7 +469,6 @@ class TestSaveManualTradeToExcel:
         """Test that Excel file is created with correct filename"""
         mock_datetime.now.return_value.strftime.return_value = "20251017_120000"
 
-        # Mock ExcelWriter context manager
         mock_writer_instance = MagicMock()
         mock_excel_writer.return_value.__enter__.return_value = mock_writer_instance
         mock_writer_instance.sheets = {
@@ -523,10 +488,8 @@ class TestSaveManualTradeToExcel:
             mock_team_for_excel
         )
 
-        # Verify filename
         assert filename == "./league_helper/trade_simulator_mode/trade_outputs/trade_info_Opponent_Team_20251017_120000.xlsx"
 
-        # Verify ExcelWriter was called with engine='openpyxl'
         mock_excel_writer.assert_called_once_with(filename, engine='openpyxl')
 
     @patch.object(TradeFileWriter, '_apply_sheet_formatting')
@@ -541,7 +504,6 @@ class TestSaveManualTradeToExcel:
         """Test that all 5 sheets are created"""
         mock_datetime.now.return_value.strftime.return_value = "20251017_120000"
 
-        # Mock ExcelWriter
         mock_writer_instance = MagicMock()
         mock_excel_writer.return_value.__enter__.return_value = mock_writer_instance
         mock_writer_instance.sheets = {
@@ -552,7 +514,6 @@ class TestSaveManualTradeToExcel:
             "Detailed Calculations": Mock()
         }
 
-        # Mock DataFrame
         mock_df = Mock()
         mock_dataframe.return_value = mock_df
 
@@ -565,7 +526,6 @@ class TestSaveManualTradeToExcel:
             mock_team_for_excel
         )
 
-        # Verify to_excel was called with correct sheet names
         sheet_names = [call[1].get('sheet_name') for call in mock_df.to_excel.call_args_list]
         assert "Summary" in sheet_names
         assert "Trade Impact Analysis" in sheet_names
@@ -636,7 +596,6 @@ class TestSaveManualTradeToExcel:
             mock_team_for_excel
         )
 
-        # Verify logger.info was called
         assert writer.logger.info.called
 
     @patch('league_helper.trade_simulator_mode.trade_file_writer.pd.ExcelWriter')
@@ -648,7 +607,6 @@ class TestSaveManualTradeToExcel:
         """Test that exceptions are caught and logged"""
         mock_datetime.now.return_value.strftime.return_value = "20251017_120000"
 
-        # Make ExcelWriter raise an exception
         mock_excel_writer.side_effect = Exception("Excel creation failed")
 
         with pytest.raises(Exception):
@@ -661,7 +619,6 @@ class TestSaveManualTradeToExcel:
                 mock_team_for_excel
             )
 
-        # Verify error was logged
         assert writer.logger.error.called
 
 
@@ -762,7 +719,9 @@ class TestParseScoringReasons:
         ]
         parsed = writer._parse_scoring_reasons(reasons)
 
-        assert len(parsed) >= 10  # Should have multiple fields
+        assert len(parsed) >= 10
         assert parsed["Base Projected"] == 20.5
         assert parsed["ADP Rating"] == "EXCELLENT"
         assert parsed["Performance"] == "GOOD"
+
+

@@ -20,9 +20,6 @@ import tempfile
 from league_helper.util.ConfigManager import ConfigManager, ConfigKeys
 
 
-# ============================================================================
-# FIXTURES
-# ============================================================================
 
 @pytest.fixture
 def config_keys():
@@ -132,9 +129,6 @@ def valid_config(temp_data_folder):
     return temp_data_folder
 
 
-# ============================================================================
-# TESTS
-# ============================================================================
 
 class TestMaxPositionsLoading:
     """Test MAX_POSITIONS loading from config file"""
@@ -391,5 +385,6 @@ class TestMaxPlayersProperty:
         """Test that max_players equals 15 with default position limits"""
         config = ConfigManager(valid_config)
 
-        # Default values: QB=2, RB=4, WR=4, FLEX=2, TE=1, K=1, DST=1 = 15 total
         assert config.max_players == 15
+
+

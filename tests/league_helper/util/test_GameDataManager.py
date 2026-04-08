@@ -56,8 +56,8 @@ class TestGameDataManagerInitialization:
         manager = GameDataManager(temp_data_folder, current_week=1)
 
         assert manager.has_game_data() is True
-        assert len(manager.all_games) == 2  # 2 weeks of data
-        assert len(manager.games_by_team) == 4  # 4 teams in week 1
+        assert len(manager.all_games) == 2
+        assert len(manager.games_by_team) == 4
 
     def test_init_without_game_data_file(self, temp_data_folder):
         """Test initialization without game_data.csv (graceful degradation)."""
@@ -73,7 +73,7 @@ class TestGameDataManagerInitialization:
 
         assert manager.has_game_data() is True
         assert len(manager.all_games) == 2
-        assert len(manager.games_by_team) == 0  # No current week set
+        assert len(manager.games_by_team) == 0
 
 
 class TestGameDataManagerGetGame:
@@ -159,10 +159,10 @@ class TestGameDataManagerGetGame:
             f.write('week,home_team,away_team,temperature,gust,indoor,neutral_site,country\n')
             f.write('1,KC,BAL,70,10,False,False,USA\n')
 
-        manager = GameDataManager(tmp_path)  # No current_week
+        manager = GameDataManager(tmp_path)
 
         game = manager.get_game('KC')  # No week parameter
-        assert game is None  # Should return None with warning
+        assert game is None
 
 
 class TestGameDataManagerSetCurrentWeek:
@@ -197,16 +197,13 @@ class TestGameDataManagerSetCurrentWeek:
         """Test that set_current_week updates games_by_team index."""
         manager = manager_with_multiweek_data
 
-        # Initially week 1
         game = manager.get_game('KC')
         assert game.away_team == 'BAL'
 
-        # Change to week 2
         manager.set_current_week(2)
         game = manager.get_game('KC')
         assert game.away_team == 'CIN'
 
-        # Change to week 3
         manager.set_current_week(3)
         game = manager.get_game('KC')
         assert game.away_team == 'DEN'
@@ -215,10 +212,10 @@ class TestGameDataManagerSetCurrentWeek:
         """Test set_current_week with week that has no games."""
         manager = manager_with_multiweek_data
 
-        manager.set_current_week(10)  # No games in week 10
+        manager.set_current_week(10)
 
         game = manager.get_game('KC')
-        assert game is None  # No game found
+        assert game is None
 
 
 class TestUpcomingGameModel:
@@ -243,7 +240,6 @@ class TestUpcomingGameModel:
             neutral_site=True, country='UK'
         )
 
-        # Both teams are "away" at neutral site
         assert game.is_home_game('KC') is False
         assert game.is_home_game('BAL') is False
 
@@ -352,3 +348,5 @@ class TestGameDataParsing:
         assert game is not None
         assert game.home_team == 'KC'
         assert game.country == 'USA'
+
+

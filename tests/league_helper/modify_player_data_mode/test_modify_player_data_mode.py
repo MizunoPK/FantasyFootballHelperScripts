@@ -67,23 +67,18 @@ class TestMarkPlayerAsDrafted:
         self, mock_search_class, mock_show_list, mock_constants, mock_player_manager, sample_players
     ):
         """Test that marking a player as drafted by another team sets drafted_by=team_name."""
-        # Setup
         mock_constants.FANTASY_TEAM_NAME = "Sea Sharp"
         mode_manager = ModifyPlayerDataModeManager(mock_player_manager)
-        available_player = sample_players[0]  # Patrick Mahomes, drafted_by=""
+        available_player = sample_players[0]
 
-        # Mock interactive_search to return the available player
         mock_searcher = Mock()
         mock_searcher.interactive_search.return_value = available_player
         mock_search_class.return_value = mock_searcher
 
-        # Mock team selection - user selects "Annihilators" (index 0, choice 1)
         mock_show_list.return_value = 1
 
-        # Execute
         mode_manager._mark_player_as_drafted()
 
-        # Verify
         assert available_player.drafted_by == "Annihilators"
         mock_player_manager.update_players_file.assert_called_once()
         mock_searcher.interactive_search.assert_called_once()
@@ -95,41 +90,32 @@ class TestMarkPlayerAsDrafted:
         self, mock_search_class, mock_show_list, mock_constants, mock_player_manager, sample_players
     ):
         """Test that marking a player as drafted by user's team sets drafted_by=FANTASY_TEAM_NAME."""
-        # Setup
         mock_constants.FANTASY_TEAM_NAME = "Sea Sharp"
         mode_manager = ModifyPlayerDataModeManager(mock_player_manager)
-        available_player = sample_players[0]  # Patrick Mahomes, drafted_by=""
+        available_player = sample_players[0]
 
-        # Mock interactive_search to return the available player
         mock_searcher = Mock()
         mock_searcher.interactive_search.return_value = available_player
         mock_search_class.return_value = mock_searcher
 
-        # Mock team selection - user selects "Sea Sharp" (index 1, choice 2)
         mock_show_list.return_value = 2
 
-        # Execute
         mode_manager._mark_player_as_drafted()
 
-        # Verify
         assert available_player.drafted_by == "Sea Sharp"
         mock_player_manager.update_players_file.assert_called_once()
 
     @patch('league_helper.modify_player_data_mode.ModifyPlayerDataModeManager.PlayerSearch')
     def test_mark_player_as_drafted_handles_user_exit_from_player_search(self, mock_search_class, mock_player_manager):
         """Test that mark as drafted handles user exit from player search gracefully."""
-        # Setup
         mode_manager = ModifyPlayerDataModeManager(mock_player_manager)
 
-        # Mock interactive_search to return None (user exited)
         mock_searcher = Mock()
         mock_searcher.interactive_search.return_value = None
         mock_search_class.return_value = mock_searcher
 
-        # Execute
         mode_manager._mark_player_as_drafted()
 
-        # Verify - no exception raised, no file update called
         mock_player_manager.update_players_file.assert_not_called()
 
     @patch('league_helper.modify_player_data_mode.ModifyPlayerDataModeManager.Constants')
@@ -139,43 +125,34 @@ class TestMarkPlayerAsDrafted:
         self, mock_search_class, mock_show_list, mock_constants, mock_player_manager, sample_players
     ):
         """Test that mark as drafted handles user cancel from team selection gracefully."""
-        # Setup
         mock_constants.FANTASY_TEAM_NAME = "Sea Sharp"
         mode_manager = ModifyPlayerDataModeManager(mock_player_manager)
         available_player = sample_players[0]
 
-        # Mock interactive_search
         mock_searcher = Mock()
         mock_searcher.interactive_search.return_value = available_player
         mock_search_class.return_value = mock_searcher
 
-        # Mock team selection - select "Sea Sharp" (index 2 in sorted list)
         mock_show_list.return_value = 2
 
-        # Execute
         mode_manager._mark_player_as_drafted()
 
-        # Verify - should be drafted_by="Sea Sharp" (user's team)
         assert available_player.drafted_by == "Sea Sharp"
 
     @patch('builtins.print')
     @patch('league_helper.modify_player_data_mode.ModifyPlayerDataModeManager.PlayerSearch')
     def test_lock_player_preserves_drafted_status(self, mock_search_class, mock_print, mock_player_manager, sample_players):
         """Test that locking a player doesn't change drafted status."""
-        # Setup
         mode_manager = ModifyPlayerDataModeManager(mock_player_manager)
-        player = sample_players[1]  # drafted_by="Opponent Team", locked=0
+        player = sample_players[1]
         original_drafted_by = player.drafted_by
 
-        # Mock interactive_search
         mock_searcher = Mock()
         mock_searcher.interactive_search.return_value = player
         mock_search_class.return_value = mock_searcher
 
-        # Execute
         mode_manager._lock_player()
 
-        # Verify - drafted status unchanged, only locked changed
         assert player.drafted_by == original_drafted_by
         assert player.locked == 1
 
@@ -187,10 +164,10 @@ class TestMarkPlayerAsDrafted:
             name="Test Player With Very Long Name That Exceeds Normal Length Boundaries",
             team="ABC",
             position="QB",
-            bye_week=18,  # Beyond normal bye week range
+            bye_week=18,
             drafted_by="",
             locked=0,
-            score=0.0,  # Minimum score
+            score=0.0,
             fantasy_points=0.0
         )
 
@@ -201,22 +178,17 @@ class TestMarkPlayerAsDrafted:
         self, mock_search_class, mock_show_list, mock_constants, mock_player_manager, player_with_extreme_values
     ):
         """Test marking player with boundary/extreme attribute values."""
-        # Setup
         mock_constants.FANTASY_TEAM_NAME = "Sea Sharp"
         mode_manager = ModifyPlayerDataModeManager(mock_player_manager)
 
-        # Mock interactive_search
         mock_searcher = Mock()
         mock_searcher.interactive_search.return_value = player_with_extreme_values
         mock_search_class.return_value = mock_searcher
 
-        # Mock team selection
         mock_show_list.return_value = 1
 
-        # Execute - should handle extreme values without errors
         mode_manager._mark_player_as_drafted()
 
-        # Verify - should be marked as drafted by first team in sorted list
         assert player_with_extreme_values.drafted_by == "Annihilators"
         mock_player_manager.update_players_file.assert_called_once()
 
@@ -224,16 +196,13 @@ class TestMarkPlayerAsDrafted:
     @patch('league_helper.modify_player_data_mode.ModifyPlayerDataModeManager.PlayerSearch')
     def test_lock_player_multiple_times(self, mock_search_class, mock_print, mock_player_manager, sample_players):
         """Test locking the same player multiple times toggles correctly."""
-        # Setup
         mode_manager = ModifyPlayerDataModeManager(mock_player_manager)
-        player = sample_players[0]  # locked=0 initially
+        player = sample_players[0]
 
-        # Mock interactive_search to return same player multiple times
         mock_searcher = Mock()
         mock_searcher.interactive_search.return_value = player
         mock_search_class.return_value = mock_searcher
 
-        # Execute - lock, unlock, lock again
         mode_manager._lock_player()
         assert player.locked == 1
 
@@ -243,5 +212,6 @@ class TestMarkPlayerAsDrafted:
         mode_manager._lock_player()
         assert player.locked == 1
 
-        # Verify file updated 3 times
         assert mock_player_manager.update_players_file.call_count == 3
+
+

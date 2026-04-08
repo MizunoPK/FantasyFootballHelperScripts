@@ -16,9 +16,6 @@ from unittest.mock import patch
 from league_helper.util.ConfigManager import ConfigManager
 
 
-# ============================================================================
-# Test Fixtures
-# ============================================================================
 
 def get_base_config_content(week: int = 6) -> dict:
     """Create minimal base config content."""
@@ -108,11 +105,9 @@ def create_configs_folder(temp_path: Path, week: int = 6, week_weight: float = 2
     configs_folder = temp_path / 'configs'
     configs_folder.mkdir()
 
-    # Create base config
     base_config = get_base_config_content(week)
     (configs_folder / 'league_config.json').write_text(json.dumps(base_config, indent=2))
 
-    # Create all week-specific configs
     for filename in ['week1-5.json', 'week6-9.json', 'week10-13.json', 'week14-17.json']:
         week_config = get_week_config_content(week_weight)
         (configs_folder / filename).write_text(json.dumps(week_config, indent=2))
@@ -145,9 +140,6 @@ def configs_folder_week12(temp_data_folder):
     return create_configs_folder(temp_data_folder, week=12)
 
 
-# ============================================================================
-# Test: Week Config Filename Detection
-# ============================================================================
 
 class TestGetWeekConfigFilename:
     """Test _get_week_config_filename method."""
@@ -195,9 +187,6 @@ class TestGetWeekConfigFilename:
             config._get_week_config_filename(-1)
 
 
-# ============================================================================
-# Test: Configs Folder Detection
-# ============================================================================
 
 class TestConfigsFolderDetection:
     """Test detection of configs folder structure."""
@@ -210,10 +199,8 @@ class TestConfigsFolderDetection:
 
     def test_detects_legacy_structure(self, temp_data_folder):
         """ConfigManager should use legacy mode when no configs folder exists."""
-        # Create legacy config directly in data folder
         base = get_base_config_content(6)
         week = get_week_config_content()
-        # Merge for legacy format
         base['parameters'].update(week['parameters'])
         (temp_data_folder / 'league_config.json').write_text(json.dumps(base, indent=2))
 
@@ -227,9 +214,6 @@ class TestConfigsFolderDetection:
         assert config.config_path.name == "league_config.json"
 
 
-# ============================================================================
-# Test: Week Config Merging
-# ============================================================================
 
 class TestWeekConfigMerging:
     """Test merging of week-specific config parameters."""
@@ -237,14 +221,12 @@ class TestWeekConfigMerging:
     def test_week_params_merged_into_parameters(self, configs_folder_week6):
         """Week-specific parameters should be merged into self.parameters."""
         config = ConfigManager(configs_folder_week6)
-        # PLAYER_RATING_SCORING comes from week config
         assert "PLAYER_RATING_SCORING" in config.parameters
         assert config.player_rating_scoring is not None
 
     def test_base_params_preserved(self, configs_folder_week6):
         """Base parameters should still be accessible after merge."""
         config = ConfigManager(configs_folder_week6)
-        # These come from base config
         assert config.current_nfl_week == 6
         assert config.nfl_season == 2025
         assert config.normalization_max_scale == 140.0
@@ -253,7 +235,6 @@ class TestWeekConfigMerging:
         """Week 1 should load week1-5.json."""
         config = ConfigManager(configs_folder_week1)
         assert config.current_nfl_week == 1
-        # Verify week-specific params loaded
         assert config.player_rating_scoring is not None
 
     def test_correct_week_file_loaded_for_week6(self, configs_folder_week6):
@@ -273,11 +254,9 @@ class TestWeekConfigMerging:
         configs_folder = temp_data_folder / 'configs'
         configs_folder.mkdir()
 
-        # Create base config for week 6
         base = get_base_config_content(6)
         (configs_folder / 'league_config.json').write_text(json.dumps(base, indent=2))
 
-        # Create week configs with different WEIGHT values
         week1_5 = get_week_config_content(weight_value=1.5)
         week6_9 = get_week_config_content(weight_value=2.5)
         week10_13 = get_week_config_content(weight_value=3.0)
@@ -288,14 +267,10 @@ class TestWeekConfigMerging:
         (configs_folder / 'week10-13.json').write_text(json.dumps(week10_13, indent=2))
         (configs_folder / 'week14-17.json').write_text(json.dumps(week14_17, indent=2))
 
-        # Load with week 6 (should get weight 2.5)
         config = ConfigManager(temp_data_folder)
         assert config.player_rating_scoring['WEIGHT'] == 2.5
 
 
-# ============================================================================
-# Test: Error Handling
-# ============================================================================
 
 class TestWeekConfigErrorHandling:
     """Test error handling for week config loading."""
@@ -305,17 +280,13 @@ class TestWeekConfigErrorHandling:
         configs_folder = temp_data_folder / 'configs'
         configs_folder.mkdir()
 
-        # Create base config with week 6
         base = get_base_config_content(6)
-        # Add week-specific params directly to base (fallback)
         week = get_week_config_content()
         base['parameters'].update(week['parameters'])
         (configs_folder / 'league_config.json').write_text(json.dumps(base, indent=2))
 
-        # Only create week1-5.json, not week6-9.json
         (configs_folder / 'week1-5.json').write_text(json.dumps(get_week_config_content(), indent=2))
 
-        # Should still work (params in base config)
         config = ConfigManager(temp_data_folder)
         assert config.current_nfl_week == 6
 
@@ -348,16 +319,12 @@ class TestWeekConfigErrorHandling:
             ConfigManager(temp_data_folder)
 
 
-# ============================================================================
-# Test: Legacy Compatibility
-# ============================================================================
 
 class TestLegacyCompatibility:
     """Test backward compatibility with legacy config structure."""
 
     def test_legacy_structure_still_works(self, temp_data_folder):
         """Legacy config structure should continue to work."""
-        # Create merged config directly in data folder
         base = get_base_config_content(6)
         week = get_week_config_content()
         base['parameters'].update(week['parameters'])
@@ -376,14 +343,10 @@ class TestLegacyCompatibility:
         (temp_data_folder / 'league_config.json').write_text(json.dumps(base, indent=2))
 
         config = ConfigManager(temp_data_folder)
-        # Should return empty dict in legacy mode
         result = config._load_week_config(6)
         assert result == {}
 
 
-# ============================================================================
-# Test: Week Boundary Cases
-# ============================================================================
 
 class TestWeekBoundaryCases:
     """Test boundary cases at week transitions."""
@@ -436,3 +399,5 @@ class TestWeekBoundaryCases:
         config = ConfigManager(temp_data_folder)
         assert config.current_nfl_week == 17
         assert config._get_week_config_filename(17) == "week14-17.json"
+
+

@@ -21,9 +21,6 @@ from league_helper.util.ConfigManager import ConfigManager
 from utils.TeamData import TeamData
 
 
-# ============================================================================
-# FIXTURES
-# ============================================================================
 
 @pytest.fixture(autouse=True)
 def mock_logger():
@@ -39,7 +36,6 @@ def mock_data_folder(tmp_path):
     data_folder = tmp_path / "data"
     data_folder.mkdir()
 
-    # Create league_config.json for ConfigManager
     config_content = '''{
       "config_name": "Test Config",
       "description": "Test configuration",
@@ -81,7 +77,6 @@ def populated_data_folder(mock_data_folder):
     team_data_folder = mock_data_folder / "team_data"
     team_data_folder.mkdir()
 
-    # Create team CSV files with 6 weeks of data
     teams_data = {
         'KC': """week,QB,RB,WR,TE,K,points_scored,points_allowed
 1,20.5,25.3,35.2,8.1,9.0,31,17
@@ -131,7 +126,6 @@ def populated_data_folder(mock_data_folder):
 def mock_season_schedule_manager():
     """Mock SeasonScheduleManager for testing"""
     mock_manager = Mock()
-    # Default behavior: return None (no opponent)
     mock_manager.get_opponent.return_value = None
     return mock_manager
 
@@ -148,9 +142,6 @@ def empty_team_manager(mock_data_folder, config_manager):
     return TeamDataManager(mock_data_folder, config_manager, None, 1)
 
 
-# ============================================================================
-# INITIALIZATION TESTS
-# ============================================================================
 
 class TestInitialization:
     """Test TeamDataManager initialization"""
@@ -178,9 +169,6 @@ class TestInitialization:
         assert 'SF' in team_manager.team_data_cache
 
 
-# ============================================================================
-# LOAD TEAM DATA TESTS
-# ============================================================================
 
 class TestLoadTeamData:
     """Test _load_team_data() method"""
@@ -189,9 +177,7 @@ class TestLoadTeamData:
         """Test loading valid team_data folder"""
         assert len(team_manager.team_data_cache) == 6
 
-        # Verify specific team data - rankings are calculated from weekly data
         kc_data = team_manager.team_data_cache['KC']
-        # KC is ranked #2 offensively (SF is #1 with higher avg points_scored)
         assert kc_data.offensive_rank == 2
         assert kc_data.defensive_rank == 3
 
@@ -202,13 +188,11 @@ class TestLoadTeamData:
 
     def test_load_invalid_csv_format(self, mock_data_folder, config_manager):
         """Test loading malformed CSV in team_data folder"""
-        # Create team_data folder with invalid CSV
         team_data_folder = mock_data_folder / "team_data"
         team_data_folder.mkdir()
         (team_data_folder / "KC.csv").write_text("invalid,csv,format\nno,proper,headers")
 
         manager = TeamDataManager(mock_data_folder, config_manager, None, 1)
-        # Should handle gracefully - may load partial/invalid data
         assert isinstance(manager.team_weekly_data, dict)
 
     def test_load_empty_file(self, mock_data_folder, config_manager):
@@ -218,21 +202,15 @@ class TestLoadTeamData:
         (team_data_folder / "KC.csv").write_text("")
 
         manager = TeamDataManager(mock_data_folder, config_manager, None, 1)
-        # Empty file results in no data for that team
         assert manager.team_weekly_data.get('KC', []) == []
 
 
-# ============================================================================
-# GETTER METHOD TESTS
-# ============================================================================
 
 class TestGetterMethods:
     """Test team data getter methods"""
 
     def test_get_team_offensive_rank_valid(self, team_manager):
         """Test getting offensive rank for valid team"""
-        # Rankings calculated from avg points_scored in test data
-        # SF: ~33.6, KC: ~31.4, BUF: ~30.4, PHI: ~28.6, DAL: ~22.6, JAX: ~18.6
         assert team_manager.get_team_offensive_rank('SF') == 1
         assert team_manager.get_team_offensive_rank('KC') == 2
         assert team_manager.get_team_offensive_rank('JAX') == 6
@@ -244,8 +222,6 @@ class TestGetterMethods:
 
     def test_get_team_defensive_rank_valid(self, team_manager):
         """Test getting defensive rank for valid team"""
-        # Rankings calculated from avg points_allowed in test data (lower is better)
-        # SF: ~13.4, BUF: ~17.0, KC: ~18.0, PHI: ~20.4, DAL: ~26.4, JAX: ~30.4
         assert team_manager.get_team_defensive_rank('SF') == 1
         assert team_manager.get_team_defensive_rank('BUF') == 2
         assert team_manager.get_team_defensive_rank('JAX') == 6
@@ -281,7 +257,6 @@ class TestGetterMethods:
         team_data = team_manager.get_team_data('KC')
         assert team_data is not None
         assert team_data.team == 'KC'
-        # KC is #2 offense (SF #1), #3 defense (SF #1, BUF #2)
         assert team_data.offensive_rank == 2
         assert team_data.defensive_rank == 3
 
@@ -290,9 +265,6 @@ class TestGetterMethods:
         assert team_manager.get_team_data('INVALID') is None
 
 
-# ============================================================================
-# DATA AVAILABILITY TESTS
-# ============================================================================
 
 class TestDataAvailability:
     """Test data availability check methods"""
@@ -327,9 +299,6 @@ class TestDataAvailability:
         assert empty_team_manager.is_matchup_available() is False
 
 
-# ============================================================================
-# RELOAD DATA TESTS
-# ============================================================================
 
 class TestReloadData:
     """Test reload_team_data() method"""
@@ -339,11 +308,9 @@ class TestReloadData:
         manager = TeamDataManager(populated_data_folder, config_manager, None, 6)
         assert len(manager.team_weekly_data) == 6
 
-        # Remove some team files
         (populated_data_folder / "team_data" / "KC.csv").unlink()
         (populated_data_folder / "team_data" / "BUF.csv").unlink()
 
-        # Reload
         manager.reload_team_data()
         assert len(manager.team_weekly_data) == 4
         assert 'KC' not in manager.team_weekly_data
@@ -352,23 +319,17 @@ class TestReloadData:
         """Test that reload clears existing cache"""
         assert len(team_manager.team_weekly_data) == 6
         team_manager.reload_team_data()
-        # Should reload same data
         assert len(team_manager.team_weekly_data) == 6
 
-# ============================================================================
-# D/ST JSON LOADING TESTS (Sub-Feature 6: TeamDataManager D/ST Migration)
-# ============================================================================
 
 class TestDSTJSONLoading:
     """Test D/ST data loading from dst_data.json (JSON edge cases)"""
 
     def test_dst_loading_with_valid_json(self, mock_data_folder, config_manager):
         """Test D/ST loading with valid JSON structure"""
-        # Create player_data folder
         player_data_folder = mock_data_folder / "player_data"
         player_data_folder.mkdir()
 
-        # Create valid dst_data.json
         dst_json_content = '''{
           "dst_data": [
             {"team": "KC", "actual_points": [10.0, 8.0, 12.0, 9.0, 11.0, 7.0, 10.0, 8.0, 9.0, 11.0, 10.0, 8.0, 12.0, 9.0, 11.0, 7.0, 10.0], "projected_points": []},
@@ -377,14 +338,11 @@ class TestDSTJSONLoading:
         }'''
         (player_data_folder / "dst_data.json").write_text(dst_json_content)
 
-        # Create team_data folder (required for TeamDataManager)
         team_data_folder = mock_data_folder / "team_data"
         team_data_folder.mkdir()
 
-        # Initialize manager
         manager = TeamDataManager(mock_data_folder, config_manager, None, 6)
 
-        # Verify D/ST data loaded
         assert "KC" in manager.dst_player_data
         assert "BUF" in manager.dst_player_data
         assert len(manager.dst_player_data["KC"]) == 17
@@ -394,14 +352,11 @@ class TestDSTJSONLoading:
 
     def test_dst_loading_with_missing_file(self, mock_data_folder, config_manager):
         """Test D/ST loading when dst_data.json file doesn't exist"""
-        # Don't create player_data folder or dst_data.json file
         team_data_folder = mock_data_folder / "team_data"
         team_data_folder.mkdir()
 
-        # Initialize manager (should not crash)
         manager = TeamDataManager(mock_data_folder, config_manager, None, 6)
 
-        # Verify dst_player_data is empty dict
         assert manager.dst_player_data == {}
 
     def test_dst_loading_with_malformed_json(self, mock_data_folder, config_manager):
@@ -409,13 +364,11 @@ class TestDSTJSONLoading:
         player_data_folder = mock_data_folder / "player_data"
         player_data_folder.mkdir()
 
-        # Create malformed JSON (missing closing brace)
         (player_data_folder / "dst_data.json").write_text('{"dst_data": [')
 
         team_data_folder = mock_data_folder / "team_data"
         team_data_folder.mkdir()
 
-        # Should not crash, should set dst_player_data to {}
         manager = TeamDataManager(mock_data_folder, config_manager, None, 6)
 
         assert manager.dst_player_data == {}
@@ -425,7 +378,6 @@ class TestDSTJSONLoading:
         player_data_folder = mock_data_folder / "player_data"
         player_data_folder.mkdir()
 
-        # JSON without dst_data key
         (player_data_folder / "dst_data.json").write_text('{"other_key": []}')
 
         team_data_folder = mock_data_folder / "team_data"
@@ -433,7 +385,6 @@ class TestDSTJSONLoading:
 
         manager = TeamDataManager(mock_data_folder, config_manager, None, 6)
 
-        # Should handle gracefully (empty dict)
         assert manager.dst_player_data == {}
 
     def test_dst_loading_with_empty_dst_data_array(self, mock_data_folder, config_manager):
@@ -441,7 +392,6 @@ class TestDSTJSONLoading:
         player_data_folder = mock_data_folder / "player_data"
         player_data_folder.mkdir()
 
-        # JSON with empty dst_data array
         (player_data_folder / "dst_data.json").write_text('{"dst_data": []}')
 
         team_data_folder = mock_data_folder / "team_data"
@@ -449,7 +399,6 @@ class TestDSTJSONLoading:
 
         manager = TeamDataManager(mock_data_folder, config_manager, None, 6)
 
-        # Should be empty (no teams loaded)
         assert manager.dst_player_data == {}
 
     def test_dst_loading_with_missing_team_field(self, mock_data_folder, config_manager):
@@ -457,7 +406,6 @@ class TestDSTJSONLoading:
         player_data_folder = mock_data_folder / "player_data"
         player_data_folder.mkdir()
 
-        # D/ST object without team field
         dst_json_content = '''{
           "dst_data": [
             {"actual_points": [10.0, 8.0, 12.0, 9.0, 11.0, 7.0, 10.0, 8.0, 9.0, 11.0, 10.0, 8.0, 12.0, 9.0, 11.0, 7.0, 10.0]}
@@ -470,7 +418,6 @@ class TestDSTJSONLoading:
 
         manager = TeamDataManager(mock_data_folder, config_manager, None, 6)
 
-        # Should store with empty string key (uses .get('team', ''))
         assert '' in manager.dst_player_data
         assert len(manager.dst_player_data['']) == 17
 
@@ -479,7 +426,6 @@ class TestDSTJSONLoading:
         player_data_folder = mock_data_folder / "player_data"
         player_data_folder.mkdir()
 
-        # D/ST object without actual_points field
         dst_json_content = '''{
           "dst_data": [
             {"team": "DEN"}
@@ -492,7 +438,6 @@ class TestDSTJSONLoading:
 
         manager = TeamDataManager(mock_data_folder, config_manager, None, 6)
 
-        # Should use default [0.0] * 17
         assert "DEN" in manager.dst_player_data
         assert manager.dst_player_data["DEN"] == [0.0] * 17
 
@@ -501,7 +446,6 @@ class TestDSTJSONLoading:
         player_data_folder = mock_data_folder / "player_data"
         player_data_folder.mkdir()
 
-        # D/ST object with only 5 weeks of actual_points
         dst_json_content = '''{
           "dst_data": [
             {"team": "SEA", "actual_points": [10.0, 8.0, 12.0, 9.0, 11.0]}
@@ -514,7 +458,6 @@ class TestDSTJSONLoading:
 
         manager = TeamDataManager(mock_data_folder, config_manager, None, 6)
 
-        # Should store partial array as-is (consumer handles variable lengths)
         assert "SEA" in manager.dst_player_data
         assert len(manager.dst_player_data["SEA"]) == 5
         assert manager.dst_player_data["SEA"] == [10.0, 8.0, 12.0, 9.0, 11.0]
@@ -524,7 +467,6 @@ class TestDSTJSONLoading:
         player_data_folder = mock_data_folder / "player_data"
         player_data_folder.mkdir()
 
-        # D/ST object with empty team name
         dst_json_content = '''{
           "dst_data": [
             {"team": "", "actual_points": [10.0, 8.0, 12.0, 9.0, 11.0, 7.0, 10.0, 8.0, 9.0, 11.0, 10.0, 8.0, 12.0, 9.0, 11.0, 7.0, 10.0]}
@@ -537,10 +479,11 @@ class TestDSTJSONLoading:
 
         manager = TeamDataManager(mock_data_folder, config_manager, None, 6)
 
-        # Should store with empty string key (result of ''.upper())
         assert '' in manager.dst_player_data
         assert len(manager.dst_player_data['']) == 17
 
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v", "--tb=short"])
+
+

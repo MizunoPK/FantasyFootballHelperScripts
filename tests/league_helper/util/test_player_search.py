@@ -56,7 +56,7 @@ class TestPlayerSearchBasic:
                 position="TE",
                 bye_week=7,
                 drafted_by="Sea Sharp",  # On roster
-                locked=1,  # Locked
+                locked=1,
                 score=80.0,
                 fantasy_points=250.0
             ),
@@ -265,7 +265,6 @@ class TestSearchPlayersNotAvailable:
     def test_search_not_available_excludes_drafted_zero(self, player_search):
         """Test that search_players_by_name_not_available excludes drafted=0."""
         matches = player_search.search_players_by_name_not_available("Allen")
-        # Josh Allen is drafted_by="", should not be included
         assert len(matches) == 0
 
     def test_search_not_available_includes_drafted_one(self, player_search):
@@ -284,19 +283,17 @@ class TestSearchPlayersNotAvailable:
 
     def test_search_not_available_includes_both_drafted_statuses(self, player_search):
         """Test that search includes both drafted=1 and drafted=2."""
-        # Add another player with same partial name
         player_search.players.append(
             FantasyPlayer(id=6, name="Patrick Peterson", team="PIT", position="CB", bye_week=8, drafted_by="Opponent Team", locked=0, score=50.0, fantasy_points=100.0)
         )
         matches = player_search.search_players_by_name_not_available("Patrick")
         assert len(matches) == 2
-        # Verify we have one opponent player and one rostered player
         has_opponent = any(p.is_drafted_by_opponent() for p in matches)
         has_rostered = any(p.is_rostered() for p in matches)
         has_free_agent = any(p.is_free_agent() for p in matches)
-        assert has_opponent  # Patrick Peterson (drafted_by="Opponent Team")
-        assert has_rostered  # Patrick Mahomes (drafted_by="Sea Sharp")
-        assert not has_free_agent  # No free agents should be included
+        assert has_opponent
+        assert has_rostered
+        assert not has_free_agent
 
     def test_search_not_available_empty_string(self, player_search):
         """Test that empty string returns empty list."""
@@ -353,8 +350,6 @@ class TestInteractiveSearchEdgeCases:
 
     def test_interactive_search_validates_drafted_filter_parameter(self, player_search):
         """Test that interactive_search accepts drafted_filter parameter."""
-        # This test validates the method signature, actual interactive behavior
-        # is tested in integration tests
         assert hasattr(player_search, 'interactive_search')
         import inspect
         sig = inspect.signature(player_search.interactive_search)
@@ -367,7 +362,7 @@ class TestInteractiveSearchEdgeCases:
         import inspect
         sig = inspect.signature(player_search.interactive_search)
         param = sig.parameters['not_available']
-        assert param.default == False  # Default should be False
+        assert param.default == False
 
 
 class TestAdditionalEdgeCases:
@@ -390,9 +385,8 @@ class TestAdditionalEdgeCases:
 
     def test_search_with_leading_trailing_whitespace(self, player_search):
         """Test search with whitespace in term (doesn't auto-strip)."""
-        # Search term with whitespace won't match because implementation doesn't strip
         matches = player_search.search_players_by_name("  Mahomes  ")
-        assert len(matches) == 0  # No match due to whitespace
+        assert len(matches) == 0
 
     def test_search_with_empty_players_list(self):
         """Test search with empty players list returns empty."""
@@ -420,7 +414,6 @@ class TestAdditionalEdgeCases:
 
     def test_search_with_invalid_drafted_filter(self, player_search):
         """Test search with invalid drafted_filter value (treats as no filter)."""
-        # drafted_filter=3 is invalid, should default to all players
         matches = player_search.search_players_by_name("Swift", drafted_filter=3)
         assert len(matches) == 1
         assert matches[0].name == "D'Andre Swift"
@@ -428,16 +421,16 @@ class TestAdditionalEdgeCases:
     def test_search_with_whitespace_only_term(self, player_search):
         """Test search with whitespace-only term returns empty."""
         matches = player_search.search_players_by_name("   ")
-        # Whitespace should be stripped, resulting in empty search
         assert len(matches) == 0
 
     def test_search_not_available_with_whitespace(self, player_search):
         """Test search_players_by_name_not_available with whitespace (doesn't auto-strip)."""
-        # Search term with whitespace won't match because implementation doesn't strip
         matches = player_search.search_players_by_name_not_available("  Kelce  ")
-        assert len(matches) == 0  # No match due to whitespace
+        assert len(matches) == 0
 
     def test_find_players_by_drafted_status_negative_value(self, player_search):
         """Test find_players_by_drafted_status with negative value returns empty."""
         matches = player_search.find_players_by_drafted_status(-1)
         assert len(matches) == 0
+
+

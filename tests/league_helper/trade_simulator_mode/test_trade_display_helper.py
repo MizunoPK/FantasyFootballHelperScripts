@@ -42,9 +42,8 @@ class TestDisplayNumberedRoster:
         captured = capsys.readouterr()
         assert "EMPTY ROSTER" in captured.out
         assert "=" * 25 in captured.out
-        # Should only have title and separators, no player listings
         lines = [line for line in captured.out.split('\n') if line.strip() and '=' not in line]
-        assert len(lines) == 1  # Only title
+        assert len(lines) == 1
 
     def test_display_single_player(self, capsys):
         """Test displaying roster with single player"""
@@ -80,9 +79,7 @@ class TestDisplayNumberedRoster:
         TradeDisplayHelper.display_numbered_roster(players, "NUMBERING TEST")
 
         captured = capsys.readouterr()
-        # Check that numbering starts with "1. " (note the space after the period)
         assert "1. Test" in captured.out
-        # Make sure there's no "0. " numbering (with space)
         assert "\n0. " not in captured.out
 
     def test_display_roster_with_long_title(self, capsys):
@@ -126,7 +123,7 @@ class TestDisplayCombinedRoster:
         assert "MY TEAM" in captured.out
         assert "EMPTY TEAM" in captured.out
         assert "MyQB" in captured.out
-        assert boundary == 2  # Boundary is after my 1 player
+        assert boundary == 2
         assert len(my_order) == 1
         assert len(their_order) == 0
 
@@ -141,7 +138,7 @@ class TestDisplayCombinedRoster:
 
         captured = capsys.readouterr()
         assert "TheirQB" in captured.out
-        assert boundary == 1  # Boundary is at start (no my players)
+        assert boundary == 1
         assert len(my_order) == 0
         assert len(their_order) == 1
 
@@ -166,13 +163,12 @@ class TestDisplayCombinedRoster:
         assert "MyRB" in captured.out
         assert "TheirQB" in captured.out
         assert "TheirRB" in captured.out
-        assert boundary == 3  # After 2 my players
+        assert boundary == 3
         assert len(my_order) == 2
         assert len(their_order) == 2
 
     def test_display_combined_rosters_sorted_by_score(self, capsys):
         """Test that players within position are sorted by score descending"""
-        # Create players with score attribute (used by TradeSimulator for sorting)
         low_rb = FantasyPlayer(id=1, name="LowRB", team="JAX", position="RB", fantasy_points=10.0)
         low_rb.score = 10.0
         high_rb = FantasyPlayer(id=2, name="HighRB", team="SF", position="RB", fantasy_points=25.0)
@@ -185,7 +181,6 @@ class TestDisplayCombinedRoster:
             my_roster, [], "Empty"
         )
 
-        # Check display order is by score (highest first)
         assert my_order[0].name == "HighRB"
         assert my_order[1].name == "MidRB"
         assert my_order[2].name == "LowRB"
@@ -202,7 +197,6 @@ class TestDisplayCombinedRoster:
         )
 
         captured = capsys.readouterr()
-        # Check that positions appear in order in output
         qb_pos = captured.out.index("QB:")
         rb_pos = captured.out.index("RB:")
         wr_pos = captured.out.index("WR:")
@@ -226,7 +220,6 @@ class TestDisplayCombinedRoster:
             my_roster, their_roster, "Opponent"
         )
 
-        # Boundary should be 4 (after 3 my players, their numbering starts at 4)
         assert boundary == 4
         assert len(my_order) == 3
         assert len(their_order) == 1
@@ -246,7 +239,6 @@ class TestDisplayTradeResult:
     @pytest.fixture
     def mock_trade(self):
         """Create a mock TradeSnapshot for testing"""
-        # Create mock teams
         my_team = Mock(spec=TradeSimTeam)
         my_team.name = "My Team"
         my_team.team_score = 150.0
@@ -255,20 +247,17 @@ class TestDisplayTradeResult:
         their_team.name = "Their Team"
         their_team.team_score = 140.0
 
-        # Create mock players
         my_give = [Mock(spec=Mock)]
         my_give[0].__str__ = Mock(return_value="Player1 (QB) - KC - 25.0 pts")
 
         my_receive = [Mock(spec=Mock)]
         my_receive[0].__str__ = Mock(return_value="Player2 (RB) - SF - 22.0 pts")
 
-        # Create mock trade
         trade = Mock(spec=TradeSnapshot)
         trade.my_new_team = my_team
         trade.their_new_team = their_team
         trade.my_original_players = my_give
         trade.my_new_players = my_receive
-        # Add new unequal trade fields (default to None/empty for basic tests)
         trade.waiver_recommendations = None
         trade.their_waiver_recommendations = None
         trade.my_dropped_players = None
@@ -322,7 +311,6 @@ class TestDisplayTradeResult:
 
     def test_display_trade_multiple_players(self, capsys):
         """Test displaying trade with multiple players on each side"""
-        # Create trade with multiple players
         my_team = Mock(spec=TradeSimTeam)
         my_team.name = "My Team"
         my_team.team_score = 150.0
@@ -331,7 +319,6 @@ class TestDisplayTradeResult:
         their_team.name = "Their Team"
         their_team.team_score = 140.0
 
-        # Multiple players
         give1 = Mock()
         give1.__str__ = Mock(return_value="Give1 (QB) - KC")
         give2 = Mock()
@@ -347,7 +334,6 @@ class TestDisplayTradeResult:
         trade.their_new_team = their_team
         trade.my_original_players = [give1, give2]
         trade.my_new_players = [receive1, receive2]
-        # Add new unequal trade fields (default to None/empty for basic tests)
         trade.waiver_recommendations = None
         trade.their_waiver_recommendations = None
         trade.my_dropped_players = None
@@ -391,9 +377,9 @@ class TestTradeDisplayHelperEdgeCases:
 
         assert isinstance(result, tuple)
         assert len(result) == 3
-        assert isinstance(result[0], int)  # boundary
-        assert isinstance(result[1], list)  # my_order
-        assert isinstance(result[2], list)  # their_order
+        assert isinstance(result[0], int)
+        assert isinstance(result[1], list)
+        assert isinstance(result[2], list)
 
     def test_display_large_rosters(self, capsys):
         """Test displaying very large rosters (15 players each)"""
@@ -412,8 +398,10 @@ class TestTradeDisplayHelperEdgeCases:
 
         assert len(my_order) == 15
         assert len(their_order) == 15
-        assert boundary == 16  # After 15 my players
+        assert boundary == 16
 
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v", "--tb=short"])
+
+

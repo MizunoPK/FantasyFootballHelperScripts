@@ -87,7 +87,6 @@ class TestCountPositions:
         """Test counting positions in an empty roster"""
         result = analyzer.count_positions([])
         assert isinstance(result, dict)
-        # All positions should be 0
         assert all(count == 0 for count in result.values())
 
     def test_count_single_position(self, analyzer, sample_players):
@@ -160,7 +159,6 @@ class TestValidateRoster:
         """Test that ignore_max_positions allows roster over limit for positions but not total"""
         mock_config.max_players = 2
         roster = [sample_players['qb1'], sample_players['rb1'], sample_players['wr1']]
-        # Should still fail because total roster size (3) > MAX_PLAYERS (2)
         result = analyzer.validate_roster(roster, ignore_max_positions=True)
         assert result is False
 
@@ -168,7 +166,6 @@ class TestValidateRoster:
         """Test that ignore_max_positions skips position validation"""
         mock_config.max_players = 5
         roster = [sample_players['qb1'], sample_players['rb1']]
-        # With ignore flag, should only check roster size
         result = analyzer.validate_roster(roster, ignore_max_positions=True)
         assert result is True
 
@@ -183,7 +180,6 @@ class TestValidateRoster:
 
     def test_validate_roster_at_max_boundary(self, analyzer, sample_players):
         """Test validating roster at exact MAX_PLAYERS boundary"""
-        # Create roster with exactly MAX_PLAYERS (15)
         roster = [sample_players['qb1']] * 15
 
         with patch('league_helper.trade_simulator_mode.trade_analyzer.FantasyTeam') as mock_team:
@@ -200,7 +196,6 @@ class TestValidateRoster:
 
         with patch('league_helper.trade_simulator_mode.trade_analyzer.FantasyTeam') as mock_team:
             mock_instance = Mock()
-            # First player drafts successfully, second fails
             mock_instance.draft_player = Mock(side_effect=[True, False])
             mock_team.return_value = mock_instance
 
@@ -239,7 +234,6 @@ class TestCountMinPositionViolations:
     def test_count_violations_one_position_below_minimum(self, analyzer, sample_players):
         """Test roster below minimum for one position returns 1 violation"""
         roster = [
-            # Missing QB (0 QBs, MIN = 1)
             sample_players['rb1'], sample_players['rb2'], sample_players['rb1'],  # 3 RBs
             sample_players['wr1'], sample_players['wr2'], sample_players['wr1'],  # 3 WRs
             sample_players['te1'],
@@ -252,7 +246,6 @@ class TestCountMinPositionViolations:
     def test_count_violations_multiple_positions_below_minimum(self, analyzer, sample_players):
         """Test roster below minimum for multiple positions returns correct count"""
         roster = [
-            # Missing QB (0 QBs, MIN = 1)
             sample_players['rb1'],  # Only 1 RB (MIN = 3)
             sample_players['wr1'],  # Only 1 WR (MIN = 3)
             sample_players['te1'],
@@ -260,7 +253,7 @@ class TestCountMinPositionViolations:
             sample_players['dst1']
         ]
         result = analyzer.count_min_position_violations(roster)
-        assert result == 3  # QB, RB, WR all below minimum
+        assert result == 3
 
     def test_count_violations_at_exactly_minimum(self, analyzer, sample_players):
         """Test roster at exactly minimum returns 0 violations"""
@@ -279,7 +272,7 @@ class TestCountMinPositionViolations:
         """Test empty roster returns violations for all positions"""
         roster = []
         result = analyzer.count_min_position_violations(roster)
-        assert result == 6  # All 6 positions (QB, RB, WR, TE, K, DST) below minimum
+        assert result == 6
 
 
 class TestValidateMinPositionsLenient:
@@ -311,13 +304,12 @@ class TestValidateMinPositionsLenient:
             sample_players['te1'], sample_players['k1'], sample_players['dst1']
         ]
         new = [
-            # Missing QB now (1 violation)
             sample_players['rb1'], sample_players['rb2'],  # Still 2 RBs (1 violation)
             sample_players['wr1'], sample_players['wr2'], sample_players['wr1'],
             sample_players['te1'], sample_players['k1'], sample_players['dst1']
         ]
         result = analyzer.validate_min_positions_lenient(original, new)
-        assert result is False  # Violations increased from 1 (RB) to 2 (QB + RB)
+        assert result is False
 
     def test_validate_trade_keeps_same_violations_returns_true(self, analyzer, sample_players):
         """Test trade that keeps same violations returns True (lenient)"""
@@ -334,7 +326,7 @@ class TestValidateMinPositionsLenient:
             sample_players['te1'], sample_players['k1'], sample_players['dst1']
         ]
         result = analyzer.validate_min_positions_lenient(original, new)
-        assert result is True  # Same violations allowed
+        assert result is True
 
     def test_validate_trade_improves_violations_returns_true(self, analyzer, sample_players):
         """Test trade that improves violations returns True"""
@@ -351,7 +343,7 @@ class TestValidateMinPositionsLenient:
             sample_players['te1'], sample_players['k1'], sample_players['dst1']
         ]
         result = analyzer.validate_min_positions_lenient(original, new)
-        assert result is True  # Improved violations
+        assert result is True
 
 
 class TestGetTradeCombinations:
@@ -365,17 +357,17 @@ class TestGetTradeCombinations:
 
         my_team = Mock(spec=TradeSimTeam)
         my_team.team = my_roster
-        my_team.team_score = 100.0  # Base score for testing MIN_TRADE_IMPROVEMENT
+        my_team.team_score = 100.0
         my_team.name = "My Team"
         my_team.get_scored_players = Mock(return_value=[])
-        my_team.use_weekly_scoring = False  # Default to Rest of Season mode
+        my_team.use_weekly_scoring = False
 
         their_team = Mock(spec=TradeSimTeam)
         their_team.team = their_roster
-        their_team.team_score = 100.0  # Base score for testing MIN_TRADE_IMPROVEMENT
+        their_team.team_score = 100.0
         their_team.name = "Their Team"
         their_team.get_scored_players = Mock(return_value=[])
-        their_team.use_weekly_scoring = False  # Default to Rest of Season mode
+        their_team.use_weekly_scoring = False
 
         return my_team, their_team
 
@@ -383,21 +375,18 @@ class TestGetTradeCombinations:
         """Test generating 1-for-1 trade combinations"""
         my_team, their_team = mock_teams
 
-        # Mock validate_roster to return True
         analyzer.validate_roster_lenient = Mock(return_value=True)
 
-        # Mock TradeSimTeam constructor
         with patch('league_helper.trade_simulator_mode.trade_analyzer.TradeSimTeam') as mock_team_class:
-            # Create mock teams with improved scores (must meet MIN_TRADE_IMPROVEMENT = 30)
             mock_my_new = Mock()
-            mock_my_new.team_score = 135.0  # Improved from 100.0 (+35 points)
+            mock_my_new.team_score = 135.0
             mock_my_new.get_scored_players = Mock(return_value=[])
 
             mock_their_new = Mock()
-            mock_their_new.team_score = 135.0  # Improved from 100.0 (+35 points)
+            mock_their_new.team_score = 135.0
             mock_their_new.get_scored_players = Mock(return_value=[])
 
-            mock_team_class.side_effect = [mock_my_new, mock_their_new] * 10  # Multiple trades possible
+            mock_team_class.side_effect = [mock_my_new, mock_their_new] * 10
 
             with patch('league_helper.trade_simulator_mode.trade_analyzer.TradeSnapshot') as mock_snapshot:
                 mock_snapshot.return_value = Mock()
@@ -409,23 +398,21 @@ class TestGetTradeCombinations:
                     three_for_three=False
                 )
 
-                # Should have generated some 1-for-1 trades (2 my players * 2 their players = 4 max)
                 assert len(results) > 0
 
     def test_get_trade_combinations_two_for_two(self, analyzer, mock_teams):
         """Test generating 2-for-2 trade combinations"""
         my_team, their_team = mock_teams
 
-        # Mock validate_roster to return True
         analyzer.validate_roster_lenient = Mock(return_value=True)
 
         with patch('league_helper.trade_simulator_mode.trade_analyzer.TradeSimTeam') as mock_team_class:
             mock_my_new = Mock()
-            mock_my_new.team_score = 135.0  # Improved from 100.0 (+35 points)
+            mock_my_new.team_score = 135.0
             mock_my_new.get_scored_players = Mock(return_value=[])
 
             mock_their_new = Mock()
-            mock_their_new.team_score = 135.0  # Improved from 100.0 (+35 points)
+            mock_their_new.team_score = 135.0
             mock_their_new.get_scored_players = Mock(return_value=[])
 
             mock_team_class.side_effect = [mock_my_new, mock_their_new] * 10
@@ -440,14 +427,12 @@ class TestGetTradeCombinations:
                     three_for_three=False
                 )
 
-                # Should have generated some 2-for-2 trades
                 assert len(results) > 0
 
     def test_get_trade_combinations_no_valid_trades(self, analyzer, mock_teams):
         """Test when no valid trades exist (all violate roster rules)"""
         my_team, their_team = mock_teams
 
-        # Mock validate_roster_lenient to always return False (all trades violate rules)
         analyzer.validate_roster_lenient = Mock(return_value=False)
 
         results = analyzer.get_trade_combinations(
@@ -463,16 +448,15 @@ class TestGetTradeCombinations:
         """Test waiver trades (is_waivers=True skips their roster validation)"""
         my_team, their_team = mock_teams
 
-        # Mock validate_roster_lenient: Always return True for waivers
         analyzer.validate_roster_lenient = Mock(return_value=True)
 
         with patch('league_helper.trade_simulator_mode.trade_analyzer.TradeSimTeam') as mock_team_class:
             mock_my_new = Mock()
-            mock_my_new.team_score = 106.0  # Improved from 100.0 (+6 points, exceeds MIN_WAIVER_IMPROVEMENT = 5)
+            mock_my_new.team_score = 106.0
             mock_my_new.get_scored_players = Mock(return_value=[])
 
             mock_their_new = Mock()
-            mock_their_new.team_score = 30.0  # Doesn't matter for waivers
+            mock_their_new.team_score = 30.0
             mock_their_new.get_scored_players = Mock(return_value=[])
 
             mock_team_class.side_effect = [mock_my_new, mock_their_new] * 10
@@ -488,43 +472,41 @@ class TestGetTradeCombinations:
                     three_for_three=False
                 )
 
-                # Should generate trades even though their roster validation would fail
                 assert len(results) > 0
 
     def test_get_trade_combinations_locked_players_filtered(self, analyzer, sample_players, mock_player_manager):
         """Test that locked players are filtered out"""
-        # Create players with locked status
         qb1 = sample_players['qb1']
-        qb1.locked = 1  # Locked
+        qb1.locked = 1
         rb1 = sample_players['rb1']
-        rb1.locked = 0  # Not locked
+        rb1.locked = 0
 
         wr1 = sample_players['wr1']
         wr1.locked = 0
 
         my_team = Mock(spec=TradeSimTeam)
-        my_team.team = [qb1, rb1]  # QB locked, RB not locked
+        my_team.team = [qb1, rb1]
         my_team.team_score = 100.0
         my_team.name = "My Team"
         my_team.get_scored_players = Mock(return_value=[])
-        my_team.use_weekly_scoring = False  # DEFAULT to Rest of Season mode
+        my_team.use_weekly_scoring = False
 
         their_team = Mock(spec=TradeSimTeam)
         their_team.team = [wr1]
         their_team.team_score = 100.0
         their_team.name = "Their Team"
         their_team.get_scored_players = Mock(return_value=[])
-        their_team.use_weekly_scoring = False  # DEFAULT to Rest of Season mode
+        their_team.use_weekly_scoring = False
 
         analyzer.validate_roster_lenient = Mock(return_value=True)
 
         with patch('league_helper.trade_simulator_mode.trade_analyzer.TradeSimTeam') as mock_team_class:
             mock_my_new = Mock()
-            mock_my_new.team_score = 135.0  # Improved from 100.0 (+35 points)
+            mock_my_new.team_score = 135.0
             mock_my_new.get_scored_players = Mock(return_value=[])
 
             mock_their_new = Mock()
-            mock_their_new.team_score = 135.0  # Improved from 100.0 (+35 points)
+            mock_their_new.team_score = 135.0
             mock_their_new.get_scored_players = Mock(return_value=[])
 
             mock_team_class.side_effect = [mock_my_new, mock_their_new] * 10
@@ -539,8 +521,6 @@ class TestGetTradeCombinations:
                     three_for_three=False
                 )
 
-                # Only RB1 should be tradeable (QB1 is locked)
-                # So should generate 1 trade: RB1 for WR1
                 assert len(results) == 1
 
     def test_get_trade_combinations_only_my_team_improves(self, analyzer, mock_teams):
@@ -551,11 +531,11 @@ class TestGetTradeCombinations:
 
         with patch('league_helper.trade_simulator_mode.trade_analyzer.TradeSimTeam') as mock_team_class:
             mock_my_new = Mock()
-            mock_my_new.team_score = 135.0  # Improved from 100.0 (+35 points)
+            mock_my_new.team_score = 135.0
             mock_my_new.get_scored_players = Mock(return_value=[])
 
             mock_their_new = Mock()
-            mock_their_new.team_score = 95.0  # Worse than 100.0 (decreased)
+            mock_their_new.team_score = 95.0
             mock_their_new.get_scored_players = Mock(return_value=[])
 
             mock_team_class.side_effect = [mock_my_new, mock_their_new] * 10
@@ -567,7 +547,6 @@ class TestGetTradeCombinations:
                 three_for_three=False
             )
 
-            # Should reject all trades (their team gets worse)
             assert len(results) == 0
 
     def test_get_trade_combinations_only_their_team_improves(self, analyzer, mock_teams):
@@ -578,11 +557,11 @@ class TestGetTradeCombinations:
 
         with patch('league_helper.trade_simulator_mode.trade_analyzer.TradeSimTeam') as mock_team_class:
             mock_my_new = Mock()
-            mock_my_new.team_score = 95.0  # Worse than 100.0 (decreased)
+            mock_my_new.team_score = 95.0
             mock_my_new.get_scored_players = Mock(return_value=[])
 
             mock_their_new = Mock()
-            mock_their_new.team_score = 135.0  # Better than 100.0 (+35 points)
+            mock_their_new.team_score = 135.0
             mock_their_new.get_scored_players = Mock(return_value=[])
 
             mock_team_class.side_effect = [mock_my_new, mock_their_new] * 10
@@ -594,7 +573,6 @@ class TestGetTradeCombinations:
                 three_for_three=False
             )
 
-            # Should reject all trades (my team gets worse)
             assert len(results) == 0
 
     def test_get_trade_combinations_empty_rosters(self, analyzer, mock_player_manager):
@@ -616,12 +594,10 @@ class TestGetTradeCombinations:
             three_for_three=False
         )
 
-        # No trades possible with empty rosters
         assert len(results) == 0
 
     def test_get_trade_combinations_three_for_three(self, analyzer, sample_players, mock_player_manager):
         """Test generating 3-for-3 trade combinations"""
-        # Need at least 3 players per team
         my_roster = [sample_players['qb1'], sample_players['rb1'], sample_players['rb2']]
         their_roster = [sample_players['wr1'], sample_players['wr2'], sample_players['te1']]
 
@@ -630,24 +606,24 @@ class TestGetTradeCombinations:
         my_team.team_score = 100.0
         my_team.name = "My Team"
         my_team.get_scored_players = Mock(return_value=[])
-        my_team.use_weekly_scoring = False  # DEFAULT to Rest of Season mode
+        my_team.use_weekly_scoring = False
 
         their_team = Mock(spec=TradeSimTeam)
         their_team.team = their_roster
         their_team.team_score = 100.0
         their_team.name = "Their Team"
         their_team.get_scored_players = Mock(return_value=[])
-        their_team.use_weekly_scoring = False  # DEFAULT to Rest of Season mode
+        their_team.use_weekly_scoring = False
 
         analyzer.validate_roster_lenient = Mock(return_value=True)
 
         with patch('league_helper.trade_simulator_mode.trade_analyzer.TradeSimTeam') as mock_team_class:
             mock_my_new = Mock()
-            mock_my_new.team_score = 135.0  # Improved from 100.0 (+35 points)
+            mock_my_new.team_score = 135.0
             mock_my_new.get_scored_players = Mock(return_value=[])
 
             mock_their_new = Mock()
-            mock_their_new.team_score = 135.0  # Improved from 100.0 (+35 points)
+            mock_their_new.team_score = 135.0
             mock_their_new.get_scored_players = Mock(return_value=[])
 
             mock_team_class.side_effect = [mock_my_new, mock_their_new] * 10
@@ -662,6 +638,6 @@ class TestGetTradeCombinations:
                     three_for_three=True
                 )
 
-                # Should have generated 3-for-3 trades
-                # With 3 players each: C(3,3) * C(3,3) = 1 * 1 = 1 possible trade
                 assert len(results) == 1
+
+

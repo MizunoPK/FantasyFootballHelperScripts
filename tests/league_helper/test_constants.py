@@ -134,8 +134,6 @@ class TestPositionConstants:
 
 class TestRosterConstruction:
     """Test suite for roster construction limits."""
-    # Note: FLEX_ELIGIBLE_POSITIONS tests moved to test_ConfigManager_flex_eligible_positions.py
-    # since FLEX_ELIGIBLE_POSITIONS is now a config parameter
 
 
 class TestByeWeeks:
@@ -145,7 +143,7 @@ class TestByeWeeks:
         """Test that all bye weeks are valid NFL week numbers."""
         for week in constants.POSSIBLE_BYE_WEEKS:
             assert isinstance(week, int)
-            assert 1 <= week <= 18  # NFL season is 18 weeks
+            assert 1 <= week <= 18
 
     def test_possible_bye_weeks_are_sorted(self):
         """Test that POSSIBLE_BYE_WEEKS is sorted."""
@@ -156,9 +154,6 @@ class TestByeWeeks:
         assert len(constants.POSSIBLE_BYE_WEEKS) == len(set(constants.POSSIBLE_BYE_WEEKS))
 
 
-# Note: MATCHUP_ENABLED_POSITIONS constant was deprecated (2025-10-24)
-# All positions now receive matchup multipliers unconditionally
-# Removed TestScoringConfiguration class that tested deprecated behavior
 
-# Note: get_position_with_flex() function tests moved to test_ConfigManager_flex_eligible_positions.py
-# since get_position_with_flex() is now a ConfigManager instance method
+
+

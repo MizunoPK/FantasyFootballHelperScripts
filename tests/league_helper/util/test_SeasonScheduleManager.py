@@ -21,9 +21,6 @@ def temp_schedule_csv(tmp_path):
 
     schedule_file = data_folder / "season_schedule.csv"
 
-    # Create sample schedule data
-    # KC: plays BAL (week 1), DEN (week 2), bye (week 5), LAC (week 6)
-    # PHI: plays DAL (week 1), bye (week 3), NYG (week 4)
     schedule_data = [
         ['week', 'team', 'opponent'],
         ['1', 'KC', 'BAL'],
@@ -92,7 +89,6 @@ class TestLoadSchedule:
         """Test _load_schedule populates schedule cache correctly"""
         manager = SeasonScheduleManager(temp_schedule_csv)
 
-        # Check specific entries
         assert manager.schedule_cache[('KC', 1)] == 'BAL'
         assert manager.schedule_cache[('BAL', 1)] == 'KC'
         assert manager.schedule_cache[('PHI', 1)] == 'DAL'
@@ -101,10 +97,8 @@ class TestLoadSchedule:
         """Test _load_schedule converts empty strings to None for bye weeks"""
         manager = SeasonScheduleManager(temp_schedule_csv)
 
-        # KC has bye in week 5
         assert manager.schedule_cache[('KC', 5)] is None
 
-        # PHI has bye in week 3
         assert manager.schedule_cache[('PHI', 3)] is None
 
 
@@ -124,10 +118,8 @@ class TestGetOpponent:
         """Test get_opponent returns None for bye weeks"""
         manager = SeasonScheduleManager(temp_schedule_csv)
 
-        # KC has bye in week 5
         assert manager.get_opponent('KC', 5) is None
 
-        # PHI has bye in week 3
         assert manager.get_opponent('PHI', 3) is None
 
     def test_get_opponent_invalid_week_too_low(self, temp_schedule_csv):
@@ -169,24 +161,20 @@ class TestGetFutureOpponents:
         """Test get_future_opponents excludes bye weeks from result"""
         manager = SeasonScheduleManager(temp_schedule_csv)
 
-        # KC future opponents from week 1 (weeks 2-6, excluding week 5 bye)
         future = manager.get_future_opponents('KC', 1)
 
         assert 'DEN' in future  # Week 2
         assert 'LAC' in future  # Week 3
         assert 'LV' in future   # Week 4
-        # Week 5 is bye, should not be in list
         assert 'BUF' in future  # Week 6
-        assert len(future) == 4  # 4 games (week 5 bye excluded)
+        assert len(future) == 4
 
     def test_get_future_opponents_from_current_week(self, temp_schedule_csv):
         """Test get_future_opponents starts from current_week + 1"""
         manager = SeasonScheduleManager(temp_schedule_csv)
 
-        # PHI future opponents from week 2 (weeks 3-6)
         future = manager.get_future_opponents('PHI', 2)
 
-        # Week 3 is bye, should be excluded
         assert 'SF' in future   # Week 4
         assert 'ARI' in future  # Week 5
         assert 'CLE' in future  # Week 6
@@ -196,7 +184,6 @@ class TestGetFutureOpponents:
         """Test get_future_opponents returns empty list at end of season"""
         manager = SeasonScheduleManager(temp_schedule_csv)
 
-        # No future opponents after week 18 (last week of regular season)
         future = manager.get_future_opponents('KC', 18)
 
         assert future == []
@@ -219,13 +206,12 @@ class TestGetRemainingSchedule:
         """Test get_remaining_schedule includes bye weeks as None"""
         manager = SeasonScheduleManager(temp_schedule_csv)
 
-        # KC remaining schedule from week 1
         remaining = manager.get_remaining_schedule('KC', 1)
 
         assert remaining[2] == 'DEN'
         assert remaining[3] == 'LAC'
         assert remaining[4] == 'LV'
-        assert remaining[5] is None  # Bye week
+        assert remaining[5] is None
         assert remaining[6] == 'BUF'
 
     def test_get_remaining_schedule_returns_dict(self, temp_schedule_csv):
@@ -256,7 +242,6 @@ class TestGetRemainingSchedule:
         manager = SeasonScheduleManager(data_folder)
         remaining = manager.get_remaining_schedule('KC', 1)
 
-        # Should return dict with None values for all weeks
         assert isinstance(remaining, dict)
         for week in range(2, 19):
             assert remaining[week] is None
@@ -289,7 +274,6 @@ class TestErrorHandling:
         data_folder = tmp_path / "data"
         data_folder.mkdir()
 
-        # Should not raise exception
         manager = SeasonScheduleManager(data_folder)
 
         assert manager.schedule_cache == {}
@@ -302,12 +286,10 @@ class TestErrorHandling:
 
         schedule_file = data_folder / "season_schedule.csv"
 
-        # Create invalid CSV (missing required columns)
         with open(schedule_file, 'w') as f:
             f.write("invalid,csv,headers\n")
             f.write("1,2,3\n")
 
-        # Should not crash, but schedule should be empty
         manager = SeasonScheduleManager(data_folder)
 
         assert not manager.is_schedule_available()
@@ -321,3 +303,5 @@ class TestModuleImports:
         from league_helper.util.SeasonScheduleManager import SeasonScheduleManager
 
         assert SeasonScheduleManager is not None
+
+

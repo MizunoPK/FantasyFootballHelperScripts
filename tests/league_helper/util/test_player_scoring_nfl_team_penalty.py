@@ -59,90 +59,69 @@ class TestNFLTeamPenaltyLogic:
 
     def test_penalty_applied_team_in_list(self, calculator, player_penalized):
         """Test 1: Penalty applied when player team in penalty list."""
-        # GIVEN: Player on penalized team (LV), score 100.0
         initial_score = 100.0
 
-        # WHEN: Apply penalty
         new_score, reason = calculator._apply_nfl_team_penalty(player_penalized, initial_score)
 
-        # THEN: Score multiplied by weight (100 * 0.75 = 75.0)
         assert new_score == 75.0
         assert reason == "NFL Team Penalty: LV (0.75x)"
 
     def test_no_penalty_team_not_in_list(self, calculator, player_not_penalized):
         """Test 2: No penalty when player team NOT in penalty list."""
-        # GIVEN: Player on non-penalized team, score 100.0
         initial_score = 100.0
 
-        # WHEN: Apply penalty
         new_score, reason = calculator._apply_nfl_team_penalty(player_not_penalized, initial_score)
 
-        # THEN: Score unchanged, empty reason
         assert new_score == 100.0
         assert reason == ""
 
     def test_no_penalty_empty_list(self, calculator, player_penalized):
         """Test 3: No penalty when penalty list is empty."""
-        # GIVEN: Empty penalty list
         calculator.config.nfl_team_penalty = []
         initial_score = 100.0
 
-        # WHEN: Apply penalty
         new_score, reason = calculator._apply_nfl_team_penalty(player_penalized, initial_score)
 
-        # THEN: Score unchanged, empty reason
         assert new_score == 100.0
         assert reason == ""
 
     def test_weight_075_calculation(self, calculator, player_penalized):
         """Test 4: Weight 0.75 produces correct score."""
-        # GIVEN: Weight 0.75, score 120.5
         calculator.config.nfl_team_penalty_weight = 0.75
         initial_score = 120.5
 
-        # WHEN: Apply penalty
         new_score, reason = calculator._apply_nfl_team_penalty(player_penalized, initial_score)
 
-        # THEN: Score = 120.5 * 0.75 = 90.375
         assert new_score == 90.375
         assert reason == "NFL Team Penalty: LV (0.75x)"
 
     def test_weight_10_no_effect(self, calculator, player_penalized):
         """Test 5: Weight 1.0 produces unchanged score (edge case)."""
-        # GIVEN: Weight 1.0 (no penalty effect)
         calculator.config.nfl_team_penalty_weight = 1.0
         initial_score = 100.0
 
-        # WHEN: Apply penalty
         new_score, reason = calculator._apply_nfl_team_penalty(player_penalized, initial_score)
 
-        # THEN: Score unchanged (100 * 1.0 = 100)
         assert new_score == 100.0
         assert reason == "NFL Team Penalty: LV (1.00x)"
 
     def test_weight_00_zero_score(self, calculator, player_penalized):
         """Test 6: Weight 0.0 produces score of 0.0 (edge case)."""
-        # GIVEN: Weight 0.0 (complete penalty)
         calculator.config.nfl_team_penalty_weight = 0.0
         initial_score = 100.0
 
-        # WHEN: Apply penalty
         new_score, reason = calculator._apply_nfl_team_penalty(player_penalized, initial_score)
 
-        # THEN: Score = 100 * 0.0 = 0.0
         assert new_score == 0.0
         assert reason == "NFL Team Penalty: LV (0.00x)"
 
     def test_reason_string_format(self, calculator, player_penalized):
         """Test 7: Reason string has correct format when penalty applied."""
-        # GIVEN: Penalty applies
         calculator.config.nfl_team_penalty_weight = 0.75
         initial_score = 100.0
 
-        # WHEN: Apply penalty
         new_score, reason = calculator._apply_nfl_team_penalty(player_penalized, initial_score)
 
-        # THEN: Reason format: "NFL Team Penalty: {team} ({weight:.2f}x)"
         assert reason == "NFL Team Penalty: LV (0.75x)"
         assert "NFL Team Penalty:" in reason
         assert "LV" in reason
@@ -150,25 +129,20 @@ class TestNFLTeamPenaltyLogic:
 
     def test_reason_empty_no_penalty(self, calculator, player_not_penalized):
         """Test 8: Reason string empty when no penalty applied."""
-        # GIVEN: Player NOT in penalty list
         initial_score = 100.0
 
-        # WHEN: Apply penalty
         new_score, reason = calculator._apply_nfl_team_penalty(player_not_penalized, initial_score)
 
-        # THEN: Empty reason string
         assert reason == ""
 
     def test_multiple_teams_penalty(self, calculator):
         """Test 9: Penalty works for all teams in penalty list."""
-        # GIVEN: Multiple teams in penalty list
         calculator.config.nfl_team_penalty = ["LV", "NYJ", "NYG", "KC"]
         calculator.config.nfl_team_penalty_weight = 0.75
         initial_score = 100.0
 
         teams_to_test = ["LV", "NYJ", "NYG", "KC"]
 
-        # WHEN/THEN: Each team gets penalized
         for team_abbr in teams_to_test:
             player = Mock(spec=FantasyPlayer)
             player.team = team_abbr
@@ -179,25 +153,23 @@ class TestNFLTeamPenaltyLogic:
 
     def test_different_weight_values(self, calculator, player_penalized):
         """Test 10: Different weight values produce correct scores."""
-        # Test various weight values
         test_cases = [
-            (0.0, 0.0),    # Complete penalty
-            (0.25, 25.0),  # 75% penalty
-            (0.5, 50.0),   # 50% penalty
-            (0.75, 75.0),  # 25% penalty (example from spec)
-            (0.9, 90.0),   # 10% penalty
-            (1.0, 100.0),  # No penalty
+            (0.0, 0.0),
+            (0.25, 25.0),
+            (0.5, 50.0),
+            (0.75, 75.0),
+            (0.9, 90.0),
+            (1.0, 100.0),
         ]
 
         initial_score = 100.0
 
         for weight, expected_score in test_cases:
-            # GIVEN: Specific weight
             calculator.config.nfl_team_penalty_weight = weight
 
-            # WHEN: Apply penalty
             new_score, reason = calculator._apply_nfl_team_penalty(player_penalized, initial_score)
 
-            # THEN: Score matches expected
             assert new_score == expected_score, f"Weight {weight} should produce score {expected_score}"
             assert reason == f"NFL Team Penalty: LV ({weight:.2f}x)"
+
+

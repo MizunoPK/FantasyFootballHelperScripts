@@ -21,9 +21,6 @@ import tempfile
 from league_helper.util.ConfigManager import ConfigManager, ConfigKeys
 
 
-# ============================================================================
-# FIXTURES
-# ============================================================================
 
 @pytest.fixture
 def config_keys():
@@ -216,9 +213,6 @@ def parameterized_config(temp_data_folder):
     return temp_data_folder
 
 
-# ============================================================================
-# VALIDATION TESTS
-# ============================================================================
 
 class TestValidateThresholdParams:
     """Test validate_threshold_params() validation logic"""
@@ -274,9 +268,6 @@ class TestValidateThresholdParams:
             config.validate_threshold_params(0, "INVALID_DIR", 20)
 
 
-# ============================================================================
-# CALCULATION TESTS
-# ============================================================================
 
 class TestCalculateThresholds:
     """Test calculate_thresholds() for all direction types"""
@@ -342,9 +333,6 @@ class TestCalculateThresholds:
         assert result["VERY_POOR"] == 25.0
 
 
-# ============================================================================
-# CACHING TESTS
-# ============================================================================
 
 class TestThresholdCaching:
     """Test threshold calculation caching behavior"""
@@ -353,15 +341,12 @@ class TestThresholdCaching:
         """Second call with same params should return cached result"""
         config = ConfigManager(minimal_hardcoded_config)
 
-        # First call - cache miss
         result1 = config.calculate_thresholds(0, "INCREASING", 20, "TEST_SCORING")
 
-        # Second call - should hit cache
         result2 = config.calculate_thresholds(0, "INCREASING", 20, "TEST_SCORING")
 
-        # Results should be identical
         assert result1 == result2
-        assert result1 is result2  # Should be same object from cache
+        assert result1 is result2
 
     def test_cache_different_scoring_types(self, minimal_hardcoded_config):
         """Different scoring_type with same params should be cached separately"""
@@ -370,7 +355,6 @@ class TestThresholdCaching:
         result1 = config.calculate_thresholds(0, "INCREASING", 20, "ADP_SCORING")
         result2 = config.calculate_thresholds(0, "INCREASING", 20, "PLAYER_RATING_SCORING")
 
-        # Results should be equal but different objects
         assert result1 == result2
         assert result1 is not result2
 
@@ -385,9 +369,6 @@ class TestThresholdCaching:
         assert result1 is not result2
 
 
-# ============================================================================
-# BACKWARD COMPATIBILITY TESTS
-# ============================================================================
 
 class TestBackwardCompatibility:
     """Test backward compatibility with hardcoded thresholds"""
@@ -396,10 +377,8 @@ class TestBackwardCompatibility:
         """Old hardcoded format should load without errors"""
         config = ConfigManager(minimal_hardcoded_config)
 
-        # Should load successfully
         assert config.config_name == "Test Hardcoded Config"
 
-        # Hardcoded thresholds should be accessible
         assert config.adp_scoring["THRESHOLDS"]["EXCELLENT"] == 20
         assert config.adp_scoring["THRESHOLDS"]["GOOD"] == 50
         assert config.adp_scoring["THRESHOLDS"]["POOR"] == 100
@@ -409,10 +388,8 @@ class TestBackwardCompatibility:
         """New parameterized format should load and calculate thresholds"""
         config = ConfigManager(parameterized_config)
 
-        # Should load successfully
         assert config.config_name == "Test Parameterized Config"
 
-        # Thresholds should be calculated and accessible
         assert config.adp_scoring["THRESHOLDS"]["EXCELLENT"] == 37.5
         assert config.adp_scoring["THRESHOLDS"]["GOOD"] == 75.0
         assert config.adp_scoring["THRESHOLDS"]["POOR"] == 112.5
@@ -449,42 +426,34 @@ class TestBackwardCompatibility:
         """_get_multiplier() should work with calculated thresholds"""
         config = ConfigManager(parameterized_config)
 
-        # Test ADP multiplier with calculated thresholds
-        mult, label = config.get_adp_multiplier(30.0)  # Should be EXCELLENT (< 37.5)
+        mult, label = config.get_adp_multiplier(30.0)
         assert label == "EXCELLENT"
 
-        mult, label = config.get_adp_multiplier(60.0)  # Should be GOOD (< 75)
+        mult, label = config.get_adp_multiplier(60.0)
         assert label == "GOOD"
 
     def test_get_schedule_multiplier_with_calculated_thresholds(self, parameterized_config):
         """get_schedule_multiplier() should work with calculated thresholds"""
         config = ConfigManager(parameterized_config)
 
-        # SCHEDULE thresholds: BASE=16, DIRECTION=INCREASING, STEPS=8
-        # VERY_POOR = 24, POOR = 32, GOOD = 40, EXCELLENT = 48
-        # Higher rank = worse defense = easier schedule = better for player
-        # For rising_thresholds: EXCELLENT if >=48, GOOD if >=40, POOR if <=32, VERY_POOR if <=24
 
-        mult, label = config.get_schedule_multiplier(50.0)  # Should be EXCELLENT (>= 48)
+        mult, label = config.get_schedule_multiplier(50.0)
         assert label == "EXCELLENT"
         assert mult == 1.05
 
-        mult, label = config.get_schedule_multiplier(44.0)  # Should be GOOD (>= 40, < 48)
+        mult, label = config.get_schedule_multiplier(44.0)
         assert label == "GOOD"
         assert mult == 1.025
 
-        mult, label = config.get_schedule_multiplier(30.0)  # Should be POOR (<= 32, > 24)
+        mult, label = config.get_schedule_multiplier(30.0)
         assert label == "POOR"
         assert mult == 0.975
 
-        mult, label = config.get_schedule_multiplier(20.0)  # Should be VERY_POOR (<= 24)
+        mult, label = config.get_schedule_multiplier(20.0)
         assert label == "VERY_POOR"
         assert mult == 0.95
 
 
-# ============================================================================
-# INTEGRATION TESTS
-# ============================================================================
 
 class TestExtractParametersIntegration:
     """Test _extract_parameters() pre-calculation integration"""
@@ -493,27 +462,21 @@ class TestExtractParametersIntegration:
         """All 6 scoring types should have calculated thresholds"""
         config = ConfigManager(parameterized_config)
 
-        # ADP
         assert "EXCELLENT" in config.adp_scoring["THRESHOLDS"]
         assert config.adp_scoring["THRESHOLDS"]["EXCELLENT"] == 37.5
 
-        # PLAYER_RATING
         assert "EXCELLENT" in config.player_rating_scoring["THRESHOLDS"]
         assert config.player_rating_scoring["THRESHOLDS"]["EXCELLENT"] == 80
 
-        # TEAM_QUALITY
         assert "EXCELLENT" in config.team_quality_scoring["THRESHOLDS"]
         assert config.team_quality_scoring["THRESHOLDS"]["EXCELLENT"] == 6.25
 
-        # PERFORMANCE
         assert "EXCELLENT" in config.performance_scoring["THRESHOLDS"]
         assert config.performance_scoring["THRESHOLDS"]["EXCELLENT"] == 0.2
 
-        # MATCHUP
         assert "EXCELLENT" in config.matchup_scoring["THRESHOLDS"]
         assert config.matchup_scoring["THRESHOLDS"]["EXCELLENT"] == 15.0
 
-        # SCHEDULE
         assert "EXCELLENT" in config.schedule_scoring["THRESHOLDS"]
         assert config.schedule_scoring["THRESHOLDS"]["EXCELLENT"] == 48
 
@@ -521,19 +484,14 @@ class TestExtractParametersIntegration:
         """Original BASE_POSITION, DIRECTION, STEPS should be preserved"""
         config = ConfigManager(parameterized_config)
 
-        # Check ADP original params are still there
         assert config.adp_scoring["THRESHOLDS"]["BASE_POSITION"] == 0
         assert config.adp_scoring["THRESHOLDS"]["DIRECTION"] == "DECREASING"
         assert config.adp_scoring["THRESHOLDS"]["STEPS"] == 37.5
 
-        # And calculated values added
         assert config.adp_scoring["THRESHOLDS"]["EXCELLENT"] == 37.5
         assert config.adp_scoring["THRESHOLDS"]["VERY_POOR"] == 150.0
 
 
-# ============================================================================
-# EDGE CASE TESTS
-# ============================================================================
 
 class TestConfigStructureEdgeCases:
     """Test edge cases for config structure validation"""
@@ -602,7 +560,6 @@ class TestConfigStructureEdgeCases:
 
     def test_config_file_not_found(self, temp_data_folder):
         """Missing config file should raise FileNotFoundError"""
-        # Don't create the config file
         with pytest.raises(FileNotFoundError, match="Configuration file not found"):
             ConfigManager(temp_data_folder)
 
@@ -633,7 +590,6 @@ class TestMissingRequiredParameters:
         with open(config_file, 'r') as f:
             data = json.load(f)
 
-        # Remove HIGH level
         del data["parameters"]["INJURY_PENALTIES"]["HIGH"]
 
         with open(config_file, 'w') as f:
@@ -648,7 +604,6 @@ class TestMissingRequiredParameters:
         with open(config_file, 'r') as f:
             data = json.load(f)
 
-        # Remove PRIMARY bonus
         del data["parameters"]["DRAFT_ORDER_BONUSES"]["PRIMARY"]
 
         with open(config_file, 'w') as f:
@@ -663,7 +618,6 @@ class TestMissingRequiredParameters:
         with open(config_file, 'r') as f:
             data = json.load(f)
 
-        # Make DRAFT_ORDER a dict instead of list
         data["parameters"]["DRAFT_ORDER"] = {"FLEX": "P"}
 
         with open(config_file, 'w') as f:
@@ -731,38 +685,32 @@ class TestGetterMethodEdgeCases:
 
         config = ConfigManager(minimal_hardcoded_config)
 
-        # Create mock players with weekly points (using projected_points arrays)
-        # Note: Set both projected and actual to same values since config.current_nfl_week=6
-        # means weeks 1-5 will use actual_points
         projected1 = [0.0] * 17
-        projected1[0] = 10.0  # Week 1
-        projected1[1] = 15.0  # Week 2
-        projected1[2] = 12.0  # Week 3
-        actual1 = projected1.copy()  # Same values for testing median calculation
+        projected1[0] = 10.0
+        projected1[1] = 15.0
+        projected1[2] = 12.0
+        actual1 = projected1.copy()
         player1 = FantasyPlayer(
             id=1, name="RB1", team="KC", position="RB",
             projected_points=projected1,
             actual_points=actual1
         )
-        # Median = 12.0
 
         projected2 = [0.0] * 17
-        projected2[0] = 20.0  # Week 1
-        projected2[1] = 18.0  # Week 2
-        projected2[2] = 22.0  # Week 3
-        actual2 = projected2.copy()  # Same values for testing median calculation
+        projected2[0] = 20.0
+        projected2[1] = 18.0
+        projected2[2] = 22.0
+        actual2 = projected2.copy()
         player2 = FantasyPlayer(
             id=2, name="RB2", team="DAL", position="RB",
             projected_points=projected2,
             actual_points=actual2
         )
-        # Median = 20.0
 
         same_pos_players = [player1, player2]
         diff_pos_players = []
 
         result = config.get_bye_week_penalty(same_pos_players, diff_pos_players)
-        # Expected = (12 + 20) ** 1.0 + 0 ** 1.0 = 32.0
         expected = 32.0
         assert abs(result - expected) < 0.01
 
@@ -772,50 +720,43 @@ class TestGetterMethodEdgeCases:
 
         config = ConfigManager(minimal_hardcoded_config)
 
-        # Create mock players (using projected_points arrays)
-        # Note: Set both projected and actual to same values since config.current_nfl_week=6
-        # means weeks 1-5 will use actual_points
         projected_same = [0.0] * 17
-        projected_same[0] = 10.0  # Week 1
-        projected_same[1] = 15.0  # Week 2
-        projected_same[2] = 12.0  # Week 3
+        projected_same[0] = 10.0
+        projected_same[1] = 15.0
+        projected_same[2] = 12.0
         actual_same = projected_same.copy()
         same_pos_player = FantasyPlayer(
             id=1, name="RB1", team="KC", position="RB",
             projected_points=projected_same,
             actual_points=actual_same
         )
-        # Median = 12.0
 
         projected_diff1 = [0.0] * 17
-        projected_diff1[0] = 8.0   # Week 1
-        projected_diff1[1] = 10.0  # Week 2
-        projected_diff1[2] = 12.0  # Week 3
+        projected_diff1[0] = 8.0
+        projected_diff1[1] = 10.0
+        projected_diff1[2] = 12.0
         actual_diff1 = projected_diff1.copy()
         diff_pos_player1 = FantasyPlayer(
             id=2, name="WR1", team="DAL", position="WR",
             projected_points=projected_diff1,
             actual_points=actual_diff1
         )
-        # Median = 10.0
 
         projected_diff2 = [0.0] * 17
-        projected_diff2[0] = 5.0  # Week 1
-        projected_diff2[1] = 7.0  # Week 2
-        projected_diff2[2] = 6.0  # Week 3
+        projected_diff2[0] = 5.0
+        projected_diff2[1] = 7.0
+        projected_diff2[2] = 6.0
         actual_diff2 = projected_diff2.copy()
         diff_pos_player2 = FantasyPlayer(
             id=3, name="TE1", team="SF", position="TE",
             projected_points=projected_diff2,
             actual_points=actual_diff2
         )
-        # Median = 6.0
 
         same_pos_players = [same_pos_player]
         diff_pos_players = [diff_pos_player1, diff_pos_player2]
 
         result = config.get_bye_week_penalty(same_pos_players, diff_pos_players)
-        # Expected = 12 ** 1.0 + (10 + 6) ** 1.0 = 12 + 16 = 28.0
         expected = 28.0
         assert abs(result - expected) < 0.01
 
@@ -828,3 +769,5 @@ class TestGetterMethodEdgeCases:
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v", "--tb=short"])
+
+

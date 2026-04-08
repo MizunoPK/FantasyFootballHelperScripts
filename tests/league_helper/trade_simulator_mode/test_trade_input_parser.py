@@ -164,7 +164,7 @@ class TestSplitPlayersByTeam:
 
         my_indices, their_indices = TradeInputParser.split_players_by_team(unified_indices, roster_boundary)
         assert my_indices == []
-        assert their_indices == [1, 2, 3]  # Adjusted to be 1-based relative to their roster
+        assert their_indices == [1, 2, 3]
 
     def test_split_mixed_players(self):
         """Test splitting with players from both teams"""
@@ -173,7 +173,7 @@ class TestSplitPlayersByTeam:
 
         my_indices, their_indices = TradeInputParser.split_players_by_team(unified_indices, roster_boundary)
         assert my_indices == [2, 6]
-        assert their_indices == [1, 8]  # 14->1, 21->8 (adjusted to be relative)
+        assert their_indices == [1, 8]
 
     def test_split_boundary_player(self):
         """Test splitting with player exactly at boundary"""
@@ -182,7 +182,7 @@ class TestSplitPlayersByTeam:
 
         my_indices, their_indices = TradeInputParser.split_players_by_team(unified_indices, roster_boundary)
         assert my_indices == [13]
-        assert their_indices == [1]  # 14 is first player in their roster
+        assert their_indices == [1]
 
     def test_split_correct_adjustment_of_their_indices(self):
         """Test that their indices are correctly adjusted to 1-based"""
@@ -191,7 +191,7 @@ class TestSplitPlayersByTeam:
 
         my_indices, their_indices = TradeInputParser.split_players_by_team(unified_indices, roster_boundary)
         assert my_indices == []
-        assert their_indices == [6, 11, 16]  # 20->6, 25->11, 30->16
+        assert their_indices == [6, 11, 16]
 
 
 class TestParseUnifiedPlayerSelection:
@@ -203,7 +203,7 @@ class TestParseUnifiedPlayerSelection:
         assert result is not None
         my_indices, their_indices = result
         assert my_indices == [2, 6]
-        assert their_indices == [5, 8]  # 18->5, 21->8
+        assert their_indices == [5, 8]
 
     def test_parse_invalid_all_from_my_team(self):
         """Test that selecting only from my team returns None"""
@@ -221,7 +221,7 @@ class TestParseUnifiedPlayerSelection:
         assert result is not None
         my_indices, their_indices = result
         assert my_indices == [1, 2]
-        assert their_indices == [1]  # 14 is first player in their roster
+        assert their_indices == [1]
 
     def test_parse_invalid_input_string(self):
         """Test that invalid input string returns None"""
@@ -247,7 +247,7 @@ class TestParseUnifiedPlayerSelection:
         assert result is not None
         my_indices, their_indices = result
         assert my_indices == [5]
-        assert their_indices == [7]  # 20->7
+        assert their_indices == [7]
 
     def test_parse_boundary_case(self):
         """Test parsing with player at exact boundary"""
@@ -255,7 +255,7 @@ class TestParseUnifiedPlayerSelection:
         assert result is not None
         my_indices, their_indices = result
         assert my_indices == [13]
-        assert their_indices == [1]  # 14 is first player in their roster
+        assert their_indices == [1]
 
     def test_parse_out_of_range(self):
         """Test that out of range indices return None"""
@@ -266,3 +266,5 @@ class TestParseUnifiedPlayerSelection:
         """Test that duplicate indices return None"""
         result = TradeInputParser.parse_unified_player_selection("1,1,14,15", 30, 14)
         assert result is None
+
+

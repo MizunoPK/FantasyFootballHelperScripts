@@ -18,9 +18,6 @@ import tempfile
 from league_helper.util.ConfigManager import ConfigManager
 
 
-# ============================================================================
-# FIXTURES
-# ============================================================================
 
 @pytest.fixture
 def temp_data_folder():
@@ -93,66 +90,53 @@ def create_config_file(temp_data_folder, config_dict):
     return config_file
 
 
-# ============================================================================
-# TESTS
-# ============================================================================
 
 class TestIMPACT_SCALEValidation:
     """Test IMPACT_SCALE parameter validation"""
 
     def test_valid_config_with_both_impact_scales(self, temp_data_folder, base_config_dict):
         """Test config loads successfully when both IMPACT_SCALE params present"""
-        # Arrange
         create_config_file(temp_data_folder, base_config_dict)
 
-        # Act
         config = ConfigManager(temp_data_folder)
 
-        # Assert
         assert config.matchup_scoring['IMPACT_SCALE'] == 150.0
         assert config.schedule_scoring['IMPACT_SCALE'] == 80.0
 
     def test_missing_matchup_impact_scale_raises_error(self, temp_data_folder, base_config_dict):
         """Test ValueError raised when MATCHUP_SCORING missing IMPACT_SCALE"""
-        # Arrange
         del base_config_dict['parameters']['MATCHUP_SCORING']['IMPACT_SCALE']
         create_config_file(temp_data_folder, base_config_dict)
 
-        # Act & Assert
         with pytest.raises(ValueError, match="MATCHUP_SCORING missing required parameter: IMPACT_SCALE"):
             ConfigManager(temp_data_folder)
 
     def test_missing_schedule_impact_scale_raises_error(self, temp_data_folder, base_config_dict):
         """Test ValueError raised when SCHEDULE_SCORING missing IMPACT_SCALE"""
-        # Arrange
         del base_config_dict['parameters']['SCHEDULE_SCORING']['IMPACT_SCALE']
         create_config_file(temp_data_folder, base_config_dict)
 
-        # Act & Assert
         with pytest.raises(ValueError, match="SCHEDULE_SCORING missing required parameter: IMPACT_SCALE"):
             ConfigManager(temp_data_folder)
 
     def test_missing_both_impact_scales_raises_error(self, temp_data_folder, base_config_dict):
         """Test ValueError raised when both IMPACT_SCALE params missing"""
-        # Arrange
         del base_config_dict['parameters']['MATCHUP_SCORING']['IMPACT_SCALE']
         del base_config_dict['parameters']['SCHEDULE_SCORING']['IMPACT_SCALE']
         create_config_file(temp_data_folder, base_config_dict)
 
-        # Act & Assert - Should fail on first missing parameter (MATCHUP)
         with pytest.raises(ValueError, match="MATCHUP_SCORING missing required parameter: IMPACT_SCALE"):
             ConfigManager(temp_data_folder)
 
     def test_impact_scale_values_accessible(self, temp_data_folder, base_config_dict):
         """Test IMPACT_SCALE values are accessible through config object"""
-        # Arrange
         base_config_dict['parameters']['MATCHUP_SCORING']['IMPACT_SCALE'] = 200.0
         base_config_dict['parameters']['SCHEDULE_SCORING']['IMPACT_SCALE'] = 100.0
         create_config_file(temp_data_folder, base_config_dict)
 
-        # Act
         config = ConfigManager(temp_data_folder)
 
-        # Assert
         assert config.matchup_scoring['IMPACT_SCALE'] == 200.0
         assert config.schedule_scoring['IMPACT_SCALE'] == 100.0
+
+

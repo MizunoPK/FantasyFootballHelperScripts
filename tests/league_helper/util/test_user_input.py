@@ -16,9 +16,6 @@ from io import StringIO
 from league_helper.util.user_input import show_list_selection
 
 
-# ============================================================================
-# SHOW_LIST_SELECTION TESTS
-# ============================================================================
 
 class TestShowListSelection:
     """Test show_list_selection() function"""
@@ -50,7 +47,7 @@ class TestShowListSelection:
         options = ['Option 1', 'Option 2', 'Option 3']
         result = show_list_selection('Test Menu', options, 'Quit')
 
-        assert result == 4  # len(options) + 1
+        assert result == 4
         mock_input.assert_called_once()
 
     @patch('builtins.input', side_effect=['invalid', 'abc', '2'])
@@ -62,7 +59,6 @@ class TestShowListSelection:
 
         assert result == 2
         assert mock_input.call_count == 3
-        # Check error message was printed
         output = mock_stdout.getvalue()
         assert output.count('Invalid choice. Please try again.') == 2
 
@@ -115,7 +111,7 @@ class TestShowListSelection:
     @patch('sys.stdout', new_callable=StringIO)
     def test_large_number_valid(self, mock_stdout, mock_input):
         """Test that large but valid numbers are accepted"""
-        options = [f'Option {i}' for i in range(1, 11)]  # 10 options
+        options = [f'Option {i}' for i in range(1, 11)]
         result = show_list_selection('Menu', options, 'Quit')
 
         assert result == 10
@@ -124,11 +120,9 @@ class TestShowListSelection:
     @patch('sys.stdout', new_callable=StringIO)
     def test_out_of_range_numbers_accepted(self, mock_stdout, mock_input):
         """Test that out-of-range numbers are still returned (no validation)"""
-        # Note: The function doesn't validate range, just that it's an integer
         options = ['Option 1']
         result = show_list_selection('Menu', options, 'Quit')
 
-        # Function returns first valid integer, even if out of range
         assert result == 0
 
     @patch('builtins.input', side_effect=['  5  ', ])
@@ -155,3 +149,5 @@ class TestShowListSelection:
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v", "--tb=short"])
+
+

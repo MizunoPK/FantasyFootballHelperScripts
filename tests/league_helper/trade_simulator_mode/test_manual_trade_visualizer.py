@@ -31,23 +31,18 @@ class TestDisplayNumberedRoster:
 
     def test_display_empty_roster(self, capsys):
         """Test displaying an empty roster."""
-        # Setup
         helper = TradeDisplayHelper()
 
-        # Execute
         helper.display_numbered_roster([], "TEST ROSTER")
 
-        # Verify output
         captured = capsys.readouterr()
         assert "=" * 25 in captured.out
         assert "TEST ROSTER" in captured.out
 
     def test_display_single_player(self, capsys):
         """Test displaying roster with one player."""
-        # Setup
         helper = TradeDisplayHelper()
 
-        # Create mock player
         player = FantasyPlayer(
             id=1,
             name="Test Player",
@@ -59,30 +54,24 @@ class TestDisplayNumberedRoster:
             drafted_by=""
         )
 
-        # Execute
         helper.display_numbered_roster([player], "MY ROSTER")
 
-        # Verify output
         captured = capsys.readouterr()
         assert "MY ROSTER" in captured.out
         assert "1. Test Player" in captured.out
 
     def test_display_multiple_players(self, capsys):
         """Test displaying roster with multiple players."""
-        # Setup
         helper = TradeDisplayHelper()
 
-        # Create mock players
         players = [
             FantasyPlayer(id=1, name="Player One", team="TST", position="RB", bye_week=7, fantasy_points=150.0, injury_status="ACTIVE", drafted_by=""),
             FantasyPlayer(id=2, name="Player Two", team="TST", position="WR", bye_week=8, fantasy_points=140.0, injury_status="ACTIVE", drafted_by=""),
             FantasyPlayer(id=3, name="Player Three", team="TST", position="QB", bye_week=9, fantasy_points=160.0, injury_status="ACTIVE", drafted_by=""),
         ]
 
-        # Execute
         helper.display_numbered_roster(players, "TEAM ROSTER")
 
-        # Verify output
         captured = capsys.readouterr()
         assert "TEAM ROSTER" in captured.out
         assert "1. Player One" in captured.out
@@ -175,7 +164,6 @@ class TestGetPlayersByIndices:
         """Setup test fixtures."""
         self.parser = TradeInputParser()
 
-        # Create test roster
         self.roster = [
             FantasyPlayer(id=1, name="Player One", team="TST", position="RB", bye_week=7, fantasy_points=150.0, injury_status="ACTIVE", drafted_by=""),
             FantasyPlayer(id=2, name="Player Two", team="TST", position="WR", bye_week=8, fantasy_points=140.0, injury_status="ACTIVE", drafted_by=""),
@@ -213,7 +201,6 @@ class TestDisplayTradeResult:
 
     def test_display_trade_result(self, capsys):
         """Test displaying trade result."""
-        # Create mock trade
         my_team = MagicMock()
         my_team.name = "My Team"
         my_team.team_score = 1050.0
@@ -233,13 +220,11 @@ class TestDisplayTradeResult:
             my_new_players=[scored_player2],
             their_new_team=their_team,
             their_new_players=[scored_player1],
-            my_original_players=[scored_player1]  # Players I'm giving up (from original roster)
+            my_original_players=[scored_player1]
         )
 
-        # Execute
         self.helper.display_trade_result(trade, 1000.0, 1000.0)
 
-        # Verify output
         captured = capsys.readouterr()
         assert "MANUAL TRADE VISUALIZER" in captured.out
         assert "Trade with Opponent Team" in captured.out
@@ -262,10 +247,8 @@ class TestSaveManualTradeToFile:
     @patch('builtins.open', new_callable=mock_open)
     def test_save_trade_file_created(self, mock_file, mock_datetime):
         """Test that trade file is created with correct name."""
-        # Mock datetime
         mock_datetime.now.return_value = datetime(2025, 10, 16, 12, 30, 45)
 
-        # Create mock trade
         my_team = MagicMock()
         my_team.name = "My Team"
         my_team.team_score = 1050.0
@@ -287,10 +270,8 @@ class TestSaveManualTradeToFile:
             their_new_players=[scored_player1]
         )
 
-        # Execute
         filename = self.writer.save_manual_trade_to_file(trade, "Opponent Team", 1000.0, 1000.0)
 
-        # Verify filename format
         assert "trade_info_Opponent_Team_20251016_123045.txt" in filename
         mock_file.assert_called_once()
 
@@ -298,10 +279,8 @@ class TestSaveManualTradeToFile:
     @patch('builtins.open', new_callable=mock_open)
     def test_save_trade_with_spaces_in_name(self, mock_file, mock_datetime):
         """Test opponent name with spaces is sanitized."""
-        # Mock datetime
         mock_datetime.now.return_value = datetime(2025, 10, 16, 12, 30, 45)
 
-        # Create mock trade
         my_team = MagicMock()
         my_team.name = "My Team"
         my_team.team_score = 1050.0
@@ -320,10 +299,8 @@ class TestSaveManualTradeToFile:
             their_new_players=[scored_player]
         )
 
-        # Execute
         filename = self.writer.save_manual_trade_to_file(trade, "Team With Spaces", 1000.0, 1000.0)
 
-        # Verify filename has underscores instead of spaces
         assert "Team_With_Spaces" in filename
         assert "Team With Spaces" not in filename
 
@@ -337,7 +314,6 @@ class TestDisplayCombinedRoster:
 
     def test_combined_roster_returns_boundary(self, capsys):
         """Test that combined roster returns correct boundary index."""
-        # Create test rosters
         my_roster = [
             FantasyPlayer(id=1, name="My QB", team="TST", position="QB", bye_week=7, fantasy_points=200.0, injury_status="ACTIVE", drafted_by=""),
             FantasyPlayer(id=2, name="My RB", team="TST", position="RB", bye_week=7, fantasy_points=150.0, injury_status="ACTIVE", drafted_by=""),
@@ -346,23 +322,18 @@ class TestDisplayCombinedRoster:
             FantasyPlayer(id=3, name="Their QB", team="TST", position="QB", bye_week=8, fantasy_points=180.0, injury_status="ACTIVE", drafted_by=""),
         ]
 
-        # Execute
         boundary, my_display_order, their_display_order = self.helper.display_combined_roster(my_roster, their_roster, "Opponent Team")
 
-        # Verify boundary is where their roster starts (after my 2 players)
         assert boundary == 3
-        # Verify display orders are returned
         assert len(my_display_order) == 2
         assert len(their_display_order) == 1
 
-        # Verify output contains both teams
         captured = capsys.readouterr()
         assert "MY TEAM" in captured.out
         assert "OPPONENT TEAM" in captured.out
 
     def test_combined_roster_organizes_by_position(self, capsys):
         """Test that combined roster organizes players by position."""
-        # Create mixed position roster
         my_roster = [
             FantasyPlayer(id=1, name="My RB", team="TST", position="RB", bye_week=7, fantasy_points=150.0, injury_status="ACTIVE", drafted_by=""),
             FantasyPlayer(id=2, name="My QB", team="TST", position="QB", bye_week=7, fantasy_points=200.0, injury_status="ACTIVE", drafted_by=""),
@@ -370,10 +341,8 @@ class TestDisplayCombinedRoster:
         ]
         their_roster = []
 
-        # Execute
         _, _, _ = self.helper.display_combined_roster(my_roster, their_roster, "Opponent")
 
-        # Verify output shows positions in order: QB, RB, WR, TE, K, DST
         captured = capsys.readouterr()
         qb_pos = captured.out.find("QB:")
         rb_pos = captured.out.find("RB:")
@@ -382,18 +351,14 @@ class TestDisplayCombinedRoster:
 
     def test_combined_roster_shows_empty_positions(self, capsys):
         """Test that empty position groups show '(No players)'."""
-        # Create roster with only QB
         my_roster = [
             FantasyPlayer(id=1, name="My QB", team="TST", position="QB", bye_week=7, fantasy_points=200.0, injury_status="ACTIVE", drafted_by=""),
         ]
         their_roster = []
 
-        # Execute
         _, _, _ = self.helper.display_combined_roster(my_roster, their_roster, "Opponent")
 
-        # Verify output
         captured = capsys.readouterr()
-        # Should have "(No players)" for positions without players
         assert "(No players)" in captured.out
 
 
@@ -407,7 +372,7 @@ class TestSplitPlayersByTeam:
     def test_split_all_from_my_team(self):
         """Test splitting when all selections from my team."""
         unified_indices = [1, 2, 3]
-        roster_boundary = 14  # Their roster starts at 14
+        roster_boundary = 14
 
         my_indices, their_indices = self.parser.split_players_by_team(unified_indices, roster_boundary)
 
@@ -417,23 +382,21 @@ class TestSplitPlayersByTeam:
     def test_split_all_from_their_team(self):
         """Test splitting when all selections from their team."""
         unified_indices = [14, 15, 16]
-        roster_boundary = 14  # Their roster starts at 14
+        roster_boundary = 14
 
         my_indices, their_indices = self.parser.split_players_by_team(unified_indices, roster_boundary)
 
         assert my_indices == []
-        # Their indices should be adjusted to be 1-based relative to their roster
         assert their_indices == [1, 2, 3]
 
     def test_split_mixed_teams(self):
         """Test splitting with selections from both teams."""
         unified_indices = [2, 6, 18, 21]
-        roster_boundary = 14  # My roster: 1-13, Their roster: 14-26
+        roster_boundary = 14
 
         my_indices, their_indices = self.parser.split_players_by_team(unified_indices, roster_boundary)
 
         assert my_indices == [2, 6]
-        # 18 becomes 5 (18-14+1), 21 becomes 8 (21-14+1)
         assert their_indices == [5, 8]
 
     def test_split_empty_selection(self):
@@ -456,13 +419,12 @@ class TestParseUnifiedPlayerSelection:
 
     def test_valid_unified_selection(self):
         """Test valid unified selection from both teams."""
-        # My roster: 1-13, Their roster: 14-26
         result = self.parser.parse_unified_player_selection("2,6,18,21", 26, 14)
 
         assert result is not None
         my_indices, their_indices = result
         assert my_indices == [2, 6]
-        assert their_indices == [5, 8]  # Adjusted to be relative to their roster
+        assert their_indices == [5, 8]
 
     def test_exit_returns_none(self):
         """Test 'exit' input returns None."""
@@ -471,16 +433,14 @@ class TestParseUnifiedPlayerSelection:
 
     def test_unequal_numbers_returns_none(self):
         """Test unequal trades are now ALLOWED (3-for-1 in this case)."""
-        # 3 from my team, 1 from their team (3-for-1 trade)
         result = self.parser.parse_unified_player_selection("1,2,3,14", 26, 14)
         assert result is not None
         my_indices, their_indices = result
         assert my_indices == [1, 2, 3]
-        assert their_indices == [1]  # 14 is first player in their roster
+        assert their_indices == [1]
 
     def test_all_from_one_team_returns_none(self):
         """Test all selections from one team returns None."""
-        # All from my team
         result = self.parser.parse_unified_player_selection("1,2,3,4", 26, 14)
         assert result is None
 
@@ -496,11 +456,9 @@ class TestParseUnifiedPlayerSelection:
 
     def test_minimum_one_from_each_team(self):
         """Test that at least 1 from each team is required."""
-        # Valid: 1 from each
         result = self.parser.parse_unified_player_selection("1,14", 26, 14)
         assert result is not None
 
-        # Invalid: 0 from my team
         result = self.parser.parse_unified_player_selection("14,15", 26, 14)
         assert result is None
 
@@ -514,7 +472,6 @@ class TestStartManualTradeIntegration:
         data_folder = tmp_path / "data"
         data_folder.mkdir()
 
-        # Create minimal league_config.json with all required parameters
         config_file = data_folder / "league_config.json"
         config_content = {
             "config_name": "test",
@@ -571,21 +528,15 @@ class TestStartManualTradeIntegration:
         import json
         config_file.write_text(json.dumps(config_content, indent=2))
 
-        # Create minimal players.csv
         players_file = data_folder / "players.csv"
         players_file.write_text("id,name,team,position,bye_week,fantasy_points,injury_status,drafted,locked\n")
 
-        # Create minimal players_projected.csv (required by ProjectedPointsManager)
         players_projected_file = data_folder / "players_projected.csv"
         players_projected_file.write_text("id,name,week_1_points,week_2_points,week_3_points,week_4_points,week_5_points,week_6_points,week_7_points,week_8_points,week_9_points,week_10_points,week_11_points,week_12_points,week_13_points,week_14_points,week_15_points,week_16_points,week_17_points\n")
 
-        # Note: teams.csv no longer used - team data is now in team_data folder
-        # Create empty team_data folder for TeamDataManager
         team_data_folder = data_folder / "team_data"
         team_data_folder.mkdir()
 
-        # Create minimal player_data folder with empty JSON files (Sub-feature 1 format)
-        # PlayerManager now loads from JSON, not CSV
         player_data_folder = data_folder / "player_data"
         player_data_folder.mkdir()
         for position in ["qb", "rb", "wr", "te", "k", "dst"]:
@@ -596,20 +547,16 @@ class TestStartManualTradeIntegration:
 
     def test_no_opponent_teams(self, mock_data_folder):
         """Test handling when no opponent teams available."""
-        # Setup with mock data folder
         config = ConfigManager(mock_data_folder)
         season_schedule_mgr = SeasonScheduleManager(mock_data_folder)
         team_data_mgr = TeamDataManager(mock_data_folder, config, season_schedule_mgr, config.current_nfl_week)
         player_manager = PlayerManager(mock_data_folder, config, team_data_mgr, season_schedule_mgr)
         manager = TradeSimulatorModeManager(mock_data_folder, player_manager, config)
 
-        # Clear opponent teams
         manager.opponent_simulated_teams = []
 
-        # Execute
         result = manager.start_manual_trade()
 
-        # Verify
         assert result == (True, [])
 
 
@@ -622,7 +569,6 @@ class TestWaiverTradeProcessing:
         data_folder = tmp_path / "data"
         data_folder.mkdir()
 
-        # Create minimal league_config.json
         config_file = data_folder / "league_config.json"
         config_content = {
             "config_name": "test",
@@ -679,21 +625,15 @@ class TestWaiverTradeProcessing:
         import json
         config_file.write_text(json.dumps(config_content, indent=2))
 
-        # Create minimal players.csv
         players_file = data_folder / "players.csv"
         players_file.write_text("id,name,team,position,bye_week,fantasy_points,injury_status,drafted,locked\n")
 
-        # Create minimal players_projected.csv (required by ProjectedPointsManager)
         players_projected_file = data_folder / "players_projected.csv"
         players_projected_file.write_text("id,name,week_1_points,week_2_points,week_3_points,week_4_points,week_5_points,week_6_points,week_7_points,week_8_points,week_9_points,week_10_points,week_11_points,week_12_points,week_13_points,week_14_points,week_15_points,week_16_points,week_17_points\n")
 
-        # Note: teams.csv no longer used - team data is now in team_data folder
-        # Create empty team_data folder for TeamDataManager
         team_data_folder = data_folder / "team_data"
         team_data_folder.mkdir()
 
-        # Create minimal player_data folder with empty JSON files (Sub-feature 1 format)
-        # PlayerManager now loads from JSON, not CSV
         player_data_folder = data_folder / "player_data"
         player_data_folder.mkdir()
         for position in ["qb", "rb", "wr", "te", "k", "dst"]:
@@ -733,7 +673,6 @@ class TestWaiverTradeProcessing:
         from league_helper.trade_simulator_mode.trade_analyzer import TradeAnalyzer
         from unittest.mock import Mock
 
-        # Setup
         config = ConfigManager(mock_data_folder)
         season_schedule_mgr = SeasonScheduleManager(mock_data_folder)
         team_data_mgr = TeamDataManager(mock_data_folder, config, season_schedule_mgr, config.current_nfl_week)
@@ -742,7 +681,6 @@ class TestWaiverTradeProcessing:
 
         my_team, waiver_team = mock_teams
 
-        # Mock validate_roster_lenient to track calls
         original_validate = analyzer.validate_roster_lenient
         validate_calls = []
         def track_validate(original_roster, new_roster):
@@ -750,7 +688,6 @@ class TestWaiverTradeProcessing:
             return True
         analyzer.validate_roster_lenient = track_validate
 
-        # Execute - trade with waivers (1-for-1)
         snapshot, my_drops, their_drops = analyzer.process_manual_trade(
             my_team=my_team,
             their_team=waiver_team,
@@ -759,7 +696,6 @@ class TestWaiverTradeProcessing:
             is_waivers=True
         )
 
-        # Verify - validate should only be called for my team, not waiver team
         assert len(validate_calls) == 1, "Should only validate my team when is_waivers=True"
         assert snapshot is not None, "Trade should succeed with valid user roster"
         assert their_drops == [], "Waiver team should have no drop candidates"
@@ -769,7 +705,6 @@ class TestWaiverTradeProcessing:
         from league_helper.trade_simulator_mode.trade_analyzer import TradeAnalyzer
         from unittest.mock import Mock
 
-        # Setup
         config = ConfigManager(mock_data_folder)
         season_schedule_mgr = SeasonScheduleManager(mock_data_folder)
         team_data_mgr = TeamDataManager(mock_data_folder, config, season_schedule_mgr, config.current_nfl_week)
@@ -778,12 +713,10 @@ class TestWaiverTradeProcessing:
 
         my_team, waiver_team = mock_teams
 
-        # Mock validate_roster_lenient to return False for my team
         def mock_validate(original_roster, new_roster):
-            return False  # My roster is invalid
+            return False
         analyzer.validate_roster_lenient = mock_validate
 
-        # Execute - trade with waivers
         snapshot, my_drops, their_drops = analyzer.process_manual_trade(
             my_team=my_team,
             their_team=waiver_team,
@@ -792,7 +725,6 @@ class TestWaiverTradeProcessing:
             is_waivers=True
         )
 
-        # Verify - snapshot should be None because my roster is invalid
         assert snapshot is None, "Trade should fail when user roster invalid"
         assert len(my_drops) > 0 or True, "Should provide drop candidates for my team"
         assert their_drops == [], "Waiver team should have no drop candidates"
@@ -801,7 +733,6 @@ class TestWaiverTradeProcessing:
         """Test that normal trades (is_waivers=False) validate both teams."""
         from league_helper.trade_simulator_mode.trade_analyzer import TradeAnalyzer
 
-        # Setup
         config = ConfigManager(mock_data_folder)
         season_schedule_mgr = SeasonScheduleManager(mock_data_folder)
         team_data_mgr = TeamDataManager(mock_data_folder, config, season_schedule_mgr, config.current_nfl_week)
@@ -810,14 +741,12 @@ class TestWaiverTradeProcessing:
 
         my_team, their_team = mock_teams
 
-        # Mock validate_roster_lenient to track calls
         validate_calls = []
         def track_validate(original_roster, new_roster):
             validate_calls.append((original_roster, new_roster))
             return True
         analyzer.validate_roster_lenient = track_validate
 
-        # Execute - normal trade (NOT waivers)
         snapshot, my_drops, their_drops = analyzer.process_manual_trade(
             my_team=my_team,
             their_team=their_team,
@@ -826,7 +755,6 @@ class TestWaiverTradeProcessing:
             is_waivers=False
         )
 
-        # Verify - validate should be called for BOTH teams
         assert len(validate_calls) == 2, "Should validate both teams when is_waivers=False"
 
     def test_process_manual_trade_waiver_skips_their_waiver_recommendations(self, mock_teams, sample_players, mock_data_folder):
@@ -834,7 +762,6 @@ class TestWaiverTradeProcessing:
         from league_helper.trade_simulator_mode.trade_analyzer import TradeAnalyzer
         from unittest.mock import Mock, patch
 
-        # Setup
         config = ConfigManager(mock_data_folder)
         season_schedule_mgr = SeasonScheduleManager(mock_data_folder)
         team_data_mgr = TeamDataManager(mock_data_folder, config, season_schedule_mgr, config.current_nfl_week)
@@ -843,10 +770,8 @@ class TestWaiverTradeProcessing:
 
         my_team, waiver_team = mock_teams
 
-        # Mock validate_roster_lenient to always return True
         analyzer.validate_roster_lenient = lambda *args: True
 
-        # Mock _get_waiver_recommendations to track calls
         waiver_rec_calls = []
         original_get_waiver_recs = analyzer._get_waiver_recommendations
         def track_waiver_recs(*args, **kwargs):
@@ -854,7 +779,6 @@ class TestWaiverTradeProcessing:
             return []
         analyzer._get_waiver_recommendations = track_waiver_recs
 
-        # Execute - unequal trade (2-for-1) with waivers, their team would normally need waivers
         snapshot, my_drops, their_drops = analyzer.process_manual_trade(
             my_team=my_team,
             their_team=waiver_team,
@@ -863,11 +787,9 @@ class TestWaiverTradeProcessing:
             is_waivers=True
         )
 
-        # Verify - _get_waiver_recommendations should only be called once (for my team)
         assert len(waiver_rec_calls) <= 1, "Waiver recommendations should only be for my team when is_waivers=True"
 
 
-# Test coverage marker
 def test_module_imports():
     """Verify all required modules can be imported."""
     assert TradeSimulatorModeManager is not None
@@ -878,3 +800,5 @@ def test_module_imports():
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
+
+

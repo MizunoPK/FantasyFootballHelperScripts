@@ -57,7 +57,6 @@ class TestScoredPlayerConstruction:
             position="WR"
         )
 
-        # Default parameter is empty list
         scored_player = ScoredPlayer(player, 75.0)
 
         assert scored_player.reason == []
@@ -78,7 +77,6 @@ class TestScoredPlayerStringRepresentation:
 
         result = str(scored_player)
 
-        # Header should include position, team, name, and score
         assert "[QB]" in result
         assert "[KC]" in result
         assert "Patrick Mahomes" in result
@@ -101,10 +99,8 @@ class TestScoredPlayerStringRepresentation:
 
         result = str(scored_player)
 
-        # Check header
         assert "[QB] [BUF] Josh Allen - 100.00 pts" in result
 
-        # Check each reason appears as a bullet point
         for reason in reasons:
             assert f"- {reason}" in result
 
@@ -122,13 +118,11 @@ class TestScoredPlayerStringRepresentation:
         result = str(scored_player)
         lines = result.split('\n')
 
-        # First line should be header (no indentation)
         assert lines[0].startswith("[WR]")
 
-        # Subsequent lines should have 12 spaces indentation
         if len(lines) > 1:
             for line in lines[1:]:
-                if line.strip():  # Non-empty lines
+                if line.strip():
                     assert line.startswith("            -")  # 12 spaces
 
     def test_str_score_formatting(self):
@@ -140,7 +134,6 @@ class TestScoredPlayerStringRepresentation:
             position="TE"
         )
 
-        # Test various score values
         test_cases = [
             (123.456, "123.46 pts"),
             (100.0, "100.00 pts"),
@@ -172,13 +165,10 @@ class TestScoredPlayerStringRepresentation:
         result = str(scored_player)
         lines = result.split('\n')
 
-        # Should have 1 header line + 4 reason lines = 5 total
         assert len(lines) == 5
 
-        # First line is header (includes bye week info)
         assert lines[0] == "[RB] [SF] Christian McCaffrey - 150.75 pts (Bye=None)"
 
-        # Each subsequent line is a reason
         for i, reason in enumerate(reasons, start=1):
             assert f"- {reason}" in lines[i]
 
@@ -210,13 +200,10 @@ class TestScoredPlayerStringRepresentation:
         reasons = ["Test Reason 1", "Test Reason 2"]
         scored_player = ScoredPlayer(player, 111.11, reasons)
 
-        # Print the scored player
         print(scored_player)
 
-        # Capture printed output
         captured = capsys.readouterr()
 
-        # Verify output matches __str__
         assert "[WR] [HOU] Stefon Diggs - 111.11 pts" in captured.out
         assert "- Test Reason 1" in captured.out
         assert "- Test Reason 2" in captured.out
@@ -233,17 +220,14 @@ class TestScoredPlayerEdgeCases:
             team="DAL",
             position="QB"
         )
-        # Create 10 reasons
         reasons = [f"Reason {i}" for i in range(10)]
         scored_player = ScoredPlayer(player, 200.0, reasons)
 
         result = str(scored_player)
         lines = result.split('\n')
 
-        # Should have header + 10 reasons = 11 lines
         assert len(lines) == 11
 
-        # All reasons should be present
         for i in range(10):
             assert f"- Reason {i}" in result
 
@@ -307,7 +291,6 @@ class TestScoredPlayerEdgeCases:
 
         result = str(scored_player)
 
-        # All special characters should be preserved
         for reason in reasons:
             assert f"- {reason}" in result
 
@@ -340,7 +323,6 @@ class TestScoredPlayerComparison:
             player = FantasyPlayer(id=i, name=name, team="KC", position="RB")
             scored_players.append(ScoredPlayer(player, score, []))
 
-        # Sort by score descending
         sorted_players = sorted(scored_players, key=lambda sp: sp.score, reverse=True)
 
         assert sorted_players[0].player.name == "Player B"  # 200.0
@@ -365,7 +347,6 @@ class TestAdditionalEdgeCases:
 
         result = str(scored_player)
 
-        # Empty reason should still appear as a bullet point
         assert "- Valid Reason" in result
         assert "-  \n" in result or "-" in result  # Empty reason appears as "- "
         assert "- Another Valid Reason" in result
@@ -378,14 +359,12 @@ class TestAdditionalEdgeCases:
             team="LAC",
             position="TE"
         )
-        # Create a very long reason (200+ characters)
         long_reason = "A" * 200
         reasons = ["Short reason", long_reason, "Another short reason"]
         scored_player = ScoredPlayer(player, 88.0, reasons)
 
         result = str(scored_player)
 
-        # Long reason should be included without truncation
         assert long_reason in result
         assert "- Short reason" in result
         assert "- Another short reason" in result
@@ -402,7 +381,6 @@ class TestAdditionalEdgeCases:
 
         result = str(scored_player)
 
-        # Unicode characters should be preserved
         assert "José Ramírez" in result
         assert "95.50 pts" in result
         assert "- Unicode Test" in result
@@ -420,7 +398,6 @@ class TestAdditionalEdgeCases:
 
         result = str(scored_player)
 
-        # Whitespace reason should appear as bullet with spaces
         assert "- Valid Reason" in result
         assert "-    " in result  # Three spaces after dash
         assert "- Another Valid Reason" in result
@@ -438,10 +415,11 @@ class TestAdditionalEdgeCases:
 
         result = str(scored_player)
 
-        # Should display "Bye=None" when bye_week is None
         assert "[DST] [MIN] No Bye Player - 75.00 pts (Bye=None)" in result
         assert "- Defense reason" in result
 
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v", "--tb=short"])
+
+

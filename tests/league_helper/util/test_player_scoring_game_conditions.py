@@ -23,20 +23,15 @@ from league_helper.util.upcoming_game_model import UpcomingGame
 from utils.FantasyPlayer import FantasyPlayer
 
 
-# ============================================================================
-# FIXTURES
-# ============================================================================
 
 @pytest.fixture
 def mock_config():
     """Create mock ConfigManager with game conditions scoring."""
     config = Mock()
 
-    # Basic attributes
     config.current_nfl_week = 6
     config.normalization_max_scale = 100.0
 
-    # Temperature scoring config
     config.temperature_scoring = {
         "IDEAL_TEMPERATURE": 60,
         "IMPACT_SCALE": 50.0,
@@ -45,7 +40,6 @@ def mock_config():
         "WEIGHT": 1.0
     }
 
-    # Wind scoring config
     config.wind_scoring = {
         "IMPACT_SCALE": 60.0,
         "THRESHOLDS": {"BASE_POSITION": 0, "DIRECTION": "DECREASING", "STEPS": 8},
@@ -53,14 +47,12 @@ def mock_config():
         "WEIGHT": 1.0
     }
 
-    # Location modifiers config
     config.location_modifiers = {
         "HOME": 2.0,
         "AWAY": -2.0,
         "INTERNATIONAL": -5.0
     }
 
-    # Mock ConfigKeys
     config.keys = Mock()
     config.keys.IDEAL_TEMPERATURE = "IDEAL_TEMPERATURE"
     config.keys.IMPACT_SCALE = "IMPACT_SCALE"
@@ -68,13 +60,11 @@ def mock_config():
     config.keys.LOCATION_AWAY = "AWAY"
     config.keys.LOCATION_INTERNATIONAL = "INTERNATIONAL"
 
-    # Mock methods
     def get_temperature_distance(temp):
         ideal = 60
         return abs(temp - ideal)
 
     def get_temperature_multiplier(temp_distance):
-        # DECREASING: low distance = EXCELLENT, high distance = VERY_POOR
         if temp_distance <= 10:
             return 1.05, "EXCELLENT"
         elif temp_distance <= 20:
@@ -85,7 +75,6 @@ def mock_config():
             return 0.95, "VERY_POOR"
 
     def get_wind_multiplier(wind_gust):
-        # DECREASING: low wind = EXCELLENT, high wind = VERY_POOR
         if wind_gust <= 8:
             return 1.05, "EXCELLENT"
         elif wind_gust <= 16:
@@ -108,7 +97,6 @@ def mock_config():
     config.get_wind_multiplier = get_wind_multiplier
     config.get_location_modifier = get_location_modifier
 
-    # Additional methods needed for score_player integration tests
     config.get_player_rating_multiplier = Mock(return_value=(1.0, 50))
     config.get_adp_multiplier = Mock(return_value=(1.0, 50))
     config.get_team_quality_multiplier = Mock(return_value=(1.0, "GOOD"))
@@ -118,7 +106,6 @@ def mock_config():
     config.get_draft_order_bonus = Mock(return_value=(0.0, ""))
     config.get_injury_penalty = Mock(return_value=0.0)
 
-    # Additional attributes
     config.performance_min_weeks = 5
     config.team_quality_min_weeks = 5
     config.matchup_min_weeks = 5
@@ -140,14 +127,12 @@ def mock_game_data_manager():
 @pytest.fixture
 def scoring_calculator(mock_config, mock_game_data_manager):
     """Create PlayerScoringCalculator with mock dependencies."""
-    # Mock PlayerManager to provide get_projected_points() method
-    # Spec: sub_feature_05_projected_points_manager_consolidation_spec.md
     mock_pm = Mock()
     mock_pm.get_projected_points.return_value = 300.0
     mock_pm.get_actual_points.return_value = 310.0
 
     mock_tdm = Mock()
-    mock_tdm.get_team_ranking_for_position.return_value = 16.0  # Average
+    mock_tdm.get_team_ranking_for_position.return_value = 16.0
 
     mock_ssm = Mock()
     mock_ssm.get_remaining_opponents.return_value = []
@@ -168,7 +153,7 @@ def scoring_calculator(mock_config, mock_game_data_manager):
 @pytest.fixture
 def qb_player():
     """Create test QB player (UPDATED for Sub-feature 2)."""
-    projected = [25.0] * 17  # All weeks = 25.0
+    projected = [25.0] * 17
     actual = projected.copy()
     player = FantasyPlayer(
         id=1, name="Patrick Mahomes", team="KC", position="QB",
@@ -181,7 +166,7 @@ def qb_player():
 @pytest.fixture
 def rb_player():
     """Create test RB player (UPDATED for Sub-feature 2)."""
-    projected = [18.0] * 17  # All weeks = 18.0
+    projected = [18.0] * 17
     actual = projected.copy()
     player = FantasyPlayer(
         id=2, name="Travis Etienne", team="JAX", position="RB",
@@ -194,7 +179,7 @@ def rb_player():
 @pytest.fixture
 def wr_player():
     """Create test WR player (UPDATED for Sub-feature 2)."""
-    projected = [20.0] * 17  # All weeks = 20.0
+    projected = [20.0] * 17
     actual = projected.copy()
     player = FantasyPlayer(
         id=3, name="CeeDee Lamb", team="DAL", position="WR",
@@ -207,7 +192,7 @@ def wr_player():
 @pytest.fixture
 def k_player():
     """Create test K player (UPDATED for Sub-feature 2)."""
-    projected = [9.0] * 17  # All weeks = 9.0
+    projected = [9.0] * 17
     actual = projected.copy()
     player = FantasyPlayer(
         id=4, name="Justin Tucker", team="BAL", position="K",
@@ -217,9 +202,6 @@ def k_player():
     return player
 
 
-# ============================================================================
-# TEMPERATURE SCORING TESTS (Step 11)
-# ============================================================================
 
 class TestTemperatureScoring:
     """Tests for temperature scoring adjustments."""
@@ -235,8 +217,6 @@ class TestTemperatureScoring:
 
         score, reason = scoring_calculator._apply_temperature_scoring(qb_player, 100.0)
 
-        # At ideal temp, should get EXCELLENT multiplier
-        # bonus = (50.0 * 1.05) - 50.0 = 2.5
         assert score > 100.0
         assert "Temp" in reason
 
@@ -251,8 +231,6 @@ class TestTemperatureScoring:
 
         score, reason = scoring_calculator._apply_temperature_scoring(qb_player, 100.0)
 
-        # 40 degrees from ideal - should get VERY_POOR
-        # bonus = (50.0 * 0.95) - 50.0 = -2.5
         assert score < 100.0
         assert "20°F" in reason
 
@@ -267,7 +245,6 @@ class TestTemperatureScoring:
 
         score, reason = scoring_calculator._apply_temperature_scoring(qb_player, 100.0)
 
-        # 40 degrees from ideal - should get VERY_POOR
         assert score < 100.0
         assert "100°F" in reason
 
@@ -282,7 +259,7 @@ class TestTemperatureScoring:
 
         score, reason = scoring_calculator._apply_temperature_scoring(qb_player, 100.0)
 
-        assert score == 100.0  # No change
+        assert score == 100.0
         assert reason == ""
 
     def test_temperature_scoring_no_game_data(self, scoring_calculator, qb_player, mock_game_data_manager):
@@ -305,14 +282,10 @@ class TestTemperatureScoring:
 
         score, reason = scoring_calculator._apply_temperature_scoring(rb_player, 100.0)
 
-        # RB should also be affected by temperature
         assert score != 100.0
         assert "Temp" in reason
 
 
-# ============================================================================
-# WIND SCORING TESTS (Step 12)
-# ============================================================================
 
 class TestWindScoring:
     """Tests for wind scoring adjustments."""
@@ -328,8 +301,6 @@ class TestWindScoring:
 
         score, reason = scoring_calculator._apply_wind_scoring(qb_player, 100.0)
 
-        # Low wind = EXCELLENT
-        # bonus = (60.0 * 1.05) - 60.0 = 3.0
         assert score > 100.0
         assert "Wind" in reason
 
@@ -344,8 +315,6 @@ class TestWindScoring:
 
         score, reason = scoring_calculator._apply_wind_scoring(qb_player, 100.0)
 
-        # High wind = VERY_POOR
-        # bonus = (60.0 * 0.95) - 60.0 = -3.0
         assert score < 100.0
         assert "35mph" in reason
 
@@ -402,7 +371,7 @@ class TestWindScoring:
 
         score, reason = scoring_calculator._apply_wind_scoring(rb_player, 100.0)
 
-        assert score == 100.0  # No change for RB
+        assert score == 100.0
         assert reason == ""
 
     def test_wind_scoring_indoor_game(self, scoring_calculator, qb_player, mock_game_data_manager):
@@ -420,9 +389,6 @@ class TestWindScoring:
         assert reason == ""
 
 
-# ============================================================================
-# LOCATION SCORING TESTS (Step 13)
-# ============================================================================
 
 class TestLocationScoring:
     """Tests for location scoring adjustments."""
@@ -438,7 +404,6 @@ class TestLocationScoring:
 
         score, reason = scoring_calculator._apply_location_modifier(qb_player, 100.0)
 
-        # Home bonus = +2.0
         assert score == 102.0
         assert "Home" in reason
 
@@ -453,7 +418,6 @@ class TestLocationScoring:
 
         score, reason = scoring_calculator._apply_location_modifier(qb_player, 100.0)
 
-        # Away penalty = -2.0
         assert score == 98.0
         assert "Away" in reason
 
@@ -468,7 +432,6 @@ class TestLocationScoring:
 
         score, reason = scoring_calculator._apply_location_modifier(qb_player, 100.0)
 
-        # International penalty = -5.0
         assert score == 95.0
         assert "International" in reason
         assert "UK" in reason
@@ -484,7 +447,6 @@ class TestLocationScoring:
 
         score, reason = scoring_calculator._apply_location_modifier(qb_player, 100.0)
 
-        # Neutral site in USA = away penalty (-2.0)
         assert score == 98.0
         assert "Away" in reason
 
@@ -498,9 +460,6 @@ class TestLocationScoring:
         assert reason == ""
 
 
-# ============================================================================
-# INTEGRATION TESTS
-# ============================================================================
 
 class TestGameConditionsIntegration:
     """Integration tests for game conditions scoring with score_player."""
@@ -514,7 +473,6 @@ class TestGameConditionsIntegration:
         )
         mock_game_data_manager.get_game.return_value = game
 
-        # Score with game conditions enabled
         result = scoring_calculator.score_player(
             qb_player,
             team_roster=[],
@@ -532,7 +490,6 @@ class TestGameConditionsIntegration:
             injury=False
         )
 
-        # Check that reasons include game conditions
         reason_str = ' '.join(result.reason)
         assert "Temp" in reason_str or "Wind" in reason_str or "Location" in reason_str
 
@@ -545,7 +502,6 @@ class TestGameConditionsIntegration:
         )
         mock_game_data_manager.get_game.return_value = game
 
-        # Score with default parameters
         result = scoring_calculator.score_player(
             qb_player,
             team_roster=[],
@@ -553,7 +509,6 @@ class TestGameConditionsIntegration:
             schedule=False
         )
 
-        # Game conditions should NOT appear in reasons
         reason_str = ' '.join(result.reason)
         assert "Temp" not in reason_str
         assert "Wind" not in reason_str
@@ -561,7 +516,6 @@ class TestGameConditionsIntegration:
 
     def test_score_player_no_game_data_manager(self, mock_config, qb_player):
         """Test scoring works without GameDataManager."""
-        # Mock PlayerManager to provide get_projected_points() method
         mock_pm = Mock()
         mock_pm.get_projected_points.return_value = 300.0
         mock_pm.get_actual_points.return_value = 310.0
@@ -572,7 +526,6 @@ class TestGameConditionsIntegration:
         mock_ssm = Mock()
         mock_ssm.get_remaining_opponents.return_value = []
 
-        # Create calculator WITHOUT game_data_manager
         calc = PlayerScoringCalculator(
             config=mock_config,
             player_manager=mock_pm,
@@ -580,11 +533,10 @@ class TestGameConditionsIntegration:
             team_data_manager=mock_tdm,
             season_schedule_manager=mock_ssm,
             current_nfl_week=6,
-            game_data_manager=None  # Explicitly None
+            game_data_manager=None
         )
         calc.max_weekly_projection = 30.0
 
-        # Should not raise error even with game conditions enabled
         result = calc.score_player(
             qb_player,
             team_roster=[],
@@ -601,3 +553,5 @@ class TestGameConditionsIntegration:
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v", "--tb=short"])
+
+

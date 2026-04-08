@@ -8,3 +8,5 @@ Unit tests for trade simulator functionality including:
 
 Author: Claude Code
 """
+
+
