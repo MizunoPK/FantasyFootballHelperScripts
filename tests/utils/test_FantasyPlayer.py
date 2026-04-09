@@ -756,7 +756,7 @@ class TestFantasyPlayerFromJSON:
         assert player.is_free_agent()
         assert player.locked == False
         assert player.average_draft_position is None
-        assert player.injury_status == "UNKNOWN"  # Default
+        assert player.injury_status == "UNKNOWN"
 
         assert player.rushing is not None
         assert player.receiving is not None

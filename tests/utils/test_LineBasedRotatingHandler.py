@@ -322,10 +322,10 @@ class TestLineBasedRotatingHandler(unittest.TestCase):
     def test_3_9_timestamp_format_is_sortable_chronologically(self):
         """Test 3.9: Timestamp format allows chronological sorting."""
         timestamps = [
-            '20260207_120000',  # Feb 7, 12:00:00
-            '20260207_120001',  # Feb 7, 12:00:01
-            '20260207_130000',  # Feb 7, 13:00:00
-            '20260208_120000',  # Feb 8, 12:00:00
+            '20260207_120000',
+            '20260207_120001',
+            '20260207_130000',
+            '20260208_120000',
         ]
 
         sorted_timestamps = sorted(timestamps)
@@ -484,10 +484,10 @@ class TestLineBasedRotatingHandler(unittest.TestCase):
         base_time = time.time() - 1000
 
         file_times = [
-            ("app-002.log", base_time + 5),   # 3rd oldest
-            ("app-001.log", base_time + 1),   # oldest
-            ("app-003.log", base_time + 10),  # 4th oldest
-            ("app-000.log", base_time + 3),   # 2nd oldest
+            ("app-002.log", base_time + 5),
+            ("app-001.log", base_time + 1),
+            ("app-003.log", base_time + 10),
+            ("app-000.log", base_time + 3),
         ]
 
         for filename, mod_time in file_times:
@@ -505,10 +505,10 @@ class TestLineBasedRotatingHandler(unittest.TestCase):
 
         handler._cleanup_old_files()
 
-        self.assertFalse((log_dir / "app-001.log").exists())  # oldest
-        self.assertFalse((log_dir / "app-000.log").exists())  # 2nd oldest
-        self.assertFalse((log_dir / "app-002.log").exists())  # 3rd oldest
-        self.assertTrue((log_dir / "app-003.log").exists())  # 4th oldest (survives)
+        self.assertFalse((log_dir / "app-001.log").exists())
+        self.assertFalse((log_dir / "app-000.log").exists())
+        self.assertFalse((log_dir / "app-002.log").exists())
+        self.assertTrue((log_dir / "app-003.log").exists())
 
     def test_4_8_max_files_parameter_is_enforced(self):
         """Test 4.8: Handler respects custom max_files parameter."""
@@ -655,8 +655,8 @@ class TestLineBasedRotatingHandler(unittest.TestCase):
 
         (log_dir / "app-01.log").write_text("log")
         (log_dir / "app-02.log").write_text("log")
-        (log_dir / "app-03.txt").write_text("text")  # Not .log
-        (log_dir / "subdir").mkdir()  # Directory
+        (log_dir / "app-03.txt").write_text("text")
+        (log_dir / "subdir").mkdir()
 
         test_file = log_dir / "app-20260207_120000.log"
         handler = LineBasedRotatingHandler(str(test_file), max_files=50)
@@ -665,8 +665,8 @@ class TestLineBasedRotatingHandler(unittest.TestCase):
 
         self.assertTrue((log_dir / "app-01.log").exists())
         self.assertTrue((log_dir / "app-02.log").exists())
-        self.assertTrue((log_dir / "app-03.txt").exists())  # Not deleted
-        self.assertTrue((log_dir / "subdir").exists())  # Not deleted
+        self.assertTrue((log_dir / "app-03.txt").exists())
+        self.assertTrue((log_dir / "subdir").exists())
 
     def test_4_16_cleanup_efficiency_with_large_file_count(self):
         """Test 4.16: _cleanup_old_files() performs efficiently with many files."""

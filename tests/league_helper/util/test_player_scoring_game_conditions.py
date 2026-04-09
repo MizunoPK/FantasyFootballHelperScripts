@@ -410,7 +410,7 @@ class TestLocationScoring:
     def test_location_scoring_away_game(self, scoring_calculator, qb_player, mock_game_data_manager):
         """Test away game penalty."""
         game = UpcomingGame(
-            week=6, home_team='BAL', away_team='KC',  # KC is away
+            week=6, home_team='BAL', away_team='KC',
             temperature=65, wind_gust=10, indoor=False,
             neutral_site=False, country='USA'
         )
@@ -424,7 +424,7 @@ class TestLocationScoring:
     def test_location_scoring_international_game(self, scoring_calculator, qb_player, mock_game_data_manager):
         """Test international game penalty."""
         game = UpcomingGame(
-            week=6, home_team='JAX', away_team='KC',  # KC is away in London
+            week=6, home_team='JAX', away_team='KC',
             temperature=55, wind_gust=10, indoor=False,
             neutral_site=True, country='UK'
         )
@@ -441,7 +441,7 @@ class TestLocationScoring:
         game = UpcomingGame(
             week=6, home_team='KC', away_team='BAL',
             temperature=70, wind_gust=5, indoor=True,
-            neutral_site=True, country='USA'  # Super Bowl in USA
+            neutral_site=True, country='USA'
         )
         mock_game_data_manager.get_game.return_value = game
 

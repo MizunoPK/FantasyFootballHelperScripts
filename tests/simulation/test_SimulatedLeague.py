@@ -856,8 +856,8 @@ class TestJSONLoading:
                 "position": "TE",
                 "drafted_by": "",
                 "locked": False,
-                "projected_points": [],  # Empty array
-                "actual_points": []       # Empty array
+                "projected_points": [],
+                "actual_points": []
             }
         ]
         (week_folder / "te_data.json").write_text(json.dumps(te_data))
@@ -918,7 +918,7 @@ class TestJSONLoading:
             players = league._parse_players_json(week_folder, week_num=1)
 
         assert players[44444]["drafted_by"] == ""
-        assert players[44444]["locked"] == "0"  # False → "0"
+        assert players[44444]["locked"] == "0"
         assert players[44444]["projected_points"] == "0.0"
         assert players[44444]["actual_points"] == "0.0"
 
@@ -945,7 +945,7 @@ class TestWeek17EdgeCase:
                 "drafted_by": "",
                 "locked": False,
                 "projected_points": [0.0] * 16 + [20.0],
-                "actual_points": [0.0] * 17  # No actual yet
+                "actual_points": [0.0] * 17
             }
         ]
 
@@ -957,7 +957,7 @@ class TestWeek17EdgeCase:
                 "drafted_by": "",
                 "locked": False,
                 "projected_points": [0.0] * 17,
-                "actual_points": [0.0] * 16 + [23.2]  # Week 17 actual at index 16
+                "actual_points": [0.0] * 16 + [23.2]
             }
         ]
 
@@ -1101,8 +1101,8 @@ class TestEdgeCaseBehavior:
                 "position": "DST",
                 "drafted_by": "",
                 "locked": False,
-                "projected_points": [5.0, 6.0, 7.0, 8.0, 9.0],  # Only 5 elements
-                "actual_points": [4.5, 5.5, 6.5, 7.5, 8.5]       # Only 5 elements
+                "projected_points": [5.0, 6.0, 7.0, 8.0, 9.0],
+                "actual_points": [4.5, 5.5, 6.5, 7.5, 8.5]
             }
         ]
         (week_folder / "dst_data.json").write_text(json.dumps(dst_data))

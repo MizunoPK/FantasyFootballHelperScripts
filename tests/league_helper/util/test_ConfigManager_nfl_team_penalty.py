@@ -121,7 +121,7 @@ class TestNFLTeamPenaltyValidation:
 
     def test_nfl_team_penalty_not_list_raises_error(self, temp_data_folder, minimal_config):
         """Test that non-list NFL_TEAM_PENALTY raises ValueError."""
-        minimal_config["parameters"]["NFL_TEAM_PENALTY"] = "LV,NYJ"  # string instead of list
+        minimal_config["parameters"]["NFL_TEAM_PENALTY"] = "LV,NYJ"
         config_file = temp_data_folder / "league_config.json"
         config_file.write_text(json.dumps(minimal_config))
 
@@ -153,7 +153,7 @@ class TestNFLTeamPenaltyWeightValidation:
 
     def test_nfl_team_penalty_weight_not_numeric_raises_error(self, temp_data_folder, minimal_config):
         """Test that non-numeric NFL_TEAM_PENALTY_WEIGHT raises ValueError."""
-        minimal_config["parameters"]["NFL_TEAM_PENALTY_WEIGHT"] = "0.75"  # string instead of number
+        minimal_config["parameters"]["NFL_TEAM_PENALTY_WEIGHT"] = "0.75"
         config_file = temp_data_folder / "league_config.json"
         config_file.write_text(json.dumps(minimal_config))
 
@@ -204,7 +204,7 @@ class TestNFLTeamPenaltyEdgeCases:
 
     def test_nfl_team_penalty_weight_accepts_int(self, temp_data_folder, minimal_config):
         """Test that NFL_TEAM_PENALTY_WEIGHT accepts int values (0 or 1)."""
-        minimal_config["parameters"]["NFL_TEAM_PENALTY_WEIGHT"] = 1  # int instead of float
+        minimal_config["parameters"]["NFL_TEAM_PENALTY_WEIGHT"] = 1
         config_file = temp_data_folder / "league_config.json"
         config_file.write_text(json.dumps(minimal_config))
 

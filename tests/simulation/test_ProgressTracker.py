@@ -318,8 +318,8 @@ class TestProgressTrackerCreateProgressBar:
 
         assert bar.startswith("[")
         assert bar.endswith("]")
-        assert ">" in bar  # Arrow indicator
-        assert "=" in bar  # Filled portion
+        assert ">" in bar
+        assert "=" in bar
 
     def test_create_progress_bar_full(self):
         """Test progress bar at 100%"""
@@ -364,7 +364,7 @@ class TestProgressTrackerDisplay:
         mock_print.assert_called()
         call_args = str(mock_print.call_args)
         assert "Test" in call_args
-        assert "50" in call_args  # Percentage or count
+        assert "50" in call_args
 
     @patch('builtins.print')
     def test_display_shows_percentage(self, mock_print):

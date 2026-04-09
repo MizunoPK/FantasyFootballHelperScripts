@@ -365,8 +365,8 @@ class TestStringRepresentations:
         repr_str = repr(perf)
 
         assert "config_001" in repr_str
-        assert "0.0000" in repr_str  # win rate
-        assert "0.00" in repr_str    # avg pts
+        assert "0.0000" in repr_str
+        assert "0.00" in repr_str
         assert "sims=0" in repr_str
 
     def test_repr_with_results(self):
@@ -397,7 +397,7 @@ class TestStringRepresentations:
 
         assert "config_001" in str_rep
         assert "10W-7L" in str_rep
-        assert "1234.6" in str_rep  # points rounded to 1 decimal
+        assert "1234.6" in str_rep
         assert "1 sims" in str_rep
 
     def test_str_multiple_results(self):
@@ -670,10 +670,10 @@ class TestWeekRangePerformanceIntegration:
         assert perf.total_losses == 6
         assert perf.get_win_rate() == pytest.approx(10/16)
 
-        assert perf.get_win_rate_for_range("1-5") == pytest.approx(4/5)  # 80%
-        assert perf.get_win_rate_for_range("6-9") == pytest.approx(2/4)  # 50% (weeks 6-9: 2 wins, 2 losses)
-        assert perf.get_win_rate_for_range("10-13") == pytest.approx(2/4)  # 50% (weeks 10-13: 2 wins, 2 losses)
-        assert perf.get_win_rate_for_range("14-17") == pytest.approx(2/3)  # 66.7% (weeks 14-16: 2 wins, 1 loss)
+        assert perf.get_win_rate_for_range("1-5") == pytest.approx(4/5)
+        assert perf.get_win_rate_for_range("6-9") == pytest.approx(2/4)
+        assert perf.get_win_rate_for_range("10-13") == pytest.approx(2/4)
+        assert perf.get_win_rate_for_range("14-17") == pytest.approx(2/3)
 
     def test_different_configs_best_in_different_ranges(self):
         """Different configs can be best in different week ranges."""

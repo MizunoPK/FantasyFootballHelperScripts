@@ -100,7 +100,7 @@ class TestCleanupOldOptimalFolders:
     def test_sorts_by_name_for_oldest(self, tmp_path):
         """Should determine oldest by alphabetical sort of folder names."""
         (tmp_path / "optimal_20250103_120000").mkdir()
-        (tmp_path / "optimal_20250101_120000").mkdir()  # Oldest
+        (tmp_path / "optimal_20250101_120000").mkdir()
         (tmp_path / "optimal_20250102_120000").mkdir()
         (tmp_path / "optimal_20250105_120000").mkdir()
         (tmp_path / "optimal_20250104_120000").mkdir()
@@ -233,7 +233,7 @@ class TestCleanupOldAccuracyOptimalFolders:
         """Should only count/delete folders matching accuracy_optimal_* pattern."""
         (tmp_path / "accuracy_optimal_2025-01-01_12-00-00").mkdir()
         (tmp_path / "accuracy_optimal_2025-01-02_12-00-00").mkdir()
-        (tmp_path / "optimal_20250101_120000").mkdir()  # Win-rate optimal (should ignore)
+        (tmp_path / "optimal_20250101_120000").mkdir()
         (tmp_path / "intermediate_01_TEST").mkdir()
         (tmp_path / "other_folder").mkdir()
 
@@ -249,7 +249,7 @@ class TestCleanupOldAccuracyOptimalFolders:
     def test_sorts_by_name_for_oldest(self, tmp_path):
         """Should determine oldest by alphabetical sort of folder names."""
         (tmp_path / "accuracy_optimal_2025-01-03_12-00-00").mkdir()
-        (tmp_path / "accuracy_optimal_2025-01-01_12-00-00").mkdir()  # Oldest
+        (tmp_path / "accuracy_optimal_2025-01-01_12-00-00").mkdir()
         (tmp_path / "accuracy_optimal_2025-01-02_12-00-00").mkdir()
         (tmp_path / "accuracy_optimal_2025-01-05_12-00-00").mkdir()
         (tmp_path / "accuracy_optimal_2025-01-04_12-00-00").mkdir()

@@ -55,9 +55,9 @@ class TestAccuracyCalculator:
     def test_calculate_mae_basic(self, calculator):
         """Test basic MAE calculation."""
         player_data = [
-            {'projected': 10.0, 'actual': 12.0},  # error = 2
-            {'projected': 15.0, 'actual': 13.0},  # error = 2
-            {'projected': 20.0, 'actual': 25.0},  # error = 5
+            {'projected': 10.0, 'actual': 12.0},
+            {'projected': 15.0, 'actual': 13.0},
+            {'projected': 20.0, 'actual': 25.0},
         ]
         result = calculator.calculate_mae(player_data)
 
@@ -79,9 +79,9 @@ class TestAccuracyCalculator:
     def test_calculate_mae_excludes_zero_actual(self, calculator):
         """Test that players with 0 actual points are excluded."""
         player_data = [
-            {'projected': 10.0, 'actual': 12.0},  # included
-            {'projected': 15.0, 'actual': 0.0},   # excluded
-            {'projected': 20.0, 'actual': 0.0},   # excluded
+            {'projected': 10.0, 'actual': 12.0},
+            {'projected': 15.0, 'actual': 0.0},
+            {'projected': 20.0, 'actual': 0.0},
         ]
         result = calculator.calculate_mae(player_data)
 
@@ -91,8 +91,8 @@ class TestAccuracyCalculator:
     def test_calculate_mae_excludes_negative_actual(self, calculator):
         """Test that players with negative actual points are excluded."""
         player_data = [
-            {'projected': 10.0, 'actual': 12.0},   # included
-            {'projected': 15.0, 'actual': -1.0},   # excluded
+            {'projected': 10.0, 'actual': 12.0},
+            {'projected': 15.0, 'actual': -1.0},
         ]
         result = calculator.calculate_mae(player_data)
 
@@ -129,9 +129,9 @@ class TestAccuracyCalculator:
     def test_calculate_mae_handles_missing_keys(self, calculator):
         """Test MAE handles missing projected/actual keys."""
         player_data = [
-            {'projected': 10.0},  # missing actual - defaults to 0, excluded
-            {'actual': 12.0},     # missing projected - defaults to 0, included (actual > 0)
-            {'projected': 15.0, 'actual': 15.0},  # valid
+            {'projected': 10.0},
+            {'actual': 12.0},
+            {'projected': 15.0, 'actual': 15.0},
         ]
         result = calculator.calculate_mae(player_data)
 
@@ -278,7 +278,7 @@ class TestPairwiseAccuracy:
         """Test that players with actual < 3 are excluded."""
         player_data = [
             {'position': 'QB', 'projected': 30.0, 'actual': 28.0},
-            {'position': 'QB', 'projected': 25.0, 'actual': 2.0},  # Excluded
+            {'position': 'QB', 'projected': 25.0, 'actual': 2.0},
             {'position': 'QB', 'projected': 20.0, 'actual': 18.0},
         ]
         accuracy = calculator.calculate_pairwise_accuracy(player_data, 'QB')
@@ -288,7 +288,7 @@ class TestPairwiseAccuracy:
         """Test that ties in actual points are skipped."""
         player_data = [
             {'position': 'QB', 'projected': 30.0, 'actual': 20.0},
-            {'position': 'QB', 'projected': 25.0, 'actual': 20.0},  # Tie
+            {'position': 'QB', 'projected': 25.0, 'actual': 20.0},
         ]
         accuracy = calculator.calculate_pairwise_accuracy(player_data, 'QB')
         assert accuracy == 0.0
@@ -306,7 +306,7 @@ class TestPairwiseAccuracy:
         player_data = [
             {'position': 'QB', 'projected': 30.0, 'actual': 28.0},
             {'position': 'QB', 'projected': 20.0, 'actual': 18.0},
-            {'position': 'RB', 'projected': 25.0, 'actual': 22.0},  # Different position
+            {'position': 'RB', 'projected': 25.0, 'actual': 22.0},
         ]
         accuracy = calculator.calculate_pairwise_accuracy(player_data, 'QB')
         assert accuracy == 1.0
@@ -328,7 +328,7 @@ class TestPairwiseAccuracy:
         player_data = [
             {'position': 'DST', 'projected': 12.0, 'actual': 15.0},
             {'position': 'DST', 'projected': 8.0, 'actual': 5.0},
-            {'position': 'DST', 'projected': 5.0, 'actual': 3.0},  # Above filter threshold
+            {'position': 'DST', 'projected': 5.0, 'actual': 3.0},
         ]
         accuracy = calculator.calculate_pairwise_accuracy(player_data, 'DST')
         assert accuracy == 1.0
@@ -373,7 +373,7 @@ class TestTopNAccuracy:
         """Test that players with actual < 3 are excluded."""
         player_data = [
             {'position': 'RB', 'name': 'Player A', 'projected': 30.0, 'actual': 28.0},
-            {'position': 'RB', 'name': 'Player B', 'projected': 25.0, 'actual': 2.0},  # Excluded
+            {'position': 'RB', 'name': 'Player B', 'projected': 25.0, 'actual': 2.0},
             {'position': 'RB', 'name': 'Player C', 'projected': 20.0, 'actual': 18.0},
         ]
         accuracy = calculator.calculate_top_n_accuracy(player_data, 2, 'RB')
@@ -452,7 +452,7 @@ class TestSpearmanCorrelation:
         """Test that players with actual < 3 are excluded."""
         player_data = [
             {'position': 'WR', 'projected': 30.0, 'actual': 28.0},
-            {'position': 'WR', 'projected': 25.0, 'actual': 2.0},  # Excluded
+            {'position': 'WR', 'projected': 25.0, 'actual': 2.0},
             {'position': 'WR', 'projected': 20.0, 'actual': 18.0},
         ]
         corr = calculator.calculate_spearman_correlation(player_data, 'WR')

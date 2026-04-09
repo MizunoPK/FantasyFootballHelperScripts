@@ -32,7 +32,7 @@ class TestNormalizeName:
     def test_removes_punctuation(self):
         """Test that punctuation is removed"""
         assert normalize_name("Ja'Marr Chase") == "jamarr chase"
-        assert normalize_name("Amon-Ra St. Brown") == "amon ra st brown"  # Hyphen becomes space
+        assert normalize_name("Amon-Ra St. Brown") == "amon ra st brown"
 
     def test_removes_suffixes(self):
         """Test that name suffixes are removed"""
@@ -243,7 +243,7 @@ class TestUpdatePlayerAdpValues:
         report = update_player_adp_values(sample_adp_df, test_sim_data_folder)
 
         assert report['summary']['total_json_players'] == 6
-        assert report['summary']['matched'] >= 3  # Patrick Mahomes in each week
+        assert report['summary']['matched'] >= 3
 
         qb_path = test_sim_data_folder / 'week_01' / 'qb_data.json'
         with open(qb_path, 'r', encoding='utf-8') as f:
@@ -252,7 +252,7 @@ class TestUpdatePlayerAdpValues:
         assert isinstance(qb_data, list)
 
         mahomes = [p for p in qb_data if 'Mahomes' in p['name']][0]
-        assert mahomes['average_draft_position'] == 15.5  # Updated from 170.0
+        assert mahomes['average_draft_position'] == 15.5
 
     def test_unmatched_players_keep_170(self, sample_adp_df, test_sim_data_folder):
         """Test that unmatched players keep 170.0 ADP value"""
@@ -265,7 +265,7 @@ class TestUpdatePlayerAdpValues:
             qb_data = json.load(f)
 
         unmatched = [p for p in qb_data if p['name'] == 'Unmatched QB'][0]
-        assert unmatched['average_draft_position'] == 170.0  # Unchanged
+        assert unmatched['average_draft_position'] == 170.0
 
     def test_returns_comprehensive_report(self, sample_adp_df, test_sim_data_folder):
         """Test that comprehensive match report is returned (aggregated across weeks)"""

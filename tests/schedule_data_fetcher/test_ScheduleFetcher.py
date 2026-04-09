@@ -161,7 +161,7 @@ class TestIdentifyByeWeeks:
 
         schedule = {
             1: {'KC': 'BAL', 'BAL': 'KC', 'PHI': 'DAL', 'DAL': 'PHI'},
-            5: {'BAL': 'CIN', 'CIN': 'BAL', 'PHI': 'DAL', 'DAL': 'PHI'}  # KC missing
+            5: {'BAL': 'CIN', 'CIN': 'BAL', 'PHI': 'DAL', 'DAL': 'PHI'}
         }
 
         bye_weeks = fetcher._identify_bye_weeks(schedule)
@@ -236,7 +236,7 @@ class TestExportToCsv:
 
             kc_week_5 = [r for r in rows if r['team'] == 'KC' and r['week'] == '5']
             assert len(kc_week_5) > 0
-            assert kc_week_5[0]['opponent'] == ''  # Empty opponent = bye week
+            assert kc_week_5[0]['opponent'] == ''
 
     def test_export_to_csv_creates_directory(self, tmp_path):
         """Test export_to_csv creates output directory if needed"""

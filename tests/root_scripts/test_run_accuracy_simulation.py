@@ -159,7 +159,7 @@ class TestAccuracySimulationDEBUGLogQuality:
         source = inspect.getsource(ParallelAccuracyRunner.evaluate_configs_parallel)
 
         assert 'logger.debug' in source or 'self.logger.debug' in source
-        assert 'completed' in source  # Progress tracking
+        assert 'completed' in source
 
     def test_no_debug_logs_in_tight_loops(self):
         """Test 3.7: Verify no DEBUG logs inside tight loops (performance concern)"""

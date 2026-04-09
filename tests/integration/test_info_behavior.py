@@ -86,9 +86,9 @@ class TestINFOLogBehavior:
             )
 
         technical_jargon = [
-            'logger.info(f"Updated all horizon baselines',  # Implementation detail
-            'logger.info(f"Saved intermediate folder',  # Internal checkpoint
-            'logger.info(f"Cleaned up {deleted_count} intermediate',  # Internal cleanup
+            'logger.info(f"Updated all horizon baselines',
+            'logger.info(f"Saved intermediate folder',
+            'logger.info(f"Cleaned up {deleted_count} intermediate',
         ]
 
         for jargon in technical_jargon:

@@ -299,7 +299,7 @@ class TestWeek:
 
         repr_str = repr(week)
         assert "15" in repr_str
-        assert "1" in repr_str  # 1 matchup
+        assert "1" in repr_str
 
     def test_simulate_week_idempotency(self):
         """Test that simulating same week twice overwrites results"""

@@ -158,7 +158,7 @@ class TestGameDataValidation:
         with pytest.raises(ValidationError):
             GameData(
                 week=1,
-                home_team="K",  # Too short
+                home_team="K",
                 away_team="BAL",
                 indoor=False,
                 city="Kansas City",
@@ -170,7 +170,7 @@ class TestGameDataValidation:
         with pytest.raises(ValidationError):
             GameData(
                 week=1,
-                home_team="KCMO",  # Too long
+                home_team="KCMO",
                 away_team="BAL",
                 indoor=False,
                 city="Kansas City",
@@ -475,7 +475,7 @@ class TestGameDataFromEspnData:
                 "competitors": [
                     {
                         "homeAway": "home",
-                        "team": {"abbreviation": "WAS"},  # Old abbreviation
+                        "team": {"abbreviation": "WAS"},
                         "score": "24"
                     },
                     {
@@ -489,7 +489,7 @@ class TestGameDataFromEspnData:
 
         game = GameData.from_espn_data(1, espn_event, None)
 
-        assert game.home_team == "WSH"  # Should be mapped
+        assert game.home_team == "WSH"
         assert game.away_team == "NYG"
 
     def test_from_espn_data_international_game(self):
@@ -622,7 +622,7 @@ class TestEdgeCases:
             home_team="KC",
             away_team="BAL",
             indoor=False,
-            city="A",  # Single character city
+            city="A",
             date="2024-09-05T00:20Z"
         )
         assert game.city == "A"
@@ -646,7 +646,7 @@ class TestIntegrationScenarios:
                 away_team=away,
                 home_team_score=21 + i * 3,
                 away_team_score=17 + i * 2,
-                indoor=(home in ["DAL"]),  # Only DAL is indoor
+                indoor=(home in ["DAL"]),
                 city=f"City{i}",
                 date=f"2024-09-08T{12 + i}:00Z"
             )

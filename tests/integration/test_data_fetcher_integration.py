@@ -44,7 +44,7 @@ class TestPlayerDataFetcherIntegration:
         mock_client = Mock()
 
         mock_player = ESPNPlayerData(
-            id="1",  # ID must be string
+            id="1",
             name="Test Player",
             team="TST",
             position="QB",
@@ -109,7 +109,7 @@ class TestDataPipelineIntegration:
         """Test player data export and load cycle"""
         test_players = [
             ESPNPlayerData(
-                id="1",  # ID must be string
+                id="1",
                 name="QB1",
                 team="T1",
                 position="QB",
@@ -121,7 +121,7 @@ class TestDataPipelineIntegration:
                 weekly_projections={}
             ),
             ESPNPlayerData(
-                id="2",  # ID must be string
+                id="2",
                 name="RB1",
                 team="T2",
                 position="RB",

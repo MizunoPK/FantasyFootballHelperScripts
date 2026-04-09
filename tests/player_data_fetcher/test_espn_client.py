@@ -226,12 +226,12 @@ class TestGetPositionalRankFromOverall:
     def mock_players_simple(self):
         """Create simple mock player data for testing"""
         return [
-            {'draft_rank': 12, 'position_id': 1},  # QB1
-            {'draft_rank': 25, 'position_id': 1},  # QB2
-            {'draft_rank': 50, 'position_id': 1},  # QB3
-            {'draft_rank': 5, 'position_id': 2},   # RB1
-            {'draft_rank': 10, 'position_id': 2},  # RB2
-            {'draft_rank': 15, 'position_id': 2},  # RB3
+            {'draft_rank': 12, 'position_id': 1},
+            {'draft_rank': 25, 'position_id': 1},
+            {'draft_rank': 50, 'position_id': 1},
+            {'draft_rank': 5, 'position_id': 2},
+            {'draft_rank': 10, 'position_id': 2},
+            {'draft_rank': 15, 'position_id': 2},
         ]
 
     def test_qb1_from_overall_rank_12(self, client, mock_players_simple):
@@ -293,9 +293,9 @@ class TestGetPositionalRankFromOverall:
     def test_players_missing_draft_rank(self, client):
         """Test players with missing draft_rank are ignored"""
         mock_players = [
-            {'draft_rank': 10, 'position_id': 1},   # QB1
-            {'draft_rank': None, 'position_id': 1},  # Ignored
-            {'draft_rank': 20, 'position_id': 1},   # QB2
+            {'draft_rank': 10, 'position_id': 1},
+            {'draft_rank': None, 'position_id': 1},
+            {'draft_rank': 20, 'position_id': 1},
         ]
         result = client._get_positional_rank_from_overall(20, 'QB', mock_players)
         assert result == 2.0
@@ -303,9 +303,9 @@ class TestGetPositionalRankFromOverall:
     def test_players_missing_position_id(self, client):
         """Test players with missing position_id are ignored"""
         mock_players = [
-            {'draft_rank': 10, 'position_id': 1},    # QB1
-            {'draft_rank': 15, 'position_id': None},  # Ignored
-            {'draft_rank': 20, 'position_id': 1},    # QB2
+            {'draft_rank': 10, 'position_id': 1},
+            {'draft_rank': 15, 'position_id': None},
+            {'draft_rank': 20, 'position_id': 1},
         ]
         result = client._get_positional_rank_from_overall(20, 'QB', mock_players)
         assert result == 2.0

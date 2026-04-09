@@ -374,7 +374,7 @@ class TestTimestampedFilenames:
         parts = filename.split('_')
         assert len(parts) == 3
         assert len(parts[1]) == 8
-        assert len(parts[2].split('.')[0]) == 6  # HHMMSS
+        assert len(parts[2].split('.')[0]) == 6
 
     def test_generate_timestamped_filename_without_time(self, manager):
         """Test generates filename with date only."""
@@ -382,7 +382,7 @@ class TestTimestampedFilenames:
 
         assert filename.startswith('players_')
         assert filename.endswith('.csv')
-        assert len(filename.split('_')[1].split('.')[0]) == 8  # YYYYMMDD format
+        assert len(filename.split('_')[1].split('.')[0]) == 8
 
     def test_get_timestamped_path_returns_full_path(self, manager, tmp_path):
         """Test returns full path in data folder."""

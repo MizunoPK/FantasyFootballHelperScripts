@@ -27,13 +27,13 @@ def _make_settings_dict(**overrides):
         'current_nfl_week': 17,
         'season': 2025,
         'my_team_name': 'Sea Sharp',
-        'load_drafted_data': False,       # Disable to avoid file checks
+        'load_drafted_data': False,
         'drafted_data_path': '../data/drafted_data.csv',
         'position_json_output': '../data/player_data',
         'team_data_folder': '../data/team_data',
         'game_data_csv': '../data/game_data.csv',
         'enable_historical_save': False,
-        'enable_game_data': False,        # Disable to avoid network calls
+        'enable_game_data': False,
         'espn_player_limit': 100,
         'request_timeout': 30,
         'rate_limit_delay': 0.2,

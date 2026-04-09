@@ -221,9 +221,9 @@ class TestPlayerManagerLoadFromJSON:
         allen = next(p for p in player_manager.players if p.name == "Josh Allen")
         mccaffrey = next(p for p in player_manager.players if p.name == "Christian McCaffrey")
 
-        assert mahomes.drafted_by == ""  # Free agent
-        assert allen.drafted_by == "Sea Sharp"  # Our team
-        assert mccaffrey.drafted_by == "Opponent Team"  # Opponent
+        assert mahomes.drafted_by == ""
+        assert allen.drafted_by == "Sea Sharp"
+        assert mccaffrey.drafted_by == "Opponent Team"
 
     def test_load_players_from_json_missing_directory_raises_file_not_found(self, tmp_path):
         """Test load_players_from_json() raises FileNotFoundError if player_data directory missing."""
@@ -448,7 +448,7 @@ class TestUpdatePlayersFileSelectiveUpdate:
         original_passing = player.passing.copy()
         original_rushing = player.rushing.copy()
 
-        player.drafted_by = "Sea Sharp"  # Draft to our team
+        player.drafted_by = "Sea Sharp"
         player.locked = True
 
         result = pm.update_players_file()
@@ -490,7 +490,7 @@ class TestUpdatePlayersFileSelectiveUpdate:
                 "team": "KC",
                 "position": "QB",
                 "bye_week": 7,
-                "drafted_by": "Opponent Team",  # Opponent drafted this player
+                "drafted_by": "Opponent Team",
                 "locked": False,
                 "projected_points": [20.0] * 17,
                 "actual_points": [18.0] * 17
@@ -517,7 +517,7 @@ class TestUpdatePlayersFileSelectiveUpdate:
         pm.load_players_from_json()
 
         player = pm.players[0]
-        assert player.drafted_by == "Opponent Team"  # Loaded as opponent draft
+        assert player.drafted_by == "Opponent Team"
 
         player.locked = True
         pm.update_players_file()
@@ -531,6 +531,6 @@ class TestUpdatePlayersFileSelectiveUpdate:
         with open(player_data_dir / "qb_data.json", 'r') as f:
             qb_data_after = json.load(f)
 
-        assert qb_data_after["qb_data"][0]["drafted_by"] == "Opponent Team"  # Preserved!
+        assert qb_data_after["qb_data"][0]["drafted_by"] == "Opponent Team"
 
 

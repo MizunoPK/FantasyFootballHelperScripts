@@ -92,7 +92,7 @@ class TestSaveCalculatedPointsManager:
             data = json.load(f)
 
         assert "1" in data
-        assert data["1"] == 25.3  # Weekly projection for week 5
+        assert data["1"] == 25.3
 
     def test_execute_season_long_scoring(self, mock_config, mock_player_manager, temp_data_folder):
         """Test execute() collects season-long projections for week == 0"""
@@ -116,7 +116,7 @@ class TestSaveCalculatedPointsManager:
             data = json.load(f)
 
         assert "1" in data
-        assert data["1"] == 342.57  # Season-long projection
+        assert data["1"] == 342.57
 
     def test_execute_rounds_to_2_decimals(self, mock_config, mock_player_manager, temp_data_folder):
         """Test execute() rounds projected points to 2 decimal places (UPDATED for Sub-feature 2)"""
@@ -140,7 +140,7 @@ class TestSaveCalculatedPointsManager:
         with open(json_path) as f:
             data = json.load(f)
 
-        player_id = "1"  # Player ID
+        player_id = "1"
         assert player_id in data
         assert data[player_id] == 26.57
 

@@ -465,7 +465,7 @@ class TestAccuracyResultsManagerIntegration:
         optimal_path = manager.save_optimal_configs()
 
         assert optimal_path.exists()
-        assert (optimal_path / 'league_config.json').exists()  # Copied from baseline
+        assert (optimal_path / 'league_config.json').exists()
         assert (optimal_path / 'week1-5.json').exists()
         assert (optimal_path / 'week6-9.json').exists()
         assert (optimal_path / 'week10-13.json').exists()
@@ -517,7 +517,7 @@ class TestAccuracySimulationManagerIntegration:
 
         assert len(TEST_PARAMETER_ORDER) == 16
         assert 'NORMALIZATION_MAX_SCALE' in TEST_PARAMETER_ORDER
-        assert 'PLAYER_RATING_SCORING_WEIGHT' not in TEST_PARAMETER_ORDER  # Excluded
+        assert 'PLAYER_RATING_SCORING_WEIGHT' not in TEST_PARAMETER_ORDER
         assert 'LOCATION_INTERNATIONAL' in TEST_PARAMETER_ORDER
         assert manager.parameter_order == TEST_PARAMETER_ORDER
 

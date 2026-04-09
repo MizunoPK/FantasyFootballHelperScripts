@@ -93,8 +93,8 @@ def mock_player_manager(sample_players):
     manager.get_player_list = Mock(return_value=[])
 
     manager.get_players_by_team = Mock(return_value={
-        "Sea Sharp": sample_players[:3],  # First 3 players
-        "Team Alpha": sample_players[3:6],  # Next 3 players
+        "Sea Sharp": sample_players[:3],
+        "Team Alpha": sample_players[3:6],
     })
 
     return manager
@@ -142,7 +142,7 @@ class TestTradeSimTeamInitialization:
         assert len(team.team) == len(team_players) - 1
         assert all(p.injury_status in ['ACTIVE', 'QUESTIONABLE', 'OUT'] for p in team.team)
         assert all(p.id != 99 for p in team.team)
-        assert any(p.injury_status == 'OUT' for p in team.team)  # OUT player kept
+        assert any(p.injury_status == 'OUT' for p in team.team)
 
     def test_initialization_keeps_questionable_players(self, sample_players, mock_player_manager):
         """Test that QUESTIONABLE players are kept"""
@@ -297,12 +297,12 @@ class TestTradeSimulatorModeManagerPositionValidation:
         counts = manager.analyzer.count_positions(roster)
 
         assert isinstance(counts, dict)
-        assert counts['QB'] == 2  # Mahomes, Allen
-        assert counts['RB'] == 2  # McCaffrey, Henry
-        assert counts['WR'] == 2  # Jefferson, Hill
-        assert counts['TE'] == 2  # Kelce, Andrews
-        assert counts['K'] == 1   # Tucker
-        assert counts['DST'] == 1  # 49ers
+        assert counts['QB'] == 2
+        assert counts['RB'] == 2
+        assert counts['WR'] == 2
+        assert counts['TE'] == 2
+        assert counts['K'] == 1
+        assert counts['DST'] == 1
 
     def test_count_positions_empty_roster(self, manager):
         """Test counting positions with empty roster"""
@@ -539,7 +539,7 @@ class TestWaiverOptimizer:
         with patch('league_helper.trade_simulator_mode.TradeSimulatorModeManager.show_list_selection', return_value=1):
             with patch('builtins.print'):
                 result = manager.start_waiver_optimizer()
-                assert result == (True, [], "Rest of Season", None)  # Updated: includes mode string and my_team
+                assert result == (True, [], "Rest of Season", None)
 
     def test_waiver_optimizer_calls_get_trade_combinations(self, manager_with_waivers):
         """Test that waiver optimizer calls trade generation"""
@@ -552,8 +552,8 @@ class TestWaiverOptimizer:
                     call_args = mock_get.call_args[1]
                     assert call_args['is_waivers'] == True
                     assert call_args['one_for_one'] == True
-                    assert call_args['two_for_two'] == False  # WAIVERS_TWO_FOR_TWO is False
-                    assert call_args['three_for_three'] == False  # WAIVERS_THREE_FOR_THREE is False
+                    assert call_args['two_for_two'] == False
+                    assert call_args['three_for_three'] == False
 
 
 
@@ -613,7 +613,7 @@ class TestTradeSuggestor:
 
                     call_args = mock_get.call_args_list[0][1]
                     assert call_args['is_waivers'] == False
-                    assert call_args['one_for_one'] == False  # ENABLE_ONE_FOR_ONE is False
+                    assert call_args['one_for_one'] == False
                     assert call_args['two_for_two'] == True
                     assert call_args['three_for_three'] == True
 

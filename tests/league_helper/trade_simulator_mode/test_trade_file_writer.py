@@ -377,8 +377,8 @@ class TestSaveWaiverTradesToFile:
         trade = Mock(spec=TradeSnapshot)
         trade.my_new_team = Mock()
         trade.my_new_team.team_score = 85.0
-        trade.my_original_players = ["QB1", "RB1"]  # 2 players
-        trade.my_new_players = ["WR1", "TE1"]  # 2 players
+        trade.my_original_players = ["QB1", "RB1"]
+        trade.my_new_players = ["WR1", "TE1"]
         trade.waiver_recommendations = None
         trade.my_dropped_players = None
 
@@ -401,7 +401,7 @@ class TestSaveWaiverTradesToFile:
         calls = [str(call) for call in handle.write.call_args_list]
 
         assert any("New team score:" in call for call in calls)
-        assert any("85.00" in call for call in calls)  # mock_trade.my_new_team.team_score
+        assert any("85.00" in call for call in calls)
 
 
 class TestSaveManualTradeToExcel:

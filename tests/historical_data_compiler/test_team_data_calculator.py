@@ -139,7 +139,7 @@ class TestTeamDataCalculator:
         """Bye week should have all zeros"""
         calculator = TeamDataCalculator()
         schedule_with_bye = {
-            1: {'DEN': 'LV', 'LV': 'DEN'},  # KC not playing
+            1: {'DEN': 'LV', 'LV': 'DEN'},
             2: {'KC': 'DEN', 'DEN': 'KC'},
         }
         result = calculator.calculate_team_data(sample_players, schedule_with_bye, sample_game_data)

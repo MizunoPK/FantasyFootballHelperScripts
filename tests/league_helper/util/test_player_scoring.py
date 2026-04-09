@@ -613,7 +613,7 @@ class TestScoringIntegration:
         for i in range(5, 17):
             test_player.projected_points[i] = 250.0 / 12
             test_player.actual_points[i] = 250.0 / 12
-        test_player.injury_status = "OUT"  # MEDIUM risk (changed from HIGH)
+        test_player.injury_status = "OUT"
 
         result = scoring_calculator.score_player(
             test_player,

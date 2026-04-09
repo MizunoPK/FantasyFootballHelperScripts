@@ -200,7 +200,7 @@ class TestWinRateSimulationDEBUGQualityUnit:
         source = inspect.getsource(SimulationManager)
 
         detect_resume = inspect.getsource(SimulationManager._detect_resume_state)
-        assert 'logger.debug' in detect_resume  # Resume logic is complex
+        assert 'logger.debug' in detect_resume
 
         validate_method = inspect.getsource(SimulationManager._validate_season_data)
         debug_count = validate_method.count('logger.debug')
@@ -300,7 +300,7 @@ class TestWinRateSimulationDEBUGQualityUnit:
             line for line in source.split('\n') if 'logger.debug' in line and 'Parsed' in line
         ]
 
-        assert 'Initializing' in source  # Init summary
+        assert 'Initializing' in source
         assert 'Draft complete' in source
         assert 'Season complete' in source
 
@@ -331,8 +331,8 @@ class TestWinRateSimulationDEBUGQualityUnit:
 
         debug_count = source.count('logger.debug')
         assert debug_count == 2, f"Expected 2 debug calls, found {debug_count}"
-        assert 'strategy' in source  # Init with strategy
-        assert 'lineup scored' in source  # Weekly lineup score
+        assert 'strategy' in source
+        assert 'lineup scored' in source
 
     def test_week_debug_quality(self):
         """R2.6.1: Verify DEBUG quality in Week.py

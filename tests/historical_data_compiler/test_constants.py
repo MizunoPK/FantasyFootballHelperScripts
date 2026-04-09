@@ -38,10 +38,10 @@ class TestESPNTeamMappings:
 
     def test_known_team_mappings(self):
         """Verify specific known team mappings"""
-        assert ESPN_TEAM_MAPPINGS[12] == 'KC'  # Kansas City Chiefs
-        assert ESPN_TEAM_MAPPINGS[33] == 'BAL'  # Baltimore Ravens
-        assert ESPN_TEAM_MAPPINGS[1] == 'ATL'  # Atlanta Falcons
-        assert ESPN_TEAM_MAPPINGS[28] == 'WSH'  # Washington Commanders
+        assert ESPN_TEAM_MAPPINGS[12] == 'KC'
+        assert ESPN_TEAM_MAPPINGS[33] == 'BAL'
+        assert ESPN_TEAM_MAPPINGS[1] == 'ATL'
+        assert ESPN_TEAM_MAPPINGS[28] == 'WSH'
 
     def test_all_values_are_three_letter_codes(self):
         """All team abbreviations should be 2-3 characters"""

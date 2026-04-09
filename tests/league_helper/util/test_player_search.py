@@ -22,7 +22,7 @@ class TestPlayerSearchBasic:
                 team="KC",
                 position="QB",
                 bye_week=7,
-                drafted_by="Sea Sharp",  # On roster
+                drafted_by="Sea Sharp",
                 locked=0,
                 score=95.0,
                 fantasy_points=350.0
@@ -33,7 +33,7 @@ class TestPlayerSearchBasic:
                 team="MIA",
                 position="WR",
                 bye_week=8,
-                drafted_by="Opponent Team",  # Drafted by others
+                drafted_by="Opponent Team",
                 locked=0,
                 score=85.0,
                 fantasy_points=280.0
@@ -44,7 +44,7 @@ class TestPlayerSearchBasic:
                 team="SF",
                 position="RB",
                 bye_week=9,
-                drafted_by="",  # Available
+                drafted_by="",
                 locked=0,
                 score=92.0,
                 fantasy_points=320.0
@@ -55,7 +55,7 @@ class TestPlayerSearchBasic:
                 team="KC",
                 position="TE",
                 bye_week=7,
-                drafted_by="Sea Sharp",  # On roster
+                drafted_by="Sea Sharp",
                 locked=1,
                 score=80.0,
                 fantasy_points=250.0
@@ -66,7 +66,7 @@ class TestPlayerSearchBasic:
                 team="BUF",
                 position="QB",
                 bye_week=10,
-                drafted_by="",  # Available
+                drafted_by="",
                 locked=0,
                 score=90.0,
                 fantasy_points=330.0

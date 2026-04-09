@@ -54,7 +54,7 @@ class TestScheduleFetcherLogs:
 
         try:
             result = await fetcher._parse_week_events(1, {"events": [
-                {"shortName": "BAD", "invalid": "data"}  # Will cause parsing error
+                {"shortName": "BAD", "invalid": "data"}
             ]})
         except:
             pass

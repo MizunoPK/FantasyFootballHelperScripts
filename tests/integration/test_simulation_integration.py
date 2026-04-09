@@ -233,7 +233,7 @@ class TestConfigGeneratorIntegration:
         generator = ConfigGenerator(baseline_config, num_test_values=3)
 
         assert generator is not None
-        assert hasattr(generator, 'baseline_configs')  # New API has baseline_configs (plural)
+        assert hasattr(generator, 'baseline_configs')
         assert len(generator.baseline_configs) == 4
 
     def test_config_generator_creates_combinations(self, baseline_config):
@@ -242,7 +242,7 @@ class TestConfigGeneratorIntegration:
 
         test_values_shared = generator.generate_horizon_test_values('SAME_POS_BYE_WEIGHT')
         assert 'shared' in test_values_shared
-        assert len(test_values_shared['shared']) >= 1  # At least baseline + test values
+        assert len(test_values_shared['shared']) >= 1
 
         test_values_horizon = generator.generate_horizon_test_values('NORMALIZATION_MAX_SCALE')
         assert '1-5' in test_values_horizon

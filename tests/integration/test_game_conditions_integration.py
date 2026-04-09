@@ -607,7 +607,7 @@ class TestGameConditionsSimulationIntegration:
 
         manager.set_current_week(2)
         game = manager.get_game("KC")
-        assert game.home_team == "BUF"  # KC is away in week 2
+        assert game.home_team == "BUF"
 
         manager.set_current_week(3)
         game = manager.get_game("KC")

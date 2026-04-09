@@ -632,7 +632,7 @@ class TestEdgeCases:
         player_data = {
             'player': {
                 'stats': [
-                    'invalid_stat',  # Not a dict
+                    'invalid_stat',
                     {
                         'seasonId': 2024,
                         'scoringPeriodId': 5,

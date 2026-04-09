@@ -136,12 +136,12 @@ class TestGameDataManagerGetGame:
         game = manager_with_data.get_game('KC', week=6)
 
         assert game is not None
-        assert game.away_team == 'MIA'  # Week 6 opponent
+        assert game.away_team == 'MIA'
         assert game.temperature == 55
 
     def test_get_game_bye_week(self, manager_with_data):
         """Test getting game for team on bye week."""
-        game = manager_with_data.get_game('GB')  # GB not playing in week 5
+        game = manager_with_data.get_game('GB')
 
         assert game is None
 
@@ -161,7 +161,7 @@ class TestGameDataManagerGetGame:
 
         manager = GameDataManager(tmp_path)
 
-        game = manager.get_game('KC')  # No week parameter
+        game = manager.get_game('KC')
         assert game is None
 
 
@@ -277,7 +277,7 @@ class TestUpcomingGameModel:
 
         assert game.get_team_opponent('KC') == 'BAL'
         assert game.get_team_opponent('BAL') == 'KC'
-        assert game.get_team_opponent('PHI') is None  # Not in this game
+        assert game.get_team_opponent('PHI') is None
 
 
 class TestGameDataParsing:

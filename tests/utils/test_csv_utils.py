@@ -450,7 +450,7 @@ class TestSafeCsvRead:
         csv_file = tmp_path / "malformed.csv"
         with open(csv_file, 'w') as f:
             f.write("col1,col2\n")
-            f.write("value1\n")  # Missing column value
+            f.write("value1\n")
 
         default_df = pd.DataFrame({'fallback': [0]})
 
@@ -490,7 +490,7 @@ class TestCsvColumnExists:
     def test_csv_column_exists_handles_read_errors_gracefully(self, tmp_path):
         """Test csv_column_exists returns False on read errors."""
         invalid_file = tmp_path / "invalid.csv"
-        invalid_file.write_bytes(b'\xff\xfe')  # Invalid UTF-8
+        invalid_file.write_bytes(b'\xff\xfe')
 
         result = csv_column_exists(invalid_file, 'col')
 

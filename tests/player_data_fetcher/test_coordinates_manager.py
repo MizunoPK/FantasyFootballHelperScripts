@@ -368,7 +368,7 @@ class TestFetchCoordinatesFromApi:
         result = manager._fetch_coordinates_from_api("Tokyo", "Japan")
 
         assert result["lat"] == 35.6762
-        assert result["tz"] == "UTC"  # Default
+        assert result["tz"] == "UTC"
 
 
 class TestEdgeCases:

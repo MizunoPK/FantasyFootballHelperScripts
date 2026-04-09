@@ -391,7 +391,7 @@ class TestAccuracyResultsManager:
         assert optimal_path.exists()
         assert optimal_path.name.startswith("accuracy_optimal_")
 
-        assert (optimal_path / "league_config.json").exists()  # Copied from baseline
+        assert (optimal_path / "league_config.json").exists()
         assert (optimal_path / "week1-5.json").exists()
         assert (optimal_path / "week6-9.json").exists()
         assert (optimal_path / "week10-13.json").exists()
@@ -525,7 +525,7 @@ class TestAccuracyResultsManager:
         assert week_config['parameters']['NORMALIZATION_MAX_SCALE'] == 150
 
         ros_config['parameters']['NORMALIZATION_MAX_SCALE'] = 200
-        assert week_config['parameters']['NORMALIZATION_MAX_SCALE'] == 150  # Should still be 150
+        assert week_config['parameters']['NORMALIZATION_MAX_SCALE'] == 150
 
 
 class TestScheduleSync:
@@ -573,7 +573,7 @@ class TestScheduleSync:
         assert synced['SCHEDULE_SCORING']['IMPACT_SCALE'] == 0.8
         assert synced['SCHEDULE_SCORING']['WEIGHT'] == 0.15
         assert synced['SCHEDULE_SCORING']['MIN_WEEKS'] == 3
-        assert synced['OTHER_PARAM'] == 'value'  # Other params preserved
+        assert synced['OTHER_PARAM'] == 'value'
 
     def test_sync_schedule_params_partial(self, results_manager):
         """Test syncing when only some MATCHUP params exist (nested structure)."""
@@ -607,7 +607,7 @@ class TestScheduleSync:
                 'IMPACT_SCALE': 0.8
             },
             'SCHEDULE_SCORING': {
-                'IMPACT_SCALE': 0.5  # Different value
+                'IMPACT_SCALE': 0.5
             }
         }
 

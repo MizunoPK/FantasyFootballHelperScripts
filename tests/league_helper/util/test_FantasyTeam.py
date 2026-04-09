@@ -304,9 +304,9 @@ class TestInitialization:
     def test_init_separates_injury_reserve(self, config, sample_players):
         """Test that only HIGH-risk injured players go to injury_reserve"""
         roster = sample_players[:3]
-        roster[0].injury_status = "ACTIVE"  # LOW risk → active roster
-        roster[1].injury_status = "OUT"  # MEDIUM risk → active roster (counts toward position limits)
-        roster[2].injury_status = "INJURY_RESERVE"  # HIGH risk → IR (doesn't count toward limits)
+        roster[0].injury_status = "ACTIVE"
+        roster[1].injury_status = "OUT"
+        roster[2].injury_status = "INJURY_RESERVE"
 
         for p in roster:
             p.drafted_by = "Sea Sharp"
@@ -379,14 +379,14 @@ class TestCanDraft:
     def test_can_draft_available_player(self, empty_team, sample_players):
         """Test drafting an available player"""
         player = sample_players[0]
-        player.drafted_by = ""  # Available
+        player.drafted_by = ""
 
         assert empty_team.can_draft(player) is True
 
     def test_cannot_draft_already_drafted_player(self, empty_team, sample_players):
         """Test that already drafted players cannot be drafted"""
         player = sample_players[0]
-        player.drafted_by = "Opponent Team"  # Drafted by opponent
+        player.drafted_by = "Opponent Team"
 
         assert empty_team.can_draft(player) is False
 
@@ -508,7 +508,7 @@ class TestDraftPlayer:
     def test_draft_player_fails_when_cannot_draft(self, empty_team, sample_players):
         """Test that draft fails when can_draft returns False"""
         player = sample_players[0]
-        player.drafted_by = "Opponent Team"  # Already drafted by opponent
+        player.drafted_by = "Opponent Team"
 
         result = empty_team.draft_player(player)
 

@@ -422,9 +422,9 @@ class TestSaveToCsv:
 
             df = pd.read_csv(result)
             assert df.iloc[0]["week"] == 1
-            assert df.iloc[0]["home_team"] == "KC"  # Earlier date
+            assert df.iloc[0]["home_team"] == "KC"
             assert df.iloc[1]["week"] == 1
-            assert df.iloc[1]["home_team"] == "DAL"  # Later date
+            assert df.iloc[1]["home_team"] == "DAL"
             assert df.iloc[2]["week"] == 2
 
     def test_save_creates_parent_directory(self, tmp_path):

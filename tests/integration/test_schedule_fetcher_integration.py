@@ -149,7 +149,7 @@ class TestEdgeCases:
 
         logger = setup_logger(
             name="schedule_fetcher",
-            level="DEBUG",  # More verbose to increase line count
+            level="DEBUG",
             log_to_file=True,
             log_format="standard"
         )

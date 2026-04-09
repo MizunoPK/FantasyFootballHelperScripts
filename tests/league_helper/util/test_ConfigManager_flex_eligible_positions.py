@@ -124,7 +124,7 @@ class TestFlexEligiblePositionsValidation:
 
     def test_flex_eligible_positions_not_list_raises_error(self, temp_data_folder, minimal_config):
         """Test that non-list FLEX_ELIGIBLE_POSITIONS raises ValueError."""
-        minimal_config["parameters"]["FLEX_ELIGIBLE_POSITIONS"] = "RB,WR"  # string instead of list
+        minimal_config["parameters"]["FLEX_ELIGIBLE_POSITIONS"] = "RB,WR"
         config_file = temp_data_folder / "league_config.json"
         config_file.write_text(json.dumps(minimal_config))
 

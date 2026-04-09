@@ -929,7 +929,7 @@ class TestPerWeekRangeMethods:
         mgr.record_week_results("config_0001", self.create_sample_week_results())
 
         with pytest.raises(ValueError, match="Invalid week range"):
-            mgr.get_best_config_for_range("1-6")  # Invalid range
+            mgr.get_best_config_for_range("1-6")
 
     def test_get_best_configs_per_range_returns_all_ranges(self):
         """get_best_configs_per_range should return dict with all four ranges."""
@@ -1456,9 +1456,9 @@ class TestSixFileStructureSupport:
         original_config = {
             "config_name": "Test Config",
             "parameters": {
-                "ADP_SCORING": {"WEIGHT": 1.0},  # Base
-                "PLAYER_RATING_SCORING": {"WEIGHT": 2.0},  # Base (moved from week-specific)
-                "TEAM_QUALITY_SCORING": {"WEIGHT": 1.5}  # Week-specific
+                "ADP_SCORING": {"WEIGHT": 1.0},
+                "PLAYER_RATING_SCORING": {"WEIGHT": 2.0},
+                "TEAM_QUALITY_SCORING": {"WEIGHT": 1.5}
             }
         }
 

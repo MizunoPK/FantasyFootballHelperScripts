@@ -540,7 +540,7 @@ class TestConfigStructureEdgeCases:
         config_content = {
             "config_name": "Test",
             "description": "Test config",
-            "parameters": []  # List instead of dict
+            "parameters": []
         }
         config_file = temp_data_folder / "league_config.json"
         with open(config_file, 'w') as f:

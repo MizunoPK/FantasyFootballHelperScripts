@@ -243,8 +243,8 @@ class TestWriteGameDataCSV:
             rows = list(reader)
 
         assert len(rows) == 2
-        assert rows[0]['home_team'] == 'BAL'  # Week 1 comes first (sorted by week then date)
-        assert rows[1]['home_team'] == 'KC'   # Week 2
+        assert rows[0]['home_team'] == 'BAL'
+        assert rows[1]['home_team'] == 'KC'
 
 
 class TestGetCoordinates:

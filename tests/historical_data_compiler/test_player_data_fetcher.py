@@ -61,11 +61,11 @@ class TestPlayerDataModel:
             {
                 'id': '002024',
                 'seasonId': 2024,
-                'statSourceId': 0,  # Actual stats
+                'statSourceId': 0,
                 'statSplitTypeId': 1,
                 'stats': {
-                    '0': 25.5,  # Passing attempts
-                    '3': 350.2  # Passing yards
+                    '0': 25.5,
+                    '3': 350.2
                 }
             }
         ]

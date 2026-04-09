@@ -123,7 +123,7 @@ class TestScoredPlayerStringRepresentation:
         if len(lines) > 1:
             for line in lines[1:]:
                 if line.strip():
-                    assert line.startswith("            -")  # 12 spaces
+                    assert line.startswith("            -")
 
     def test_str_score_formatting(self):
         """Test that score is formatted to 2 decimal places"""
@@ -325,10 +325,10 @@ class TestScoredPlayerComparison:
 
         sorted_players = sorted(scored_players, key=lambda sp: sp.score, reverse=True)
 
-        assert sorted_players[0].player.name == "Player B"  # 200.0
-        assert sorted_players[1].player.name == "Player D"  # 175.0
-        assert sorted_players[2].player.name == "Player A"  # 150.0
-        assert sorted_players[3].player.name == "Player C"  # 100.0
+        assert sorted_players[0].player.name == "Player B"
+        assert sorted_players[1].player.name == "Player D"
+        assert sorted_players[2].player.name == "Player A"
+        assert sorted_players[3].player.name == "Player C"
 
 
 class TestAdditionalEdgeCases:
@@ -348,7 +348,7 @@ class TestAdditionalEdgeCases:
         result = str(scored_player)
 
         assert "- Valid Reason" in result
-        assert "-  \n" in result or "-" in result  # Empty reason appears as "- "
+        assert "-  \n" in result or "-" in result
         assert "- Another Valid Reason" in result
 
     def test_scored_player_with_very_long_reason(self):
@@ -399,7 +399,7 @@ class TestAdditionalEdgeCases:
         result = str(scored_player)
 
         assert "- Valid Reason" in result
-        assert "-    " in result  # Three spaces after dash
+        assert "-    " in result
         assert "- Another Valid Reason" in result
 
     def test_scored_player_with_none_bye_week(self):

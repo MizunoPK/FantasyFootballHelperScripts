@@ -577,8 +577,8 @@ class TestGetRecommendations:
 
     def test_get_recommendations_only_available_players(self, add_to_roster_manager, mock_player_manager, sample_players):
         """Test that only available players (drafted_by="") are recommended"""
-        sample_players[0].drafted_by = "Opponent Team"  # Drafted by opponent
-        sample_players[1].drafted_by = "Sea Sharp"  # On user's roster
+        sample_players[0].drafted_by = "Opponent Team"
+        sample_players[1].drafted_by = "Sea Sharp"
 
         with patch.object(add_to_roster_manager, '_get_current_round', return_value=1):
             recommendations = add_to_roster_manager.get_recommendations()
@@ -655,7 +655,7 @@ class TestDisplayRosterByDraftRounds:
             captured = capsys.readouterr()
             assert "Current Roster by Draft Round:" in captured.out
             assert "Round  1" in captured.out
-            assert "[EMPTY SLOT]" in captured.out  # Some rounds should be empty
+            assert "[EMPTY SLOT]" in captured.out
             assert "Roster Status: 3/15 players drafted" in captured.out
 
     def test_display_shows_ideal_positions(self, add_to_roster_manager, mock_player_manager, sample_players, capsys):
@@ -672,7 +672,7 @@ class TestDisplayRosterByDraftRounds:
 
             captured = capsys.readouterr()
             assert "(Ideal:" in captured.out
-            assert "FLEX" in captured.out  # FLEX is ideal for many rounds
+            assert "FLEX" in captured.out
 
     def test_display_full_roster(self, add_to_roster_manager, mock_player_manager, sample_players, capsys):
         """Test displaying full roster (15/15)"""
@@ -704,7 +704,7 @@ class TestDisplayRosterByDraftRounds:
 class TestInteractiveMode:
     """Test start_interactive_mode() method"""
 
-    @patch('builtins.input', side_effect=[str(Constants.RECOMMENDATION_COUNT + 1)])  # Choose "Back to Main Menu"
+    @patch('builtins.input', side_effect=[str(Constants.RECOMMENDATION_COUNT + 1)])
     def test_interactive_mode_back_to_menu(self, mock_input, add_to_roster_manager, mock_player_manager, mock_team_data_manager, capsys):
         """Test choosing to go back to main menu"""
         mock_player_manager.get_roster_len.return_value = 0
@@ -718,7 +718,7 @@ class TestInteractiveMode:
         captured = capsys.readouterr()
         assert "Returning to Main Menu..." in captured.out
 
-    @patch('builtins.input', side_effect=['1'])  # Choose first player
+    @patch('builtins.input', side_effect=['1'])
     def test_interactive_mode_draft_player_success(self, mock_input, add_to_roster_manager,
                                                    mock_player_manager, mock_team_data_manager, sample_players, capsys):
         """Test successfully drafting a player"""
@@ -738,7 +738,7 @@ class TestInteractiveMode:
         mock_player_manager.draft_player.assert_called_once()
         mock_player_manager.update_players_file.assert_called_once()
 
-    @patch('builtins.input', side_effect=['1'])  # Choose first player
+    @patch('builtins.input', side_effect=['1'])
     def test_interactive_mode_draft_player_failure(self, mock_input, add_to_roster_manager,
                                                    mock_player_manager, mock_team_data_manager, sample_players, capsys):
         """Test failed player draft"""
@@ -758,7 +758,7 @@ class TestInteractiveMode:
         assert "Check roster limits" in captured.out
         mock_player_manager.update_players_file.assert_not_called()
 
-    @patch('builtins.input', side_effect=['abc', '11'])  # Invalid input, then back to menu
+    @patch('builtins.input', side_effect=['abc', '11'])
     def test_interactive_mode_invalid_input(self, mock_input, add_to_roster_manager,
                                            mock_player_manager, mock_team_data_manager, capsys):
         """Test handling of invalid input"""
@@ -774,7 +774,7 @@ class TestInteractiveMode:
         captured = capsys.readouterr()
         assert "Invalid input" in captured.out
 
-    @patch('builtins.input', side_effect=['0', '11'])  # Out of range (too low), then back
+    @patch('builtins.input', side_effect=['0', '11'])
     def test_interactive_mode_out_of_range_selection(self, mock_input, add_to_roster_manager,
                                                      mock_player_manager, mock_team_data_manager, capsys):
         """Test handling out of range selection"""
@@ -805,7 +805,7 @@ class TestInteractiveMode:
         assert "No recommendations available" in captured.out
         assert "Returning to Main Menu..." in captured.out
 
-    @patch('builtins.input', side_effect=['1'])  # Choose first player
+    @patch('builtins.input', side_effect=['1'])
     def test_interactive_mode_updates_managers(self, mock_input, add_to_roster_manager,
                                               mock_player_manager, sample_players):
         """Test that interactive mode updates managers via set_managers"""
@@ -829,8 +829,8 @@ class TestInteractiveMode:
         assert add_to_roster_manager.player_manager == new_player_manager
         assert add_to_roster_manager.team_data_manager == new_team_manager
 
-    @patch('builtins.input', side_effect=['1'])  # Choose first player
-    @patch('builtins.print')  # Mock print to avoid clutter
+    @patch('builtins.input', side_effect=['1'])
+    @patch('builtins.print')
     def test_interactive_mode_shows_updated_roster_after_draft(self, mock_print, mock_input,
                                                                add_to_roster_manager,
                                                                mock_player_manager, mock_team_data_manager, sample_players):

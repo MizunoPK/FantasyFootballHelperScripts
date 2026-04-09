@@ -51,9 +51,9 @@ class TestLoadAdpFromCsv:
         """Test that position suffixes are stripped (WR1 → WR, QB12 → QB)"""
         df = load_adp_from_csv(test_csv_file)
 
-        assert df.iloc[0]['position'] == 'WR'  # Was WR1
-        assert df.iloc[1]['position'] == 'RB'  # Was RB2
-        assert df.iloc[2]['position'] == 'QB'  # Was QB12
+        assert df.iloc[0]['position'] == 'WR'
+        assert df.iloc[1]['position'] == 'RB'
+        assert df.iloc[2]['position'] == 'QB'
         assert 'WR1' not in df['position'].values
         assert 'RB2' not in df['position'].values
         assert 'QB12' not in df['position'].values
@@ -72,7 +72,7 @@ class TestLoadAdpFromCsv:
         csv_path = tmp_path / "invalid_adp.csv"
         csv_content = (
             'Player,POS,AVG\n'
-            '"Test Player","QB1","0"\n'  # Invalid: zero
+            '"Test Player","QB1","0"\n'
         )
         csv_path.write_text(csv_content, encoding='utf-8')
 
@@ -83,7 +83,7 @@ class TestLoadAdpFromCsv:
         """Test that CSV with missing required columns is rejected"""
         csv_path = tmp_path / "missing_columns.csv"
         csv_content = (
-            'Player,POS\n'  # Missing AVG column
+            'Player,POS\n'
             '"Test Player","QB1"\n'
         )
         csv_path.write_text(csv_content, encoding='utf-8')
@@ -103,9 +103,9 @@ class TestLoadAdpFromCsv:
         csv_path = tmp_path / "special_names.csv"
         csv_content = (
             'Player,POS,AVG\n'
-            '"Ja\'Marr Chase","WR1","1.0"\n'  # Apostrophe
-            '"Kenneth Walker III","RB1","25.5"\n'  # Suffix
-            '"Amon-Ra St. Brown","WR2","12.3"\n'  # Hyphen and period
+            '"Ja\'Marr Chase","WR1","1.0"\n'
+            '"Kenneth Walker III","RB1","25.5"\n'
+            '"Amon-Ra St. Brown","WR2","12.3"\n'
         )
         csv_path.write_text(csv_content, encoding='utf-8')
 
@@ -120,7 +120,7 @@ class TestLoadAdpFromCsv:
         csv_path = tmp_path / "empty_team.csv"
         csv_content = (
             'Player,Team,POS,AVG\n'
-            '"Test Player","","QB1","10.0"\n'  # Empty Team
+            '"Test Player","","QB1","10.0"\n'
         )
         csv_path.write_text(csv_content, encoding='utf-8')
 
@@ -128,7 +128,7 @@ class TestLoadAdpFromCsv:
 
         assert len(df) == 1
         assert df.iloc[0]['player_name'] == "Test Player"
-        assert 'Team' not in df.columns  # Team column not in output
+        assert 'Team' not in df.columns
 
     def test_position_cleaning_all_positions(self, tmp_path):
         """Test position cleaning works for all position types"""
@@ -155,7 +155,7 @@ class TestLoadAdpFromCsv:
         csv_path = tmp_path / "negative_adp.csv"
         csv_content = (
             'Player,POS,AVG\n'
-            '"Test Player","QB1","-5.0"\n'  # Invalid: negative
+            '"Test Player","QB1","-5.0"\n'
         )
         csv_path.write_text(csv_content, encoding='utf-8')
 
@@ -172,9 +172,9 @@ class TestLoadAdpFromCsv:
         """Test that all columns have correct data types"""
         df = load_adp_from_csv(test_csv_file)
 
-        assert df['player_name'].dtype == 'object'  # str
+        assert df['player_name'].dtype == 'object'
         assert df['adp'].dtype == 'float64'
-        assert df['position'].dtype == 'object'  # str
+        assert df['position'].dtype == 'object'
 
 
 

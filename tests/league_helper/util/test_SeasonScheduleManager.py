@@ -33,12 +33,12 @@ def temp_schedule_csv(tmp_path):
         ['2', 'NYG', 'PHI'],
         ['3', 'KC', 'LAC'],
         ['3', 'LAC', 'KC'],
-        ['3', 'PHI', ''],  # PHI bye week
+        ['3', 'PHI', ''],
         ['4', 'KC', 'LV'],
         ['4', 'LV', 'KC'],
         ['4', 'PHI', 'SF'],
         ['4', 'SF', 'PHI'],
-        ['5', 'KC', ''],  # KC bye week
+        ['5', 'KC', ''],
         ['5', 'PHI', 'ARI'],
         ['5', 'ARI', 'PHI'],
         ['6', 'KC', 'BUF'],
@@ -163,10 +163,10 @@ class TestGetFutureOpponents:
 
         future = manager.get_future_opponents('KC', 1)
 
-        assert 'DEN' in future  # Week 2
-        assert 'LAC' in future  # Week 3
-        assert 'LV' in future   # Week 4
-        assert 'BUF' in future  # Week 6
+        assert 'DEN' in future
+        assert 'LAC' in future
+        assert 'LV' in future
+        assert 'BUF' in future
         assert len(future) == 4
 
     def test_get_future_opponents_from_current_week(self, temp_schedule_csv):
@@ -175,9 +175,9 @@ class TestGetFutureOpponents:
 
         future = manager.get_future_opponents('PHI', 2)
 
-        assert 'SF' in future   # Week 4
-        assert 'ARI' in future  # Week 5
-        assert 'CLE' in future  # Week 6
+        assert 'SF' in future
+        assert 'ARI' in future
+        assert 'CLE' in future
         assert len(future) == 3
 
     def test_get_future_opponents_no_future_games(self, temp_schedule_csv):

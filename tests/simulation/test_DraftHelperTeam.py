@@ -771,7 +771,7 @@ class TestDraftHelperTeamIntegration:
 
         draft_helper_team.mark_player_drafted(mock_player2.id)
 
-        assert proj_player2.drafted_by == "OPPONENT"  # Drafted by opponent
+        assert proj_player2.drafted_by == "OPPONENT"
         assert draft_helper_team.get_roster_size() == 1
         assert mock_player in draft_helper_team.get_roster_players()
         assert mock_player2 not in draft_helper_team.get_roster_players()

@@ -433,7 +433,7 @@ class TestWeeklyProjections:
         result, reason = player_manager.scoring_calculator._get_normalized_fantasy_points(test_player, use_weekly_projection=False)
 
         assert result == 80.0
-        assert "200.00" in reason  # Should show ROS points
+        assert "200.00" in reason
 
     def test_weekly_normalization_uses_weekly_max(self, player_manager):
         """Test weight_projection() uses correct max (weekly vs ROS) based on parameter"""
@@ -792,7 +792,7 @@ class TestDraftOrderBonus:
 
     def test_draft_bonus_round_1_flex_gets_primary(self, player_manager, test_player):
         """Round 1 FLEX-eligible should get PRIMARY"""
-        test_player.position = "WR"  # FLEX-eligible
+        test_player.position = "WR"
         base_score = 100.0
         result, reason = player_manager.scoring_calculator._apply_draft_order_bonus(test_player, 1, base_score)
         assert result == 100.0 + 50
@@ -834,7 +834,7 @@ class TestByeWeekPenalty:
         base_score = 100.0
         result, reason = player_manager.scoring_calculator._apply_bye_week_penalty(test_player, base_score, player_manager.team.roster)
         assert result == 100.0
-        assert reason == ""  # No reason when there are no overlaps
+        assert reason == ""
 
     def test_bye_penalty_one_same_position_match(self, player_manager, test_player, mock_fantasy_team):
         """One same-position bye match should apply median-based penalty"""
@@ -1049,7 +1049,7 @@ class TestFullScoringIntegration:
         test_player.player_rating = 10.0
         test_player.team_offensive_rank = 30
         test_player.consistency = 0.9
-        test_player.injury_status = "OUT"  # HIGH (-75)
+        test_player.injury_status = "OUT"
         test_player.position = "RB"
 
         mock_fantasy_team.roster = []
@@ -1081,7 +1081,7 @@ class TestFullScoringIntegration:
         for i in range(5, 17):
             test_player.projected_points[i] = 250.0 / 12
             test_player.actual_points[i] = 250.0 / 12
-        test_player.position = "RB"  # Would normally get bonus in round 0
+        test_player.position = "RB"
         mock_fantasy_team.roster = []
 
         result = player_manager.score_player(
@@ -1469,7 +1469,7 @@ class TestGetPlayersByTeam:
             FantasyPlayer(id=2, name="Player 2", team="BUF", position="QB", drafted_by="Team Alpha"),
             FantasyPlayer(id=3, name="Player 3", team="SF", position="RB", drafted_by="Sea Sharp"),
             FantasyPlayer(id=4, name="Player 4", team="DAL", position="WR", drafted_by="Team Alpha"),
-            FantasyPlayer(id=5, name="Player 5", team="NYJ", position="TE", drafted_by=""),  # Free agent
+            FantasyPlayer(id=5, name="Player 5", team="NYJ", position="TE", drafted_by=""),
         ]
 
         result = player_manager.get_players_by_team()
@@ -1585,7 +1585,7 @@ class TestGetPlayersByTeam:
         """Test get_players_by_team treats team names as case-sensitive"""
         player_manager.players = [
             FantasyPlayer(id=1, name="Player 1", team="KC", position="QB", drafted_by="Sea Sharp"),
-            FantasyPlayer(id=2, name="Player 2", team="BUF", position="RB", drafted_by="sea sharp"),  # Different case
+            FantasyPlayer(id=2, name="Player 2", team="BUF", position="RB", drafted_by="sea sharp"),
         ]
 
         result = player_manager.get_players_by_team()
