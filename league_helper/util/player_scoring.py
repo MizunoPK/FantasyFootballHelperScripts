@@ -594,7 +594,7 @@ class PlayerScoringCalculator:
         penalty = self.config.get_bye_week_penalty(same_pos_players, diff_pos_players)
 
         if len(same_pos_players) == 0 and len(diff_pos_players) == 0:
-            reason = ""  # No conflicts = no reason string
+            reason = ""
         else:
             reason = f"Bye Overlaps: {len(same_pos_players)} same-position, {len(diff_pos_players)} different-position ({-penalty:.1f} pts)"
 

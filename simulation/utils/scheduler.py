@@ -15,7 +15,7 @@ Author: Kai Mizuno
 
 from typing import List, Tuple, TypeVar
 
-T = TypeVar('T')  # Generic type for teams
+T = TypeVar('T')
 
 
 def generate_round_robin(teams: List[T]) -> List[List[Tuple[T, T]]]:

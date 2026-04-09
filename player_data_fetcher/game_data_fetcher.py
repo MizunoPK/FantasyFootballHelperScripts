@@ -158,7 +158,7 @@ class GameDataFetcher:
             ESPN API response as dictionary
         """
         params = {
-            "seasontype": 2,  # Regular season
+            "seasontype": 2,
             "week": week,
             "dates": self.season
         }
@@ -237,7 +237,7 @@ class GameDataFetcher:
             return {"temperature": None, "gust": None, "precipitation": None}
 
         try:
-            date_only = game_date.split('T')[0]  # "2024-09-05"
+            date_only = game_date.split('T')[0]
 
             api_url = self._get_weather_api_endpoint(game_date)
 

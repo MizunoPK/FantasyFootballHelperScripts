@@ -42,12 +42,12 @@ def signal_handler(sig, frame):
 signal.signal(signal.SIGINT, signal_handler)
 
 
-DEFAULT_LOG_LEVEL = 'info'       # Default log level (overridable with --log-level flag)
+DEFAULT_LOG_LEVEL = 'info'
 LOGGING_TO_FILE = False
 LOG_NAME = "accuracy_simulation"
-LOGGING_FORMAT = "detailed"      # detailed / standard / simple
+LOGGING_FORMAT = "detailed"
 
-DEFAULT_BASELINE = ''            # Empty = auto-detect most recent optimal config
+DEFAULT_BASELINE = ''
 DEFAULT_OUTPUT = 'simulation/simulation_configs'
 DEFAULT_DATA = 'simulation/sim_data'
 DEFAULT_TEST_VALUES = 3

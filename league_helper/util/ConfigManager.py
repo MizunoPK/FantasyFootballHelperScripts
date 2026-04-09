@@ -56,7 +56,7 @@ class ConfigKeys:
     ADP_SCORING = "ADP_SCORING"
     PLAYER_RATING_SCORING = "PLAYER_RATING_SCORING"
     TEAM_QUALITY_SCORING = "TEAM_QUALITY_SCORING"
-    CONSISTENCY_SCORING = "CONSISTENCY_SCORING"  # Deprecated - kept for backwards compatibility
+    CONSISTENCY_SCORING = "CONSISTENCY_SCORING"
     PERFORMANCE_SCORING = "PERFORMANCE_SCORING"
     MATCHUP_SCORING = "MATCHUP_SCORING"
     SCHEDULE_SCORING = "SCHEDULE_SCORING"
@@ -889,7 +889,7 @@ class ConfigManager:
         self.schedule_scoring = self.parameters.get(self.keys.SCHEDULE_SCORING, {
             "THRESHOLDS": {"VERY_POOR": 8, "POOR": 12, "GOOD": 20, "EXCELLENT": 24},
             "MULTIPLIERS": {"EXCELLENT": 1.0, "GOOD": 1.0, "POOR": 1.0, "VERY_POOR": 1.0},
-            "WEIGHT": 0.0  # Weight 0 = disabled by default
+            "WEIGHT": 0.0
         })
 
         if 'IMPACT_SCALE' not in self.matchup_scoring:
@@ -911,7 +911,7 @@ class ConfigManager:
                 "GOOD": 1.025,
                 "EXCELLENT": 1.05
             },
-            "WEIGHT": 0.0  # Weight 0 = disabled by default
+            "WEIGHT": 0.0
         })
 
         self.wind_scoring = self.parameters.get(self.keys.WIND_SCORING, {
@@ -927,7 +927,7 @@ class ConfigManager:
                 "GOOD": 1.025,
                 "EXCELLENT": 1.05
             },
-            "WEIGHT": 0.0  # Weight 0 = disabled by default
+            "WEIGHT": 0.0
         })
 
         self.location_modifiers = self.parameters.get(self.keys.LOCATION_MODIFIERS, {

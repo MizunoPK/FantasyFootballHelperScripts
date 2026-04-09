@@ -61,7 +61,7 @@ def safe_float_conversion(value, default=0.0):
         return default
     try:
         float_val = float(value)
-        if float_val == float('inf') or float_val == float('-inf') or float_val != float_val:  # NaN check
+        if float_val == float('inf') or float_val == float('-inf') or float_val != float_val:
             return default
         return float_val
     except (ValueError, TypeError, OverflowError):
@@ -83,7 +83,7 @@ class FantasyPlayer:
     position: str
     
     bye_week: Optional[int] = None
-    drafted_by: str = ""  # Team name (empty = not drafted, "Sea Sharp" = our team, other = opponent team)
+    drafted_by: str = ""
     locked: bool = False
     fantasy_points: float = 0.0
     average_draft_position: Optional[float] = None
@@ -101,7 +101,7 @@ class FantasyPlayer:
     defense: Optional[Dict[str, List[float]]] = None
 
 
-    injury_status: str = "UNKNOWN"  # ACTIVE, QUESTIONABLE, OUT, etc.
+    injury_status: str = "UNKNOWN"
 
     score: float = 0.0
     weighted_projection: float = 0.0
@@ -132,12 +132,12 @@ class FantasyPlayer:
         processed_adp = safe_float_conversion(adp_value, 0.0) if adp_value is not None else None
 
         return cls(
-            id=safe_int_conversion(data.get('id'), 0),  # Keep ID as int to match dataframe
+            id=safe_int_conversion(data.get('id'), 0),
             name=str(data.get('name', '')),
             team=str(data.get('team', '')),
             position=str(data.get('position', '')),
             bye_week=safe_int_conversion(data.get('bye_week'), 0),
-            drafted_by=str(data.get('drafted_by', '')),  # Team name string
+            drafted_by=str(data.get('drafted_by', '')),
             locked=safe_int_conversion(data.get('locked'), 0),
             fantasy_points=safe_float_conversion(data.get('fantasy_points'), 0.0),
             average_draft_position=processed_adp,

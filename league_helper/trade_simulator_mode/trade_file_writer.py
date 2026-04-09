@@ -303,7 +303,7 @@ class TradeFileWriter:
         summary_data = []
 
         summary_data.append({"Category": "Trade Participants", "Details": f"My Team vs {opponent_name}"})
-        summary_data.append({"Category": "", "Details": ""})  # Blank row
+        summary_data.append({"Category": "", "Details": ""})
 
         my_sign = "+" if my_improvement >= 0 else ""
         summary_data.append({
@@ -316,7 +316,7 @@ class TradeFileWriter:
             "Category": "Their Improvement",
             "Details": f"{their_sign}{their_improvement:.2f} pts (New score: {trade.their_new_team.team_score:.2f})"
         })
-        summary_data.append({"Category": "", "Details": ""})  # Blank row
+        summary_data.append({"Category": "", "Details": ""})
 
         summary_data.append({"Category": "I Give", "Details": ""})
         for player in trade.my_original_players:
@@ -324,7 +324,7 @@ class TradeFileWriter:
                 "Category": "",
                 "Details": f"{player.player.name} ({player.player.position}) - {player.player.team} - {player.score:.2f} pts"
             })
-        summary_data.append({"Category": "", "Details": ""})  # Blank row
+        summary_data.append({"Category": "", "Details": ""})
 
         summary_data.append({"Category": "I Receive", "Details": ""})
         for player in trade.my_new_players:

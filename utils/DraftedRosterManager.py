@@ -388,7 +388,7 @@ class DraftedRosterManager:
     def _normalize_team_abbr(self, team_abbr: str) -> str:
         """Normalize team abbreviations to handle inconsistencies."""
         team_mapping = {
-            'WSH': 'WAS',  # Washington
+            'WSH': 'WAS',
             'WAS': 'WAS',
         }
         return team_mapping.get(team_abbr.upper(), team_abbr.upper())
@@ -449,10 +449,10 @@ class DraftedRosterManager:
         - all_players: Full list for fuzzy matching fallback
         """
         lookup = {
-            'by_full_name': {},      # Dict[str, FantasyPlayer]
-            'by_last_name': {},      # Dict[str, List[FantasyPlayer]]
-            'by_first_name': {},     # Dict[str, List[FantasyPlayer]]
-            'by_position_team': {},  # Dict[str, List[FantasyPlayer]]
+            'by_full_name': {},
+            'by_last_name': {},
+            'by_first_name': {},
+            'by_position_team': {},
             'all_players': fantasy_players
         }
 

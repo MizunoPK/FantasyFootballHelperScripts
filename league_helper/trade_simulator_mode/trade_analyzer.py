@@ -684,13 +684,13 @@ class TradeAnalyzer:
         trade_combos: List[TradeSnapshot] = []
 
 
-        my_roster = [p for p in my_team.team if not p.is_locked() and p.get_risk_level() != "HIGH"]  # Tradeable players only
-        my_locked = [p for p in my_team.team if p.is_locked() and p.get_risk_level() != "HIGH"]  # Locked but not IR
-        my_ir = [p for p in my_team.team if p.get_risk_level() == "HIGH"]  # IR players (excluded from validation)
+        my_roster = [p for p in my_team.team if not p.is_locked() and p.get_risk_level() != "HIGH"]
+        my_locked = [p for p in my_team.team if p.is_locked() and p.get_risk_level() != "HIGH"]
+        my_ir = [p for p in my_team.team if p.get_risk_level() == "HIGH"]
 
-        their_roster = [p for p in their_team.team if not p.is_locked() and p.get_risk_level() != "HIGH"]  # Tradeable players only
-        their_locked = [p for p in their_team.team if p.is_locked() and p.get_risk_level() != "HIGH"]  # Locked but not IR
-        their_ir = [p for p in their_team.team if p.get_risk_level() == "HIGH"]  # IR players (excluded from validation)
+        their_roster = [p for p in their_team.team if not p.is_locked() and p.get_risk_level() != "HIGH"]
+        their_locked = [p for p in their_team.team if p.is_locked() and p.get_risk_level() != "HIGH"]
+        their_ir = [p for p in their_team.team if p.get_risk_level() == "HIGH"]
 
         my_original_full_roster = my_roster + my_locked
         their_original_full_roster = their_roster + their_locked

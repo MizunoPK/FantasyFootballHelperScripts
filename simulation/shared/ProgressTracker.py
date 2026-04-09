@@ -319,7 +319,7 @@ class MultiLevelProgressTracker:
         if eta is not None:
             print(f" | ETA: {self.format_time(eta)}", end="")
 
-        print("    ", end="", flush=True)  # Extra spaces to clear previous text
+        print("    ", end="", flush=True)
 
         if self.outer_completed >= self.outer_total:
             print()

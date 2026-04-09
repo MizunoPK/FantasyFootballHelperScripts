@@ -9,11 +9,11 @@ via argparse defaults in run_player_fetcher.py.
 Author: Kai Mizuno
 """
 
-COORDINATES_JSON = 'coordinates.json'  # Stadium coordinates for weather lookups
+COORDINATES_JSON = 'coordinates.json'
 
 
 LOG_NAME = "player_data_fetcher"
-LOGGING_FORMAT = 'standard'     # detailed / standard / simple
+LOGGING_FORMAT = 'standard'
 
 PROGRESS_ETA_WINDOW_SIZE = 50
 

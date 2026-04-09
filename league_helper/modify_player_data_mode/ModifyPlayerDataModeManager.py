@@ -93,11 +93,11 @@ class ModifyPlayerDataModeManager:
                 choice = show_list_selection(
                     "MODIFY PLAYER DATA",
                     [
-                        "Mark Player as Drafted",  # Option 1
-                        "Drop Player",              # Option 2
-                        "Lock Player"               # Option 3
+                        "Mark Player as Drafted",
+                        "Drop Player",
+                        "Lock Player"
                     ],
-                    "Return to Main Menu"           # Option 4 (exit)
+                    "Return to Main Menu"
                 )
 
                 if choice == 1:
@@ -169,7 +169,7 @@ class ModifyPlayerDataModeManager:
         team_choice = show_list_selection(
             "TEAM SELECTION",
             team_names,
-            "Cancel"  # Option to cancel the operation
+            "Cancel"
         )
 
         if team_choice == len(team_names) + 1:

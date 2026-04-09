@@ -93,7 +93,7 @@ def _safe_int_conversion(value, default=None):
         else:
             float_val = float(value)
 
-        if float_val == float('inf') or float_val == float('-inf') or float_val != float_val:  # NaN check
+        if float_val == float('inf') or float_val == float('-inf') or float_val != float_val:
             return default
 
         return int(float_val)

@@ -187,7 +187,7 @@ class GameDataFetcher:
             self.logger.debug(f"Fetching game data for week {week}/{REGULAR_SEASON_WEEKS}")
 
             params = {
-                "seasontype": 2,  # Regular season
+                "seasontype": 2,
                 "week": week,
                 "dates": year
             }

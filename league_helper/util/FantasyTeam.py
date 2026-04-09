@@ -206,7 +206,7 @@ class FantasyTeam:
             return False
 
         self.roster.remove(player)
-        player.drafted_by = ""  # Mark as free agent (available again)
+        player.drafted_by = ""
 
         self.pos_counts[player.position] -= 1
         if player_slot == Constants.FLEX:

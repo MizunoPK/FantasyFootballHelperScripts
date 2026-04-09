@@ -25,9 +25,9 @@ from utils.LoggingManager import setup_logger
 from simulation.win_rate.SimulationManager import SimulationManager
 
 
-LOGGING_LEVEL = 'INFO'          # DEBUG, INFO, WARNING, ERROR, CRITICAL (WARNING+ to reduce spam)
-LOG_NAME = "win_rate_simulation" # Logger name (also determines log folder: logs/win_rate_simulation/)
-LOGGING_FORMAT = 'standard'     # detailed / standard / simple
+LOGGING_LEVEL = 'INFO'
+LOG_NAME = "win_rate_simulation"
+LOGGING_FORMAT = 'standard'
 
 DEFAULT_MODE='iterative'
 DEFAULT_SIMS=5

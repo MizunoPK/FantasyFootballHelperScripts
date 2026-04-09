@@ -370,7 +370,7 @@ class ESPNClient(BaseAPIClient):
         """
         try:
             points = self.fantasy_points_extractor.extract_week_points(
-                player_data={'player': player_data},  # Wrap to match expected structure
+                player_data={'player': player_data},
                 week=week,
                 position=position,
                 player_name=player_name,
@@ -556,7 +556,7 @@ class ESPNClient(BaseAPIClient):
         
         params = {
             "view": "kona_player_info",
-            "scoringPeriodId": 0  # 0 = season projections
+            "scoringPeriodId": 0
         }
         
         headers = {
@@ -853,7 +853,7 @@ class ESPNClient(BaseAPIClient):
 
             url = f"https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard"
             params = {
-                "seasontype": 2,  # Regular season
+                "seasontype": 2,
                 "week": self.settings.current_nfl_week,
                 "dates": self.settings.season
             }
@@ -919,7 +919,7 @@ class ESPNClient(BaseAPIClient):
 
                 url = "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard"
                 params = {
-                    "seasontype": 2,  # Regular season
+                    "seasontype": 2,
                     "week": week,
                     "dates": self.settings.season
                 }
@@ -991,7 +991,7 @@ class ESPNClient(BaseAPIClient):
         """
         url = f"https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard"
         params = {
-            "seasontype": 2,  # Regular season
+            "seasontype": 2,
             "week": week,
             "dates": self.settings.season
         }
@@ -1534,7 +1534,7 @@ class ESPNClient(BaseAPIClient):
                 fantasy_points = self._calculate_week_by_week_projection(player_info, name, position)
                 
                 
-                injury_status = "ACTIVE"  # Default
+                injury_status = "ACTIVE"
                 injury_info = player_info.get('injuryStatus')
                 if injury_info:
                     injury_status = injury_info.upper()
@@ -1651,13 +1651,13 @@ class ESPNClient(BaseAPIClient):
                     team=team,
                     position=position,
                     bye_week=bye_week,
-                    drafted_by="",  # Initialize all players as free agents
+                    drafted_by="",
                     fantasy_points=fantasy_points,
                     average_draft_position=average_draft_position,
                     player_rating=player_rating,
                     injury_status=injury_status,
                     api_source="ESPN",
-                    raw_stats=player_info.get('stats', [])  # Store stats array for position JSON export
+                    raw_stats=player_info.get('stats', [])
                 )
 
                 self._populate_weekly_projections(projection, player_info, name, position)

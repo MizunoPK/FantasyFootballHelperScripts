@@ -283,9 +283,9 @@ class StarterHelperModeManager:
             ("WR", lineup.wr1),
             ("WR", lineup.wr2),
             ("TE", lineup.te),
-            ("FLEX", lineup.flex),  # Can be RB or WR (highest scoring flex-eligible)
+            ("FLEX", lineup.flex),
             ("K", lineup.k),
-            ("DEF", lineup.dst)  # Display as "DEF" instead of "DST" for brevity
+            ("DEF", lineup.dst)
         ]
         bench_positions = [("", x) for x in lineup.bench]
 

@@ -341,10 +341,10 @@ class SimulatedLeague:
                         'id': str(player_id),
                         'name': player_dict.get('name', ''),
                         'position': player_dict.get('position', ''),
-                        'drafted_by': player_dict.get('drafted_by', ''),  # string
-                        'locked': str(int(player_dict.get('locked', False))),  # Convert bool to "0"/"1" for compatibility
-                        'projected_points': str(projected),  # Single value for this week
-                        'actual_points': str(actual)  # Single value for this week
+                        'drafted_by': player_dict.get('drafted_by', ''),
+                        'locked': str(int(player_dict.get('locked', False))),
+                        'projected_points': str(projected),
+                        'actual_points': str(actual)
                     }
                 except (ValueError, KeyError, TypeError) as e:
                     self.logger.warning(f"Error parsing player in {position_file}: {e}")

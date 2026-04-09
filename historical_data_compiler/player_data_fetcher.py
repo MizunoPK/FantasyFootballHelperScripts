@@ -162,7 +162,7 @@ class PlayerDataFetcher:
 
         params = {
             "view": "kona_player_info",
-            "scoringPeriodId": 0  # 0 = all weeks
+            "scoringPeriodId": 0
         }
 
         headers = {

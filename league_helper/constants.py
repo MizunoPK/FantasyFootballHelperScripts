@@ -18,9 +18,9 @@ Author: Kai Mizuno
 
 FANTASY_TEAM_NAME = "Sea Sharp"
 
-LOGGING_LEVEL = 'INFO'      # DEBUG, INFO, WARNING, ERROR, CRITICAL (WARNING+ to reduce spam)
-LOG_NAME = "league_helper"     # Logger name
-LOGGING_FORMAT = 'detailed'    # detailed / standard / simple
+LOGGING_LEVEL = 'INFO'
+LOG_NAME = "league_helper"
+LOGGING_FORMAT = 'detailed'
 
 
 RECOMMENDATION_COUNT = 5
@@ -43,8 +43,8 @@ VALID_TEAMS = ["Fishoutawater", "Chase-ing points", "Annihilators", "The Injury 
 RB, WR, QB, TE, K, DST, FLEX = 'RB', 'WR', 'QB', 'TE', 'K', 'DST', 'FLEX'
 
 ALL_POSITIONS = [RB, WR, QB, TE, K, DST]
-OFFENSE_POSITIONS = ["QB", "RB", "WR", "TE", "K"]  # Offensive positions
-DEFENSE_POSITIONS = ["DEF", "DST", "D/ST"]         # Defensive position variations
+OFFENSE_POSITIONS = ["QB", "RB", "WR", "TE", "K"]
+DEFENSE_POSITIONS = ["DEF", "DST", "D/ST"]
 
 WIND_AFFECTED_POSITIONS = ["QB", "WR", "K"]
 

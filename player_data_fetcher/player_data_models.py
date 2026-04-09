@@ -36,7 +36,7 @@ class ESPNPlayerData(BaseModel):
     position: str
 
     bye_week: Optional[int] = None
-    drafted_by: str = ""  # Team name (empty = free agent)
+    drafted_by: str = ""
     locked: int = 0
     fantasy_points: float = 0.0
     average_draft_position: Optional[float] = None
@@ -60,7 +60,7 @@ class ESPNPlayerData(BaseModel):
     week_16_points: Optional[float] = None
     week_17_points: Optional[float] = None
 
-    injury_status: str = "ACTIVE"  # ACTIVE, QUESTIONABLE, OUT, etc.
+    injury_status: str = "ACTIVE"
 
     api_source: str = "ESPN"
     updated_at: datetime = Field(default_factory=datetime.now)

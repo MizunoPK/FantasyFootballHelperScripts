@@ -68,41 +68,41 @@ class ConfigGenerator:
 
     PARAM_DEFINITIONS = {
         'NORMALIZATION_MAX_SCALE': (50, 200, 0),
-        'DRAFT_NORMALIZATION_MAX_SCALE': (100, 200, 0),  # Draft mode normalization scale
+        'DRAFT_NORMALIZATION_MAX_SCALE': (100, 200, 0),
 
-        'SAME_POS_BYE_WEIGHT': (0.0, 0.5, 2),      # Same position bye overlap
-        'DIFF_POS_BYE_WEIGHT': (0.0, 0.3, 2),      # Different position bye overlap
+        'SAME_POS_BYE_WEIGHT': (0.0, 0.5, 2),
+        'DIFF_POS_BYE_WEIGHT': (0.0, 0.3, 2),
 
-        'PRIMARY_BONUS': (25, 150, 0),          # Primary position bonus (e.g., RB early)
-        'SECONDARY_BONUS': (25, 150, 0),        # Secondary position bonus
+        'PRIMARY_BONUS': (25, 150, 0),
+        'SECONDARY_BONUS': (25, 150, 0),
 
         'DRAFT_ORDER_FILE': (1, 100, 0),
 
-        'ADP_SCORING_WEIGHT': (0.50, 7.00, 2),       # How much ADP influences score
-        'ADP_SCORING_STEPS': (5, 50, 0),       # ADP difference per tier (picks)
+        'ADP_SCORING_WEIGHT': (0.50, 7.00, 2),
+        'ADP_SCORING_STEPS': (5, 50, 0),
 
         'PLAYER_RATING_SCORING_WEIGHT': (0.50, 4.00, 2),
 
         'TEAM_QUALITY_SCORING_WEIGHT': (0.00, 4.00, 2),
-        'TEAM_QUALITY_MIN_WEEKS': (1, 12, 0),      # Min weeks of data needed
+        'TEAM_QUALITY_MIN_WEEKS': (1, 12, 0),
 
         'PERFORMANCE_SCORING_WEIGHT': (0.00, 8.00, 2),
-        'PERFORMANCE_SCORING_STEPS': (0.01, 0.30, 2),  # Deviation % per tier
-        'PERFORMANCE_MIN_WEEKS': (1, 14, 0),       # Min weeks of data needed
+        'PERFORMANCE_SCORING_STEPS': (0.01, 0.30, 2),
+        'PERFORMANCE_MIN_WEEKS': (1, 14, 0),
 
-        'MATCHUP_IMPACT_SCALE': (25, 250, 0),   # Max additive points impact
-        'MATCHUP_SCORING_WEIGHT': (0.0, 4.0, 2),   # Weight applied to impact
-        'MATCHUP_MIN_WEEKS': (1, 14, 0),           # Min weeks of matchup data
+        'MATCHUP_IMPACT_SCALE': (25, 250, 0),
+        'MATCHUP_SCORING_WEIGHT': (0.0, 4.0, 2),
+        'MATCHUP_MIN_WEEKS': (1, 14, 0),
 
-        'TEMPERATURE_IMPACT_SCALE': (0.0, 200.0, 0),  # Max additive impact
+        'TEMPERATURE_IMPACT_SCALE': (0.0, 200.0, 0),
         'TEMPERATURE_SCORING_WEIGHT': (0.0, 3.0, 2),
 
-        'WIND_IMPACT_SCALE': (0.0, 150.0, 0),      # Max additive impact
+        'WIND_IMPACT_SCALE': (0.0, 150.0, 0),
         'WIND_SCORING_WEIGHT': (0.0, 4.0, 2),
 
-        'LOCATION_HOME': (-5.0, 15.0, 1),          # Home field advantage
-        'LOCATION_AWAY': (-15.0, 5.0, 1),          # Away penalty (can be positive)
-        'LOCATION_INTERNATIONAL': (-25.0, 5.0, 1),  # International game adjustment
+        'LOCATION_HOME': (-5.0, 15.0, 1),
+        'LOCATION_AWAY': (-15.0, 5.0, 1),
+        'LOCATION_INTERNATIONAL': (-25.0, 5.0, 1),
     }
 
     THRESHOLD_FIXED_PARAMS = {
@@ -124,17 +124,17 @@ class ConfigGenerator:
         },
         "MATCHUP_SCORING": {
             "BASE_POSITION": 0,
-            "DIRECTION": "INCREASING"  # Updated to match league_config.json (direct opponent rank 1-32)
+            "DIRECTION": "INCREASING"
         },
         "TEMPERATURE_SCORING": {
             "BASE_POSITION": 0,
-            "DIRECTION": "DECREASING",  # Lower distance from ideal = better
+            "DIRECTION": "DECREASING",
             "STEPS": 10,
             "IDEAL_TEMPERATURE": 60
         },
         "WIND_SCORING": {
             "BASE_POSITION": 0,
-            "DIRECTION": "DECREASING",  # Lower wind = better
+            "DIRECTION": "DECREASING",
             "STEPS": 8
         }
     }
@@ -144,20 +144,20 @@ class ConfigGenerator:
         'PLAYER_RATING_SCORING',
         'PERFORMANCE_SCORING',
         'MATCHUP_SCORING',
-        'TEMPERATURE_SCORING',  # Game conditions
-        'WIND_SCORING',  # Game conditions (QB/WR/K only)
+        'TEMPERATURE_SCORING',
+        'WIND_SCORING',
     ]
 
     PARAM_TO_SECTION_MAP = {
-        'NORMALIZATION_MAX_SCALE': 'NORMALIZATION_MAX_SCALE',  # Direct param
-        'DRAFT_NORMALIZATION_MAX_SCALE': 'DRAFT_NORMALIZATION_MAX_SCALE',  # Direct param
-        'SAME_POS_BYE_WEIGHT': 'SAME_POS_BYE_WEIGHT',          # Direct param
-        'DIFF_POS_BYE_WEIGHT': 'DIFF_POS_BYE_WEIGHT',          # Direct param
-        'PRIMARY_BONUS': 'DRAFT_ORDER_BONUSES',                # Nested
-        'SECONDARY_BONUS': 'DRAFT_ORDER_BONUSES',              # Nested
-        'DRAFT_ORDER_FILE': 'DRAFT_ORDER_FILE',                # Direct param
-        'ADP_SCORING_WEIGHT': 'ADP_SCORING',                   # Nested
-        'ADP_SCORING_STEPS': 'ADP_SCORING',                    # Nested
+        'NORMALIZATION_MAX_SCALE': 'NORMALIZATION_MAX_SCALE',
+        'DRAFT_NORMALIZATION_MAX_SCALE': 'DRAFT_NORMALIZATION_MAX_SCALE',
+        'SAME_POS_BYE_WEIGHT': 'SAME_POS_BYE_WEIGHT',
+        'DIFF_POS_BYE_WEIGHT': 'DIFF_POS_BYE_WEIGHT',
+        'PRIMARY_BONUS': 'DRAFT_ORDER_BONUSES',
+        'SECONDARY_BONUS': 'DRAFT_ORDER_BONUSES',
+        'DRAFT_ORDER_FILE': 'DRAFT_ORDER_FILE',
+        'ADP_SCORING_WEIGHT': 'ADP_SCORING',
+        'ADP_SCORING_STEPS': 'ADP_SCORING',
         'PLAYER_RATING_SCORING_WEIGHT': 'PLAYER_RATING_SCORING',
         'TEAM_QUALITY_SCORING_WEIGHT': 'TEAM_QUALITY_SCORING',
         'TEAM_QUALITY_MIN_WEEKS': 'TEAM_QUALITY_SCORING',
@@ -846,18 +846,18 @@ class ConfigGenerator:
             min_val, max_val, precision = self.param_definitions[param_name]
         elif '_IMPACT_SCALE' in param_name:
             parts = param_name.split('_IMPACT_SCALE')
-            section = parts[0] + '_SCORING'  # e.g., 'MATCHUP_SCORING'
+            section = parts[0] + '_SCORING'
 
             current_val = params[section]['IMPACT_SCALE']
             min_val, max_val, precision = self.param_definitions[param_name]
         elif '_MIN_WEEKS' in param_name:
             parts = param_name.split('_MIN_WEEKS')
-            section = parts[0] + '_SCORING'  # e.g., 'TEAM_QUALITY_SCORING'
+            section = parts[0] + '_SCORING'
 
             current_val = params[section].get('MIN_WEEKS', 5)
             min_val, max_val, precision = self.param_definitions[param_name]
         elif param_name.startswith('LOCATION_'):
-            location_type = param_name.replace('LOCATION_', '')  # e.g., 'HOME'
+            location_type = param_name.replace('LOCATION_', '')
             location_modifiers = params.get('LOCATION_MODIFIERS', {})
             current_val = location_modifiers.get(location_type, 0.0)
             min_val, max_val, precision = self.param_definitions[param_name]

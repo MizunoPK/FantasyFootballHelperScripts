@@ -112,7 +112,7 @@ class AccuracyConfigPerformance:
         params = config.get('parameters', config)
 
         if param_name.startswith('LOCATION_'):
-            location_type = param_name[len('LOCATION_'):]  # e.g., "HOME", "AWAY"
+            location_type = param_name[len('LOCATION_'):]
             return params.get('LOCATION_MODIFIERS', {}).get(location_type)
 
         if param_name in params:

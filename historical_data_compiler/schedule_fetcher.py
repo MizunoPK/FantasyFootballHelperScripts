@@ -68,7 +68,7 @@ class ScheduleFetcher:
             self.logger.debug(f"Fetching schedule for week {week}/{REGULAR_SEASON_WEEKS}")
 
             params = {
-                "seasontype": 2,  # Regular season
+                "seasontype": 2,
                 "week": week,
                 "dates": year
             }
