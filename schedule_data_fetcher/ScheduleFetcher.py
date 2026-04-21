@@ -204,7 +204,7 @@ class ScheduleFetcher:
 
         return bye_weeks
 
-    def export_to_csv(self, schedule: Dict[int, Dict[str, str]]):
+    def export_to_csv(self, schedule: Dict[int, Dict[str, str]]) -> None:
         """
         Export season_schedule.csv with complete schedule including bye weeks.
 
@@ -248,5 +248,3 @@ class ScheduleFetcher:
         except Exception as e:
             self.logger.error(f"Failed to export schedule to CSV: {e}")
             raise
-
-
