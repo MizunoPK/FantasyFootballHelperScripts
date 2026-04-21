@@ -26,21 +26,25 @@ class ScheduleFetcher:
     and exports it to a CSV file for use by the league helper system.
     """
 
-    def __init__(self, output_path: Path):
+    def __init__(self, output_path: Path, timeout: float = 30.0, rate_limit_delay: float = 0.2):
         """
         Initialize the ScheduleFetcher.
 
         Args:
             output_path: Path where season_schedule.csv will be written
+            timeout: HTTP client timeout in seconds
+            rate_limit_delay: Delay in seconds between week requests
         """
         self.output_path = output_path
+        self.timeout = timeout
+        self.rate_limit_delay = rate_limit_delay
         self.logger = get_logger()
         self.client: Optional[httpx.AsyncClient] = None
 
     async def _create_client(self):
         """Create httpx async client if not already created."""
         if self.client is None:
-            self.client = httpx.AsyncClient(timeout=30.0)
+            self.client = httpx.AsyncClient(timeout=self.timeout)
 
     async def _close_client(self):
         """Close httpx async client if open."""
@@ -158,7 +162,7 @@ class ScheduleFetcher:
                 full_schedule[week] = week_schedule
 
                 if not os.environ.get("ESPN_FIXTURE_DIR"):
-                    await asyncio.sleep(0.2)
+                    await asyncio.sleep(self.rate_limit_delay)
 
             self.logger.info(f"Successfully fetched schedule for {len(full_schedule)} weeks")
 
