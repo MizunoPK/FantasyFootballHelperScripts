@@ -9,13 +9,24 @@ Author: Kai Mizuno
 """
 
 import asyncio
-import csv
 import json
 import os
 from pathlib import Path
 from typing import Dict, Optional, Set
+
 import httpx
+import pandas as pd
+from tenacity import retry, stop_after_attempt, wait_random_exponential, retry_if_exception_type
+
+from utils.csv_utils import write_csv_with_backup
 from utils.LoggingManager import get_logger
+
+NFL_TEAMS = frozenset({
+    'ARI', 'ATL', 'BAL', 'BUF', 'CAR', 'CHI', 'CIN', 'CLE',
+    'DAL', 'DEN', 'DET', 'GB', 'HOU', 'IND', 'JAX', 'KC',
+    'LAC', 'LAR', 'LV', 'MIA', 'MIN', 'NE', 'NO', 'NYG',
+    'NYJ', 'PHI', 'PIT', 'SEA', 'SF', 'TB', 'TEN', 'WSH'
+})
 
 
 class ScheduleFetcher:
@@ -52,6 +63,7 @@ class ScheduleFetcher:
             await self.client.aclose()
             self.client = None
 
+    @retry(stop=stop_after_attempt(3), wait=wait_random_exponential(multiplier=1, max=10), retry=retry_if_exception_type(httpx.HTTPError))
     async def _make_request(self, url: str, params: dict) -> dict:
         """
         Make an HTTP GET request to ESPN API.
@@ -125,41 +137,46 @@ class ScheduleFetcher:
                     "dates": season
                 }
 
-                data = await self._make_request(url, params)
+                try:
+                    data = await self._make_request(url, params)
 
-                week_schedule = {}
-                events = data.get('events', [])
+                    week_schedule = {}
+                    events = data.get('events', [])
 
-                for event in events:
-                    try:
-                        competitions = event.get('competitions', [])
-                        if not competitions:
+                    for event in events:
+                        try:
+                            competitions = event.get('competitions', [])
+                            if not competitions:
+                                continue
+
+                            competition = competitions[0]
+                            competitors = competition.get('competitors', [])
+
+                            if len(competitors) != 2:
+                                continue
+
+                            team1_data = competitors[0].get('team', {})
+                            team2_data = competitors[1].get('team', {})
+
+                            team1 = team1_data.get('abbreviation', '')
+                            team2 = team2_data.get('abbreviation', '')
+
+                            team1 = 'WSH' if team1 == 'WAS' else team1
+                            team2 = 'WSH' if team2 == 'WAS' else team2
+
+                            if team1 and team2:
+                                week_schedule[team1] = team2
+                                week_schedule[team2] = team1
+
+                        except Exception as e:
+                            self.logger.warning(f"Error parsing event in week {week}: {e}")
                             continue
 
-                        competition = competitions[0]
-                        competitors = competition.get('competitors', [])
+                    full_schedule[week] = week_schedule
 
-                        if len(competitors) != 2:
-                            continue
-
-                        team1_data = competitors[0].get('team', {})
-                        team2_data = competitors[1].get('team', {})
-
-                        team1 = team1_data.get('abbreviation', '')
-                        team2 = team2_data.get('abbreviation', '')
-
-                        team1 = 'WSH' if team1 == 'WAS' else team1
-                        team2 = 'WSH' if team2 == 'WAS' else team2
-
-                        if team1 and team2:
-                            week_schedule[team1] = team2
-                            week_schedule[team2] = team1
-
-                    except Exception as e:
-                        self.logger.warning(f"Error parsing event in week {week}: {e}")
-                        continue
-
-                full_schedule[week] = week_schedule
+                except Exception as e:
+                    self.logger.warning(f"Failed to fetch week {week}: {e}; skipping")
+                    continue
 
                 if not os.environ.get("ESPN_FIXTURE_DIR"):
                     await asyncio.sleep(self.rate_limit_delay)
@@ -185,12 +202,7 @@ class ScheduleFetcher:
         Returns:
             Dict mapping team abbreviation to set of bye week numbers
         """
-        all_teams = {
-            'ARI', 'ATL', 'BAL', 'BUF', 'CAR', 'CHI', 'CIN', 'CLE',
-            'DAL', 'DEN', 'DET', 'GB', 'HOU', 'IND', 'JAX', 'KC',
-            'LAC', 'LAR', 'LV', 'MIA', 'MIN', 'NE', 'NO', 'NYG',
-            'NYJ', 'PHI', 'PIT', 'SEA', 'SF', 'TB', 'TEN', 'WSH'
-        }
+        all_teams = NFL_TEAMS
 
         bye_weeks: Dict[str, Set[int]] = {team: set() for team in all_teams}
 
@@ -220,28 +232,21 @@ class ScheduleFetcher:
         try:
             bye_weeks = self._identify_bye_weeks(schedule)
 
-            self.output_path.parent.mkdir(parents=True, exist_ok=True)
+            rows = []
+            for week in range(1, 19):
+                week_schedule = schedule.get(week, {})
+                for team in sorted(NFL_TEAMS):
+                    if week in bye_weeks.get(team, set()):
+                        rows.append({'week': week, 'team': team, 'opponent': ''})
+                    else:
+                        opponent = week_schedule.get(team, '')
+                        rows.append({'week': week, 'team': team, 'opponent': opponent})
 
-            with open(self.output_path, 'w', newline='') as f:
-                writer = csv.writer(f)
-                writer.writerow(['week', 'team', 'opponent'])
+            df = pd.DataFrame(rows, columns=['week', 'team', 'opponent'])
+            write_csv_with_backup(df, self.output_path)
 
-                for week in range(1, 19):
-                    week_schedule = schedule.get(week, {})
-
-                    all_teams = {
-                        'ARI', 'ATL', 'BAL', 'BUF', 'CAR', 'CHI', 'CIN', 'CLE',
-                        'DAL', 'DEN', 'DET', 'GB', 'HOU', 'IND', 'JAX', 'KC',
-                        'LAC', 'LAR', 'LV', 'MIA', 'MIN', 'NE', 'NO', 'NYG',
-                        'NYJ', 'PHI', 'PIT', 'SEA', 'SF', 'TB', 'TEN', 'WSH'
-                    }
-
-                    for team in sorted(all_teams):
-                        if week in bye_weeks.get(team, set()):
-                            writer.writerow([week, team, ''])
-                        else:
-                            opponent = week_schedule.get(team, '')
-                            writer.writerow([week, team, opponent])
+            if len(df) != 576:
+                self.logger.warning(f"Row count mismatch: expected 576, got {len(df)}")
 
             self.logger.info(f"Schedule exported to {self.output_path}")
 
