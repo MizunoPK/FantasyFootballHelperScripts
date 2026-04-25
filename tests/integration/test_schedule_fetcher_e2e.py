@@ -15,15 +15,15 @@ import pytest
 REPO_ROOT = Path(__file__).parent.parent.parent
 
 VALID_TEAMS = frozenset({
-    'ARI', 'ATL', 'BAL', 'BUF', 'CAR', 'CHI', 'CIN', 'CLE',
-    'DAL', 'DEN', 'DET', 'GB', 'HOU', 'IND', 'JAX', 'KC',
-    'LAC', 'LAR', 'LV', 'MIA', 'MIN', 'NE', 'NO', 'NYG',
-    'NYJ', 'PHI', 'PIT', 'SEA', 'SF', 'TB', 'TEN', 'WSH',
+    "ARI", "ATL", "BAL", "BUF", "CAR", "CHI", "CIN", "CLE",
+    "DAL", "DEN", "DET", "GB", "HOU", "IND", "JAX", "KC",
+    "LAC", "LAR", "LV", "MIA", "MIN", "NE", "NO", "NYG",
+    "NYJ", "PHI", "PIT", "SEA", "SF", "TB", "TEN", "WSH",
 })
 
 
 @pytest.mark.offline
-def test_schedule_fetcher_e2e(tmp_path):
+def test_schedule_fetcher_e2e(tmp_path: Path) -> None:
     """Run the schedule fetcher offline and assert CSV output correctness."""
     env = os.environ.copy()
     env["ESPN_FIXTURE_DIR"] = str(REPO_ROOT / "tests" / "fixtures")
@@ -43,5 +43,5 @@ def test_schedule_fetcher_e2e(tmp_path):
 
     assert list(df.columns) == ["week", "team", "opponent"]
     assert len(df) == 576
-    assert set(df["team"].unique()).issubset(VALID_TEAMS)
-    assert (df["opponent"].isna() | (df["opponent"] == "")).any()
+    assert set(df["team"].unique()) == VALID_TEAMS
+    assert (df["opponent"] == "").any()
