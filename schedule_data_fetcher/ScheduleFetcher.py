@@ -76,7 +76,10 @@ class ScheduleFetcher:
             JSON response as dictionary
 
         Raises:
-            Exception: If request fails
+            tenacity.RetryError: If all 3 retry attempts fail with httpx.HTTPError.
+            httpx.HTTPError: If a non-retryable HTTP error occurs.
+            FileNotFoundError: If ESPN_FIXTURE_DIR is set and the fixture file is missing.
+            json.JSONDecodeError: If response JSON parsing fails.
         """
         filename = f"scoreboard_week_{params.get('week', 'unknown')}_{params.get('dates', 'unknown')}.json"
         fixture_dir = os.environ.get("ESPN_FIXTURE_DIR")
@@ -245,8 +248,9 @@ class ScheduleFetcher:
             df = pd.DataFrame(rows, columns=['week', 'team', 'opponent'])
             write_csv_with_backup(df, self.output_path)
 
-            if len(df) != 576:
-                self.logger.warning(f"Row count mismatch: expected 576, got {len(df)}")
+            expected_rows = 18 * len(NFL_TEAMS)
+            if len(df) != expected_rows:
+                self.logger.warning(f"Row count mismatch: expected {expected_rows}, got {len(df)}")
 
             self.logger.info(f"Schedule exported to {self.output_path}")
 
