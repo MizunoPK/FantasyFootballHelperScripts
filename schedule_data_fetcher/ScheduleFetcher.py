@@ -35,6 +35,10 @@ class ScheduleFetcher:
 
     This class fetches the complete NFL season schedule from ESPN's API
     and exports it to a CSV file for use by the league helper system.
+
+    Error-propagation contract:
+        fetch_* methods return empty containers on failure; caller checks truthiness.
+        export_* methods re-raise after logging so the caller's outer handler runs.
     """
 
     def __init__(self, output_path: Path, timeout: float = 30.0, rate_limit_delay: float = 0.2):
