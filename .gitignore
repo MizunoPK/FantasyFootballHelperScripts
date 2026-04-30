@@ -220,6 +220,9 @@ __marimo__/
 # Audit temporary output files (never commit)
 feature-updates/guides_v2/audit/outputs/
 .shamt/*.conf
+.shamt/shamt_master_path.conf
+.shamt/storage_path.conf
+.shamt/last_sync.conf
 .shamt/import_diff*.md
 *VALIDATION_LOG*
 

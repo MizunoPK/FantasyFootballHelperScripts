@@ -172,9 +172,9 @@ class TestLoadAdpFromCsv:
         """Test that all columns have correct data types"""
         df = load_adp_from_csv(test_csv_file)
 
-        assert df['player_name'].dtype == 'object'
+        assert pd.api.types.is_string_dtype(df['player_name'])
         assert df['adp'].dtype == 'float64'
-        assert df['position'].dtype == 'object'
+        assert pd.api.types.is_string_dtype(df['position'])
 
 
 

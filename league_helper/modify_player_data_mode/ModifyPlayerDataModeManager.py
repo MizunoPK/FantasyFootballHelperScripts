@@ -11,6 +11,8 @@ This module manages the Modify Player Data modes including:
 Author: Kai Mizuno
 """
 
+from pathlib import Path
+
 from league_helper.util.PlayerManager import PlayerManager
 from league_helper.util.player_search import PlayerSearch
 from league_helper.util.user_input import show_list_selection
