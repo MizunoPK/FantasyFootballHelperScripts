@@ -6,7 +6,7 @@
 # Opt-in: this workflow does NOT run automatically after init. Copy it manually.
 #
 # Required GitHub Actions secrets:
-#   OPENAI_API_KEY — API key for Codex/OpenAI (or ANTHROPIC_API_KEY)
+#   ANTHROPIC_API_KEY — API key for Claude (Anthropic)
 #
 # The GITHUB_TOKEN is provided automatically by GitHub Actions with
 # pull_requests: write permission via the permissions block below.
@@ -49,7 +49,6 @@ jobs:
       - name: Run Shamt PR validation
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          # ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}  # alternative
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           GITHUB_REPOSITORY: ${{ github.repository }}
         run: python .shamt/sdk/shamt-validate-pr.py
