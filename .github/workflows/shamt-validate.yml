@@ -1,0 +1,55 @@
+# shamt-validate.yml — Shamt PR validation gate
+#
+# Copy this file to .github/workflows/shamt-validate.yml to enable automatic
+# Shamt artifact validation on pull requests.
+#
+# Opt-in: this workflow does NOT run automatically after init. Copy it manually.
+#
+# Required GitHub Actions secrets:
+#   OPENAI_API_KEY — API key for Codex/OpenAI (or ANTHROPIC_API_KEY)
+#
+# The GITHUB_TOKEN is provided automatically by GitHub Actions with
+# pull_requests: write permission via the permissions block below.
+#
+# To apply the label-gate pattern (only run on PRs labeled 'needs-shamt-review'):
+#   Uncomment the `if: contains(github.event.pull_request.labels.*.name, 'needs-shamt-review')`
+#   line in the validate job below.
+
+name: Shamt Validation
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  validate:
+    name: Validate Shamt Artifacts
+    runs-on: ubuntu-latest
+    # Uncomment to apply label gate (recommended for high-PR-volume repos to manage API costs):
+    # if: contains(github.event.pull_request.labels.*.name, 'needs-shamt-review')
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # full history for git diff
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Shamt SDK dependencies
+        run: pip install -e .shamt/sdk
+
+      - name: Run Shamt PR validation
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          # ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}  # alternative
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: python .shamt/sdk/shamt-validate-pr.py
