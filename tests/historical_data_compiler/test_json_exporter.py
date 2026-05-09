@@ -88,8 +88,9 @@ class TestJSONSnapshotExporter:
 
     @pytest.fixture
     def exporter(self):
-        """Create JSONSnapshotExporter instance"""
-        return JSONSnapshotExporter()
+        """Create JSONSnapshotExporter instance with mocked DataExporter."""
+        with patch('historical_data_compiler.json_exporter.DataExporter'):
+            yield JSONSnapshotExporter()
 
     @pytest.fixture
     def sample_players(self):

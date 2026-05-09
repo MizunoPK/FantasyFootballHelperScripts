@@ -69,7 +69,13 @@ class JSONSnapshotExporter:
     """
 
     def __init__(self):
-        """Initialize JSONSnapshotExporter."""
+        """Initialize JSONSnapshotExporter.
+
+        Reuses a single DataExporter instance for stat extraction across all
+        players to avoid per-player instantiation cost. load_drafted_data=False
+        skips the drafted_data.csv read because the _extract_* methods used here
+        do not consult drafted-roster state.
+        """
         self.logger = get_logger()
         self._data_exporter = DataExporter(output_dir=str(Path.cwd()), load_drafted_data=False)
 
