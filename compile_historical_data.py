@@ -7,6 +7,8 @@ Creates point-in-time snapshots for simulation system testing.
 
 Usage:
     python compile_historical_data.py --year 2024
+    python compile_historical_data.py --all-years
+    python compile_historical_data.py --year 2025 --format both --weeks 3
 
 Output:
     simulation/sim_data/{YEAR}/
@@ -25,6 +27,7 @@ import asyncio
 import shutil
 import sys
 from pathlib import Path
+from typing import Optional
 
 sys.path.insert(0, str(Path(__file__).parent))
 
@@ -45,9 +48,6 @@ from historical_data_compiler.weekly_snapshot_generator import generate_weekly_s
 
 
 
-GENERATE_CSV = False
-GENERATE_JSON = True
-
 YEARS = [2021, 2022, 2023, 2024, 2025]
 
 
@@ -64,17 +64,43 @@ def parse_args() -> argparse.Namespace:
         epilog="""
 Examples:
     python compile_historical_data.py --year 2024
-    python compile_historical_data.py --year 2023 --verbose
+    python compile_historical_data.py --all-years
+    python compile_historical_data.py --year 2025 --format both
+    python compile_historical_data.py --year 2025 --weeks 3
+    python compile_historical_data.py --year 2025 --keep-partial
 
 Output will be written to:
     simulation/sim_data/{YEAR}/
         """
     )
-    parser.add_argument(
+
+    year_group = parser.add_mutually_exclusive_group()
+    year_group.add_argument(
         "--year",
         type=int,
-        required=False,
         help=f"NFL season year to compile (>= {MIN_SUPPORTED_YEAR})"
+    )
+    year_group.add_argument(
+        "--all-years",
+        action="store_true",
+        help="Compile all supported years"
+    )
+
+    parser.add_argument(
+        "--format",
+        choices=['csv', 'json', 'both'],
+        default='json',
+        help="Output format (default: json)"
+    )
+    parser.add_argument(
+        "--keep-partial",
+        action="store_true",
+        help="Preserve partial output on failure instead of cleaning up"
+    )
+    parser.add_argument(
+        "--weeks",
+        type=int,
+        help="Limit compilation to first N weeks"
     )
     parser.add_argument(
         "--verbose", "-v",
@@ -93,7 +119,10 @@ Output will be written to:
         help="Override output directory (default: simulation/sim_data/{YEAR})"
     )
 
-    return parser.parse_args()
+    args = parser.parse_args()
+    if not args.year and not args.all_years:
+        parser.error("Must provide --year YEAR or --all-years")
+    return args
 
 
 def validate_year(year: int) -> None:
@@ -159,7 +188,13 @@ def cleanup_on_error(output_dir: Path) -> None:
         shutil.rmtree(output_dir)
 
 
-async def compile_season_data(year: int, output_dir: Path) -> None:
+async def compile_season_data(
+    year: int,
+    output_dir: Path,
+    generate_csv: bool,
+    generate_json: bool,
+    max_weeks: Optional[int] = None,
+) -> None:
     """
     Main compilation workflow.
 
@@ -169,6 +204,9 @@ async def compile_season_data(year: int, output_dir: Path) -> None:
     Args:
         year: NFL season year
         output_dir: Output directory path
+        generate_csv: Whether to generate CSV snapshot files
+        generate_json: Whether to generate JSON snapshot files
+        max_weeks: Limit compilation to first N weeks; None compiles all weeks
 
     Raises:
         Exception: Any error during compilation
@@ -180,14 +218,14 @@ async def compile_season_data(year: int, output_dir: Path) -> None:
 
     try:
         logger.info("[1/5] Fetching schedule data...")
-        schedule = await fetch_and_write_schedule(year, output_dir, http_client)
+        schedule = await fetch_and_write_schedule(year, output_dir, http_client, max_weeks=max_weeks)
         logger.info(f"  - Schedule fetched for {len(schedule)} weeks")
 
         bye_weeks = _derive_bye_weeks(schedule)
         logger.info(f"  - Derived bye weeks for {len(bye_weeks)} teams")
 
         logger.info("[2/5] Fetching game data...")
-        game_data = await fetch_and_write_game_data(year, output_dir, http_client)
+        game_data = await fetch_and_write_game_data(year, output_dir, http_client, max_weeks=max_weeks)
         logger.info(f"  - Game data fetched for {len(game_data)} games")
 
         logger.info("[3/5] Fetching player data...")
@@ -199,8 +237,8 @@ async def compile_season_data(year: int, output_dir: Path) -> None:
         logger.info(f"  - Team data calculated for {len(team_data)} teams")
 
         logger.info("[5/5] Generating weekly snapshots...")
-        generate_weekly_snapshots(players, output_dir, GENERATE_CSV, GENERATE_JSON)
-        logger.info(f"  - Generated {REGULAR_SEASON_WEEKS} weekly snapshots")
+        generate_weekly_snapshots(players, output_dir, generate_csv, generate_json, max_weeks=max_weeks)
+        logger.info(f"  - Generated weekly snapshots")
 
         logger.info(f"Compilation complete for {year} season")
         logger.info(f"Output written to: {output_dir}")
@@ -252,12 +290,14 @@ def main() -> int:
         log_file_path=None
     )
     logger = get_logger()
-    logger.info(f"Output format: CSV={GENERATE_CSV}, JSON={GENERATE_JSON}")
 
-    try:
-        validate_year(args.year)
+    generate_csv = args.format in ('csv', 'both')
+    generate_json = args.format in ('json', 'both')
+    logger.info(f"Output format: {args.format}")
+
+    if args.year:
         year_array = [int(args.year)]
-    except Exception:
+    elif args.all_years:
         year_array = YEARS
 
     for current_year in year_array:
@@ -276,7 +316,7 @@ def main() -> int:
 
             create_output_directories(output_dir)
 
-            asyncio.run(compile_season_data(current_year, output_dir))
+            asyncio.run(compile_season_data(current_year, output_dir, generate_csv, generate_json, max_weeks=args.weeks))
 
             logger.info("Historical data compilation completed successfully!")
 
@@ -286,12 +326,18 @@ def main() -> int:
         except KeyboardInterrupt:
             logger.warning("Compilation interrupted by user")
             if 'output_dir' in locals():
-                cleanup_on_error(output_dir)
+                if args.keep_partial:
+                    logger.warning(f"Partial output preserved at: {output_dir}")
+                else:
+                    cleanup_on_error(output_dir)
             return 1
         except Exception as e:
             logger.error(f"Compilation failed: {e}", exc_info=True)
             if 'output_dir' in locals():
-                cleanup_on_error(output_dir)
+                if args.keep_partial:
+                    logger.warning(f"Partial output preserved at: {output_dir}")
+                else:
+                    cleanup_on_error(output_dir)
             return 1
 
     return 0

@@ -71,3 +71,65 @@ class TestCLIFlagParsing:
             assert 'Enable file logging' in help_text, "Help should describe flag purpose"
 
 
+class TestNewCLIFlags:
+    """Tests for --format, --keep-partial, --all-years, --weeks CLI flags (R7)."""
+
+    def test_format_csv(self):
+        with patch('sys.argv', ['compile_historical_data.py', '--year', '2024', '--format', 'csv']):
+            import compile_historical_data
+            args = compile_historical_data.parse_args()
+            assert args.format == 'csv'
+
+    def test_format_json(self):
+        with patch('sys.argv', ['compile_historical_data.py', '--year', '2024', '--format', 'json']):
+            import compile_historical_data
+            args = compile_historical_data.parse_args()
+            assert args.format == 'json'
+
+    def test_format_both(self):
+        with patch('sys.argv', ['compile_historical_data.py', '--year', '2024', '--format', 'both']):
+            import compile_historical_data
+            args = compile_historical_data.parse_args()
+            assert args.format == 'both'
+
+    def test_format_default_is_json(self):
+        with patch('sys.argv', ['compile_historical_data.py', '--year', '2024']):
+            import compile_historical_data
+            args = compile_historical_data.parse_args()
+            assert args.format == 'json'
+
+    def test_keep_partial_true(self):
+        with patch('sys.argv', ['compile_historical_data.py', '--year', '2024', '--keep-partial']):
+            import compile_historical_data
+            args = compile_historical_data.parse_args()
+            assert args.keep_partial is True
+
+    def test_keep_partial_default_false(self):
+        with patch('sys.argv', ['compile_historical_data.py', '--year', '2024']):
+            import compile_historical_data
+            args = compile_historical_data.parse_args()
+            assert args.keep_partial is False
+
+    def test_all_years_flag(self):
+        with patch('sys.argv', ['compile_historical_data.py', '--all-years']):
+            import compile_historical_data
+            args = compile_historical_data.parse_args()
+            assert args.all_years is True
+
+    def test_all_years_and_year_mutually_exclusive(self):
+        with patch('sys.argv', ['compile_historical_data.py', '--all-years', '--year', '2024']):
+            import compile_historical_data
+            with pytest.raises(SystemExit):
+                compile_historical_data.parse_args()
+
+    def test_weeks_flag(self):
+        with patch('sys.argv', ['compile_historical_data.py', '--year', '2024', '--weeks', '3']):
+            import compile_historical_data
+            args = compile_historical_data.parse_args()
+            assert args.weeks == 3
+
+    def test_neither_year_nor_all_years_raises_error(self):
+        with patch('sys.argv', ['compile_historical_data.py']):
+            import compile_historical_data
+            with pytest.raises(SystemExit):
+                compile_historical_data.parse_args()

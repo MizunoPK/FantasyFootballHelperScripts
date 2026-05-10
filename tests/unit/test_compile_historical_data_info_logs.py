@@ -21,25 +21,22 @@ class TestINFOLogQuality:
         """T4.1: Verify config INFO log added at startup
 
         After logger setup, main() should log INFO message showing
-        GENERATE_CSV and GENERATE_JSON toggle values for better
-        configuration visibility and debugging.
+        the output format value for better configuration visibility
+        and debugging.
         """
         import logging
         caplog.set_level(logging.INFO)
 
         import compile_historical_data
 
-        generate_csv = compile_historical_data.GENERATE_CSV
-        generate_json = compile_historical_data.GENERATE_JSON
-
-        test_args = ['compile_historical_data.py', '--year', '2024']
+        test_args = ['compile_historical_data.py', '--year', '2024', '--format', 'json']
 
         with patch('sys.argv', test_args):
             with patch('compile_historical_data.setup_logger'):
                 logger = MagicMock()
-                logger.info(f"Output format: CSV={generate_csv}, JSON={generate_json}")
+                logger.info("Output format: json")
 
-                expected_msg = f"Output format: CSV={generate_csv}, JSON={generate_json}"
+                expected_msg = "Output format: json"
                 logger.info.assert_called_with(expected_msg)
 
     def test_existing_info_logs_preserved(self):
