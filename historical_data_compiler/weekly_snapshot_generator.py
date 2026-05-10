@@ -132,7 +132,7 @@ class WeeklySnapshotGenerator:
         for week in range(1, week_limit + 1):
             self._generate_week_snapshot(players, weeks_dir, week)
 
-        self.logger.info(f"Generated {VALIDATION_WEEKS} weekly snapshots")
+        self.logger.info(f"Generated {week_limit} weekly snapshots")
 
     def _generate_week_snapshot(
         self,

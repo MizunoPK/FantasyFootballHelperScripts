@@ -9,6 +9,7 @@ Usage:
     python compile_historical_data.py --year 2024
     python compile_historical_data.py --all-years
     python compile_historical_data.py --year 2025 --format both --weeks 3
+    python compile_historical_data.py --year 2025 --keep-partial
 
 Output:
     simulation/sim_data/{YEAR}/
