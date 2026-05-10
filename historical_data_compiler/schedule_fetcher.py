@@ -10,7 +10,7 @@ Author: Kai Mizuno
 
 import csv
 from pathlib import Path
-from typing import Dict, List, Optional, Set, Tuple
+from typing import Dict, List, Optional, Tuple
 
 from .http_client import BaseHTTPClient
 from .constants import (
