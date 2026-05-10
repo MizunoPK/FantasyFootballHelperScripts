@@ -61,13 +61,13 @@ class ScheduleFetcher:
             Example: {1: {'KC': 'BAL', 'BAL': 'KC', ...}, 2: {...}, ...}
             Teams on bye are not included in that week's dict
         """
-        self.logger.info(f"Fetching schedule for {year} season (weeks 1-{REGULAR_SEASON_WEEKS})")
+        week_limit = min(max_weeks, REGULAR_SEASON_WEEKS) if max_weeks is not None else REGULAR_SEASON_WEEKS
+        self.logger.info(f"Fetching schedule for {year} season (weeks 1-{week_limit})")
 
         full_schedule: Dict[int, Dict[str, str]] = {}
 
-        week_limit = min(max_weeks, REGULAR_SEASON_WEEKS) if max_weeks is not None else REGULAR_SEASON_WEEKS
         for week in range(1, week_limit + 1):
-            self.logger.debug(f"Fetching schedule for week {week}/{REGULAR_SEASON_WEEKS}")
+            self.logger.debug(f"Fetching schedule for week {week}/{week_limit}")
 
             params = {
                 "seasontype": 2,

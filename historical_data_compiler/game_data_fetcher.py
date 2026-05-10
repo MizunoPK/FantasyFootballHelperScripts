@@ -180,13 +180,13 @@ class GameDataFetcher:
         Returns:
             List of GameData for all regular season games
         """
-        self.logger.info(f"Fetching game data for {year} season (weeks 1-{REGULAR_SEASON_WEEKS})")
+        week_limit = min(max_weeks, REGULAR_SEASON_WEEKS) if max_weeks is not None else REGULAR_SEASON_WEEKS
+        self.logger.info(f"Fetching game data for {year} season (weeks 1-{week_limit})")
 
         all_games: List[GameData] = []
 
-        week_limit = min(max_weeks, REGULAR_SEASON_WEEKS) if max_weeks is not None else REGULAR_SEASON_WEEKS
         for week in range(1, week_limit + 1):
-            self.logger.debug(f"Fetching game data for week {week}/{REGULAR_SEASON_WEEKS}")
+            self.logger.debug(f"Fetching game data for week {week}/{week_limit}")
 
             params = {
                 "seasontype": 2,

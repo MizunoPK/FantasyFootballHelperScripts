@@ -48,7 +48,6 @@ from historical_data_compiler.team_data_calculator import calculate_and_write_te
 from historical_data_compiler.weekly_snapshot_generator import generate_weekly_snapshots
 
 
-
 YEARS = [2021, 2022, 2023, 2024, 2025]
 
 
@@ -121,8 +120,10 @@ Output will be written to:
     )
 
     args = parser.parse_args()
-    if not args.year and not args.all_years:
+    if args.year is None and not args.all_years:
         parser.error("Must provide --year YEAR or --all-years")
+    if args.weeks is not None and args.weeks < 1:
+        parser.error("--weeks must be a positive integer")
     return args
 
 
@@ -223,6 +224,8 @@ async def compile_season_data(
         logger.info(f"  - Schedule fetched for {len(schedule)} weeks")
 
         bye_weeks = _derive_bye_weeks(schedule)
+        if max_weeks is not None:
+            logger.warning(f"  - Bye-week derivation based on partial schedule (weeks 1-{max_weeks}); bye weeks may be inaccurate for teams with byes after week {max_weeks}")
         logger.info(f"  - Derived bye weeks for {len(bye_weeks)} teams")
 
         logger.info("[2/5] Fetching game data...")
@@ -238,8 +241,9 @@ async def compile_season_data(
         logger.info(f"  - Team data calculated for {len(team_data)} teams")
 
         logger.info("[5/5] Generating weekly snapshots...")
+        snapshot_week_limit = min(max_weeks, VALIDATION_WEEKS) if max_weeks is not None else VALIDATION_WEEKS
         generate_weekly_snapshots(players, output_dir, generate_csv, generate_json, max_weeks=max_weeks)
-        logger.info(f"  - Generated weekly snapshots")
+        logger.info(f"  - Generated {snapshot_week_limit} weekly snapshots")
 
         logger.info(f"Compilation complete for {year} season")
         logger.info(f"Output written to: {output_dir}")
@@ -296,9 +300,9 @@ def main() -> int:
     generate_json = args.format in ('json', 'both')
     logger.info(f"Output format: {args.format}")
 
-    if args.year:
+    if args.year is not None:
         year_array = [int(args.year)]
-    elif args.all_years:
+    else:
         year_array = YEARS
 
     for current_year in year_array:

@@ -37,7 +37,7 @@ class WeeklySnapshotGenerator:
     For week N snapshot:
     - week_N/players.csv: Actual points for weeks 1 to N-1, projected for N to 17
     - week_N/players_projected.csv: All projected values (what was projected at that time)
-    - week_N/*.json: Position-specific JSON files (if GENERATE_JSON=True)
+    - week_N/*.json: Position-specific JSON files (if generate_json=True)
 
     This simulates what data would be available when running the system at week N.
     """
@@ -124,11 +124,11 @@ class WeeklySnapshotGenerator:
             output_dir: Base output directory
             max_weeks: Limit generation to first N weeks; None generates all weeks
         """
-        self.logger.info("Generating weekly snapshots for weeks 1-18")
+        week_limit = min(max_weeks, VALIDATION_WEEKS) if max_weeks is not None else VALIDATION_WEEKS
+        self.logger.info(f"Generating weekly snapshots for weeks 1-{week_limit}")
 
         weeks_dir = output_dir / WEEKS_FOLDER
 
-        week_limit = min(max_weeks, VALIDATION_WEEKS) if max_weeks is not None else VALIDATION_WEEKS
         for week in range(1, week_limit + 1):
             self._generate_week_snapshot(players, weeks_dir, week)
 
@@ -144,9 +144,9 @@ class WeeklySnapshotGenerator:
         Generate snapshot for a single week.
 
         For current_week N:
-        - players.csv: Uses actual points for weeks 1 to N-1, projected for N to 17 (if GENERATE_CSV=True)
-        - players_projected.csv: Uses all projected values (if GENERATE_CSV=True)
-        - *.json: Position-specific JSON files (if GENERATE_JSON=True)
+        - players.csv: Uses actual points for weeks 1 to N-1, projected for N to 17 (if generate_csv=True)
+        - players_projected.csv: Uses all projected values (if generate_csv=True)
+        - *.json: Position-specific JSON files (if generate_json=True)
 
         Args:
             players: List of PlayerData
