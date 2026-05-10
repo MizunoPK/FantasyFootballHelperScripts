@@ -337,7 +337,7 @@ class GameDataFetcher:
         """
         coords = self._get_coordinates(home_team, city, country, is_international)
         if not coords:
-            self.logger.info("No coordinates available for game, skipping weather data")
+            self.logger.warning("No coordinates available for game, skipping weather data")
             return {"temperature": None, "gust": None, "precipitation": None}
 
         self.logger.debug(f"Fetching weather for {game_date} at {coords['lat']},{coords['lon']}")

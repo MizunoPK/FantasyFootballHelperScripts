@@ -80,6 +80,8 @@ ESPN_USER_AGENT = (
     "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 )
 
+ESPN_PLAYER_LIMIT = 1500
+
 
 SEASON_SCHEDULE_FILE = "season_schedule.csv"
 GAME_DATA_FILE = "game_data.csv"

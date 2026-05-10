@@ -10,7 +10,7 @@ Author: Kai Mizuno
 
 import csv
 from pathlib import Path
-from typing import Dict, List, Optional, Set
+from typing import Dict, List, Optional, Set, Tuple
 
 from .http_client import BaseHTTPClient
 from .constants import (
@@ -193,7 +193,7 @@ async def fetch_and_write_schedule(
     output_dir: Path,
     http_client: BaseHTTPClient,
     max_weeks: Optional[int] = None,
-) -> Dict[int, Dict[str, str]]:
+) -> Tuple[Dict[int, Dict[str, str]], Dict[str, int]]:
     """
     Convenience function to fetch schedule and write CSV.
 
@@ -204,7 +204,7 @@ async def fetch_and_write_schedule(
         max_weeks: Limit fetch to first N weeks; None fetches all weeks
 
     Returns:
-        Schedule dict for use by other modules
+        Tuple of (schedule dict, bye_weeks dict) for use by other modules
     """
     fetcher = ScheduleFetcher(http_client)
     schedule = await fetcher.fetch_schedule(year, max_weeks=max_weeks)
@@ -212,6 +212,7 @@ async def fetch_and_write_schedule(
     output_path = output_dir / SEASON_SCHEDULE_FILE
     fetcher.write_schedule_csv(schedule, output_path)
 
-    return schedule
+    bye_weeks = fetcher.identify_bye_weeks(schedule)
+    return schedule, bye_weeks
 
 

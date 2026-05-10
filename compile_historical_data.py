@@ -220,12 +220,8 @@ async def compile_season_data(
 
     try:
         logger.info("[1/5] Fetching schedule data...")
-        schedule = await fetch_and_write_schedule(year, output_dir, http_client, max_weeks=max_weeks)
+        schedule, bye_weeks = await fetch_and_write_schedule(year, output_dir, http_client, max_weeks=max_weeks)
         logger.info(f"  - Schedule fetched for {len(schedule)} weeks")
-
-        bye_weeks = _derive_bye_weeks(schedule)
-        if max_weeks is not None:
-            logger.warning(f"  - Bye-week derivation based on partial schedule (weeks 1-{max_weeks}); bye weeks may be inaccurate for teams with byes after week {max_weeks}")
         logger.info(f"  - Derived bye weeks for {len(bye_weeks)} teams")
 
         logger.info("[2/5] Fetching game data...")
@@ -250,32 +246,6 @@ async def compile_season_data(
 
     finally:
         await http_client.close()
-
-
-def _derive_bye_weeks(schedule: dict) -> dict:
-    """
-    Derive bye week for each team from schedule.
-
-    A team's bye week is the week where they have no opponent scheduled.
-
-    Args:
-        schedule: Dict[week, Dict[team, opponent]]
-
-    Returns:
-        Dict mapping team abbreviation to bye week number
-    """
-    from historical_data_compiler.constants import ALL_NFL_TEAMS
-
-    bye_weeks = {}
-
-    for team in ALL_NFL_TEAMS:
-        for week in range(1, REGULAR_SEASON_WEEKS + 1):
-            week_schedule = schedule.get(week, {})
-            if team not in week_schedule:
-                bye_weeks[team] = week
-                break
-
-    return bye_weeks
 
 
 def main() -> int:
@@ -306,6 +276,7 @@ def main() -> int:
         year_array = YEARS
 
     for current_year in year_array:
+        output_dir = None
         try:
             validate_year(current_year)
 
@@ -330,7 +301,7 @@ def main() -> int:
             return 1
         except KeyboardInterrupt:
             logger.warning("Compilation interrupted by user")
-            if 'output_dir' in locals():
+            if output_dir and output_dir.exists():
                 if args.keep_partial:
                     logger.warning(f"Partial output preserved at: {output_dir}")
                 else:
@@ -338,7 +309,7 @@ def main() -> int:
             return 1
         except Exception as e:
             logger.error(f"Compilation failed: {e}", exc_info=True)
-            if 'output_dir' in locals():
+            if output_dir and output_dir.exists():
                 if args.keep_partial:
                     logger.warning(f"Partial output preserved at: {output_dir}")
                 else:

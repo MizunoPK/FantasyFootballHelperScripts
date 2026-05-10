@@ -33,12 +33,10 @@ class TestGameDataFetcherLogs:
             "DEBUG log should include coordinates"
 
     def test_no_coordinates_info_level(self):
-        """T3.2: Verify "No coordinates" moved to INFO level
+        """T3.2: Verify "No coordinates" uses WARNING level
 
-        Validates that game_data_fetcher.py line 346 uses INFO level (not DEBUG)
-        for "No coordinates" message since it affects data quality.
-
-        This was implemented in Task 4.
+        Validates that game_data_fetcher.py uses WARNING level (not INFO or DEBUG)
+        for "No coordinates" message since it is a recoverable data-quality anomaly.
         """
         with open("historical_data_compiler/game_data_fetcher.py") as f:
             lines = f.readlines()
@@ -47,9 +45,9 @@ class TestGameDataFetcherLogs:
 
         assert len(no_coords_lines) > 0, "Should have 'No coordinates' log message"
 
-        assert any("logger.info" in line for line in no_coords_lines), \
-            "Should use INFO level for 'No coordinates' message"
-        assert not any("logger.debug" in line and "No coordinates" in line for line in lines), \
-            "Should NOT use DEBUG level for 'No coordinates' message"
+        assert any("logger.warning" in line for line in no_coords_lines), \
+            "Should use WARNING level for 'No coordinates' message"
+        assert not any(("logger.debug" in line or "logger.info" in line) and "No coordinates" in line for line in lines), \
+            "Should NOT use DEBUG or INFO level for 'No coordinates' message"
 
 

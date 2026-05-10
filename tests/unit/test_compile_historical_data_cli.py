@@ -163,7 +163,7 @@ class TestWeeksPropagation:
              patch('compile_historical_data.create_output_directories'), \
              patch('pathlib.Path.exists', return_value=False), \
              patch('compile_historical_data.BaseHTTPClient', return_value=mock_http), \
-             patch('compile_historical_data.fetch_and_write_schedule', new_callable=AsyncMock, return_value={}) as mock_sched, \
+             patch('compile_historical_data.fetch_and_write_schedule', new_callable=AsyncMock, return_value=({}, {})) as mock_sched, \
              patch('compile_historical_data.fetch_and_write_game_data', new_callable=AsyncMock, return_value=[]) as mock_game, \
              patch('compile_historical_data.fetch_player_data', new_callable=AsyncMock, return_value=[]) as mock_player, \
              patch('compile_historical_data.calculate_and_write_team_data', return_value={}) as mock_team, \
@@ -187,7 +187,7 @@ class TestKeepPartialBehavior:
              patch('compile_historical_data.setup_logger'), \
              patch('compile_historical_data.get_logger', return_value=mock_logger), \
              patch('compile_historical_data.create_output_directories'), \
-             patch('pathlib.Path.exists', return_value=False), \
+             patch('pathlib.Path.exists', side_effect=[False, True]), \
              patch('compile_historical_data.asyncio.run', side_effect=Exception("network error")), \
              patch('compile_historical_data.cleanup_on_error') as mock_cleanup:
             result = compile_historical_data.main()

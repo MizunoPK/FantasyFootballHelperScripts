@@ -24,15 +24,13 @@ from .constants import (
     FANTASY_POSITIONS,
     REGULAR_SEASON_WEEKS,
     ESPN_USER_AGENT,
+    ESPN_PLAYER_LIMIT,
     PLAYERS_FILE,
     PLAYERS_PROJECTED_FILE,
     normalize_team_abbrev,
 )
 
 from utils.LoggingManager import get_logger
-
-
-ESPN_PLAYER_LIMIT = 1500
 
 
 PLAYERS_CSV_COLUMNS = [
