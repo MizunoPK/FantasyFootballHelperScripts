@@ -8,7 +8,7 @@ from ESPN API. Adapted from player-data-fetcher/player_data_constants.py.
 Author: Kai Mizuno
 """
 
-from typing import Dict, List
+from typing import Dict, List, Tuple
 
 
 ESPN_FANTASY_API_URL = (
@@ -67,6 +67,8 @@ MIN_SUPPORTED_YEAR = 2021
 REGULAR_SEASON_WEEKS = 17
 
 VALIDATION_WEEKS = 18
+
+PARSE_PROGRESS_MILESTONES: Tuple[float, ...] = (0.25, 0.50, 0.75, 1.00)
 
 
 REQUEST_TIMEOUT = 30.0

@@ -144,45 +144,32 @@ class TestParsePlayersMilestoneLogging:
     def _make_4_players(self):
         return [{"player": {"id": str(i), "defaultPositionId": 1}} for i in range(1, 5)]
 
-    @pytest.mark.asyncio
-    async def test_logs_25_percent_milestone(self, fetcher):
+    async def _run_parse_4_players(self, fetcher):
         mock_logger = MagicMock()
         fetcher.logger = mock_logger
         with patch.object(fetcher, '_parse_single_player', new_callable=AsyncMock) as mock_parse:
-            mock_parse.return_value = PlayerData(id="1", name="P", team="KC", position="QB")
+            mock_parse.side_effect = [
+                PlayerData(id="1", name="P1", team="KC", position="QB"),
+                PlayerData(id="2", name="P2", team="SF", position="RB"),
+                PlayerData(id="3", name="P3", team="DAL", position="WR"),
+                PlayerData(id="4", name="P4", team="BUF", position="TE"),
+            ]
             await fetcher._parse_players({"players": self._make_4_players()}, 2025, {})
-        info_calls = [c.args[0] for c in mock_logger.info.call_args_list]
-        assert any("25%" in msg for msg in info_calls)
+        return [c.args[0] for c in mock_logger.info.call_args_list]
+
+    @pytest.mark.parametrize("milestone_str", ["25%", "50%", "75%", "100%"])
+    @pytest.mark.asyncio
+    async def test_logs_milestone(self, fetcher, milestone_str):
+        info_calls = await self._run_parse_4_players(fetcher)
+        assert any(milestone_str in msg for msg in info_calls)
 
     @pytest.mark.asyncio
-    async def test_logs_50_percent_milestone(self, fetcher):
-        mock_logger = MagicMock()
-        fetcher.logger = mock_logger
-        with patch.object(fetcher, '_parse_single_player', new_callable=AsyncMock) as mock_parse:
-            mock_parse.return_value = PlayerData(id="1", name="P", team="KC", position="QB")
-            await fetcher._parse_players({"players": self._make_4_players()}, 2025, {})
-        info_calls = [c.args[0] for c in mock_logger.info.call_args_list]
-        assert any("50%" in msg for msg in info_calls)
-
-    @pytest.mark.asyncio
-    async def test_logs_75_percent_milestone(self, fetcher):
-        mock_logger = MagicMock()
-        fetcher.logger = mock_logger
-        with patch.object(fetcher, '_parse_single_player', new_callable=AsyncMock) as mock_parse:
-            mock_parse.return_value = PlayerData(id="1", name="P", team="KC", position="QB")
-            await fetcher._parse_players({"players": self._make_4_players()}, 2025, {})
-        info_calls = [c.args[0] for c in mock_logger.info.call_args_list]
-        assert any("75%" in msg for msg in info_calls)
-
-    @pytest.mark.asyncio
-    async def test_logs_100_percent_milestone(self, fetcher):
-        mock_logger = MagicMock()
-        fetcher.logger = mock_logger
-        with patch.object(fetcher, '_parse_single_player', new_callable=AsyncMock) as mock_parse:
-            mock_parse.return_value = PlayerData(id="1", name="P", team="KC", position="QB")
-            await fetcher._parse_players({"players": self._make_4_players()}, 2025, {})
-        info_calls = [c.args[0] for c in mock_logger.info.call_args_list]
-        assert any("100%" in msg for msg in info_calls)
+    async def test_milestone_message_format(self, fetcher):
+        info_calls = await self._run_parse_4_players(fetcher)
+        assert any(
+            msg.startswith("Parsed 25% of players (") and msg.endswith("/4)")
+            for msg in info_calls
+        )
 
     @pytest.mark.asyncio
     async def test_each_milestone_logged_at_most_once(self, fetcher):
@@ -207,3 +194,18 @@ class TestParsePlayersMilestoneLogging:
             for pct_str in ["25%", "50%", "75%", "100%"]
             for msg in info_calls
         )
+
+    @pytest.mark.asyncio
+    async def test_100_percent_milestone_fires_when_some_players_return_none(self, fetcher):
+        mock_logger = MagicMock()
+        fetcher.logger = mock_logger
+        with patch.object(fetcher, '_parse_single_player', new_callable=AsyncMock) as mock_parse:
+            mock_parse.side_effect = [
+                PlayerData(id="1", name="P", team="KC", position="QB"),
+                None,
+                PlayerData(id="3", name="P", team="KC", position="QB"),
+                None,
+            ]
+            await fetcher._parse_players({"players": self._make_4_players()}, 2025, {})
+        info_calls = [c.args[0] for c in mock_logger.info.call_args_list]
+        assert any("100%" in msg for msg in info_calls)

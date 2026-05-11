@@ -455,21 +455,21 @@ class TestGenerateWeekSnapshotInfoLog:
         generator = WeeklySnapshotGenerator(generate_csv=False, generate_json=False)
         caplog.set_level(logging.INFO)
         generator.logger.addHandler(caplog.handler)
-
-        generator._generate_week_snapshot([], tmp_path, 5)
-
-        generator.logger.removeHandler(caplog.handler)
+        try:
+            generator._generate_week_snapshot([], tmp_path, 5)
+        finally:
+            generator.logger.removeHandler(caplog.handler)
         info_messages = [r.message for r in caplog.records if r.levelno == logging.INFO]
-        assert any(f"5/{VALIDATION_WEEKS}" in msg for msg in info_messages)
+        assert any(f"5/{VALIDATION_WEEKS}" in msg and "snapshots" in msg for msg in info_messages)
 
     def test_per_week_log_level_is_info_not_debug(self, tmp_path, caplog):
         generator = WeeklySnapshotGenerator(generate_csv=False, generate_json=False)
         caplog.set_level(logging.INFO)
         generator.logger.addHandler(caplog.handler)
-
-        generator._generate_week_snapshot([], tmp_path, 3)
-
-        generator.logger.removeHandler(caplog.handler)
+        try:
+            generator._generate_week_snapshot([], tmp_path, 3)
+        finally:
+            generator.logger.removeHandler(caplog.handler)
         week_records = [
             r for r in caplog.records
             if f"3/{VALIDATION_WEEKS}" in r.message

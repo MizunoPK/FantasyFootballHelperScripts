@@ -14,7 +14,7 @@ import csv
 import math
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Set, Tuple
 
 from .http_client import BaseHTTPClient
 from .constants import (
@@ -25,6 +25,7 @@ from .constants import (
     REGULAR_SEASON_WEEKS,
     ESPN_USER_AGENT,
     ESPN_PLAYER_LIMIT,
+    PARSE_PROGRESS_MILESTONES,
     PLAYERS_FILE,
     PLAYERS_PROJECTED_FILE,
     normalize_team_abbrev,
@@ -228,7 +229,7 @@ class PlayerDataFetcher:
 
         total_players = len(raw_players)
         processed = 0
-        _logged_milestones: set = set()
+        logged_milestones: Set[float] = set()
         for player in raw_players:
             try:
                 player_data = await self._parse_single_player(
@@ -236,13 +237,13 @@ class PlayerDataFetcher:
                 )
                 if player_data:
                     players_list.append(player_data)
-                    processed += 1
+                processed += 1
 
-                if total_players > 0:
+                if total_players > 0 and len(logged_milestones) < len(PARSE_PROGRESS_MILESTONES):
                     pct = processed / total_players
-                    for milestone in [0.25, 0.50, 0.75, 1.00]:
-                        if pct >= milestone and milestone not in _logged_milestones:
-                            _logged_milestones.add(milestone)
+                    for milestone in PARSE_PROGRESS_MILESTONES:
+                        if pct >= milestone and milestone not in logged_milestones:
+                            logged_milestones.add(milestone)
                             self.logger.info(
                                 f"Parsed {int(milestone * 100)}% of players "
                                 f"({processed}/{total_players})"
