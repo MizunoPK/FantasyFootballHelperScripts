@@ -167,7 +167,7 @@ class WeeklySnapshotGenerator:
             from .json_exporter import generate_json_snapshots
             generate_json_snapshots(players, week_dir, current_week)
 
-        self.logger.debug(f"Generated week {current_week} snapshot")
+        self.logger.info(f"Generated week {current_week}/{VALIDATION_WEEKS} snapshots")
 
     def _write_players_snapshot(
         self,

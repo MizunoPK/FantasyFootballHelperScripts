@@ -12,7 +12,8 @@ from dataclasses import field
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from historical_data_compiler.player_data_fetcher import PlayerData
+from unittest.mock import AsyncMock, MagicMock, patch
+from historical_data_compiler.player_data_fetcher import PlayerData, PlayerDataFetcher
 
 
 class TestPlayerDataModel:
@@ -133,3 +134,76 @@ class TestPlayerDataCSVConversion:
         assert 'position' in csv_row
 
 
+class TestParsePlayersMilestoneLogging:
+    """R3: Tests for milestone-based INFO logging in _parse_players()"""
+
+    @pytest.fixture
+    def fetcher(self):
+        return PlayerDataFetcher(MagicMock())
+
+    def _make_4_players(self):
+        return [{"player": {"id": str(i), "defaultPositionId": 1}} for i in range(1, 5)]
+
+    @pytest.mark.asyncio
+    async def test_logs_25_percent_milestone(self, fetcher):
+        mock_logger = MagicMock()
+        fetcher.logger = mock_logger
+        with patch.object(fetcher, '_parse_single_player', new_callable=AsyncMock) as mock_parse:
+            mock_parse.return_value = PlayerData(id="1", name="P", team="KC", position="QB")
+            await fetcher._parse_players({"players": self._make_4_players()}, 2025, {})
+        info_calls = [c.args[0] for c in mock_logger.info.call_args_list]
+        assert any("25%" in msg for msg in info_calls)
+
+    @pytest.mark.asyncio
+    async def test_logs_50_percent_milestone(self, fetcher):
+        mock_logger = MagicMock()
+        fetcher.logger = mock_logger
+        with patch.object(fetcher, '_parse_single_player', new_callable=AsyncMock) as mock_parse:
+            mock_parse.return_value = PlayerData(id="1", name="P", team="KC", position="QB")
+            await fetcher._parse_players({"players": self._make_4_players()}, 2025, {})
+        info_calls = [c.args[0] for c in mock_logger.info.call_args_list]
+        assert any("50%" in msg for msg in info_calls)
+
+    @pytest.mark.asyncio
+    async def test_logs_75_percent_milestone(self, fetcher):
+        mock_logger = MagicMock()
+        fetcher.logger = mock_logger
+        with patch.object(fetcher, '_parse_single_player', new_callable=AsyncMock) as mock_parse:
+            mock_parse.return_value = PlayerData(id="1", name="P", team="KC", position="QB")
+            await fetcher._parse_players({"players": self._make_4_players()}, 2025, {})
+        info_calls = [c.args[0] for c in mock_logger.info.call_args_list]
+        assert any("75%" in msg for msg in info_calls)
+
+    @pytest.mark.asyncio
+    async def test_logs_100_percent_milestone(self, fetcher):
+        mock_logger = MagicMock()
+        fetcher.logger = mock_logger
+        with patch.object(fetcher, '_parse_single_player', new_callable=AsyncMock) as mock_parse:
+            mock_parse.return_value = PlayerData(id="1", name="P", team="KC", position="QB")
+            await fetcher._parse_players({"players": self._make_4_players()}, 2025, {})
+        info_calls = [c.args[0] for c in mock_logger.info.call_args_list]
+        assert any("100%" in msg for msg in info_calls)
+
+    @pytest.mark.asyncio
+    async def test_each_milestone_logged_at_most_once(self, fetcher):
+        mock_logger = MagicMock()
+        fetcher.logger = mock_logger
+        with patch.object(fetcher, '_parse_single_player', new_callable=AsyncMock) as mock_parse:
+            mock_parse.return_value = PlayerData(id="1", name="P", team="KC", position="QB")
+            await fetcher._parse_players({"players": self._make_4_players()}, 2025, {})
+        info_calls = [c.args[0] for c in mock_logger.info.call_args_list]
+        for pct_str in ["25%", "50%", "75%", "100%"]:
+            count = sum(1 for msg in info_calls if pct_str in msg)
+            assert count <= 1, f"Milestone {pct_str} logged {count} times (expected at most 1)"
+
+    @pytest.mark.asyncio
+    async def test_empty_players_no_milestone_logs(self, fetcher):
+        mock_logger = MagicMock()
+        fetcher.logger = mock_logger
+        await fetcher._parse_players({"players": []}, 2025, {})
+        info_calls = [c.args[0] for c in mock_logger.info.call_args_list]
+        assert not any(
+            pct_str in msg
+            for pct_str in ["25%", "50%", "75%", "100%"]
+            for msg in info_calls
+        )

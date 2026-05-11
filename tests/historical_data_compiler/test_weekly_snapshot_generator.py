@@ -6,6 +6,7 @@ Tests weekly snapshot generation for simulation data.
 """
 
 import csv
+import logging
 import pytest
 import sys
 from pathlib import Path
@@ -16,6 +17,7 @@ from historical_data_compiler.weekly_snapshot_generator import (
     WeeklySnapshotGenerator,
     generate_weekly_snapshots,
 )
+from historical_data_compiler.constants import VALIDATION_WEEKS
 from historical_data_compiler.player_data_fetcher import PlayerData
 
 
@@ -446,3 +448,31 @@ class TestToggleBehavior:
         assert (week_dir / "qb_data.json").exists()
 
 
+class TestGenerateWeekSnapshotInfoLog:
+    """R4: Tests for per-week INFO logging in _generate_week_snapshot()"""
+
+    def test_per_week_log_message_contains_fraction(self, tmp_path, caplog):
+        generator = WeeklySnapshotGenerator(generate_csv=False, generate_json=False)
+        caplog.set_level(logging.INFO)
+        generator.logger.addHandler(caplog.handler)
+
+        generator._generate_week_snapshot([], tmp_path, 5)
+
+        generator.logger.removeHandler(caplog.handler)
+        info_messages = [r.message for r in caplog.records if r.levelno == logging.INFO]
+        assert any(f"5/{VALIDATION_WEEKS}" in msg for msg in info_messages)
+
+    def test_per_week_log_level_is_info_not_debug(self, tmp_path, caplog):
+        generator = WeeklySnapshotGenerator(generate_csv=False, generate_json=False)
+        caplog.set_level(logging.INFO)
+        generator.logger.addHandler(caplog.handler)
+
+        generator._generate_week_snapshot([], tmp_path, 3)
+
+        generator.logger.removeHandler(caplog.handler)
+        week_records = [
+            r for r in caplog.records
+            if f"3/{VALIDATION_WEEKS}" in r.message
+        ]
+        assert len(week_records) >= 1
+        assert all(r.levelno == logging.INFO for r in week_records)

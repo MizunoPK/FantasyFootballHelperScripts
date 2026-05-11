@@ -226,7 +226,9 @@ class PlayerDataFetcher:
                         position_rank_ranges[position]['max'], positional_rank
                     )
 
+        total_players = len(raw_players)
         processed = 0
+        _logged_milestones: set = set()
         for player in raw_players:
             try:
                 player_data = await self._parse_single_player(
@@ -236,8 +238,15 @@ class PlayerDataFetcher:
                     players_list.append(player_data)
                     processed += 1
 
-                if processed % 100 == 0:
-                    self.logger.debug(f"Processed {processed} players")
+                if total_players > 0:
+                    pct = processed / total_players
+                    for milestone in [0.25, 0.50, 0.75, 1.00]:
+                        if pct >= milestone and milestone not in _logged_milestones:
+                            _logged_milestones.add(milestone)
+                            self.logger.info(
+                                f"Parsed {int(milestone * 100)}% of players "
+                                f"({processed}/{total_players})"
+                            )
 
             except Exception as e:
                 self.logger.warning(f"Error parsing player: {e}")
