@@ -7,7 +7,6 @@ and exit codes for the validate_sim_data feature.
 
 import json
 import shutil
-import pytest
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 
