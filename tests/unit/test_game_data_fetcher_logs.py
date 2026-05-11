@@ -3,7 +3,7 @@ Unit Tests for Feature 06: game_data_fetcher.py Log Quality
 
 Tests verify DEBUG log quality improvements:
 - Added DEBUG log for weather fetch with coordinates
-- Moved "No coordinates" log to INFO level
+- Moved "No coordinates" log to WARNING level
 
 Test Category: R3 - DEBUG Log Quality (2 tests)
 
@@ -19,7 +19,7 @@ class TestGameDataFetcherLogs:
     def test_weather_fetch_debug_log_added(self):
         """T3.1: Verify DEBUG log added before weather fetch
 
-        Validates that game_data_fetcher.py line 349 contains DEBUG log
+        Validates that game_data_fetcher.py line 343 contains DEBUG log
         with format: "Fetching weather for {game_date} at {coords['lat']},{coords['lon']}"
 
         This was implemented in Task 3.
@@ -32,7 +32,7 @@ class TestGameDataFetcherLogs:
         assert "coords['lat']" in content and "coords['lon']" in content, \
             "DEBUG log should include coordinates"
 
-    def test_no_coordinates_info_level(self):
+    def test_no_coordinates_warning_level(self):
         """T3.2: Verify "No coordinates" uses WARNING level
 
         Validates that game_data_fetcher.py uses WARNING level (not INFO or DEBUG)

@@ -35,7 +35,6 @@ sys.path.insert(0, str(Path(__file__).parent))
 from utils.LoggingManager import setup_logger, get_logger
 from historical_data_compiler.constants import (
     MIN_SUPPORTED_YEAR,
-    REGULAR_SEASON_WEEKS,
     VALIDATION_WEEKS,
     TEAM_DATA_FOLDER,
     WEEKS_FOLDER,
