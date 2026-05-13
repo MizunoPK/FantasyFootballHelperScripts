@@ -28,6 +28,7 @@ from historical_data_compiler.constants import (
     TEAM_DATA_FOLDER,
     WEEKS_FOLDER,
     VALIDATION_WEEKS,
+    EXPECTED_NFL_TEAMS,
     POSITION_JSON_FILES,
 )
 
@@ -60,13 +61,19 @@ def check_csv_files(output_dir: Path) -> bool:
         passed = False
     else:
         csv_count = len(list(team_data_dir.glob("*.csv")))
-        if csv_count != 32:
+        if csv_count != EXPECTED_NFL_TEAMS:
             logger.error(
-                f"Expected 32 team CSV files in {team_data_dir}, found {csv_count}"
+                f"Expected {EXPECTED_NFL_TEAMS} team CSV files in {team_data_dir}, found {csv_count}"
             )
             passed = False
 
     return passed
+
+
+def _iter_week_folders(output_dir: Path):
+    weeks_dir = output_dir / WEEKS_FOLDER
+    for week_num in range(1, VALIDATION_WEEKS + 1):
+        yield weeks_dir / f"week_{week_num:02d}"
 
 
 def check_week_folders(output_dir: Path) -> bool:
@@ -81,16 +88,14 @@ def check_week_folders(output_dir: Path) -> bool:
     """
     logger = get_logger()
     passed = True
-    weeks_dir = output_dir / WEEKS_FOLDER
 
-    for week_num in range(1, VALIDATION_WEEKS + 1):
-        week_folder = weeks_dir / f"week_{week_num:02d}"
+    for week_folder in _iter_week_folders(output_dir):
         if not week_folder.exists():
             logger.error(f"Missing week folder: {week_folder}")
             passed = False
             continue
 
-        for position, json_filename in POSITION_JSON_FILES.items():
+        for json_filename in POSITION_JSON_FILES.values():
             json_path = week_folder / json_filename
             if not json_path.exists():
                 logger.error(f"Missing JSON file: {json_path}")
@@ -110,7 +115,9 @@ def check_json_spot(week_dir: Path) -> bool:
         week_dir: Path to the week folder (e.g., weeks/week_01/).
 
     Returns:
-        True if qb_data.json passes the spot-check or is absent, False on structure errors.
+        True if qb_data.json is structurally valid OR is absent (the absence is already
+        flagged by check_week_folders). False if the file exists but has invalid structure
+        (unreadable, invalid JSON, missing 'qb_data' key, value not a non-empty list).
     """
     logger = get_logger()
     qb_json_path = week_dir / POSITION_JSON_FILES['QB']
@@ -155,10 +162,8 @@ def check_all_json_spots(output_dir: Path) -> bool:
         True if all spot-checks pass, False if any fail.
     """
     passed = True
-    weeks_dir = output_dir / WEEKS_FOLDER
 
-    for week_num in range(1, VALIDATION_WEEKS + 1):
-        week_folder = weeks_dir / f"week_{week_num:02d}"
+    for week_folder in _iter_week_folders(output_dir):
         if week_folder.exists():
             if not check_json_spot(week_folder):
                 passed = False
@@ -223,6 +228,9 @@ def main() -> int:
         output_dir = args.output_dir
         if not output_dir.exists():
             logger.error(f"Output directory does not exist: {output_dir}")
+            return 1
+        if not output_dir.is_dir():
+            logger.error(f"Output directory is not a directory: {output_dir}")
             return 1
     else:
         output_dir = Path(__file__).parent / "simulation" / "sim_data" / str(args.year)
