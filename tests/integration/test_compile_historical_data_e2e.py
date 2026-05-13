@@ -4,15 +4,18 @@ E2E integration test for compile_historical_data.py (FF-1 F06).
 Invokes compile_historical_data.py --year 2025 via subprocess with ESPN_FIXTURE_DIR
 set to use fixture data, then asserts output directory structure and file contents.
 """
+import asyncio
 import json
 import os
 import subprocess
 import sys
 from pathlib import Path
+from unittest.mock import patch
 
 import pytest
 
 from historical_data_compiler.constants import VALIDATION_WEEKS
+from historical_data_compiler.http_client import BaseHTTPClient
 
 REPO_ROOT = Path(__file__).parent.parent.parent
 
@@ -46,3 +49,15 @@ def test_compile_historical_data_e2e(tmp_path: Path) -> None:
             data = json.loads(json_path.read_text())
             assert f"{pos}_data" in data
             assert len(data[f"{pos}_data"]) >= 1
+
+
+@pytest.mark.offline
+def test_missing_fixture_raises_file_not_found(tmp_path: Path) -> None:
+    """Verify FileNotFoundError when ESPN_FIXTURE_DIR is set but fixture file is missing."""
+    with patch.dict(os.environ, {"ESPN_FIXTURE_DIR": str(tmp_path)}):
+        client = BaseHTTPClient()
+        with pytest.raises(FileNotFoundError, match="Fixture file not found"):
+            asyncio.run(client.get(
+                "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard",
+                params={"week": 1, "dates": 2025},
+            ))
