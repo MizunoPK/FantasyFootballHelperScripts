@@ -3,6 +3,8 @@ E2E integration test for compile_historical_data.py (FF-1 F06).
 
 Invokes compile_historical_data.py --year 2025 via subprocess with ESPN_FIXTURE_DIR
 set to use fixture data, then asserts output directory structure and file contents.
+Also verifies that BaseHTTPClient.get() raises FileNotFoundError when ESPN_FIXTURE_DIR
+is set but the requested fixture file is missing.
 """
 import asyncio
 import json
@@ -60,4 +62,15 @@ def test_missing_fixture_raises_file_not_found(tmp_path: Path) -> None:
             asyncio.run(client.get(
                 "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard",
                 params={"week": 1, "dates": 2025},
+            ))
+
+
+@pytest.mark.offline
+def test_missing_fixture_raises_file_not_found_fantasy(tmp_path: Path) -> None:
+    """Verify FileNotFoundError when ESPN_FIXTURE_DIR is set but fantasy fixture is missing."""
+    with patch.dict(os.environ, {"ESPN_FIXTURE_DIR": str(tmp_path)}):
+        client = BaseHTTPClient()
+        with pytest.raises(FileNotFoundError, match="Fixture file not found"):
+            asyncio.run(client.get(
+                "https://lm-api-reads.fantasy.espn.com/apis/v3/games/ffl/seasons/2025/segments/0/leaguedefaults/3",
             ))
