@@ -20,6 +20,12 @@ Output:
         ├── players.csv
         └── players_projected.csv
 
+Phases:
+    1+2 (parallel): fetch schedule → (schedule, bye_weeks); fetch game data → game_data
+    3   (serial):   fetch player data — consumes bye_weeks from Phase 1
+    4   (serial):   calculate team data
+    5   (serial):   generate weekly snapshots
+
 Author: Kai Mizuno
 """
 
@@ -247,6 +253,26 @@ async def compile_season_data(
         await http_client.close()
 
 
+def _handle_compile_failure(
+    output_dir: Optional[Path],
+    keep_partial: bool,
+    logger,
+) -> None:
+    """
+    Clean up or preserve partial output after a compilation failure.
+
+    Args:
+        output_dir: Output directory if one was created, or None
+        keep_partial: Whether to preserve partial output instead of cleaning up
+        logger: Logger instance
+    """
+    if output_dir and output_dir.exists():
+        if keep_partial:
+            logger.warning(f"Partial output preserved at: {output_dir}")
+        else:
+            cleanup_on_error(output_dir)
+
+
 def main() -> int:
     """
     Main entry point.
@@ -300,19 +326,11 @@ def main() -> int:
             return 1
         except KeyboardInterrupt:
             logger.warning("Compilation interrupted by user")
-            if output_dir and output_dir.exists():
-                if args.keep_partial:
-                    logger.warning(f"Partial output preserved at: {output_dir}")
-                else:
-                    cleanup_on_error(output_dir)
+            _handle_compile_failure(output_dir, args.keep_partial, logger)
             return 1
         except Exception as e:
             logger.error(f"Compilation failed: {e}", exc_info=True)
-            if output_dir and output_dir.exists():
-                if args.keep_partial:
-                    logger.warning(f"Partial output preserved at: {output_dir}")
-                else:
-                    cleanup_on_error(output_dir)
+            _handle_compile_failure(output_dir, args.keep_partial, logger)
             return 1
 
     return 0

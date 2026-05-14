@@ -3,6 +3,8 @@ Unit Tests for validate_sim_data.py
 
 Tests CLI validation, CSV file checks, week folder checks, JSON spot-checks,
 and exit codes for the validate_sim_data feature.
+
+Test Category: R1-R7 — Validate Sim Data checks (13 tests)
 """
 
 import json
@@ -193,3 +195,12 @@ class TestValidateSimData:
         assert result == 1
         assert mock_logger.error.call_count == 1
         assert "is not a directory" in mock_logger.error.call_args_list[0].args[0]
+
+    def test_enable_log_file_passes_log_to_file_true(self, tmp_path):
+        self._build_valid_tree(tmp_path)
+        with patch('validate_sim_data.setup_logger') as mock_setup, \
+             patch('validate_sim_data.get_logger', return_value=MagicMock()), \
+             patch('sys.argv', ['validate_sim_data.py', '--year', '2025',
+                                '--output-dir', str(tmp_path), '--enable-log-file']):
+            main()
+        assert mock_setup.call_args.kwargs['log_to_file'] is True

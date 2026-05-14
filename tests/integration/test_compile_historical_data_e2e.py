@@ -5,6 +5,8 @@ Invokes compile_historical_data.py --year 2025 via subprocess with ESPN_FIXTURE_
 set to use fixture data, then asserts output directory structure and file contents.
 Also verifies that BaseHTTPClient.get() raises FileNotFoundError when ESPN_FIXTURE_DIR
 is set but the requested fixture file is missing.
+
+Test Category: R1-R9 — E2E compile + fixture intercept (3 tests)
 """
 import asyncio
 import json

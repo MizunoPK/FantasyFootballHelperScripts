@@ -8,6 +8,7 @@ Usage:
     python validate_sim_data.py --year 2025
     python validate_sim_data.py --year 2025 --output-dir /path/to/output
     python validate_sim_data.py --year 2025 --verbose
+    python validate_sim_data.py --year 2025 --enable-log-file
 
 Exit codes:
     0: All checks passed
@@ -186,6 +187,7 @@ Examples:
     python validate_sim_data.py --year 2025
     python validate_sim_data.py --year 2025 --output-dir /path/to/output
     python validate_sim_data.py --year 2025 --verbose
+    python validate_sim_data.py --year 2025 --enable-log-file
         """
     )
     parser.add_argument(
@@ -205,6 +207,11 @@ Examples:
         action="store_true",
         help="Enable verbose logging"
     )
+    parser.add_argument(
+        "--enable-log-file",
+        action="store_true",
+        help="Enable file logging to logs/validate_sim_data/"
+    )
     return parser.parse_args()
 
 
@@ -221,6 +228,8 @@ def main() -> int:
     setup_logger(
         name="validate_sim_data",
         level=log_level,
+        log_to_file=args.enable_log_file,
+        log_file_path=None,
     )
     logger = get_logger()
 
