@@ -218,13 +218,13 @@ async def compile_season_data(
     http_client = BaseHTTPClient()
 
     try:
-        logger.info("[1/5] Fetching schedule data...")
-        schedule, bye_weeks = await fetch_and_write_schedule(year, output_dir, http_client, max_weeks=max_weeks)
+        logger.info("[1-2/5] Fetching schedule and game data (parallel)...")
+        (schedule, bye_weeks), game_data = await asyncio.gather(
+            fetch_and_write_schedule(year, output_dir, http_client, max_weeks=max_weeks),
+            fetch_and_write_game_data(year, output_dir, http_client, max_weeks=max_weeks)
+        )
         logger.info(f"  - Schedule fetched for {len(schedule)} weeks")
         logger.info(f"  - Derived bye weeks for {len(bye_weeks)} teams")
-
-        logger.info("[2/5] Fetching game data...")
-        game_data = await fetch_and_write_game_data(year, output_dir, http_client, max_weeks=max_weeks)
         logger.info(f"  - Game data fetched for {len(game_data)} games")
 
         logger.info("[3/5] Fetching player data...")
