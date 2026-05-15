@@ -9,6 +9,8 @@ Author: Kai Mizuno
 """
 
 import asyncio
+import json
+import os
 from contextlib import asynccontextmanager
 from typing import Any, Dict, Optional
 
@@ -46,6 +48,17 @@ class ServerError(HTTPClientError):
 class ClientError(HTTPClientError):
     """Client error (400-499, excluding 429)"""
     pass
+
+
+def _derive_fixture_filename(url: str, params: Optional[Dict[str, Any]]) -> Optional[str]:
+    if "site.api.espn.com" in url:
+        p = params or {}
+        return f"scoreboard_week_{p['week']}_{p['dates']}.json"
+    if "fantasy.espn.com" in url:
+        parts = url.split("/")
+        year = parts[parts.index("seasons") + 1]
+        return f"season_projections_{year}.json"
+    return None
 
 
 class BaseHTTPClient:
@@ -188,6 +201,17 @@ class BaseHTTPClient:
         """
         Make GET request.
 
+        When ESPN_FIXTURE_DIR is set, returns fixture JSON for recognized ESPN API URLs
+        instead of making live HTTP requests. URL matching rules:
+        - site.api.espn.com: returns scoreboard_week_{week}_{dates}.json
+        - fantasy.espn.com: returns season_projections_{year}.json
+        - open-meteo.com: returns {} immediately
+        - Other URLs: falls through to live HTTP
+
+        When ESPN_RECORD_FIXTURES_DIR is set and ESPN_FIXTURE_DIR is not set, writes
+        the live response JSON to a fixture file after each successful live request
+        (not recorded for open-meteo.com or unrecognized URLs).
+
         Args:
             url: URL to request
             headers: Optional headers
@@ -196,7 +220,35 @@ class BaseHTTPClient:
 
         Returns:
             JSON response as dict
+
+        Raises:
+            FileNotFoundError: When ESPN_FIXTURE_DIR is set but the fixture file
+                for the requested URL does not exist.
+            KeyError: When ESPN_FIXTURE_DIR is set, the URL contains
+                "site.api.espn.com", and params does not include both "week"
+                and "dates".
         """
-        return await self.request('GET', url, headers=headers, params=params, **kwargs)
+        fixture_dir = os.environ.get("ESPN_FIXTURE_DIR")
+        if fixture_dir:
+            if "open-meteo.com" in url:
+                return {}
+            filename = _derive_fixture_filename(url, params)
+            if filename is not None:
+                fixture_path = Path(fixture_dir) / "espn_api" / filename
+                if not fixture_path.exists():
+                    raise FileNotFoundError(
+                        f"Fixture file not found: {fixture_path}. "
+                        f"Set ESPN_RECORD_FIXTURES_DIR to record fixtures from a live run."
+                    )
+                return json.loads(fixture_path.read_text())
+        response = await self.request('GET', url, headers=headers, params=params, **kwargs)
+        record_dir = os.environ.get("ESPN_RECORD_FIXTURES_DIR")
+        if record_dir and "open-meteo.com" not in url:
+            filename = _derive_fixture_filename(url, params)
+            if filename is not None:
+                record_path = Path(record_dir) / "espn_api" / filename
+                record_path.parent.mkdir(parents=True, exist_ok=True)
+                record_path.write_text(json.dumps(response, indent=2))
+        return response
 
 

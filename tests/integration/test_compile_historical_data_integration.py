@@ -24,7 +24,7 @@ class TestCompileHistoricalDataMultiYear:
     def test_multi_year_compiles_all_years(self):
         """Multi-year invocation calls asyncio.run once per year and returns 0."""
         mock_logger = MagicMock()
-        with patch('sys.argv', ['compile_historical_data.py']), \
+        with patch('sys.argv', ['compile_historical_data.py', '--all-years']), \
              patch('compile_historical_data.setup_logger'), \
              patch('compile_historical_data.get_logger', return_value=mock_logger), \
              patch('compile_historical_data.asyncio.run', return_value=None) as mock_run, \
@@ -39,7 +39,7 @@ class TestCompileHistoricalDataMultiYear:
     def test_multi_year_fail_fast_on_first_year_error(self):
         """Exception on first year stops the loop immediately; asyncio.run called once, returns 1."""
         mock_logger = MagicMock()
-        with patch('sys.argv', ['compile_historical_data.py']), \
+        with patch('sys.argv', ['compile_historical_data.py', '--all-years']), \
              patch('compile_historical_data.setup_logger'), \
              patch('compile_historical_data.get_logger', return_value=mock_logger), \
              patch('compile_historical_data.asyncio.run', side_effect=Exception("ESPN API error")) as mock_run, \

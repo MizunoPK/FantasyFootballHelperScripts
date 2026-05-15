@@ -69,8 +69,15 @@ class JSONSnapshotExporter:
     """
 
     def __init__(self):
-        """Initialize JSONSnapshotExporter."""
+        """Initialize JSONSnapshotExporter.
+
+        Reuses a single DataExporter instance for stat extraction across all
+        players to avoid per-player instantiation cost. load_drafted_data=False
+        skips the drafted_data.csv read because the _extract_* methods used here
+        do not consult drafted-roster state.
+        """
         self.logger = get_logger()
+        self._data_exporter = DataExporter(output_dir=str(Path.cwd()), load_drafted_data=False)
 
     def _calculate_player_ratings(
         self,
@@ -181,13 +188,11 @@ class JSONSnapshotExporter:
         """
         adapter = PlayerDataAdapter(player_data)
 
-        exporter = DataExporter(output_dir=str(Path.cwd()))
-
         result = {}
 
         if player_data.position == 'QB':
-            passing_stats = exporter._extract_passing_stats(adapter)
-            rushing_stats = exporter._extract_rushing_stats(adapter)
+            passing_stats = self._data_exporter._extract_passing_stats(adapter)
+            rushing_stats = self._data_exporter._extract_rushing_stats(adapter)
 
             result['passing'] = {}
             for stat_name, stat_array in passing_stats.items():
@@ -203,7 +208,7 @@ class JSONSnapshotExporter:
                         stat_array, current_week, "stat"
                     )
 
-            receiving_stats = exporter._extract_receiving_stats(adapter)
+            receiving_stats = self._data_exporter._extract_receiving_stats(adapter)
             result['receiving'] = {}
             for stat_name, stat_array in receiving_stats.items():
                 if isinstance(stat_array, list):
@@ -211,7 +216,7 @@ class JSONSnapshotExporter:
                         stat_array, current_week, "stat"
                     )
 
-            misc_stats = exporter._extract_misc_stats(adapter)
+            misc_stats = self._data_exporter._extract_misc_stats(adapter)
             result['misc'] = {}
             for stat_name, stat_array in misc_stats.items():
                 if isinstance(stat_array, list):
@@ -220,8 +225,8 @@ class JSONSnapshotExporter:
                     )
 
         elif player_data.position == 'RB':
-            rushing_stats = exporter._extract_rushing_stats(adapter)
-            receiving_stats = exporter._extract_receiving_stats(adapter)
+            rushing_stats = self._data_exporter._extract_rushing_stats(adapter)
+            receiving_stats = self._data_exporter._extract_receiving_stats(adapter)
 
             result['rushing'] = {}
             for stat_name, stat_array in rushing_stats.items():
@@ -237,7 +242,7 @@ class JSONSnapshotExporter:
                         stat_array, current_week, "stat"
                     )
 
-            misc_stats = exporter._extract_misc_stats(adapter)
+            misc_stats = self._data_exporter._extract_misc_stats(adapter)
             result['misc'] = {}
             for stat_name, stat_array in misc_stats.items():
                 if isinstance(stat_array, list):
@@ -246,8 +251,8 @@ class JSONSnapshotExporter:
                     )
 
         elif player_data.position in ['WR', 'TE']:
-            rushing_stats = exporter._extract_rushing_stats(adapter)
-            receiving_stats = exporter._extract_receiving_stats(adapter)
+            rushing_stats = self._data_exporter._extract_rushing_stats(adapter)
+            receiving_stats = self._data_exporter._extract_receiving_stats(adapter)
 
             result['rushing'] = {}
             for stat_name, stat_array in rushing_stats.items():
@@ -263,7 +268,7 @@ class JSONSnapshotExporter:
                         stat_array, current_week, "stat"
                     )
 
-            misc_stats = exporter._extract_misc_stats(adapter)
+            misc_stats = self._data_exporter._extract_misc_stats(adapter)
             result['misc'] = {}
             for stat_name, stat_array in misc_stats.items():
                 if isinstance(stat_array, list):
@@ -272,7 +277,7 @@ class JSONSnapshotExporter:
                     )
 
         elif player_data.position == 'K':
-            kicking_stats = exporter._extract_kicking_stats(adapter)
+            kicking_stats = self._data_exporter._extract_kicking_stats(adapter)
 
             result['kicking'] = {}
             for stat_name, stat_array in kicking_stats.items():
@@ -282,7 +287,7 @@ class JSONSnapshotExporter:
                     )
 
         elif player_data.position == 'DST':
-            defense_stats = exporter._extract_defense_stats(adapter)
+            defense_stats = self._data_exporter._extract_defense_stats(adapter)
 
             result['defense'] = {}
             for stat_name, stat_array in defense_stats.items():

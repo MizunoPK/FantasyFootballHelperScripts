@@ -14,7 +14,7 @@ import csv
 import math
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Set, Tuple
 
 from .http_client import BaseHTTPClient
 from .constants import (
@@ -24,15 +24,14 @@ from .constants import (
     FANTASY_POSITIONS,
     REGULAR_SEASON_WEEKS,
     ESPN_USER_AGENT,
+    ESPN_PLAYER_LIMIT,
+    PARSE_PROGRESS_MILESTONES,
     PLAYERS_FILE,
     PLAYERS_PROJECTED_FILE,
     normalize_team_abbrev,
 )
 
 from utils.LoggingManager import get_logger
-
-
-ESPN_PLAYER_LIMIT = 1500
 
 
 PLAYERS_CSV_COLUMNS = [
@@ -228,7 +227,9 @@ class PlayerDataFetcher:
                         position_rank_ranges[position]['max'], positional_rank
                     )
 
+        total_players = len(raw_players)
         processed = 0
+        logged_milestones: Set[float] = set()
         for player in raw_players:
             try:
                 player_data = await self._parse_single_player(
@@ -236,10 +237,17 @@ class PlayerDataFetcher:
                 )
                 if player_data:
                     players_list.append(player_data)
-                    processed += 1
+                processed += 1
 
-                if processed % 100 == 0:
-                    self.logger.debug(f"Processed {processed} players")
+                if total_players > 0 and len(logged_milestones) < len(PARSE_PROGRESS_MILESTONES):
+                    pct = processed / total_players
+                    for milestone in PARSE_PROGRESS_MILESTONES:
+                        if pct >= milestone and milestone not in logged_milestones:
+                            logged_milestones.add(milestone)
+                            self.logger.info(
+                                f"Parsed {int(milestone * 100)}% of players "
+                                f"({processed}/{total_players})"
+                            )
 
             except Exception as e:
                 self.logger.warning(f"Error parsing player: {e}")

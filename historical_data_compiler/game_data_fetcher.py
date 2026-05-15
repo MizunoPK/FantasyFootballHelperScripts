@@ -169,22 +169,24 @@ class GameDataFetcher:
         else:
             return self.coordinates.get("nfl_stadiums", {}).get(team_abbrev)
 
-    async def fetch_game_data(self, year: int) -> List[GameData]:
+    async def fetch_game_data(self, year: int, max_weeks: Optional[int] = None) -> List[GameData]:
         """
         Fetch complete season game data.
 
         Args:
             year: NFL season year
+            max_weeks: Limit fetch to first N weeks; None fetches all weeks
 
         Returns:
             List of GameData for all regular season games
         """
-        self.logger.info(f"Fetching game data for {year} season (weeks 1-{REGULAR_SEASON_WEEKS})")
+        week_limit = min(max_weeks, REGULAR_SEASON_WEEKS) if max_weeks is not None else REGULAR_SEASON_WEEKS
+        self.logger.info(f"Fetching game data for {year} season (weeks 1-{week_limit})")
 
         all_games: List[GameData] = []
 
-        for week in range(1, REGULAR_SEASON_WEEKS + 1):
-            self.logger.debug(f"Fetching game data for week {week}/{REGULAR_SEASON_WEEKS}")
+        for week in range(1, week_limit + 1):
+            self.logger.debug(f"Fetching game data for week {week}/{week_limit}")
 
             params = {
                 "seasontype": 2,
@@ -335,7 +337,7 @@ class GameDataFetcher:
         """
         coords = self._get_coordinates(home_team, city, country, is_international)
         if not coords:
-            self.logger.info("No coordinates available for game, skipping weather data")
+            self.logger.warning("No coordinates available for game, skipping weather data")
             return {"temperature": None, "gust": None, "precipitation": None}
 
         self.logger.debug(f"Fetching weather for {game_date} at {coords['lat']},{coords['lon']}")
@@ -415,7 +417,8 @@ class GameDataFetcher:
 async def fetch_and_write_game_data(
     year: int,
     output_dir: Path,
-    http_client: BaseHTTPClient
+    http_client: BaseHTTPClient,
+    max_weeks: Optional[int] = None,
 ) -> List[GameData]:
     """
     Convenience function to fetch game data and write CSV.
@@ -424,12 +427,13 @@ async def fetch_and_write_game_data(
         year: NFL season year
         output_dir: Output directory
         http_client: HTTP client instance
+        max_weeks: Limit fetch to first N weeks; None fetches all weeks
 
     Returns:
         List of GameData for use by other modules
     """
     fetcher = GameDataFetcher(http_client)
-    games = await fetcher.fetch_game_data(year)
+    games = await fetcher.fetch_game_data(year, max_weeks=max_weeks)
 
     output_path = output_dir / GAME_DATA_FILE
     fetcher.write_game_data_csv(games, output_path)

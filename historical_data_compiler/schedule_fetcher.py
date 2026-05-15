@@ -10,7 +10,7 @@ Author: Kai Mizuno
 
 import csv
 from pathlib import Path
-from typing import Dict, List, Set
+from typing import Dict, List, Optional, Tuple
 
 from .http_client import BaseHTTPClient
 from .constants import (
@@ -48,24 +48,26 @@ class ScheduleFetcher:
         self.http_client = http_client
         self.logger = get_logger()
 
-    async def fetch_schedule(self, year: int) -> Dict[int, Dict[str, str]]:
+    async def fetch_schedule(self, year: int, max_weeks: Optional[int] = None) -> Dict[int, Dict[str, str]]:
         """
         Fetch complete season schedule for all weeks.
 
         Args:
             year: NFL season year (e.g., 2024)
+            max_weeks: Limit fetch to first N weeks; None fetches all weeks
 
         Returns:
             Dict[week_number, Dict[team, opponent]]
             Example: {1: {'KC': 'BAL', 'BAL': 'KC', ...}, 2: {...}, ...}
             Teams on bye are not included in that week's dict
         """
-        self.logger.info(f"Fetching schedule for {year} season (weeks 1-{REGULAR_SEASON_WEEKS})")
+        week_limit = min(max_weeks, REGULAR_SEASON_WEEKS) if max_weeks is not None else REGULAR_SEASON_WEEKS
+        self.logger.info(f"Fetching schedule for {year} season (weeks 1-{week_limit})")
 
         full_schedule: Dict[int, Dict[str, str]] = {}
 
-        for week in range(1, REGULAR_SEASON_WEEKS + 1):
-            self.logger.debug(f"Fetching schedule for week {week}/{REGULAR_SEASON_WEEKS}")
+        for week in range(1, week_limit + 1):
+            self.logger.debug(f"Fetching schedule for week {week}/{week_limit}")
 
             params = {
                 "seasontype": 2,
@@ -189,8 +191,9 @@ class ScheduleFetcher:
 async def fetch_and_write_schedule(
     year: int,
     output_dir: Path,
-    http_client: BaseHTTPClient
-) -> Dict[int, Dict[str, str]]:
+    http_client: BaseHTTPClient,
+    max_weeks: Optional[int] = None,
+) -> Tuple[Dict[int, Dict[str, str]], Dict[str, int]]:
     """
     Convenience function to fetch schedule and write CSV.
 
@@ -198,16 +201,18 @@ async def fetch_and_write_schedule(
         year: NFL season year
         output_dir: Output directory
         http_client: HTTP client instance
+        max_weeks: Limit fetch to first N weeks; None fetches all weeks
 
     Returns:
-        Schedule dict for use by other modules
+        Tuple of (schedule dict, bye_weeks dict) for use by other modules
     """
     fetcher = ScheduleFetcher(http_client)
-    schedule = await fetcher.fetch_schedule(year)
+    schedule = await fetcher.fetch_schedule(year, max_weeks=max_weeks)
 
     output_path = output_dir / SEASON_SCHEDULE_FILE
     fetcher.write_schedule_csv(schedule, output_path)
 
-    return schedule
+    bye_weeks = fetcher.identify_bye_weeks(schedule)
+    return schedule, bye_weeks
 
 

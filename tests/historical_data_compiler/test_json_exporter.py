@@ -88,8 +88,9 @@ class TestJSONSnapshotExporter:
 
     @pytest.fixture
     def exporter(self):
-        """Create JSONSnapshotExporter instance"""
-        return JSONSnapshotExporter()
+        """Create JSONSnapshotExporter instance with mocked DataExporter."""
+        with patch('historical_data_compiler.json_exporter.DataExporter'):
+            yield JSONSnapshotExporter()
 
     @pytest.fixture
     def sample_players(self):
@@ -199,7 +200,7 @@ class TestJSONSnapshotExporter:
         assert result[16] == 0.0
 
     @patch('historical_data_compiler.json_exporter.DataExporter')
-    def test_extract_stats_for_player_qb(self, mock_exporter_class, exporter):
+    def test_extract_stats_for_player_qb(self, mock_exporter_class):
         """Should extract QB stats using bridge adapter including receiving and misc."""
         mock_exporter = Mock()
         mock_exporter._extract_passing_stats.return_value = {
@@ -219,6 +220,7 @@ class TestJSONSnapshotExporter:
         mock_exporter._extract_misc_stats.return_value = {'fumbles': [0.0] * 17}
         mock_exporter_class.return_value = mock_exporter
 
+        exporter = JSONSnapshotExporter()
         player = PlayerData(
             id="1001",
             name="QB Test",

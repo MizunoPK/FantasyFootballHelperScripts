@@ -8,7 +8,7 @@ from ESPN API. Adapted from player-data-fetcher/player_data_constants.py.
 Author: Kai Mizuno
 """
 
-from typing import Dict, List
+from typing import Dict, List, Tuple
 
 
 ESPN_FANTASY_API_URL = (
@@ -68,6 +68,10 @@ REGULAR_SEASON_WEEKS = 17
 
 VALIDATION_WEEKS = 18
 
+EXPECTED_NFL_TEAMS = len(ALL_NFL_TEAMS)
+
+PARSE_PROGRESS_MILESTONES: Tuple[float, ...] = (0.25, 0.50, 0.75, 1.00)
+
 
 REQUEST_TIMEOUT = 30.0
 
@@ -79,6 +83,8 @@ ESPN_USER_AGENT = (
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
     "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 )
+
+ESPN_PLAYER_LIMIT = 1500
 
 
 SEASON_SCHEDULE_FILE = "season_schedule.csv"

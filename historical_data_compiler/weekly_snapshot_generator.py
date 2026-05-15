@@ -14,7 +14,7 @@ Author: Kai Mizuno
 
 import csv
 from pathlib import Path
-from typing import Dict, List, Any
+from typing import Any, Dict, List, Optional
 
 from .constants import (
     REGULAR_SEASON_WEEKS,
@@ -37,7 +37,7 @@ class WeeklySnapshotGenerator:
     For week N snapshot:
     - week_N/players.csv: Actual points for weeks 1 to N-1, projected for N to 17
     - week_N/players_projected.csv: All projected values (what was projected at that time)
-    - week_N/*.json: Position-specific JSON files (if GENERATE_JSON=True)
+    - week_N/*.json: Position-specific JSON files (if generate_json=True)
 
     This simulates what data would be available when running the system at week N.
     """
@@ -113,7 +113,8 @@ class WeeklySnapshotGenerator:
     def generate_all_weeks(
         self,
         players: List[PlayerData],
-        output_dir: Path
+        output_dir: Path,
+        max_weeks: Optional[int] = None,
     ) -> None:
         """
         Generate snapshots for all 18 weeks (1-17 regular season + week 18 for validation).
@@ -121,15 +122,17 @@ class WeeklySnapshotGenerator:
         Args:
             players: List of PlayerData with full season data
             output_dir: Base output directory
+            max_weeks: Limit generation to first N weeks; None generates all weeks
         """
-        self.logger.info("Generating weekly snapshots for weeks 1-18")
+        week_limit = min(max_weeks, VALIDATION_WEEKS) if max_weeks is not None else VALIDATION_WEEKS
+        self.logger.info(f"Generating weekly snapshots for weeks 1-{week_limit}")
 
         weeks_dir = output_dir / WEEKS_FOLDER
 
-        for week in range(1, VALIDATION_WEEKS + 1):
+        for week in range(1, week_limit + 1):
             self._generate_week_snapshot(players, weeks_dir, week)
 
-        self.logger.info(f"Generated {VALIDATION_WEEKS} weekly snapshots")
+        self.logger.info(f"Generated {week_limit} weekly snapshots")
 
     def _generate_week_snapshot(
         self,
@@ -141,9 +144,9 @@ class WeeklySnapshotGenerator:
         Generate snapshot for a single week.
 
         For current_week N:
-        - players.csv: Uses actual points for weeks 1 to N-1, projected for N to 17 (if GENERATE_CSV=True)
-        - players_projected.csv: Uses all projected values (if GENERATE_CSV=True)
-        - *.json: Position-specific JSON files (if GENERATE_JSON=True)
+        - players.csv: Uses actual points for weeks 1 to N-1, projected for N to 17 (if generate_csv=True)
+        - players_projected.csv: Uses all projected values (if generate_csv=True)
+        - *.json: Position-specific JSON files (if generate_json=True)
 
         Args:
             players: List of PlayerData
@@ -164,7 +167,7 @@ class WeeklySnapshotGenerator:
             from .json_exporter import generate_json_snapshots
             generate_json_snapshots(players, week_dir, current_week)
 
-        self.logger.debug(f"Generated week {current_week} snapshot")
+        self.logger.info(f"Generated week {current_week}/{VALIDATION_WEEKS} snapshots")
 
     def _write_players_snapshot(
         self,
@@ -324,7 +327,8 @@ def generate_weekly_snapshots(
     players: List[PlayerData],
     output_dir: Path,
     generate_csv: bool = True,
-    generate_json: bool = True
+    generate_json: bool = True,
+    max_weeks: Optional[int] = None,
 ) -> None:
     """
     Convenience function to generate all weekly snapshots.
@@ -334,8 +338,9 @@ def generate_weekly_snapshots(
         output_dir: Output directory
         generate_csv: Whether to generate CSV files (default True)
         generate_json: Whether to generate JSON files (default True)
+        max_weeks: Limit generation to first N weeks; None generates all weeks
     """
     generator = WeeklySnapshotGenerator(generate_csv=generate_csv, generate_json=generate_json)
-    generator.generate_all_weeks(players, output_dir)
+    generator.generate_all_weeks(players, output_dir, max_weeks=max_weeks)
 
 

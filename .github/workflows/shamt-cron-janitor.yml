@@ -1,0 +1,64 @@
+# shamt-cron-janitor.yml — Shamt stale-work scanner (weekly)
+#
+# Copy this file to .github/workflows/shamt-cron-janitor.yml to enable
+# automatic weekly scanning for stale Shamt work.
+#
+# Opt-in: this workflow does NOT run automatically after init. Copy it manually.
+#
+# Required GitHub Actions secrets:
+#   OPENAI_API_KEY — API key (used if SDK-driven analysis is enabled in a future version)
+#
+# The GITHUB_TOKEN is provided automatically with issues: write permission
+# to post the digest as a GitHub issue when SHAMT_POST_ISSUE=true.
+#
+# To post as a GitHub issue, set SHAMT_POST_ISSUE: "true" in the env block
+# and add the "shamt-janitor" label to your repository first:
+#   Settings → Labels → New label → shamt-janitor
+
+name: Shamt Janitor
+
+on:
+  schedule:
+    - cron: "0 9 * * 1"  # Mondays at 09:00 UTC
+  workflow_dispatch:      # allow manual trigger
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  janitor:
+    name: Stale Work Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # full history for git log age calculations
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Shamt SDK dependencies
+        run: pip install -e .shamt/sdk
+
+      - name: Run Shamt Janitor
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          SHAMT_POST_ISSUE: "true"            # post digest as GitHub issue
+          SHAMT_INCOMING_MAX_DAYS: "30"
+          SHAMT_ACTIVE_MAX_WEEKS: "4"
+          SHAMT_SYNC_MAX_WEEKS: "4"
+        run: python .shamt/sdk/shamt-cron-janitor.py
+
+      - name: Upload digest artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: shamt-janitor-digest
+          path: .shamt/janitor-digest.md
+          retention-days: 30
