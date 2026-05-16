@@ -18,7 +18,8 @@ import json
 project_root = Path(__file__).parent.parent.parent
 
 from simulation.shared.ConfigGenerator import ConfigGenerator
-from simulation.win_rate.SimulationManager import SimulationManager
+from simulation.win_rate.DraftStrategyOrchestrator import DraftStrategyOrchestrator
+from simulation.win_rate.WinRateMetaDataManager import WinRateMetaDataManager
 from simulation.win_rate.ParallelLeagueRunner import ParallelLeagueRunner
 from simulation.shared.ResultsManager import ResultsManager
 from simulation.shared.ConfigPerformance import ConfigPerformance
@@ -261,26 +262,26 @@ class TestConfigGeneratorIntegration:
         assert "DIFF_POS_BYE_WEIGHT" in config_dict["parameters"]
 
 
-class TestSimulationManagerIntegration:
-    """Integration tests for simulation manager"""
+class TestDraftStrategyOrchestratorIntegration:
+    """Integration tests for DraftStrategyOrchestrator"""
 
-    def test_simulation_manager_initializes(self, baseline_config, temp_simulation_data, tmp_path):
-        """Test simulation manager initializes successfully"""
-        output_dir = tmp_path / "results"
-
-        manager = SimulationManager(
-            baseline_config_path=baseline_config,
-            output_dir=output_dir,
-            num_simulations_per_config=2,
-            max_workers=2,
-            data_folder=temp_simulation_data,
-            parameter_order=TEST_PARAMETER_ORDER,
-            num_test_values=2,
-            auto_update_league_config=False
+    def test_orchestrator_initializes(self, temp_simulation_data, tmp_path):
+        """Test DraftStrategyOrchestrator initializes successfully"""
+        strategy_dir = temp_simulation_data / "draft_order_possibilities"
+        strategy_dir.mkdir()
+        (strategy_dir / "1_test.json").write_text(
+            '{"name": "Test", "DRAFT_ORDER": []}'
         )
 
-        assert manager is not None
-        assert manager.output_dir == output_dir
+        meta_data_manager = WinRateMetaDataManager(tmp_path / "meta.json")
+        orchestrator = DraftStrategyOrchestrator(
+            data_folder=temp_simulation_data,
+            num_simulations=2,
+            max_workers=2,
+            meta_data_manager=meta_data_manager
+        )
+
+        assert orchestrator is not None
 
 
 class TestParallelLeagueRunnerIntegration:
