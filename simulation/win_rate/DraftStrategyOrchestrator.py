@@ -38,7 +38,9 @@ class DraftStrategyOrchestrator:
             max_workers (int): Number of parallel worker threads for ParallelLeagueRunner.
             meta_data_manager (WinRateMetaDataManager): Instantiated manager for
                 reading/writing win_rate_meta_data.json.
-            config_path (Path): Path to base league_config.json. Defaults to
+            config_path (Path): Path to league_config.json; config_path.parent.parent
+                is passed to ConfigManager as the data root, which auto-merges
+                week-specific scoring parameters. Defaults to
                 data/configs/league_config.json.
         """
         self._data_folder = data_folder
@@ -52,8 +54,8 @@ class DraftStrategyOrchestrator:
                 "description": cm.description,
                 "parameters": dict(cm.parameters),
             }
-        except Exception as e:
-            raise FileOperationError(f"Failed to load config from {config_path}: {e}")
+        except (FileNotFoundError, ValueError, json.JSONDecodeError) as e:
+            raise FileOperationError(f"Failed to load config from {config_path}: {e}") from e
 
         self._runner = ParallelLeagueRunner(max_workers=max_workers, data_folder=data_folder)
 
@@ -78,10 +80,15 @@ class DraftStrategyOrchestrator:
         aggregates wins/losses, computes win rate, and calls meta_data_manager.update().
         """
         strategy_dir = self._data_folder / "draft_order_possibilities"
-        strategy_files = sorted(
-            strategy_dir.glob("*.json"),
-            key=lambda p: int(p.stem.split("_")[0]),
-        )
+        all_json = list(strategy_dir.glob("*.json"))
+        numeric_files = []
+        for p in all_json:
+            prefix = p.stem.split("_")[0]
+            if prefix.isdigit():
+                numeric_files.append(p)
+            else:
+                logger.warning(f"Skipping non-numeric strategy file: {p.name}")
+        strategy_files = sorted(numeric_files, key=lambda p: int(p.stem.split("_")[0]))
         if not strategy_files:
             logger.warning(f"No strategy JSON files found in {strategy_dir}")
             raise FileNotFoundError(f"No strategy JSON files found in {strategy_dir}")
@@ -145,7 +152,21 @@ class DraftStrategyOrchestrator:
         )
 
     def _validate_season_data(self, season_folder: Path) -> bool:
+        """
+        Return True if season_folder contains at least MIN_VALID_PLAYERS undrafted
+        players with positive projected_points in week_01; False otherwise.
+
+        Args:
+            season_folder (Path): Season directory (e.g. data/2023/).
+
+        Returns:
+            bool: True if season data is valid for simulation, False otherwise.
+        """
         week_01_folder = season_folder / "weeks" / "week_01"
+        if not week_01_folder.is_dir():
+            logger.warning(f"Season {season_folder.name}: week_01 folder missing — skipping")
+            return False
+
         position_files = [
             "qb_data.json",
             "rb_data.json",
