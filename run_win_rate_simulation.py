@@ -18,6 +18,7 @@ LOG_NAME = "win_rate_simulation"
 
 
 def _build_parser() -> argparse.ArgumentParser:
+    """Build the CLI argument parser for the win-rate simulation runner."""
     parser = argparse.ArgumentParser(
         description="Win rate simulation runner — iterates all draft strategies and tracks best win rates."
     )
@@ -50,8 +51,9 @@ def _build_parser() -> argparse.ArgumentParser:
 
 
 def _print_summary(meta_data_manager: WinRateMetaDataManager) -> None:
+    """Print a ranked, table-formatted summary of strategy win rates to stdout."""
     strategies = meta_data_manager.get_all_strategies()
-    if len(strategies) == 0:
+    if not strategies:
         print("No strategies evaluated yet.")
         return
     sorted_entries = sorted(
@@ -63,7 +65,7 @@ def _print_summary(meta_data_manager: WinRateMetaDataManager) -> None:
     print("──────────────────────────────────────────────────────")
     print("Rank  Strategy Name              Win Rate  Runs  Last Run")
     print("────  ─────────────────────────  ────────  ────  ──────────")
-    for rank, (filename, entry) in enumerate(sorted_entries, 1):
+    for rank, (_, entry) in enumerate(sorted_entries, 1):
         print(
             f"{rank:>4}  {entry['name']:<25}  "
             f"{entry.get('best_win_rate', 0.0):>8.3f}  "

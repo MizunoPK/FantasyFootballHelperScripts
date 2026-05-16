@@ -1,6 +1,11 @@
+"""
+Unit tests for run_win_rate_simulation.py.
+
+Covers CLI flag parity, summary table formatting, and main() instantiation
+flow for the FF-2 Feature 3 CLI rewrite.
+"""
 import subprocess
 import sys
-from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -17,6 +22,7 @@ class TestNewCLIFlags:
             capture_output=True,
             text=True,
         )
+        assert result.returncode == 0, f"--help failed: {result.stderr}"
         for flag in ["--sims", "--workers", "--endless", "--data", "--log-level", "--enable-log-file"]:
             assert flag in result.stdout
 
@@ -57,15 +63,16 @@ class TestRemovedCLIFlags:
     """Verify old subcommands and coordinate-descent flags are removed."""
 
     def _get_help_output(self) -> str:
+        return _build_parser().format_help()
+
+    def test_no_single_subcommand(self):
         result = subprocess.run(
-            [sys.executable, "run_win_rate_simulation.py", "--help"],
+            [sys.executable, "run_win_rate_simulation.py", "single"],
             capture_output=True,
             text=True,
         )
-        return result.stdout
-
-    def test_no_single_subcommand(self):
-        assert "single" not in self._get_help_output()
+        assert result.returncode != 0
+        assert "unrecognized arguments" in result.stderr or "invalid choice" in result.stderr
 
     def test_no_full_subcommand(self):
         assert "{single,full,iterative}" not in self._get_help_output()
@@ -144,94 +151,108 @@ class TestMainFlow:
     """Verify main() instantiation and flow with mocked dependencies."""
 
     def test_meta_data_manager_instantiated_with_correct_path(self, tmp_path):
-        with patch("sys.argv", ["prog", "--data", str(tmp_path)]):
-            with patch("run_win_rate_simulation.setup_logger"):
-                with patch("run_win_rate_simulation.get_logger") as mock_get_logger:
-                    mock_get_logger.return_value = MagicMock()
-                    with patch("run_win_rate_simulation.WinRateMetaDataManager") as mock_mdm_cls:
-                        with patch("run_win_rate_simulation.DraftStrategyOrchestrator"):
-                            mock_mdm_cls.return_value.get_all_strategies.return_value = {}
-                            main()
-                            mock_mdm_cls.assert_called_once_with(tmp_path / "win_rate_meta_data.json")
+        with (
+            patch("sys.argv", ["prog", "--data", str(tmp_path)]),
+            patch("run_win_rate_simulation.setup_logger"),
+            patch("run_win_rate_simulation.get_logger") as mock_get_logger,
+            patch("run_win_rate_simulation.WinRateMetaDataManager") as mock_mdm_cls,
+            patch("run_win_rate_simulation.DraftStrategyOrchestrator"),
+        ):
+            mock_get_logger.return_value = MagicMock()
+            mock_mdm_cls.return_value.get_all_strategies.return_value = {}
+            main()
+            mock_mdm_cls.assert_called_once_with(tmp_path / "win_rate_meta_data.json")
 
     def test_orchestrator_instantiated_with_args(self, tmp_path):
-        with patch("sys.argv", ["prog", "--sims", "3", "--workers", "2", "--data", str(tmp_path)]):
-            with patch("run_win_rate_simulation.setup_logger"):
-                with patch("run_win_rate_simulation.get_logger") as mock_get_logger:
-                    mock_get_logger.return_value = MagicMock()
-                    with patch("run_win_rate_simulation.WinRateMetaDataManager") as mock_mdm_cls:
-                        with patch("run_win_rate_simulation.DraftStrategyOrchestrator") as mock_orch_cls:
-                            mock_mdm_cls.return_value.get_all_strategies.return_value = {}
-                            main()
-                            mock_orch_cls.assert_called_once_with(
-                                data_folder=tmp_path,
-                                num_simulations=3,
-                                max_workers=2,
-                                meta_data_manager=mock_mdm_cls.return_value,
-                            )
+        with (
+            patch("sys.argv", ["prog", "--sims", "3", "--workers", "2", "--data", str(tmp_path)]),
+            patch("run_win_rate_simulation.setup_logger"),
+            patch("run_win_rate_simulation.get_logger") as mock_get_logger,
+            patch("run_win_rate_simulation.WinRateMetaDataManager") as mock_mdm_cls,
+            patch("run_win_rate_simulation.DraftStrategyOrchestrator") as mock_orch_cls,
+        ):
+            mock_get_logger.return_value = MagicMock()
+            mock_mdm_cls.return_value.get_all_strategies.return_value = {}
+            main()
+            mock_orch_cls.assert_called_once_with(
+                data_folder=tmp_path,
+                num_simulations=3,
+                max_workers=2,
+                meta_data_manager=mock_mdm_cls.return_value,
+            )
 
     def test_keyboard_interrupt_exits_zero(self, tmp_path):
-        with patch("sys.argv", ["prog", "--data", str(tmp_path)]):
-            with patch("run_win_rate_simulation.setup_logger"):
-                with patch("run_win_rate_simulation.get_logger") as mock_get_logger:
-                    mock_logger = MagicMock()
-                    mock_get_logger.return_value = mock_logger
-                    with patch("run_win_rate_simulation.WinRateMetaDataManager") as mock_mdm_cls:
-                        with patch("run_win_rate_simulation.DraftStrategyOrchestrator") as mock_orch_cls:
-                            with patch("run_win_rate_simulation._print_summary") as mock_summary:
-                                mock_orch_cls.return_value.run.side_effect = KeyboardInterrupt
-                                with pytest.raises(SystemExit) as exc_info:
-                                    main()
-                                assert exc_info.value.code == 0
-                                mock_summary.assert_called()
-                                mock_logger.info.assert_called_with(
-                                    "Received interrupt — exiting after current strategy"
-                                )
+        with (
+            patch("sys.argv", ["prog", "--data", str(tmp_path)]),
+            patch("run_win_rate_simulation.setup_logger"),
+            patch("run_win_rate_simulation.get_logger") as mock_get_logger,
+            patch("run_win_rate_simulation.WinRateMetaDataManager"),
+            patch("run_win_rate_simulation.DraftStrategyOrchestrator") as mock_orch_cls,
+            patch("run_win_rate_simulation._print_summary") as mock_summary,
+        ):
+            mock_logger = MagicMock()
+            mock_get_logger.return_value = mock_logger
+            mock_orch_cls.return_value.run.side_effect = KeyboardInterrupt
+            with pytest.raises(SystemExit) as exc_info:
+                main()
+            assert exc_info.value.code == 0
+            mock_summary.assert_called()
+            mock_logger.info.assert_called_with(
+                "Received interrupt — exiting after current strategy"
+            )
 
     def test_single_run_calls_run_exactly_once(self, tmp_path):
-        with patch("sys.argv", ["prog", "--data", str(tmp_path)]):
-            with patch("run_win_rate_simulation.setup_logger"):
-                with patch("run_win_rate_simulation.get_logger") as mock_get_logger:
-                    mock_get_logger.return_value = MagicMock()
-                    with patch("run_win_rate_simulation.WinRateMetaDataManager") as mock_mdm_cls:
-                        with patch("run_win_rate_simulation.DraftStrategyOrchestrator") as mock_orch_cls:
-                            mock_mdm_cls.return_value.get_all_strategies.return_value = {}
-                            main()
-                            assert mock_orch_cls.return_value.run.call_count == 1
+        with (
+            patch("sys.argv", ["prog", "--data", str(tmp_path)]),
+            patch("run_win_rate_simulation.setup_logger"),
+            patch("run_win_rate_simulation.get_logger") as mock_get_logger,
+            patch("run_win_rate_simulation.WinRateMetaDataManager") as mock_mdm_cls,
+            patch("run_win_rate_simulation.DraftStrategyOrchestrator") as mock_orch_cls,
+        ):
+            mock_get_logger.return_value = MagicMock()
+            mock_mdm_cls.return_value.get_all_strategies.return_value = {}
+            main()
+            assert mock_orch_cls.return_value.run.call_count == 1
 
     def test_endless_loops_until_interrupt(self, tmp_path):
-        with patch("sys.argv", ["prog", "--endless", "--data", str(tmp_path)]):
-            with patch("run_win_rate_simulation.setup_logger"):
-                with patch("run_win_rate_simulation.get_logger") as mock_get_logger:
-                    mock_get_logger.return_value = MagicMock()
-                    with patch("run_win_rate_simulation.WinRateMetaDataManager") as mock_mdm_cls:
-                        with patch("run_win_rate_simulation.DraftStrategyOrchestrator") as mock_orch_cls:
-                            mock_mdm_cls.return_value.get_all_strategies.return_value = {}
-                            mock_orch_cls.return_value.run.side_effect = [None, KeyboardInterrupt]
-                            with pytest.raises(SystemExit) as exc_info:
-                                main()
-                            assert exc_info.value.code == 0
-                            assert mock_orch_cls.return_value.run.call_count == 2
+        with (
+            patch("sys.argv", ["prog", "--endless", "--data", str(tmp_path)]),
+            patch("run_win_rate_simulation.setup_logger"),
+            patch("run_win_rate_simulation.get_logger") as mock_get_logger,
+            patch("run_win_rate_simulation.WinRateMetaDataManager") as mock_mdm_cls,
+            patch("run_win_rate_simulation.DraftStrategyOrchestrator") as mock_orch_cls,
+            patch("run_win_rate_simulation._print_summary") as mock_summary,
+        ):
+            mock_get_logger.return_value = MagicMock()
+            mock_mdm_cls.return_value.get_all_strategies.return_value = {}
+            mock_orch_cls.return_value.run.side_effect = [None, KeyboardInterrupt]
+            with pytest.raises(SystemExit) as exc_info:
+                main()
+            assert exc_info.value.code == 0
+            assert mock_orch_cls.return_value.run.call_count == 2
+            assert mock_summary.call_count >= 2
 
     def test_setup_logger_called_before_construction(self, tmp_path):
         call_order = []
-        with patch("sys.argv", ["prog", "--data", str(tmp_path)]):
-            with patch(
+        with (
+            patch("sys.argv", ["prog", "--data", str(tmp_path)]),
+            patch(
                 "run_win_rate_simulation.setup_logger",
                 side_effect=lambda *a, **kw: call_order.append("setup_logger"),
-            ):
-                with patch("run_win_rate_simulation.get_logger") as mock_get_logger:
-                    mock_get_logger.return_value = MagicMock()
-                    with patch("run_win_rate_simulation.WinRateMetaDataManager") as mock_mdm_cls:
-                        with patch("run_win_rate_simulation.DraftStrategyOrchestrator") as mock_orch_cls:
-                            mock_mdm_cls.side_effect = (
-                                lambda *a, **kw: call_order.append("WinRateMetaDataManager")
-                                or MagicMock(get_all_strategies=MagicMock(return_value={}))
-                            )
-                            mock_orch_cls.side_effect = (
-                                lambda *a, **kw: call_order.append("DraftStrategyOrchestrator")
-                                or MagicMock()
-                            )
-                            main()
-                            assert call_order.index("setup_logger") < call_order.index("WinRateMetaDataManager")
-                            assert call_order.index("setup_logger") < call_order.index("DraftStrategyOrchestrator")
+            ),
+            patch("run_win_rate_simulation.get_logger") as mock_get_logger,
+            patch("run_win_rate_simulation.WinRateMetaDataManager") as mock_mdm_cls,
+            patch("run_win_rate_simulation.DraftStrategyOrchestrator") as mock_orch_cls,
+        ):
+            mock_get_logger.return_value = MagicMock()
+            mock_mdm_cls.side_effect = (
+                lambda *a, **kw: call_order.append("WinRateMetaDataManager")
+                or MagicMock(get_all_strategies=MagicMock(return_value={}))
+            )
+            mock_orch_cls.side_effect = (
+                lambda *a, **kw: call_order.append("DraftStrategyOrchestrator")
+                or MagicMock()
+            )
+            main()
+            assert call_order.index("setup_logger") < call_order.index("WinRateMetaDataManager")
+            assert call_order.index("setup_logger") < call_order.index("DraftStrategyOrchestrator")
