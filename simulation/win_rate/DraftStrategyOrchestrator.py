@@ -4,6 +4,7 @@ from pathlib import Path
 
 from utils.LoggingManager import get_logger
 from utils.error_handler import create_component_error_handler, FileOperationError
+from league_helper.util.ConfigManager import ConfigManager
 from simulation.win_rate.ParallelLeagueRunner import ParallelLeagueRunner
 from simulation.win_rate.WinRateMetaDataManager import WinRateMetaDataManager
 
@@ -45,8 +46,12 @@ class DraftStrategyOrchestrator:
         self._meta_data_manager = meta_data_manager
 
         try:
-            with open(config_path, "r") as f:
-                self._base_config = json.load(f)
+            cm = ConfigManager(config_path.parent.parent)
+            self._base_config = {
+                "config_name": cm.config_name,
+                "description": cm.description,
+                "parameters": dict(cm.parameters),
+            }
         except Exception as e:
             raise FileOperationError(f"Failed to load config from {config_path}: {e}")
 
