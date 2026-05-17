@@ -20,7 +20,8 @@ LOG_NAME = "win_rate_simulation"
 def _build_parser() -> argparse.ArgumentParser:
     """Build the CLI argument parser for the win-rate simulation runner."""
     parser = argparse.ArgumentParser(
-        description="Win rate simulation runner — iterates all draft strategies and tracks best win rates."
+        description="Win rate simulation runner — iterates all draft strategies and tracks best win rates. "
+                    "Must be run from the project root directory."
     )
     parser.add_argument(
         "--sims", type=int, default=10, metavar="N",
@@ -104,11 +105,12 @@ def main() -> None:
                 _print_summary(meta_data_manager)
         else:
             orchestrator.run()
-            _print_summary(meta_data_manager)
     except KeyboardInterrupt:
         logger.info("Received interrupt — exiting after current strategy")
         _print_summary(meta_data_manager)
         sys.exit(0)
+
+    _print_summary(meta_data_manager)
 
 
 if __name__ == "__main__":

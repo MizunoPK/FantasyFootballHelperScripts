@@ -281,7 +281,8 @@ class TestDraftStrategyOrchestratorIntegration:
             meta_data_manager=meta_data_manager
         )
 
-        assert orchestrator is not None
+        assert len(orchestrator._seasons) == 1
+        assert orchestrator._num_simulations == 2
 
 
 class TestDraftStrategyOrchestratorRun:
