@@ -1,414 +1,258 @@
 """
-Unit and Integration Tests for run_win_rate_simulation.py
+Unit tests for run_win_rate_simulation.py.
 
-Feature 05: win_rate_sim_logging
-Tests CLI flag integration, Feature 01 integration, and edge cases
-for the win rate simulation runner script.
-
-Author: Kai Mizuno
+Covers CLI flag parity, summary table formatting, and main() instantiation
+flow for the FF-2 Feature 3 CLI rewrite.
 """
-
-import argparse
-import inspect
-import re
 import subprocess
 import sys
-from pathlib import Path
-from unittest.mock import Mock, MagicMock, patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 
-project_root = Path(__file__).parent.parent.parent
+from run_win_rate_simulation import _build_parser, _print_summary, main
 
 
+class TestNewCLIFlags:
+    """Verify all 6 new CLI flags are present with correct behavior."""
 
-def create_test_parser():
-    """Helper to create argparse parser matching run_win_rate_simulation.py main().
-
-    Mirrors the actual parser setup for unit testing without executing main().
-    """
-    parser = argparse.ArgumentParser(
-        description='Win Rate Simulation Runner - Test Parser'
-    )
-
-    parser.add_argument(
-        '--enable-log-file',
-        action='store_true',
-        default=False,
-        help='Enable logging to file (default: console only)'
-    )
-
-    parser.add_argument('--sims', type=int, default=5)
-    parser.add_argument('--baseline', type=str, default='')
-    parser.add_argument('--output', type=str, default='simulation/simulation_configs')
-    parser.add_argument('--workers', type=int, default=8)
-    parser.add_argument('--data', type=str, default='simulation/sim_data')
-    parser.add_argument('--test-values', type=int, default=5)
-    parser.add_argument('--use-processes', action='store_true', default=False)
-
-    subparsers = parser.add_subparsers(dest='mode', required=False)
-    subparsers.add_parser('single')
-    subparsers.add_parser('full')
-    subparsers.add_parser('iterative')
-
-    return parser
-
-
-
-class TestWinRateSimulationCLIFlagUnit:
-    """Test Category 1: CLI Flag Unit Tests (Task 11)"""
-
-    def test_enable_log_file_flag_exists(self):
-        """R1.1.1: Verify --enable-log-file argument exists in help output"""
+    def test_help_shows_all_new_flags(self):
         result = subprocess.run(
-            [sys.executable, str(project_root / "run_win_rate_simulation.py"), "--help"],
+            [sys.executable, "run_win_rate_simulation.py", "--help"],
             capture_output=True,
-            text=True
+            text=True,
         )
+        assert result.returncode == 0, f"--help failed: {result.stderr}"
+        for flag in ["--sims", "--workers", "--endless", "--data", "--log-level", "--enable-log-file"]:
+            assert flag in result.stdout
 
-        assert result.returncode == 0
-        assert "--enable-log-file" in result.stdout
+    def test_sims_default_is_10(self):
+        args = _build_parser().parse_args([])
+        assert args.sims == 10
 
-    def test_enable_log_file_flag_default_false(self):
-        """R1.1.2: Verify flag defaults to False (file logging OFF by default)"""
-        parser = create_test_parser()
-        args = parser.parse_args([])
+    def test_workers_default_is_8(self):
+        args = _build_parser().parse_args([])
+        assert args.workers == 8
 
+    def test_endless_default_is_false(self):
+        args = _build_parser().parse_args([])
+        assert args.endless is False
+
+    def test_data_default(self):
+        args = _build_parser().parse_args([])
+        assert args.data == "simulation/sim_data"
+
+    def test_log_level_default_is_info(self):
+        args = _build_parser().parse_args([])
+        assert args.log_level == "INFO"
+
+    def test_enable_log_file_default_is_false(self):
+        args = _build_parser().parse_args([])
         assert args.enable_log_file is False
 
-    def test_enable_log_file_flag_true_when_provided(self):
-        """R1.1.3: Verify flag sets to True when --enable-log-file provided"""
-        parser = create_test_parser()
-        args = parser.parse_args(['--enable-log-file'])
+    def test_log_level_accepts_debug(self):
+        args = _build_parser().parse_args(["--log-level", "DEBUG"])
+        assert args.log_level == "DEBUG"
 
-        assert args.enable_log_file is True
-
-    def test_logging_to_file_constant_removed(self):
-        """R1.1.4: Verify LOGGING_TO_FILE constant no longer exists"""
-        import run_win_rate_simulation
-
-        assert not hasattr(run_win_rate_simulation, 'LOGGING_TO_FILE')
-
-    def test_logger_name_is_win_rate_simulation(self):
-        """R1.1.5: Verify LOG_NAME changed to 'win_rate_simulation'"""
-        import run_win_rate_simulation
-
-        assert run_win_rate_simulation.LOG_NAME == "win_rate_simulation"
-
-    def test_enable_log_file_flag_action_store_true(self):
-        """R1.1.6: Verify flag uses action='store_true' (boolean, no value needed)"""
-        parser = create_test_parser()
-
-        enable_log_file_action = None
-        for action in parser._actions:
-            if '--enable-log-file' in action.option_strings:
-                enable_log_file_action = action
-                break
-
-        assert enable_log_file_action is not None
-        assert isinstance(enable_log_file_action, argparse._StoreTrueAction)
-        assert enable_log_file_action.default is False
+    def test_endless_is_store_true(self):
+        args = _build_parser().parse_args(["--endless"])
+        assert args.endless is True
 
 
+class TestRemovedCLIFlags:
+    """Verify old subcommands and coordinate-descent flags are removed."""
 
-class TestWinRateSimulationCLIFlagIntegration:
-    """Test Category 2: CLI Flag Integration Tests (Task 12)"""
+    def _get_help_output(self) -> str:
+        return _build_parser().format_help()
 
-    def test_console_logging_only_when_flag_omitted(self):
-        """R1.2.1: Verify console-only logging when --enable-log-file not provided"""
-        parser = create_test_parser()
-        args = parser.parse_args(['--sims', '1', 'single'])
-
-        assert args.enable_log_file is False
-        assert args.mode == 'single'
-
-    @patch('utils.LoggingManager._logging_manager')
-    def test_file_logging_enabled_when_flag_provided(self, mock_manager):
-        """R1.2.2: Verify setup_logger receives log_to_file=True when flag provided"""
-        mock_manager.setup_logger.return_value = MagicMock()
-
-        parser = create_test_parser()
-        args = parser.parse_args(['--enable-log-file', 'single'])
-
-        assert args.enable_log_file is True
-
-    def test_logger_creates_correct_folder_name(self):
-        """R1.2.3: Verify logger name maps to logs/win_rate_simulation/ folder"""
-        import run_win_rate_simulation
-
-        assert run_win_rate_simulation.LOG_NAME == "win_rate_simulation"
-
-    def test_enable_log_file_works_in_single_mode(self):
-        """R1.2.4: Verify --enable-log-file accepted alongside single mode"""
-        parser = create_test_parser()
-        args = parser.parse_args(['--enable-log-file', 'single'])
-
-        assert args.enable_log_file is True
-        assert args.mode == 'single'
-
-    def test_enable_log_file_works_in_full_mode(self):
-        """R1.2.5: Verify --enable-log-file accepted alongside full mode"""
-        parser = create_test_parser()
-        args = parser.parse_args(['--enable-log-file', 'full'])
-
-        assert args.enable_log_file is True
-        assert args.mode == 'full'
-
-    def test_enable_log_file_works_in_iterative_mode(self):
-        """R1.2.6: Verify --enable-log-file accepted alongside iterative mode"""
-        parser = create_test_parser()
-        args = parser.parse_args(['--enable-log-file', 'iterative'])
-
-        assert args.enable_log_file is True
-        assert args.mode == 'iterative'
-
-
-
-class TestWinRateSimulationDEBUGQualityUnit:
-    """Test Category 3: DEBUG Log Quality Unit Tests (Task 13)
-
-    These tests verify the DEBUG audit was applied correctly by inspecting
-    source code for compliance with quality criteria:
-    - No tight-loop logging without throttling
-    - Function entry/exit only for complex flows
-    - Data transformations log context
-    - Conditional branches log path taken
-    - No variable assignment spam
-    """
-
-    def test_simulation_manager_debug_no_tight_loop_logging(self):
-        """R2.1.1: Verify no DEBUG logs inside tight loops in SimulationManager.py
-
-        Tight loops include: for/while loops that run per-simulation or per-player.
-        Remaining DEBUG calls should be at flow-control or summary points.
-        """
-        from simulation.win_rate.SimulationManager import SimulationManager
-
-        source = inspect.getsource(SimulationManager)
-
-        assert 'Deleting intermediate folder' not in source
-        assert 'valid player' not in source.lower() or source.count('logger.debug') < 15
-
-    def test_simulation_manager_debug_function_entry_selective(self):
-        """R2.1.2: Verify function entry/exit logs only for complex flows
-
-        Complex methods (_detect_resume_state) should have debug logging.
-        Simple getters/validators should have minimal debug.
-        """
-        from simulation.win_rate.SimulationManager import SimulationManager
-
-        source = inspect.getsource(SimulationManager)
-
-        detect_resume = inspect.getsource(SimulationManager._detect_resume_state)
-        assert 'logger.debug' in detect_resume
-
-        validate_method = inspect.getsource(SimulationManager._validate_season_data)
-        debug_count = validate_method.count('logger.debug')
-        assert debug_count <= 2
-
-    def test_simulation_manager_debug_data_transformations(self):
-        """R2.1.3: Verify data transformations log contextual values
-
-        DEBUG calls should include relevant context (folder names, counts, indices)
-        or describe a meaningful state/condition. Static messages for conditional
-        branches (e.g., "No intermediate folders found") are acceptable.
-        """
-        from simulation.win_rate.SimulationManager import SimulationManager
-
-        source = inspect.getsource(SimulationManager)
-
-        debug_blocks = re.findall(
-            r'logger\.debug\([^)]+\)',
-            source,
-            re.DOTALL
+    def test_no_single_subcommand(self):
+        result = subprocess.run(
+            [sys.executable, "run_win_rate_simulation.py", "single"],
+            capture_output=True,
+            text=True,
         )
+        assert result.returncode != 0
+        assert "unrecognized arguments" in result.stderr or "invalid choice" in result.stderr
 
-        acceptable_static = [
-            'No intermediate folders found',
-            'No valid intermediate folders',
-        ]
+    def test_no_full_subcommand(self):
+        assert "{single,full,iterative}" not in self._get_help_output()
 
-        for block in debug_blocks:
-            has_context = 'f"' in block or "f'" in block or '%' in block or '.format' in block
-            is_acceptable_static = any(msg in block for msg in acceptable_static)
-            assert has_context or is_acceptable_static, \
-                f"DEBUG call without context: {block[:80]}"
+    def test_no_baseline_flag(self):
+        assert "--baseline" not in self._get_help_output()
 
-    def test_simulation_manager_debug_conditional_branches(self):
-        """R2.1.4: Verify conditional branches log which path was taken
+    def test_no_output_flag(self):
+        assert "--output" not in self._get_help_output()
 
-        The _detect_resume_state method has multiple conditional paths that should
-        log which branch executed.
-        """
-        from simulation.win_rate.SimulationManager import SimulationManager
-
-        detect_resume = inspect.getsource(SimulationManager._detect_resume_state)
-
-        assert 'No intermediate folders found' in detect_resume
-        assert 'No valid intermediate folders' in detect_resume
-        assert 'All parameters complete' in detect_resume
-
-    def test_simulation_manager_debug_no_variable_spam(self):
-        """R2.1.5: Verify no DEBUG logging of every variable assignment
-
-        DEBUG calls should not simply log `variable = {value}` for simple assignments.
-        Each call should provide meaningful context.
-        """
-        from simulation.win_rate.SimulationManager import SimulationManager
-
-        source = inspect.getsource(SimulationManager)
-
-        debug_count = source.count('logger.debug')
-        method_count = source.count('def ')
-
-        if method_count > 0:
-            ratio = debug_count / method_count
-            assert ratio < 3, f"Too many debug calls per method: {debug_count}/{method_count} = {ratio:.1f}"
-
-    def test_parallel_league_runner_debug_quality(self):
-        """R2.2.1: Verify DEBUG quality in ParallelLeagueRunner.py
-
-        GC logging in completion loops is acceptable (fires every GC_FREQUENCY sims).
-        Per-simulation start/draft/season/complete logging should be removed.
-        """
-        from simulation.win_rate.ParallelLeagueRunner import ParallelLeagueRunner
-
-        source = inspect.getsource(ParallelLeagueRunner)
-
-        assert 'Starting simulation' not in source or 'logger.debug' not in source.split('Starting simulation')[0][-100:]
-        assert 'Draft complete for sim' not in source
-        assert 'Season complete for sim' not in source
-
-        run_sims = inspect.getsource(ParallelLeagueRunner.run_simulations_for_config)
-        assert 'Completed' in run_sims and 'simulations successfully' in run_sims
-
-    def test_simulated_league_debug_quality(self):
-        """R2.3.1: Verify DEBUG quality in SimulatedLeague.py
-
-        Should retain: init summary, week folder selection, schedule generation,
-        pre-load summary, legacy fallback, draft/season start/complete.
-        Should remove: per-team creation, per-week cache loop, per-player parsing,
-        draft round/pick logging.
-        """
-        from simulation.win_rate.SimulatedLeague import SimulatedLeague
-
-        source = inspect.getsource(SimulatedLeague)
-
-        assert 'Creating team' not in source or source.count('Creating team') == 0
-        assert 'Cached week' not in source
-        assert 'Parsed' not in source or 'Parsed' not in [
-            line for line in source.split('\n') if 'logger.debug' in line and 'Parsed' in line
-        ]
-
-        assert 'Initializing' in source
-        assert 'Draft complete' in source
-        assert 'Season complete' in source
-
-    def test_draft_helper_team_debug_quality(self):
-        """R2.4.1: Verify DEBUG quality in DraftHelperTeam.py
-
-        Should retain: draft recommendation with score (fires once per draft pick).
-        Should remove: init, per-starter loop, mark_player logging.
-        """
-        from simulation.win_rate.DraftHelperTeam import DraftHelperTeam
-
-        source = inspect.getsource(DraftHelperTeam)
-
-        debug_count = source.count('logger.debug')
-        assert debug_count == 1, f"Expected 1 debug call, found {debug_count}"
-        assert 'recommends' in source
-
-    def test_simulated_opponent_debug_quality(self):
-        """R2.5.1: Verify DEBUG quality in SimulatedOpponent.py
-
-        Should retain: init with strategy (once per team creation),
-        weekly lineup score (per-week, acceptable for 17 calls per sim).
-        Should remove: drafted player, recommends, mark_player.
-        """
-        from simulation.win_rate.SimulatedOpponent import SimulatedOpponent
-
-        source = inspect.getsource(SimulatedOpponent)
-
-        debug_count = source.count('logger.debug')
-        assert debug_count == 2, f"Expected 2 debug calls, found {debug_count}"
-        assert 'strategy' in source
-        assert 'lineup scored' in source
-
-    def test_week_debug_quality(self):
-        """R2.6.1: Verify DEBUG quality in Week.py
-
-        Should retain: init (once per week object), simulate entry, complete.
-        Should remove: per-matchup win/loss/tie logging inside the loop.
-        """
-        from simulation.win_rate.Week import Week
-
-        source = inspect.getsource(Week)
-
-        debug_count = source.count('logger.debug')
-        assert debug_count == 3, f"Expected 3 debug calls, found {debug_count}"
-
-        simulate_method = inspect.getsource(Week.simulate_week)
-        assert 'team1_won' not in [
-            line for line in simulate_method.split('\n')
-            if 'logger.debug' in line
-        ]
-
-    def test_manual_simulation_debug_quality(self):
-        """R2.7.1: Verify DEBUG quality in manual_simulation.py (1 debug call)
-
-        manual_simulation.py has 1 DEBUG call (SimulatedLeague created - internal detail).
-        """
-        module_path = project_root / 'simulation' / 'win_rate' / 'manual_simulation.py'
-        source = module_path.read_text()
-
-        debug_count = source.count('logger.debug(')
-        assert debug_count == 1, f"Expected 1 DEBUG call, found {debug_count}"
-
-    def test_all_debug_calls_audited(self):
-        """R2.AC6: Verify all DEBUG calls across 7 modules were audited
-
-        Counts remaining debug calls and verifies they are within expected range
-        after the audit (should be significantly reduced from original ~60).
-        """
-        modules_path = project_root / 'simulation' / 'win_rate'
-
-        total_debug_calls = 0
-        files_checked = []
-        for py_file in sorted(modules_path.glob('*.py')):
-            if py_file.name.startswith('__'):
-                continue
-            source = py_file.read_text()
-            count = source.count('logger.debug')
-            total_debug_calls += count
-            files_checked.append((py_file.name, count))
-
-        assert total_debug_calls <= 50, (
-            f"Too many DEBUG calls remaining ({total_debug_calls}): "
-            + ", ".join(f"{name}={count}" for name, count in files_checked if count > 0)
-        )
-        assert total_debug_calls >= 40, (
-            f"Too few DEBUG calls ({total_debug_calls}) - may have over-removed"
-        )
+    def test_no_test_values_flag(self):
+        assert "--test-values" not in self._get_help_output()
 
 
+class TestSummaryTable:
+    """Verify _print_summary output format and sorting."""
 
-class TestWinRateSimulationDEBUGQualityIntegration:
-    """Test Category 4: DEBUG Log Quality Integration Tests (Task 13)
+    def test_empty_strategies_prints_no_evaluated(self, capsys):
+        mock_mdm = MagicMock()
+        mock_mdm.get_all_strategies.return_value = {}
+        _print_summary(mock_mdm)
+        captured = capsys.readouterr()
+        assert "No strategies evaluated yet." in captured.out
 
-    Behavioral tests verifying DEBUG changes don't break functionality.
-    """
+    def test_sorted_by_win_rate_descending(self, capsys):
+        mock_mdm = MagicMock()
+        mock_mdm.get_all_strategies.return_value = {
+            "1_strategy_a.json": {
+                "name": "Strategy A",
+                "best_win_rate": 0.500,
+                "total_runs": 5,
+                "last_run": "2026-01-01",
+            },
+            "2_strategy_b.json": {
+                "name": "Strategy B",
+                "best_win_rate": 0.700,
+                "total_runs": 5,
+                "last_run": "2026-01-01",
+            },
+        }
+        _print_summary(mock_mdm)
+        captured = capsys.readouterr()
+        assert captured.out.index("Strategy B") < captured.out.index("Strategy A")
+
+    def test_win_rate_formatted_as_3_decimal(self, capsys):
+        mock_mdm = MagicMock()
+        mock_mdm.get_all_strategies.return_value = {
+            "1_strategy.json": {
+                "name": "Strategy",
+                "best_win_rate": 0.6234,
+                "total_runs": 5,
+                "last_run": "2026-01-01",
+            },
+        }
+        _print_summary(mock_mdm)
+        captured = capsys.readouterr()
+        assert "0.623" in captured.out
+
+    def test_header_and_footer_printed(self, capsys):
+        mock_mdm = MagicMock()
+        mock_mdm.get_all_strategies.return_value = {
+            "1_strategy.json": {
+                "name": "Strategy",
+                "best_win_rate": 0.500,
+                "total_runs": 1,
+                "last_run": "2026-01-01",
+            },
+        }
+        _print_summary(mock_mdm)
+        captured = capsys.readouterr()
+        assert "Strategy Win Rate Summary" in captured.out
+        assert "──────────────────────────────────────────────────────" in captured.out
 
 
+class TestMainFlow:
+    """Verify main() instantiation and flow with mocked dependencies."""
 
-"""
-Test Coverage Summary for Feature 05 (win_rate_sim_logging):
+    def test_meta_data_manager_instantiated_with_correct_path(self, tmp_path):
+        with (
+            patch("sys.argv", ["prog", "--data", str(tmp_path)]),
+            patch("run_win_rate_simulation.setup_logger"),
+            patch("run_win_rate_simulation.get_logger") as mock_get_logger,
+            patch("run_win_rate_simulation.WinRateMetaDataManager") as mock_mdm_cls,
+            patch("run_win_rate_simulation.DraftStrategyOrchestrator"),
+        ):
+            mock_get_logger.return_value = MagicMock()
+            mock_mdm_cls.return_value.get_all_strategies.return_value = {}
+            main()
+            mock_mdm_cls.assert_called_once_with(tmp_path / "win_rate_meta_data.json")
 
-Category 1: CLI Flag Unit Tests (R1.1) - 6 tests
-Category 2: CLI Flag Integration Tests (R1.2) - 8 tests
-Category 3: DEBUG Quality Unit Tests (R2) - 12 tests
-Category 4: DEBUG Quality Integration Tests (R2.8) - 2 tests
+    def test_orchestrator_instantiated_with_args(self, tmp_path):
+        with (
+            patch("sys.argv", ["prog", "--sims", "3", "--workers", "2", "--data", str(tmp_path)]),
+            patch("run_win_rate_simulation.setup_logger"),
+            patch("run_win_rate_simulation.get_logger") as mock_get_logger,
+            patch("run_win_rate_simulation.WinRateMetaDataManager") as mock_mdm_cls,
+            patch("run_win_rate_simulation.DraftStrategyOrchestrator") as mock_orch_cls,
+        ):
+            mock_get_logger.return_value = MagicMock()
+            mock_mdm_cls.return_value.get_all_strategies.return_value = {}
+            main()
+            mock_orch_cls.assert_called_once_with(
+                data_folder=tmp_path,
+                num_simulations=3,
+                max_workers=2,
+                meta_data_manager=mock_mdm_cls.return_value,
+            )
 
-TOTAL: 28 tests (24 active + 4 integration skips)
-"""
+    def test_keyboard_interrupt_exits_zero(self, tmp_path):
+        with (
+            patch("sys.argv", ["prog", "--data", str(tmp_path)]),
+            patch("run_win_rate_simulation.setup_logger"),
+            patch("run_win_rate_simulation.get_logger") as mock_get_logger,
+            patch("run_win_rate_simulation.WinRateMetaDataManager"),
+            patch("run_win_rate_simulation.DraftStrategyOrchestrator") as mock_orch_cls,
+            patch("run_win_rate_simulation._print_summary") as mock_summary,
+        ):
+            mock_logger = MagicMock()
+            mock_get_logger.return_value = mock_logger
+            mock_orch_cls.return_value.run.side_effect = KeyboardInterrupt
+            with pytest.raises(SystemExit) as exc_info:
+                main()
+            assert exc_info.value.code == 0
+            mock_summary.assert_called()
+            mock_logger.info.assert_called_with(
+                "Received interrupt — exiting after current strategy"
+            )
 
+    def test_single_run_calls_run_exactly_once(self, tmp_path):
+        with (
+            patch("sys.argv", ["prog", "--data", str(tmp_path)]),
+            patch("run_win_rate_simulation.setup_logger"),
+            patch("run_win_rate_simulation.get_logger") as mock_get_logger,
+            patch("run_win_rate_simulation.WinRateMetaDataManager") as mock_mdm_cls,
+            patch("run_win_rate_simulation.DraftStrategyOrchestrator") as mock_orch_cls,
+        ):
+            mock_get_logger.return_value = MagicMock()
+            mock_mdm_cls.return_value.get_all_strategies.return_value = {}
+            main()
+            assert mock_orch_cls.return_value.run.call_count == 1
 
+    def test_endless_loops_until_interrupt(self, tmp_path):
+        with (
+            patch("sys.argv", ["prog", "--endless", "--data", str(tmp_path)]),
+            patch("run_win_rate_simulation.setup_logger"),
+            patch("run_win_rate_simulation.get_logger") as mock_get_logger,
+            patch("run_win_rate_simulation.WinRateMetaDataManager") as mock_mdm_cls,
+            patch("run_win_rate_simulation.DraftStrategyOrchestrator") as mock_orch_cls,
+            patch("run_win_rate_simulation._print_summary") as mock_summary,
+        ):
+            mock_get_logger.return_value = MagicMock()
+            mock_mdm_cls.return_value.get_all_strategies.return_value = {}
+            mock_orch_cls.return_value.run.side_effect = [None, KeyboardInterrupt]
+            with pytest.raises(SystemExit) as exc_info:
+                main()
+            assert exc_info.value.code == 0
+            assert mock_orch_cls.return_value.run.call_count == 2
+            assert mock_summary.call_count >= 2
+
+    def test_setup_logger_called_before_construction(self, tmp_path):
+        call_order = []
+        with (
+            patch("sys.argv", ["prog", "--data", str(tmp_path)]),
+            patch(
+                "run_win_rate_simulation.setup_logger",
+                side_effect=lambda *a, **kw: call_order.append("setup_logger"),
+            ),
+            patch("run_win_rate_simulation.get_logger") as mock_get_logger,
+            patch("run_win_rate_simulation.WinRateMetaDataManager") as mock_mdm_cls,
+            patch("run_win_rate_simulation.DraftStrategyOrchestrator") as mock_orch_cls,
+        ):
+            mock_get_logger.return_value = MagicMock()
+            mock_mdm_cls.side_effect = (
+                lambda *a, **kw: call_order.append("WinRateMetaDataManager")
+                or MagicMock(get_all_strategies=MagicMock(return_value={}))
+            )
+            mock_orch_cls.side_effect = (
+                lambda *a, **kw: call_order.append("DraftStrategyOrchestrator")
+                or MagicMock()
+            )
+            main()
+            assert call_order.index("setup_logger") < call_order.index("WinRateMetaDataManager")
+            assert call_order.index("setup_logger") < call_order.index("DraftStrategyOrchestrator")

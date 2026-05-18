@@ -18,7 +18,8 @@ import json
 project_root = Path(__file__).parent.parent.parent
 
 from simulation.shared.ConfigGenerator import ConfigGenerator
-from simulation.win_rate.SimulationManager import SimulationManager
+from simulation.win_rate.DraftStrategyOrchestrator import DraftStrategyOrchestrator
+from simulation.win_rate.WinRateMetaDataManager import WinRateMetaDataManager
 from simulation.win_rate.ParallelLeagueRunner import ParallelLeagueRunner
 from simulation.shared.ResultsManager import ResultsManager
 from simulation.shared.ConfigPerformance import ConfigPerformance
@@ -261,26 +262,115 @@ class TestConfigGeneratorIntegration:
         assert "DIFF_POS_BYE_WEIGHT" in config_dict["parameters"]
 
 
-class TestSimulationManagerIntegration:
-    """Integration tests for simulation manager"""
+class TestDraftStrategyOrchestratorIntegration:
+    """Integration tests for DraftStrategyOrchestrator"""
 
-    def test_simulation_manager_initializes(self, baseline_config, temp_simulation_data, tmp_path):
-        """Test simulation manager initializes successfully"""
-        output_dir = tmp_path / "results"
-
-        manager = SimulationManager(
-            baseline_config_path=baseline_config,
-            output_dir=output_dir,
-            num_simulations_per_config=2,
-            max_workers=2,
-            data_folder=temp_simulation_data,
-            parameter_order=TEST_PARAMETER_ORDER,
-            num_test_values=2,
-            auto_update_league_config=False
+    def test_orchestrator_initializes(self, temp_simulation_data, tmp_path):
+        """Test DraftStrategyOrchestrator initializes successfully"""
+        strategy_dir = temp_simulation_data / "draft_order_possibilities"
+        strategy_dir.mkdir()
+        (strategy_dir / "1_test.json").write_text(
+            '{"name": "Test", "DRAFT_ORDER": []}'
         )
 
-        assert manager is not None
-        assert manager.output_dir == output_dir
+        meta_data_manager = WinRateMetaDataManager(tmp_path / "meta.json")
+        orchestrator = DraftStrategyOrchestrator(
+            data_folder=temp_simulation_data,
+            num_simulations=2,
+            max_workers=2,
+            meta_data_manager=meta_data_manager
+        )
+
+        assert len(orchestrator._seasons) == 1
+        assert orchestrator._num_simulations == 2
+
+
+class TestDraftStrategyOrchestratorRun:
+    """Integration tests for DraftStrategyOrchestrator.run()"""
+
+    def _make_orchestrator(self, tmp_path, strategy_files):
+        """Helper: create orchestrator with given strategy JSON files."""
+        data_folder = tmp_path / "sim_data"
+        data_folder.mkdir(exist_ok=True)
+        create_mock_historical_season(data_folder)
+
+        strategy_dir = data_folder / "draft_order_possibilities"
+        strategy_dir.mkdir()
+        for filename, content in strategy_files.items():
+            (strategy_dir / filename).write_text(json.dumps(content))
+
+        meta_path = tmp_path / "meta.json"
+        meta_data_manager = WinRateMetaDataManager(meta_path)
+        orchestrator = DraftStrategyOrchestrator(
+            data_folder=data_folder,
+            num_simulations=1,
+            max_workers=1,
+            meta_data_manager=meta_data_manager,
+        )
+        return orchestrator, meta_data_manager
+
+    def test_run_processes_strategies_in_numeric_order(self, tmp_path):
+        """Test run() enumerates strategy files sorted by numeric prefix (AC4)."""
+        strategy_files = {
+            "3_c.json": {"name": "C", "DRAFT_ORDER": []},
+            "1_a.json": {"name": "A", "DRAFT_ORDER": []},
+            "2_b.json": {"name": "B", "DRAFT_ORDER": []},
+        }
+        orchestrator, meta_data_manager = self._make_orchestrator(tmp_path, strategy_files)
+
+        processed_order = []
+        original_update = meta_data_manager.update
+
+        def tracking_update(filename, name, win_rate):
+            processed_order.append(filename)
+            original_update(filename, name, win_rate)
+
+        with patch.object(orchestrator, "_validate_season_data", return_value=True), \
+             patch.object(orchestrator._runner, "run_simulations_for_config", return_value=[(1, 0, 100.0)]), \
+             patch.object(meta_data_manager, "update", side_effect=tracking_update):
+            orchestrator.run()
+
+        assert processed_order == ["1_a.json", "2_b.json", "3_c.json"]
+
+    def test_run_calls_update_for_valid_strategies(self, tmp_path):
+        """Test run() calls meta_data_manager.update() for each valid strategy (AC5/AC6)."""
+        strategy_files = {
+            "1_valid.json": {"name": "Valid", "DRAFT_ORDER": []},
+            "2_no_draft_order.json": {"name": "Bad", "other_key": "value"},
+        }
+        orchestrator, meta_data_manager = self._make_orchestrator(tmp_path, strategy_files)
+
+        with patch.object(orchestrator, "_validate_season_data", return_value=True), \
+             patch.object(orchestrator._runner, "run_simulations_for_config", return_value=[(1, 0, 100.0)]), \
+             patch.object(meta_data_manager, "update") as mock_update:
+            orchestrator.run()
+
+        mock_update.assert_called_once_with("1_valid.json", "Valid", 1.0)
+
+    def test_run_does_not_mutate_base_config(self, tmp_path):
+        """Test run() deep-copies config before injecting DRAFT_ORDER (AC8)."""
+        import copy as _copy
+        draft_order = [1, 2, 3, 4, 5]
+        strategy_files = {
+            "1_strat.json": {"name": "Strat", "DRAFT_ORDER": draft_order},
+        }
+        orchestrator, meta_data_manager = self._make_orchestrator(tmp_path, strategy_files)
+
+        base_config_snapshot = _copy.deepcopy(orchestrator._base_config)
+
+        captured_configs = []
+
+        def capture_config(config, n):
+            captured_configs.append(_copy.deepcopy(config))
+            return [(1, 0, 100.0)]
+
+        with patch.object(orchestrator, "_validate_season_data", return_value=True), \
+             patch.object(orchestrator._runner, "run_simulations_for_config", side_effect=capture_config):
+            orchestrator.run()
+
+        assert orchestrator._base_config == base_config_snapshot
+        assert len(captured_configs) == 1
+        assert captured_configs[0]["parameters"]["DRAFT_ORDER"] == draft_order
 
 
 class TestParallelLeagueRunnerIntegration:

@@ -51,13 +51,13 @@ simulation/
 │   └── config_cleanup.py        # Cleans up old optimal folders
 │
 ├── win_rate/                    # Win-rate simulation (strategy)
-│   ├── SimulationManager.py     # Orchestrates win-rate optimization
-│   ├── ParallelLeagueRunner.py  # Multi-threaded simulation executor
-│   ├── SimulatedLeague.py       # 10-team league simulator
-│   ├── DraftHelperTeam.py       # Team using DraftHelper (being tested)
-│   ├── SimulatedOpponent.py     # Opponent teams with strategies
-│   ├── Week.py                  # Weekly matchup simulator
-│   └── manual_simulation.py     # Manual test runs
+│   ├── DraftStrategyOrchestrator.py  # Enumerates all 51 draft strategies and runs simulations
+│   ├── WinRateMetaDataManager.py     # Persists best win rate per strategy (atomic JSON writes)
+│   ├── ParallelLeagueRunner.py       # Multi-threaded simulation executor
+│   ├── SimulatedLeague.py            # 10-team league simulator
+│   ├── DraftHelperTeam.py            # Team using DraftHelper (being tested)
+│   ├── SimulatedOpponent.py          # Opponent teams with strategies
+│   └── Week.py                       # Weekly matchup simulator
 │
 ├── accuracy/                    # Accuracy simulation (prediction)
 │   ├── AccuracySimulationManager.py  # Orchestrates accuracy optimization
@@ -375,11 +375,8 @@ python simulation/test_performance_tracking.py
 # Test parallel execution
 python simulation/test_parallel_runner.py
 
-# Test SimulationManager integration
-python simulation/test_simulation_manager.py
-
-# Test original manual simulation
-python simulation/manual_simulation.py
+# Run win-rate simulation (all 51 strategies, 1 sim each)
+python run_win_rate_simulation.py --sims 1 --workers 1 --data simulation/sim_data
 ```
 
 ## Memory Management
