@@ -441,3 +441,137 @@ class TestLoadSeasonScheduleFromCSV:
         assert len(result) == 18
         assert all(isinstance(k, int) for k in result.keys())
         assert all(len(v) > 0 for v in result.values())
+
+
+class TestRankingsCacheConstant:
+
+    def test_min_weeks_for_rankings_constant_importable(self):
+        from player_data_fetcher.player_data_constants import MIN_WEEKS_FOR_RANKINGS
+        assert MIN_WEEKS_FOR_RANKINGS is not None
+
+    def test_min_weeks_for_rankings_constant_value(self):
+        from player_data_fetcher.player_data_constants import MIN_WEEKS_FOR_RANKINGS
+        assert MIN_WEEKS_FOR_RANKINGS == 5
+
+
+class TestLoadRankingsFromCache:
+
+    @pytest.fixture
+    def client(self):
+        return ESPNClient(Settings())
+
+    def test_cache_miss_returns_none(self, client, tmp_path):
+        data_dir = tmp_path / 'data'
+        data_dir.mkdir()
+        result = client._load_rankings_from_cache(cache_dir=data_dir)
+        assert result is None
+
+    def test_cache_hit_returns_dict(self, client, tmp_path):
+        import datetime
+        data_dir = tmp_path / 'data'
+        data_dir.mkdir()
+        today = datetime.date.today().isoformat()
+        cache_file = data_dir / f'team_rankings_cache_{today}.json'
+        cache_file.write_text('{"KC": {"offensive_rank": 5, "defensive_rank": 15}}')
+        result = client._load_rankings_from_cache(cache_dir=data_dir)
+        assert result == {"KC": {"offensive_rank": 5, "defensive_rank": 15}}
+
+    def test_cache_invalid_json_returns_none(self, client, tmp_path):
+        import datetime
+        data_dir = tmp_path / 'data'
+        data_dir.mkdir()
+        today = datetime.date.today().isoformat()
+        cache_file = data_dir / f'team_rankings_cache_{today}.json'
+        cache_file.write_text('not valid json {{{{')
+        result = client._load_rankings_from_cache(cache_dir=data_dir)
+        assert result is None
+
+    def test_cache_empty_dict_returns_none(self, client, tmp_path):
+        import datetime
+        data_dir = tmp_path / 'data'
+        data_dir.mkdir()
+        today = datetime.date.today().isoformat()
+        cache_file = data_dir / f'team_rankings_cache_{today}.json'
+        cache_file.write_text('{}')
+        result = client._load_rankings_from_cache(cache_dir=data_dir)
+        assert result is None
+
+    def test_cache_path_uses_todays_date(self, client, tmp_path):
+        data_dir = tmp_path / 'data'
+        data_dir.mkdir()
+        (data_dir / 'team_rankings_cache_1999-12-31.json').write_text('{"KC": {"offensive_rank": 5, "defensive_rank": 15}}')
+        result = client._load_rankings_from_cache(cache_dir=data_dir)
+        assert result is None
+
+
+class TestSaveRankingsToCache:
+
+    @pytest.fixture
+    def client(self):
+        return ESPNClient(Settings())
+
+    def test_save_creates_json_file(self, client, tmp_path):
+        import json as json_module
+        data_dir = tmp_path / 'data'
+        data_dir.mkdir()
+        rankings = {'KC': {'offensive_rank': 5, 'defensive_rank': 15}}
+        client._save_rankings_to_cache(rankings, cache_dir=data_dir)
+        import datetime
+        today = datetime.date.today().isoformat()
+        cache_file = data_dir / f'team_rankings_cache_{today}.json'
+        assert cache_file.exists()
+        assert json_module.loads(cache_file.read_text()) == rankings
+
+    def test_save_content_matches_input(self, client, tmp_path):
+        import json as json_module
+        import datetime
+        data_dir = tmp_path / 'data'
+        data_dir.mkdir()
+        rankings = {'KC': {'offensive_rank': 5, 'defensive_rank': 15}, 'BUF': {'offensive_rank': 3, 'defensive_rank': 2}}
+        client._save_rankings_to_cache(rankings, cache_dir=data_dir)
+        today = datetime.date.today().isoformat()
+        cache_file = data_dir / f'team_rankings_cache_{today}.json'
+        loaded = json_module.loads(cache_file.read_text())
+        assert loaded == rankings
+
+    def test_save_ioerror_logs_warning(self, client, tmp_path):
+        from unittest.mock import patch, MagicMock
+        data_dir = tmp_path / 'data'
+        data_dir.mkdir()
+        mock_logger = MagicMock()
+        client.logger = mock_logger
+        rankings = {'KC': {'offensive_rank': 5, 'defensive_rank': 15}}
+        with patch('builtins.open', side_effect=IOError('permission denied')):
+            client._save_rankings_to_cache(rankings, cache_dir=data_dir)
+        mock_logger.warning.assert_called_once()
+        assert 'permission denied' in str(mock_logger.warning.call_args)
+
+
+class TestRankingsCacheIntegration:
+
+    @pytest.fixture
+    def client(self):
+        return ESPNClient(Settings())
+
+    @pytest.mark.asyncio
+    async def test_cache_hit_skips_api_call(self, client):
+        from unittest.mock import patch, AsyncMock
+        cached_rankings = {'KC': {'offensive_rank': 5, 'defensive_rank': 15}}
+        with patch.object(client, '_load_rankings_from_cache', return_value=cached_rankings) as mock_load, \
+             patch.object(client, '_calculate_rolling_window_rankings', new_callable=AsyncMock) as mock_api:
+            result = await client._calculate_team_rankings_from_stats()
+        assert result == cached_rankings
+        mock_load.assert_called_once()
+        mock_api.assert_not_called()
+
+    @pytest.mark.asyncio
+    async def test_cache_miss_calls_api_and_saves(self, client):
+        from unittest.mock import patch, AsyncMock
+        api_rankings = {'KC': {'offensive_rank': 5, 'defensive_rank': 15}}
+        with patch.object(client, '_load_rankings_from_cache', return_value=None), \
+             patch.object(client, '_calculate_rolling_window_rankings', new_callable=AsyncMock, return_value=api_rankings) as mock_api, \
+             patch.object(client, '_save_rankings_to_cache') as mock_save:
+            result = await client._calculate_team_rankings_from_stats()
+        assert result == api_rankings
+        mock_api.assert_called_once()
+        mock_save.assert_called_once_with(api_rankings)

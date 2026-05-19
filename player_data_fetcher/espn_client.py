@@ -10,6 +10,7 @@ Author: Kai Mizuno
 
 import asyncio
 from contextlib import asynccontextmanager
+import datetime
 import json
 import math
 import os
@@ -23,7 +24,7 @@ from tenacity import retry, stop_after_attempt, wait_random_exponential
 from player_data_fetcher.player_data_models import ESPNPlayerData, ScoringFormat
 from player_data_fetcher.fantasy_points_calculator import FantasyPointsExtractor, FantasyPointsConfig
 from player_data_fetcher.player_data_constants import (
-    ESPN_TEAM_MAPPINGS, ESPN_POSITION_MAPPINGS
+    ESPN_TEAM_MAPPINGS, ESPN_POSITION_MAPPINGS, MIN_WEEKS_FOR_RANKINGS
 )
 from player_data_fetcher.config import ESPN_USER_AGENT
 from utils.LoggingManager import get_logger
@@ -310,6 +311,48 @@ class ESPNClient(BaseAPIClient):
             self.logger.error(f"Failed to fetch team rankings: {e}")
             return {}
 
+    def _load_rankings_from_cache(self, cache_dir: Optional[Path] = None) -> Optional[Dict[str, Dict[str, int]]]:
+        """
+        Attempt to load today's team rankings from the date-stamped cache file.
+
+        Returns:
+            Dict mapping team abbreviations to {'offensive_rank': int, 'defensive_rank': int}
+            if today's cache file exists and is valid; None if cache miss or read error.
+        """
+        date = datetime.date.today().isoformat()
+        base_dir = cache_dir if cache_dir is not None else Path(__file__).parent.parent / 'data'
+        cache_path = base_dir / f'team_rankings_cache_{date}.json'
+        if not cache_path.exists():
+            return None
+        try:
+            with open(cache_path, 'r') as f:
+                data = json.load(f)
+            if not isinstance(data, dict) or not data:
+                return None
+            self.logger.info(f"Loaded team rankings from cache: {cache_path}")
+            return data
+        except Exception as e:
+            self.logger.warning(f"Failed to read rankings cache {cache_path}: {e}")
+            return None
+
+    def _save_rankings_to_cache(self, rankings: Dict[str, Dict[str, int]], cache_dir: Optional[Path] = None) -> None:
+        """
+        Save team rankings to the date-stamped cache file.
+
+        Does not raise on write errors — logs a warning and returns silently.
+
+        Args:
+            rankings: Dict mapping team abbreviations to rank dicts.
+        """
+        date = datetime.date.today().isoformat()
+        base_dir = cache_dir if cache_dir is not None else Path(__file__).parent.parent / 'data'
+        cache_path = base_dir / f'team_rankings_cache_{date}.json'
+        try:
+            with open(cache_path, 'w') as f:
+                json.dump(rankings, f, indent=2)
+            self.logger.info(f"Saved team rankings to cache: {cache_path}")
+        except Exception as e:
+            self.logger.warning(f"Failed to write rankings cache {cache_path}: {e}")
 
     def _calculate_week_by_week_projection(self, player_info: dict, name: str, position: str) -> float:
         """
@@ -587,7 +630,11 @@ class ESPNClient(BaseAPIClient):
             Dictionary mapping team abbreviations to offensive/defensive ranks
         """
         try:
-            min_weeks_for_rankings = 5
+            cached = self._load_rankings_from_cache()
+            if cached is not None:
+                return cached
+
+            min_weeks_for_rankings = MIN_WEEKS_FOR_RANKINGS
 
             use_current_season = self.settings.current_nfl_week > min_weeks_for_rankings
 
@@ -605,10 +652,12 @@ class ESPNClient(BaseAPIClient):
                 25: 'SF', 26: 'SEA', 27: 'TB', 28: 'WSH', 29: 'CAR', 30: 'JAX', 33: 'BAL', 34: 'HOU'
             }
 
-            return await self._calculate_rolling_window_rankings(self.settings.current_nfl_week, min_weeks_for_rankings)
+            team_rankings = await self._calculate_rolling_window_rankings(self.settings.current_nfl_week, min_weeks_for_rankings)
+            self._save_rankings_to_cache(team_rankings)
+            return team_rankings
 
         except Exception as e:
-            min_weeks_for_rankings = 5
+            min_weeks_for_rankings = MIN_WEEKS_FOR_RANKINGS
             use_current_season = self.settings.current_nfl_week > min_weeks_for_rankings
             season_info = f"{self.settings.season} season" if use_current_season else "neutral data"
 
@@ -1032,7 +1081,7 @@ class ESPNClient(BaseAPIClient):
             'NYJ', 'PHI', 'PIT', 'SEA', 'SF', 'TB', 'TEN', 'WSH'
         ]
 
-        min_weeks_for_rankings = 5
+        min_weeks_for_rankings = MIN_WEEKS_FOR_RANKINGS
         window_start = max(1, current_week - min_weeks_for_rankings)
 
         for player in players:
