@@ -9,7 +9,6 @@ Author: Kai Mizuno
 """
 
 import asyncio
-import csv
 from contextlib import asynccontextmanager
 import json
 import math
