@@ -535,17 +535,26 @@ async def main(settings_dict: dict | None = None) -> None:
             )
             sys.exit(1)
 
-        output_files = await collector.export_data(projection_data)
+        loop = asyncio.get_running_loop()
+        game_data_future = loop.run_in_executor(None, collector.fetch_game_data)
+        gather_results = await asyncio.gather(
+            collector.export_data(projection_data),
+            game_data_future,
+            return_exceptions=True,
+        )
+        output_files = gather_results[0]
+        game_data_result = gather_results[1]
 
-        try:
-            game_data_fetched = collector.fetch_game_data()
-            if game_data_fetched:
-                print(f"\n[INFO] Game data (venue, weather, scores) fetched successfully")
-            elif not settings.enable_game_data:
-                logger.debug("Game data fetching disabled via settings")
-        except Exception as e:
-            logger.warning(f"Failed to fetch game data: {e}")
-            print(f"\n[WARNING] Could not fetch game data: {e}")
+        if isinstance(game_data_result, Exception):
+            logger.warning(f"Failed to fetch game data: {game_data_result}")
+            print(f"\n[WARNING] Could not fetch game data: {game_data_result}")
+        elif game_data_result:
+            print(f"\n[INFO] Game data (venue, weather, scores) fetched successfully")
+        elif not settings.enable_game_data:
+            logger.debug("Game data fetching disabled via settings")
+
+        if isinstance(output_files, Exception):
+            raise output_files
 
         try:
             saved = collector.save_to_historical_data()
