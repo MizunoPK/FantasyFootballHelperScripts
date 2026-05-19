@@ -440,3 +440,4 @@ class TestLoadSeasonScheduleFromCSV:
         assert isinstance(result, dict)
         assert len(result) == 18
         assert all(isinstance(k, int) for k in result.keys())
+        assert all(len(v) > 0 for v in result.values())

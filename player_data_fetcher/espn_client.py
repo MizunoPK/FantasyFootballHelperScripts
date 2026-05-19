@@ -903,6 +903,12 @@ class ESPNClient(BaseAPIClient):
         try:
             csv_path = csv_path or Path(__file__).parent.parent / "data" / "season_schedule.csv"
             rows = read_dict_csv(csv_path, required_columns=['week', 'team', 'opponent'])
+        except FileNotFoundError as e:
+            self.logger.error(f"Failed to load season schedule from CSV: {e}")
+            return {}
+        except Exception:
+            return {}
+        try:
             schedule: Dict[int, Dict[str, str]] = {}
             for row in rows:
                 week_num = int(row['week'])
