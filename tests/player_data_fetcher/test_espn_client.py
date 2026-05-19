@@ -399,3 +399,44 @@ class TestESPNClientSettingsKAI10:
         assert client.settings.progress_frequency == 25
 
 
+class TestLoadSeasonScheduleFromCSV:
+
+    def test_happy_path_returns_correct_structure(self, tmp_path):
+        csv_file = tmp_path / "schedule.csv"
+        csv_file.write_text("week,team,opponent\n1,ARI,NO\n1,NO,ARI\n")
+        client = ESPNClient(Settings())
+        result = client._load_season_schedule_from_csv(csv_path=csv_file)
+        assert result == {1: {'ARI': 'NO', 'NO': 'ARI'}}
+
+    def test_all_18_weeks_present(self):
+        client = ESPNClient(Settings())
+        result = client._load_season_schedule_from_csv()
+        assert len(result) == 18
+        assert all(isinstance(k, int) for k in result.keys())
+
+    def test_missing_csv_returns_empty_dict(self, tmp_path):
+        client = ESPNClient(Settings())
+        result = client._load_season_schedule_from_csv(csv_path=tmp_path / "nonexistent.csv")
+        assert result == {}
+
+    def test_csv_with_missing_required_column_returns_empty_dict(self, tmp_path):
+        csv_file = tmp_path / "schedule.csv"
+        csv_file.write_text("week,team\n1,ARI\n")
+        client = ESPNClient(Settings())
+        result = client._load_season_schedule_from_csv(csv_path=csv_file)
+        assert result == {}
+
+    def test_week_values_are_int_keys(self, tmp_path):
+        csv_file = tmp_path / "schedule.csv"
+        csv_file.write_text("week,team,opponent\n3,KC,BUF\n")
+        client = ESPNClient(Settings())
+        result = client._load_season_schedule_from_csv(csv_path=csv_file)
+        assert 3 in result
+        assert '3' not in result
+
+    def test_uses_default_path_when_none_provided(self):
+        client = ESPNClient(Settings())
+        result = client._load_season_schedule_from_csv(csv_path=None)
+        assert isinstance(result, dict)
+        assert len(result) == 18
+        assert all(isinstance(k, int) for k in result.keys())

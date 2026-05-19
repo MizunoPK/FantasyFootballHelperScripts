@@ -28,6 +28,7 @@ from player_data_fetcher.player_data_constants import (
 )
 from player_data_fetcher.config import ESPN_USER_AGENT
 from utils.LoggingManager import get_logger
+from utils.csv_utils import read_dict_csv
 
 
 class ESPNAPIError(Exception):
@@ -899,74 +900,19 @@ class ESPNClient(BaseAPIClient):
             self.logger.error(f"Failed to fetch current week schedule: {e}")
             return {}
 
-    async def _fetch_full_season_schedule(self) -> Dict[int, Dict[str, str]]:
-        """
-        Fetch complete season schedule for all weeks.
-
-        Returns:
-            Dict[week_number, Dict[team, opponent]]
-            Example: {1: {'KC': 'BAL', 'BAL': 'KC', ...}, 2: {...}, ...}
-        """
+    def _load_season_schedule_from_csv(self, csv_path: Optional[Path] = None) -> Dict[int, Dict[str, str]]:
         try:
-            import asyncio
-
-            full_schedule = {}
-
-            self.logger.info("Fetching full season schedule (weeks 1-18)")
-
-            for week in range(1, 19):
-                self.logger.debug(f"Fetching schedule for week {week}/18")
-
-                url = "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard"
-                params = {
-                    "seasontype": 2,
-                    "week": week,
-                    "dates": self.settings.season
-                }
-
-                data = await self._make_request("GET", url, params=params)
-
-                week_schedule = {}
-                events = data.get('events', [])
-
-                for event in events:
-                    try:
-                        competitions = event.get('competitions', [])
-                        if not competitions:
-                            continue
-
-                        competition = competitions[0]
-                        competitors = competition.get('competitors', [])
-
-                        if len(competitors) != 2:
-                            continue
-
-                        team1_data = competitors[0].get('team', {})
-                        team2_data = competitors[1].get('team', {})
-
-                        team1 = team1_data.get('abbreviation', '')
-                        team2 = team2_data.get('abbreviation', '')
-
-                        team1 = 'WSH' if team1 == 'WAS' else team1
-                        team2 = 'WSH' if team2 == 'WAS' else team2
-
-                        if team1 and team2:
-                            week_schedule[team1] = team2
-                            week_schedule[team2] = team1
-
-                    except Exception as e:
-                        self.logger.debug(f"Error parsing event in week {week}: {e}")
-                        continue
-
-                full_schedule[week] = week_schedule
-
-                await asyncio.sleep(0.2)
-
-            self.logger.info(f"Successfully fetched schedule for {len(full_schedule)} weeks")
-            return full_schedule
-
+            csv_path = csv_path or Path(__file__).parent.parent / "data" / "season_schedule.csv"
+            rows = read_dict_csv(csv_path, required_columns=['week', 'team', 'opponent'])
+            schedule: Dict[int, Dict[str, str]] = {}
+            for row in rows:
+                week_num = int(row['week'])
+                if week_num not in schedule:
+                    schedule[week_num] = {}
+                schedule[week_num][row['team']] = row['opponent']
+            return schedule
         except Exception as e:
-            self.logger.error(f"Failed to fetch full season schedule: {e}")
+            self.logger.error(f"Failed to load season schedule from CSV: {e}")
             return {}
 
     async def _fetch_week_scores(self, week: int) -> List[Dict]:
@@ -1359,7 +1305,7 @@ class ESPNClient(BaseAPIClient):
         team_rankings = await self._fetch_team_rankings()
         current_week_schedule = await self._fetch_current_week_schedule()
 
-        full_season_schedule = await self._fetch_full_season_schedule()
+        full_season_schedule = self._load_season_schedule_from_csv()
 
         self.current_week_schedule = current_week_schedule
         self.full_season_schedule = full_season_schedule
