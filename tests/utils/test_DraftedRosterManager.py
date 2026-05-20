@@ -23,7 +23,7 @@ Author: Kai Mizuno
 
 import pytest
 from pathlib import Path
-from unittest.mock import Mock
+from unittest.mock import Mock, MagicMock
 
 from utils.DraftedRosterManager import DraftedRosterManager
 from utils.FantasyPlayer import FantasyPlayer
@@ -317,6 +317,41 @@ class TestApplyDraftedStateToPlayers:
 
         for player in sample_players:
             assert player.drafted_by == ""
+
+    def test_apply_drafted_state_warns_when_my_team_matches_zero(self, tmp_path, sample_players):
+        """Test emits warning when my_team_name matches zero drafted players."""
+        csv_path = tmp_path / "drafted.csv"
+        csv_path.write_text(
+            'Josh Allen QB - BUF,Other Team\n'
+            'Tyreek Hill WR - MIA,Other Team\n'
+        )
+        manager = DraftedRosterManager(str(csv_path), "NonexistentTeam")
+        manager.load_drafted_data()
+        manager.logger = MagicMock()
+
+        manager.apply_drafted_state_to_players(sample_players)
+
+        manager.logger.warning.assert_called_once()
+        warning_msg = manager.logger.warning.call_args[0][0]
+        assert "NonexistentTeam" in warning_msg
+
+    def test_apply_drafted_state_no_warn_when_my_team_matches(self, manager, sample_players):
+        """Test no warning emitted when my_team_name matches at least one player."""
+        manager.logger = MagicMock()
+
+        manager.apply_drafted_state_to_players(sample_players)
+
+        manager.logger.warning.assert_not_called()
+
+    def test_apply_drafted_state_no_warn_when_no_data_loaded(self, tmp_path, sample_players):
+        """Test no warning emitted when no drafted data is loaded (early return path)."""
+        csv_path = tmp_path / "drafted.csv"
+        manager = DraftedRosterManager(str(csv_path), "NonexistentTeam")
+        manager.logger = MagicMock()
+
+        manager.apply_drafted_state_to_players(sample_players)
+
+        manager.logger.warning.assert_not_called()
 
 
 class TestNormalizePlayerInfo:

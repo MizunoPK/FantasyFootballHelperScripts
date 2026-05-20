@@ -617,3 +617,54 @@ class TestKAI10Refactoring:
         assert settings.e2e_test is True
 
 
+class TestCreateSettingsFromDict:
+    """Test suite for create_settings_from_dict() scoring_format wiring."""
+
+    def _base_dict(self) -> dict:
+        return {
+            'season': 2025,
+            'current_nfl_week': 17,
+            'request_timeout': 30,
+            'rate_limit_delay': 0.2,
+            'espn_player_limit': 2000,
+            'position_json_output': '../data/player_data',
+            'team_data_folder': '../data/team_data',
+            'game_data_csv': '../data/game_data.csv',
+            'enable_historical_save': False,
+            'enable_game_data': True,
+            'load_drafted_data': True,
+            'drafted_data_path': '../data/drafted_data.csv',
+            'my_team_name': 'Test Team',
+            'progress_frequency': 10,
+            'log_level': 'INFO',
+            'logging_to_file': False,
+            'e2e_test': False,
+        }
+
+    def test_create_settings_from_dict_scoring_format_ppr(self):
+        """Test scoring_format='ppr' maps to ScoringFormat.PPR."""
+        args_dict = self._base_dict()
+        args_dict['scoring_format'] = 'ppr'
+
+        settings = create_settings_from_dict(args_dict)
+
+        assert settings.scoring_format == ScoringFormat.PPR
+
+    def test_create_settings_from_dict_scoring_format_std(self):
+        """Test scoring_format='std' maps to ScoringFormat.STANDARD."""
+        args_dict = self._base_dict()
+        args_dict['scoring_format'] = 'std'
+
+        settings = create_settings_from_dict(args_dict)
+
+        assert settings.scoring_format == ScoringFormat.STANDARD
+
+    def test_create_settings_from_dict_scoring_format_half(self):
+        """Test scoring_format='half' maps to ScoringFormat.HALF_PPR."""
+        args_dict = self._base_dict()
+        args_dict['scoring_format'] = 'half'
+
+        settings = create_settings_from_dict(args_dict)
+
+        assert settings.scoring_format == ScoringFormat.HALF_PPR
+

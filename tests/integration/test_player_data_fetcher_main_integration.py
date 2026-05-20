@@ -33,6 +33,7 @@ class TestPlayerDataFetcherMainIntegration:
         'log_level': 'INFO',
         'logging_to_file': False,
         'e2e_test': True,
+        'scoring_format': 'ppr',
     }
 
     @patch('player_data_fetcher.player_data_fetcher_main.NFLProjectionsCollector')

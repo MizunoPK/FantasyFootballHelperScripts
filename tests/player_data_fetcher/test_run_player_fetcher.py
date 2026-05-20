@@ -80,6 +80,7 @@ class TestCreateSettingsDict:
             'position_json_output', 'team_data_folder', 'game_data_csv',
             'enable_historical_save', 'enable_game_data', 'espn_player_limit',
             'request_timeout', 'rate_limit_delay', 'progress_frequency',
+            'scoring_format',
         ]
         for key in required_keys:
             assert key in settings_dict, f"Missing key: {key}"

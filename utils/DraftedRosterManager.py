@@ -244,6 +244,12 @@ class DraftedRosterManager:
                 self.logger.warning(f"Could not find player in data for CSV entry: {original_info}")
 
         self.logger.info(f"Applied drafted data: {matches_found}/{len(self.drafted_players)} CSV entries matched")
+        my_team_matches = sum(1 for p in fantasy_players if p.drafted_by == self.my_team_name)
+        if my_team_matches == 0 and self.drafted_players:
+            self.logger.warning(
+                f"--my-team-name '{self.my_team_name}' matched zero players in drafted data. "
+                f"Check spelling and ensure the team name matches drafted_data.csv exactly."
+            )
         return fantasy_players
 
     def get_team_name_for_player(self, player: FantasyPlayer) -> str:

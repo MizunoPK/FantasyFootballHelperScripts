@@ -117,6 +117,7 @@ def create_settings_from_dict(args_dict: dict) -> Settings:
         log_level=args_dict['log_level'],
         logging_to_file=args_dict['logging_to_file'],
         e2e_test=args_dict['e2e_test'],
+        scoring_format=ScoringFormat(args_dict['scoring_format']),
     )
 
 

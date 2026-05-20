@@ -38,6 +38,7 @@ def _make_settings_dict(**overrides):
         'request_timeout': 30,
         'rate_limit_delay': 0.2,
         'progress_frequency': 10,
+        'scoring_format': 'ppr',
     }
     base.update(overrides)
     return base
