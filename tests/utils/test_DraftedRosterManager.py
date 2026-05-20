@@ -319,7 +319,7 @@ class TestApplyDraftedStateToPlayers:
             assert player.drafted_by == ""
 
     def test_apply_drafted_state_warns_when_my_team_matches_zero(self, tmp_path, sample_players):
-        """Test emits warning when my_team_name matches zero drafted players."""
+        """Test emits warning when my_team_name matches no entries in drafted data."""
         csv_path = tmp_path / "drafted.csv"
         csv_path.write_text(
             'Josh Allen QB - BUF,Other Team\n'
@@ -334,6 +334,7 @@ class TestApplyDraftedStateToPlayers:
         manager.logger.warning.assert_called_once()
         warning_msg = manager.logger.warning.call_args[0][0]
         assert "NonexistentTeam" in warning_msg
+        assert "matched zero players" in warning_msg
 
     def test_apply_drafted_state_no_warn_when_my_team_matches(self, manager, sample_players):
         """Test no warning emitted when my_team_name matches at least one player."""
