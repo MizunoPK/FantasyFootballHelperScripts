@@ -311,23 +311,44 @@ class ESPNClient(BaseAPIClient):
             self.logger.error(f"Failed to fetch team rankings: {e}")
             return {}
 
+    def _get_cache_path(self, cache_dir: Optional[Path] = None) -> Path:
+        """
+        Compute the date-stamped cache file path.
+
+        Args:
+            cache_dir: Optional override of the cache base directory; defaults
+                to `<project_root>/data` when None. Used for test isolation.
+
+        Returns:
+            Path to today's cache file.
+        """
+        date = datetime.date.today().isoformat()
+        base_dir = cache_dir if cache_dir is not None else Path(__file__).parent.parent / 'data'
+        return base_dir / f'team_rankings_cache_{date}.json'
+
     def _load_rankings_from_cache(self, cache_dir: Optional[Path] = None) -> Optional[Dict[str, Dict[str, int]]]:
         """
         Attempt to load today's team rankings from the date-stamped cache file.
+
+        Args:
+            cache_dir: Optional override of the cache base directory; defaults
+                to `<project_root>/data` when None. Used for test isolation.
 
         Returns:
             Dict mapping team abbreviations to {'offensive_rank': int, 'defensive_rank': int}
             if today's cache file exists and is valid; None if cache miss or read error.
         """
-        date = datetime.date.today().isoformat()
-        base_dir = cache_dir if cache_dir is not None else Path(__file__).parent.parent / 'data'
-        cache_path = base_dir / f'team_rankings_cache_{date}.json'
+        cache_path = self._get_cache_path(cache_dir)
         if not cache_path.exists():
             return None
         try:
             with open(cache_path, 'r') as f:
                 data = json.load(f)
             if not isinstance(data, dict) or not data:
+                return None
+            sample = next(iter(data.values()))
+            if not isinstance(sample, dict) or not isinstance(sample.get('offensive_rank'), int) or not isinstance(sample.get('defensive_rank'), int):
+                self.logger.warning(f"Rankings cache {cache_path} has invalid schema, re-fetching from API")
                 return None
             self.logger.info(f"Loaded team rankings from cache: {cache_path}")
             return data
@@ -343,10 +364,10 @@ class ESPNClient(BaseAPIClient):
 
         Args:
             rankings: Dict mapping team abbreviations to rank dicts.
+            cache_dir: Optional override of the cache base directory; defaults
+                to `<project_root>/data` when None. Used for test isolation.
         """
-        date = datetime.date.today().isoformat()
-        base_dir = cache_dir if cache_dir is not None else Path(__file__).parent.parent / 'data'
-        cache_path = base_dir / f'team_rankings_cache_{date}.json'
+        cache_path = self._get_cache_path(cache_dir)
         try:
             with open(cache_path, 'w') as f:
                 json.dump(rankings, f, indent=2)
@@ -630,7 +651,7 @@ class ESPNClient(BaseAPIClient):
             Dictionary mapping team abbreviations to offensive/defensive ranks
         """
         try:
-            cached = self._load_rankings_from_cache()
+            cached = await asyncio.to_thread(self._load_rankings_from_cache)
             if cached is not None:
                 return cached
 
@@ -653,7 +674,7 @@ class ESPNClient(BaseAPIClient):
             }
 
             team_rankings = await self._calculate_rolling_window_rankings(self.settings.current_nfl_week, min_weeks_for_rankings)
-            self._save_rankings_to_cache(team_rankings)
+            await asyncio.to_thread(self._save_rankings_to_cache, team_rankings)
             return team_rankings
 
         except Exception as e:

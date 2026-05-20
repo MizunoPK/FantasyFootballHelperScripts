@@ -8,6 +8,8 @@ Focuses on testable functionality without deep HTTP mocking.
 Author: Kai Mizuno
 """
 
+import datetime
+import json
 import pytest
 
 from player_data_fetcher.espn_client import (
@@ -467,7 +469,6 @@ class TestLoadRankingsFromCache:
         assert result is None
 
     def test_cache_hit_returns_dict(self, client, tmp_path):
-        import datetime
         data_dir = tmp_path / 'data'
         data_dir.mkdir()
         today = datetime.date.today().isoformat()
@@ -477,7 +478,6 @@ class TestLoadRankingsFromCache:
         assert result == {"KC": {"offensive_rank": 5, "defensive_rank": 15}}
 
     def test_cache_invalid_json_returns_none(self, client, tmp_path):
-        import datetime
         data_dir = tmp_path / 'data'
         data_dir.mkdir()
         today = datetime.date.today().isoformat()
@@ -487,12 +487,20 @@ class TestLoadRankingsFromCache:
         assert result is None
 
     def test_cache_empty_dict_returns_none(self, client, tmp_path):
-        import datetime
         data_dir = tmp_path / 'data'
         data_dir.mkdir()
         today = datetime.date.today().isoformat()
         cache_file = data_dir / f'team_rankings_cache_{today}.json'
         cache_file.write_text('{}')
+        result = client._load_rankings_from_cache(cache_dir=data_dir)
+        assert result is None
+
+    def test_cache_invalid_schema_returns_none(self, client, tmp_path):
+        data_dir = tmp_path / 'data'
+        data_dir.mkdir()
+        today = datetime.date.today().isoformat()
+        cache_file = data_dir / f'team_rankings_cache_{today}.json'
+        cache_file.write_text('{"KC": "not_a_dict"}')
         result = client._load_rankings_from_cache(cache_dir=data_dir)
         assert result is None
 
@@ -511,27 +519,23 @@ class TestSaveRankingsToCache:
         return ESPNClient(Settings())
 
     def test_save_creates_json_file(self, client, tmp_path):
-        import json as json_module
         data_dir = tmp_path / 'data'
         data_dir.mkdir()
         rankings = {'KC': {'offensive_rank': 5, 'defensive_rank': 15}}
         client._save_rankings_to_cache(rankings, cache_dir=data_dir)
-        import datetime
         today = datetime.date.today().isoformat()
         cache_file = data_dir / f'team_rankings_cache_{today}.json'
         assert cache_file.exists()
-        assert json_module.loads(cache_file.read_text()) == rankings
+        assert json.loads(cache_file.read_text()) == rankings
 
     def test_save_content_matches_input(self, client, tmp_path):
-        import json as json_module
-        import datetime
         data_dir = tmp_path / 'data'
         data_dir.mkdir()
         rankings = {'KC': {'offensive_rank': 5, 'defensive_rank': 15}, 'BUF': {'offensive_rank': 3, 'defensive_rank': 2}}
         client._save_rankings_to_cache(rankings, cache_dir=data_dir)
         today = datetime.date.today().isoformat()
         cache_file = data_dir / f'team_rankings_cache_{today}.json'
-        loaded = json_module.loads(cache_file.read_text())
+        loaded = json.loads(cache_file.read_text())
         assert loaded == rankings
 
     def test_save_ioerror_logs_warning(self, client, tmp_path):
