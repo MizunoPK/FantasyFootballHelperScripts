@@ -368,6 +368,9 @@ class ESPNClient(BaseAPIClient):
                 to `<project_root>/data` when None. Used for test isolation.
         """
         cache_path = self._get_cache_path(cache_dir)
+        for stale in cache_path.parent.glob('team_rankings_cache_*.json'):
+            if stale != cache_path:
+                stale.unlink(missing_ok=True)
         try:
             with open(cache_path, 'w') as f:
                 json.dump(rankings, f, indent=2)
