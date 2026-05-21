@@ -16,6 +16,7 @@ Author: Kai Mizuno
 import argparse
 import asyncio
 import datetime
+import json
 import shutil
 import sys
 from dataclasses import dataclass
@@ -480,6 +481,36 @@ class NFLProjectionsCollector:
                 print(f"     {pos}: {count} players (Top: {top_name} - {max_points:.1f} pts, Avg: {avg_points:.1f})")
 
 
+def validate_output_files(position_json_output: str, logger) -> None:
+    output_dir = Path(position_json_output)
+    for pos in ['qb', 'rb', 'wr', 'te', 'k', 'dst']:
+        file_path = output_dir / f"{pos}_data.json"
+        if not file_path.exists():
+            logger.error(
+                f"Output validation failed: {file_path} does not exist"
+            )
+            sys.exit(1)
+        try:
+            with open(file_path) as f:
+                data = json.load(f)
+        except (json.JSONDecodeError, OSError) as e:
+            logger.error(
+                f"Output validation failed: {file_path} is not valid JSON: {e}"
+            )
+            sys.exit(1)
+        root_key = f"{pos}_data"
+        if root_key not in data:
+            logger.error(
+                f"Output validation failed: {file_path} missing root key '{root_key}'"
+            )
+            sys.exit(1)
+        if len(data[root_key]) < 1:
+            logger.error(
+                f"Output validation failed: {file_path} has 0 players in '{root_key}'"
+            )
+            sys.exit(1)
+
+
 async def main(settings_dict: dict | None = None) -> None:
     """
     Main application entry point.
@@ -557,6 +588,8 @@ async def main(settings_dict: dict | None = None) -> None:
 
         if isinstance(output_files, Exception):
             raise output_files
+
+        validate_output_files(settings.position_json_output, logger)
 
         try:
             saved = collector.save_to_historical_data()

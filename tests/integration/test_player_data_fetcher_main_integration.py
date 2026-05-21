@@ -73,9 +73,10 @@ class TestPlayerDataFetcherMainIntegration:
         assert exc_info.value.code == 1
         mock_collector.export_data.assert_not_called()
 
+    @patch('player_data_fetcher.player_data_fetcher_main.validate_output_files')
     @patch('player_data_fetcher.player_data_fetcher_main.NFLProjectionsCollector')
     @patch('player_data_fetcher.player_data_fetcher_main.setup_logger')
-    def test_guard_passes_on_sufficient_players(self, mock_setup, mock_collector_class):
+    def test_guard_passes_on_sufficient_players(self, mock_setup, mock_collector_class, mock_validate):
         """AC5: Guard does not fire when total player count is at or above 100; export_data called."""
         mock_collector = mock_collector_class.return_value
         mock_collector.collect_all_projections = AsyncMock(return_value={
@@ -109,9 +110,10 @@ class TestPlayerDataFetcherMainIntegration:
         assert '0' in error_call_str
         assert '100' in error_call_str
 
+    @patch('player_data_fetcher.player_data_fetcher_main.validate_output_files')
     @patch('player_data_fetcher.player_data_fetcher_main.NFLProjectionsCollector')
     @patch('player_data_fetcher.player_data_fetcher_main.setup_logger')
-    def test_game_data_exception_logs_warning_and_continues(self, mock_setup, mock_collector_class):
+    def test_game_data_exception_logs_warning_and_continues(self, mock_setup, mock_collector_class, mock_validate):
         """R3: Exception from fetch_game_data logs warning and execution continues."""
         mock_collector = mock_collector_class.return_value
         mock_collector.collect_all_projections = AsyncMock(return_value={
