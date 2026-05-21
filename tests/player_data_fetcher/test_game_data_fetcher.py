@@ -25,7 +25,7 @@ class TestGameDataFetcherInitialization:
         data_folder = tmp_path / "data"
         data_folder.mkdir()
 
-        coords_file = Path(__file__).parent.parent.parent / "player_data_fetcher" / "coordinates.json"
+        coords_file = Path(__file__).parent.parent.parent / "data" / "coordinates.json"
 
         with patch.object(GameDataFetcher, '__init__', lambda self, **kwargs: None):
             fetcher = GameDataFetcher.__new__(GameDataFetcher)

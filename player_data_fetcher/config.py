@@ -9,7 +9,9 @@ via argparse defaults in run_player_fetcher.py.
 Author: Kai Mizuno
 """
 
-COORDINATES_JSON = 'coordinates.json'
+from pathlib import Path
+
+COORDINATES_JSON = Path(__file__).parent.parent / 'data' / 'coordinates.json'
 
 
 LOG_NAME = "player_data_fetcher"

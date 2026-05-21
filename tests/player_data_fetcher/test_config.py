@@ -10,6 +10,7 @@ Author: Kai Mizuno
 """
 
 import pytest
+from pathlib import Path
 
 from player_data_fetcher import config
 
@@ -87,9 +88,9 @@ class TestKAI10ConfigRefactoring:
         assert hasattr(config, 'PROGRESS_ETA_WINDOW_SIZE')
 
     def test_coordinates_json_is_filename_string(self):
-        """C-10: COORDINATES_JSON is a filename string (non-CLI constant preserved)"""
-        assert isinstance(config.COORDINATES_JSON, str)
-        assert len(config.COORDINATES_JSON) > 0
-        assert config.COORDINATES_JSON.endswith('.json')
+        """C-10: COORDINATES_JSON is a pathlib.Path pointing to data/coordinates.json"""
+        assert isinstance(config.COORDINATES_JSON, Path)
+        assert config.COORDINATES_JSON.name.endswith('.json')
+        assert 'data' in config.COORDINATES_JSON.parts
 
 
