@@ -17,6 +17,7 @@ import argparse
 import asyncio
 import datetime
 import json
+import logging
 import shutil
 import sys
 from dataclasses import dataclass
@@ -481,7 +482,17 @@ class NFLProjectionsCollector:
                 print(f"     {pos}: {count} players (Top: {top_name} - {max_points:.1f} pts, Avg: {avg_points:.1f})")
 
 
-def validate_output_files(position_json_output: str, logger) -> None:
+def validate_output_files(position_json_output: str, logger: logging.Logger) -> None:
+    """
+    Validate all 6 position JSON output files after export.
+
+    Args:
+        position_json_output (str): Directory path containing position JSON files.
+        logger (logging.Logger): Logger for error reporting.
+
+    Raises:
+        SystemExit: If any position file is missing, invalid JSON, missing root key, or empty.
+    """
     output_dir = Path(position_json_output)
     for pos in ['qb', 'rb', 'wr', 'te', 'k', 'dst']:
         file_path = output_dir / f"{pos}_data.json"
