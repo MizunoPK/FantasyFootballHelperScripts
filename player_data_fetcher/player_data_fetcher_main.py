@@ -37,6 +37,7 @@ from player_data_fetcher.config import LOG_NAME, LOGGING_FORMAT
 
 
 MIN_EXPECTED_PLAYER_COUNT = 100
+POSITION_CODES = ('qb', 'rb', 'wr', 'te', 'k', 'dst')
 
 
 @dataclass
@@ -494,31 +495,27 @@ def validate_output_files(position_json_output: str, logger: logging.Logger) -> 
         SystemExit: If any position file is missing, invalid JSON, missing root key, or empty.
     """
     output_dir = Path(position_json_output)
-    for pos in ['qb', 'rb', 'wr', 'te', 'k', 'dst']:
+    for pos in POSITION_CODES:
         file_path = output_dir / f"{pos}_data.json"
         if not file_path.exists():
-            logger.error(
-                f"Output validation failed: {file_path} does not exist"
-            )
+            logger.error(f"Output validation failed: {file_path} does not exist")
             sys.exit(1)
         try:
-            with open(file_path) as f:
+            with open(file_path, encoding='utf-8') as f:
                 data = json.load(f)
         except (json.JSONDecodeError, OSError) as e:
-            logger.error(
-                f"Output validation failed: {file_path} is not valid JSON: {e}"
-            )
+            logger.error(f"Output validation failed: {file_path} is not valid JSON: {e}")
             sys.exit(1)
         root_key = f"{pos}_data"
         if root_key not in data:
-            logger.error(
-                f"Output validation failed: {file_path} missing root key '{root_key}'"
-            )
+            logger.error(f"Output validation failed: {file_path} missing root key '{root_key}'")
             sys.exit(1)
-        if len(data[root_key]) < 1:
-            logger.error(
-                f"Output validation failed: {file_path} has 0 players in '{root_key}'"
-            )
+        players = data[root_key]
+        if not isinstance(players, list):
+            logger.error(f"Output validation failed: {file_path} root key '{root_key}' is not a list")
+            sys.exit(1)
+        if len(players) < 1:
+            logger.error(f"Output validation failed: {file_path} has 0 players in '{root_key}'")
             sys.exit(1)
 
 

@@ -6,9 +6,12 @@ exercising output validation, drafted state, and all 6 position JSON outputs.
 """
 import asyncio
 import json
+import os
 from pathlib import Path
 
-from player_data_fetcher.player_data_fetcher_main import main
+import pytest
+
+from player_data_fetcher.player_data_fetcher_main import main, POSITION_CODES
 
 
 FIXTURES_DIR = Path(__file__).parent.parent / 'fixtures'
@@ -17,14 +20,16 @@ FIXTURES_DIR = Path(__file__).parent.parent / 'fixtures'
 class TestPlayerDataFetcherE2E:
     """E2E tests for the player_data_fetcher pipeline in offline fixture mode."""
 
-    def _make_settings_dict(self, tmp_path: Path) -> dict:
-        return {
+    @pytest.fixture(scope="class")
+    def pipeline_output(self, tmp_path_factory):
+        output_root = tmp_path_factory.mktemp("e2e_output")
+        settings = {
             'e2e_test': True,
             'espn_player_limit': 100,
             'enable_game_data': False,
-            'position_json_output': str(tmp_path / 'player_data'),
-            'team_data_folder': str(tmp_path / 'team_data'),
-            'game_data_csv': str(tmp_path / 'game_data.csv'),
+            'position_json_output': str(output_root / 'player_data'),
+            'team_data_folder': str(output_root / 'team_data'),
+            'game_data_csv': str(output_root / 'game_data.csv'),
             'enable_historical_save': False,
             'load_drafted_data': True,
             'drafted_data_path': str(FIXTURES_DIR / 'league' / 'drafted_data.csv'),
@@ -38,61 +43,59 @@ class TestPlayerDataFetcherE2E:
             'logging_to_file': False,
             'scoring_format': 'ppr',
         }
+        prev = os.environ.get('ESPN_FIXTURE_DIR')
+        os.environ['ESPN_FIXTURE_DIR'] = str(FIXTURES_DIR)
+        try:
+            asyncio.run(main(settings))
+        finally:
+            if prev is None:
+                os.environ.pop('ESPN_FIXTURE_DIR', None)
+            else:
+                os.environ['ESPN_FIXTURE_DIR'] = prev
+        return output_root / 'player_data'
 
-    def test_pipeline_runs_to_completion(self, tmp_path, monkeypatch):
-        """R3: Pipeline completes without SystemExit when fixtures are present."""
-        monkeypatch.setenv('ESPN_FIXTURE_DIR', str(FIXTURES_DIR))
-        asyncio.run(main(self._make_settings_dict(tmp_path)))
+    def test_pipeline_runs_to_completion(self, pipeline_output):
+        """Pipeline completes without SystemExit when fixtures are present."""
+        assert pipeline_output.exists()
 
-    def test_all_position_json_files_valid(self, tmp_path, monkeypatch):
-        """R4: All 6 position JSON files exist, are valid JSON, have root key, have >=1 player."""
-        monkeypatch.setenv('ESPN_FIXTURE_DIR', str(FIXTURES_DIR))
-        asyncio.run(main(self._make_settings_dict(tmp_path)))
-
-        output_dir = tmp_path / 'player_data'
-        for pos in ['qb', 'rb', 'wr', 'te', 'k', 'dst']:
-            file_path = output_dir / f'{pos}_data.json'
+    def test_all_position_json_files_valid(self, pipeline_output):
+        """All 6 position JSON files exist, are valid JSON, have root key, have >=1 player."""
+        for pos in POSITION_CODES:
+            file_path = pipeline_output / f'{pos}_data.json'
             assert file_path.exists(), f"Expected {file_path} to exist"
-            with open(file_path) as f:
+            with open(file_path, encoding='utf-8') as f:
                 data = json.load(f)
             root_key = f'{pos}_data'
             assert root_key in data, f"Root key '{root_key}' not found in {file_path}"
+            assert isinstance(data[root_key], list), (
+                f"Expected list for '{root_key}', got {type(data[root_key])}"
+            )
             assert len(data[root_key]) >= 1, (
                 f"Expected >=1 player in '{root_key}', got {len(data[root_key])}"
             )
 
-    def test_drafted_by_populated(self, tmp_path, monkeypatch):
-        """R5: At least one player has non-empty drafted_by when fixture drafted data loaded."""
-        monkeypatch.setenv('ESPN_FIXTURE_DIR', str(FIXTURES_DIR))
-        asyncio.run(main(self._make_settings_dict(tmp_path)))
-
-        output_dir = tmp_path / 'player_data'
+    def test_drafted_by_populated(self, pipeline_output):
+        """At least one player has non-empty drafted_by when fixture drafted data loaded."""
         all_players = []
-        for pos in ['qb', 'rb', 'wr', 'te', 'k', 'dst']:
-            file_path = output_dir / f'{pos}_data.json'
-            with open(file_path) as f:
+        for pos in POSITION_CODES:
+            file_path = pipeline_output / f'{pos}_data.json'
+            with open(file_path, encoding='utf-8') as f:
                 data = json.load(f)
             all_players.extend(data.get(f'{pos}_data', []))
-
         assert any(p.get('drafted_by') for p in all_players), (
             "Expected at least one player with non-empty drafted_by"
         )
 
-    def test_all_positions_represented(self, tmp_path, monkeypatch):
-        """R6: All 6 position codes appear in output across all position JSON files."""
-        monkeypatch.setenv('ESPN_FIXTURE_DIR', str(FIXTURES_DIR))
-        asyncio.run(main(self._make_settings_dict(tmp_path)))
-
-        output_dir = tmp_path / 'player_data'
+    def test_all_positions_represented(self, pipeline_output):
+        """All 6 position codes appear in output across all position JSON files."""
         all_positions = set()
-        for pos in ['qb', 'rb', 'wr', 'te', 'k', 'dst']:
-            file_path = output_dir / f'{pos}_data.json'
-            with open(file_path) as f:
+        for pos in POSITION_CODES:
+            file_path = pipeline_output / f'{pos}_data.json'
+            with open(file_path, encoding='utf-8') as f:
                 data = json.load(f)
             for player in data.get(f'{pos}_data', []):
                 if player.get('position'):
                     all_positions.add(player['position'])
-
         assert {'QB', 'RB', 'WR', 'TE', 'K', 'DST'}.issubset(all_positions), (
             f"Expected all 6 positions but found: {all_positions}"
         )
