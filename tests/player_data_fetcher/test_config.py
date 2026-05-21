@@ -87,7 +87,7 @@ class TestKAI10ConfigRefactoring:
         assert hasattr(config, 'LOGGING_FORMAT')
         assert hasattr(config, 'PROGRESS_ETA_WINDOW_SIZE')
 
-    def test_coordinates_json_is_filename_string(self):
+    def test_coordinates_json_is_path_to_data_file(self):
         """C-10: COORDINATES_JSON is a pathlib.Path pointing to data/coordinates.json"""
         assert isinstance(config.COORDINATES_JSON, Path)
         assert config.COORDINATES_JSON.name.endswith('.json')
