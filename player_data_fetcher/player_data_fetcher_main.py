@@ -585,7 +585,6 @@ async def main(settings_dict: dict | None = None) -> None:
         output_files = gather_results[0]
         game_data_result = gather_results[1]
 
-        # Defensive: fetch_game_data() swallows exceptions internally; guard retained for resilience if that changes.
         if isinstance(game_data_result, Exception):
             logger.warning(f"Failed to fetch game data: {game_data_result}")
             print(f"\n[WARNING] Could not fetch game data: {game_data_result}")

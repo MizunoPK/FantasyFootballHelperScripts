@@ -970,13 +970,26 @@ class ESPNClient(BaseAPIClient):
             return {}
 
     def _load_season_schedule_from_csv(self, csv_path: Optional[Path] = None) -> Dict[int, Dict[str, str]]:
+        """
+        Load the full season schedule from data/season_schedule.csv.
+
+        Args:
+            csv_path: Optional override path; defaults to
+                ``<project_root>/data/season_schedule.csv``. Used for test isolation.
+
+        Returns:
+            Dict mapping week number to team-opponent mapping
+            (e.g. ``{1: {'KC': 'DEN', 'DEN': 'KC', ...}, ...}``).
+            Returns ``{}`` on any read or parse error.
+        """
         try:
             csv_path = csv_path or Path(__file__).parent.parent / "data" / "season_schedule.csv"
             rows = read_dict_csv(csv_path, required_columns=['week', 'team', 'opponent'])
         except FileNotFoundError as e:
             self.logger.error(f"Failed to load season schedule from CSV: {e}")
             return {}
-        except Exception:
+        except Exception as e:
+            self.logger.error(f"Failed to load season schedule from CSV: {e}")
             return {}
         try:
             schedule: Dict[int, Dict[str, str]] = {}
