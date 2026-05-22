@@ -124,6 +124,7 @@ class PlayerManager:
         self.players: List[FantasyPlayer] = []
         self.max_projection : int = 0
         self.max_weekly_projections: Dict[int, float] = {}
+        self._last_mtimes: Dict[str, float] = {}
 
         self.load_players_from_json()
         self.load_team()
@@ -514,9 +515,40 @@ class PlayerManager:
         try:
             self.logger.info("Reloading player data from JSON files")
 
+            player_data_dir = self.data_folder / 'player_data'
+            position_files = ['qb_data.json', 'rb_data.json', 'wr_data.json', 'te_data.json', 'k_data.json', 'dst_data.json']
+
+            if self._last_mtimes:
+                all_unchanged = True
+                for position_file in position_files:
+                    filepath = player_data_dir / position_file
+                    if not filepath.exists():
+                        continue
+                    try:
+                        current_mtime = filepath.stat().st_mtime
+                    except OSError:
+                        all_unchanged = False
+                        break
+                    last_mtime = self._last_mtimes.get(str(filepath), None)
+                    if last_mtime is None or current_mtime != last_mtime:
+                        all_unchanged = False
+                        break
+                if all_unchanged:
+                    self.logger.debug("Player data files unchanged, skipping reload")
+                    return
+
             old_roster_size = len(self.team.roster)
 
             self.load_players_from_json()
+
+            for position_file in position_files:
+                filepath = player_data_dir / position_file
+                if not filepath.exists():
+                    continue
+                try:
+                    self._last_mtimes[str(filepath)] = filepath.stat().st_mtime
+                except OSError:
+                    continue
 
             self.load_team()
 
