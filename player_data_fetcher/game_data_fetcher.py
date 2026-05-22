@@ -68,8 +68,7 @@ class GameDataFetcher:
         self.rate_limit_delay = rate_limit_delay
         self.logger = get_logger()
 
-        script_dir = Path(__file__).parent
-        coords_file = script_dir / COORDINATES_JSON
+        coords_file = COORDINATES_JSON
         self.coords_manager = CoordinatesManager(coords_file)
 
         self.output_file = self.data_folder / "game_data.csv"

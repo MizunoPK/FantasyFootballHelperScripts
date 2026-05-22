@@ -22,10 +22,12 @@ ESPN_TEAM_MAPPINGS: Dict[int, str] = {
 }
 
 ESPN_POSITION_MAPPINGS: Dict[int, str] = {
-    1: 'QB', 
-    2: 'RB', 
-    3: 'WR', 
-    4: 'TE', 
-    5: 'K', 
+    1: 'QB',
+    2: 'RB',
+    3: 'WR',
+    4: 'TE',
+    5: 'K',
     16: 'DST'
 }
+
+MIN_WEEKS_FOR_RANKINGS: int = 5

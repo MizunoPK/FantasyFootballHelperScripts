@@ -9,8 +9,8 @@ Author: Kai Mizuno
 """
 
 import asyncio
-import csv
 from contextlib import asynccontextmanager
+import datetime
 import json
 import math
 import os
@@ -24,10 +24,11 @@ from tenacity import retry, stop_after_attempt, wait_random_exponential
 from player_data_fetcher.player_data_models import ESPNPlayerData, ScoringFormat
 from player_data_fetcher.fantasy_points_calculator import FantasyPointsExtractor, FantasyPointsConfig
 from player_data_fetcher.player_data_constants import (
-    ESPN_TEAM_MAPPINGS, ESPN_POSITION_MAPPINGS
+    ESPN_TEAM_MAPPINGS, ESPN_POSITION_MAPPINGS, MIN_WEEKS_FOR_RANKINGS
 )
 from player_data_fetcher.config import ESPN_USER_AGENT
 from utils.LoggingManager import get_logger
+from utils.csv_utils import read_dict_csv
 
 
 class ESPNAPIError(Exception):
@@ -310,6 +311,72 @@ class ESPNClient(BaseAPIClient):
             self.logger.error(f"Failed to fetch team rankings: {e}")
             return {}
 
+    def _get_cache_path(self, cache_dir: Optional[Path] = None) -> Path:
+        """
+        Compute the date-stamped cache file path.
+
+        Args:
+            cache_dir: Optional override of the cache base directory; defaults
+                to `<project_root>/data` when None. Used for test isolation.
+
+        Returns:
+            Path to today's cache file.
+        """
+        date = datetime.date.today().isoformat()
+        base_dir = cache_dir if cache_dir is not None else Path(__file__).parent.parent / 'data'
+        return base_dir / f'team_rankings_cache_{date}.json'
+
+    def _load_rankings_from_cache(self, cache_dir: Optional[Path] = None) -> Optional[Dict[str, Dict[str, int]]]:
+        """
+        Attempt to load today's team rankings from the date-stamped cache file.
+
+        Args:
+            cache_dir: Optional override of the cache base directory; defaults
+                to `<project_root>/data` when None. Used for test isolation.
+
+        Returns:
+            Dict mapping team abbreviations to {'offensive_rank': int, 'defensive_rank': int}
+            if today's cache file exists and is valid; None if cache miss or read error.
+        """
+        cache_path = self._get_cache_path(cache_dir)
+        if not cache_path.exists():
+            return None
+        try:
+            with open(cache_path, 'r') as f:
+                data = json.load(f)
+            if not isinstance(data, dict) or not data:
+                return None
+            sample = next(iter(data.values()))
+            if not isinstance(sample, dict) or not isinstance(sample.get('offensive_rank'), int) or not isinstance(sample.get('defensive_rank'), int):
+                self.logger.warning(f"Rankings cache {cache_path} has invalid schema, re-fetching from API")
+                return None
+            self.logger.info(f"Loaded team rankings from cache: {cache_path}")
+            return data
+        except Exception as e:
+            self.logger.warning(f"Failed to read rankings cache {cache_path}: {e}")
+            return None
+
+    def _save_rankings_to_cache(self, rankings: Dict[str, Dict[str, int]], cache_dir: Optional[Path] = None) -> None:
+        """
+        Save team rankings to the date-stamped cache file.
+
+        Does not raise on write errors — logs a warning and returns silently.
+
+        Args:
+            rankings: Dict mapping team abbreviations to rank dicts.
+            cache_dir: Optional override of the cache base directory; defaults
+                to `<project_root>/data` when None. Used for test isolation.
+        """
+        cache_path = self._get_cache_path(cache_dir)
+        for stale in cache_path.parent.glob('team_rankings_cache_*.json'):
+            if stale != cache_path:
+                stale.unlink(missing_ok=True)
+        try:
+            with open(cache_path, 'w') as f:
+                json.dump(rankings, f, indent=2)
+            self.logger.info(f"Saved team rankings to cache: {cache_path}")
+        except Exception as e:
+            self.logger.warning(f"Failed to write rankings cache {cache_path}: {e}")
 
     def _calculate_week_by_week_projection(self, player_info: dict, name: str, position: str) -> float:
         """
@@ -587,7 +654,11 @@ class ESPNClient(BaseAPIClient):
             Dictionary mapping team abbreviations to offensive/defensive ranks
         """
         try:
-            min_weeks_for_rankings = 5
+            cached = await asyncio.to_thread(self._load_rankings_from_cache)
+            if cached is not None:
+                return cached
+
+            min_weeks_for_rankings = MIN_WEEKS_FOR_RANKINGS
 
             use_current_season = self.settings.current_nfl_week > min_weeks_for_rankings
 
@@ -605,10 +676,12 @@ class ESPNClient(BaseAPIClient):
                 25: 'SF', 26: 'SEA', 27: 'TB', 28: 'WSH', 29: 'CAR', 30: 'JAX', 33: 'BAL', 34: 'HOU'
             }
 
-            return await self._calculate_rolling_window_rankings(self.settings.current_nfl_week, min_weeks_for_rankings)
+            team_rankings = await self._calculate_rolling_window_rankings(self.settings.current_nfl_week, min_weeks_for_rankings)
+            await asyncio.to_thread(self._save_rankings_to_cache, team_rankings)
+            return team_rankings
 
         except Exception as e:
-            min_weeks_for_rankings = 5
+            min_weeks_for_rankings = MIN_WEEKS_FOR_RANKINGS
             use_current_season = self.settings.current_nfl_week > min_weeks_for_rankings
             season_info = f"{self.settings.season} season" if use_current_season else "neutral data"
 
@@ -899,74 +972,38 @@ class ESPNClient(BaseAPIClient):
             self.logger.error(f"Failed to fetch current week schedule: {e}")
             return {}
 
-    async def _fetch_full_season_schedule(self) -> Dict[int, Dict[str, str]]:
+    def _load_season_schedule_from_csv(self, csv_path: Optional[Path] = None) -> Dict[int, Dict[str, str]]:
         """
-        Fetch complete season schedule for all weeks.
+        Load the full season schedule from data/season_schedule.csv.
+
+        Args:
+            csv_path: Optional override path; defaults to
+                ``<project_root>/data/season_schedule.csv``. Used for test isolation.
 
         Returns:
-            Dict[week_number, Dict[team, opponent]]
-            Example: {1: {'KC': 'BAL', 'BAL': 'KC', ...}, 2: {...}, ...}
+            Dict mapping week number to team-opponent mapping
+            (e.g. ``{1: {'KC': 'DEN', 'DEN': 'KC', ...}, ...}``).
+            Returns ``{}`` on any read or parse error.
         """
         try:
-            import asyncio
-
-            full_schedule = {}
-
-            self.logger.info("Fetching full season schedule (weeks 1-18)")
-
-            for week in range(1, 19):
-                self.logger.debug(f"Fetching schedule for week {week}/18")
-
-                url = "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard"
-                params = {
-                    "seasontype": 2,
-                    "week": week,
-                    "dates": self.settings.season
-                }
-
-                data = await self._make_request("GET", url, params=params)
-
-                week_schedule = {}
-                events = data.get('events', [])
-
-                for event in events:
-                    try:
-                        competitions = event.get('competitions', [])
-                        if not competitions:
-                            continue
-
-                        competition = competitions[0]
-                        competitors = competition.get('competitors', [])
-
-                        if len(competitors) != 2:
-                            continue
-
-                        team1_data = competitors[0].get('team', {})
-                        team2_data = competitors[1].get('team', {})
-
-                        team1 = team1_data.get('abbreviation', '')
-                        team2 = team2_data.get('abbreviation', '')
-
-                        team1 = 'WSH' if team1 == 'WAS' else team1
-                        team2 = 'WSH' if team2 == 'WAS' else team2
-
-                        if team1 and team2:
-                            week_schedule[team1] = team2
-                            week_schedule[team2] = team1
-
-                    except Exception as e:
-                        self.logger.debug(f"Error parsing event in week {week}: {e}")
-                        continue
-
-                full_schedule[week] = week_schedule
-
-                await asyncio.sleep(0.2)
-
-            self.logger.info(f"Successfully fetched schedule for {len(full_schedule)} weeks")
-            return full_schedule
-
+            csv_path = csv_path or Path(__file__).parent.parent / "data" / "season_schedule.csv"
+            rows = read_dict_csv(csv_path, required_columns=['week', 'team', 'opponent'])
+        except FileNotFoundError as e:
+            self.logger.error(f"Failed to load season schedule from CSV: {e}")
+            return {}
         except Exception as e:
-            self.logger.error(f"Failed to fetch full season schedule: {e}")
+            self.logger.error(f"Failed to load season schedule from CSV: {e}")
+            return {}
+        try:
+            schedule: Dict[int, Dict[str, str]] = {}
+            for row in rows:
+                week_num = int(row['week'])
+                if week_num not in schedule:
+                    schedule[week_num] = {}
+                schedule[week_num][row['team']] = row['opponent']
+            return schedule
+        except Exception as e:
+            self.logger.error(f"Failed to load season schedule from CSV: {e}")
             return {}
 
     async def _fetch_week_scores(self, week: int) -> List[Dict]:
@@ -1081,7 +1118,7 @@ class ESPNClient(BaseAPIClient):
             'NYJ', 'PHI', 'PIT', 'SEA', 'SF', 'TB', 'TEN', 'WSH'
         ]
 
-        min_weeks_for_rankings = 5
+        min_weeks_for_rankings = MIN_WEEKS_FOR_RANKINGS
         window_start = max(1, current_week - min_weeks_for_rankings)
 
         for player in players:
@@ -1359,7 +1396,7 @@ class ESPNClient(BaseAPIClient):
         team_rankings = await self._fetch_team_rankings()
         current_week_schedule = await self._fetch_current_week_schedule()
 
-        full_season_schedule = await self._fetch_full_season_schedule()
+        full_season_schedule = self._load_season_schedule_from_csv()
 
         self.current_week_schedule = current_week_schedule
         self.full_season_schedule = full_season_schedule

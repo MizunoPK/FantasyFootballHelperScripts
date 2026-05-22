@@ -33,6 +33,7 @@ class TestPlayerDataFetcherMainIntegration:
         'log_level': 'INFO',
         'logging_to_file': False,
         'e2e_test': True,
+        'scoring_format': 'ppr',
     }
 
     @patch('player_data_fetcher.player_data_fetcher_main.NFLProjectionsCollector')
@@ -72,9 +73,10 @@ class TestPlayerDataFetcherMainIntegration:
         assert exc_info.value.code == 1
         mock_collector.export_data.assert_not_called()
 
+    @patch('player_data_fetcher.player_data_fetcher_main.validate_output_files')
     @patch('player_data_fetcher.player_data_fetcher_main.NFLProjectionsCollector')
     @patch('player_data_fetcher.player_data_fetcher_main.setup_logger')
-    def test_guard_passes_on_sufficient_players(self, mock_setup, mock_collector_class):
+    def test_guard_passes_on_sufficient_players(self, mock_setup, mock_collector_class, mock_validate):
         """AC5: Guard does not fire when total player count is at or above 100; export_data called."""
         mock_collector = mock_collector_class.return_value
         mock_collector.collect_all_projections = AsyncMock(return_value={
@@ -107,5 +109,25 @@ class TestPlayerDataFetcherMainIntegration:
         error_call_str = str(mock_setup.return_value.error.call_args)
         assert '0' in error_call_str
         assert '100' in error_call_str
+
+    @patch('player_data_fetcher.player_data_fetcher_main.validate_output_files')
+    @patch('player_data_fetcher.player_data_fetcher_main.NFLProjectionsCollector')
+    @patch('player_data_fetcher.player_data_fetcher_main.setup_logger')
+    def test_game_data_exception_logs_warning_and_continues(self, mock_setup, mock_collector_class, mock_validate):
+        """R3: Exception from fetch_game_data logs warning and execution continues."""
+        mock_collector = mock_collector_class.return_value
+        mock_collector.collect_all_projections = AsyncMock(return_value={
+            'qb': ProjectionData(season=2025, scoring_format='PPR', total_players=200, players=[])
+        })
+        mock_collector.export_data = AsyncMock(return_value=[])
+        mock_collector.fetch_game_data = Mock(side_effect=RuntimeError("network failure"))
+        mock_collector.save_to_historical_data = Mock(return_value=False)
+
+        asyncio.run(main(self._SETTINGS_DICT))
+
+        mock_setup.return_value.warning.assert_called_once()
+        warning_call_str = str(mock_setup.return_value.warning.call_args)
+        assert 'network failure' in warning_call_str
+        mock_collector.save_to_historical_data.assert_called_once()
 
 

@@ -38,6 +38,7 @@ def _make_settings_dict(**overrides):
         'request_timeout': 30,
         'rate_limit_delay': 0.2,
         'progress_frequency': 10,
+        'scoring_format': 'ppr',
     }
     base.update(overrides)
     return base
@@ -112,7 +113,8 @@ class TestMainSignature:
             mock_collector.export_data = AsyncMock(return_value=[])
             mock_cls.return_value = mock_collector
             with patch('player_data_fetcher.player_data_fetcher_main.setup_logger'):
-                await main(settings_dict)
+                with patch('player_data_fetcher.player_data_fetcher_main.validate_output_files'):
+                    await main(settings_dict)
 
     def test_main_settings_dict_parameter_exists(self):
         """I-5: main() accepts settings_dict=None (backward compat for direct invocation)"""
@@ -188,7 +190,8 @@ class TestE2EGracefulSkip:
             mock_collector.export_data = AsyncMock(return_value=[])
             mock_cls.return_value = mock_collector
             with patch('player_data_fetcher.player_data_fetcher_main.setup_logger'):
-                await main(settings_dict)
+                with patch('player_data_fetcher.player_data_fetcher_main.validate_output_files'):
+                    await main(settings_dict)
 
     @pytest.mark.asyncio
     async def test_e2e_with_existing_drafted_file_loads_normally(self, tmp_path):
@@ -208,7 +211,8 @@ class TestE2EGracefulSkip:
             mock_collector.export_data = AsyncMock(return_value=[])
             mock_cls.return_value = mock_collector
             with patch('player_data_fetcher.player_data_fetcher_main.setup_logger'):
-                await main(settings_dict)
+                with patch('player_data_fetcher.player_data_fetcher_main.validate_output_files'):
+                    await main(settings_dict)
 
     @pytest.mark.asyncio
     async def test_non_e2e_missing_drafted_file_raises(self, tmp_path):

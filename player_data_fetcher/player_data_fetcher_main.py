@@ -16,6 +16,8 @@ Author: Kai Mizuno
 import argparse
 import asyncio
 import datetime
+import json
+import logging
 import shutil
 import sys
 from dataclasses import dataclass
@@ -35,6 +37,7 @@ from player_data_fetcher.config import LOG_NAME, LOGGING_FORMAT
 
 
 MIN_EXPECTED_PLAYER_COUNT = 100
+POSITION_CODES = ('qb', 'rb', 'wr', 'te', 'k', 'dst')
 
 
 @dataclass
@@ -117,6 +120,7 @@ def create_settings_from_dict(args_dict: dict) -> Settings:
         log_level=args_dict['log_level'],
         logging_to_file=args_dict['logging_to_file'],
         e2e_test=args_dict['e2e_test'],
+        scoring_format=ScoringFormat(args_dict['scoring_format']),
     )
 
 
@@ -479,6 +483,42 @@ class NFLProjectionsCollector:
                 print(f"     {pos}: {count} players (Top: {top_name} - {max_points:.1f} pts, Avg: {avg_points:.1f})")
 
 
+def validate_output_files(position_json_output: str, logger: logging.Logger) -> None:
+    """
+    Validate all 6 position JSON output files after export.
+
+    Args:
+        position_json_output (str): Directory path containing position JSON files.
+        logger (logging.Logger): Logger for error reporting.
+
+    Raises:
+        SystemExit: If any position file is missing, invalid JSON, missing root key, or empty.
+    """
+    output_dir = Path(position_json_output)
+    for pos in POSITION_CODES:
+        file_path = output_dir / f"{pos}_data.json"
+        if not file_path.exists():
+            logger.error(f"Output validation failed: {file_path} does not exist")
+            sys.exit(1)
+        try:
+            with open(file_path, encoding='utf-8') as f:
+                data = json.load(f)
+        except (json.JSONDecodeError, OSError) as e:
+            logger.error(f"Output validation failed: {file_path} is not valid JSON: {e}")
+            sys.exit(1)
+        root_key = f"{pos}_data"
+        if root_key not in data:
+            logger.error(f"Output validation failed: {file_path} missing root key '{root_key}'")
+            sys.exit(1)
+        players = data[root_key]
+        if not isinstance(players, list):
+            logger.error(f"Output validation failed: {file_path} root key '{root_key}' is not a list")
+            sys.exit(1)
+        if len(players) < 1:
+            logger.error(f"Output validation failed: {file_path} has 0 players in '{root_key}'")
+            sys.exit(1)
+
+
 async def main(settings_dict: dict | None = None) -> None:
     """
     Main application entry point.
@@ -535,17 +575,28 @@ async def main(settings_dict: dict | None = None) -> None:
             )
             sys.exit(1)
 
-        output_files = await collector.export_data(projection_data)
+        loop = asyncio.get_running_loop()
+        game_data_future = loop.run_in_executor(None, collector.fetch_game_data)
+        gather_results = await asyncio.gather(
+            collector.export_data(projection_data),
+            game_data_future,
+            return_exceptions=True,
+        )
+        output_files = gather_results[0]
+        game_data_result = gather_results[1]
 
-        try:
-            game_data_fetched = collector.fetch_game_data()
-            if game_data_fetched:
-                print(f"\n[INFO] Game data (venue, weather, scores) fetched successfully")
-            elif not settings.enable_game_data:
-                logger.debug("Game data fetching disabled via settings")
-        except Exception as e:
-            logger.warning(f"Failed to fetch game data: {e}")
-            print(f"\n[WARNING] Could not fetch game data: {e}")
+        if isinstance(game_data_result, Exception):
+            logger.warning(f"Failed to fetch game data: {game_data_result}")
+            print(f"\n[WARNING] Could not fetch game data: {game_data_result}")
+        elif game_data_result:
+            print(f"\n[INFO] Game data (venue, weather, scores) fetched successfully")
+        elif not settings.enable_game_data:
+            logger.debug("Game data fetching disabled via settings")
+
+        if isinstance(output_files, Exception):
+            raise output_files
+
+        validate_output_files(settings.position_json_output, logger)
 
         try:
             saved = collector.save_to_historical_data()

@@ -230,3 +230,4 @@ feature-updates/guides_v2/audit/outputs/
 
 .shamt
 CLAUDE.md
+data/team_rankings_cache_*.json

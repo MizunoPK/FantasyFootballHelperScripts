@@ -60,6 +60,14 @@ def parse_args(argv=None):
     )
 
     parser.add_argument(
+        '--scoring-format',
+        type=str,
+        default='ppr',
+        choices=['ppr', 'half', 'std'],
+        help='Scoring format: ppr (default), half (half-PPR), std (standard)'
+    )
+
+    parser.add_argument(
         '--my-team-name',
         type=str,
         default='Sea Sharp',
@@ -170,6 +178,7 @@ def create_settings_dict(args) -> dict:
         'request_timeout': args.request_timeout,
         'rate_limit_delay': args.rate_limit_delay,
         'progress_frequency': args.progress_frequency,
+        'scoring_format': args.scoring_format,
     }
 
 

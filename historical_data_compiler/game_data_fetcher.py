@@ -133,7 +133,7 @@ class GameDataFetcher:
 
     def _load_coordinates(self) -> Dict[str, Any]:
         """Load stadium coordinates from JSON file."""
-        coords_file = Path(__file__).parent / "coordinates.json"
+        coords_file = Path(__file__).parent.parent / 'data' / 'coordinates.json'
         if coords_file.exists():
             try:
                 with open(coords_file, 'r', encoding='utf-8') as f:
