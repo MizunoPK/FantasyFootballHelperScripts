@@ -265,7 +265,7 @@ class PlayerManager:
         qb_data.json, rb_data.json, wr_data.json, te_data.json, k_data.json, dst_data.json
 
         Returns:
-            True if successful, False otherwise
+            True always (raises on unrecoverable errors; corrupted position files are skipped)
 
         Raises:
             FileNotFoundError: If player_data directory doesn't exist
@@ -275,7 +275,6 @@ class PlayerManager:
             - Calculates self.max_projection from all players
             - Calls self.load_team() to initialize team roster
 
-        Spec Reference: sub_feature_01_core_data_loading_spec.md lines 242-319
         """
         player_data_dir = self.data_folder / 'player_data'
         if not player_data_dir.exists():
@@ -561,7 +560,7 @@ class PlayerManager:
 
         except Exception as e:
             self.logger.error(f"Error reloading player data: {e}")
-            print(f"Warning: Could not reload player data from {self.players_csv}: {e}")
+            print(f"Warning: Could not reload player data: {e}")
 
 
     def get_roster_len(self) -> int:

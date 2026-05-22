@@ -1,5 +1,4 @@
 from unittest.mock import MagicMock
-import pytest
 
 from league_helper.util.PlayerManager import PlayerManager
 
@@ -107,3 +106,17 @@ class TestReloadPlayerDataMtimeOptimization:
         manager.reload_player_data()
 
         manager.load_players_from_json.assert_called_once()
+
+    def test_mtimes_recorded_after_reload(self):
+        """R3: After a successful reload, _last_mtimes contains current mtime for all position files."""
+        fixed_mtime = 1700000000.0
+        mtime_map = {pf: fixed_mtime for pf in POSITION_FILES}
+        fp_mocks, _ = _make_fp_mocks(mtime_map)
+        manager = _make_manager(fp_mocks, last_mtimes={})
+
+        manager.reload_player_data()
+
+        for pf in POSITION_FILES:
+            expected_key = f"/data/player_data/{pf}"
+            assert expected_key in manager._last_mtimes
+            assert manager._last_mtimes[expected_key] == fixed_mtime

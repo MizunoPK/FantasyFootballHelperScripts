@@ -67,7 +67,7 @@ class TestSaveCalculatedPointsManager:
         assert manager.logger is not None
 
     def test_execute_weekly_scoring(self, mock_config, mock_player_manager, temp_data_folder):
-        """Test execute() collects weekly projections for week > 0 (UPDATED for Sub-feature 2)"""
+        """Test execute() collects weekly projections for week > 0"""
         mock_config.current_nfl_week = 5
         mock_config.nfl_season = 2024
 
@@ -118,7 +118,7 @@ class TestSaveCalculatedPointsManager:
         assert data["1"] == 342.57
 
     def test_execute_rounds_to_2_decimals(self, mock_config, mock_player_manager, temp_data_folder):
-        """Test execute() rounds projected points to 2 decimal places (UPDATED for Sub-feature 2)"""
+        """Test execute() rounds projected points to 2 decimal places"""
         mock_config.current_nfl_week = 1
         mock_config.nfl_season = 2024
 
@@ -144,7 +144,7 @@ class TestSaveCalculatedPointsManager:
         assert data[player_id] == 26.57
 
     def test_execute_skips_if_folder_exists(self, mock_config, mock_player_manager, temp_data_folder, capsys):
-        """Test execute() skips operation if folder already exists (idempotent) (UPDATED for Sub-feature 2)"""
+        """Test execute() skips operation if folder already exists (idempotent)"""
         mock_config.current_nfl_week = 5
         mock_config.nfl_season = 2024
 
@@ -171,7 +171,7 @@ class TestSaveCalculatedPointsManager:
         assert "already exists" in captured.out.lower()
 
     def test_execute_warns_on_missing_files(self, mock_config, mock_player_manager, temp_data_folder, capsys):
-        """Test execute() warns but continues when optional files are missing (UPDATED for Sub-feature 2)"""
+        """Test execute() warns but continues when optional files are missing"""
         mock_config.current_nfl_week = 1
         mock_config.nfl_season = 2024
 
@@ -224,7 +224,7 @@ class TestSaveCalculatedPointsManager:
         assert not (output_folder / "players_projected.csv").exists()
 
     def test_execute_creates_correct_folder_structure(self, mock_config, mock_player_manager, temp_data_folder):
-        """Test execute() creates correct folder structure (UPDATED for Sub-feature 2)"""
+        """Test execute() creates correct folder structure"""
         mock_config.current_nfl_week = 12
         mock_config.nfl_season = 2024
 

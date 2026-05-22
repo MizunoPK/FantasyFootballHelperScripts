@@ -10,7 +10,7 @@ Author: Kai Mizuno
 
 from typing import List, Optional
 from utils.FantasyPlayer import FantasyPlayer
-from league_helper.util.user_input import show_list_selection
+
 
 
 class PlayerSearch:
@@ -121,6 +121,7 @@ class PlayerSearch:
             drafted_filter: Filter by drafted status (0, 1, 2, or None for all)
             prompt: Custom prompt to display to user
             not_available: If True, search players with drafted != 0 (for Drop Player mode)
+            max_search_results: If set, caps the number of displayed results and prints a truncation message
 
         Returns:
             Selected FantasyPlayer object, or None if user exits

@@ -8,7 +8,7 @@ Starter Helper mode.
 
 This mode creates a snapshot of:
 - Calculated player scores (JSON)
-- Input data files (configs/, team_data/, game_data.csv, drafted_data.csv, etc.)
+- Input data files (configs/, team_data/, game_data.csv)
 
 Output Structure:
 - Weekly: data/historical_data/{SEASON}/{WEEK}/calculated_projected_points.json

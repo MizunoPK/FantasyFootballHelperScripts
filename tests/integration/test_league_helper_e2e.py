@@ -1,12 +1,10 @@
 """
-E2E integration test for the league helper application (FF-4 F07).
+E2E integration test for the league helper application.
 
 Invokes run_league_helper.py via subprocess with scripted stdin and a temp
 fixture data directory assembled at runtime. Asserts exit code 0, no Python
 traceback in stderr, startup banner in stdout, and evidence of add-to-roster
 mode navigation.
-
-Test Category: R1-R9 — E2E subprocess invocation (1 test)
 """
 import os
 import shutil
