@@ -12,7 +12,6 @@ from typing import List, Optional
 from utils.FantasyPlayer import FantasyPlayer
 
 
-
 class PlayerSearch:
     """Handles player search functionality with fuzzy name matching"""
 

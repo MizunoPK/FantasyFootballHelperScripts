@@ -762,8 +762,8 @@ class TradeAnalyzer:
                 "1-for-1": "ENABLE_ONE_FOR_ONE",
             }
             top_disable = [name for name, _ in enabled_types[:3]]
-            config_lines = [f'    "{key_map[name]}": false' for name in top_disable]
-            config_snippet = "\n".join(config_lines)
+            config_lines = [f'    "{key_map[name]}": false,' for name in top_disable]
+            config_snippet = "\n".join(config_lines).rstrip(",")
 
             print(
                 f"\nTRADE COMBINATION LIMIT EXCEEDED\n"
