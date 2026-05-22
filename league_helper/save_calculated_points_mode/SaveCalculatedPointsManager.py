@@ -111,8 +111,7 @@ class SaveCalculatedPointsManager:
         self.logger.info(f"Saved {len(results_dict)} player scores to {output_path}")
 
         files_to_copy = [
-            "game_data.csv",
-            "drafted_data.csv"
+            "game_data.csv"
         ]
 
         for filename in files_to_copy:

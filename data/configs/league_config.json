@@ -99,6 +99,7 @@
       "KC"
     ],
     "NFL_TEAM_PENALTY_WEIGHT": 0.75,
+    "MAX_SEARCH_RESULTS": 15,
     "ADP_SCORING": {
       "THRESHOLDS": {
         "BASE_POSITION": 0,

@@ -46,7 +46,6 @@ class TestSaveCalculatedPointsManager:
         (data_folder / "players.csv").write_text("Name,Position,Team\nPlayer1,QB,KC\n")
         (data_folder / "players_projected.csv").write_text("Name,Position\nPlayer1,QB\n")
         (data_folder / "game_data.csv").write_text("Week,Team\n1,KC\n")
-        (data_folder / "drafted_data.csv").write_text("Name,Drafted\nPlayer1,0\n")
 
         configs = data_folder / "configs"
         configs.mkdir()
@@ -186,7 +185,6 @@ class TestSaveCalculatedPointsManager:
         mock_player_manager.players = [test_player]
 
         (temp_data_folder / "game_data.csv").unlink()
-        (temp_data_folder / "drafted_data.csv").unlink()
 
         manager = SaveCalculatedPointsManager(mock_config, mock_player_manager, temp_data_folder)
 
@@ -198,8 +196,8 @@ class TestSaveCalculatedPointsManager:
         assert not (temp_data_folder / "historical_data" / "2024" / "01" / "players.csv").exists()
         assert not (temp_data_folder / "historical_data" / "2024" / "01" / "players_projected.csv").exists()
 
-    def test_execute_copies_all_4_file_types(self, mock_config, mock_player_manager, temp_data_folder):
-        """Test execute() copies all 4 file types to historical_data (UPDATED for feature_02: CSV deprecation)"""
+    def test_execute_copies_game_data_and_folders(self, mock_config, mock_player_manager, temp_data_folder):
+        """Test execute() copies game_data.csv, configs/, and team_data/ to historical_data"""
         mock_config.current_nfl_week = 1
         mock_config.nfl_season = 2024
 
@@ -219,7 +217,6 @@ class TestSaveCalculatedPointsManager:
         output_folder = temp_data_folder / "historical_data" / "2024" / "01"
 
         assert (output_folder / "game_data.csv").exists()
-        assert (output_folder / "drafted_data.csv").exists()
         assert (output_folder / "configs" / "league_config.json").exists()
         assert (output_folder / "team_data" / "KC.csv").exists()
 

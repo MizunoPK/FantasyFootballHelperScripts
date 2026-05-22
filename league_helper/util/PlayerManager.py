@@ -268,7 +268,6 @@ class PlayerManager:
 
         Raises:
             FileNotFoundError: If player_data directory doesn't exist
-            json.JSONDecodeError: If JSON file is malformed
 
         Side Effects:
             - Sets self.players to combined list from all position files
@@ -284,7 +283,12 @@ class PlayerManager:
                 "Run run_player_fetcher.py to generate JSON files."
             )
 
+        for tmp_file in player_data_dir.glob("*.tmp"):
+            tmp_file.unlink()
+            self.logger.warning(f"Removed stale temp file: {tmp_file.name}")
+
         all_players = []
+        failed_positions = []
         position_files = [
             'qb_data.json', 'rb_data.json', 'wr_data.json',
             'te_data.json', 'k_data.json', 'dst_data.json'
@@ -315,8 +319,14 @@ class PlayerManager:
                 self.logger.debug(f"Loaded {len(players_array)} players from {position_file}")
 
             except json.JSONDecodeError as e:
-                self.logger.error(f"Malformed JSON in {position_file}: {e}")
-                raise
+                self.logger.error(f"Malformed JSON in {position_file}, skipping position: {e}")
+                failed_positions.append(position_file)
+                continue
+
+        if failed_positions:
+            summary_msg = f"WARNING: Failed to load player data for positions: {', '.join(failed_positions)}. These positions will have no players."
+            print(summary_msg)
+            self.logger.warning(summary_msg)
 
         self.players = all_players
         self.logger.debug(f"All position files loaded: {len(self.players)} total players across all positions")

@@ -51,7 +51,7 @@ class LeagueHelperManager:
         modify_player_data_mode_manager (ModifyPlayerDataModeManager): Player data modification handler
     """
 
-    def __init__(self, data_folder: Path):
+    def __init__(self, data_folder: Path, week_override: int | None = None):
         """
         Initialize the League Helper Manager and all sub-managers.
 
@@ -61,6 +61,8 @@ class LeagueHelperManager:
                 - players.csv: Player database
                 - team_data/: Per-team historical rankings
                 - season_schedule.csv: NFL season schedule
+            week_override (int | None): If provided, overrides current_nfl_week in-memory before
+                sub-manager construction. Does not modify league_config.json on disk.
 
         Raises:
             FileNotFoundError: If required data files are missing
@@ -72,6 +74,9 @@ class LeagueHelperManager:
         self.logger.debug(f"Loading configuration from {data_folder}")
         self.config = ConfigManager(data_folder)
         self.logger.info(f"Configuration loaded: {self.config.config_name} (Week {self.config.current_nfl_week})")
+
+        if week_override is not None:
+            self.config.current_nfl_week = week_override
 
         self.season_schedule_manager = SeasonScheduleManager(data_folder)
 
@@ -99,6 +104,7 @@ class LeagueHelperManager:
         The loop continues until the user selects the Quit option.
         """
         print("Welcome to the Start 7 Fantasy League Helper!")
+        print(f"Config: {self.config.config_name} | Week {self.config.current_nfl_week} | {self.config.nfl_season} {self.config.nfl_scoring_format.upper()}")
         print(f"Currently drafted players: {self.player_manager.get_roster_len()} / {self.config.max_players} max")
 
         self.player_manager.display_scored_roster()
@@ -191,6 +197,8 @@ def main():
     Command-line arguments:
         --enable-log-file: Enable file logging to logs/league_helper/ with 500-line
                           rotation and max 50 files (default: OFF)
+        --week N: Override current NFL week for this session (in-memory only; does not
+                 modify league_config.json on disk)
     """
     parser = argparse.ArgumentParser(description="Fantasy Football League Helper")
     parser.add_argument(
@@ -198,6 +206,13 @@ def main():
         action='store_true',
         default=False,
         help='Enable file logging (logs written to logs/league_helper/ with 500-line rotation, max 50 files)'
+    )
+    parser.add_argument(
+        '--week',
+        type=int,
+        default=None,
+        metavar='N',
+        help='Override current NFL week for this session (in-memory only, does not modify league_config.json)'
     )
     args = parser.parse_args()
 
@@ -212,7 +227,7 @@ def main():
     base_path = Path(__file__).parent.parent
     data_path = base_path / "data"
 
-    leagueHelper = LeagueHelperManager(data_path)
+    leagueHelper = LeagueHelperManager(data_path, week_override=args.week)
     leagueHelper.start_interactive_mode()
 
 

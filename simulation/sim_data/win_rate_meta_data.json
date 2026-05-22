@@ -1,0 +1,311 @@
+{
+  "last_updated": "2026-05-16",
+  "strategies": {
+    "1_zero_rb.json": {
+      "name": "Zero RB",
+      "best_win_rate": 0.7450980392156863,
+      "total_runs": 2,
+      "last_run": "2026-05-16"
+    },
+    "2_hero_rb.json": {
+      "name": "Hero RB",
+      "best_win_rate": 0.8627450980392157,
+      "total_runs": 2,
+      "last_run": "2026-05-16"
+    },
+    "3_rb_heavy_early.json": {
+      "name": "RB Heavy Early",
+      "best_win_rate": 0.8627450980392157,
+      "total_runs": 2,
+      "last_run": "2026-05-16"
+    },
+    "4_late_qb_value.json": {
+      "name": "Late QB Value",
+      "best_win_rate": 0.8431372549019608,
+      "total_runs": 2,
+      "last_run": "2026-05-16"
+    },
+    "5_wr_heavy_early.json": {
+      "name": "WR Heavy Early",
+      "best_win_rate": 0.8627450980392157,
+      "total_runs": 2,
+      "last_run": "2026-05-16"
+    },
+    "6_balanced_start.json": {
+      "name": "Balanced Start",
+      "best_win_rate": 0.8823529411764706,
+      "total_runs": 2,
+      "last_run": "2026-05-16"
+    },
+    "7_elite_qb_early.json": {
+      "name": "Elite QB Early",
+      "best_win_rate": 0.803921568627451,
+      "total_runs": 2,
+      "last_run": "2026-05-16"
+    },
+    "8_qb_te_stack.json": {
+      "name": "QB TE Stack",
+      "best_win_rate": 0.7058823529411765,
+      "total_runs": 2,
+      "last_run": "2026-05-16"
+    },
+    "9_elite_te_early.json": {
+      "name": "Elite TE Early",
+      "best_win_rate": 0.803921568627451,
+      "total_runs": 2,
+      "last_run": "2026-05-16"
+    },
+    "10_rb_rb_start.json": {
+      "name": "RB RB Start",
+      "best_win_rate": 0.8627450980392157,
+      "total_runs": 2,
+      "last_run": "2026-05-16"
+    },
+    "11_power_5.json": {
+      "name": "Power 5",
+      "best_win_rate": 0.8431372549019608,
+      "total_runs": 2,
+      "last_run": "2026-05-16"
+    },
+    "12_safe_floor.json": {
+      "name": "Safe Floor",
+      "best_win_rate": 0.8823529411764706,
+      "total_runs": 2,
+      "last_run": "2026-05-16"
+    },
+    "13_ceiling_chaser.json": {
+      "name": "Ceiling Chaser",
+      "best_win_rate": 0.8431372549019608,
+      "total_runs": 2,
+      "last_run": "2026-05-16"
+    },
+    "14_robust_rb.json": {
+      "name": "Robust RB",
+      "best_win_rate": 0.7843137254901961,
+      "total_runs": 2,
+      "last_run": "2026-05-16"
+    },
+    "15_studs_and_duds.json": {
+      "name": "Studs and Duds",
+      "best_win_rate": 0.8627450980392157,
+      "total_runs": 2,
+      "last_run": "2026-05-16"
+    },
+    "16_wr_rb_wr_rb.json": {
+      "name": "WR RB WR RB",
+      "best_win_rate": 0.8823529411764706,
+      "total_runs": 2,
+      "last_run": "2026-05-16"
+    },
+    "17_double_dip_rb.json": {
+      "name": "Double Dip RB",
+      "best_win_rate": 0.8235294117647058,
+      "total_runs": 2,
+      "last_run": "2026-05-16"
+    },
+    "18_anchor_flex.json": {
+      "name": "Anchor FLEX",
+      "best_win_rate": 0.8627450980392157,
+      "total_runs": 2,
+      "last_run": "2026-05-16"
+    },
+    "19_elite_stack.json": {
+      "name": "Elite Stack",
+      "best_win_rate": 0.8235294117647058,
+      "total_runs": 2,
+      "last_run": "2026-05-16"
+    },
+    "20_depth_first.json": {
+      "name": "Depth First",
+      "best_win_rate": 0.8823529411764706,
+      "total_runs": 2,
+      "last_run": "2026-05-16"
+    },
+    "21_mid_round_premium.json": {
+      "name": "Mid Round Premium",
+      "best_win_rate": 0.8627450980392157,
+      "total_runs": 2,
+      "last_run": "2026-05-16"
+    },
+    "22_bookend_rb.json": {
+      "name": "Bookend RB",
+      "best_win_rate": 0.8431372549019608,
+      "total_runs": 2,
+      "last_run": "2026-05-16"
+    },
+    "23_wr_wr_start.json": {
+      "name": "WR WR Start",
+      "best_win_rate": 0.8235294117647058,
+      "total_runs": 2,
+      "last_run": "2026-05-16"
+    },
+    "24_mid_late_te.json": {
+      "name": "Mid Late TE",
+      "best_win_rate": 0.9019607843137255,
+      "total_runs": 2,
+      "last_run": "2026-05-16"
+    },
+    "25_spread_te.json": {
+      "name": "Spread TE",
+      "best_win_rate": 0.8627450980392157,
+      "total_runs": 2,
+      "last_run": "2026-05-16"
+    },
+    "26_value_hunt.json": {
+      "name": "Value Hunt",
+      "best_win_rate": 0.8823529411764706,
+      "total_runs": 2,
+      "last_run": "2026-05-16"
+    },
+    "27_four_wr_four_rb.json": {
+      "name": "Four WR Four RB",
+      "best_win_rate": 0.8235294117647058,
+      "total_runs": 2,
+      "last_run": "2026-05-16"
+    },
+    "28_late_te_value.json": {
+      "name": "Late TE Value",
+      "best_win_rate": 0.8235294117647058,
+      "total_runs": 2,
+      "last_run": "2026-05-16"
+    },
+    "29_triple_wr_start.json": {
+      "name": "Triple WR Start",
+      "best_win_rate": 0.8627450980392157,
+      "total_runs": 2,
+      "last_run": "2026-05-16"
+    },
+    "30_triple_rb_start.json": {
+      "name": "Triple RB Start",
+      "best_win_rate": 0.7843137254901961,
+      "total_runs": 2,
+      "last_run": "2026-05-16"
+    },
+    "31_double_qb_spread.json": {
+      "name": "Double QB Spread",
+      "best_win_rate": 0.8627450980392157,
+      "total_runs": 2,
+      "last_run": "2026-05-16"
+    },
+    "32_wr_anchor.json": {
+      "name": "WR Anchor",
+      "best_win_rate": 0.803921568627451,
+      "total_runs": 2,
+      "last_run": "2026-05-16"
+    },
+    "33_rb_anchor.json": {
+      "name": "RB Anchor",
+      "best_win_rate": 0.8235294117647058,
+      "total_runs": 2,
+      "last_run": "2026-05-16"
+    },
+    "34_contrarian.json": {
+      "name": "Contrarian",
+      "best_win_rate": 0.7647058823529411,
+      "total_runs": 2,
+      "last_run": "2026-05-16"
+    },
+    "35_modified_zero_rb.json": {
+      "name": "Modified Zero RB",
+      "best_win_rate": 0.8235294117647058,
+      "total_runs": 2,
+      "last_run": "2026-05-16"
+    },
+    "36_workhorse_hunt.json": {
+      "name": "Workhorse Hunt",
+      "best_win_rate": 0.7843137254901961,
+      "total_runs": 2,
+      "last_run": "2026-05-16"
+    },
+    "37_rb_wr_rb_wr.json": {
+      "name": "RB WR RB WR",
+      "best_win_rate": 0.803921568627451,
+      "total_runs": 2,
+      "last_run": "2026-05-16"
+    },
+    "38_late_round_surge.json": {
+      "name": "Late Round Surge",
+      "best_win_rate": 0.8627450980392157,
+      "total_runs": 2,
+      "last_run": "2026-05-16"
+    },
+    "39_double_dip_wr.json": {
+      "name": "Double Dip WR",
+      "best_win_rate": 0.7647058823529411,
+      "total_runs": 2,
+      "last_run": "2026-05-16"
+    },
+    "40_early_foundation.json": {
+      "name": "Early Foundation",
+      "best_win_rate": 0.9019607843137255,
+      "total_runs": 2,
+      "last_run": "2026-05-16"
+    },
+    "41_stream_premium.json": {
+      "name": "Stream Premium",
+      "best_win_rate": 0.8431372549019608,
+      "total_runs": 2,
+      "last_run": "2026-05-16"
+    },
+    "42_positional_advantage.json": {
+      "name": "Positional Advantage",
+      "best_win_rate": 0.8627450980392157,
+      "total_runs": 2,
+      "last_run": "2026-05-16"
+    },
+    "43_burst_rb_mid.json": {
+      "name": "Burst RB Mid",
+      "best_win_rate": 0.8627450980392157,
+      "total_runs": 2,
+      "last_run": "2026-05-16"
+    },
+    "44_burst_wr_mid.json": {
+      "name": "Burst WR Mid",
+      "best_win_rate": 0.8431372549019608,
+      "total_runs": 2,
+      "last_run": "2026-05-16"
+    },
+    "45_bookend_wr.json": {
+      "name": "Bookend WR",
+      "best_win_rate": 0.8431372549019608,
+      "total_runs": 2,
+      "last_run": "2026-05-16"
+    },
+    "46_te_premium.json": {
+      "name": "TE Premium",
+      "best_win_rate": 0.8823529411764706,
+      "total_runs": 2,
+      "last_run": "2026-05-16"
+    },
+    "47_qb_premium.json": {
+      "name": "QB Premium",
+      "best_win_rate": 0.9019607843137255,
+      "total_runs": 2,
+      "last_run": "2026-05-16"
+    },
+    "48_mid_late_qb.json": {
+      "name": "Mid Late QB",
+      "best_win_rate": 0.8627450980392157,
+      "total_runs": 2,
+      "last_run": "2026-05-16"
+    },
+    "49_four_rb_four_wr.json": {
+      "name": "Four RB Four WR",
+      "best_win_rate": 0.8431372549019608,
+      "total_runs": 2,
+      "last_run": "2026-05-16"
+    },
+    "50_window_draft.json": {
+      "name": "Window Draft",
+      "best_win_rate": 0.8235294117647058,
+      "total_runs": 2,
+      "last_run": "2026-05-16"
+    },
+    "51_MINE.json": {
+      "name": "My custom config",
+      "best_win_rate": 0.7647058823529411,
+      "total_runs": 2,
+      "last_run": "2026-05-16"
+    }
+  }
+}

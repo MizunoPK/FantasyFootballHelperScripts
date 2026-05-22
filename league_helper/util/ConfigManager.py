@@ -107,6 +107,7 @@ class ConfigKeys:
     DIRECTION_BI_EXCELLENT_LOW = "BI_EXCELLENT_LOW"
 
     CALCULATED = "_calculated"
+    MAX_SEARCH_RESULTS = "MAX_SEARCH_RESULTS"
 
 
 class ConfigManager:
@@ -202,6 +203,7 @@ class ConfigManager:
         self.nfl_team_penalty_weight: float = 1.0
 
         self._threshold_cache: Dict[Tuple[str, float, str, float], Dict[str, float]] = {}
+        self.max_search_results: int = 15
 
         self._load_config()
 
@@ -976,6 +978,7 @@ class ConfigManager:
                 f"got {self.nfl_team_penalty_weight}"
             )
 
+        self.max_search_results = self.parameters.get(self.keys.MAX_SEARCH_RESULTS, 15)
 
         required_injury_levels = [self.keys.INJURY_LOW, self.keys.INJURY_MEDIUM, self.keys.INJURY_HIGH]
         missing_levels = [

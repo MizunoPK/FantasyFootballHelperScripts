@@ -67,8 +67,8 @@ class GameDataManager:
         game_data_path = self.data_folder / 'game_data.csv'
 
         if not game_data_path.exists():
-            self.logger.debug(f"game_data.csv not found at {game_data_path}, "
-                            "game conditions scoring will be disabled")
+            self.logger.warning(f"game_data.csv not found — game conditions scoring disabled")
+            print("WARNING: game_data.csv not found — game conditions scoring disabled")
             return
 
         try:
