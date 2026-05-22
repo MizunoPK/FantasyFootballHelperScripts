@@ -318,8 +318,8 @@ class PlayerManager:
 
                 self.logger.debug(f"Loaded {len(players_array)} players from {position_file}")
 
-            except json.JSONDecodeError as e:
-                self.logger.error(f"Malformed JSON in {position_file}, skipping position: {e}")
+            except (json.JSONDecodeError, OSError) as e:
+                self.logger.error(f"Failed to read or parse {position_file}, skipping position: {e}")
                 failed_positions.append(position_file)
                 continue
 

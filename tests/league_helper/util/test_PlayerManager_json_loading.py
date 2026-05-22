@@ -13,7 +13,7 @@ Date: 2025-12-28
 import pytest
 import json
 from pathlib import Path
-from unittest.mock import Mock, MagicMock
+from unittest.mock import Mock, MagicMock, patch
 
 from league_helper.util.PlayerManager import PlayerManager
 from league_helper.util.ConfigManager import ConfigManager
@@ -660,6 +660,34 @@ class TestLoadPlayersFromJsonMalformedFallback:
 
         captured = capsys.readouterr()
         assert "WARNING: Failed to load player data" not in captured.out
+
+
+    def test_oserror_reading_position_skips_position(self, mock_data_folder, mock_config, mock_team_data_manager, mock_season_schedule_manager):
+        """OSError when opening position file — position skipped, others still load."""
+        player_manager = PlayerManager.__new__(PlayerManager)
+        player_manager.data_folder = mock_data_folder
+        player_manager.config = mock_config
+        player_manager.team_data_manager = mock_team_data_manager
+        player_manager.season_schedule_manager = mock_season_schedule_manager
+        player_manager.players = []
+        player_manager.max_projection = 0.0
+        player_manager.logger = Mock()
+        player_manager.load_team = Mock()
+
+        real_open = open
+
+        def fail_on_qb_data(filepath, *args, **kwargs):
+            if "qb_data.json" in str(filepath):
+                raise OSError("Permission denied: qb_data.json")
+            return real_open(filepath, *args, **kwargs)
+
+        with patch("builtins.open", side_effect=fail_on_qb_data):
+            result = player_manager.load_players_from_json()
+
+        assert result is True
+        qb_players = [p for p in player_manager.players if p.position == "QB"]
+        assert len(qb_players) == 0
+        player_manager.logger.error.assert_called()
 
 
 class TestStaleTemFilesCleanup:

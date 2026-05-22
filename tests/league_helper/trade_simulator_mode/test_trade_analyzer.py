@@ -7,12 +7,17 @@ Covers position counting, roster validation logic, and trade scenario generation
 Author: Kai Mizuno
 """
 
+import json
 import pytest
+from pathlib import Path
 from unittest.mock import Mock, MagicMock, patch
 from utils.FantasyPlayer import FantasyPlayer
 from league_helper.trade_simulator_mode.trade_analyzer import TradeAnalyzer
 from league_helper.trade_simulator_mode.TradeSimTeam import TradeSimTeam
 from league_helper.trade_simulator_mode.TradeSnapshot import TradeSnapshot
+from league_helper.util.ConfigManager import ConfigManager
+
+FIXTURE_LEAGUE_CONFIG = Path(__file__).parent.parent.parent / "fixtures" / "league" / "league_config.json"
 
 
 @pytest.fixture
@@ -656,36 +661,47 @@ class TestGetTradeCombinations:
 class TestTradeSimulatorConfigDefaults:
     """Verify ConfigManager with no TRADE_SIMULATOR section returns all 12 defaults correctly."""
 
-    def test_config_defaults_all_flags(self, mock_config):
-        """ConfigManager with no TRADE_SIMULATOR section returns correct flag defaults."""
-        assert mock_config.trade_waivers_two_for_two is False
-        assert mock_config.trade_waivers_three_for_three is False
-        assert mock_config.trade_enable_one_for_one is False
-        assert mock_config.trade_enable_two_for_two is True
-        assert mock_config.trade_enable_three_for_three is True
-        assert mock_config.trade_enable_two_for_one is True
-        assert mock_config.trade_enable_one_for_two is True
-        assert mock_config.trade_enable_three_for_one is False
-        assert mock_config.trade_enable_one_for_three is False
-        assert mock_config.trade_enable_three_for_two is True
-        assert mock_config.trade_enable_two_for_three is True
-        assert mock_config.trade_max_combinations == 50000
+    def test_config_defaults_all_flags(self, tmp_path):
+        """ConfigManager with no TRADE_SIMULATOR section returns correct default values."""
+        config_data = json.loads(FIXTURE_LEAGUE_CONFIG.read_text())
+        config_data["parameters"].pop("TRADE_SIMULATOR", None)
+        (tmp_path / "league_config.json").write_text(json.dumps(config_data))
+
+        cm = ConfigManager(tmp_path)
+
+        assert cm.trade_waivers_two_for_two is False
+        assert cm.trade_waivers_three_for_three is False
+        assert cm.trade_enable_one_for_one is False
+        assert cm.trade_enable_two_for_two is True
+        assert cm.trade_enable_three_for_three is True
+        assert cm.trade_enable_two_for_one is True
+        assert cm.trade_enable_one_for_two is True
+        assert cm.trade_enable_three_for_one is False
+        assert cm.trade_enable_one_for_three is False
+        assert cm.trade_enable_three_for_two is True
+        assert cm.trade_enable_two_for_three is True
+        assert cm.trade_max_combinations == 50000
 
 
 class TestTradeSimulatorConfigOverride:
     """Verify ConfigManager with TRADE_SIMULATOR section returns overridden values."""
 
-    def test_config_override_flags(self, mock_config):
-        """ConfigManager with TRADE_SIMULATOR section returns overridden values."""
-        mock_config.trade_enable_two_for_two = False
-        mock_config.trade_enable_three_for_three = False
-        mock_config.trade_max_combinations = 1000
-        mock_config.trade_enable_two_for_one = True
+    def test_config_override_flags(self, tmp_path):
+        """ConfigManager with TRADE_SIMULATOR section overrides default values."""
+        config_data = json.loads(FIXTURE_LEAGUE_CONFIG.read_text())
+        config_data["parameters"]["TRADE_SIMULATOR"] = {
+            "ENABLE_TWO_FOR_TWO": False,
+            "ENABLE_THREE_FOR_THREE": False,
+            "MAX_COMBINATIONS": 1000,
+        }
+        (tmp_path / "league_config.json").write_text(json.dumps(config_data))
 
-        assert mock_config.trade_enable_two_for_two is False
-        assert mock_config.trade_enable_three_for_three is False
-        assert mock_config.trade_max_combinations == 1000
-        assert mock_config.trade_enable_two_for_one is True
+        cm = ConfigManager(tmp_path)
+
+        assert cm.trade_enable_two_for_two is False
+        assert cm.trade_enable_three_for_three is False
+        assert cm.trade_max_combinations == 1000
+        assert cm.trade_enable_two_for_one is True
 
 
 class TestMaxCombinationsGuard_triggers:
@@ -751,7 +767,12 @@ class TestMaxCombinationsGuard_passes:
         config.max_players = 15
         config.trade_max_combinations = 999999
 
-        analyzer = TradeAnalyzer(Mock(), config)
+        scored_mock = Mock()
+        scored_mock.score = 0.0
+        player_manager = Mock()
+        player_manager.score_player.return_value = scored_mock
+
+        analyzer = TradeAnalyzer(player_manager, config)
 
         qb1 = FantasyPlayer(id=301, name="QBSmall1", team="KC", position="QB", fantasy_points=25.0, injury_status="ACTIVE")
         qb1.locked = 0
@@ -760,6 +781,8 @@ class TestMaxCombinationsGuard_passes:
         my_team.team = [qb1]
         my_team.name = "My Team"
         my_team.use_weekly_scoring = False
+        my_team.team_score = 0.0
+        my_team.get_scored_players.return_value = []
 
         their_qb = FantasyPlayer(id=401, name="TheirQB1", team="BUF", position="QB", fantasy_points=22.0, injury_status="ACTIVE")
         their_qb.locked = 0
@@ -767,24 +790,23 @@ class TestMaxCombinationsGuard_passes:
         their_team.team = [their_qb]
         their_team.name = "Their Team"
         their_team.use_weekly_scoring = False
+        their_team.team_score = 0.0
+        their_team.get_scored_players.return_value = []
 
-        try:
-            result = analyzer.get_trade_combinations(
-                my_team=my_team,
-                their_team=their_team,
-                is_waivers=False,
-                one_for_one=True,
-                two_for_two=False,
-                three_for_three=False,
-                two_for_one=False,
-                one_for_two=False,
-                three_for_one=False,
-                one_for_three=False,
-                three_for_two=False,
-                two_for_three=False,
-            )
-        except TypeError:
-            pass
+        result = analyzer.get_trade_combinations(
+            my_team=my_team,
+            their_team=their_team,
+            is_waivers=False,
+            one_for_one=True,
+            two_for_two=False,
+            three_for_three=False,
+            two_for_one=False,
+            one_for_two=False,
+            three_for_one=False,
+            one_for_three=False,
+            three_for_two=False,
+            two_for_three=False,
+        )
 
         captured = capsys.readouterr()
         assert "TRADE COMBINATION LIMIT EXCEEDED" not in captured.out
