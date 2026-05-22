@@ -718,6 +718,70 @@ class TradeAnalyzer:
             else:
                 return self.validate_roster_lenient(original_full, new_full)
 
+        my_unlocked_count = len(my_roster)
+        their_unlocked_count = len(their_roster)
+
+        one_for_one_combos = my_unlocked_count * their_unlocked_count if one_for_one else 0
+        two_for_two_combos = (my_unlocked_count * (my_unlocked_count - 1) // 2) * (their_unlocked_count * (their_unlocked_count - 1) // 2) if two_for_two else 0
+        three_for_three_combos = (my_unlocked_count * (my_unlocked_count - 1) * (my_unlocked_count - 2) // 6) * (their_unlocked_count * (their_unlocked_count - 1) * (their_unlocked_count - 2) // 6) if three_for_three else 0
+        two_for_one_combos = (my_unlocked_count * (my_unlocked_count - 1) // 2) * their_unlocked_count if two_for_one else 0
+        one_for_two_combos = my_unlocked_count * (their_unlocked_count * (their_unlocked_count - 1) // 2) if one_for_two else 0
+        three_for_one_combos = (my_unlocked_count * (my_unlocked_count - 1) * (my_unlocked_count - 2) // 6) * their_unlocked_count if three_for_one else 0
+        one_for_three_combos = my_unlocked_count * (their_unlocked_count * (their_unlocked_count - 1) * (their_unlocked_count - 2) // 6) if one_for_three else 0
+        three_for_two_combos = (my_unlocked_count * (my_unlocked_count - 1) * (my_unlocked_count - 2) // 6) * (their_unlocked_count * (their_unlocked_count - 1) // 2) if three_for_two else 0
+        two_for_three_combos = (my_unlocked_count * (my_unlocked_count - 1) // 2) * (their_unlocked_count * (their_unlocked_count - 1) * (their_unlocked_count - 2) // 6) if two_for_three else 0
+        total_combos = (one_for_one_combos + two_for_two_combos + three_for_three_combos +
+                        two_for_one_combos + one_for_two_combos + three_for_one_combos +
+                        one_for_three_combos + three_for_two_combos + two_for_three_combos)
+
+        if total_combos > self.config.trade_max_combinations:
+            type_counts = [
+                ("1-for-1", one_for_one_combos),
+                ("2-for-2", two_for_two_combos),
+                ("3-for-3", three_for_three_combos),
+                ("2-for-1", two_for_one_combos),
+                ("1-for-2", one_for_two_combos),
+                ("3-for-1", three_for_one_combos),
+                ("1-for-3", one_for_three_combos),
+                ("3-for-2", three_for_two_combos),
+                ("2-for-3", two_for_three_combos),
+            ]
+            enabled_types = [(name, count) for name, count in type_counts if count > 0]
+            enabled_types.sort(key=lambda x: x[1], reverse=True)
+            enabled_lines = "\n".join(f"  {name}: {count:,} combinations" for name, count in enabled_types)
+
+            key_map = {
+                "3-for-3": "ENABLE_THREE_FOR_THREE",
+                "2-for-3": "ENABLE_TWO_FOR_THREE",
+                "3-for-2": "ENABLE_THREE_FOR_TWO",
+                "2-for-2": "ENABLE_TWO_FOR_TWO",
+                "3-for-1": "ENABLE_THREE_FOR_ONE",
+                "1-for-3": "ENABLE_ONE_FOR_THREE",
+                "2-for-1": "ENABLE_TWO_FOR_ONE",
+                "1-for-2": "ENABLE_ONE_FOR_TWO",
+                "1-for-1": "ENABLE_ONE_FOR_ONE",
+            }
+            top_disable = [name for name, _ in enabled_types[:3]]
+            config_lines = [f'    "{key_map[name]}": false' for name in top_disable]
+            config_snippet = "\n".join(config_lines)
+
+            print(
+                f"\nTRADE COMBINATION LIMIT EXCEEDED\n"
+                f"Expected {total_combos:,} combinations (limit: {self.config.trade_max_combinations:,})\n"
+                f"\nEnabled trade types contributing most combinations:\n"
+                f"{enabled_lines}\n"
+                f"\nTo reduce combinations, disable one or more of these trade types in league_config.json:\n"
+                f'  "TRADE_SIMULATOR": {{\n'
+                f"{config_snippet}\n"
+                f"  }}\n"
+                f"\nSkipping trade analysis for this opponent.\n"
+            )
+            self.logger.warning(
+                f"Trade combination limit exceeded: {total_combos:,} combinations "
+                f"(limit: {self.config.trade_max_combinations:,}). Skipping trade analysis."
+            )
+            return []
+
         if one_for_one:
             for my_player in my_roster:
                 for their_player in their_roster:

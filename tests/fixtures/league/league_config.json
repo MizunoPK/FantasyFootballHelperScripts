@@ -99,6 +99,7 @@
       "KC"
     ],
     "NFL_TEAM_PENALTY_WEIGHT": 0.75,
+    "MAX_SEARCH_RESULTS": 15,
     "ADP_SCORING": {
       "THRESHOLDS": {
         "BASE_POSITION": 0,
@@ -112,6 +113,20 @@
         "EXCELLENT": 1.05
       },
       "WEIGHT": 4.76
+    },
+    "TRADE_SIMULATOR": {
+      "WAIVERS_TWO_FOR_TWO": false,
+      "WAIVERS_THREE_FOR_THREE": false,
+      "ENABLE_ONE_FOR_ONE": false,
+      "ENABLE_TWO_FOR_TWO": true,
+      "ENABLE_THREE_FOR_THREE": true,
+      "ENABLE_TWO_FOR_ONE": true,
+      "ENABLE_ONE_FOR_TWO": true,
+      "ENABLE_THREE_FOR_ONE": false,
+      "ENABLE_ONE_FOR_THREE": false,
+      "ENABLE_THREE_FOR_TWO": true,
+      "ENABLE_TWO_FOR_THREE": true,
+      "MAX_COMBINATIONS": 50000
     }
   },
   "performance_metrics": {

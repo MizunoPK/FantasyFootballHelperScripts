@@ -67,6 +67,18 @@ def mock_config():
     config.max_positions = {'QB': 2, 'RB': 4, 'WR': 4, 'FLEX': 2, 'TE': 1, 'K': 1, 'DST': 1}
     config.flex_eligible_positions = ['RB', 'WR']
     config.max_players = 15
+    config.trade_waivers_two_for_two = False
+    config.trade_waivers_three_for_three = False
+    config.trade_enable_one_for_one = False
+    config.trade_enable_two_for_two = True
+    config.trade_enable_three_for_three = True
+    config.trade_enable_two_for_one = True
+    config.trade_enable_one_for_two = True
+    config.trade_enable_three_for_one = False
+    config.trade_enable_one_for_three = False
+    config.trade_enable_three_for_two = True
+    config.trade_enable_two_for_three = True
+    config.trade_max_combinations = 50000
     return config
 
 

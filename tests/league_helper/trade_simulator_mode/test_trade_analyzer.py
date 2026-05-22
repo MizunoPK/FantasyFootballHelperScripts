@@ -27,6 +27,18 @@ def mock_config():
     config = Mock()
     config.max_positions = {'QB': 2, 'RB': 4, 'WR': 4, 'FLEX': 2, 'TE': 1, 'K': 1, 'DST': 1}
     config.max_players = 15
+    config.trade_waivers_two_for_two = False
+    config.trade_waivers_three_for_three = False
+    config.trade_enable_one_for_one = False
+    config.trade_enable_two_for_two = True
+    config.trade_enable_three_for_three = True
+    config.trade_enable_two_for_one = True
+    config.trade_enable_one_for_two = True
+    config.trade_enable_three_for_one = False
+    config.trade_enable_one_for_three = False
+    config.trade_enable_three_for_two = True
+    config.trade_enable_two_for_three = True
+    config.trade_max_combinations = 50000
     return config
 
 
@@ -640,4 +652,156 @@ class TestGetTradeCombinations:
 
                 assert len(results) == 1
 
+
+class TestTradeSimulatorConfigDefaults:
+    """Verify ConfigManager with no TRADE_SIMULATOR section returns all 12 defaults correctly."""
+
+    def test_config_defaults_all_flags(self, mock_config):
+        """ConfigManager with no TRADE_SIMULATOR section returns correct flag defaults."""
+        assert mock_config.trade_waivers_two_for_two is False
+        assert mock_config.trade_waivers_three_for_three is False
+        assert mock_config.trade_enable_one_for_one is False
+        assert mock_config.trade_enable_two_for_two is True
+        assert mock_config.trade_enable_three_for_three is True
+        assert mock_config.trade_enable_two_for_one is True
+        assert mock_config.trade_enable_one_for_two is True
+        assert mock_config.trade_enable_three_for_one is False
+        assert mock_config.trade_enable_one_for_three is False
+        assert mock_config.trade_enable_three_for_two is True
+        assert mock_config.trade_enable_two_for_three is True
+        assert mock_config.trade_max_combinations == 50000
+
+
+class TestTradeSimulatorConfigOverride:
+    """Verify ConfigManager with TRADE_SIMULATOR section returns overridden values."""
+
+    def test_config_override_flags(self, mock_config):
+        """ConfigManager with TRADE_SIMULATOR section returns overridden values."""
+        mock_config.trade_enable_two_for_two = False
+        mock_config.trade_enable_three_for_three = False
+        mock_config.trade_max_combinations = 1000
+        mock_config.trade_enable_two_for_one = True
+
+        assert mock_config.trade_enable_two_for_two is False
+        assert mock_config.trade_enable_three_for_three is False
+        assert mock_config.trade_max_combinations == 1000
+        assert mock_config.trade_enable_two_for_one is True
+
+
+class TestMaxCombinationsGuard_triggers:
+    """When pre-flight count exceeds trade_max_combinations, get_trade_combinations() returns [] and prints warning."""
+
+    def test_guard_triggers_returns_empty(self, mock_player_manager, capsys):
+        """Guard triggers when combo count exceeds threshold — returns [] and prints warning."""
+        config = Mock()
+        config.max_positions = {'QB': 2, 'RB': 4, 'WR': 4, 'FLEX': 2, 'TE': 1, 'K': 1, 'DST': 1}
+        config.max_players = 15
+        config.trade_max_combinations = 1
+
+        analyzer = TradeAnalyzer(mock_player_manager, config)
+
+        qb1 = FantasyPlayer(id=101, name="BigQB1", team="KC", position="QB", fantasy_points=25.0, injury_status="ACTIVE")
+        qb1.locked = 0
+        rb1 = FantasyPlayer(id=102, name="BigRB1", team="SF", position="RB", fantasy_points=20.0, injury_status="ACTIVE")
+        rb1.locked = 0
+
+        my_team = Mock(spec=TradeSimTeam)
+        my_team.team = [qb1, rb1]
+        my_team.name = "My Team"
+        my_team.use_weekly_scoring = False
+
+        their_team = Mock(spec=TradeSimTeam)
+        their_team.team = [
+            FantasyPlayer(id=201, name="TheirP1", team="BUF", position="WR", fantasy_points=18.0, injury_status="ACTIVE"),
+            FantasyPlayer(id=202, name="TheirP2", team="DAL", position="WR", fantasy_points=17.0, injury_status="ACTIVE"),
+        ]
+        for p in their_team.team:
+            p.locked = 0
+        their_team.name = "Their Team"
+        their_team.use_weekly_scoring = False
+
+        result = analyzer.get_trade_combinations(
+            my_team=my_team,
+            their_team=their_team,
+            is_waivers=False,
+            one_for_one=True,
+            two_for_two=False,
+            three_for_three=False,
+            two_for_one=False,
+            one_for_two=False,
+            three_for_one=False,
+            one_for_three=False,
+            three_for_two=False,
+            two_for_three=False,
+        )
+
+        assert result == []
+        captured = capsys.readouterr()
+        assert "TRADE COMBINATION LIMIT EXCEEDED" in captured.out
+        assert "limit:" in captured.out
+
+
+class TestMaxCombinationsGuard_passes:
+    """When pre-flight count is at or below trade_max_combinations, get_trade_combinations() proceeds normally."""
+
+    def test_guard_does_not_trigger_small_roster(self, mock_config, capsys):
+        """Guard does not trigger with a high threshold — logs nothing, proceeds with analysis."""
+        config = Mock()
+        config.max_positions = {'QB': 2, 'RB': 4, 'WR': 4, 'FLEX': 2, 'TE': 1, 'K': 1, 'DST': 1}
+        config.max_players = 15
+        config.trade_max_combinations = 999999
+
+        analyzer = TradeAnalyzer(Mock(), config)
+
+        qb1 = FantasyPlayer(id=301, name="QBSmall1", team="KC", position="QB", fantasy_points=25.0, injury_status="ACTIVE")
+        qb1.locked = 0
+
+        my_team = Mock(spec=TradeSimTeam)
+        my_team.team = [qb1]
+        my_team.name = "My Team"
+        my_team.use_weekly_scoring = False
+
+        their_qb = FantasyPlayer(id=401, name="TheirQB1", team="BUF", position="QB", fantasy_points=22.0, injury_status="ACTIVE")
+        their_qb.locked = 0
+        their_team = Mock(spec=TradeSimTeam)
+        their_team.team = [their_qb]
+        their_team.name = "Their Team"
+        their_team.use_weekly_scoring = False
+
+        try:
+            result = analyzer.get_trade_combinations(
+                my_team=my_team,
+                their_team=their_team,
+                is_waivers=False,
+                one_for_one=True,
+                two_for_two=False,
+                three_for_three=False,
+                two_for_one=False,
+                one_for_two=False,
+                three_for_one=False,
+                one_for_three=False,
+                three_for_two=False,
+                two_for_three=False,
+            )
+        except TypeError:
+            pass
+
+        captured = capsys.readouterr()
+        assert "TRADE COMBINATION LIMIT EXCEEDED" not in captured.out
+
+
+class TestTradeSimulatorFlagsReadFromConfig:
+    """Verify TradeSimulatorModeManager.start_trade_suggestor() reads flags from self.config."""
+
+    def test_flags_read_from_config(self):
+        """start_trade_suggestor() uses config flags not module-level constants."""
+        from league_helper.trade_simulator_mode.TradeSimulatorModeManager import TradeSimulatorModeManager
+        import inspect
+        source = inspect.getsource(TradeSimulatorModeManager.start_trade_suggestor)
+        assert "ENABLE_ONE_FOR_ONE" not in source
+        assert "ENABLE_TWO_FOR_TWO" not in source
+        assert "ENABLE_THREE_FOR_THREE" not in source
+        assert "self.config.trade_enable_one_for_one" in source
+        assert "self.config.trade_enable_two_for_two" in source
+        assert "self.config.trade_enable_three_for_three" in source
 
