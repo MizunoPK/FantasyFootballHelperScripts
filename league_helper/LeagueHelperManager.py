@@ -17,6 +17,7 @@ Author: Kai Mizuno
 """
 
 from pathlib import Path
+import os
 import argparse
 from league_helper import constants
 from league_helper.util.ConfigManager import ConfigManager
@@ -225,7 +226,7 @@ def main():
     )
 
     base_path = Path(__file__).parent.parent
-    data_path = base_path / "data"
+    data_path = Path(os.environ["LEAGUE_DATA_DIR"]) if os.environ.get("LEAGUE_DATA_DIR") else base_path / "data"
 
     leagueHelper = LeagueHelperManager(data_path, week_override=args.week)
     leagueHelper.start_interactive_mode()
