@@ -508,8 +508,19 @@ class PlayerManager:
 
     def reload_player_data(self) -> None:
         """
-        Reload player data from JSON files and refresh team roster
-        This is called before each main menu display to ensure data is up-to-date
+        Reload player data from JSON files and refresh team roster.
+
+        Called before each main menu display to ensure data is up-to-date. Skips
+        the full reload when all position file mtimes are unchanged since the last
+        call (optimization: first call always reloads; any mtime change triggers
+        reload).
+
+        Note:
+            Warnings for corrupted or unreadable position files (emitted by
+            load_players_from_json) are only surfaced on the reload cycle that
+            detects the failure. If the file's mtime does not change between
+            cycles, the mtime check short-circuits and the warning is not
+            re-emitted until the file is modified.
         """
         try:
             self.logger.info("Reloading player data from JSON files")
