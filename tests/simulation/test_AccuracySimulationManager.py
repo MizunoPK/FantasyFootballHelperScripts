@@ -7,10 +7,12 @@ Author: Kai Mizuno
 """
 
 import json
+import os
 import pytest
-from unittest.mock import Mock, patch, MagicMock
-import tempfile
 import shutil
+import tempfile
+import time
+from unittest.mock import Mock, patch, MagicMock
 
 from simulation.accuracy.AccuracySimulationManager import AccuracySimulationManager
 
@@ -635,6 +637,120 @@ class TestAccuracySimulationManagerResumeState:
 
         assert should_resume is False
         assert start_idx == 0
+
+
+class TestSweepOrphanedTempDirs:
+    """Tests for AccuracySimulationManager._sweep_orphaned_temp_dirs()."""
+
+    @pytest.fixture
+    def manager(self, tmp_path):
+        """Create a minimal AccuracySimulationManager with mocked dependencies."""
+        config = {
+            'config_name': 'test',
+            'description': 'test',
+            'parameters': {'NORMALIZATION_MAX_SCALE': 150}
+        }
+        config_path = tmp_path / "baseline.json"
+        config_path.write_text(json.dumps(config))
+
+        data_folder = tmp_path / "sim_data"
+        data_folder.mkdir()
+        season_folder = data_folder / "2024"
+        season_folder.mkdir()
+        (season_folder / "weeks").mkdir()
+
+        output_dir = tmp_path / "output"
+
+        with patch('simulation.accuracy.AccuracySimulationManager.ConfigGenerator'), \
+             patch('simulation.accuracy.AccuracySimulationManager.AccuracyCalculator'), \
+             patch('simulation.accuracy.AccuracySimulationManager.AccuracyResultsManager'):
+            mgr = AccuracySimulationManager(
+                baseline_config_path=config_path,
+                output_dir=output_dir,
+                data_folder=data_folder,
+                parameter_order=['NORMALIZATION_MAX_SCALE']
+            )
+        return mgr
+
+    def test_sweep_deletes_stale_dirs(self, manager, tmp_path):
+        """T1: Orphan sweep deletes dirs older than ORPHANED_DIR_MAX_AGE_HOURS."""
+        mock_temp = tmp_path / "mock_temp"
+        mock_temp.mkdir()
+
+        stale1 = mock_temp / "accuracy_sim_abc123"
+        stale1.mkdir()
+        stale2 = mock_temp / "accuracy_sim_def456"
+        stale2.mkdir()
+
+        stale_mtime = time.time() - (25 * 3600)
+        os.utime(stale1, (stale_mtime, stale_mtime))
+        os.utime(stale2, (stale_mtime, stale_mtime))
+
+        with patch('tempfile.gettempdir', return_value=str(mock_temp)):
+            manager._sweep_orphaned_temp_dirs()
+
+        assert not stale1.exists()
+        assert not stale2.exists()
+
+    def test_sweep_preserves_recent_dirs(self, manager, tmp_path):
+        """T2: Orphan sweep does not delete dirs within ORPHANED_DIR_MAX_AGE_HOURS."""
+        mock_temp = tmp_path / "mock_temp"
+        mock_temp.mkdir()
+
+        recent = mock_temp / "accuracy_sim_fresh123"
+        recent.mkdir()
+
+        with patch('tempfile.gettempdir', return_value=str(mock_temp)):
+            manager._sweep_orphaned_temp_dirs()
+
+        assert recent.exists()
+
+    def test_sweep_continues_on_deletion_failure(self, manager, tmp_path):
+        """T3: Orphan sweep logs warning and continues if rmtree raises OSError."""
+        mock_temp = tmp_path / "mock_temp"
+        mock_temp.mkdir()
+
+        stale1 = mock_temp / "accuracy_sim_fail"
+        stale1.mkdir()
+        stale2 = mock_temp / "accuracy_sim_ok"
+        stale2.mkdir()
+
+        stale_mtime = time.time() - (25 * 3600)
+        os.utime(stale1, (stale_mtime, stale_mtime))
+        os.utime(stale2, (stale_mtime, stale_mtime))
+
+        call_count = {'n': 0}
+        original_rmtree = shutil.rmtree
+
+        def rmtree_fail_first(path, **kwargs):
+            call_count['n'] += 1
+            if call_count['n'] == 1:
+                raise OSError("Permission denied")
+            original_rmtree(path, **kwargs)
+
+        with patch('tempfile.gettempdir', return_value=str(mock_temp)), \
+             patch('shutil.rmtree', side_effect=rmtree_fail_first):
+            manager._sweep_orphaned_temp_dirs()
+
+    def test_sweep_ignores_non_accuracy_sim_dirs(self, manager, tmp_path):
+        """T4: Orphan sweep does not touch dirs without accuracy_sim_ prefix."""
+        mock_temp = tmp_path / "mock_temp"
+        mock_temp.mkdir()
+
+        stale_accuracy = mock_temp / "accuracy_sim_old"
+        stale_accuracy.mkdir()
+        stale_other = mock_temp / "other_prefix_old"
+        stale_other.mkdir()
+
+        stale_mtime = time.time() - (25 * 3600)
+        os.utime(stale_accuracy, (stale_mtime, stale_mtime))
+        os.utime(stale_other, (stale_mtime, stale_mtime))
+
+        with patch('tempfile.gettempdir', return_value=str(mock_temp)):
+            manager._sweep_orphaned_temp_dirs()
+
+        assert not stale_accuracy.exists()
+        assert stale_other.exists()
 
 
 if __name__ == "__main__":

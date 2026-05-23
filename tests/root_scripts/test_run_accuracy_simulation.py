@@ -385,6 +385,95 @@ def create_test_parser():
     return parser
 
 
+class TestPromoteCLIFlag:
+    """Tests for --promote CLI flag (F02 spec TS2)."""
+
+    def test_promote_flag_in_help_text(self):
+        """--promote flag is listed in --help output."""
+        result = subprocess.run(
+            [sys.executable, str(project_root / "run_accuracy_simulation.py"), "--help"],
+            capture_output=True,
+            text=True
+        )
+        assert result.returncode == 0
+        assert "--promote" in result.stdout
+
+    def test_standalone_promote_missing_folder_exits_1(self, tmp_path):
+        """--promote <missing_folder> exits 1 with 'Promote folder not found' message."""
+        missing = tmp_path / "nonexistent_folder"
+        result = subprocess.run(
+            [sys.executable, str(project_root / "run_accuracy_simulation.py"),
+             "--promote", str(missing)],
+            capture_output=True,
+            text=True
+        )
+        assert result.returncode == 1
+        combined_output = result.stdout + result.stderr
+        assert "Promote folder not found" in combined_output
+
+    def test_promote_argparse_semantics(self):
+        """--promote uses nargs='?', const=True, no type kwarg: 3 correct value states."""
+        import argparse
+        parser = argparse.ArgumentParser()
+        parser.add_argument('--promote', nargs='?', const=True, default=None, metavar='FOLDER')
+        args_none = parser.parse_args([])
+        assert args_none.promote is None
+        args_true = parser.parse_args(['--promote'])
+        assert args_true.promote is True
+        args_str = parser.parse_args(['--promote', '/some/path'])
+        assert isinstance(args_str.promote, str)
+        assert args_str.promote == '/some/path'
+
+    def test_standalone_promote_no_sim_run(self, tmp_path):
+        """--promote <valid_folder>: AccuracySimulationManager not instantiated."""
+        import json
+        config_files = ['league_config.json', 'week1-5.json', 'week6-9.json',
+                        'week10-13.json', 'week14-17.json']
+        optimal = tmp_path / "optimal"
+        optimal.mkdir()
+        for cf in config_files:
+            (optimal / cf).write_text(json.dumps({'parameters': {}}))
+        with patch('run_accuracy_simulation.AccuracySimulationManager') as mock_mgr, \
+             patch('run_accuracy_simulation.propagate_to_configs') as mock_promote, \
+             patch('sys.argv', ['run_accuracy_simulation.py',
+                                '--promote', str(optimal)]):
+            mock_promote.return_value = None
+            import run_accuracy_simulation
+            try:
+                run_accuracy_simulation.main()
+            except SystemExit as e:
+                assert e.code == 0
+            mock_mgr.assert_not_called()
+            mock_promote.assert_called_once()
+
+    def test_post_run_promote_calls_propagate(self, tmp_path):
+        """--promote without folder arg after sim run calls propagate_to_configs with optimal_path."""
+        import json
+        from unittest.mock import MagicMock
+        optimal = tmp_path / "optimal"
+        optimal.mkdir()
+        for cf in ['league_config.json', 'week1-5.json', 'week6-9.json',
+                   'week10-13.json', 'week14-17.json']:
+            (optimal / cf).write_text(json.dumps({'parameters': {}}))
+        with patch('run_accuracy_simulation.AccuracySimulationManager') as mock_cls, \
+             patch('run_accuracy_simulation.propagate_to_configs') as mock_promote, \
+             patch('run_accuracy_simulation.find_baseline_config', return_value=optimal), \
+             patch('sys.argv', ['run_accuracy_simulation.py', '--promote',
+                                '--baseline', str(optimal)]):
+            mock_instance = MagicMock()
+            mock_instance.run_both.return_value = optimal
+            mock_instance.results_manager.get_summary.return_value = "Summary"
+            mock_cls.return_value = mock_instance
+            import run_accuracy_simulation
+            try:
+                run_accuracy_simulation.main()
+            except SystemExit:
+                pass
+            mock_promote.assert_called_once()
+            call_args = mock_promote.call_args
+            assert call_args[0][0] == optimal
+            assert str(call_args[0][1]) == "data/configs"
+
 
 """
 Test Coverage Summary for Feature 04 (accuracy_sim_logging):

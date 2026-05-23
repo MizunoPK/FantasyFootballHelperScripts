@@ -30,6 +30,7 @@ import sys
 from pathlib import Path
 
 from simulation.accuracy.AccuracySimulationManager import AccuracySimulationManager
+from simulation.accuracy.AccuracyResultsManager import propagate_to_configs
 from utils.LoggingManager import setup_logger, get_logger
 
 
@@ -210,10 +211,29 @@ def main() -> None:
              'Use with --log-level to control verbosity.'
     )
 
+    parser.add_argument(
+        '--promote',
+        nargs='?',
+        const=True,
+        default=None,
+        metavar='FOLDER',
+        help='Promote optimal configs to data/configs/. Without FOLDER: promotes the '
+             'just-produced optimal folder after sim run. With FOLDER: promotes the '
+             'specified folder without running the sim (standalone mode).'
+    )
+
     args = parser.parse_args()
 
     setup_logger(LOG_NAME, args.log_level.upper(), args.enable_log_file, None, LOGGING_FORMAT)
     logger = get_logger()
+
+    if isinstance(args.promote, str):
+        promote_folder = Path(args.promote)
+        if not promote_folder.exists():
+            logger.error(f"Promote folder not found: {promote_folder}")
+            sys.exit(1)
+        propagate_to_configs(promote_folder, Path("data/configs"), logger)
+        sys.exit(0)
 
     output_path = Path(args.output)
     data_path = Path(args.data)
@@ -282,6 +302,9 @@ def main() -> None:
         print(f"Results saved to: {optimal_path}")
         print(manager.results_manager.get_summary())
         print("=" * 60 + "\n")
+
+        if args.promote is True:
+            propagate_to_configs(optimal_path, Path("data/configs"), logger)
 
     except KeyboardInterrupt:
         logger.warning("Simulation interrupted by user")

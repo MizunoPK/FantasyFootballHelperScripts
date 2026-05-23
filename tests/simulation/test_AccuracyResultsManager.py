@@ -17,7 +17,8 @@ from simulation.accuracy.AccuracyResultsManager import (
     AccuracyResultsManager,
     AccuracyConfigPerformance,
     RankingMetrics,
-    WEEK_RANGES
+    WEEK_RANGES,
+    propagate_to_configs,
 )
 from simulation.accuracy.AccuracyCalculator import AccuracyResult
 
@@ -990,6 +991,106 @@ class TestAccuracyConfigPerformanceRanking:
         perf2 = AccuracyConfigPerformance.from_dict(result)
         assert perf2.by_position['QB'].pairwise_accuracy == 0.71
         assert perf2.by_position['RB'].pairwise_accuracy == 0.66
+
+
+class TestPropagateToConfigs:
+    """Tests for propagate_to_configs module-level function (F02 spec TS1)."""
+
+    def test_copies_all_five_files(self, tmp_path):
+        """All 5 standard config files are copied from optimal_folder to target_folder."""
+        import logging
+        config_files = ['league_config.json', 'week1-5.json', 'week6-9.json',
+                        'week10-13.json', 'week14-17.json']
+        optimal = tmp_path / "optimal"
+        optimal.mkdir()
+        target = tmp_path / "target"
+        for cf in config_files:
+            (optimal / cf).write_text(json.dumps({'parameters': {'TEST': 1}}))
+        logger = logging.getLogger('test')
+        propagate_to_configs(optimal, target, logger)
+        for cf in config_files:
+            assert (target / cf).exists(), f"Expected {cf} to be copied to target"
+
+    def test_target_created_if_missing(self, tmp_path):
+        """target_folder is auto-created via mkdir(parents=True, exist_ok=True)."""
+        import logging
+        optimal = tmp_path / "optimal"
+        optimal.mkdir()
+        target = tmp_path / "nonexistent" / "nested" / "target"
+        (optimal / 'league_config.json').write_text(json.dumps({'parameters': {}}))
+        logger = logging.getLogger('test')
+        propagate_to_configs(optimal, target, logger)
+        assert target.exists()
+        assert (target / 'league_config.json').exists()
+
+    def test_league_config_preserves_user_maintained_keys(self, tmp_path):
+        """league_config.json: 5 PRESERVE_KEYS retained from existing target file."""
+        import logging
+        optimal = tmp_path / "optimal"
+        optimal.mkdir()
+        target = tmp_path / "target"
+        target.mkdir()
+        preserve_keys = ['CURRENT_NFL_WEEK', 'NFL_SEASON', 'MAX_POSITIONS',
+                         'FLEX_ELIGIBLE_POSITIONS', 'INJURY_PENALTIES']
+        optimal_params = {k: 'OPTIMAL_VALUE' for k in preserve_keys}
+        optimal_params['SCORING_WEIGHT'] = 0.9
+        (optimal / 'league_config.json').write_text(json.dumps({'parameters': optimal_params}))
+        original_params = {k: f'ORIGINAL_{k}' for k in preserve_keys}
+        original_params['SCORING_WEIGHT'] = 0.5
+        (target / 'league_config.json').write_text(json.dumps({'parameters': original_params}))
+        logger = logging.getLogger('test')
+        propagate_to_configs(optimal, target, logger)
+        with open(target / 'league_config.json') as f:
+            result = json.load(f)
+        for key in preserve_keys:
+            assert result['parameters'][key] == f'ORIGINAL_{key}', \
+                f"Expected {key} preserved from original config"
+        assert result['parameters']['SCORING_WEIGHT'] == 0.9, \
+            "Non-preserved key should come from optimal config"
+
+    def test_league_config_copied_as_is_if_no_target(self, tmp_path):
+        """league_config.json copied as-is when no existing target file (no preservation)."""
+        import logging
+        optimal = tmp_path / "optimal"
+        optimal.mkdir()
+        target = tmp_path / "target"
+        target.mkdir()
+        optimal_config = {'parameters': {'CURRENT_NFL_WEEK': 5, 'SCORING_WEIGHT': 0.9}}
+        (optimal / 'league_config.json').write_text(json.dumps(optimal_config))
+        logger = logging.getLogger('test')
+        propagate_to_configs(optimal, target, logger)
+        with open(target / 'league_config.json') as f:
+            result = json.load(f)
+        assert result == optimal_config
+
+    def test_weekly_files_copied_as_is(self, tmp_path):
+        """Weekly config files copied byte-for-byte (no MATCHUP->SCHEDULE mapping applied)."""
+        import logging
+        optimal = tmp_path / "optimal"
+        optimal.mkdir()
+        target = tmp_path / "target"
+        weekly_config = {'parameters': {'MATCHUP_SCORING': {'WEIGHT': 0.5}, 'OTHER': 1}}
+        (optimal / 'week1-5.json').write_text(json.dumps(weekly_config))
+        logger = logging.getLogger('test')
+        propagate_to_configs(optimal, target, logger)
+        with open(target / 'week1-5.json') as f:
+            result = json.load(f)
+        assert result == weekly_config
+
+    def test_missing_source_file_logs_warning_and_skips(self, tmp_path):
+        """Missing source file: WARNING logged, file skipped, other files copied."""
+        optimal = tmp_path / "optimal"
+        optimal.mkdir()
+        target = tmp_path / "target"
+        (optimal / 'league_config.json').write_text(json.dumps({'parameters': {}}))
+        (optimal / 'week1-5.json').write_text(json.dumps({'parameters': {}}))
+        mock_logger = Mock()
+        propagate_to_configs(optimal, target, mock_logger)
+        assert (target / 'league_config.json').exists()
+        assert (target / 'week1-5.json').exists()
+        assert not (target / 'week6-9.json').exists()
+        warning_messages = [str(c) for c in mock_logger.warning.call_args_list]
+        assert len(warning_messages) >= 3, "Expected warnings for 3 missing files"
 
 
 if __name__ == "__main__":
