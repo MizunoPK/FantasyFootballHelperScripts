@@ -228,6 +228,7 @@ feature-updates/guides_v2/audit/outputs/
 *VALIDATION_LOG*
 
 
+simulation/sim_data/win_rate_meta_data.json
 .shamt
 CLAUDE.md
 data/team_rankings_cache_*.json

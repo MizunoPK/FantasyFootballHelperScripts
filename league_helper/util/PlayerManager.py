@@ -124,6 +124,7 @@ class PlayerManager:
         self.players: List[FantasyPlayer] = []
         self.max_projection : int = 0
         self.max_weekly_projections: Dict[int, float] = {}
+        self._last_mtimes: Dict[str, float] = {}
 
         self.load_players_from_json()
         self.load_team()
@@ -264,18 +265,16 @@ class PlayerManager:
         qb_data.json, rb_data.json, wr_data.json, te_data.json, k_data.json, dst_data.json
 
         Returns:
-            True if successful, False otherwise
+            True always (raises on unrecoverable errors; corrupted position files are skipped)
 
         Raises:
             FileNotFoundError: If player_data directory doesn't exist
-            json.JSONDecodeError: If JSON file is malformed
 
         Side Effects:
             - Sets self.players to combined list from all position files
             - Calculates self.max_projection from all players
             - Calls self.load_team() to initialize team roster
 
-        Spec Reference: sub_feature_01_core_data_loading_spec.md lines 242-319
         """
         player_data_dir = self.data_folder / 'player_data'
         if not player_data_dir.exists():
@@ -284,7 +283,12 @@ class PlayerManager:
                 "Run run_player_fetcher.py to generate JSON files."
             )
 
+        for tmp_file in player_data_dir.glob("*.tmp"):
+            tmp_file.unlink()
+            self.logger.warning(f"Removed stale temp file: {tmp_file.name}")
+
         all_players = []
+        failed_positions = []
         position_files = [
             'qb_data.json', 'rb_data.json', 'wr_data.json',
             'te_data.json', 'k_data.json', 'dst_data.json'
@@ -314,9 +318,15 @@ class PlayerManager:
 
                 self.logger.debug(f"Loaded {len(players_array)} players from {position_file}")
 
-            except json.JSONDecodeError as e:
-                self.logger.error(f"Malformed JSON in {position_file}: {e}")
-                raise
+            except (json.JSONDecodeError, OSError) as e:
+                self.logger.error(f"Failed to read or parse {position_file}, skipping position: {e}")
+                failed_positions.append(position_file)
+                continue
+
+        if failed_positions:
+            summary_msg = f"WARNING: Failed to load player data for positions: {', '.join(failed_positions)}. These positions will have no players."
+            print(summary_msg)
+            self.logger.warning(summary_msg)
 
         self.players = all_players
         self.logger.debug(f"All position files loaded: {len(self.players)} total players across all positions")
@@ -498,15 +508,57 @@ class PlayerManager:
 
     def reload_player_data(self) -> None:
         """
-        Reload player data from JSON files and refresh team roster
-        This is called before each main menu display to ensure data is up-to-date
+        Reload player data from JSON files and refresh team roster.
+
+        Called before each main menu display to ensure data is up-to-date. Skips
+        the full reload when all position file mtimes are unchanged since the last
+        call (optimization: first call always reloads; any mtime change triggers
+        reload).
+
+        Note:
+            Warnings for corrupted or unreadable position files (emitted by
+            load_players_from_json) are only surfaced on the reload cycle that
+            detects the failure. If the file's mtime does not change between
+            cycles, the mtime check short-circuits and the warning is not
+            re-emitted until the file is modified.
         """
         try:
             self.logger.info("Reloading player data from JSON files")
 
+            player_data_dir = self.data_folder / 'player_data'
+            position_files = ['qb_data.json', 'rb_data.json', 'wr_data.json', 'te_data.json', 'k_data.json', 'dst_data.json']
+
+            if self._last_mtimes:
+                all_unchanged = True
+                for position_file in position_files:
+                    filepath = player_data_dir / position_file
+                    if not filepath.exists():
+                        continue
+                    try:
+                        current_mtime = filepath.stat().st_mtime
+                    except OSError:
+                        all_unchanged = False
+                        break
+                    last_mtime = self._last_mtimes.get(str(filepath), None)
+                    if last_mtime is None or current_mtime != last_mtime:
+                        all_unchanged = False
+                        break
+                if all_unchanged:
+                    self.logger.debug("Player data files unchanged, skipping reload")
+                    return
+
             old_roster_size = len(self.team.roster)
 
             self.load_players_from_json()
+
+            for position_file in position_files:
+                filepath = player_data_dir / position_file
+                if not filepath.exists():
+                    continue
+                try:
+                    self._last_mtimes[str(filepath)] = filepath.stat().st_mtime
+                except OSError:
+                    continue
 
             self.load_team()
 
@@ -519,7 +571,7 @@ class PlayerManager:
 
         except Exception as e:
             self.logger.error(f"Error reloading player data: {e}")
-            print(f"Warning: Could not reload player data from {self.players_csv}: {e}")
+            print(f"Warning: Could not reload player data: {e}")
 
 
     def get_roster_len(self) -> int:

@@ -10,7 +10,6 @@ Author: Kai Mizuno
 
 from typing import List, Optional
 from utils.FantasyPlayer import FantasyPlayer
-from league_helper.util.user_input import show_list_selection
 
 
 class PlayerSearch:
@@ -112,7 +111,8 @@ class PlayerSearch:
 
     def interactive_search(self, drafted_filter: Optional[int] = None,
                           prompt: str = "Enter player name (or part of name) to search (or press Enter to exit): ",
-                          not_available: bool = False) -> Optional[FantasyPlayer]:
+                          not_available: bool = False,
+                          max_search_results: Optional[int] = None) -> Optional[FantasyPlayer]:
         """
         Interactive fuzzy player search with continuous loop
 
@@ -120,6 +120,7 @@ class PlayerSearch:
             drafted_filter: Filter by drafted status (0, 1, 2, or None for all)
             prompt: Custom prompt to display to user
             not_available: If True, search players with drafted != 0 (for Drop Player mode)
+            max_search_results: If set, caps the number of displayed results and prints a truncation message
 
         Returns:
             Selected FantasyPlayer object, or None if user exits
@@ -140,6 +141,11 @@ class PlayerSearch:
                 if not matches:
                     print(f"No players found matching '{search_term}'. Try again or press Enter to exit.")
                     continue
+
+                total_matches = len(matches)
+                if max_search_results is not None and total_matches > max_search_results:
+                    matches = matches[:max_search_results]
+                    print(f"Showing first {max_search_results} of {total_matches} matches — try a more specific search.")
 
                 print(f"\nFound {len(matches)} matching player(s):")
                 for i, player in enumerate(matches, start=1):

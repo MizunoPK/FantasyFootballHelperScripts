@@ -37,20 +37,6 @@ from league_helper.util.ScoredPlayer import ScoredPlayer
 from utils.FantasyPlayer import FantasyPlayer
 from utils.LoggingManager import get_logger
 
-WAIVERS_TWO_FOR_TWO = False
-WAIVERS_THREE_FOR_THREE = False
-
-ENABLE_ONE_FOR_ONE = False
-ENABLE_TWO_FOR_TWO = True
-ENABLE_THREE_FOR_THREE = True
-
-ENABLE_TWO_FOR_ONE = True
-ENABLE_ONE_FOR_TWO = True
-ENABLE_THREE_FOR_ONE = False
-ENABLE_ONE_FOR_THREE = False
-ENABLE_THREE_FOR_TWO = True
-ENABLE_TWO_FOR_THREE = True
-
 class TradeSimulatorModeManager:
     """
     Manages trade simulation modes with roster validation and impact analysis.
@@ -249,8 +235,8 @@ class TradeSimulatorModeManager:
             their_team=waiver_team,
             is_waivers=True,
             one_for_one=True,
-            two_for_two=WAIVERS_TWO_FOR_TWO,
-            three_for_three=WAIVERS_THREE_FOR_THREE,
+            two_for_two=self.config.trade_waivers_two_for_two,
+            three_for_three=self.config.trade_waivers_three_for_three,
             two_for_one=False,
             one_for_two=False,
             three_for_one=False,
@@ -356,12 +342,12 @@ class TradeSimulatorModeManager:
             one_for_one_combos = my_unlocked * their_unlocked
             two_for_two_combos = (my_unlocked * (my_unlocked - 1) // 2) * (their_unlocked * (their_unlocked - 1) // 2)
 
-            two_for_one_combos = (my_unlocked * (my_unlocked - 1) // 2) * their_unlocked if ENABLE_TWO_FOR_ONE else 0
-            one_for_two_combos = my_unlocked * (their_unlocked * (their_unlocked - 1) // 2) if ENABLE_ONE_FOR_TWO else 0
-            three_for_one_combos = (my_unlocked * (my_unlocked - 1) * (my_unlocked - 2) // 6) * their_unlocked if ENABLE_THREE_FOR_ONE else 0
-            one_for_three_combos = my_unlocked * (their_unlocked * (their_unlocked - 1) * (their_unlocked - 2) // 6) if ENABLE_ONE_FOR_THREE else 0
-            three_for_two_combos = (my_unlocked * (my_unlocked - 1) * (my_unlocked - 2) // 6) * (their_unlocked * (their_unlocked - 1) // 2) if ENABLE_THREE_FOR_TWO else 0
-            two_for_three_combos = (my_unlocked * (my_unlocked - 1) // 2) * (their_unlocked * (their_unlocked - 1) * (their_unlocked - 2) // 6) if ENABLE_TWO_FOR_THREE else 0
+            two_for_one_combos = (my_unlocked * (my_unlocked - 1) // 2) * their_unlocked if self.config.trade_enable_two_for_one else 0
+            one_for_two_combos = my_unlocked * (their_unlocked * (their_unlocked - 1) // 2) if self.config.trade_enable_one_for_two else 0
+            three_for_one_combos = (my_unlocked * (my_unlocked - 1) * (my_unlocked - 2) // 6) * their_unlocked if self.config.trade_enable_three_for_one else 0
+            one_for_three_combos = my_unlocked * (their_unlocked * (their_unlocked - 1) * (their_unlocked - 2) // 6) if self.config.trade_enable_one_for_three else 0
+            three_for_two_combos = (my_unlocked * (my_unlocked - 1) * (my_unlocked - 2) // 6) * (their_unlocked * (their_unlocked - 1) // 2) if self.config.trade_enable_three_for_two else 0
+            two_for_three_combos = (my_unlocked * (my_unlocked - 1) // 2) * (their_unlocked * (their_unlocked - 1) * (their_unlocked - 2) // 6) if self.config.trade_enable_two_for_three else 0
 
             total_expected = (one_for_one_combos + two_for_two_combos +
                              two_for_one_combos + one_for_two_combos +
@@ -380,15 +366,15 @@ class TradeSimulatorModeManager:
                 my_team=self.my_team,
                 their_team=opponent_team,
                 is_waivers=False,
-                one_for_one=ENABLE_ONE_FOR_ONE,
-                two_for_two=ENABLE_TWO_FOR_TWO,
-                three_for_three=ENABLE_THREE_FOR_THREE,
-                two_for_one=ENABLE_TWO_FOR_ONE,
-                one_for_two=ENABLE_ONE_FOR_TWO,
-                three_for_one=ENABLE_THREE_FOR_ONE,
-                one_for_three=ENABLE_ONE_FOR_THREE,
-                three_for_two=ENABLE_THREE_FOR_TWO,
-                two_for_three=ENABLE_TWO_FOR_THREE,
+                one_for_one=self.config.trade_enable_one_for_one,
+                two_for_two=self.config.trade_enable_two_for_two,
+                three_for_three=self.config.trade_enable_three_for_three,
+                two_for_one=self.config.trade_enable_two_for_one,
+                one_for_two=self.config.trade_enable_one_for_two,
+                three_for_one=self.config.trade_enable_three_for_one,
+                one_for_three=self.config.trade_enable_one_for_three,
+                three_for_two=self.config.trade_enable_three_for_two,
+                two_for_three=self.config.trade_enable_two_for_three,
                 ignore_max_positions=False
             )
 

@@ -7,12 +7,17 @@ Covers position counting, roster validation logic, and trade scenario generation
 Author: Kai Mizuno
 """
 
+import json
 import pytest
+from pathlib import Path
 from unittest.mock import Mock, MagicMock, patch
 from utils.FantasyPlayer import FantasyPlayer
 from league_helper.trade_simulator_mode.trade_analyzer import TradeAnalyzer
 from league_helper.trade_simulator_mode.TradeSimTeam import TradeSimTeam
 from league_helper.trade_simulator_mode.TradeSnapshot import TradeSnapshot
+from league_helper.util.ConfigManager import ConfigManager
+
+FIXTURE_LEAGUE_CONFIG = Path(__file__).parent.parent.parent / "fixtures" / "league" / "league_config.json"
 
 
 @pytest.fixture
@@ -27,6 +32,18 @@ def mock_config():
     config = Mock()
     config.max_positions = {'QB': 2, 'RB': 4, 'WR': 4, 'FLEX': 2, 'TE': 1, 'K': 1, 'DST': 1}
     config.max_players = 15
+    config.trade_waivers_two_for_two = False
+    config.trade_waivers_three_for_three = False
+    config.trade_enable_one_for_one = False
+    config.trade_enable_two_for_two = True
+    config.trade_enable_three_for_three = True
+    config.trade_enable_two_for_one = True
+    config.trade_enable_one_for_two = True
+    config.trade_enable_three_for_one = False
+    config.trade_enable_one_for_three = False
+    config.trade_enable_three_for_two = True
+    config.trade_enable_two_for_three = True
+    config.trade_max_combinations = 50000
     return config
 
 
@@ -640,4 +657,213 @@ class TestGetTradeCombinations:
 
                 assert len(results) == 1
 
+
+class TestTradeSimulatorConfigDefaults:
+    """Verify ConfigManager with no TRADE_SIMULATOR section returns all 12 defaults correctly."""
+
+    def test_config_defaults_all_flags(self, tmp_path):
+        """ConfigManager with no TRADE_SIMULATOR section returns correct default values."""
+        config_data = json.loads(FIXTURE_LEAGUE_CONFIG.read_text())
+        config_data["parameters"].pop("TRADE_SIMULATOR", None)
+        (tmp_path / "league_config.json").write_text(json.dumps(config_data))
+
+        cm = ConfigManager(tmp_path)
+
+        assert cm.trade_waivers_two_for_two is False
+        assert cm.trade_waivers_three_for_three is False
+        assert cm.trade_enable_one_for_one is False
+        assert cm.trade_enable_two_for_two is True
+        assert cm.trade_enable_three_for_three is True
+        assert cm.trade_enable_two_for_one is True
+        assert cm.trade_enable_one_for_two is True
+        assert cm.trade_enable_three_for_one is False
+        assert cm.trade_enable_one_for_three is False
+        assert cm.trade_enable_three_for_two is True
+        assert cm.trade_enable_two_for_three is True
+        assert cm.trade_max_combinations == 50000
+
+
+class TestTradeSimulatorConfigOverride:
+    """Verify ConfigManager with TRADE_SIMULATOR section returns overridden values."""
+
+    def test_config_override_flags(self, tmp_path):
+        """ConfigManager with TRADE_SIMULATOR section overrides default values."""
+        config_data = json.loads(FIXTURE_LEAGUE_CONFIG.read_text())
+        config_data["parameters"]["TRADE_SIMULATOR"] = {
+            "ENABLE_TWO_FOR_TWO": False,
+            "ENABLE_THREE_FOR_THREE": False,
+            "MAX_COMBINATIONS": 1000,
+        }
+        (tmp_path / "league_config.json").write_text(json.dumps(config_data))
+
+        cm = ConfigManager(tmp_path)
+
+        assert cm.trade_enable_two_for_two is False
+        assert cm.trade_enable_three_for_three is False
+        assert cm.trade_max_combinations == 1000
+        assert cm.trade_enable_two_for_one is True
+
+
+class TestMaxCombinationsGuard_triggers:
+    """When pre-flight count exceeds trade_max_combinations, get_trade_combinations() returns [] and prints warning."""
+
+    def test_guard_triggers_returns_empty(self, mock_player_manager, capsys):
+        """Guard triggers when combo count exceeds threshold — returns [] and prints warning."""
+        config = Mock()
+        config.max_positions = {'QB': 2, 'RB': 4, 'WR': 4, 'FLEX': 2, 'TE': 1, 'K': 1, 'DST': 1}
+        config.max_players = 15
+        config.trade_max_combinations = 1
+
+        analyzer = TradeAnalyzer(mock_player_manager, config)
+
+        qb1 = FantasyPlayer(id=101, name="BigQB1", team="KC", position="QB", fantasy_points=25.0, injury_status="ACTIVE")
+        qb1.locked = 0
+        rb1 = FantasyPlayer(id=102, name="BigRB1", team="SF", position="RB", fantasy_points=20.0, injury_status="ACTIVE")
+        rb1.locked = 0
+
+        my_team = Mock(spec=TradeSimTeam)
+        my_team.team = [qb1, rb1]
+        my_team.name = "My Team"
+        my_team.use_weekly_scoring = False
+
+        their_team = Mock(spec=TradeSimTeam)
+        their_team.team = [
+            FantasyPlayer(id=201, name="TheirP1", team="BUF", position="WR", fantasy_points=18.0, injury_status="ACTIVE"),
+            FantasyPlayer(id=202, name="TheirP2", team="DAL", position="WR", fantasy_points=17.0, injury_status="ACTIVE"),
+        ]
+        for p in their_team.team:
+            p.locked = 0
+        their_team.name = "Their Team"
+        their_team.use_weekly_scoring = False
+
+        result = analyzer.get_trade_combinations(
+            my_team=my_team,
+            their_team=their_team,
+            is_waivers=False,
+            one_for_one=True,
+            two_for_two=False,
+            three_for_three=False,
+            two_for_one=False,
+            one_for_two=False,
+            three_for_one=False,
+            one_for_three=False,
+            three_for_two=False,
+            two_for_three=False,
+        )
+
+        assert result == []
+        captured = capsys.readouterr()
+        assert "TRADE COMBINATION LIMIT EXCEEDED" in captured.out
+        assert "limit:" in captured.out
+
+
+class TestMaxCombinationsGuard_passes:
+    """When pre-flight count is at or below trade_max_combinations, get_trade_combinations() proceeds normally."""
+
+    def test_guard_does_not_trigger_small_roster(self, mock_config, capsys):
+        """Guard does not trigger with a high threshold — logs nothing, proceeds with analysis."""
+        config = Mock()
+        config.max_positions = {'QB': 2, 'RB': 4, 'WR': 4, 'FLEX': 2, 'TE': 1, 'K': 1, 'DST': 1}
+        config.max_players = 15
+        config.trade_max_combinations = 999999
+
+        scored_mock = Mock()
+        scored_mock.score = 0.0
+        player_manager = Mock()
+        player_manager.score_player.return_value = scored_mock
+
+        analyzer = TradeAnalyzer(player_manager, config)
+
+        qb1 = FantasyPlayer(id=301, name="QBSmall1", team="KC", position="QB", fantasy_points=25.0, injury_status="ACTIVE")
+        qb1.locked = 0
+
+        my_team = Mock(spec=TradeSimTeam)
+        my_team.team = [qb1]
+        my_team.name = "My Team"
+        my_team.use_weekly_scoring = False
+        my_team.team_score = 0.0
+        my_team.get_scored_players.return_value = []
+
+        their_qb = FantasyPlayer(id=401, name="TheirQB1", team="BUF", position="QB", fantasy_points=22.0, injury_status="ACTIVE")
+        their_qb.locked = 0
+        their_team = Mock(spec=TradeSimTeam)
+        their_team.team = [their_qb]
+        their_team.name = "Their Team"
+        their_team.use_weekly_scoring = False
+        their_team.team_score = 0.0
+        their_team.get_scored_players.return_value = []
+
+        result = analyzer.get_trade_combinations(
+            my_team=my_team,
+            their_team=their_team,
+            is_waivers=False,
+            one_for_one=True,
+            two_for_two=False,
+            three_for_three=False,
+            two_for_one=False,
+            one_for_two=False,
+            three_for_one=False,
+            one_for_three=False,
+            three_for_two=False,
+            two_for_three=False,
+        )
+
+        captured = capsys.readouterr()
+        assert "TRADE COMBINATION LIMIT EXCEEDED" not in captured.out
+
+
+class TestTradeSimulatorFlagsReadFromConfig:
+    """Verify TradeSimulatorModeManager.start_trade_suggestor() reads flags from self.config."""
+
+    def test_flags_read_from_config(self):
+        """start_trade_suggestor() uses config flags not module-level constants."""
+        from league_helper.trade_simulator_mode.TradeSimulatorModeManager import TradeSimulatorModeManager
+        import inspect
+        source = inspect.getsource(TradeSimulatorModeManager.start_trade_suggestor)
+        assert "ENABLE_ONE_FOR_ONE" not in source
+        assert "ENABLE_TWO_FOR_TWO" not in source
+        assert "ENABLE_THREE_FOR_THREE" not in source
+        assert "self.config.trade_enable_one_for_one" in source
+        assert "self.config.trade_enable_two_for_two" in source
+        assert "self.config.trade_enable_three_for_three" in source
+
+
+class TestTradeSimulatorConfigValidation:
+    """Verify ConfigManager raises ValueError for invalid TRADE_SIMULATOR values."""
+
+    def test_trade_flag_string_value_raises_error(self, tmp_path):
+        """TRADE_SIMULATOR boolean flag as string raises ValueError at startup."""
+        config_data = json.loads(FIXTURE_LEAGUE_CONFIG.read_text())
+        config_data["parameters"]["TRADE_SIMULATOR"] = {"ENABLE_TWO_FOR_TWO": "false"}
+        (tmp_path / "league_config.json").write_text(json.dumps(config_data))
+
+        with pytest.raises(ValueError, match="must be a boolean"):
+            ConfigManager(tmp_path)
+
+    def test_trade_max_combinations_string_raises_error(self, tmp_path):
+        """TRADE_SIMULATOR.MAX_COMBINATIONS as string raises ValueError at startup."""
+        config_data = json.loads(FIXTURE_LEAGUE_CONFIG.read_text())
+        config_data["parameters"]["TRADE_SIMULATOR"] = {"MAX_COMBINATIONS": "50000"}
+        (tmp_path / "league_config.json").write_text(json.dumps(config_data))
+
+        with pytest.raises(ValueError, match="MAX_COMBINATIONS must be a positive integer"):
+            ConfigManager(tmp_path)
+
+    def test_trade_max_combinations_zero_raises_error(self, tmp_path):
+        """TRADE_SIMULATOR.MAX_COMBINATIONS of 0 raises ValueError at startup."""
+        config_data = json.loads(FIXTURE_LEAGUE_CONFIG.read_text())
+        config_data["parameters"]["TRADE_SIMULATOR"] = {"MAX_COMBINATIONS": 0}
+        (tmp_path / "league_config.json").write_text(json.dumps(config_data))
+
+        with pytest.raises(ValueError, match="MAX_COMBINATIONS must be a positive integer"):
+            ConfigManager(tmp_path)
+
+    def test_trade_max_combinations_bool_raises_error(self, tmp_path):
+        """TRADE_SIMULATOR.MAX_COMBINATIONS as bool raises ValueError at startup."""
+        config_data = json.loads(FIXTURE_LEAGUE_CONFIG.read_text())
+        config_data["parameters"]["TRADE_SIMULATOR"] = {"MAX_COMBINATIONS": True}
+        (tmp_path / "league_config.json").write_text(json.dumps(config_data))
+
+        with pytest.raises(ValueError, match="MAX_COMBINATIONS must be a positive integer"):
+            ConfigManager(tmp_path)
 

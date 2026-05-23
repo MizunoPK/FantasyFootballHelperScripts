@@ -70,6 +70,21 @@ class ConfigKeys:
     NFL_TEAM_PENALTY = "NFL_TEAM_PENALTY"
     NFL_TEAM_PENALTY_WEIGHT = "NFL_TEAM_PENALTY_WEIGHT"
 
+    TRADE_SIMULATOR = "TRADE_SIMULATOR"
+
+    TRADE_WAIVERS_TWO_FOR_TWO = "WAIVERS_TWO_FOR_TWO"
+    TRADE_WAIVERS_THREE_FOR_THREE = "WAIVERS_THREE_FOR_THREE"
+    TRADE_ENABLE_ONE_FOR_ONE = "ENABLE_ONE_FOR_ONE"
+    TRADE_ENABLE_TWO_FOR_TWO = "ENABLE_TWO_FOR_TWO"
+    TRADE_ENABLE_THREE_FOR_THREE = "ENABLE_THREE_FOR_THREE"
+    TRADE_ENABLE_TWO_FOR_ONE = "ENABLE_TWO_FOR_ONE"
+    TRADE_ENABLE_ONE_FOR_TWO = "ENABLE_ONE_FOR_TWO"
+    TRADE_ENABLE_THREE_FOR_ONE = "ENABLE_THREE_FOR_ONE"
+    TRADE_ENABLE_ONE_FOR_THREE = "ENABLE_ONE_FOR_THREE"
+    TRADE_ENABLE_THREE_FOR_TWO = "ENABLE_THREE_FOR_TWO"
+    TRADE_ENABLE_TWO_FOR_THREE = "ENABLE_TWO_FOR_THREE"
+    TRADE_MAX_COMBINATIONS = "MAX_COMBINATIONS"
+
     DRAFT_ORDER_PRIMARY_LABEL = "P"
     DRAFT_ORDER_SECONDARY_LABEL = "S"
 
@@ -107,6 +122,7 @@ class ConfigKeys:
     DIRECTION_BI_EXCELLENT_LOW = "BI_EXCELLENT_LOW"
 
     CALCULATED = "_calculated"
+    MAX_SEARCH_RESULTS = "MAX_SEARCH_RESULTS"
 
 
 class ConfigManager:
@@ -201,7 +217,21 @@ class ConfigManager:
         self.nfl_team_penalty: List[str] = []
         self.nfl_team_penalty_weight: float = 1.0
 
+        self.trade_waivers_two_for_two: bool = False
+        self.trade_waivers_three_for_three: bool = False
+        self.trade_enable_one_for_one: bool = False
+        self.trade_enable_two_for_two: bool = True
+        self.trade_enable_three_for_three: bool = True
+        self.trade_enable_two_for_one: bool = True
+        self.trade_enable_one_for_two: bool = True
+        self.trade_enable_three_for_one: bool = False
+        self.trade_enable_one_for_three: bool = False
+        self.trade_enable_three_for_two: bool = True
+        self.trade_enable_two_for_three: bool = True
+        self.trade_max_combinations: int = 50000
+
         self._threshold_cache: Dict[Tuple[str, float, str, float], Dict[str, float]] = {}
+        self.max_search_results: int = 15
 
         self._load_config()
 
@@ -949,6 +979,45 @@ class ConfigManager:
             self.keys.NFL_TEAM_PENALTY_WEIGHT, 1.0
         )
 
+        trade_sim_section = self.parameters.get(self.keys.TRADE_SIMULATOR, {}) or {}
+
+        self.trade_waivers_two_for_two = trade_sim_section.get(self.keys.TRADE_WAIVERS_TWO_FOR_TWO, False)
+        self.trade_waivers_three_for_three = trade_sim_section.get(self.keys.TRADE_WAIVERS_THREE_FOR_THREE, False)
+        self.trade_enable_one_for_one = trade_sim_section.get(self.keys.TRADE_ENABLE_ONE_FOR_ONE, False)
+        self.trade_enable_two_for_two = trade_sim_section.get(self.keys.TRADE_ENABLE_TWO_FOR_TWO, True)
+        self.trade_enable_three_for_three = trade_sim_section.get(self.keys.TRADE_ENABLE_THREE_FOR_THREE, True)
+        self.trade_enable_two_for_one = trade_sim_section.get(self.keys.TRADE_ENABLE_TWO_FOR_ONE, True)
+        self.trade_enable_one_for_two = trade_sim_section.get(self.keys.TRADE_ENABLE_ONE_FOR_TWO, True)
+        self.trade_enable_three_for_one = trade_sim_section.get(self.keys.TRADE_ENABLE_THREE_FOR_ONE, False)
+        self.trade_enable_one_for_three = trade_sim_section.get(self.keys.TRADE_ENABLE_ONE_FOR_THREE, False)
+        self.trade_enable_three_for_two = trade_sim_section.get(self.keys.TRADE_ENABLE_THREE_FOR_TWO, True)
+        self.trade_enable_two_for_three = trade_sim_section.get(self.keys.TRADE_ENABLE_TWO_FOR_THREE, True)
+        self.trade_max_combinations = trade_sim_section.get(self.keys.TRADE_MAX_COMBINATIONS, 50000)
+
+        trade_flag_attrs = [
+            "trade_waivers_two_for_two", "trade_waivers_three_for_three",
+            "trade_enable_one_for_one", "trade_enable_two_for_two", "trade_enable_three_for_three",
+            "trade_enable_two_for_one", "trade_enable_one_for_two",
+            "trade_enable_three_for_one", "trade_enable_one_for_three",
+            "trade_enable_three_for_two", "trade_enable_two_for_three",
+        ]
+        for attr in trade_flag_attrs:
+            if not isinstance(getattr(self, attr), bool):
+                raise ValueError(
+                    f"TRADE_SIMULATOR.{attr.replace('trade_', '').upper()} must be a boolean, "
+                    f"got {getattr(self, attr)!r}"
+                )
+
+        if (
+            not isinstance(self.trade_max_combinations, int)
+            or isinstance(self.trade_max_combinations, bool)
+            or self.trade_max_combinations <= 0
+        ):
+            raise ValueError(
+                f"TRADE_SIMULATOR.MAX_COMBINATIONS must be a positive integer, "
+                f"got {self.trade_max_combinations!r}"
+            )
+
         if not isinstance(self.nfl_team_penalty, list):
             raise ValueError(
                 f"NFL_TEAM_PENALTY must be a list, got {type(self.nfl_team_penalty).__name__}"
@@ -976,6 +1045,17 @@ class ConfigManager:
                 f"got {self.nfl_team_penalty_weight}"
             )
 
+        self.max_search_results = self.parameters.get(self.keys.MAX_SEARCH_RESULTS, 15)
+
+        if (
+            not isinstance(self.max_search_results, int)
+            or isinstance(self.max_search_results, bool)
+            or self.max_search_results <= 0
+        ):
+            raise ValueError(
+                f"MAX_SEARCH_RESULTS must be a positive integer, "
+                f"got {self.max_search_results!r}"
+            )
 
         required_injury_levels = [self.keys.INJURY_LOW, self.keys.INJURY_MEDIUM, self.keys.INJURY_HIGH]
         missing_levels = [

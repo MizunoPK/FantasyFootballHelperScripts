@@ -147,7 +147,8 @@ class ModifyPlayerDataModeManager:
         searcher = PlayerSearch(self.player_manager.players)
         selected_player = searcher.interactive_search(
             drafted_filter=0,
-            prompt="Enter player name to mark as drafted (or press Enter to return): "
+            prompt="Enter player name to mark as drafted (or press Enter to return): ",
+            max_search_results=self.player_manager.config.max_search_results
         )
 
         if selected_player is None:
@@ -211,7 +212,8 @@ class ModifyPlayerDataModeManager:
         selected_player = searcher.interactive_search(
             drafted_filter=None,
             prompt="Enter player name to drop (or press Enter to return): ",
-            not_available=True
+            not_available=True,
+            max_search_results=self.player_manager.config.max_search_results
         )
 
         if selected_player is None:
@@ -288,7 +290,8 @@ class ModifyPlayerDataModeManager:
         searcher = PlayerSearch(self.player_manager.players)
         selected_player = searcher.interactive_search(
             drafted_filter=None,
-            prompt="Enter player name to lock/unlock (or press Enter to return): "
+            prompt="Enter player name to lock/unlock (or press Enter to return): ",
+            max_search_results=self.player_manager.config.max_search_results
         )
 
         if selected_player is None:

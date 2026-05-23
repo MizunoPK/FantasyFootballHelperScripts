@@ -13,7 +13,7 @@ Date: 2025-12-28
 import pytest
 import json
 from pathlib import Path
-from unittest.mock import Mock, MagicMock
+from unittest.mock import Mock, MagicMock, patch
 
 from league_helper.util.PlayerManager import PlayerManager
 from league_helper.util.ConfigManager import ConfigManager
@@ -243,7 +243,7 @@ class TestPlayerManagerLoadFromJSON:
             player_manager.load_players_from_json()
 
     def test_load_players_from_json_malformed_json_raises_decode_error(self, mock_data_folder, mock_config, mock_team_data_manager, mock_season_schedule_manager):
-        """Test load_players_from_json() raises JSONDecodeError for malformed JSON."""
+        """Test load_players_from_json() does not raise for malformed JSON — skips position instead."""
         player_data_dir = mock_data_folder / "player_data"
         malformed_file = player_data_dir / "qb_data.json"
         malformed_file.write_text("{invalid json content")
@@ -256,9 +256,15 @@ class TestPlayerManagerLoadFromJSON:
         player_manager.players = []
         player_manager.max_projection = 0.0
         player_manager.logger = Mock()
+        player_manager.load_team = Mock()
 
-        with pytest.raises(json.JSONDecodeError):
-            player_manager.load_players_from_json()
+        result = player_manager.load_players_from_json()
+
+        assert result is True
+        player_manager.logger.error.assert_called()
+        error_call_args = str(player_manager.logger.error.call_args)
+        assert "qb_data.json" in error_call_args
+        assert len(player_manager.players) == 1
 
     def test_load_players_from_json_missing_position_file_logs_warning_continues(self, mock_data_folder, mock_config, mock_team_data_manager, mock_season_schedule_manager):
         """Test load_players_from_json() logs warning and continues if position file missing."""
@@ -534,3 +540,215 @@ class TestUpdatePlayersFileSelectiveUpdate:
         assert qb_data_after["qb_data"][0]["drafted_by"] == "Opponent Team"
 
 
+class TestLoadPlayersFromJsonMalformedFallback:
+    """Tests for per-position JSONDecodeError fallback (R1)."""
+
+    def test_malformed_json_does_not_raise(self, mock_data_folder, mock_config, mock_team_data_manager, mock_season_schedule_manager):
+        """Corrupted qb_data.json — no exception, returns True, QB count = 0."""
+        player_data_dir = mock_data_folder / "player_data"
+        (player_data_dir / "qb_data.json").write_text("{invalid json content")
+
+        player_manager = PlayerManager.__new__(PlayerManager)
+        player_manager.data_folder = mock_data_folder
+        player_manager.config = mock_config
+        player_manager.team_data_manager = mock_team_data_manager
+        player_manager.season_schedule_manager = mock_season_schedule_manager
+        player_manager.players = []
+        player_manager.max_projection = 0.0
+        player_manager.logger = Mock()
+        player_manager.load_team = Mock()
+
+        result = player_manager.load_players_from_json()
+
+        assert result is True
+
+    def test_malformed_json_logs_error(self, mock_data_folder, mock_config, mock_team_data_manager, mock_season_schedule_manager):
+        """Corrupted qb_data.json — logger.error called with file name."""
+        player_data_dir = mock_data_folder / "player_data"
+        (player_data_dir / "qb_data.json").write_text("{invalid json content")
+
+        player_manager = PlayerManager.__new__(PlayerManager)
+        player_manager.data_folder = mock_data_folder
+        player_manager.config = mock_config
+        player_manager.team_data_manager = mock_team_data_manager
+        player_manager.season_schedule_manager = mock_season_schedule_manager
+        player_manager.players = []
+        player_manager.max_projection = 0.0
+        player_manager.logger = Mock()
+        player_manager.load_team = Mock()
+
+        player_manager.load_players_from_json()
+
+        player_manager.logger.error.assert_called()
+        assert "qb_data.json" in str(player_manager.logger.error.call_args)
+
+    def test_malformed_json_prints_warning_summary(self, mock_data_folder, mock_config, mock_team_data_manager, mock_season_schedule_manager, capsys):
+        """Corrupted qb_data.json — stdout contains warning with qb_data.json."""
+        player_data_dir = mock_data_folder / "player_data"
+        (player_data_dir / "qb_data.json").write_text("{invalid json content")
+
+        player_manager = PlayerManager.__new__(PlayerManager)
+        player_manager.data_folder = mock_data_folder
+        player_manager.config = mock_config
+        player_manager.team_data_manager = mock_team_data_manager
+        player_manager.season_schedule_manager = mock_season_schedule_manager
+        player_manager.players = []
+        player_manager.max_projection = 0.0
+        player_manager.logger = Mock()
+        player_manager.load_team = Mock()
+
+        player_manager.load_players_from_json()
+
+        captured = capsys.readouterr()
+        assert "qb_data.json" in captured.out
+        assert "WARNING" in captured.out
+
+    def test_malformed_json_other_positions_load(self, mock_data_folder, mock_config, mock_team_data_manager, mock_season_schedule_manager):
+        """Corrupted qb_data.json — RB players still loaded (1 RB in fixture)."""
+        player_data_dir = mock_data_folder / "player_data"
+        (player_data_dir / "qb_data.json").write_text("{invalid json content")
+
+        player_manager = PlayerManager.__new__(PlayerManager)
+        player_manager.data_folder = mock_data_folder
+        player_manager.config = mock_config
+        player_manager.team_data_manager = mock_team_data_manager
+        player_manager.season_schedule_manager = mock_season_schedule_manager
+        player_manager.players = []
+        player_manager.max_projection = 0.0
+        player_manager.logger = Mock()
+        player_manager.load_team = Mock()
+
+        player_manager.load_players_from_json()
+
+        rb_players = [p for p in player_manager.players if p.position == "RB"]
+        assert len(rb_players) == 1
+
+    def test_all_malformed_json_returns_empty_players(self, mock_data_folder, mock_config, mock_team_data_manager, mock_season_schedule_manager):
+        """All 6 positions corrupted — self.players == [], returns True."""
+        player_data_dir = mock_data_folder / "player_data"
+        for pos in ["qb", "rb", "wr", "te", "k", "dst"]:
+            (player_data_dir / f"{pos}_data.json").write_text("{invalid json content")
+
+        player_manager = PlayerManager.__new__(PlayerManager)
+        player_manager.data_folder = mock_data_folder
+        player_manager.config = mock_config
+        player_manager.team_data_manager = mock_team_data_manager
+        player_manager.season_schedule_manager = mock_season_schedule_manager
+        player_manager.players = []
+        player_manager.max_projection = 0.0
+        player_manager.logger = Mock()
+        player_manager.load_team = Mock()
+
+        result = player_manager.load_players_from_json()
+
+        assert result is True
+        assert player_manager.players == []
+
+    def test_no_warning_summary_when_no_failures(self, mock_data_folder, mock_config, mock_team_data_manager, mock_season_schedule_manager, capsys):
+        """All positions valid — no WARNING summary printed to stdout."""
+        player_manager = PlayerManager.__new__(PlayerManager)
+        player_manager.data_folder = mock_data_folder
+        player_manager.config = mock_config
+        player_manager.team_data_manager = mock_team_data_manager
+        player_manager.season_schedule_manager = mock_season_schedule_manager
+        player_manager.players = []
+        player_manager.max_projection = 0.0
+        player_manager.logger = Mock()
+        player_manager.load_team = Mock()
+
+        player_manager.load_players_from_json()
+
+        captured = capsys.readouterr()
+        assert "WARNING: Failed to load player data" not in captured.out
+
+
+    def test_oserror_reading_position_skips_position(self, mock_data_folder, mock_config, mock_team_data_manager, mock_season_schedule_manager):
+        """OSError when opening position file — position skipped, others still load."""
+        player_manager = PlayerManager.__new__(PlayerManager)
+        player_manager.data_folder = mock_data_folder
+        player_manager.config = mock_config
+        player_manager.team_data_manager = mock_team_data_manager
+        player_manager.season_schedule_manager = mock_season_schedule_manager
+        player_manager.players = []
+        player_manager.max_projection = 0.0
+        player_manager.logger = Mock()
+        player_manager.load_team = Mock()
+
+        real_open = open
+
+        def fail_on_qb_data(filepath, *args, **kwargs):
+            if "qb_data.json" in str(filepath):
+                raise OSError("Permission denied: qb_data.json")
+            return real_open(filepath, *args, **kwargs)
+
+        with patch("builtins.open", side_effect=fail_on_qb_data):
+            result = player_manager.load_players_from_json()
+
+        assert result is True
+        qb_players = [p for p in player_manager.players if p.position == "QB"]
+        assert len(qb_players) == 0
+        player_manager.logger.error.assert_called()
+
+
+class TestStaleTemFilesCleanup:
+    """Tests for stale .tmp file cleanup at startup (R2)."""
+
+    def test_stale_tmp_files_deleted_at_startup(self, mock_data_folder, mock_config, mock_team_data_manager, mock_season_schedule_manager):
+        """tmp file exists — deleted before any position loaded."""
+        player_data_dir = mock_data_folder / "player_data"
+        tmp_file = player_data_dir / "qb_data.tmp"
+        tmp_file.write_text("stale content")
+
+        player_manager = PlayerManager.__new__(PlayerManager)
+        player_manager.data_folder = mock_data_folder
+        player_manager.config = mock_config
+        player_manager.team_data_manager = mock_team_data_manager
+        player_manager.season_schedule_manager = mock_season_schedule_manager
+        player_manager.players = []
+        player_manager.max_projection = 0.0
+        player_manager.logger = Mock()
+        player_manager.load_team = Mock()
+
+        player_manager.load_players_from_json()
+
+        assert not tmp_file.exists()
+
+    def test_stale_tmp_files_warning_logged(self, mock_data_folder, mock_config, mock_team_data_manager, mock_season_schedule_manager):
+        """tmp file exists — logger.warning called with tmp file name."""
+        player_data_dir = mock_data_folder / "player_data"
+        tmp_file = player_data_dir / "qb_data.tmp"
+        tmp_file.write_text("stale content")
+
+        player_manager = PlayerManager.__new__(PlayerManager)
+        player_manager.data_folder = mock_data_folder
+        player_manager.config = mock_config
+        player_manager.team_data_manager = mock_team_data_manager
+        player_manager.season_schedule_manager = mock_season_schedule_manager
+        player_manager.players = []
+        player_manager.max_projection = 0.0
+        player_manager.logger = Mock()
+        player_manager.load_team = Mock()
+
+        player_manager.load_players_from_json()
+
+        player_manager.logger.warning.assert_called()
+        warning_calls = str(player_manager.logger.warning.call_args_list)
+        assert "qb_data.tmp" in warning_calls
+
+    def test_no_tmp_files_no_cleanup_messages(self, mock_data_folder, mock_config, mock_team_data_manager, mock_season_schedule_manager):
+        """No .tmp files — no extra warning log calls (logger.warning not called for cleanup)."""
+        player_manager = PlayerManager.__new__(PlayerManager)
+        player_manager.data_folder = mock_data_folder
+        player_manager.config = mock_config
+        player_manager.team_data_manager = mock_team_data_manager
+        player_manager.season_schedule_manager = mock_season_schedule_manager
+        player_manager.players = []
+        player_manager.max_projection = 0.0
+        player_manager.logger = Mock()
+        player_manager.load_team = Mock()
+
+        player_manager.load_players_from_json()
+
+        warning_calls = [str(c) for c in player_manager.logger.warning.call_args_list]
+        cleanup_warnings = [c for c in warning_calls if "stale temp file" in c or ".tmp" in c]
+        assert len(cleanup_warnings) == 0
