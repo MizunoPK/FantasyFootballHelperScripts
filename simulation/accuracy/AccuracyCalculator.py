@@ -21,6 +21,7 @@ import numpy as np
 from scipy.stats import spearmanr
 
 from utils.LoggingManager import get_logger
+from simulation.accuracy.accuracy_types import RankingMetrics
 
 
 class AccuracyResult:
@@ -278,7 +279,6 @@ class AccuracyCalculator:
                                 position_data[pos]['spearman_z'].append(z)
 
             if pairwise_values:
-                from simulation.accuracy.AccuracyResultsManager import RankingMetrics
 
                 overall_spearman = 0.0
                 if spearman_z_values:
@@ -295,7 +295,6 @@ class AccuracyCalculator:
 
             for pos, data in position_data.items():
                 if data['pairwise']:
-                    from simulation.accuracy.AccuracyResultsManager import RankingMetrics
 
                     pos_spearman = 0.0
                     if data['spearman_z']:
@@ -511,8 +510,6 @@ class AccuracyCalculator:
         Returns:
             Tuple of (overall_metrics, by_position_metrics)
         """
-        from simulation.accuracy.AccuracyResultsManager import RankingMetrics
-
         positions = ['QB', 'RB', 'WR', 'TE', 'K', 'DST']
 
         position_data = {pos: {

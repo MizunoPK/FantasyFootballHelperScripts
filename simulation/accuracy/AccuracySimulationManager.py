@@ -33,11 +33,15 @@ from simulation.shared.ConfigGenerator import ConfigGenerator
 from simulation.shared.ProgressTracker import ProgressTracker
 from simulation.shared.config_cleanup import cleanup_old_accuracy_optimal_folders, cleanup_accuracy_intermediate_folders
 from simulation.accuracy.AccuracyCalculator import AccuracyCalculator, AccuracyResult
-from simulation.accuracy.AccuracyResultsManager import AccuracyResultsManager, RankingMetrics, WEEK_RANGES
+from simulation.accuracy.AccuracyResultsManager import AccuracyResultsManager, WEEK_RANGES
+from simulation.accuracy.accuracy_types import RankingMetrics
 from league_helper.util.PlayerManager import PlayerManager
 from league_helper.util.ConfigManager import ConfigManager
 from league_helper.util.TeamDataManager import TeamDataManager
 from league_helper.util.SeasonScheduleManager import SeasonScheduleManager
+
+PAIRWISE_ACCURACY_WARN_THRESHOLD = 0.65
+TOP_10_ACCURACY_WARN_THRESHOLD = 0.70
 
 
 class AccuracySimulationManager:
@@ -468,13 +472,13 @@ class AccuracySimulationManager:
             result.overall_metrics = overall_metrics
             result.by_position = by_position
 
-            if overall_metrics and overall_metrics.pairwise_accuracy < 0.65:
+            if overall_metrics and overall_metrics.pairwise_accuracy < PAIRWISE_ACCURACY_WARN_THRESHOLD:
                 self.logger.warning(
                     f"[{season_path.name}] Low pairwise accuracy: "
                     f"{overall_metrics.pairwise_accuracy:.1%} (threshold: 65%)"
                 )
 
-            if overall_metrics and overall_metrics.top_10_accuracy < 0.70:
+            if overall_metrics and overall_metrics.top_10_accuracy < TOP_10_ACCURACY_WARN_THRESHOLD:
                 self.logger.warning(
                     f"[{season_path.name}] Low top-10 accuracy: "
                     f"{overall_metrics.top_10_accuracy:.1%} (threshold: 70%)"

@@ -16,33 +16,15 @@ Author: Kai Mizuno
 import copy
 import json
 import shutil
-from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Any
 
 from utils.LoggingManager import get_logger
 from simulation.shared.config_cleanup import cleanup_old_accuracy_optimal_folders
+from simulation.shared.config_constants import WEEK_SPECIFIC_PARAMS
+from simulation.accuracy.accuracy_types import RankingMetrics
 from simulation.accuracy.AccuracyCalculator import AccuracyResult
-
-
-@dataclass
-class RankingMetrics:
-    """
-    Ranking-based accuracy metrics for a configuration.
-
-    Attributes:
-        pairwise_accuracy (float): % of pairwise comparisons correct (0.0-1.0)
-        top_5_accuracy (float): % overlap in top-5 predictions (0.0-1.0)
-        top_10_accuracy (float): % overlap in top-10 predictions (0.0-1.0)
-        top_20_accuracy (float): % overlap in top-20 predictions (0.0-1.0)
-        spearman_correlation (float): Rank correlation coefficient (-1.0 to +1.0)
-    """
-    pairwise_accuracy: float
-    top_5_accuracy: float
-    top_10_accuracy: float
-    top_20_accuracy: float
-    spearman_correlation: float
 
 
 WEEK_RANGES = {
@@ -443,10 +425,9 @@ class AccuracyResultsManager:
                 self.logger.info(f"  Has results: MAE={perf.mae:.4f}, using real performance data")
                 synced_config = self._sync_schedule_params(perf.config_dict)
 
-                from simulation.shared.ResultsManager import ResultsManager
                 week_params_dict = {
                     key: synced_config.get('parameters', synced_config).get(key)
-                    for key in ResultsManager.WEEK_SPECIFIC_PARAMS
+                    for key in WEEK_SPECIFIC_PARAMS
                     if key in synced_config.get('parameters', synced_config)
                 }
 
@@ -568,10 +549,9 @@ class AccuracyResultsManager:
             if perf:
                 synced_config = self._sync_schedule_params(perf.config_dict)
 
-                from simulation.shared.ResultsManager import ResultsManager
                 week_params_dict = {
                     key: synced_config.get('parameters', synced_config).get(key)
-                    for key in ResultsManager.WEEK_SPECIFIC_PARAMS
+                    for key in WEEK_SPECIFIC_PARAMS
                     if key in synced_config.get('parameters', synced_config)
                 }
 
