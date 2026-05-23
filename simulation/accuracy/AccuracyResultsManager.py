@@ -712,7 +712,14 @@ class AccuracyResultsManager:
         lines.append("-" * 40)
 
         for week_key, perf in self.best_configs.items():
-            if perf:
+            if perf and perf.overall_metrics:
+                lines.append(
+                    f"  {week_key}: Pairwise={perf.overall_metrics.pairwise_accuracy:.1%}"
+                    f" | Top-10={perf.overall_metrics.top_10_accuracy:.1%}"
+                    f" | Spearman={perf.overall_metrics.spearman_correlation:.3f}"
+                    f" | MAE={perf.mae:.4f} (diag) ({perf.player_count} players)"
+                )
+            elif perf:
                 lines.append(f"  {week_key}: MAE={perf.mae:.4f} ({perf.player_count} players)")
             else:
                 lines.append(f"  {week_key}: No results yet")
