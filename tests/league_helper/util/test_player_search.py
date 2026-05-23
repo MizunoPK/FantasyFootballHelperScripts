@@ -4,9 +4,14 @@ Tests for PlayerSearch fuzzy search functionality.
 Author: Kai Mizuno
 """
 
+import json
 import pytest
+from pathlib import Path
 from utils.FantasyPlayer import FantasyPlayer
 from league_helper.util.player_search import PlayerSearch
+from league_helper.util.ConfigManager import ConfigManager
+
+FIXTURE_LEAGUE_CONFIG = Path(__file__).parent.parent.parent / "fixtures" / "league" / "league_config.json"
 
 
 class TestPlayerSearchBasic:
@@ -503,3 +508,43 @@ class TestInteractiveSearchCapBehavior:
         captured = capsys.readouterr()
         assert "Showing first" not in captured.out
         assert "Found 20 matching player(s):" in captured.out
+
+
+class TestMaxSearchResultsConfigValidation:
+    """Verify ConfigManager raises ValueError for invalid MAX_SEARCH_RESULTS values."""
+
+    def test_max_search_results_string_raises_error(self, tmp_path):
+        """MAX_SEARCH_RESULTS as string raises ValueError at startup."""
+        config_data = json.loads(FIXTURE_LEAGUE_CONFIG.read_text())
+        config_data["parameters"]["MAX_SEARCH_RESULTS"] = "15"
+        (tmp_path / "league_config.json").write_text(json.dumps(config_data))
+
+        with pytest.raises(ValueError, match="MAX_SEARCH_RESULTS must be a positive integer"):
+            ConfigManager(tmp_path)
+
+    def test_max_search_results_zero_raises_error(self, tmp_path):
+        """MAX_SEARCH_RESULTS of 0 raises ValueError at startup."""
+        config_data = json.loads(FIXTURE_LEAGUE_CONFIG.read_text())
+        config_data["parameters"]["MAX_SEARCH_RESULTS"] = 0
+        (tmp_path / "league_config.json").write_text(json.dumps(config_data))
+
+        with pytest.raises(ValueError, match="MAX_SEARCH_RESULTS must be a positive integer"):
+            ConfigManager(tmp_path)
+
+    def test_max_search_results_negative_raises_error(self, tmp_path):
+        """MAX_SEARCH_RESULTS of -1 raises ValueError at startup."""
+        config_data = json.loads(FIXTURE_LEAGUE_CONFIG.read_text())
+        config_data["parameters"]["MAX_SEARCH_RESULTS"] = -1
+        (tmp_path / "league_config.json").write_text(json.dumps(config_data))
+
+        with pytest.raises(ValueError, match="MAX_SEARCH_RESULTS must be a positive integer"):
+            ConfigManager(tmp_path)
+
+    def test_max_search_results_bool_raises_error(self, tmp_path):
+        """MAX_SEARCH_RESULTS as bool raises ValueError at startup."""
+        config_data = json.loads(FIXTURE_LEAGUE_CONFIG.read_text())
+        config_data["parameters"]["MAX_SEARCH_RESULTS"] = True
+        (tmp_path / "league_config.json").write_text(json.dumps(config_data))
+
+        with pytest.raises(ValueError, match="MAX_SEARCH_RESULTS must be a positive integer"):
+            ConfigManager(tmp_path)

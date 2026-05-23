@@ -994,6 +994,30 @@ class ConfigManager:
         self.trade_enable_two_for_three = trade_sim_section.get(self.keys.TRADE_ENABLE_TWO_FOR_THREE, True)
         self.trade_max_combinations = trade_sim_section.get(self.keys.TRADE_MAX_COMBINATIONS, 50000)
 
+        trade_flag_attrs = [
+            "trade_waivers_two_for_two", "trade_waivers_three_for_three",
+            "trade_enable_one_for_one", "trade_enable_two_for_two", "trade_enable_three_for_three",
+            "trade_enable_two_for_one", "trade_enable_one_for_two",
+            "trade_enable_three_for_one", "trade_enable_one_for_three",
+            "trade_enable_three_for_two", "trade_enable_two_for_three",
+        ]
+        for attr in trade_flag_attrs:
+            if not isinstance(getattr(self, attr), bool):
+                raise ValueError(
+                    f"TRADE_SIMULATOR.{attr.replace('trade_', '').upper()} must be a boolean, "
+                    f"got {getattr(self, attr)!r}"
+                )
+
+        if (
+            not isinstance(self.trade_max_combinations, int)
+            or isinstance(self.trade_max_combinations, bool)
+            or self.trade_max_combinations <= 0
+        ):
+            raise ValueError(
+                f"TRADE_SIMULATOR.MAX_COMBINATIONS must be a positive integer, "
+                f"got {self.trade_max_combinations!r}"
+            )
+
         if not isinstance(self.nfl_team_penalty, list):
             raise ValueError(
                 f"NFL_TEAM_PENALTY must be a list, got {type(self.nfl_team_penalty).__name__}"
@@ -1022,6 +1046,16 @@ class ConfigManager:
             )
 
         self.max_search_results = self.parameters.get(self.keys.MAX_SEARCH_RESULTS, 15)
+
+        if (
+            not isinstance(self.max_search_results, int)
+            or isinstance(self.max_search_results, bool)
+            or self.max_search_results <= 0
+        ):
+            raise ValueError(
+                f"MAX_SEARCH_RESULTS must be a positive integer, "
+                f"got {self.max_search_results!r}"
+            )
 
         required_injury_levels = [self.keys.INJURY_LOW, self.keys.INJURY_MEDIUM, self.keys.INJURY_HIGH]
         missing_levels = [

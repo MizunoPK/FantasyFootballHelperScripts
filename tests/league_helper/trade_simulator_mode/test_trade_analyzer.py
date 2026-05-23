@@ -827,3 +827,43 @@ class TestTradeSimulatorFlagsReadFromConfig:
         assert "self.config.trade_enable_two_for_two" in source
         assert "self.config.trade_enable_three_for_three" in source
 
+
+class TestTradeSimulatorConfigValidation:
+    """Verify ConfigManager raises ValueError for invalid TRADE_SIMULATOR values."""
+
+    def test_trade_flag_string_value_raises_error(self, tmp_path):
+        """TRADE_SIMULATOR boolean flag as string raises ValueError at startup."""
+        config_data = json.loads(FIXTURE_LEAGUE_CONFIG.read_text())
+        config_data["parameters"]["TRADE_SIMULATOR"] = {"ENABLE_TWO_FOR_TWO": "false"}
+        (tmp_path / "league_config.json").write_text(json.dumps(config_data))
+
+        with pytest.raises(ValueError, match="must be a boolean"):
+            ConfigManager(tmp_path)
+
+    def test_trade_max_combinations_string_raises_error(self, tmp_path):
+        """TRADE_SIMULATOR.MAX_COMBINATIONS as string raises ValueError at startup."""
+        config_data = json.loads(FIXTURE_LEAGUE_CONFIG.read_text())
+        config_data["parameters"]["TRADE_SIMULATOR"] = {"MAX_COMBINATIONS": "50000"}
+        (tmp_path / "league_config.json").write_text(json.dumps(config_data))
+
+        with pytest.raises(ValueError, match="MAX_COMBINATIONS must be a positive integer"):
+            ConfigManager(tmp_path)
+
+    def test_trade_max_combinations_zero_raises_error(self, tmp_path):
+        """TRADE_SIMULATOR.MAX_COMBINATIONS of 0 raises ValueError at startup."""
+        config_data = json.loads(FIXTURE_LEAGUE_CONFIG.read_text())
+        config_data["parameters"]["TRADE_SIMULATOR"] = {"MAX_COMBINATIONS": 0}
+        (tmp_path / "league_config.json").write_text(json.dumps(config_data))
+
+        with pytest.raises(ValueError, match="MAX_COMBINATIONS must be a positive integer"):
+            ConfigManager(tmp_path)
+
+    def test_trade_max_combinations_bool_raises_error(self, tmp_path):
+        """TRADE_SIMULATOR.MAX_COMBINATIONS as bool raises ValueError at startup."""
+        config_data = json.loads(FIXTURE_LEAGUE_CONFIG.read_text())
+        config_data["parameters"]["TRADE_SIMULATOR"] = {"MAX_COMBINATIONS": True}
+        (tmp_path / "league_config.json").write_text(json.dumps(config_data))
+
+        with pytest.raises(ValueError, match="MAX_COMBINATIONS must be a positive integer"):
+            ConfigManager(tmp_path)
+
