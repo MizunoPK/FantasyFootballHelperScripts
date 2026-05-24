@@ -9,7 +9,7 @@ Author: Kai Mizuno
 import json
 import pytest
 from pathlib import Path
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
 import tempfile
 import shutil
 
@@ -1091,6 +1091,28 @@ class TestPropagateToConfigs:
         assert not (target / 'week6-9.json').exists()
         warning_messages = [str(c) for c in mock_logger.warning.call_args_list]
         assert len(warning_messages) >= 3, "Expected warnings for 3 missing files"
+
+    def test_performance_metrics_block_stripped(self, tmp_path):
+        """propagate_to_configs strips performance_metrics so live data/configs stays sim-free."""
+        import logging
+        optimal = tmp_path / "optimal"
+        optimal.mkdir()
+        target = tmp_path / "target"
+        src_with_metrics = {
+            'parameters': {'X': 1},
+            'performance_metrics': {'mae': 1.23, 'ranking_metrics': {'pairwise_accuracy': 0.7}}
+        }
+        (optimal / 'league_config.json').write_text(json.dumps(src_with_metrics))
+        (optimal / 'week1-5.json').write_text(json.dumps(src_with_metrics))
+        logger = logging.getLogger('test')
+        propagate_to_configs(optimal, target, logger)
+        for fname in ('league_config.json', 'week1-5.json'):
+            with open(target / fname) as f:
+                written = json.load(f)
+            assert 'performance_metrics' not in written, \
+                f"{fname} must have performance_metrics stripped"
+            assert written['parameters'] == {'X': 1}, \
+                f"{fname} parameters must be preserved"
 
 
 if __name__ == "__main__":
