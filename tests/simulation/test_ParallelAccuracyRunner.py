@@ -9,11 +9,8 @@ Author: Secondary-D for FF-5-accuracy_sim_improvements
 """
 
 import json
-import sys
 import pytest
 from pathlib import Path
-import tempfile
-import shutil
 
 from simulation.accuracy.ParallelAccuracyRunner import _evaluate_config_tournament_process
 from simulation.accuracy.AccuracyCalculator import AccuracyResult
