@@ -65,7 +65,9 @@ class ConfigGenerator:
 
     PARAM_DEFINITIONS = {
         'NORMALIZATION_MAX_SCALE': (50, 200, 0),
-        'DRAFT_NORMALIZATION_MAX_SCALE': (100, 200, 0),  # range defined for --params testing; not in standard optimization (controls draft score scale, not week-to-week accuracy)
+        # DRAFT_NORMALIZATION_MAX_SCALE controls draft-score scale, not week-to-week
+        # accuracy — excluded from PARAMETER_ORDER but range defined for --params testing.
+        'DRAFT_NORMALIZATION_MAX_SCALE': (100, 200, 0),
 
         'SAME_POS_BYE_WEIGHT': (0.0, 0.5, 2),
         'DIFF_POS_BYE_WEIGHT': (0.0, 0.3, 2),

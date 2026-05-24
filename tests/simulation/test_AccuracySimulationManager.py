@@ -847,7 +847,7 @@ def create_mock_historical_season_f05(data_folder: Path, year: str = "2024") -> 
             json.dump([], f, indent=2)
 
 
-class TestRunBothE2E:
+class TestRunBothCliWiring:
     """Tests for run_accuracy_simulation.py main() CLI plumbing.
 
     Verifies CLI wiring (F02, F03 integration) without running the actual simulation.

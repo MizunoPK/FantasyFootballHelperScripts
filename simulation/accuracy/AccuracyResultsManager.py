@@ -17,9 +17,9 @@ import copy
 import json
 import shutil
 from datetime import datetime
+from logging import Logger
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Any
-from logging import Logger
 
 from utils.LoggingManager import get_logger
 from simulation.shared.config_cleanup import cleanup_old_accuracy_optimal_folders
@@ -742,7 +742,12 @@ def propagate_to_configs(
     For league_config.json: preserves CURRENT_NFL_WEEK, NFL_SEASON, MAX_POSITIONS,
     FLEX_ELIGIBLE_POSITIONS, INJURY_PENALTIES from the existing target file (if present).
     For weekly config files: copies as-is (MATCHUP->SCHEDULE sync already applied
-    by save_optimal_configs() at write time).
+    by save_optimal_configs() at write time). The simulation-only 'performance_metrics'
+    block is stripped from all written files before writing.
+
+    Note: If a target file exists but contains malformed JSON, json.load raises
+    mid-loop and leaves the target folder in a partially-promoted state (some files
+    written, others not). Callers should treat partial promotion as an error state.
 
     Args:
         optimal_folder (Path): Path to accuracy_optimal_* folder with source configs.
@@ -789,6 +794,8 @@ def propagate_to_configs(
                     updated_config['parameters'][key] = original_config['parameters'][key]
         else:
             updated_config = optimal_config
+
+        updated_config.pop('performance_metrics', None)
 
         with open(target_path, 'w') as f:
             json.dump(updated_config, f, indent=2)

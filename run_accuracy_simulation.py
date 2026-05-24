@@ -137,15 +137,8 @@ def print_compare_table(folder_a: Path, folder_b: Path) -> None:
     metrics_a = load_folder_metrics(folder_a)
     metrics_b = load_folder_metrics(folder_b)
 
-    horizon_display = {
-        'week_1_5': 'week_1_5',
-        'week_6_9': 'week_6_9',
-        'week_10_13': 'week_10_13',
-        'week_14_17': 'week_14_17',
-    }
-
     for horizon_key in WEEK_FILENAMES:
-        print(f"{horizon_display[horizon_key]}:")
+        print(f"{horizon_key}:")
         rm_a = metrics_a[horizon_key]
         rm_b = metrics_b[horizon_key]
 
@@ -351,6 +344,13 @@ def main() -> None:
 
     if args.params is not None and args.compare is not None:
         logger.error("--params and --compare cannot be combined in a single invocation")
+        sys.exit(1)
+
+    if args.promote is True and args.compare is not None:
+        logger.error(
+            "--promote used without a folder argument, but no simulation was run. "
+            "Provide a folder path: --promote <folder>"
+        )
         sys.exit(1)
 
     if args.compare is not None:

@@ -279,7 +279,6 @@ class AccuracyCalculator:
                                 position_data[pos]['spearman_z'].append(z)
 
             if pairwise_values:
-
                 overall_spearman = 0.0
                 if spearman_z_values:
                     z_mean = np.mean(spearman_z_values)
@@ -295,7 +294,6 @@ class AccuracyCalculator:
 
             for pos, data in position_data.items():
                 if data['pairwise']:
-
                     pos_spearman = 0.0
                     if data['spearman_z']:
                         z_mean = np.mean(data['spearman_z'])

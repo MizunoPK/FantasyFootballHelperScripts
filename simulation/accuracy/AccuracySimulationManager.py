@@ -114,7 +114,6 @@ class AccuracySimulationManager:
             baseline_config_path,
             num_test_values=num_test_values
         )
-        self.parameter_order = parameter_order
         self.accuracy_calculator = AccuracyCalculator()
         self.results_manager = AccuracyResultsManager(output_dir, baseline_config_path)
 
@@ -519,13 +518,13 @@ class AccuracySimulationManager:
             if overall_metrics and overall_metrics.pairwise_accuracy < PAIRWISE_ACCURACY_WARN_THRESHOLD:
                 self.logger.warning(
                     f"[{season_path.name}] Low pairwise accuracy: "
-                    f"{overall_metrics.pairwise_accuracy:.1%} (threshold: 65%)"
+                    f"{overall_metrics.pairwise_accuracy:.1%} (threshold: {PAIRWISE_ACCURACY_WARN_THRESHOLD:.0%})"
                 )
 
             if overall_metrics and overall_metrics.top_10_accuracy < TOP_10_ACCURACY_WARN_THRESHOLD:
                 self.logger.warning(
                     f"[{season_path.name}] Low top-10 accuracy: "
-                    f"{overall_metrics.top_10_accuracy:.1%} (threshold: 70%)"
+                    f"{overall_metrics.top_10_accuracy:.1%} (threshold: {TOP_10_ACCURACY_WARN_THRESHOLD:.0%})"
                 )
 
             season_results.append((season_path.name, result))
@@ -591,9 +590,11 @@ class AccuracySimulationManager:
                     if p.is_dir()
                 )
                 self.logger.info(
+                    f"Intermediate folders found ({len(all_intermediate)}): {all_intermediate}"
+                )
+                self.logger.info(
                     f"Resuming from parameter {resume_param_idx + 1}. "
-                    f"Intermediate folders found ({len(all_intermediate)}): "
-                    f"{all_intermediate}. Selected: {last_config_path.name}"
+                    f"Selected: {last_config_path.name}"
                 )
                 self.results_manager.load_intermediate_results(last_config_path)
             else:
