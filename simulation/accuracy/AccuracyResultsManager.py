@@ -19,7 +19,7 @@ import shutil
 from datetime import datetime
 from logging import Logger
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Any
+from typing import Dict, List, Optional, Any
 
 from utils.LoggingManager import get_logger
 from simulation.shared.config_cleanup import cleanup_old_accuracy_optimal_folders

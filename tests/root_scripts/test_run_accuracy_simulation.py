@@ -10,12 +10,9 @@ Created: 2026-02-10 (S7.P3 - PR Review test creation)
 """
 
 import argparse
-import os
-import shutil
 import subprocess
 import sys
 import tempfile
-from io import StringIO
 from pathlib import Path
 from unittest.mock import Mock, MagicMock, patch, call
 
@@ -431,7 +428,6 @@ class TestPromoteCLIFlag:
 
     def test_promote_argparse_semantics(self):
         """--promote uses nargs='?', const=True, no type kwarg: 3 correct value states."""
-        import argparse
         parser = argparse.ArgumentParser()
         parser.add_argument('--promote', nargs='?', const=True, default=None, metavar='FOLDER')
         args_none = parser.parse_args([])
@@ -467,7 +463,6 @@ class TestPromoteCLIFlag:
     def test_post_run_promote_calls_propagate(self, tmp_path):
         """--promote without folder arg after sim run calls propagate_to_configs with optimal_path."""
         import json
-        from unittest.mock import MagicMock
         optimal = tmp_path / "optimal"
         optimal.mkdir()
         for cf in ['league_config.json', 'week1-5.json', 'week6-9.json',
@@ -535,9 +530,6 @@ class TestF03CliAndSummaryEnhancements:
     def test_get_summary_with_overall_metrics_shows_pairwise(self):
         """Test: get_summary() with overall_metrics present shows Pairwise accuracy"""
         from simulation.accuracy.AccuracyResultsManager import AccuracyResultsManager
-        from unittest.mock import MagicMock
-        from pathlib import Path
-        import tempfile
 
         with tempfile.TemporaryDirectory() as tmpdir:
             manager = AccuracyResultsManager(
@@ -560,9 +552,6 @@ class TestF03CliAndSummaryEnhancements:
     def test_get_summary_without_overall_metrics_falls_back_to_mae(self):
         """Test: get_summary() with overall_metrics=None falls back to MAE-only"""
         from simulation.accuracy.AccuracyResultsManager import AccuracyResultsManager
-        from unittest.mock import MagicMock
-        from pathlib import Path
-        import tempfile
 
         with tempfile.TemporaryDirectory() as tmpdir:
             manager = AccuracyResultsManager(
@@ -581,8 +570,6 @@ class TestF03CliAndSummaryEnhancements:
     def test_load_folder_metrics_reads_ranking_metrics(self):
         """Test: load_folder_metrics() reads ranking_metrics from folder JSON files"""
         import json as json_module
-        import tempfile
-        from pathlib import Path
         import run_accuracy_simulation
 
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -603,8 +590,6 @@ class TestF03CliAndSummaryEnhancements:
     def test_load_folder_metrics_handles_missing_ranking_metrics(self):
         """Test: load_folder_metrics() returns None for horizon with no ranking_metrics"""
         import json as json_module
-        import tempfile
-        from pathlib import Path
         import run_accuracy_simulation
 
         with tempfile.TemporaryDirectory() as tmpdir:

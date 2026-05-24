@@ -26,17 +26,14 @@ import signal
 import tempfile
 import time
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Any
-
-import numpy as np
+from typing import Dict, List, Optional, Tuple
 
 from utils.LoggingManager import get_logger
 from simulation.shared.ConfigGenerator import ConfigGenerator
 from simulation.shared.ProgressTracker import ProgressTracker
-from simulation.shared.config_cleanup import cleanup_old_accuracy_optimal_folders, cleanup_accuracy_intermediate_folders
+from simulation.shared.config_cleanup import cleanup_accuracy_intermediate_folders
 from simulation.accuracy.AccuracyCalculator import AccuracyCalculator, AccuracyResult
 from simulation.accuracy.AccuracyResultsManager import AccuracyResultsManager, WEEK_RANGES
-from simulation.accuracy.accuracy_types import RankingMetrics
 from league_helper.util.PlayerManager import PlayerManager
 from league_helper.util.ConfigManager import ConfigManager
 from league_helper.util.TeamDataManager import TeamDataManager
