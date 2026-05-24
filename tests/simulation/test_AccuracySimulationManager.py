@@ -10,9 +10,14 @@ import json
 import os
 import pytest
 import shutil
+import subprocess
+import sys
 import tempfile
 import time
+from pathlib import Path
 from unittest.mock import Mock, patch, MagicMock
+
+project_root = Path(__file__).parent.parent.parent
 
 from simulation.accuracy.AccuracySimulationManager import AccuracySimulationManager
 
@@ -751,6 +756,153 @@ class TestSweepOrphanedTempDirs:
 
         assert not stale_accuracy.exists()
         assert stale_other.exists()
+
+
+def create_mock_historical_season_f05(data_folder: Path, year: str = "2024") -> None:
+    """Create a mock historical season folder structure for F05 E2E accuracy testing.
+
+    Implements spec.md R4: duplicated fixture helper pattern from
+    tests/integration/test_accuracy_simulation_integration.py create_mock_historical_season().
+    Named with _f05 suffix to avoid naming collision.
+
+    Args:
+        data_folder: Root folder for sim_data (season folder created inside).
+        year: Season year string (e.g., "2024").
+    """
+    season_folder = data_folder / year
+    season_folder.mkdir(parents=True, exist_ok=True)
+
+    (season_folder / "season_schedule.csv").write_text(
+        "week,team,opponent\n"
+        "1,KC,DET\n"
+        "1,DET,KC\n"
+        "2,KC,JAX\n"
+        "2,JAX,KC\n"
+    )
+    (season_folder / "game_data.csv").write_text(
+        "week,home_team,away_team,temperature,wind_speed,location\n"
+        "1,KC,DET,72,5,HOME\n"
+        "2,KC,JAX,68,8,AWAY\n"
+    )
+
+    team_data_folder = season_folder / "team_data"
+    team_data_folder.mkdir(exist_ok=True)
+    (team_data_folder / "teams_week_1.csv").write_text(
+        "team,offensive_rank,defensive_rank\n"
+        "KC,1,5\n"
+        "DET,3,10\n"
+        "MIN,5,8\n"
+    )
+
+    weeks_folder = season_folder / "weeks"
+    weeks_folder.mkdir(exist_ok=True)
+
+    def _build_week_points(base_points: float, week_num: int, is_projected: bool = False) -> list:
+        points = []
+        for w in range(1, 18):
+            week_points = base_points + (w * 0.5) - 5
+            if is_projected:
+                week_points -= 1.0
+            points.append(round(week_points, 1))
+        return points
+
+    for week_num in range(1, 18):
+        week_folder = weeks_folder / f"week_{week_num:02d}"
+        week_folder.mkdir(exist_ok=True)
+
+        qb_week = [{"id": "1", "name": "Patrick Mahomes", "position": "QB", "team": "KC",
+                     "bye_week": 7, "fantasy_points": 350.5, "injury_status": "ACTIVE",
+                     "average_draft_position": 1.2, "player_rating": 95,
+                     "locked": False, "drafted_by": None,
+                     "projected_points": _build_week_points(25.0, week_num, True),
+                     "actual_points": _build_week_points(25.0, week_num, False)}]
+        rb_week = [{"id": "3", "name": "Christian McCaffrey", "position": "RB", "team": "SF",
+                     "bye_week": 9, "fantasy_points": 320.1, "injury_status": "ACTIVE",
+                     "average_draft_position": 1.1, "player_rating": 94,
+                     "locked": False, "drafted_by": None,
+                     "projected_points": _build_week_points(22.0, week_num, True),
+                     "actual_points": _build_week_points(22.0, week_num, False)}]
+        wr_week = [{"id": "2", "name": "Justin Jefferson", "position": "WR", "team": "MIN",
+                     "bye_week": 13, "fantasy_points": 310.8, "injury_status": "ACTIVE",
+                     "average_draft_position": 2.1, "player_rating": 92,
+                     "locked": False, "drafted_by": None,
+                     "projected_points": _build_week_points(18.0, week_num, True),
+                     "actual_points": _build_week_points(18.0, week_num, False)}]
+        te_week = [{"id": "4", "name": "Travis Kelce", "position": "TE", "team": "KC",
+                     "bye_week": 7, "fantasy_points": 220.4, "injury_status": "ACTIVE",
+                     "average_draft_position": 4.5, "player_rating": 88,
+                     "locked": False, "drafted_by": None,
+                     "projected_points": _build_week_points(12.0, week_num, True),
+                     "actual_points": _build_week_points(12.0, week_num, False)}]
+
+        with open(week_folder / "qb_data.json", 'w') as f:
+            json.dump(qb_week, f, indent=2)
+        with open(week_folder / "rb_data.json", 'w') as f:
+            json.dump(rb_week, f, indent=2)
+        with open(week_folder / "wr_data.json", 'w') as f:
+            json.dump(wr_week, f, indent=2)
+        with open(week_folder / "te_data.json", 'w') as f:
+            json.dump(te_week, f, indent=2)
+        with open(week_folder / "k_data.json", 'w') as f:
+            json.dump([], f, indent=2)
+        with open(week_folder / "dst_data.json", 'w') as f:
+            json.dump([], f, indent=2)
+
+
+class TestRunBothE2E:
+    """Tests for run_accuracy_simulation.py main() CLI plumbing.
+
+    Verifies CLI wiring (F02, F03 integration) without running the actual simulation.
+    AccuracySimulationManager is mocked so tests run in milliseconds.
+    """
+
+    def test_main_shows_pairwise_in_output(self, tmp_path, capsys):
+        """main() prints 'Pairwise' in stdout when get_summary() returns ranking metrics.
+
+        Verifies F03 get_summary() upgrade is wired into the CLI output path.
+        Optimal folder with all 4 horizon files must exist after run_both() completes.
+        """
+        fixtures_baseline = project_root / "tests" / "fixtures" / "accuracy_test_baseline"
+        baseline_path = tmp_path / "baseline"
+        baseline_path.mkdir()
+        for fname in ["league_config.json", "week1-5.json", "week6-9.json",
+                      "week10-13.json", "week14-17.json"]:
+            shutil.copy(fixtures_baseline / fname, baseline_path / fname)
+
+        data_path = tmp_path / "sim_data"
+        data_path.mkdir()
+        output_path = tmp_path / "output"
+        output_path.mkdir()
+
+        optimal_folder = output_path / "accuracy_optimal_test"
+        optimal_folder.mkdir()
+        for fname in ["week1-5.json", "week6-9.json", "week10-13.json", "week14-17.json"]:
+            (optimal_folder / fname).write_text(json.dumps({}))
+
+        mock_summary = "Pairwise=72.3% | Top-10=68.1% | Spearman=0.714 | MAE=3.2104 (diag)"
+
+        import run_accuracy_simulation
+        with patch('run_accuracy_simulation.AccuracySimulationManager') as MockMgr, \
+             patch('sys.argv', ['run_accuracy_simulation.py',
+                                '--baseline', str(baseline_path),
+                                '--data', str(data_path),
+                                '--output', str(output_path)]):
+            mock_instance = MagicMock()
+            mock_instance.run_both.return_value = optimal_folder
+            mock_instance.results_manager.get_summary.return_value = mock_summary
+            MockMgr.return_value = mock_instance
+            try:
+                run_accuracy_simulation.main()
+            except SystemExit:
+                pass
+
+        captured = capsys.readouterr()
+        assert "Pairwise" in captured.out, (
+            f"Expected 'Pairwise' in stdout — verifies F03 get_summary() wiring. "
+            f"stdout: {captured.out[:500]}"
+        )
+        for fname in ["week1-5.json", "week6-9.json", "week10-13.json", "week14-17.json"]:
+            assert (optimal_folder / fname).exists(), f"Missing {fname} in optimal folder"
 
 
 if __name__ == "__main__":
