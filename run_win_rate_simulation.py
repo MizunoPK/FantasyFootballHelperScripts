@@ -31,6 +31,7 @@ def _build_parser() -> argparse.ArgumentParser:
         "--workers", type=int, default=8, metavar="N",
         help="Max parallel worker threads for ParallelLeagueRunner (default: 8)"
     )
+    """Win rate sim uses ThreadPoolExecutor (I/O-bound — disk reads dominate); accuracy sim uses ProcessPoolExecutor (CPU-bound — score computation dominates). Use --workers to tune thread parallelism. ProcessPoolExecutor (use_processes=True on ParallelLeagueRunner) is available but adds process-creation overhead."""
     parser.add_argument(
         "--endless", action="store_true",
         help="Run continuously until KeyboardInterrupt"

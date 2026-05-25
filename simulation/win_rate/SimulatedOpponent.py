@@ -50,6 +50,7 @@ class SimulatedOpponent:
     STRATEGY_PROJECTED_POINTS_WITH_DRAFT_ORDER = 'projected_points_with_draft_order'
 
     HUMAN_ERROR_RATE = 0.2
+    """Probability (0–1) that an opponent picks from the top-5 available players at each draft pick rather than the strictly best available, simulating human drafting variance. Set to 0.2 to reflect typical human draft imprecision observed in research."""
 
     def __init__(
         self,

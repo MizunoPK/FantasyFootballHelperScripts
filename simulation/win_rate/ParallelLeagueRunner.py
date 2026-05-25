@@ -272,6 +272,7 @@ class ParallelLeagueRunner:
         completed_count = 0
 
         ExecutorClass = ProcessPoolExecutor if self.use_processes else ThreadPoolExecutor
+        """Win rate sim uses ThreadPoolExecutor (I/O-bound — disk reads dominate); accuracy sim uses ProcessPoolExecutor (CPU-bound — score computation dominates). ThreadPoolExecutor: lower overhead, sufficient for I/O-bound simulation setup; ProcessPoolExecutor: bypasses GIL for CPU-bound parallelism at the cost of pickling overhead and higher process-creation latency."""
         executor = ExecutorClass(max_workers=self.max_workers)
 
         if self.use_processes:
@@ -364,6 +365,7 @@ class ParallelLeagueRunner:
         completed_count = 0
 
         ExecutorClass = ProcessPoolExecutor if self.use_processes else ThreadPoolExecutor
+        """Win rate sim uses ThreadPoolExecutor (I/O-bound — disk reads dominate); accuracy sim uses ProcessPoolExecutor (CPU-bound — score computation dominates). ThreadPoolExecutor: lower overhead, sufficient for I/O-bound simulation setup; ProcessPoolExecutor: bypasses GIL for CPU-bound parallelism at the cost of pickling overhead and higher process-creation latency."""
         executor = ExecutorClass(max_workers=self.max_workers)
 
         if self.use_processes:

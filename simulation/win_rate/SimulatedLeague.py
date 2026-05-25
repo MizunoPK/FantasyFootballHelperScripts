@@ -67,6 +67,7 @@ class SimulatedLeague:
         'adp_with_draft_order': 2,
         'projected_points_with_draft_order': 3
     }
+    """Mapping of opponent strategy name to team count; dict values sum to 9 opponents + 1 DraftHelperTeam = 10 total teams per league. The 1/2/2/2/3 distribution reflects the relative prevalence of each strategy among typical human fantasy drafters."""
 
     def __init__(self, config_dict: dict, data_folder: Path = Path("./simulation/sim_data"), preloaded_week_data: Optional[Dict[int, Dict]] = None) -> None:
         """
