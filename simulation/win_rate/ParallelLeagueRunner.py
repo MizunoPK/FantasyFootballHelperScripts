@@ -19,6 +19,7 @@ Author: Kai Mizuno
 from pathlib import Path
 from typing import Dict, Callable, Optional, Tuple, List
 from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor, Future, as_completed
+from concurrent.futures.process import BrokenProcessPool
 import threading
 import gc
 import multiprocessing
@@ -264,23 +265,24 @@ class ParallelLeagueRunner:
         completed_count = 0
 
         ExecutorClass = ProcessPoolExecutor if self.use_processes else ThreadPoolExecutor
+        executor = ExecutorClass(max_workers=self.max_workers)
 
-        with ExecutorClass(max_workers=self.max_workers) as executor:
-            if self.use_processes:
-                sim_args = [
-                    (config_dict, sim_id, self.data_folder)
-                    for sim_id in range(num_simulations)
-                ]
-                future_to_sim_id = {
-                    executor.submit(_run_simulation_process, args): args[1]
-                    for args in sim_args
-                }
-            else:
-                future_to_sim_id = {
-                    executor.submit(self.run_single_simulation, config_dict, sim_id): sim_id
-                    for sim_id in range(num_simulations)
-                }
+        if self.use_processes:
+            sim_args = [
+                (config_dict, sim_id, self.data_folder)
+                for sim_id in range(num_simulations)
+            ]
+            future_to_sim_id = {
+                executor.submit(_run_simulation_process, args): args[1]
+                for args in sim_args
+            }
+        else:
+            future_to_sim_id = {
+                executor.submit(self.run_single_simulation, config_dict, sim_id): sim_id
+                for sim_id in range(num_simulations)
+            }
 
+        try:
             for future in as_completed(future_to_sim_id):
                 sim_id = future_to_sim_id[future]
 
@@ -297,8 +299,21 @@ class ParallelLeagueRunner:
                             gc.collect()
                             self.logger.debug(f"Forced GC after {completed_count} simulations")
 
+                except BrokenProcessPool:
+                    self.logger.error("Process pool crashed — stopping simulations")
+                    break
                 except Exception as e:
                     self.logger.error(f"Simulation {sim_id} failed: {e}")
+        except KeyboardInterrupt:
+            self.logger.warning("Simulation interrupted by user")
+            raise
+        finally:
+            executor.shutdown(wait=False, cancel_futures=True)
+
+        if len(results) < num_simulations:
+            self.logger.warning(
+                f"Only {len(results)}/{num_simulations} simulations completed"
+            )
 
         self.logger.debug(
             f"Completed {len(results)}/{num_simulations} simulations successfully"
@@ -341,23 +356,24 @@ class ParallelLeagueRunner:
         completed_count = 0
 
         ExecutorClass = ProcessPoolExecutor if self.use_processes else ThreadPoolExecutor
+        executor = ExecutorClass(max_workers=self.max_workers)
 
-        with ExecutorClass(max_workers=self.max_workers) as executor:
-            if self.use_processes:
-                sim_args = [
-                    (config_dict, sim_id, self.data_folder)
-                    for sim_id in range(num_simulations)
-                ]
-                future_to_sim_id = {
-                    executor.submit(_run_simulation_with_weeks_process, args): args[1]
-                    for args in sim_args
-                }
-            else:
-                future_to_sim_id = {
-                    executor.submit(self.run_single_simulation_with_weeks, config_dict, sim_id): sim_id
-                    for sim_id in range(num_simulations)
-                }
+        if self.use_processes:
+            sim_args = [
+                (config_dict, sim_id, self.data_folder)
+                for sim_id in range(num_simulations)
+            ]
+            future_to_sim_id = {
+                executor.submit(_run_simulation_with_weeks_process, args): args[1]
+                for args in sim_args
+            }
+        else:
+            future_to_sim_id = {
+                executor.submit(self.run_single_simulation_with_weeks, config_dict, sim_id): sim_id
+                for sim_id in range(num_simulations)
+            }
 
+        try:
             for future in as_completed(future_to_sim_id):
                 sim_id = future_to_sim_id[future]
 
@@ -374,8 +390,21 @@ class ParallelLeagueRunner:
                             gc.collect()
                             self.logger.debug(f"Forced GC after {completed_count} simulations")
 
+                except BrokenProcessPool:
+                    self.logger.error("Process pool crashed — stopping simulations")
+                    break
                 except Exception as e:
                     self.logger.error(f"Simulation {sim_id} failed: {e}")
+        except KeyboardInterrupt:
+            self.logger.warning("Simulation interrupted by user")
+            raise
+        finally:
+            executor.shutdown(wait=False, cancel_futures=True)
+
+        if len(results) < num_simulations:
+            self.logger.warning(
+                f"Only {len(results)}/{num_simulations} simulations completed"
+            )
 
         self.logger.debug(
             f"Completed {len(results)}/{num_simulations} simulations successfully (with weeks)"
