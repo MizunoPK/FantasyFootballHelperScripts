@@ -20,7 +20,6 @@ from typing import List, Optional
 from league_helper.util.PlayerManager import PlayerManager
 from league_helper.util.ConfigManager import ConfigManager
 from league_helper.util.TeamDataManager import TeamDataManager
-import league_helper.constants as Constants
 from utils.FantasyPlayer import FantasyPlayer
 from utils.LoggingManager import get_logger
 

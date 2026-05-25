@@ -18,11 +18,10 @@ Author: Kai Mizuno
 
 from pathlib import Path
 from typing import Dict, Callable, Optional, Tuple, List
-from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor, Future, as_completed
+from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor, as_completed
 from concurrent.futures.process import BrokenProcessPool
 import threading
 import gc
-import multiprocessing
 
 from utils.LoggingManager import get_logger
 from simulation.win_rate.SimulatedLeague import SimulatedLeague
@@ -254,6 +253,7 @@ class ParallelLeagueRunner:
         Args:
             config_dict (dict): Configuration dictionary
             num_simulations (int): Number of simulations to run
+            preloaded_week_data (Optional[Dict[int, Dict]]): Pre-loaded week data from SimDataLoader. If provided, skips per-simulation file reads.
 
         Returns:
             list[Tuple[int, int, float]]: List of (wins, losses, points) tuples
@@ -345,6 +345,7 @@ class ParallelLeagueRunner:
         Args:
             config_dict (dict): Configuration dictionary
             num_simulations (int): Number of simulations to run
+            preloaded_week_data (Optional[Dict[int, Dict]]): Pre-loaded week data from SimDataLoader. If provided, skips per-simulation file reads.
 
         Returns:
             list[List[Tuple[int, bool, float]]]: List of per-week results,

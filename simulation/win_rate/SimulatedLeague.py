@@ -18,7 +18,6 @@ import random
 import shutil
 import tempfile
 import json
-import csv
 from pathlib import Path
 from typing import List, Dict, Tuple, Optional, Any
 
@@ -77,6 +76,7 @@ class SimulatedLeague:
             config_dict (dict): Configuration dictionary (will be saved as temp JSON)
             data_folder (Path): Path to folder containing weeks/ subfolder with
                                week-specific JSON player data and teams_week_N.csv files
+            preloaded_week_data (Optional[Dict[int, Dict]]): Pre-loaded week data from SimDataLoader. If provided, skips internal _preload_all_weeks() file reads.
 
         Raises:
             FileNotFoundError: If data files are missing
