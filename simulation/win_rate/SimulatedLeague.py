@@ -32,6 +32,8 @@ from simulation.win_rate.Week import Week
 from simulation.utils.scheduler import generate_schedule_for_nfl_season
 from utils.LoggingManager import get_logger
 
+DRAFT_ROUNDS = 15
+
 
 class SimulatedLeague:
     """
@@ -66,7 +68,7 @@ class SimulatedLeague:
         'projected_points_with_draft_order': 3
     }
 
-    def __init__(self, config_dict: dict, data_folder: Path = Path("./simulation/sim_data")) -> None:
+    def __init__(self, config_dict: dict, data_folder: Path = Path("./simulation/sim_data"), preloaded_week_data: Optional[Dict[int, Dict]] = None) -> None:
         """
         Initialize SimulatedLeague with configuration.
 
@@ -96,6 +98,9 @@ class SimulatedLeague:
         self.week_results: List[Week] = []
 
         self.week_data_cache: Dict[int, Dict] = {}
+
+        if preloaded_week_data is not None:
+            self.week_data_cache = preloaded_week_data
 
         self._preload_all_weeks()
 
@@ -238,6 +243,9 @@ class SimulatedLeague:
         Only loads data if historical structure (weeks/week_XX/) exists.
         Falls back gracefully if using legacy flat structure.
         """
+        if self.week_data_cache:
+            return
+
         weeks_folder = self.data_folder / "weeks"
 
         if not weeks_folder.exists():

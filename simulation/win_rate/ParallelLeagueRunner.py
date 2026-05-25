@@ -32,7 +32,7 @@ GC_FREQUENCY = 5
 
 
 
-def _run_simulation_process(args: Tuple[dict, int, Path]) -> Tuple[int, int, float]:
+def _run_simulation_process(args: Tuple[dict, int, Path, Optional[Dict[int, Dict]]]) -> Tuple[int, int, float]:
     """
     Run a single simulation in a separate process.
 
@@ -40,15 +40,15 @@ def _run_simulation_process(args: Tuple[dict, int, Path]) -> Tuple[int, int, flo
     which cannot pickle instance methods.
 
     Args:
-        args: Tuple of (config_dict, simulation_id, data_folder)
+        args: Tuple of (config_dict, simulation_id, data_folder, preloaded_week_data)
 
     Returns:
         Tuple[int, int, float]: (wins, losses, total_points) for DraftHelperTeam
     """
-    config_dict, simulation_id, data_folder = args
+    config_dict, simulation_id, data_folder, preloaded_week_data = args
     league = None
     try:
-        league = SimulatedLeague(config_dict, data_folder)
+        league = SimulatedLeague(config_dict, data_folder, preloaded_week_data)
         league.run_draft()
         league.run_season()
         wins, losses, total_points = league.get_draft_helper_results()
@@ -59,23 +59,23 @@ def _run_simulation_process(args: Tuple[dict, int, Path]) -> Tuple[int, int, flo
             del league
 
 
-def _run_simulation_with_weeks_process(args: Tuple[dict, int, Path]) -> List[Tuple[int, bool, float]]:
+def _run_simulation_with_weeks_process(args: Tuple[dict, int, Path, Optional[Dict[int, Dict]]]) -> List[Tuple[int, bool, float]]:
     """
     Run a single simulation with week tracking in a separate process.
 
     This is a module-level function required for ProcessPoolExecutor.
 
     Args:
-        args: Tuple of (config_dict, simulation_id, data_folder)
+        args: Tuple of (config_dict, simulation_id, data_folder, preloaded_week_data)
 
     Returns:
         List[Tuple[int, bool, float]]: Per-week results as list of
             (week_number, won, points) tuples
     """
-    config_dict, simulation_id, data_folder = args
+    config_dict, simulation_id, data_folder, preloaded_week_data = args
     league = None
     try:
-        league = SimulatedLeague(config_dict, data_folder)
+        league = SimulatedLeague(config_dict, data_folder, preloaded_week_data)
         league.run_draft()
         league.run_season()
         week_results = league.get_draft_helper_results_by_week()
@@ -159,7 +159,8 @@ class ParallelLeagueRunner:
     def run_single_simulation(
         self,
         config_dict: dict,
-        simulation_id: int
+        simulation_id: int,
+        preloaded_week_data: Optional[Dict[int, Dict]] = None
     ) -> Tuple[int, int, float]:
         """
         Run a single league simulation (thread-safe).
@@ -170,6 +171,8 @@ class ParallelLeagueRunner:
         Args:
             config_dict (dict): Configuration dictionary for this simulation
             simulation_id (int): Unique ID for this simulation run
+            preloaded_week_data (Optional[Dict[int, Dict]]): Pre-loaded week data from
+                SimDataLoader. If provided, passed to SimulatedLeague to skip file reads.
 
         Returns:
             Tuple[int, int, float]: (wins, losses, total_points) for DraftHelperTeam
@@ -178,7 +181,7 @@ class ParallelLeagueRunner:
             Exception: Any exception during simulation is logged and re-raised
         """
         try:
-            league = SimulatedLeague(config_dict, self.data_folder)
+            league = SimulatedLeague(config_dict, self.data_folder, preloaded_week_data)
 
             league.run_draft()
             league.run_season()
@@ -197,7 +200,8 @@ class ParallelLeagueRunner:
     def run_single_simulation_with_weeks(
         self,
         config_dict: dict,
-        simulation_id: int
+        simulation_id: int,
+        preloaded_week_data: Optional[Dict[int, Dict]] = None
     ) -> List[Tuple[int, bool, float]]:
         """
         Run a single league simulation and return per-week results (thread-safe).
@@ -208,6 +212,8 @@ class ParallelLeagueRunner:
         Args:
             config_dict (dict): Configuration dictionary for this simulation
             simulation_id (int): Unique ID for this simulation run
+            preloaded_week_data (Optional[Dict[int, Dict]]): Pre-loaded week data from
+                SimDataLoader. If provided, passed to SimulatedLeague to skip file reads.
 
         Returns:
             List[Tuple[int, bool, float]]: Per-week results as list of
@@ -217,7 +223,7 @@ class ParallelLeagueRunner:
             Exception: Any exception during simulation is logged and re-raised
         """
         try:
-            league = SimulatedLeague(config_dict, self.data_folder)
+            league = SimulatedLeague(config_dict, self.data_folder, preloaded_week_data)
 
             league.run_draft()
             league.run_season()
@@ -236,7 +242,8 @@ class ParallelLeagueRunner:
     def run_simulations_for_config(
         self,
         config_dict: dict,
-        num_simulations: int
+        num_simulations: int,
+        preloaded_week_data: Optional[Dict[int, Dict]] = None
     ) -> list[Tuple[int, int, float]]:
         """
         Run multiple simulations for a single configuration in parallel.
@@ -269,7 +276,7 @@ class ParallelLeagueRunner:
 
         if self.use_processes:
             sim_args = [
-                (config_dict, sim_id, self.data_folder)
+                (config_dict, sim_id, self.data_folder, preloaded_week_data)
                 for sim_id in range(num_simulations)
             ]
             future_to_sim_id = {
@@ -278,7 +285,7 @@ class ParallelLeagueRunner:
             }
         else:
             future_to_sim_id = {
-                executor.submit(self.run_single_simulation, config_dict, sim_id): sim_id
+                executor.submit(self.run_single_simulation, config_dict, sim_id, preloaded_week_data): sim_id
                 for sim_id in range(num_simulations)
             }
 
@@ -324,7 +331,8 @@ class ParallelLeagueRunner:
     def run_simulations_for_config_with_weeks(
         self,
         config_dict: dict,
-        num_simulations: int
+        num_simulations: int,
+        preloaded_week_data: Optional[Dict[int, Dict]] = None
     ) -> list[List[Tuple[int, bool, float]]]:
         """
         Run multiple simulations for a single configuration with per-week tracking.
@@ -360,7 +368,7 @@ class ParallelLeagueRunner:
 
         if self.use_processes:
             sim_args = [
-                (config_dict, sim_id, self.data_folder)
+                (config_dict, sim_id, self.data_folder, preloaded_week_data)
                 for sim_id in range(num_simulations)
             ]
             future_to_sim_id = {
@@ -369,7 +377,7 @@ class ParallelLeagueRunner:
             }
         else:
             future_to_sim_id = {
-                executor.submit(self.run_single_simulation_with_weeks, config_dict, sim_id): sim_id
+                executor.submit(self.run_single_simulation_with_weeks, config_dict, sim_id, preloaded_week_data): sim_id
                 for sim_id in range(num_simulations)
             }
 

@@ -7,11 +7,10 @@ from utils.error_handler import create_component_error_handler, FileOperationErr
 from league_helper.util.ConfigManager import ConfigManager
 from simulation.win_rate.ParallelLeagueRunner import ParallelLeagueRunner
 from simulation.win_rate.WinRateMetaDataManager import WinRateMetaDataManager
+from simulation.win_rate.SimDataLoader import SimDataLoader
 
 logger = get_logger()
 _error_handler = create_component_error_handler("DraftStrategyOrchestrator")
-
-MIN_VALID_PLAYERS = 150
 
 
 class DraftStrategyOrchestrator:
@@ -123,11 +122,14 @@ class DraftStrategyOrchestrator:
             total_losses = 0
 
             for season_folder in self._seasons:
-                if not self._validate_season_data(season_folder):
+                loader = SimDataLoader(season_folder)
+                if not loader.is_valid:
                     continue
 
                 self._runner.set_data_folder(season_folder)
-                results = self._runner.run_simulations_for_config(config, self._num_simulations)
+                results = self._runner.run_simulations_for_config(
+                    config, self._num_simulations, preloaded_week_data=loader.week_data_cache
+                )
 
                 for wins, losses, _ in results:
                     total_wins += wins
@@ -150,64 +152,3 @@ class DraftStrategyOrchestrator:
             f"Completed pass: {len(strategy_files)} strategies processed, "
             f"{skipped_count} skipped"
         )
-
-    def _validate_season_data(self, season_folder: Path) -> bool:
-        """
-        Return True if season_folder contains at least MIN_VALID_PLAYERS undrafted
-        players with positive projected_points in week_01; False otherwise.
-
-        Args:
-            season_folder (Path): Season directory (e.g. data/2023/).
-
-        Returns:
-            bool: True if season data is valid for simulation, False otherwise.
-        """
-        week_01_folder = season_folder / "weeks" / "week_01"
-        if not week_01_folder.is_dir():
-            logger.warning(f"Season {season_folder.name}: week_01 folder missing — skipping")
-            return False
-
-        position_files = [
-            "qb_data.json",
-            "rb_data.json",
-            "wr_data.json",
-            "te_data.json",
-            "k_data.json",
-            "dst_data.json",
-        ]
-
-        try:
-            valid_count = 0
-            for position_file in position_files:
-                json_file = week_01_folder / position_file
-                if not json_file.exists():
-                    logger.warning(
-                        f"Season {season_folder.name}: Missing {position_file} in week_01"
-                    )
-                    continue
-
-                with open(json_file, "r", encoding="utf-8") as f:
-                    data = json.load(f)
-                    for player_dict in data:
-                        drafted_by = player_dict.get("drafted_by", "")
-                        projected_points = player_dict.get("projected_points", [])
-                        fp_val = projected_points[0] if len(projected_points) > 0 else 0
-
-                        if drafted_by == "" and fp_val > 0:
-                            valid_count += 1
-
-            if valid_count < MIN_VALID_PLAYERS:
-                logger.warning(
-                    f"Season {season_folder.name}: only {valid_count} valid players "
-                    f"(need 150+) — skipping"
-                )
-                return False
-
-            logger.debug(f"Season {season_folder.name}: {valid_count} valid players - OK")
-            return True
-
-        except Exception as e:
-            logger.warning(
-                f"Season {season_folder.name}: Error reading player data: {e}"
-            )
-            return False

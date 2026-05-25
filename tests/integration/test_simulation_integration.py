@@ -325,9 +325,13 @@ class TestDraftStrategyOrchestratorRun:
             processed_order.append(filename)
             original_update(filename, name, win_rate)
 
-        with patch.object(orchestrator, "_validate_season_data", return_value=True), \
+        with patch("simulation.win_rate.DraftStrategyOrchestrator.SimDataLoader") as mock_loader_class, \
              patch.object(orchestrator._runner, "run_simulations_for_config", return_value=[(1, 0, 100.0)]), \
              patch.object(meta_data_manager, "update", side_effect=tracking_update):
+            mock_loader = Mock()
+            mock_loader.is_valid = True
+            mock_loader.week_data_cache = {}
+            mock_loader_class.return_value = mock_loader
             orchestrator.run()
 
         assert processed_order == ["1_a.json", "2_b.json", "3_c.json"]
@@ -340,9 +344,13 @@ class TestDraftStrategyOrchestratorRun:
         }
         orchestrator, meta_data_manager = self._make_orchestrator(tmp_path, strategy_files)
 
-        with patch.object(orchestrator, "_validate_season_data", return_value=True), \
+        with patch("simulation.win_rate.DraftStrategyOrchestrator.SimDataLoader") as mock_loader_class, \
              patch.object(orchestrator._runner, "run_simulations_for_config", return_value=[(1, 0, 100.0)]), \
              patch.object(meta_data_manager, "update") as mock_update:
+            mock_loader = Mock()
+            mock_loader.is_valid = True
+            mock_loader.week_data_cache = {}
+            mock_loader_class.return_value = mock_loader
             orchestrator.run()
 
         mock_update.assert_called_once_with("1_valid.json", "Valid", 1.0)
@@ -360,12 +368,16 @@ class TestDraftStrategyOrchestratorRun:
 
         captured_configs = []
 
-        def capture_config(config, n):
+        def capture_config(config, n, preloaded_week_data=None):
             captured_configs.append(_copy.deepcopy(config))
             return [(1, 0, 100.0)]
 
-        with patch.object(orchestrator, "_validate_season_data", return_value=True), \
+        with patch("simulation.win_rate.DraftStrategyOrchestrator.SimDataLoader") as mock_loader_class, \
              patch.object(orchestrator._runner, "run_simulations_for_config", side_effect=capture_config):
+            mock_loader = Mock()
+            mock_loader.is_valid = True
+            mock_loader.week_data_cache = {}
+            mock_loader_class.return_value = mock_loader
             orchestrator.run()
 
         assert orchestrator._base_config == base_config_snapshot
