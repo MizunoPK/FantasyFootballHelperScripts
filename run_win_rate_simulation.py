@@ -48,6 +48,10 @@ def _build_parser() -> argparse.ArgumentParser:
         "--enable-log-file", action="store_true",
         help="Enable logging to file (default: console only)"
     )
+    parser.add_argument(
+        "--strategy", type=str, default=None, metavar="FILENAME",
+        help="Run only the named strategy file (exact basename match, e.g., '1_zero_rb.json'). Default: run all strategies."
+    )
     return parser
 
 
@@ -96,6 +100,7 @@ def main() -> None:
         num_simulations=args.sims,
         max_workers=args.workers,
         meta_data_manager=meta_data_manager,
+        strategy_filter=args.strategy,
     )
 
     try:
@@ -109,6 +114,9 @@ def main() -> None:
         logger.info("Received interrupt — exiting after current strategy")
         _print_summary(meta_data_manager)
         sys.exit(0)
+    except FileNotFoundError as e:
+        logger.error(str(e))
+        sys.exit(1)
 
     _print_summary(meta_data_manager)
 
