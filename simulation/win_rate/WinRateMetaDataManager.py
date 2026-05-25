@@ -71,9 +71,9 @@ class WinRateMetaDataManager:
             }
         entry = self._data["strategies"][strategy_filename]
         entry["name"] = name
-        entry["total_runs"] += 1
-        entry["total_wins"] += wins
-        entry["total_games"] += games
+        entry["total_runs"] = entry.get("total_runs", 0) + 1
+        entry["total_wins"] = entry.get("total_wins", 0) + wins
+        entry["total_games"] = entry.get("total_games", 0) + games
         entry["last_run"] = datetime.date.today().isoformat()
         if win_rate > entry["best_win_rate"]:
             old = entry["best_win_rate"]
