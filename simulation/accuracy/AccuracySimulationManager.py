@@ -23,21 +23,24 @@ import json
 import re
 import shutil
 import signal
+import tempfile
+import time
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Any
-
-import numpy as np
+from typing import Dict, List, Optional, Tuple
 
 from utils.LoggingManager import get_logger
 from simulation.shared.ConfigGenerator import ConfigGenerator
 from simulation.shared.ProgressTracker import ProgressTracker
-from simulation.shared.config_cleanup import cleanup_old_accuracy_optimal_folders, cleanup_accuracy_intermediate_folders
+from simulation.shared.config_cleanup import cleanup_accuracy_intermediate_folders
 from simulation.accuracy.AccuracyCalculator import AccuracyCalculator, AccuracyResult
-from simulation.accuracy.AccuracyResultsManager import AccuracyResultsManager, RankingMetrics, WEEK_RANGES
+from simulation.accuracy.AccuracyResultsManager import AccuracyResultsManager, WEEK_RANGES
 from league_helper.util.PlayerManager import PlayerManager
 from league_helper.util.ConfigManager import ConfigManager
 from league_helper.util.TeamDataManager import TeamDataManager
 from league_helper.util.SeasonScheduleManager import SeasonScheduleManager
+
+PAIRWISE_ACCURACY_WARN_THRESHOLD = 0.65
+TOP_10_ACCURACY_WARN_THRESHOLD = 0.70
 
 
 class AccuracySimulationManager:
@@ -56,6 +59,8 @@ class AccuracySimulationManager:
         results_manager (AccuracyResultsManager): Tracks results
         logger: Logger instance
     """
+
+    ORPHANED_DIR_MAX_AGE_HOURS = 24
 
     def __init__(
         self,
@@ -106,7 +111,6 @@ class AccuracySimulationManager:
             baseline_config_path,
             num_test_values=num_test_values
         )
-        self.parameter_order = parameter_order
         self.accuracy_calculator = AccuracyCalculator()
         self.results_manager = AccuracyResultsManager(output_dir, baseline_config_path)
 
@@ -120,6 +124,46 @@ class AccuracySimulationManager:
         self.logger.info(
             f"AccuracySimulationManager initialized: {total_configs:,} configs/param"
         )
+
+    def _sweep_orphaned_temp_dirs(self) -> None:
+        """
+        Delete stale accuracy_sim_* temp dirs from the system temp folder.
+
+        Scans tempfile.gettempdir() for directories matching accuracy_sim_*
+        that are older than ORPHANED_DIR_MAX_AGE_HOURS hours. Each stale
+        directory is deleted with a warning log. Deletion failures are logged
+        and skipped without aborting the sweep.
+        """
+        temp_root = Path(tempfile.gettempdir())
+        current_time = time.time()
+        threshold_seconds = self.ORPHANED_DIR_MAX_AGE_HOURS * 3600
+        deleted_count = 0
+
+        for candidate in temp_root.glob("accuracy_sim_*"):
+            if not candidate.is_dir():
+                continue
+            try:
+                mtime = candidate.stat().st_mtime
+            except OSError as e:
+                self.logger.warning(f"Could not stat orphaned temp dir candidate {candidate}: {e}")
+                continue
+            age_seconds = current_time - mtime
+            if age_seconds > threshold_seconds:
+                age_hours = age_seconds / 3600
+                try:
+                    shutil.rmtree(candidate)
+                    self.logger.warning(
+                        f"Deleted orphaned temp dir {candidate} (age: {age_hours:.1f}h)"
+                    )
+                    deleted_count += 1
+                except OSError as e:
+                    self.logger.warning(f"Failed to delete orphaned temp dir {candidate}: {e}")
+
+        if deleted_count > 0:
+            self.logger.info(
+                f"Orphan sweep: deleted {deleted_count} stale accuracy_sim_* "
+                f"temp dir(s) older than {self.ORPHANED_DIR_MAX_AGE_HOURS}h"
+            )
 
     def _discover_seasons(self) -> List[Path]:
         """
@@ -468,16 +512,16 @@ class AccuracySimulationManager:
             result.overall_metrics = overall_metrics
             result.by_position = by_position
 
-            if overall_metrics and overall_metrics.pairwise_accuracy < 0.65:
+            if overall_metrics and overall_metrics.pairwise_accuracy < PAIRWISE_ACCURACY_WARN_THRESHOLD:
                 self.logger.warning(
                     f"[{season_path.name}] Low pairwise accuracy: "
-                    f"{overall_metrics.pairwise_accuracy:.1%} (threshold: 65%)"
+                    f"{overall_metrics.pairwise_accuracy:.1%} (threshold: {PAIRWISE_ACCURACY_WARN_THRESHOLD:.0%})"
                 )
 
-            if overall_metrics and overall_metrics.top_10_accuracy < 0.70:
+            if overall_metrics and overall_metrics.top_10_accuracy < TOP_10_ACCURACY_WARN_THRESHOLD:
                 self.logger.warning(
                     f"[{season_path.name}] Low top-10 accuracy: "
-                    f"{overall_metrics.top_10_accuracy:.1%} (threshold: 70%)"
+                    f"{overall_metrics.top_10_accuracy:.1%} (threshold: {TOP_10_ACCURACY_WARN_THRESHOLD:.0%})"
                 )
 
             season_results.append((season_path.name, result))
@@ -522,6 +566,7 @@ class AccuracySimulationManager:
         Returns:
             Path: Path to optimal configuration folder
         """
+        self._sweep_orphaned_temp_dirs()
         total_params = len(self.parameter_order)
         self.logger.info(
             f"Starting tournament optimization: {total_params} parameters × "
@@ -537,7 +582,17 @@ class AccuracySimulationManager:
             baseline_to_use = None
             if should_resume and last_config_path:
                 baseline_to_use = last_config_path
-                self.logger.info(f"Resuming from parameter {resume_param_idx + 1}")
+                all_intermediate = sorted(
+                    p.name for p in self.output_dir.glob("accuracy_intermediate_*")
+                    if p.is_dir()
+                )
+                self.logger.info(
+                    f"Intermediate folders found ({len(all_intermediate)}): {all_intermediate}"
+                )
+                self.logger.info(
+                    f"Resuming from parameter {resume_param_idx + 1}. "
+                    f"Selected: {last_config_path.name}"
+                )
                 self.results_manager.load_intermediate_results(last_config_path)
             else:
                 optimal_folders = sorted(self.output_dir.glob("accuracy_optimal_*"))

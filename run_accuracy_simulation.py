@@ -25,11 +25,14 @@ Author: Kai Mizuno
 """
 
 import argparse
+import json
 import signal
 import sys
 from pathlib import Path
+from typing import Dict, Optional
 
 from simulation.accuracy.AccuracySimulationManager import AccuracySimulationManager
+from simulation.accuracy.AccuracyResultsManager import propagate_to_configs
 from utils.LoggingManager import setup_logger, get_logger
 
 
@@ -75,6 +78,100 @@ PARAMETER_ORDER = [
     'LOCATION_AWAY',
     'LOCATION_INTERNATIONAL',
 ]
+
+
+WEEK_FILENAMES = {
+    'week_1_5': 'week1-5.json',
+    'week_6_9': 'week6-9.json',
+    'week_10_13': 'week10-13.json',
+    'week_14_17': 'week14-17.json',
+}
+
+
+def load_folder_metrics(folder_path: Path) -> Dict[str, Optional[dict]]:
+    """Load ranking metrics for all 4 horizons from a config folder.
+
+    Args:
+        folder_path: Path to a config folder (accuracy_optimal_* or accuracy_intermediate_*)
+
+    Returns:
+        Dict mapping horizon key to ranking metrics dict (or None if not present)
+
+    Raises:
+        SystemExit: If folder does not exist, required file missing, or JSON parse error
+    """
+    logger = get_logger()
+    if not folder_path.exists():
+        logger.error(f"Compare folder not found: {folder_path}")
+        sys.exit(1)
+
+    result = {}
+    for horizon_key, filename in WEEK_FILENAMES.items():
+        filepath = folder_path / filename
+        if not filepath.exists():
+            logger.error(f"Folder {folder_path} missing required file: {filename}")
+            sys.exit(1)
+        try:
+            with open(filepath, 'r') as f:
+                data = json.load(f)
+        except json.JSONDecodeError as e:
+            logger.error(f"Failed to parse {filepath}: {e}")
+            sys.exit(1)
+        perf = data.get('performance_metrics', {})
+        ranking = perf.get('ranking_metrics')
+        if ranking is None:
+            logger.debug(f"No ranking_metrics in {filepath} — horizon {horizon_key} will show N/A")
+            result[horizon_key] = None
+        else:
+            result[horizon_key] = ranking
+    return result
+
+
+def print_compare_table(folder_a: Path, folder_b: Path) -> None:
+    """Print before/after accuracy comparison for two config folders to stdout.
+
+    Args:
+        folder_a: Path to baseline/before folder
+        folder_b: Path to optimized/after folder
+    """
+    metrics_a = load_folder_metrics(folder_a)
+    metrics_b = load_folder_metrics(folder_b)
+
+    for horizon_key in WEEK_FILENAMES:
+        print(f"{horizon_key}:")
+        rm_a = metrics_a[horizon_key]
+        rm_b = metrics_b[horizon_key]
+
+        if rm_a is None or rm_b is None:
+            print(f"  Pairwise:  N/A")
+            print(f"  Top-10:    N/A")
+            print(f"  Spearman:  N/A")
+            continue
+
+        pairwise_a = rm_a.get('pairwise_accuracy')
+        pairwise_b = rm_b.get('pairwise_accuracy')
+        top10_a = rm_a.get('top_10_accuracy')
+        top10_b = rm_b.get('top_10_accuracy')
+        spearman_a = rm_a.get('spearman_correlation')
+        spearman_b = rm_b.get('spearman_correlation')
+
+        if pairwise_a is not None and pairwise_b is not None:
+            delta = pairwise_b - pairwise_a
+            print(f"  Pairwise:  {pairwise_a:.1%} → {pairwise_b:.1%}  ({delta:+.1%})")
+        else:
+            print(f"  Pairwise:  N/A")
+
+        if top10_a is not None and top10_b is not None:
+            delta = top10_b - top10_a
+            print(f"  Top-10:    {top10_a:.1%} → {top10_b:.1%}  ({delta:+.1%})")
+        else:
+            print(f"  Top-10:    N/A")
+
+        if spearman_a is not None and spearman_b is not None:
+            delta = spearman_b - spearman_a
+            print(f"  Spearman:  {spearman_a:.3f} → {spearman_b:.3f}  ({delta:+.3f})")
+        else:
+            print(f"  Spearman:  N/A")
 
 
 def find_baseline_config() -> Path:
@@ -210,13 +307,86 @@ def main() -> None:
              'Use with --log-level to control verbosity.'
     )
 
+    parser.add_argument(
+        '--promote',
+        nargs='?',
+        const=True,
+        default=None,
+        metavar='FOLDER',
+        help='Promote optimal configs to data/configs/. Without FOLDER: promotes the '
+             'just-produced optimal folder after sim run. With FOLDER: promotes the '
+             'specified folder without running the sim (standalone mode).'
+    )
+
+    parser.add_argument(
+        '--params',
+        type=str,
+        default=None,
+        help="Comma-separated list of parameter names to optimize (default: all). "
+             "Example: --params NORMALIZATION_MAX_SCALE,MATCHUP_SCORING_WEIGHT. "
+             "Unknown parameter names exit with error."
+    )
+
+    parser.add_argument(
+        '--compare',
+        nargs=2,
+        metavar=('FOLDER_A', 'FOLDER_B'),
+        type=str,
+        default=None,
+        help="Print before/after accuracy comparison for two config folders "
+             "(stdout only, no sim run). Example: --compare folder_a/ folder_b/"
+    )
+
     args = parser.parse_args()
 
     setup_logger(LOG_NAME, args.log_level.upper(), args.enable_log_file, None, LOGGING_FORMAT)
     logger = get_logger()
 
+    if args.params is not None and args.compare is not None:
+        logger.error("--params and --compare cannot be combined in a single invocation")
+        sys.exit(1)
+
+    if args.promote is True and args.compare is not None:
+        logger.error(
+            "--promote used without a folder argument, but no simulation was run. "
+            "Provide a folder path: --promote <folder>"
+        )
+        sys.exit(1)
+
+    if args.compare is not None:
+        folder_a = Path(args.compare[0])
+        folder_b = Path(args.compare[1])
+        print_compare_table(folder_a, folder_b)
+        sys.exit(0)
+
+    if isinstance(args.promote, str):
+        promote_folder = Path(args.promote)
+        if not promote_folder.exists():
+            logger.error(f"Promote folder not found: {promote_folder}")
+            sys.exit(1)
+        propagate_to_configs(promote_folder, Path("data/configs"), logger)
+        sys.exit(0)
+
     output_path = Path(args.output)
     data_path = Path(args.data)
+
+    if args.params is not None:
+        parts = [p.strip() for p in args.params.split(',')]
+        requested_params = [p for p in parts if p]
+        if not requested_params:
+            logger.error(
+                f"--params value produced no valid parameter names after splitting: '{args.params}'"
+            )
+            sys.exit(1)
+        unknown = [p for p in requested_params if p not in PARAMETER_ORDER]
+        if unknown:
+            logger.error(
+                f"Unknown --params value(s): {unknown}. Valid parameters: {PARAMETER_ORDER}"
+            )
+            sys.exit(1)
+        parameter_order = requested_params
+    else:
+        parameter_order = PARAMETER_ORDER
 
     required_files = ['league_config.json', 'week1-5.json', 'week6-9.json', 'week10-13.json', 'week14-17.json']
 
@@ -263,7 +433,7 @@ def main() -> None:
             baseline_config_path=baseline_path,
             output_dir=output_path,
             data_folder=data_path,
-            parameter_order=PARAMETER_ORDER,
+            parameter_order=parameter_order,
             num_test_values=args.test_values,
             num_parameters_to_test=args.num_params,
             max_workers=args.max_workers,
@@ -282,6 +452,9 @@ def main() -> None:
         print(f"Results saved to: {optimal_path}")
         print(manager.results_manager.get_summary())
         print("=" * 60 + "\n")
+
+        if args.promote is True:
+            propagate_to_configs(optimal_path, Path("data/configs"), logger)
 
     except KeyboardInterrupt:
         logger.warning("Simulation interrupted by user")

@@ -10,12 +10,9 @@ Created: 2026-02-10 (S7.P3 - PR Review test creation)
 """
 
 import argparse
-import os
-import shutil
 import subprocess
 import sys
 import tempfile
-from io import StringIO
 from pathlib import Path
 from unittest.mock import Mock, MagicMock, patch, call
 
@@ -384,6 +381,248 @@ def create_test_parser():
 
     return parser
 
+
+def create_test_parser_f03():
+    """Helper to create argparse parser for F03 testing — includes --params and --compare."""
+    parser = argparse.ArgumentParser(description='F03 Test Parser')
+    parser.add_argument('--baseline', type=str, default=None)
+    parser.add_argument('--output', type=str, default='./simulation/optimal_configs')
+    parser.add_argument('--data', type=str, default='./simulation/sim_data')
+    parser.add_argument('--num-params', type=int, default=4)
+    parser.add_argument('--test-values', type=int, default=3)
+    parser.add_argument('--use-processes', action='store_true', default=True)
+    parser.add_argument('--no-use-processes', dest='use_processes', action='store_false')
+    parser.add_argument('--log-level', choices=['debug', 'info', 'warning', 'error'], default='info')
+    parser.add_argument('--enable-log-file', action='store_true', default=False)
+    parser.add_argument('--max-workers', type=int, default=8)
+    parser.add_argument('--params', type=str, default=None)
+    parser.add_argument('--compare', nargs=2, metavar=('FOLDER_A', 'FOLDER_B'), type=str, default=None)
+    return parser
+
+
+class TestPromoteCLIFlag:
+    """Tests for --promote CLI flag (F02 spec TS2)."""
+
+    def test_promote_flag_in_help_text(self):
+        """--promote flag is listed in --help output."""
+        result = subprocess.run(
+            [sys.executable, str(project_root / "run_accuracy_simulation.py"), "--help"],
+            capture_output=True,
+            text=True
+        )
+        assert result.returncode == 0
+        assert "--promote" in result.stdout
+
+    def test_standalone_promote_missing_folder_exits_1(self, tmp_path):
+        """--promote <missing_folder> exits 1 with 'Promote folder not found' message."""
+        missing = tmp_path / "nonexistent_folder"
+        result = subprocess.run(
+            [sys.executable, str(project_root / "run_accuracy_simulation.py"),
+             "--promote", str(missing)],
+            capture_output=True,
+            text=True
+        )
+        assert result.returncode == 1
+        combined_output = result.stdout + result.stderr
+        assert "Promote folder not found" in combined_output
+
+    def test_promote_argparse_semantics(self):
+        """--promote uses nargs='?', const=True, no type kwarg: 3 correct value states."""
+        parser = argparse.ArgumentParser()
+        parser.add_argument('--promote', nargs='?', const=True, default=None, metavar='FOLDER')
+        args_none = parser.parse_args([])
+        assert args_none.promote is None
+        args_true = parser.parse_args(['--promote'])
+        assert args_true.promote is True
+        args_str = parser.parse_args(['--promote', '/some/path'])
+        assert isinstance(args_str.promote, str)
+        assert args_str.promote == '/some/path'
+
+    def test_standalone_promote_no_sim_run(self, tmp_path):
+        """--promote <valid_folder>: AccuracySimulationManager not instantiated."""
+        import json
+        config_files = ['league_config.json', 'week1-5.json', 'week6-9.json',
+                        'week10-13.json', 'week14-17.json']
+        optimal = tmp_path / "optimal"
+        optimal.mkdir()
+        for cf in config_files:
+            (optimal / cf).write_text(json.dumps({'parameters': {}}))
+        with patch('run_accuracy_simulation.AccuracySimulationManager') as mock_mgr, \
+             patch('run_accuracy_simulation.propagate_to_configs') as mock_promote, \
+             patch('sys.argv', ['run_accuracy_simulation.py',
+                                '--promote', str(optimal)]):
+            mock_promote.return_value = None
+            import run_accuracy_simulation
+            try:
+                run_accuracy_simulation.main()
+            except SystemExit as e:
+                assert e.code == 0
+            mock_mgr.assert_not_called()
+            mock_promote.assert_called_once()
+
+    def test_post_run_promote_calls_propagate(self, tmp_path):
+        """--promote without folder arg after sim run calls propagate_to_configs with optimal_path."""
+        import json
+        optimal = tmp_path / "optimal"
+        optimal.mkdir()
+        for cf in ['league_config.json', 'week1-5.json', 'week6-9.json',
+                   'week10-13.json', 'week14-17.json']:
+            (optimal / cf).write_text(json.dumps({'parameters': {}}))
+        with patch('run_accuracy_simulation.AccuracySimulationManager') as mock_cls, \
+             patch('run_accuracy_simulation.propagate_to_configs') as mock_promote, \
+             patch('run_accuracy_simulation.find_baseline_config', return_value=optimal), \
+             patch('sys.argv', ['run_accuracy_simulation.py', '--promote',
+                                '--baseline', str(optimal)]):
+            mock_instance = MagicMock()
+            mock_instance.run_both.return_value = optimal
+            mock_instance.results_manager.get_summary.return_value = "Summary"
+            mock_cls.return_value = mock_instance
+            import run_accuracy_simulation
+            try:
+                run_accuracy_simulation.main()
+            except SystemExit:
+                pass
+            mock_promote.assert_called_once()
+            call_args = mock_promote.call_args
+            assert call_args[0][0] == optimal
+            assert str(call_args[0][1]) == "data/configs"
+
+
+class TestF03CliAndSummaryEnhancements:
+    """Test Category F03: CLI and Summary Enhancements (F03 feature tests)"""
+
+    def test_params_flag_exists_in_help(self):
+        """Test: --params argparse flag exists"""
+        result = subprocess.run(
+            [sys.executable, str(project_root / "run_accuracy_simulation.py"), "--help"],
+            capture_output=True, text=True
+        )
+        assert result.returncode == 0
+        assert "--params" in result.stdout
+
+    def test_params_default_is_none(self):
+        """Test: --params default is None"""
+        parser = create_test_parser_f03()
+        args = parser.parse_args([])
+        assert args.params is None
+
+    def test_params_accepts_comma_separated_list(self):
+        """Test: --params accepts comma-separated list as a string"""
+        parser = create_test_parser_f03()
+        args = parser.parse_args(['--params', 'NORMALIZATION_MAX_SCALE,MATCHUP_SCORING_WEIGHT'])
+        assert args.params == 'NORMALIZATION_MAX_SCALE,MATCHUP_SCORING_WEIGHT'
+
+    def test_compare_flag_exists_in_help(self):
+        """Test: --compare argparse flag exists"""
+        result = subprocess.run(
+            [sys.executable, str(project_root / "run_accuracy_simulation.py"), "--help"],
+            capture_output=True, text=True
+        )
+        assert result.returncode == 0
+        assert "--compare" in result.stdout
+
+    def test_compare_accepts_two_folder_args(self):
+        """Test: --compare accepts exactly two folder arguments"""
+        parser = create_test_parser_f03()
+        args = parser.parse_args(['--compare', 'a/', 'b/'])
+        assert args.compare == ['a/', 'b/']
+
+    def test_get_summary_with_overall_metrics_shows_pairwise(self):
+        """Test: get_summary() with overall_metrics present shows Pairwise accuracy"""
+        from simulation.accuracy.AccuracyResultsManager import AccuracyResultsManager
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            manager = AccuracyResultsManager(
+                output_dir=Path(tmpdir),
+                baseline_config_path=Path(tmpdir)
+            )
+            mock_overall = MagicMock()
+            mock_overall.pairwise_accuracy = 0.615
+            mock_overall.top_10_accuracy = 0.436
+            mock_overall.spearman_correlation = 0.341
+            mock_perf = MagicMock()
+            mock_perf.overall_metrics = mock_overall
+            mock_perf.mae = 4.5960
+            mock_perf.player_count = 6610
+            manager.best_configs['week_1_5'] = mock_perf
+            summary = manager.get_summary()
+            assert "Pairwise" in summary
+            assert "61.5%" in summary
+
+    def test_get_summary_without_overall_metrics_falls_back_to_mae(self):
+        """Test: get_summary() with overall_metrics=None falls back to MAE-only"""
+        from simulation.accuracy.AccuracyResultsManager import AccuracyResultsManager
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            manager = AccuracyResultsManager(
+                output_dir=Path(tmpdir),
+                baseline_config_path=Path(tmpdir)
+            )
+            mock_perf = MagicMock()
+            mock_perf.overall_metrics = None
+            mock_perf.mae = 4.5960
+            mock_perf.player_count = 6610
+            manager.best_configs['week_1_5'] = mock_perf
+            summary = manager.get_summary()
+            assert "Pairwise" not in summary
+            assert "MAE=4.5960" in summary
+
+    def test_load_folder_metrics_reads_ranking_metrics(self):
+        """Test: load_folder_metrics() reads ranking_metrics from folder JSON files"""
+        import json as json_module
+        import run_accuracy_simulation
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            folder = Path(tmpdir)
+            metrics = {
+                'pairwise_accuracy': 0.615,
+                'top_10_accuracy': 0.436,
+                'spearman_correlation': 0.341
+            }
+            data = {'performance_metrics': {'ranking_metrics': metrics}}
+            for fname in ['week1-5.json', 'week6-9.json', 'week10-13.json', 'week14-17.json']:
+                with open(folder / fname, 'w') as f:
+                    json_module.dump(data, f)
+            result = run_accuracy_simulation.load_folder_metrics(folder)
+            assert result['week_1_5'] is not None
+            assert result['week_1_5']['pairwise_accuracy'] == 0.615
+
+    def test_load_folder_metrics_handles_missing_ranking_metrics(self):
+        """Test: load_folder_metrics() returns None for horizon with no ranking_metrics"""
+        import json as json_module
+        import run_accuracy_simulation
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            folder = Path(tmpdir)
+            data_no_ranking = {'performance_metrics': {'mae': 4.5960}}
+            for fname in ['week1-5.json', 'week6-9.json', 'week10-13.json', 'week14-17.json']:
+                with open(folder / fname, 'w') as f:
+                    json_module.dump(data_no_ranking, f)
+            result = run_accuracy_simulation.load_folder_metrics(folder)
+            assert result['week_1_5'] is None
+
+
+class TestF03SubprocessTests:
+    """Subprocess tests for F03 error paths"""
+
+    def test_unknown_params_value_exits_nonzero(self):
+        """Test: --params with unknown value exits non-zero with 'Unknown' in stderr"""
+        result = subprocess.run(
+            [sys.executable, str(project_root / "run_accuracy_simulation.py"),
+             "--params", "BOGUS_PARAM_XYZ"],
+            capture_output=True, text=True
+        )
+        assert result.returncode != 0
+        assert "Unknown" in result.stderr or "Unknown" in result.stdout
+
+    def test_compare_with_missing_folder_exits_nonzero(self):
+        """Test: --compare with nonexistent folders exits non-zero"""
+        result = subprocess.run(
+            [sys.executable, str(project_root / "run_accuracy_simulation.py"),
+             "--compare", "/nonexistent_folder_a_xyz", "/nonexistent_folder_b_xyz"],
+            capture_output=True, text=True
+        )
+        assert result.returncode != 0
 
 
 """

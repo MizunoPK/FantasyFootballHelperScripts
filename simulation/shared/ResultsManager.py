@@ -16,6 +16,7 @@ from datetime import datetime
 from utils.LoggingManager import get_logger
 from simulation.shared.ConfigPerformance import ConfigPerformance, WEEK_RANGES
 from simulation.shared.config_cleanup import cleanup_old_optimal_folders
+from simulation.shared.config_constants import BASE_CONFIG_PARAMS, WEEK_SPECIFIC_PARAMS
 
 
 class ResultsManager:
@@ -228,34 +229,6 @@ class ResultsManager:
 
         return sorted_configs[:n]
 
-    BASE_CONFIG_PARAMS = [
-        'CURRENT_NFL_WEEK',
-        'NFL_SEASON',
-        'NFL_SCORING_FORMAT',
-        'DRAFT_NORMALIZATION_MAX_SCALE',
-        'SAME_POS_BYE_WEIGHT',
-        'DIFF_POS_BYE_WEIGHT',
-        'INJURY_PENALTIES',
-        'DRAFT_ORDER_BONUSES',
-        'DRAFT_ORDER_FILE',
-        'DRAFT_ORDER',
-        'MAX_POSITIONS',
-        'FLEX_ELIGIBLE_POSITIONS',
-        'ADP_SCORING',
-        'PLAYER_RATING_SCORING'
-    ]
-
-    WEEK_SPECIFIC_PARAMS = [
-        'NORMALIZATION_MAX_SCALE',
-        'TEAM_QUALITY_SCORING',
-        'PERFORMANCE_SCORING',
-        'MATCHUP_SCORING',
-        'SCHEDULE_SCORING',
-        'TEMPERATURE_SCORING',
-        'WIND_SCORING',
-        'LOCATION_MODIFIERS'
-    ]
-
     def _extract_base_params(self, config_dict: dict) -> dict:
         """
         Extract base (non-week-specific) parameters from a config.
@@ -269,7 +242,7 @@ class ResultsManager:
         params = config_dict.get('parameters', {})
         base_params = {
             key: params[key]
-            for key in self.BASE_CONFIG_PARAMS
+            for key in BASE_CONFIG_PARAMS
             if key in params
         }
 
@@ -292,7 +265,7 @@ class ResultsManager:
         params = config_dict.get('parameters', {})
         week_params = {
             key: params[key]
-            for key in self.WEEK_SPECIFIC_PARAMS
+            for key in WEEK_SPECIFIC_PARAMS
             if key in params
         }
 

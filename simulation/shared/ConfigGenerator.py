@@ -46,14 +46,11 @@ import json
 import random
 import copy
 from pathlib import Path
-from typing import List, Dict, Tuple
+from typing import List, Dict
 from itertools import product
 
 from utils.LoggingManager import get_logger
-from simulation.shared.ResultsManager import ResultsManager
-
-BASE_CONFIG_PARAMS = ResultsManager.BASE_CONFIG_PARAMS
-WEEK_SPECIFIC_PARAMS = ResultsManager.WEEK_SPECIFIC_PARAMS
+from simulation.shared.config_constants import BASE_CONFIG_PARAMS, WEEK_SPECIFIC_PARAMS
 
 
 class ConfigGenerator:
@@ -68,6 +65,8 @@ class ConfigGenerator:
 
     PARAM_DEFINITIONS = {
         'NORMALIZATION_MAX_SCALE': (50, 200, 0),
+        # DRAFT_NORMALIZATION_MAX_SCALE controls draft-score scale, not week-to-week
+        # accuracy — excluded from PARAMETER_ORDER but range defined for --params testing.
         'DRAFT_NORMALIZATION_MAX_SCALE': (100, 200, 0),
 
         'SAME_POS_BYE_WEIGHT': (0.0, 0.5, 2),

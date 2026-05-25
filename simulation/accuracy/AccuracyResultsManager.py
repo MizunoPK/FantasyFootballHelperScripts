@@ -16,33 +16,16 @@ Author: Kai Mizuno
 import copy
 import json
 import shutil
-from dataclasses import dataclass
 from datetime import datetime
+from logging import Logger
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Any
+from typing import Dict, List, Optional, Any
 
 from utils.LoggingManager import get_logger
 from simulation.shared.config_cleanup import cleanup_old_accuracy_optimal_folders
+from simulation.shared.config_constants import WEEK_SPECIFIC_PARAMS
+from simulation.accuracy.accuracy_types import RankingMetrics
 from simulation.accuracy.AccuracyCalculator import AccuracyResult
-
-
-@dataclass
-class RankingMetrics:
-    """
-    Ranking-based accuracy metrics for a configuration.
-
-    Attributes:
-        pairwise_accuracy (float): % of pairwise comparisons correct (0.0-1.0)
-        top_5_accuracy (float): % overlap in top-5 predictions (0.0-1.0)
-        top_10_accuracy (float): % overlap in top-10 predictions (0.0-1.0)
-        top_20_accuracy (float): % overlap in top-20 predictions (0.0-1.0)
-        spearman_correlation (float): Rank correlation coefficient (-1.0 to +1.0)
-    """
-    pairwise_accuracy: float
-    top_5_accuracy: float
-    top_10_accuracy: float
-    top_20_accuracy: float
-    spearman_correlation: float
 
 
 WEEK_RANGES = {
@@ -443,10 +426,9 @@ class AccuracyResultsManager:
                 self.logger.info(f"  Has results: MAE={perf.mae:.4f}, using real performance data")
                 synced_config = self._sync_schedule_params(perf.config_dict)
 
-                from simulation.shared.ResultsManager import ResultsManager
                 week_params_dict = {
                     key: synced_config.get('parameters', synced_config).get(key)
-                    for key in ResultsManager.WEEK_SPECIFIC_PARAMS
+                    for key in WEEK_SPECIFIC_PARAMS
                     if key in synced_config.get('parameters', synced_config)
                 }
 
@@ -568,10 +550,9 @@ class AccuracyResultsManager:
             if perf:
                 synced_config = self._sync_schedule_params(perf.config_dict)
 
-                from simulation.shared.ResultsManager import ResultsManager
                 week_params_dict = {
                     key: synced_config.get('parameters', synced_config).get(key)
-                    for key in ResultsManager.WEEK_SPECIFIC_PARAMS
+                    for key in WEEK_SPECIFIC_PARAMS
                     if key in synced_config.get('parameters', synced_config)
                 }
 
@@ -731,7 +712,14 @@ class AccuracyResultsManager:
         lines.append("-" * 40)
 
         for week_key, perf in self.best_configs.items():
-            if perf:
+            if perf and perf.overall_metrics:
+                lines.append(
+                    f"  {week_key}: Pairwise={perf.overall_metrics.pairwise_accuracy:.1%}"
+                    f" | Top-10={perf.overall_metrics.top_10_accuracy:.1%}"
+                    f" | Spearman={perf.overall_metrics.spearman_correlation:.3f}"
+                    f" | MAE={perf.mae:.4f} (diag) ({perf.player_count} players)"
+                )
+            elif perf:
                 lines.append(f"  {week_key}: MAE={perf.mae:.4f} ({perf.player_count} players)")
             else:
                 lines.append(f"  {week_key}: No results yet")
@@ -742,3 +730,77 @@ class AccuracyResultsManager:
         return "\n".join(lines)
 
 
+def propagate_to_configs(
+    optimal_folder: Path,
+    target_folder: Path,
+    logger: Logger
+) -> None:
+    """
+    Copy optimal accuracy configs to target folder, preserving user-maintained fields.
+
+    Copies all 5 standard config files from optimal_folder to target_folder.
+    For league_config.json: preserves CURRENT_NFL_WEEK, NFL_SEASON, MAX_POSITIONS,
+    FLEX_ELIGIBLE_POSITIONS, INJURY_PENALTIES from the existing target file (if present).
+    For weekly config files: copies as-is (MATCHUP->SCHEDULE sync already applied
+    by save_optimal_configs() at write time). The simulation-only 'performance_metrics'
+    block is stripped from all written files before writing.
+
+    Note: If a target file exists but contains malformed JSON, json.load raises
+    mid-loop and leaves the target folder in a partially-promoted state (some files
+    written, others not). Callers should treat partial promotion as an error state.
+
+    Args:
+        optimal_folder (Path): Path to accuracy_optimal_* folder with source configs.
+        target_folder (Path): Destination folder (e.g., Path("data/configs")).
+        logger (Logger): Logger instance from the calling context.
+    """
+    CONFIG_FILES = [
+        'league_config.json',
+        'week1-5.json',
+        'week6-9.json',
+        'week10-13.json',
+        'week14-17.json',
+    ]
+    PRESERVE_KEYS = [
+        'CURRENT_NFL_WEEK',
+        'NFL_SEASON',
+        'MAX_POSITIONS',
+        'FLEX_ELIGIBLE_POSITIONS',
+        'INJURY_PENALTIES',
+    ]
+
+    target_folder.mkdir(parents=True, exist_ok=True)
+
+    copied_count = 0
+    for config_file in CONFIG_FILES:
+        optimal_path = optimal_folder / config_file
+        target_path = target_folder / config_file
+
+        if not optimal_path.exists():
+            logger.warning(f"Optimal config not found: {optimal_path}")
+            continue
+
+        with open(optimal_path, 'r') as f:
+            optimal_config = json.load(f)
+
+        if config_file == 'league_config.json' and target_path.exists():
+            with open(target_path, 'r') as f:
+                original_config = json.load(f)
+            updated_config = optimal_config.copy()
+            if 'parameters' not in updated_config:
+                updated_config['parameters'] = {}
+            for key in PRESERVE_KEYS:
+                if 'parameters' in original_config and key in original_config['parameters']:
+                    updated_config['parameters'][key] = original_config['parameters'][key]
+        else:
+            updated_config = optimal_config
+
+        updated_config.pop('performance_metrics', None)
+
+        with open(target_path, 'w') as f:
+            json.dump(updated_config, f, indent=2)
+
+        logger.info(f"Copied {config_file} → {target_folder}/{config_file}")
+        copied_count += 1
+
+    logger.info(f"Promoted {copied_count} files to {target_folder}")
