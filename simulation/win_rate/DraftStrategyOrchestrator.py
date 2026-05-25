@@ -1,5 +1,6 @@
 import copy
 import json
+import time
 from pathlib import Path
 from typing import Optional
 
@@ -12,6 +13,8 @@ from simulation.win_rate.SimDataLoader import SimDataLoader
 
 logger = get_logger()
 _error_handler = create_component_error_handler("DraftStrategyOrchestrator")
+
+LOW_SIM_THRESHOLD = 20
 
 
 class DraftStrategyOrchestrator:
@@ -76,6 +79,11 @@ class DraftStrategyOrchestrator:
             f"DraftStrategyOrchestrator initialized: {len(self._seasons)} seasons, "
             f"{num_simulations} sims/season, {max_workers} workers"
         )
+        if self._num_simulations < LOW_SIM_THRESHOLD:
+            logger.warning(
+                f"Running {self._num_simulations} simulations per strategy — results may be "
+                f"statistically noisy. Consider --sims 30+ for reliable rankings."
+            )
 
     def run(self) -> None:
         """
@@ -115,9 +123,10 @@ class DraftStrategyOrchestrator:
         for name in sorted(missing_strategies):
             logger.warning(f"Strategy file missing: {name} — skipping (entry preserved in meta_data).")
 
+        total_strategies = len(strategy_files)
         skipped_count = 0
 
-        for strategy_path in strategy_files:
+        for i, strategy_path in enumerate(strategy_files, 1):
             strategy_filename = strategy_path.name
 
             try:
@@ -138,6 +147,12 @@ class DraftStrategyOrchestrator:
                 continue
 
             name = strategy_data.get("name", strategy_path.stem)
+
+            start_time = time.monotonic()
+            logger.info(
+                f"[{i}/{total_strategies}] Testing: {name} ({strategy_filename}) "
+                f"| --sims {self._num_simulations}"
+            )
 
             prior_data = self._meta_data_manager.get_all_strategies().get(strategy_filename, {})
             prior_best = prior_data.get("best_win_rate", -1.0)
@@ -165,15 +180,21 @@ class DraftStrategyOrchestrator:
             total_games = total_wins + total_losses
             win_rate = total_wins / total_games if total_games > 0 else 0.0
 
-            self._meta_data_manager.update(strategy_filename, name, win_rate)
+            self._meta_data_manager.update(strategy_filename, name, win_rate, total_wins, total_games)
 
             improved = win_rate > prior_best
-            stored_best = win_rate if improved else prior_best
-            logger.info(
-                f"{strategy_filename} ({name}): win_rate={win_rate:.3f}, "
-                f"best={stored_best:.3f}"
-                + (" NEW BEST" if improved else "")
-            )
+            elapsed = int(time.monotonic() - start_time)
+            if improved:
+                delta = win_rate if prior_best == -1.0 else win_rate - prior_best
+                logger.info(
+                    f"[{i}/{total_strategies}] {name}: win_rate={win_rate:.3f} "
+                    f"| NEW BEST (+{delta:.3f}) | {elapsed}s"
+                )
+            else:
+                logger.info(
+                    f"[{i}/{total_strategies}] {name}: win_rate={win_rate:.3f} "
+                    f"| best={prior_best:.3f} (no new best) | {elapsed}s"
+                )
 
         logger.info(
             f"Completed pass: {len(strategy_files)} strategies processed, "

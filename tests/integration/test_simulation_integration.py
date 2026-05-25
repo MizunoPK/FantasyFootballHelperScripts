@@ -339,9 +339,9 @@ class TestDraftStrategyOrchestratorRun:
         processed_order = []
         original_update = meta_data_manager.update
 
-        def tracking_update(filename, name, win_rate):
+        def tracking_update(filename, name, win_rate, wins, games):
             processed_order.append(filename)
-            original_update(filename, name, win_rate)
+            original_update(filename, name, win_rate, wins, games)
 
         with patch("simulation.win_rate.DraftStrategyOrchestrator.SimDataLoader") as mock_loader_class, \
              patch.object(orchestrator._runner, "run_simulations_for_config", return_value=[(1, 0, 100.0)]), \
@@ -371,7 +371,7 @@ class TestDraftStrategyOrchestratorRun:
             mock_loader_class.return_value = mock_loader
             orchestrator.run()
 
-        mock_update.assert_called_once_with("1_valid.json", "Valid", 1.0)
+        mock_update.assert_called_once_with("1_valid.json", "Valid", 1.0, 1, 1)
 
     def test_run_does_not_mutate_base_config(self, tmp_path):
         """Test run() deep-copies config before injecting DRAFT_ORDER (AC8)."""

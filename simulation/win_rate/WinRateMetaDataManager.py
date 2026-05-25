@@ -44,29 +44,36 @@ class WinRateMetaDataManager:
             logger.warning(f"Corrupted meta data at {self._meta_data_path}: {e} — starting fresh")
             self._data = {"last_updated": "", "strategies": {}}
 
-    def update(self, strategy_filename: str, name: str, win_rate: float) -> None:
+    def update(self, strategy_filename: str, name: str, win_rate: float, wins: int, games: int) -> None:
         """
         Record result of one strategy evaluation run.
 
         Always increments total_runs and updates last_run. Updates
         best_win_rate only if win_rate strictly exceeds the stored best.
+        Accumulates total_wins and total_games cumulatively across all calls.
         Atomically writes updated data to disk after every call.
 
         Args:
             strategy_filename (str): Filename key (e.g., '1_zero_rb.json').
             name (str): Human-readable strategy name from strategy file's 'name' field.
             win_rate (float): Win rate from this evaluation run (0.0-1.0).
+            wins (int): Number of wins in this evaluation batch.
+            games (int): Total games in this evaluation batch (wins + losses).
         """
         if strategy_filename not in self._data["strategies"]:
             self._data["strategies"][strategy_filename] = {
                 "name": "",
                 "best_win_rate": 0.0,
+                "total_wins": 0,
+                "total_games": 0,
                 "total_runs": 0,
                 "last_run": "",
             }
         entry = self._data["strategies"][strategy_filename]
         entry["name"] = name
         entry["total_runs"] += 1
+        entry["total_wins"] += wins
+        entry["total_games"] += games
         entry["last_run"] = datetime.date.today().isoformat()
         if win_rate > entry["best_win_rate"]:
             old = entry["best_win_rate"]
@@ -96,6 +103,7 @@ class WinRateMetaDataManager:
 
         Returns:
             Dict[str, Dict]: Strategy filename -> entry dict with keys
-                'name', 'best_win_rate', 'total_runs', 'last_run'.
+                'name', 'best_win_rate', 'total_wins', 'total_games',
+                'total_runs', 'last_run'.
         """
         return self._data["strategies"]
