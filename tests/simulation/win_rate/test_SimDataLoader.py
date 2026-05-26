@@ -78,6 +78,7 @@ class TestSimDataLoaderWeekDataCache:
         assert 'actual' in loader.week_data_cache[1]
         assert isinstance(loader.week_data_cache[1]['projected'], dict)
         assert isinstance(loader.week_data_cache[1]['actual'], dict)
+        assert len(loader.week_data_cache[1]['projected']) > 0
 
     def test_preload_skipped_when_invalid(self, tmp_path):
         season = _make_season_folder(tmp_path, n_valid=5)

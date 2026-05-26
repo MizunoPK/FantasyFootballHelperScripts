@@ -47,8 +47,11 @@ class SimDataLoader:
         Validate that season_folder contains sufficient player data.
 
         Sets is_valid to True if week_01 contains at least MIN_VALID_PLAYERS
-        undrafted players with positive projected_points. Sets is_valid to False
-        and logs a warning otherwise.
+        undrafted players with positive projected_points across all position
+        files combined. Malformed individual position files are skipped with a
+        warning; validation succeeds based on the total count across valid files.
+        Sets is_valid to False and logs a warning if the total falls below
+        MIN_VALID_PLAYERS or if the week_01 folder is unreadable.
         """
         week_01_folder = self.season_folder / "weeks" / "week_01"
         if not week_01_folder.is_dir():

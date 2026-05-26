@@ -59,6 +59,7 @@ class TestWinRateSimulationE2E:
         draft_dir.mkdir(parents=True)
 
         real_strategy = Path("simulation/sim_data/draft_order_possibilities/1_zero_rb.json")
+        assert real_strategy.exists(), f"Real strategy file missing: {real_strategy}"
         (draft_dir / "1_zero_rb.json").write_text(real_strategy.read_text())
 
         week_counts = {"QB": 50, "RB": 50, "WR": 50, "TE": 50, "K": 20, "DST": 20}
@@ -90,6 +91,7 @@ class TestWinRateSimulationE2E:
         assert "1_zero_rb.json" in meta_data["strategies"]
 
         entry = meta_data["strategies"]["1_zero_rb.json"]
+        assert 0.0 <= entry["best_win_rate"] <= 1.0
         assert 0.30 <= entry["best_win_rate"] <= 0.85
         assert "total_wins" in entry
         assert "total_games" in entry
