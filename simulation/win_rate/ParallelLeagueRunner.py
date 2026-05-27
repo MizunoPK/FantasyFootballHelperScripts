@@ -30,7 +30,6 @@ from simulation.win_rate.SimulatedLeague import SimulatedLeague
 GC_FREQUENCY = 5
 
 
-
 def _run_simulation_process(args: Tuple[dict, int, Path, Optional[Dict[int, Dict]]]) -> Tuple[int, int, float]:
     """
     Run a single simulation in a separate process.
