@@ -2,7 +2,7 @@ import copy
 import json
 import time
 from pathlib import Path
-from typing import Optional
+from typing import Dict, Optional
 
 from utils.LoggingManager import get_logger
 from utils.error_handler import create_component_error_handler, FileOperationError
@@ -126,6 +126,12 @@ class DraftStrategyOrchestrator:
         total_strategies = len(strategy_files)
         skipped_count = 0
 
+        season_cache: Dict[Path, Dict[int, Dict]] = {}
+        for season_folder in self._seasons:
+            loader = SimDataLoader(season_folder)
+            if loader.is_valid:
+                season_cache[season_folder] = loader.week_data_cache
+
         for i, strategy_path in enumerate(strategy_files, 1):
             strategy_filename = strategy_path.name
 
@@ -163,14 +169,10 @@ class DraftStrategyOrchestrator:
             total_wins = 0
             total_losses = 0
 
-            for season_folder in self._seasons:
-                loader = SimDataLoader(season_folder)
-                if not loader.is_valid:
-                    continue
-
+            for season_folder, week_data_cache in season_cache.items():
                 self._runner.set_data_folder(season_folder)
                 results = self._runner.run_simulations_for_config(
-                    config, self._num_simulations, preloaded_week_data=loader.week_data_cache
+                    config, self._num_simulations, preloaded_week_data=week_data_cache
                 )
 
                 for wins, losses, _ in results:

@@ -28,25 +28,33 @@ from simulation.win_rate.SimulatedLeague import SimulatedLeague
 
 
 GC_FREQUENCY = 5
+_WORKER_PRELOADED_WEEK_DATA: Optional[Dict[int, Dict]] = None
 
 
-def _run_simulation_process(args: Tuple[dict, int, Path, Optional[Dict[int, Dict]]]) -> Tuple[int, int, float]:
+def _init_worker_process(week_data: Optional[Dict[int, Dict]]) -> None:
+    global _WORKER_PRELOADED_WEEK_DATA
+    _WORKER_PRELOADED_WEEK_DATA = week_data
+
+
+def _run_simulation_process(args: Tuple[dict, int, Path]) -> Tuple[int, int, float]:
     """
     Run a single simulation in a separate process.
 
     This is a module-level function required for ProcessPoolExecutor,
-    which cannot pickle instance methods.
+    which cannot pickle instance methods. preloaded_week_data is read
+    from the module-level _WORKER_PRELOADED_WEEK_DATA set once per
+    worker by _init_worker_process, avoiding per-simulation pickling.
 
     Args:
-        args: Tuple of (config_dict, simulation_id, data_folder, preloaded_week_data)
+        args: Tuple of (config_dict, simulation_id, data_folder)
 
     Returns:
         Tuple[int, int, float]: (wins, losses, total_points) for DraftHelperTeam
     """
-    config_dict, simulation_id, data_folder, preloaded_week_data = args
+    config_dict, simulation_id, data_folder = args
     league = None
     try:
-        league = SimulatedLeague(config_dict, data_folder, preloaded_week_data)
+        league = SimulatedLeague(config_dict, data_folder, _WORKER_PRELOADED_WEEK_DATA)
         league.run_draft()
         league.run_season()
         wins, losses, total_points = league.get_draft_helper_results()
@@ -57,23 +65,26 @@ def _run_simulation_process(args: Tuple[dict, int, Path, Optional[Dict[int, Dict
             del league
 
 
-def _run_simulation_with_weeks_process(args: Tuple[dict, int, Path, Optional[Dict[int, Dict]]]) -> List[Tuple[int, bool, float]]:
+def _run_simulation_with_weeks_process(args: Tuple[dict, int, Path]) -> List[Tuple[int, bool, float]]:
     """
     Run a single simulation with week tracking in a separate process.
 
     This is a module-level function required for ProcessPoolExecutor.
+    preloaded_week_data is read from the module-level
+    _WORKER_PRELOADED_WEEK_DATA set once per worker by
+    _init_worker_process, avoiding per-simulation pickling.
 
     Args:
-        args: Tuple of (config_dict, simulation_id, data_folder, preloaded_week_data)
+        args: Tuple of (config_dict, simulation_id, data_folder)
 
     Returns:
         List[Tuple[int, bool, float]]: Per-week results as list of
             (week_number, won, points) tuples
     """
-    config_dict, simulation_id, data_folder, preloaded_week_data = args
+    config_dict, simulation_id, data_folder = args
     league = None
     try:
-        league = SimulatedLeague(config_dict, data_folder, preloaded_week_data)
+        league = SimulatedLeague(config_dict, data_folder, _WORKER_PRELOADED_WEEK_DATA)
         league.run_draft()
         league.run_season()
         week_results = league.get_draft_helper_results_by_week()
@@ -272,11 +283,14 @@ class ParallelLeagueRunner:
 
         ExecutorClass = ProcessPoolExecutor if self.use_processes else ThreadPoolExecutor
         """Win rate sim uses ThreadPoolExecutor (I/O-bound — disk reads dominate); accuracy sim uses ProcessPoolExecutor (CPU-bound — score computation dominates). ThreadPoolExecutor: lower overhead, sufficient for I/O-bound simulation setup; ProcessPoolExecutor: bypasses GIL for CPU-bound parallelism at the cost of pickling overhead and higher process-creation latency."""
-        executor = ExecutorClass(max_workers=self.max_workers)
-
         if self.use_processes:
+            executor = ProcessPoolExecutor(
+                max_workers=self.max_workers,
+                initializer=_init_worker_process,
+                initargs=(preloaded_week_data,)
+            )
             sim_args = [
-                (config_dict, sim_id, self.data_folder, preloaded_week_data)
+                (config_dict, sim_id, self.data_folder)
                 for sim_id in range(num_simulations)
             ]
             future_to_sim_id = {
@@ -284,6 +298,7 @@ class ParallelLeagueRunner:
                 for args in sim_args
             }
         else:
+            executor = ExecutorClass(max_workers=self.max_workers)
             future_to_sim_id = {
                 executor.submit(self.run_single_simulation, config_dict, sim_id, preloaded_week_data): sim_id
                 for sim_id in range(num_simulations)
@@ -366,11 +381,14 @@ class ParallelLeagueRunner:
 
         ExecutorClass = ProcessPoolExecutor if self.use_processes else ThreadPoolExecutor
         """Win rate sim uses ThreadPoolExecutor (I/O-bound — disk reads dominate); accuracy sim uses ProcessPoolExecutor (CPU-bound — score computation dominates). ThreadPoolExecutor: lower overhead, sufficient for I/O-bound simulation setup; ProcessPoolExecutor: bypasses GIL for CPU-bound parallelism at the cost of pickling overhead and higher process-creation latency."""
-        executor = ExecutorClass(max_workers=self.max_workers)
-
         if self.use_processes:
+            executor = ProcessPoolExecutor(
+                max_workers=self.max_workers,
+                initializer=_init_worker_process,
+                initargs=(preloaded_week_data,)
+            )
             sim_args = [
-                (config_dict, sim_id, self.data_folder, preloaded_week_data)
+                (config_dict, sim_id, self.data_folder)
                 for sim_id in range(num_simulations)
             ]
             future_to_sim_id = {
@@ -378,6 +396,7 @@ class ParallelLeagueRunner:
                 for args in sim_args
             }
         else:
+            executor = ExecutorClass(max_workers=self.max_workers)
             future_to_sim_id = {
                 executor.submit(self.run_single_simulation_with_weeks, config_dict, sim_id, preloaded_week_data): sim_id
                 for sim_id in range(num_simulations)
