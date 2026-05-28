@@ -1,17 +1,20 @@
 import copy
 import json
+import time
 from pathlib import Path
+from typing import Dict, Optional
 
 from utils.LoggingManager import get_logger
 from utils.error_handler import create_component_error_handler, FileOperationError
 from league_helper.util.ConfigManager import ConfigManager
 from simulation.win_rate.ParallelLeagueRunner import ParallelLeagueRunner
 from simulation.win_rate.WinRateMetaDataManager import WinRateMetaDataManager
+from simulation.win_rate.SimDataLoader import SimDataLoader
 
 logger = get_logger()
 _error_handler = create_component_error_handler("DraftStrategyOrchestrator")
 
-MIN_VALID_PLAYERS = 150
+LOW_SIM_THRESHOLD = 20
 
 
 class DraftStrategyOrchestrator:
@@ -27,6 +30,7 @@ class DraftStrategyOrchestrator:
         max_workers: int,
         meta_data_manager: WinRateMetaDataManager,
         config_path: Path = Path("data/configs/league_config.json"),
+        strategy_filter: Optional[str] = None,
     ) -> None:
         """
         Initialize the orchestrator.
@@ -42,10 +46,15 @@ class DraftStrategyOrchestrator:
                 is passed to ConfigManager as the data root, which auto-merges
                 week-specific scoring parameters. Defaults to
                 data/configs/league_config.json.
+            strategy_filter (Optional[str]): If provided, only the strategy file with
+                this exact basename is simulated. Comparison is Path.name == strategy_filter
+                (exact match, no partial/substring matching). Default None runs all
+                strategies.
         """
         self._data_folder = data_folder
         self._num_simulations = num_simulations
         self._meta_data_manager = meta_data_manager
+        self._strategy_filter = strategy_filter
 
         try:
             cm = ConfigManager(config_path.parent.parent)
@@ -70,6 +79,11 @@ class DraftStrategyOrchestrator:
             f"DraftStrategyOrchestrator initialized: {len(self._seasons)} seasons, "
             f"{num_simulations} sims/season, {max_workers} workers"
         )
+        if self._num_simulations < LOW_SIM_THRESHOLD:
+            logger.warning(
+                f"Running {self._num_simulations} simulations per strategy — results may be "
+                f"statistically noisy. Consider --sims 30+ for reliable rankings."
+            )
 
     def run(self) -> None:
         """
@@ -93,9 +107,32 @@ class DraftStrategyOrchestrator:
             logger.warning(f"No strategy JSON files found in {strategy_dir}")
             raise FileNotFoundError(f"No strategy JSON files found in {strategy_dir}")
 
+        if self._strategy_filter is not None:
+            strategy_files = [p for p in strategy_files if p.name == self._strategy_filter]
+            if not strategy_files:
+                raise FileNotFoundError(
+                    f"--strategy filter '{self._strategy_filter}' matched no strategy files in {strategy_dir}"
+                )
+
+        file_set = {p.name for p in strategy_files}
+        meta_set = set(self._meta_data_manager.get_all_strategies().keys())
+        new_strategies = file_set - meta_set
+        missing_strategies = meta_set - file_set
+        for name in sorted(new_strategies):
+            logger.info(f"New strategy detected: {name} — will be tested this run.")
+        for name in sorted(missing_strategies):
+            logger.warning(f"Strategy file missing: {name} — skipping (entry preserved in meta_data).")
+
+        total_strategies = len(strategy_files)
         skipped_count = 0
 
-        for strategy_path in strategy_files:
+        season_cache: Dict[Path, Dict[int, Dict]] = {}
+        for season_folder in self._seasons:
+            loader = SimDataLoader(season_folder)
+            if loader.is_valid:
+                season_cache[season_folder] = loader.week_data_cache
+
+        for i, strategy_path in enumerate(strategy_files, 1):
             strategy_filename = strategy_path.name
 
             try:
@@ -111,7 +148,17 @@ class DraftStrategyOrchestrator:
                 skipped_count += 1
                 continue
 
+            if not self._validate_strategy(strategy_filename, strategy_data):
+                skipped_count += 1
+                continue
+
             name = strategy_data.get("name", strategy_path.stem)
+
+            start_time = time.monotonic()
+            logger.info(
+                f"[{i}/{total_strategies}] Testing: {name} ({strategy_filename}) "
+                f"| --sims {self._num_simulations}"
+            )
 
             prior_data = self._meta_data_manager.get_all_strategies().get(strategy_filename, {})
             prior_best = prior_data.get("best_win_rate", -1.0)
@@ -122,12 +169,11 @@ class DraftStrategyOrchestrator:
             total_wins = 0
             total_losses = 0
 
-            for season_folder in self._seasons:
-                if not self._validate_season_data(season_folder):
-                    continue
-
+            for season_folder, week_data_cache in season_cache.items():
                 self._runner.set_data_folder(season_folder)
-                results = self._runner.run_simulations_for_config(config, self._num_simulations)
+                results = self._runner.run_simulations_for_config(
+                    config, self._num_simulations, preloaded_week_data=week_data_cache
+                )
 
                 for wins, losses, _ in results:
                     total_wins += wins
@@ -136,78 +182,118 @@ class DraftStrategyOrchestrator:
             total_games = total_wins + total_losses
             win_rate = total_wins / total_games if total_games > 0 else 0.0
 
-            self._meta_data_manager.update(strategy_filename, name, win_rate)
+            self._meta_data_manager.update(strategy_filename, name, win_rate, total_wins, total_games)
 
             improved = win_rate > prior_best
-            stored_best = win_rate if improved else prior_best
-            logger.info(
-                f"{strategy_filename} ({name}): win_rate={win_rate:.3f}, "
-                f"best={stored_best:.3f}"
-                + (" NEW BEST" if improved else "")
-            )
+            elapsed = int(time.monotonic() - start_time)
+            if improved:
+                delta = win_rate if prior_best == -1.0 else win_rate - prior_best
+                logger.info(
+                    f"[{i}/{total_strategies}] {name}: win_rate={win_rate:.3f} "
+                    f"| NEW BEST (+{delta:.3f}) | {elapsed}s"
+                )
+            else:
+                logger.info(
+                    f"[{i}/{total_strategies}] {name}: win_rate={win_rate:.3f} "
+                    f"| best={prior_best:.3f} (no new best) | {elapsed}s"
+                )
 
         logger.info(
             f"Completed pass: {len(strategy_files)} strategies processed, "
             f"{skipped_count} skipped"
         )
 
-    def _validate_season_data(self, season_folder: Path) -> bool:
+    def _validate_strategy(self, strategy_filename: str, strategy_data: dict) -> bool:
         """
-        Return True if season_folder contains at least MIN_VALID_PLAYERS undrafted
-        players with positive projected_points in week_01; False otherwise.
+        Validate strategy DRAFT_ORDER against REQUIREMENTS.TXT rules (fail-fast per C2).
 
         Args:
-            season_folder (Path): Season directory (e.g. data/2023/).
+            strategy_filename (str): Filename used for log messages (e.g., '1_zero_rb.json').
+            strategy_data (dict): Parsed JSON content of the strategy file.
 
         Returns:
-            bool: True if season data is valid for simulation, False otherwise.
+            bool: True if DRAFT_ORDER passes the type pre-check (rule 0) and all 6
+                REQUIREMENTS.TXT rules (rules 1-6); False on first rule failure.
         """
-        week_01_folder = season_folder / "weeks" / "week_01"
-        if not week_01_folder.is_dir():
-            logger.warning(f"Season {season_folder.name}: week_01 folder missing — skipping")
+        draft_order = strategy_data.get("DRAFT_ORDER")
+
+        if not isinstance(draft_order, list):
+            logger.warning(
+                f"Skipping {strategy_filename}: DRAFT_ORDER must be a list "
+                f"(got {type(draft_order).__name__})"
+            )
             return False
 
-        position_files = [
-            "qb_data.json",
-            "rb_data.json",
-            "wr_data.json",
-            "te_data.json",
-            "k_data.json",
-            "dst_data.json",
-        ]
+        if len(draft_order) != 15:
+            logger.warning(
+                f"Skipping {strategy_filename}: DRAFT_ORDER has {len(draft_order)} entries (expected 15)"
+            )
+            return False
 
-        try:
-            valid_count = 0
-            for position_file in position_files:
-                json_file = week_01_folder / position_file
-                if not json_file.exists():
-                    logger.warning(
-                        f"Season {season_folder.name}: Missing {position_file} in week_01"
-                    )
-                    continue
-
-                with open(json_file, "r", encoding="utf-8") as f:
-                    data = json.load(f)
-                    for player_dict in data:
-                        drafted_by = player_dict.get("drafted_by", "")
-                        projected_points = player_dict.get("projected_points", [])
-                        fp_val = projected_points[0] if len(projected_points) > 0 else 0
-
-                        if drafted_by == "" and fp_val > 0:
-                            valid_count += 1
-
-            if valid_count < MIN_VALID_PLAYERS:
+        expected_p_counts = {"QB": 2, "RB": 4, "WR": 4, "FLEX": 1, "TE": 2, "K": 1, "DST": 1}
+        actual_p_counts = {pos: 0 for pos in expected_p_counts}
+        for entry in draft_order:
+            for pos, role in entry.items():
+                if role == "P" and pos in actual_p_counts:
+                    actual_p_counts[pos] += 1
+        for pos, exp in expected_p_counts.items():
+            got = actual_p_counts[pos]
+            if got != exp:
                 logger.warning(
-                    f"Season {season_folder.name}: only {valid_count} valid players "
-                    f"(need 150+) — skipping"
+                    f"Skipping {strategy_filename}: invalid P-count for {pos} (expected {exp}, got {got})"
                 )
                 return False
 
-            logger.debug(f"Season {season_folder.name}: {valid_count} valid players - OK")
-            return True
+        qb_p_indices = [i for i, entry in enumerate(draft_order) if entry.get("QB") == "P"]
+        for idx in range(len(qb_p_indices) - 1):
+            i1, i2 = qb_p_indices[idx], qb_p_indices[idx + 1]
+            if i2 == i1 + 1:
+                logger.warning(
+                    f"Skipping {strategy_filename}: QB P-values must have at least one "
+                    f"non-QB-P entry between them (indices {i1} and {i2})"
+                )
+                return False
 
-        except Exception as e:
-            logger.warning(
-                f"Season {season_folder.name}: Error reading player data: {e}"
-            )
-            return False
+        te_p_indices = [i for i, entry in enumerate(draft_order) if entry.get("TE") == "P"]
+        for idx in range(len(te_p_indices) - 1):
+            i1, i2 = te_p_indices[idx], te_p_indices[idx + 1]
+            if i2 == i1 + 1:
+                logger.warning(
+                    f"Skipping {strategy_filename}: TE P-values must have at least one "
+                    f"non-TE-P entry between them (indices {i1} and {i2})"
+                )
+                return False
+
+        for i, entry in enumerate(draft_order):
+            p_values = [v for v in entry.values() if v == "P"]
+            s_values = [v for v in entry.values() if v == "S"]
+            if i == 14:
+                if len(p_values) != 1 or len(s_values) != 0:
+                    logger.warning(
+                        f"Skipping {strategy_filename}: entry {i} has invalid slot structure "
+                        f"(must have exactly one P and at most one S; entry 14 must have only P)"
+                    )
+                    return False
+            else:
+                if len(p_values) != 1 or len(s_values) > 1:
+                    logger.warning(
+                        f"Skipping {strategy_filename}: entry {i} has invalid slot structure "
+                        f"(must have exactly one P and at most one S; entry 14 must have only P)"
+                    )
+                    return False
+
+        final_3 = [
+            (12, {"K": "P", "FLEX": "S"}),
+            (13, {"DST": "P", "FLEX": "S"}),
+            (14, {"FLEX": "P"}),
+        ]
+        for i, expected_entry in final_3:
+            actual_entry = draft_order[i]
+            if actual_entry != expected_entry:
+                logger.warning(
+                    f"Skipping {strategy_filename}: entry {i} must be {expected_entry!r}, "
+                    f"got {actual_entry!r}"
+                )
+                return False
+
+        return True

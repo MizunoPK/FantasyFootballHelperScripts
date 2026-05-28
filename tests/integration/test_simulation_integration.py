@@ -49,6 +49,24 @@ TEST_PARAMETER_ORDER = [
     'LOCATION_INTERNATIONAL',
 ]
 
+VALID_DRAFT_ORDER = [
+    {"WR": "P", "RB": "S"},
+    {"WR": "P", "RB": "S"},
+    {"TE": "P", "WR": "S"},
+    {"WR": "P", "RB": "S"},
+    {"QB": "P", "FLEX": "S"},
+    {"TE": "P", "WR": "S"},
+    {"RB": "P", "WR": "S"},
+    {"QB": "P", "FLEX": "S"},
+    {"RB": "P", "WR": "S"},
+    {"RB": "P", "WR": "S"},
+    {"WR": "P", "RB": "S"},
+    {"RB": "P", "WR": "S"},
+    {"K": "P", "FLEX": "S"},
+    {"DST": "P", "FLEX": "S"},
+    {"FLEX": "P"},
+]
+
 
 def create_mock_historical_season(data_folder: Path, year: str = "2024") -> None:
     """Create a mock historical season folder structure for testing."""
@@ -312,22 +330,26 @@ class TestDraftStrategyOrchestratorRun:
     def test_run_processes_strategies_in_numeric_order(self, tmp_path):
         """Test run() enumerates strategy files sorted by numeric prefix (AC4)."""
         strategy_files = {
-            "3_c.json": {"name": "C", "DRAFT_ORDER": []},
-            "1_a.json": {"name": "A", "DRAFT_ORDER": []},
-            "2_b.json": {"name": "B", "DRAFT_ORDER": []},
+            "3_c.json": {"name": "C", "DRAFT_ORDER": VALID_DRAFT_ORDER},
+            "1_a.json": {"name": "A", "DRAFT_ORDER": VALID_DRAFT_ORDER},
+            "2_b.json": {"name": "B", "DRAFT_ORDER": VALID_DRAFT_ORDER},
         }
         orchestrator, meta_data_manager = self._make_orchestrator(tmp_path, strategy_files)
 
         processed_order = []
         original_update = meta_data_manager.update
 
-        def tracking_update(filename, name, win_rate):
+        def tracking_update(filename, name, win_rate, wins, games):
             processed_order.append(filename)
-            original_update(filename, name, win_rate)
+            original_update(filename, name, win_rate, wins, games)
 
-        with patch.object(orchestrator, "_validate_season_data", return_value=True), \
+        with patch("simulation.win_rate.DraftStrategyOrchestrator.SimDataLoader") as mock_loader_class, \
              patch.object(orchestrator._runner, "run_simulations_for_config", return_value=[(1, 0, 100.0)]), \
              patch.object(meta_data_manager, "update", side_effect=tracking_update):
+            mock_loader = Mock()
+            mock_loader.is_valid = True
+            mock_loader.week_data_cache = {}
+            mock_loader_class.return_value = mock_loader
             orchestrator.run()
 
         assert processed_order == ["1_a.json", "2_b.json", "3_c.json"]
@@ -335,22 +357,26 @@ class TestDraftStrategyOrchestratorRun:
     def test_run_calls_update_for_valid_strategies(self, tmp_path):
         """Test run() calls meta_data_manager.update() for each valid strategy (AC5/AC6)."""
         strategy_files = {
-            "1_valid.json": {"name": "Valid", "DRAFT_ORDER": []},
+            "1_valid.json": {"name": "Valid", "DRAFT_ORDER": VALID_DRAFT_ORDER},
             "2_no_draft_order.json": {"name": "Bad", "other_key": "value"},
         }
         orchestrator, meta_data_manager = self._make_orchestrator(tmp_path, strategy_files)
 
-        with patch.object(orchestrator, "_validate_season_data", return_value=True), \
+        with patch("simulation.win_rate.DraftStrategyOrchestrator.SimDataLoader") as mock_loader_class, \
              patch.object(orchestrator._runner, "run_simulations_for_config", return_value=[(1, 0, 100.0)]), \
              patch.object(meta_data_manager, "update") as mock_update:
+            mock_loader = Mock()
+            mock_loader.is_valid = True
+            mock_loader.week_data_cache = {}
+            mock_loader_class.return_value = mock_loader
             orchestrator.run()
 
-        mock_update.assert_called_once_with("1_valid.json", "Valid", 1.0)
+        mock_update.assert_called_once_with("1_valid.json", "Valid", 1.0, 1, 1)
 
     def test_run_does_not_mutate_base_config(self, tmp_path):
         """Test run() deep-copies config before injecting DRAFT_ORDER (AC8)."""
         import copy as _copy
-        draft_order = [1, 2, 3, 4, 5]
+        draft_order = VALID_DRAFT_ORDER
         strategy_files = {
             "1_strat.json": {"name": "Strat", "DRAFT_ORDER": draft_order},
         }
@@ -360,12 +386,16 @@ class TestDraftStrategyOrchestratorRun:
 
         captured_configs = []
 
-        def capture_config(config, n):
+        def capture_config(config, n, preloaded_week_data=None):
             captured_configs.append(_copy.deepcopy(config))
             return [(1, 0, 100.0)]
 
-        with patch.object(orchestrator, "_validate_season_data", return_value=True), \
+        with patch("simulation.win_rate.DraftStrategyOrchestrator.SimDataLoader") as mock_loader_class, \
              patch.object(orchestrator._runner, "run_simulations_for_config", side_effect=capture_config):
+            mock_loader = Mock()
+            mock_loader.is_valid = True
+            mock_loader.week_data_cache = {}
+            mock_loader_class.return_value = mock_loader
             orchestrator.run()
 
         assert orchestrator._base_config == base_config_snapshot

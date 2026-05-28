@@ -18,7 +18,6 @@ import random
 import shutil
 import tempfile
 import json
-import csv
 from pathlib import Path
 from typing import List, Dict, Tuple, Optional, Any
 
@@ -31,6 +30,8 @@ from simulation.win_rate.SimulatedOpponent import SimulatedOpponent
 from simulation.win_rate.Week import Week
 from simulation.utils.scheduler import generate_schedule_for_nfl_season
 from utils.LoggingManager import get_logger
+
+DRAFT_ROUNDS = 15
 
 
 class SimulatedLeague:
@@ -65,8 +66,9 @@ class SimulatedLeague:
         'adp_with_draft_order': 2,
         'projected_points_with_draft_order': 3
     }
+    """Mapping of opponent strategy name to team count; dict values sum to 9 opponents + 1 DraftHelperTeam = 10 total teams per league. The 1/2/2/2/3 distribution reflects the relative prevalence of each strategy among typical human fantasy drafters."""
 
-    def __init__(self, config_dict: dict, data_folder: Path = Path("./simulation/sim_data")) -> None:
+    def __init__(self, config_dict: dict, data_folder: Path = Path("./simulation/sim_data"), preloaded_week_data: Optional[Dict[int, Dict]] = None) -> None:
         """
         Initialize SimulatedLeague with configuration.
 
@@ -74,6 +76,7 @@ class SimulatedLeague:
             config_dict (dict): Configuration dictionary (will be saved as temp JSON)
             data_folder (Path): Path to folder containing weeks/ subfolder with
                                week-specific JSON player data and teams_week_N.csv files
+            preloaded_week_data (Optional[Dict[int, Dict]]): Pre-loaded week data from SimDataLoader. If provided, skips internal _preload_all_weeks() file reads.
 
         Raises:
             FileNotFoundError: If data files are missing
@@ -96,6 +99,9 @@ class SimulatedLeague:
         self.week_results: List[Week] = []
 
         self.week_data_cache: Dict[int, Dict] = {}
+
+        if preloaded_week_data is not None:
+            self.week_data_cache = preloaded_week_data
 
         self._preload_all_weeks()
 
@@ -238,6 +244,9 @@ class SimulatedLeague:
         Only loads data if historical structure (weeks/week_XX/) exists.
         Falls back gracefully if using legacy flat structure.
         """
+        if self.week_data_cache:
+            return
+
         weeks_folder = self.data_folder / "weeks"
 
         if not weeks_folder.exists():

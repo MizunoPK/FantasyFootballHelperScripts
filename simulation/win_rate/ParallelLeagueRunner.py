@@ -18,17 +18,22 @@ Author: Kai Mizuno
 
 from pathlib import Path
 from typing import Dict, Callable, Optional, Tuple, List
-from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor, Future, as_completed
+from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor, as_completed
+from concurrent.futures.process import BrokenProcessPool
 import threading
 import gc
-import multiprocessing
 
 from utils.LoggingManager import get_logger
 from simulation.win_rate.SimulatedLeague import SimulatedLeague
 
 
 GC_FREQUENCY = 5
+_WORKER_PRELOADED_WEEK_DATA: Optional[Dict[int, Dict]] = None
 
+
+def _init_worker_process(week_data: Optional[Dict[int, Dict]]) -> None:
+    global _WORKER_PRELOADED_WEEK_DATA
+    _WORKER_PRELOADED_WEEK_DATA = week_data
 
 
 def _run_simulation_process(args: Tuple[dict, int, Path]) -> Tuple[int, int, float]:
@@ -36,7 +41,9 @@ def _run_simulation_process(args: Tuple[dict, int, Path]) -> Tuple[int, int, flo
     Run a single simulation in a separate process.
 
     This is a module-level function required for ProcessPoolExecutor,
-    which cannot pickle instance methods.
+    which cannot pickle instance methods. preloaded_week_data is read
+    from the module-level _WORKER_PRELOADED_WEEK_DATA set once per
+    worker by _init_worker_process, avoiding per-simulation pickling.
 
     Args:
         args: Tuple of (config_dict, simulation_id, data_folder)
@@ -47,7 +54,7 @@ def _run_simulation_process(args: Tuple[dict, int, Path]) -> Tuple[int, int, flo
     config_dict, simulation_id, data_folder = args
     league = None
     try:
-        league = SimulatedLeague(config_dict, data_folder)
+        league = SimulatedLeague(config_dict, data_folder, _WORKER_PRELOADED_WEEK_DATA)
         league.run_draft()
         league.run_season()
         wins, losses, total_points = league.get_draft_helper_results()
@@ -63,6 +70,9 @@ def _run_simulation_with_weeks_process(args: Tuple[dict, int, Path]) -> List[Tup
     Run a single simulation with week tracking in a separate process.
 
     This is a module-level function required for ProcessPoolExecutor.
+    preloaded_week_data is read from the module-level
+    _WORKER_PRELOADED_WEEK_DATA set once per worker by
+    _init_worker_process, avoiding per-simulation pickling.
 
     Args:
         args: Tuple of (config_dict, simulation_id, data_folder)
@@ -74,7 +84,7 @@ def _run_simulation_with_weeks_process(args: Tuple[dict, int, Path]) -> List[Tup
     config_dict, simulation_id, data_folder = args
     league = None
     try:
-        league = SimulatedLeague(config_dict, data_folder)
+        league = SimulatedLeague(config_dict, data_folder, _WORKER_PRELOADED_WEEK_DATA)
         league.run_draft()
         league.run_season()
         week_results = league.get_draft_helper_results_by_week()
@@ -158,7 +168,8 @@ class ParallelLeagueRunner:
     def run_single_simulation(
         self,
         config_dict: dict,
-        simulation_id: int
+        simulation_id: int,
+        preloaded_week_data: Optional[Dict[int, Dict]] = None
     ) -> Tuple[int, int, float]:
         """
         Run a single league simulation (thread-safe).
@@ -169,6 +180,8 @@ class ParallelLeagueRunner:
         Args:
             config_dict (dict): Configuration dictionary for this simulation
             simulation_id (int): Unique ID for this simulation run
+            preloaded_week_data (Optional[Dict[int, Dict]]): Pre-loaded week data from
+                SimDataLoader. If provided, passed to SimulatedLeague to skip file reads.
 
         Returns:
             Tuple[int, int, float]: (wins, losses, total_points) for DraftHelperTeam
@@ -177,7 +190,7 @@ class ParallelLeagueRunner:
             Exception: Any exception during simulation is logged and re-raised
         """
         try:
-            league = SimulatedLeague(config_dict, self.data_folder)
+            league = SimulatedLeague(config_dict, self.data_folder, preloaded_week_data)
 
             league.run_draft()
             league.run_season()
@@ -196,7 +209,8 @@ class ParallelLeagueRunner:
     def run_single_simulation_with_weeks(
         self,
         config_dict: dict,
-        simulation_id: int
+        simulation_id: int,
+        preloaded_week_data: Optional[Dict[int, Dict]] = None
     ) -> List[Tuple[int, bool, float]]:
         """
         Run a single league simulation and return per-week results (thread-safe).
@@ -207,6 +221,8 @@ class ParallelLeagueRunner:
         Args:
             config_dict (dict): Configuration dictionary for this simulation
             simulation_id (int): Unique ID for this simulation run
+            preloaded_week_data (Optional[Dict[int, Dict]]): Pre-loaded week data from
+                SimDataLoader. If provided, passed to SimulatedLeague to skip file reads.
 
         Returns:
             List[Tuple[int, bool, float]]: Per-week results as list of
@@ -216,7 +232,7 @@ class ParallelLeagueRunner:
             Exception: Any exception during simulation is logged and re-raised
         """
         try:
-            league = SimulatedLeague(config_dict, self.data_folder)
+            league = SimulatedLeague(config_dict, self.data_folder, preloaded_week_data)
 
             league.run_draft()
             league.run_season()
@@ -235,7 +251,8 @@ class ParallelLeagueRunner:
     def run_simulations_for_config(
         self,
         config_dict: dict,
-        num_simulations: int
+        num_simulations: int,
+        preloaded_week_data: Optional[Dict[int, Dict]] = None
     ) -> list[Tuple[int, int, float]]:
         """
         Run multiple simulations for a single configuration in parallel.
@@ -246,6 +263,7 @@ class ParallelLeagueRunner:
         Args:
             config_dict (dict): Configuration dictionary
             num_simulations (int): Number of simulations to run
+            preloaded_week_data (Optional[Dict[int, Dict]]): Pre-loaded week data from SimDataLoader. If provided, skips per-simulation file reads.
 
         Returns:
             list[Tuple[int, int, float]]: List of (wins, losses, points) tuples
@@ -264,23 +282,29 @@ class ParallelLeagueRunner:
         completed_count = 0
 
         ExecutorClass = ProcessPoolExecutor if self.use_processes else ThreadPoolExecutor
+        """Win rate sim uses ThreadPoolExecutor (I/O-bound — disk reads dominate); accuracy sim uses ProcessPoolExecutor (CPU-bound — score computation dominates). ThreadPoolExecutor: lower overhead, sufficient for I/O-bound simulation setup; ProcessPoolExecutor: bypasses GIL for CPU-bound parallelism at the cost of pickling overhead and higher process-creation latency."""
+        if self.use_processes:
+            executor = ProcessPoolExecutor(
+                max_workers=self.max_workers,
+                initializer=_init_worker_process,
+                initargs=(preloaded_week_data,)
+            )
+            sim_args = [
+                (config_dict, sim_id, self.data_folder)
+                for sim_id in range(num_simulations)
+            ]
+            future_to_sim_id = {
+                executor.submit(_run_simulation_process, args): args[1]
+                for args in sim_args
+            }
+        else:
+            executor = ExecutorClass(max_workers=self.max_workers)
+            future_to_sim_id = {
+                executor.submit(self.run_single_simulation, config_dict, sim_id, preloaded_week_data): sim_id
+                for sim_id in range(num_simulations)
+            }
 
-        with ExecutorClass(max_workers=self.max_workers) as executor:
-            if self.use_processes:
-                sim_args = [
-                    (config_dict, sim_id, self.data_folder)
-                    for sim_id in range(num_simulations)
-                ]
-                future_to_sim_id = {
-                    executor.submit(_run_simulation_process, args): args[1]
-                    for args in sim_args
-                }
-            else:
-                future_to_sim_id = {
-                    executor.submit(self.run_single_simulation, config_dict, sim_id): sim_id
-                    for sim_id in range(num_simulations)
-                }
-
+        try:
             for future in as_completed(future_to_sim_id):
                 sim_id = future_to_sim_id[future]
 
@@ -297,8 +321,21 @@ class ParallelLeagueRunner:
                             gc.collect()
                             self.logger.debug(f"Forced GC after {completed_count} simulations")
 
+                except BrokenProcessPool:
+                    self.logger.error("Process pool crashed — stopping simulations")
+                    break
                 except Exception as e:
                     self.logger.error(f"Simulation {sim_id} failed: {e}")
+        except KeyboardInterrupt:
+            self.logger.warning("Simulation interrupted by user")
+            raise
+        finally:
+            executor.shutdown(wait=False, cancel_futures=True)
+
+        if len(results) < num_simulations:
+            self.logger.warning(
+                f"Only {len(results)}/{num_simulations} simulations completed"
+            )
 
         self.logger.debug(
             f"Completed {len(results)}/{num_simulations} simulations successfully"
@@ -309,7 +346,8 @@ class ParallelLeagueRunner:
     def run_simulations_for_config_with_weeks(
         self,
         config_dict: dict,
-        num_simulations: int
+        num_simulations: int,
+        preloaded_week_data: Optional[Dict[int, Dict]] = None
     ) -> list[List[Tuple[int, bool, float]]]:
         """
         Run multiple simulations for a single configuration with per-week tracking.
@@ -321,6 +359,7 @@ class ParallelLeagueRunner:
         Args:
             config_dict (dict): Configuration dictionary
             num_simulations (int): Number of simulations to run
+            preloaded_week_data (Optional[Dict[int, Dict]]): Pre-loaded week data from SimDataLoader. If provided, skips per-simulation file reads.
 
         Returns:
             list[List[Tuple[int, bool, float]]]: List of per-week results,
@@ -341,23 +380,29 @@ class ParallelLeagueRunner:
         completed_count = 0
 
         ExecutorClass = ProcessPoolExecutor if self.use_processes else ThreadPoolExecutor
+        """Win rate sim uses ThreadPoolExecutor (I/O-bound — disk reads dominate); accuracy sim uses ProcessPoolExecutor (CPU-bound — score computation dominates). ThreadPoolExecutor: lower overhead, sufficient for I/O-bound simulation setup; ProcessPoolExecutor: bypasses GIL for CPU-bound parallelism at the cost of pickling overhead and higher process-creation latency."""
+        if self.use_processes:
+            executor = ProcessPoolExecutor(
+                max_workers=self.max_workers,
+                initializer=_init_worker_process,
+                initargs=(preloaded_week_data,)
+            )
+            sim_args = [
+                (config_dict, sim_id, self.data_folder)
+                for sim_id in range(num_simulations)
+            ]
+            future_to_sim_id = {
+                executor.submit(_run_simulation_with_weeks_process, args): args[1]
+                for args in sim_args
+            }
+        else:
+            executor = ExecutorClass(max_workers=self.max_workers)
+            future_to_sim_id = {
+                executor.submit(self.run_single_simulation_with_weeks, config_dict, sim_id, preloaded_week_data): sim_id
+                for sim_id in range(num_simulations)
+            }
 
-        with ExecutorClass(max_workers=self.max_workers) as executor:
-            if self.use_processes:
-                sim_args = [
-                    (config_dict, sim_id, self.data_folder)
-                    for sim_id in range(num_simulations)
-                ]
-                future_to_sim_id = {
-                    executor.submit(_run_simulation_with_weeks_process, args): args[1]
-                    for args in sim_args
-                }
-            else:
-                future_to_sim_id = {
-                    executor.submit(self.run_single_simulation_with_weeks, config_dict, sim_id): sim_id
-                    for sim_id in range(num_simulations)
-                }
-
+        try:
             for future in as_completed(future_to_sim_id):
                 sim_id = future_to_sim_id[future]
 
@@ -374,8 +419,21 @@ class ParallelLeagueRunner:
                             gc.collect()
                             self.logger.debug(f"Forced GC after {completed_count} simulations")
 
+                except BrokenProcessPool:
+                    self.logger.error("Process pool crashed — stopping simulations")
+                    break
                 except Exception as e:
                     self.logger.error(f"Simulation {sim_id} failed: {e}")
+        except KeyboardInterrupt:
+            self.logger.warning("Simulation interrupted by user")
+            raise
+        finally:
+            executor.shutdown(wait=False, cancel_futures=True)
+
+        if len(results) < num_simulations:
+            self.logger.warning(
+                f"Only {len(results)}/{num_simulations} simulations completed"
+            )
 
         self.logger.debug(
             f"Completed {len(results)}/{num_simulations} simulations successfully (with weeks)"

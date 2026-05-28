@@ -19,7 +19,7 @@ class TestWinRateMetaDataManagerIntegration:
         """After update(), JSON file exists at meta_data_path and is valid JSON."""
         path = tmp_path / "win_rate_meta_data.json"
         manager = WinRateMetaDataManager(path)
-        manager.update("1_zero_rb.json", "Zero RB", 0.6)
+        manager.update("1_zero_rb.json", "Zero RB", 0.6, 6, 10)
         assert path.exists()
         data = json.loads(path.read_text())
         assert "strategies" in data
@@ -28,7 +28,7 @@ class TestWinRateMetaDataManagerIntegration:
         """JSON entry contains name, best_win_rate, total_runs, last_run — all correct."""
         path = tmp_path / "win_rate_meta_data.json"
         manager = WinRateMetaDataManager(path)
-        manager.update("1_zero_rb.json", "Zero RB", 0.6)
+        manager.update("1_zero_rb.json", "Zero RB", 0.6, 6, 10)
         data = json.loads(path.read_text())
         entry = data["strategies"]["1_zero_rb.json"]
         assert entry["name"] == "Zero RB"
@@ -40,8 +40,8 @@ class TestWinRateMetaDataManagerIntegration:
         """Second update: total_runs==2, best_win_rate unchanged when new rate is lower."""
         path = tmp_path / "win_rate_meta_data.json"
         manager = WinRateMetaDataManager(path)
-        manager.update("1_zero_rb.json", "Zero RB", 0.6)
-        manager.update("1_zero_rb.json", "Zero RB", 0.5)
+        manager.update("1_zero_rb.json", "Zero RB", 0.6, 6, 10)
+        manager.update("1_zero_rb.json", "Zero RB", 0.5, 5, 10)
         entry = manager.get_all_strategies()["1_zero_rb.json"]
         assert entry["total_runs"] == 2
         assert entry["best_win_rate"] == 0.6
@@ -50,6 +50,6 @@ class TestWinRateMetaDataManagerIntegration:
         """get_all_strategies() return matches the strategies dict in the JSON file on disk."""
         path = tmp_path / "win_rate_meta_data.json"
         manager = WinRateMetaDataManager(path)
-        manager.update("1_zero_rb.json", "Zero RB", 0.6)
+        manager.update("1_zero_rb.json", "Zero RB", 0.6, 6, 10)
         data = json.loads(path.read_text())
         assert manager.get_all_strategies() == data["strategies"]

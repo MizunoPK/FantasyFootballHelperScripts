@@ -31,6 +31,7 @@ def _build_parser() -> argparse.ArgumentParser:
         "--workers", type=int, default=8, metavar="N",
         help="Max parallel worker threads for ParallelLeagueRunner (default: 8)"
     )
+    """Win rate sim uses ThreadPoolExecutor (I/O-bound — disk reads dominate); accuracy sim uses ProcessPoolExecutor (CPU-bound — score computation dominates). Use --workers to tune thread parallelism. ProcessPoolExecutor (use_processes=True on ParallelLeagueRunner) is available but adds process-creation overhead."""
     parser.add_argument(
         "--endless", action="store_true",
         help="Run continuously until KeyboardInterrupt"
@@ -48,6 +49,10 @@ def _build_parser() -> argparse.ArgumentParser:
         "--enable-log-file", action="store_true",
         help="Enable logging to file (default: console only)"
     )
+    parser.add_argument(
+        "--strategy", type=str, default=None, metavar="FILENAME",
+        help="Run only the named strategy file (exact basename match, e.g., '1_zero_rb.json'). Default: run all strategies."
+    )
     return parser
 
 
@@ -63,17 +68,21 @@ def _print_summary(meta_data_manager: WinRateMetaDataManager) -> None:
         reverse=True,
     )
     print("\nStrategy Win Rate Summary")
-    print("──────────────────────────────────────────────────────")
-    print("Rank  Strategy Name              Win Rate  Runs  Last Run")
-    print("────  ─────────────────────────  ────────  ────  ──────────")
+    print("──────────────────────────────────────────────────────────────")
+    print("Rank  Strategy Name              Win Rate  Cumul.  Runs  Last Run")
+    print("────  ─────────────────────────  ────────  ──────  ────  ──────────")
     for rank, (_, entry) in enumerate(sorted_entries, 1):
+        total_games = entry.get("total_games", 0)
+        total_wins = entry.get("total_wins", 0)
+        cumulative = total_wins / total_games if total_games > 0 else 0.0
         print(
             f"{rank:>4}  {entry['name']:<25}  "
             f"{entry.get('best_win_rate', 0.0):>8.3f}  "
+            f"{cumulative:>6.3f}  "
             f"{entry['total_runs']:>4}  "
             f"{entry.get('last_run', 'N/A')}"
         )
-    print("──────────────────────────────────────────────────────")
+    print("──────────────────────────────────────────────────────────────")
 
 
 def main() -> None:
@@ -96,11 +105,15 @@ def main() -> None:
         num_simulations=args.sims,
         max_workers=args.workers,
         meta_data_manager=meta_data_manager,
+        strategy_filter=args.strategy,
     )
 
+    pass_num = 0
     try:
         if args.endless:
             while True:
+                pass_num += 1
+                logger.info(f"--- Endless pass {pass_num} starting ---")
                 orchestrator.run()
                 _print_summary(meta_data_manager)
         else:
@@ -109,6 +122,9 @@ def main() -> None:
         logger.info("Received interrupt — exiting after current strategy")
         _print_summary(meta_data_manager)
         sys.exit(0)
+    except FileNotFoundError as e:
+        logger.error(str(e))
+        sys.exit(1)
 
     _print_summary(meta_data_manager)
 
