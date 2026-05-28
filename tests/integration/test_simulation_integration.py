@@ -101,7 +101,8 @@ def create_mock_historical_season(data_folder: Path, year: str = "2024") -> None
         }
 
         for filename, data in position_files.items():
-            (week_folder / filename).write_text(json.dumps(data, indent=2))
+            position_key = filename.removesuffix(".json")
+            (week_folder / filename).write_text(json.dumps({position_key: data}, indent=2))
 
 
 @pytest.fixture

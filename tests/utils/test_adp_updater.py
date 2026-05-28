@@ -229,12 +229,13 @@ class TestUpdatePlayerAdpValues:
 
             qb_path = week_folder / 'qb_data.json'
             with open(qb_path, 'w', encoding='utf-8') as f:
-                json.dump(qb_data, f, indent=2)
+                json.dump({"qb_data": qb_data}, f, indent=2)
 
             for pos_file in ['rb_data.json', 'wr_data.json', 'te_data.json', 'k_data.json', 'dst_data.json']:
+                pos_key = pos_file.removesuffix(".json")
                 pos_path = week_folder / pos_file
                 with open(pos_path, 'w', encoding='utf-8') as f:
-                    json.dump([], f)
+                    json.dump({pos_key: []}, f)
 
         return sim_data_folder
 
@@ -249,9 +250,11 @@ class TestUpdatePlayerAdpValues:
         with open(qb_path, 'r', encoding='utf-8') as f:
             qb_data = json.load(f)
 
-        assert isinstance(qb_data, list)
+        assert isinstance(qb_data, dict)
+        assert "qb_data" in qb_data
+        qb_players = qb_data["qb_data"]
 
-        mahomes = [p for p in qb_data if 'Mahomes' in p['name']][0]
+        mahomes = [p for p in qb_players if 'Mahomes' in p['name']][0]
         assert mahomes['average_draft_position'] == 15.5
 
     def test_unmatched_players_keep_170(self, sample_adp_df, test_sim_data_folder):
@@ -264,7 +267,8 @@ class TestUpdatePlayerAdpValues:
         with open(qb_path, 'r', encoding='utf-8') as f:
             qb_data = json.load(f)
 
-        unmatched = [p for p in qb_data if p['name'] == 'Unmatched QB'][0]
+        qb_players = qb_data["qb_data"]
+        unmatched = [p for p in qb_players if p['name'] == 'Unmatched QB'][0]
         assert unmatched['average_draft_position'] == 170.0
 
     def test_returns_comprehensive_report(self, sample_adp_df, test_sim_data_folder):
@@ -316,7 +320,8 @@ class TestUpdatePlayerAdpValues:
 
             with open(qb_path, 'r', encoding='utf-8') as f:
                 qb_data = json.load(f)
-            assert isinstance(qb_data, list)
+            assert isinstance(qb_data, dict)
+            assert "qb_data" in qb_data
 
     def test_updates_all_week_folders(self, sample_adp_df, test_sim_data_folder):
         """Test that all week folders are processed and updated (Task 12)"""
@@ -331,9 +336,10 @@ class TestUpdatePlayerAdpValues:
             with open(qb_path, 'r', encoding='utf-8') as f:
                 qb_data = json.load(f)
 
-            assert isinstance(qb_data, list)
+            assert isinstance(qb_data, dict)
+            qb_players = qb_data["qb_data"]
 
-            mahomes = [p for p in qb_data if 'Mahomes' in p['name']][0]
+            mahomes = [p for p in qb_players if 'Mahomes' in p['name']][0]
             assert mahomes['average_draft_position'] == 15.5
 
     def test_consistent_updates_across_weeks(self, sample_adp_df, test_sim_data_folder):
@@ -348,7 +354,8 @@ class TestUpdatePlayerAdpValues:
             with open(qb_path, 'r', encoding='utf-8') as f:
                 qb_data = json.load(f)
 
-            mahomes = [p for p in qb_data if 'Mahomes' in p['name']][0]
+            qb_players = qb_data["qb_data"]
+            mahomes = [p for p in qb_players if 'Mahomes' in p['name']][0]
             mahomes_adp_values.append(mahomes['average_draft_position'])
 
         assert len(set(mahomes_adp_values)) == 1

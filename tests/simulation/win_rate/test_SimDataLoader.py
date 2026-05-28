@@ -7,6 +7,12 @@ from simulation.win_rate.SimDataLoader import SimDataLoader, MIN_VALID_PLAYERS
 from simulation.win_rate.SimulatedLeague import SimulatedLeague, DRAFT_ROUNDS
 
 
+def _write_position_file(week_folder, position_file, players):
+    """Write a position JSON file in dict-wrapper format."""
+    key = position_file.removesuffix(".json")
+    (week_folder / position_file).write_text(json.dumps({key: players}))
+
+
 def _make_season_folder(tmp_path, n_valid=150, add_weeks=True, add_week_01=True):
     """Create a mock season folder with n_valid undrafted players in week_01."""
     if not add_weeks:
@@ -33,15 +39,15 @@ def _make_season_folder(tmp_path, n_valid=150, add_weeks=True, add_week_01=True)
         }
         for i in range(n_valid)
     ]
-    (week_01 / "rb_data.json").write_text(json.dumps(players))
+    _write_position_file(week_01, "rb_data.json", players)
     for pos in ["qb_data.json", "wr_data.json", "te_data.json", "k_data.json", "dst_data.json"]:
-        (week_01 / pos).write_text("[]")
+        _write_position_file(week_01, pos, [])
 
     week_02 = weeks / "week_02"
     week_02.mkdir()
-    (week_02 / "rb_data.json").write_text(json.dumps(players))
+    _write_position_file(week_02, "rb_data.json", players)
     for pos in ["qb_data.json", "wr_data.json", "te_data.json", "k_data.json", "dst_data.json"]:
-        (week_02 / pos).write_text("[]")
+        _write_position_file(week_02, pos, [])
 
     return tmp_path
 
@@ -111,9 +117,9 @@ class TestSimDataLoaderValidateSeasonData:
              "projected_points": [10.0], "actual_points": [8.0]}
             for i in range(200)
         ]
-        (weeks / "rb_data.json").write_text(json.dumps(players))
+        _write_position_file(weeks, "rb_data.json", players)
         for pos in ["qb_data.json", "wr_data.json", "te_data.json", "k_data.json", "dst_data.json"]:
-            (weeks / pos).write_text("[]")
+            _write_position_file(weeks, pos, [])
         loader = SimDataLoader(tmp_path)
         assert loader.is_valid is False
 
@@ -126,9 +132,9 @@ class TestSimDataLoaderValidateSeasonData:
              "projected_points": [0.0], "actual_points": [0.0]}
             for i in range(200)
         ]
-        (weeks / "rb_data.json").write_text(json.dumps(players))
+        _write_position_file(weeks, "rb_data.json", players)
         for pos in ["qb_data.json", "wr_data.json", "te_data.json", "k_data.json", "dst_data.json"]:
-            (weeks / pos).write_text("[]")
+            _write_position_file(weeks, pos, [])
         loader = SimDataLoader(tmp_path)
         assert loader.is_valid is False
 

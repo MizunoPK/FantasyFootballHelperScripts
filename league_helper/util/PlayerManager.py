@@ -305,8 +305,8 @@ class PlayerManager:
                 with open(filepath, 'r') as f:
                     json_data = json.load(f)
 
-                position_key = position_file.replace('.json', '')
-                players_array = json_data if isinstance(json_data, list) else json_data.get(position_key, [])
+                position_key = position_file.removesuffix('.json')
+                players_array = json_data.get(position_key, [])
 
                 for player_data in players_array:
                     try:

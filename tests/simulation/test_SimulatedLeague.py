@@ -625,10 +625,10 @@ class TestJSONLoading:
                 "actual_points": [28.0] * 17
             }
         ]
-        (week_folder / "qb_data.json").write_text(json.dumps(qb_data))
+        (week_folder / "qb_data.json").write_text(json.dumps({"qb_data": qb_data}))
 
         for pos in ['rb', 'wr', 'te', 'k', 'dst']:
-            (week_folder / f"{pos}_data.json").write_text("[]")
+            (week_folder / f"{pos}_data.json").write_text(json.dumps({f"{pos}_data": []}))
 
         from simulation.win_rate.SimulatedLeague import SimulatedLeague
 
@@ -669,10 +669,10 @@ class TestJSONLoading:
                 "actual_points": [9.0, 10.5, 11.5, 12.5, 13.5, 14.5, 15.5] + [0.0] * 10
             }
         ]
-        (week_folder / "rb_data.json").write_text(json.dumps(rb_data))
+        (week_folder / "rb_data.json").write_text(json.dumps({"rb_data": rb_data}))
 
         for pos in ['qb', 'wr', 'te', 'k', 'dst']:
-            (week_folder / f"{pos}_data.json").write_text("[]")
+            (week_folder / f"{pos}_data.json").write_text(json.dumps({f"{pos}_data": []}))
 
         from simulation.win_rate.SimulatedLeague import SimulatedLeague
 
@@ -718,10 +718,10 @@ class TestJSONLoading:
                 "actual_points": [13.0] * 17
             }
         ]
-        (week_folder / "wr_data.json").write_text(json.dumps(wr_data))
+        (week_folder / "wr_data.json").write_text(json.dumps({"wr_data": wr_data}))
 
         for pos in ['qb', 'rb', 'te', 'k', 'dst']:
-            (week_folder / f"{pos}_data.json").write_text("[]")
+            (week_folder / f"{pos}_data.json").write_text(json.dumps({f"{pos}_data": []}))
 
         from simulation.win_rate.SimulatedLeague import SimulatedLeague
 
@@ -760,7 +760,7 @@ class TestJSONLoading:
                     "actual_points": [11.0 + idx] * 17
                 }
             ]
-            (week_folder / f"{pos}_data.json").write_text(json.dumps(data))
+            (week_folder / f"{pos}_data.json").write_text(json.dumps({f"{pos}_data": data}))
 
         from simulation.win_rate.SimulatedLeague import SimulatedLeague
 
@@ -793,7 +793,7 @@ class TestJSONLoading:
 
         qb_data = [{"id": "12345", "name": "QB Test", "position": "QB", "drafted_by": "",
                     "locked": False, "projected_points": [10.0] * 17, "actual_points": [11.0] * 17}]
-        (week_folder / "qb_data.json").write_text(json.dumps(qb_data))
+        (week_folder / "qb_data.json").write_text(json.dumps({"qb_data": qb_data}))
 
         from simulation.win_rate.SimulatedLeague import SimulatedLeague
 
@@ -823,7 +823,7 @@ class TestJSONLoading:
         (week_folder / "qb_data.json").write_text("{invalid json syntax")
 
         for pos in ['rb', 'wr', 'te', 'k', 'dst']:
-            (week_folder / f"{pos}_data.json").write_text("[]")
+            (week_folder / f"{pos}_data.json").write_text(json.dumps({f"{pos}_data": []}))
 
         from simulation.win_rate.SimulatedLeague import SimulatedLeague
 
@@ -860,10 +860,10 @@ class TestJSONLoading:
                 "actual_points": []
             }
         ]
-        (week_folder / "te_data.json").write_text(json.dumps(te_data))
+        (week_folder / "te_data.json").write_text(json.dumps({"te_data": te_data}))
 
         for pos in ['qb', 'rb', 'wr', 'k', 'dst']:
-            (week_folder / f"{pos}_data.json").write_text("[]")
+            (week_folder / f"{pos}_data.json").write_text(json.dumps({f"{pos}_data": []}))
 
         from simulation.win_rate.SimulatedLeague import SimulatedLeague
 
@@ -896,10 +896,10 @@ class TestJSONLoading:
                 "position": "K"
             }
         ]
-        (week_folder / "k_data.json").write_text(json.dumps(k_data))
+        (week_folder / "k_data.json").write_text(json.dumps({"k_data": k_data}))
 
         for pos in ['qb', 'rb', 'wr', 'te', 'dst']:
-            (week_folder / f"{pos}_data.json").write_text("[]")
+            (week_folder / f"{pos}_data.json").write_text(json.dumps({f"{pos}_data": []}))
 
         from simulation.win_rate.SimulatedLeague import SimulatedLeague
 
@@ -961,12 +961,12 @@ class TestWeek17EdgeCase:
             }
         ]
 
-        (week_17 / "qb_data.json").write_text(json.dumps(week17_qb))
-        (week_18 / "qb_data.json").write_text(json.dumps(week18_qb))
+        (week_17 / "qb_data.json").write_text(json.dumps({"qb_data": week17_qb}))
+        (week_18 / "qb_data.json").write_text(json.dumps({"qb_data": week18_qb}))
 
         for pos in ['rb', 'wr', 'te', 'k', 'dst']:
-            (week_17 / f"{pos}_data.json").write_text("[]")
-            (week_18 / f"{pos}_data.json").write_text("[]")
+            (week_17 / f"{pos}_data.json").write_text(json.dumps({f"{pos}_data": []}))
+            (week_18 / f"{pos}_data.json").write_text(json.dumps({f"{pos}_data": []}))
 
         from simulation.win_rate.SimulatedLeague import SimulatedLeague
 
@@ -1010,10 +1010,10 @@ class TestWeek17EdgeCase:
                     "actual_points": [float(week_num + 0.5)] * 17
                 }
             ]
-            (week_folder / "qb_data.json").write_text(json.dumps(qb_data))
+            (week_folder / "qb_data.json").write_text(json.dumps({"qb_data": qb_data}))
 
             for pos in ['rb', 'wr', 'te', 'k', 'dst']:
-                (week_folder / f"{pos}_data.json").write_text("[]")
+                (week_folder / f"{pos}_data.json").write_text(json.dumps({f"{pos}_data": []}))
 
         from simulation.win_rate.SimulatedLeague import SimulatedLeague
 
@@ -1063,10 +1063,10 @@ class TestEdgeCaseBehavior:
                 "actual_points": [0.0] * 17
             }
         ]
-        (week_17 / "qb_data.json").write_text(json.dumps(qb_data))
+        (week_17 / "qb_data.json").write_text(json.dumps({"qb_data": qb_data}))
 
         for pos in ['rb', 'wr', 'te', 'k', 'dst']:
-            (week_17 / f"{pos}_data.json").write_text("[]")
+            (week_17 / f"{pos}_data.json").write_text(json.dumps({f"{pos}_data": []}))
 
         from simulation.win_rate.SimulatedLeague import SimulatedLeague
 
@@ -1105,10 +1105,10 @@ class TestEdgeCaseBehavior:
                 "actual_points": [4.5, 5.5, 6.5, 7.5, 8.5]
             }
         ]
-        (week_folder / "dst_data.json").write_text(json.dumps(dst_data))
+        (week_folder / "dst_data.json").write_text(json.dumps({"dst_data": dst_data}))
 
         for pos in ['qb', 'rb', 'wr', 'te', 'k']:
-            (week_folder / f"{pos}_data.json").write_text("[]")
+            (week_folder / f"{pos}_data.json").write_text(json.dumps({f"{pos}_data": []}))
 
         from simulation.win_rate.SimulatedLeague import SimulatedLeague
 

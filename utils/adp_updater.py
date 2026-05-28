@@ -281,13 +281,20 @@ def update_player_adp_values(
 
             try:
                 with open(json_path, 'r', encoding='utf-8') as f:
-                    players = json.load(f)
+                    json_data = json.load(f)
 
+                position_key = filename.removesuffix(".json")
+                if not isinstance(json_data, dict) or position_key not in json_data:
+                    raise ValueError(
+                        f"Unexpected JSON structure in {json_path}: "
+                        f"Expected dict-wrapper with key '{position_key}', "
+                        f"got {type(json_data).__name__}."
+                    )
+                players = json_data[position_key]
                 if not isinstance(players, list):
                     raise ValueError(
                         f"Unexpected JSON structure in {json_path}: "
-                        f"Expected direct array [], got {type(players).__name__}. "
-                        f"Simulation files should NOT have wrapper dict."
+                        f"'{position_key}' value must be a list, got {type(players).__name__}."
                     )
             except json.JSONDecodeError as e:
                 logger.error(f"Malformed JSON in {json_path}: {e}")
@@ -334,7 +341,7 @@ def update_player_adp_values(
             tmp_path = json_path.with_suffix('.tmp')
             try:
                 with open(tmp_path, 'w', encoding='utf-8') as f:
-                    json.dump(players, f, indent=2)
+                    json.dump({position_key: players}, f, indent=2)
 
                 tmp_path.replace(json_path)
             except PermissionError as e:

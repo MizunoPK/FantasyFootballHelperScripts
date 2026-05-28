@@ -77,7 +77,11 @@ class JSONSnapshotExporter:
         do not consult drafted-roster state.
         """
         self.logger = get_logger()
-        self._data_exporter = DataExporter(output_dir=str(Path.cwd()), load_drafted_data=False)
+        self._data_exporter = DataExporter(
+            output_dir=str(Path.cwd()),
+            current_nfl_week=REGULAR_SEASON_WEEKS + 1,
+            load_drafted_data=False,
+        )
 
     def _calculate_player_ratings(
         self,
@@ -280,10 +284,17 @@ class JSONSnapshotExporter:
             kicking_stats = self._data_exporter._extract_kicking_stats(adapter)
 
             result['kicking'] = {}
-            for stat_name, stat_array in kicking_stats.items():
-                if isinstance(stat_array, list):
+            for stat_name, stat_value in kicking_stats.items():
+                if isinstance(stat_value, dict):
+                    result['kicking'][stat_name] = {}
+                    for sub_name, sub_array in stat_value.items():
+                        if isinstance(sub_array, list):
+                            result['kicking'][stat_name][sub_name] = self._apply_point_in_time_logic(
+                                sub_array, current_week, "stat"
+                            )
+                elif isinstance(stat_value, list):
                     result['kicking'][stat_name] = self._apply_point_in_time_logic(
-                        stat_array, current_week, "stat"
+                        stat_value, current_week, "stat"
                     )
 
         elif player_data.position == 'DST':

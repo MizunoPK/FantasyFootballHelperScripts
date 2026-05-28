@@ -51,7 +51,8 @@ class TestWinRateSimulationE2E:
         for pos, (filename, id_offset, base_score, adp_start, adp_step) in pos_config.items():
             count = position_counts.get(pos, 1)
             players = self._make_players(pos, count, id_offset, base_score, adp_start, adp_step)
-            (week_dir / filename).write_text(json.dumps(players))
+            position_key = filename.removesuffix(".json")
+            (week_dir / filename).write_text(json.dumps({position_key: players}))
 
     def test_run_win_rate_simulation_e2e(self, tmp_path):
         data_folder = tmp_path / "sim_data"

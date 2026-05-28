@@ -80,7 +80,9 @@ class SimDataLoader:
                 try:
                     with open(json_file, "r", encoding="utf-8") as f:
                         data = json.load(f)
-                        for player_dict in data:
+                        position_key = position_file.removesuffix(".json")
+                        players_array = data.get(position_key, [])
+                        for player_dict in players_array:
                             drafted_by = player_dict.get("drafted_by", "")
                             projected_points = player_dict.get("projected_points", [])
                             fp_val = projected_points[0] if len(projected_points) > 0 else 0
@@ -190,7 +192,9 @@ class SimDataLoader:
                 self.logger.error(f"Malformed JSON in {position_file}: {e}")
                 continue
 
-            for player_dict in data:
+            position_key = position_file.removesuffix(".json")
+            players_array = data.get(position_key, [])
+            for player_dict in players_array:
                 try:
                     player_id = int(player_dict['id'])
 

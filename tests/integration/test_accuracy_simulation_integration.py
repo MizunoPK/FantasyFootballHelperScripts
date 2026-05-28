@@ -167,17 +167,17 @@ def create_mock_historical_season(data_folder: Path, year: str = "2024") -> None
     dst_data = []
 
     with open(player_data_folder / "qb_data.json", 'w') as f:
-        json.dump(qb_data, f, indent=2)
+        json.dump({"qb_data": qb_data}, f, indent=2)
     with open(player_data_folder / "rb_data.json", 'w') as f:
-        json.dump(rb_data, f, indent=2)
+        json.dump({"rb_data": rb_data}, f, indent=2)
     with open(player_data_folder / "wr_data.json", 'w') as f:
-        json.dump(wr_data, f, indent=2)
+        json.dump({"wr_data": wr_data}, f, indent=2)
     with open(player_data_folder / "te_data.json", 'w') as f:
-        json.dump(te_data, f, indent=2)
+        json.dump({"te_data": te_data}, f, indent=2)
     with open(player_data_folder / "k_data.json", 'w') as f:
-        json.dump(k_data, f, indent=2)
+        json.dump({"k_data": k_data}, f, indent=2)
     with open(player_data_folder / "dst_data.json", 'w') as f:
-        json.dump(dst_data, f, indent=2)
+        json.dump({"dst_data": dst_data}, f, indent=2)
 
     for week_num in range(1, 18):
         week_folder = weeks_folder / f"week_{week_num:02d}"
@@ -213,17 +213,17 @@ def create_mock_historical_season(data_folder: Path, year: str = "2024") -> None
                      "projected_points": build_week_points(12.0, True), "actual_points": build_week_points(12.0, False)}]
 
         with open(week_folder / "qb_data.json", 'w') as f:
-            json.dump(qb_week, f, indent=2)
+            json.dump({"qb_data": qb_week}, f, indent=2)
         with open(week_folder / "rb_data.json", 'w') as f:
-            json.dump(rb_week, f, indent=2)
+            json.dump({"rb_data": rb_week}, f, indent=2)
         with open(week_folder / "wr_data.json", 'w') as f:
-            json.dump(wr_week, f, indent=2)
+            json.dump({"wr_data": wr_week}, f, indent=2)
         with open(week_folder / "te_data.json", 'w') as f:
-            json.dump(te_week, f, indent=2)
+            json.dump({"te_data": te_week}, f, indent=2)
         with open(week_folder / "k_data.json", 'w') as f:
-            json.dump([], f, indent=2)
+            json.dump({"k_data": []}, f, indent=2)
         with open(week_folder / "dst_data.json", 'w') as f:
-            json.dump([], f, indent=2)
+            json.dump({"dst_data": []}, f, indent=2)
 
 
 @pytest.fixture

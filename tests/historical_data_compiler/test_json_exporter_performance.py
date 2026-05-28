@@ -11,6 +11,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from historical_data_compiler.json_exporter import generate_json_snapshots
 from historical_data_compiler.player_data_fetcher import PlayerData
+from historical_data_compiler.constants import REGULAR_SEASON_WEEKS
 
 
 def _make_player(position: str) -> PlayerData:
@@ -49,6 +50,7 @@ class TestJSONSnapshotExporterPerformance:
         assert mock_de.call_count == 1
         mock_de.assert_called_once_with(
             output_dir=str(Path.cwd()),
+            current_nfl_week=REGULAR_SEASON_WEEKS + 1,
             load_drafted_data=False,
         )
 

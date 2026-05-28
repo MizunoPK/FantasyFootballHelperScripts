@@ -96,17 +96,17 @@ def create_mock_historical_season_f05(data_folder: Path, year: str = "2024") -> 
                      "actual_points": _build_week_points(12.0, week_num, False)}]
 
         with open(week_folder / "qb_data.json", 'w') as f:
-            json.dump(qb_week, f, indent=2)
+            json.dump({"qb_data": qb_week}, f, indent=2)
         with open(week_folder / "rb_data.json", 'w') as f:
-            json.dump(rb_week, f, indent=2)
+            json.dump({"rb_data": rb_week}, f, indent=2)
         with open(week_folder / "wr_data.json", 'w') as f:
-            json.dump(wr_week, f, indent=2)
+            json.dump({"wr_data": wr_week}, f, indent=2)
         with open(week_folder / "te_data.json", 'w') as f:
-            json.dump(te_week, f, indent=2)
+            json.dump({"te_data": te_week}, f, indent=2)
         with open(week_folder / "k_data.json", 'w') as f:
-            json.dump([], f, indent=2)
+            json.dump({"k_data": []}, f, indent=2)
         with open(week_folder / "dst_data.json", 'w') as f:
-            json.dump([], f, indent=2)
+            json.dump({"dst_data": []}, f, indent=2)
 
 
 class TestEvaluateConfigTournamentProcess:

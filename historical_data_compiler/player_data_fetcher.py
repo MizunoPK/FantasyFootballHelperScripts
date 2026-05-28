@@ -370,7 +370,10 @@ class PlayerDataFetcher:
             injury_status=injury_status,
             week_points=week_points,
             projected_weeks=projected_weeks,
-            raw_stats=player_info.get('stats', [])
+            raw_stats=[
+                stat for stat in player_info.get('stats', [])
+                if isinstance(stat, dict) and stat.get('seasonId') == year
+            ]
         )
 
     async def _extract_weekly_points(

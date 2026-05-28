@@ -329,7 +329,9 @@ class SimulatedLeague:
                 self.logger.error(f"Malformed JSON in {position_file}: {e}")
                 continue
 
-            for player_dict in data:
+            position_key = position_file.removesuffix(".json")
+            players_array = data.get(position_key, [])
+            for player_dict in players_array:
                 try:
                     player_id = int(player_dict['id'])
 
