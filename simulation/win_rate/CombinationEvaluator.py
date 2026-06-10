@@ -15,6 +15,7 @@ Author: Kai Mizuno
 """
 
 # Standard library
+import copy
 from pathlib import Path
 from typing import Dict, Tuple
 
@@ -102,6 +103,11 @@ class CombinationEvaluator:
             f"CombinationEvaluator initialized: {len(self._season_cache)} valid season(s), "
             f"{num_simulations} sims/season, {max_workers} workers"
         )
+
+    @property
+    def base_config(self) -> dict:
+        """Return a deep copy of the base config (callers read only)."""
+        return copy.deepcopy(self._base_config)
 
     def evaluate(
         self,

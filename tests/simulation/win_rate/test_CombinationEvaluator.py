@@ -148,3 +148,10 @@ class TestCombinationEvaluator:
 
         assert ev._season_cache == {}
         assert mock_logger.warning.called
+
+    def test_base_config_returns_independent_deepcopy(self, tmp_path):
+        ev, _ = _make_evaluator(tmp_path, [(1, 1, 0.0)], num_seasons=1)
+        cfg = ev.base_config
+        assert cfg == ev._base_config
+        cfg["parameters"]["SAME_POS_BYE_WEIGHT"] = 999  # mutate the returned copy
+        assert ev._base_config["parameters"]["SAME_POS_BYE_WEIGHT"] != 999  # internal unaffected

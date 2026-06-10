@@ -157,3 +157,30 @@ class TestApplyDraftOverrides:
         from simulation.shared.ConfigGenerator import ConfigGenerator
         for name in DRAFT_PARAM_LOCATIONS:
             assert name in ConfigGenerator.PARAM_DEFINITIONS
+
+
+class TestExtractDraftParamValues:
+    """Tests for extract_draft_param_values."""
+
+    def test_extract_returns_seven_current_values(self, base_config):
+        from simulation.win_rate.config_overrides import extract_draft_param_values, DRAFT_PARAM_LOCATIONS
+        values = extract_draft_param_values(base_config)
+        assert set(values.keys()) == set(DRAFT_PARAM_LOCATIONS.keys())
+        assert values["DRAFT_NORMALIZATION_MAX_SCALE"] == 150
+        assert values["SAME_POS_BYE_WEIGHT"] == 0.07
+        assert values["PRIMARY_BONUS"] == 67
+        assert values["SECONDARY_BONUS"] == 69
+        assert values["ADP_SCORING_WEIGHT"] == 4.76
+        assert values["PLAYER_RATING_SCORING_WEIGHT"] == 3.52
+
+    def test_extract_then_apply_is_noop_for_params(self, base_config, new_draft_order):
+        # Applying the extracted current values back changes only DRAFT_ORDER.
+        from simulation.win_rate.config_overrides import extract_draft_param_values, apply_draft_overrides
+        current = extract_draft_param_values(base_config)
+        out = apply_draft_overrides(base_config, new_draft_order, current)
+        op = out["parameters"]
+        bp = base_config["parameters"]
+        assert op["DRAFT_ORDER"] == new_draft_order
+        assert op["DRAFT_ORDER_BONUSES"] == bp["DRAFT_ORDER_BONUSES"]
+        assert op["ADP_SCORING"]["WEIGHT"] == bp["ADP_SCORING"]["WEIGHT"]
+        assert op["DRAFT_NORMALIZATION_MAX_SCALE"] == bp["DRAFT_NORMALIZATION_MAX_SCALE"]

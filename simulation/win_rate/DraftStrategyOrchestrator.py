@@ -1,15 +1,13 @@
-import copy
 import json
 import time
 from pathlib import Path
 from typing import Dict, Optional
 
 from utils.LoggingManager import get_logger
-from utils.error_handler import create_component_error_handler, FileOperationError
-from league_helper.util.ConfigManager import ConfigManager
-from simulation.win_rate.ParallelLeagueRunner import ParallelLeagueRunner
+from utils.error_handler import create_component_error_handler
 from simulation.win_rate.WinRateMetaDataManager import WinRateMetaDataManager
-from simulation.win_rate.SimDataLoader import SimDataLoader
+from simulation.win_rate.CombinationEvaluator import CombinationEvaluator
+from simulation.win_rate.config_overrides import extract_draft_param_values
 
 logger = get_logger()
 _error_handler = create_component_error_handler("DraftStrategyOrchestrator")
@@ -56,29 +54,16 @@ class DraftStrategyOrchestrator:
         self._meta_data_manager = meta_data_manager
         self._strategy_filter = strategy_filter
 
-        try:
-            cm = ConfigManager(config_path.parent.parent)
-            self._base_config = {
-                "config_name": cm.config_name,
-                "description": cm.description,
-                "parameters": dict(cm.parameters),
-            }
-        except (FileNotFoundError, ValueError, json.JSONDecodeError) as e:
-            raise FileOperationError(f"Failed to load config from {config_path}: {e}") from e
-
-        self._runner = ParallelLeagueRunner(max_workers=max_workers, data_folder=data_folder)
-
-        self._seasons = sorted(data_folder.glob("20*/"))
-        if not self._seasons:
-            raise FileNotFoundError(
-                f"No historical season folders (20XX/) found in {data_folder}. "
-                "Run compile_historical_data.py first."
-            )
-
-        logger.info(
-            f"DraftStrategyOrchestrator initialized: {len(self._seasons)} seasons, "
-            f"{num_simulations} sims/season, {max_workers} workers"
+        self._evaluator = CombinationEvaluator(
+            data_folder=data_folder,
+            num_simulations=num_simulations,
+            max_workers=max_workers,
+            config_path=config_path,
         )
+        self._baseline_params: Dict[str, float] = extract_draft_param_values(
+            self._evaluator.base_config
+        )
+
         if self._num_simulations < LOW_SIM_THRESHOLD:
             logger.warning(
                 f"Running {self._num_simulations} simulations per strategy — results may be "
@@ -126,12 +111,6 @@ class DraftStrategyOrchestrator:
         total_strategies = len(strategy_files)
         skipped_count = 0
 
-        season_cache: Dict[Path, Dict[int, Dict]] = {}
-        for season_folder in self._seasons:
-            loader = SimDataLoader(season_folder)
-            if loader.is_valid:
-                season_cache[season_folder] = loader.week_data_cache
-
         for i, strategy_path in enumerate(strategy_files, 1):
             strategy_filename = strategy_path.name
 
@@ -163,24 +142,9 @@ class DraftStrategyOrchestrator:
             prior_data = self._meta_data_manager.get_all_strategies().get(strategy_filename, {})
             prior_best = prior_data.get("best_win_rate", -1.0)
 
-            config = copy.deepcopy(self._base_config)
-            config["parameters"]["DRAFT_ORDER"] = strategy_data["DRAFT_ORDER"]
-
-            total_wins = 0
-            total_losses = 0
-
-            for season_folder, week_data_cache in season_cache.items():
-                self._runner.set_data_folder(season_folder)
-                results = self._runner.run_simulations_for_config(
-                    config, self._num_simulations, preloaded_week_data=week_data_cache
-                )
-
-                for wins, losses, _ in results:
-                    total_wins += wins
-                    total_losses += losses
-
-            total_games = total_wins + total_losses
-            win_rate = total_wins / total_games if total_games > 0 else 0.0
+            total_wins, total_games, win_rate = self._evaluator.evaluate(
+                strategy_data["DRAFT_ORDER"], self._baseline_params
+            )
 
             self._meta_data_manager.update(strategy_filename, name, win_rate, total_wins, total_games)
 

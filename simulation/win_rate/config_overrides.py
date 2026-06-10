@@ -104,3 +104,24 @@ def apply_draft_overrides(
             params[section][leaf] = rounded
 
     return config
+
+
+def extract_draft_param_values(config: dict) -> Dict[str, float]:
+    """
+    Read the current value of each of the 7 draft-side params from a config.
+
+    The inverse of apply_draft_overrides: for each flat param name in
+    DRAFT_PARAM_LOCATIONS, read its value from config["parameters"] at the mapped
+    (section, leaf) location.
+
+    Args:
+        config: Full config dict containing a "parameters" object.
+
+    Returns:
+        Dict[str, float]: Each of the 7 flat param names mapped to its current value.
+    """
+    params = config["parameters"]
+    return {
+        name: (params[section] if leaf is None else params[section][leaf])
+        for name, (section, leaf) in DRAFT_PARAM_LOCATIONS.items()
+    }
