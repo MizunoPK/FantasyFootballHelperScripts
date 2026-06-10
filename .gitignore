@@ -3,6 +3,7 @@ league_helper/trade_simulator_mode/trade_outputs
 **/*intermediate*
 simulation/simulation_configs/archive
 simulation/sim_data/win_rate_meta_data.json
+simulation/sim_data/win_rate_sweep_results.json
 venv
 *.bak
 
