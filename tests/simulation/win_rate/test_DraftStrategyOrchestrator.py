@@ -49,9 +49,13 @@ class TestOrchestratorRouting:
         meta = Mock()
         meta.get_all_strategies.return_value = {}
         with patch(f"{MODULE}.CombinationEvaluator") as MockEval, \
-             patch.object(DraftStrategyOrchestrator, "_validate_strategy", return_value=True):
+             patch(f"{MODULE}.load_valid_strategies") as MockLoad:
             MockEval.return_value.base_config = _fake_base_config()
             MockEval.return_value.evaluate.return_value = (10, 17, 10 / 17)
+            MockLoad.return_value = (
+                [("1_t.json", [], "s1"), ("2_t.json", [], "s2")],
+                0
+            )
             orch = DraftStrategyOrchestrator(tmp_path, num_simulations=10, max_workers=2,
                                              meta_data_manager=meta)
             orch.run()

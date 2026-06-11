@@ -1,8 +1,9 @@
 ---
-Last Updated: 2026-06-09
+Last Updated: 2026-06-10
 Update History:
   - 2026-06-07: Initial creation (project initialization)
   - 2026-06-09: Added win_rate_sweep_results.json data store (story sweep-results-store)
+  - 2026-06-10: Noted run_win_rate_simulation.py --sweep multi-parameter mode in the optimization data-flow (story sweep-mode-cli)
 Update Triggers: |
   Update this document when:
   - New services, deployment units, or major components are added or removed
@@ -256,6 +257,7 @@ ESPN / Open-Meteo → compile_historical_data.py → simulation/sim_data/{year}/
 simulation/sim_data/{year}/ + data/configs (baseline)
    → run_accuracy_simulation.py (minimize MAE)  → accuracy_optimal_*/  → (optional --promote) → data/configs/
    → run_win_rate_simulation.py (maximize wins)  → win_rate_meta_data.json
+   → run_win_rate_simulation.py --sweep (multi-parameter tournament)  → win_rate_sweep_results.json
 ```
 
 For boundary-crossing flows in active stories, prefer a Mermaid diagram per `reference/mermaid_diagram_standards.md` and link it from the relevant story's `context.md`.
@@ -351,3 +353,4 @@ This is a **single-operator, local-only** tool; the security model reflects that
 ---
 Validated 2026-06-07 — 2 rounds, 1 adversarial sub-agent confirmed
 Touched 2026-06-09 — added win_rate_sweep_results.json data-stores row (story sweep-results-store); additive single-row change re-read for accuracy, no re-validation loop required
+Touched 2026-06-10 — added the `run_win_rate_simulation.py --sweep` line to the optimization data-flow (story sweep-mode-cli); additive single-line change re-read for accuracy
