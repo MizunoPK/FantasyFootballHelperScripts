@@ -213,7 +213,7 @@ All "stores" are local files. There is no database. Two file trees matter: the l
 
 | Store | Type | Role | Readers | Writers | Schema owner | Notes |
 |-------|------|------|---------|---------|--------------|-------|
-| `data/configs/league_config.json` | JSON | Base scoring config (primary) | League Helper, Simulation (baseline) | Operator; Accuracy sim `--promote` | `ConfigManager` | UPPER_SNAKE_CASE params under `parameters` |
+| `data/configs/league_config.json` | JSON | Base scoring config (primary) | League Helper, Simulation (baseline) | Operator; Accuracy sim `--promote`; Win-rate sim `--promote` | `ConfigManager` | UPPER_SNAKE_CASE params under `parameters` |
 | `data/configs/week{range}.json` | JSON | Per-week-range scoring overrides | League Helper, Simulation | Operator; Accuracy sim `--promote` | `ConfigManager` | Ranges: 1-5, 6-9, 10-13, 14-17 |
 | `data/player_data/{pos}_data.json` | JSON | Current-season player data (per position: qb/rb/wr/te/k/dst) | League Helper | Player Data Fetcher | `player_data_exporter` | Week-by-week projected + actual points |
 | `data/team_data/{TEAM}.csv` | CSV | Per-team weekly defensive/quality stats (32 teams) | League Helper (`TeamDataManager`) | Player Data Fetcher | `player_data_exporter` | One file per NFL team |
