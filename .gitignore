@@ -230,6 +230,6 @@ feature-updates/guides_v2/audit/outputs/
 
 
 simulation/sim_data/win_rate_meta_data.json
-.shamt
+.shamt-core
 CLAUDE.md
 data/team_rankings_cache_*.json

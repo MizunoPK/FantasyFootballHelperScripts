@@ -1,8 +1,8 @@
 {
-  "config_name": "Accuracy Optimal week6-9 (2026-06-05_11-19-29)",
-  "description": "Weeks 6-9 prediction parameters",
+  "config_name": "Accuracy Optimal week10-13 (2026-06-08_17-51-22)",
+  "description": "Weeks 10-13 prediction parameters",
   "parameters": {
-    "NORMALIZATION_MAX_SCALE": 190,
+    "NORMALIZATION_MAX_SCALE": 62,
     "TEAM_QUALITY_SCORING": {
       "MIN_WEEKS": 1,
       "THRESHOLDS": {
@@ -19,7 +19,7 @@
       "WEIGHT": 0.0
     },
     "PERFORMANCE_SCORING": {
-      "MIN_WEEKS": 1,
+      "MIN_WEEKS": 5,
       "THRESHOLDS": {
         "BASE_POSITION": 0.0,
         "DIRECTION": "BI_EXCELLENT_HI",
@@ -31,7 +31,7 @@
         "GOOD": 1.025,
         "EXCELLENT": 1.05
       },
-      "WEIGHT": 0.01
+      "WEIGHT": 0.21
     },
     "MATCHUP_SCORING": {
       "MIN_WEEKS": 10,
@@ -66,8 +66,8 @@
       "WEIGHT": 0.14
     },
     "TEMPERATURE_SCORING": {
-      "IMPACT_SCALE": 5,
-      "WEIGHT": 0.02,
+      "IMPACT_SCALE": 148,
+      "WEIGHT": 0.05,
       "THRESHOLDS": {
         "BASE_POSITION": 0,
         "DIRECTION": "DECREASING",
@@ -82,8 +82,8 @@
       }
     },
     "WIND_SCORING": {
-      "IMPACT_SCALE": 129,
-      "WEIGHT": 0.94,
+      "IMPACT_SCALE": 150,
+      "WEIGHT": 0.68,
       "THRESHOLDS": {
         "BASE_POSITION": 0,
         "DIRECTION": "DECREASING",
@@ -97,9 +97,23 @@
       }
     },
     "LOCATION_MODIFIERS": {
-      "HOME": 3.6,
-      "AWAY": 4.3,
-      "INTERNATIONAL": -7.2
+      "HOME": 4.5,
+      "AWAY": 3.6,
+      "INTERNATIONAL": -0.6
+    }
+  },
+  "performance_metrics": {
+    "mae": 4.597725583955005,
+    "player_count": 6145,
+    "total_error": 28253.023713403505,
+    "config_value": 62,
+    "timestamp": "2026-06-08T17:30:54.825243",
+    "ranking_metrics": {
+      "pairwise_accuracy": 0.6244984537070319,
+      "top_5_accuracy": 0.3166666666666667,
+      "top_10_accuracy": 0.47833333333333333,
+      "top_20_accuracy": 0.6641666666666667,
+      "spearman_correlation": 0.3649847521230706
     }
   }
 }

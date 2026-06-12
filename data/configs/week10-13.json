@@ -1,24 +1,10 @@
 {
-  "config_name": "Week 10-13 Config",
-  "description": "Week-specific params for weeks 10-13",
+  "config_name": "Accuracy Optimal week10-13 (2026-06-05_11-19-29)",
+  "description": "Weeks 10-13 prediction parameters",
   "parameters": {
-    "NORMALIZATION_MAX_SCALE": 143,
-    "PLAYER_RATING_SCORING": {
-      "THRESHOLDS": {
-        "BASE_POSITION": 0,
-        "DIRECTION": "INCREASING",
-        "STEPS": 20
-      },
-      "MULTIPLIERS": {
-        "VERY_POOR": 0.95,
-        "POOR": 0.975,
-        "GOOD": 1.025,
-        "EXCELLENT": 1.05
-      },
-      "WEIGHT": 1.8
-    },
+    "NORMALIZATION_MAX_SCALE": 62,
     "TEAM_QUALITY_SCORING": {
-      "MIN_WEEKS": 3,
+      "MIN_WEEKS": 1,
       "THRESHOLDS": {
         "BASE_POSITION": 0,
         "DIRECTION": "DECREASING",
@@ -30,14 +16,14 @@
         "GOOD": 1.025,
         "EXCELLENT": 1.05
       },
-      "WEIGHT": 2.77
+      "WEIGHT": 0.0
     },
     "PERFORMANCE_SCORING": {
-      "MIN_WEEKS": 2,
+      "MIN_WEEKS": 5,
       "THRESHOLDS": {
         "BASE_POSITION": 0.0,
         "DIRECTION": "BI_EXCELLENT_HI",
-        "STEPS": 0.18
+        "STEPS": 0.1
       },
       "MULTIPLIERS": {
         "VERY_POOR": 0.95,
@@ -45,11 +31,11 @@
         "GOOD": 1.025,
         "EXCELLENT": 1.05
       },
-      "WEIGHT": 3.55
+      "WEIGHT": 0.21
     },
     "MATCHUP_SCORING": {
-      "MIN_WEEKS": 3,
-      "IMPACT_SCALE": 156,
+      "MIN_WEEKS": 10,
+      "IMPACT_SCALE": 98,
       "THRESHOLDS": {
         "BASE_POSITION": 0,
         "DIRECTION": "INCREASING",
@@ -61,11 +47,11 @@
         "GOOD": 1.025,
         "EXCELLENT": 1.05
       },
-      "WEIGHT": 1.62
+      "WEIGHT": 0.14
     },
     "SCHEDULE_SCORING": {
-      "MIN_WEEKS": 5,
-      "IMPACT_SCALE": 127.18395086042469,
+      "MIN_WEEKS": 10,
+      "IMPACT_SCALE": 98,
       "THRESHOLDS": {
         "BASE_POSITION": 16,
         "DIRECTION": "BI_EXCELLENT_HI",
@@ -77,11 +63,11 @@
         "GOOD": 1.025,
         "EXCELLENT": 1.05
       },
-      "WEIGHT": 0.9141034145521472
+      "WEIGHT": 0.14
     },
     "TEMPERATURE_SCORING": {
-      "IMPACT_SCALE": 23,
-      "WEIGHT": 0.81,
+      "IMPACT_SCALE": 148,
+      "WEIGHT": 0.05,
       "THRESHOLDS": {
         "BASE_POSITION": 0,
         "DIRECTION": "DECREASING",
@@ -96,8 +82,8 @@
       }
     },
     "WIND_SCORING": {
-      "IMPACT_SCALE": 71,
-      "WEIGHT": 1.23,
+      "IMPACT_SCALE": 150,
+      "WEIGHT": 0.68,
       "THRESHOLDS": {
         "BASE_POSITION": 0,
         "DIRECTION": "DECREASING",
@@ -111,9 +97,9 @@
       }
     },
     "LOCATION_MODIFIERS": {
-      "HOME": 3.8,
-      "AWAY": -1.8,
-      "INTERNATIONAL": -13.8
+      "HOME": 4.5,
+      "AWAY": 3.6,
+      "INTERNATIONAL": -0.6
     }
   }
 }

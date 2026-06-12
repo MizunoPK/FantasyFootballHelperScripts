@@ -2,7 +2,7 @@
   "config_name": "Optimal Base Config (20251210_024739)",
   "description": "Optimized base parameters for all weeks",
   "parameters": {
-    "CURRENT_NFL_WEEK": 17,
+    "CURRENT_NFL_WEEK": 16,
     "NFL_SEASON": 2025,
     "NFL_SCORING_FORMAT": "ppr",
     "SAME_POS_BYE_WEIGHT": 0.07,
@@ -82,8 +82,8 @@
       "QB": 2,
       "RB": 4,
       "WR": 4,
-      "FLEX": 1,
-      "TE": 2,
+      "FLEX": 2,
+      "TE": 1,
       "K": 1,
       "DST": 1
     },
@@ -120,5 +120,16 @@
       "WEIGHT": 3.52
     },
     "DRAFT_NORMALIZATION_MAX_SCALE": 150
+
+  },
+  "performance_metrics": {
+    "overall_win_rate": 0.7320261437908496,
+    "total_wins": 112,
+    "total_losses": 41,
+    "config_id": "LOCATION_INTERNATIONAL_17",
+    "total_parameters_optimized": 23,
+    "total_configs_tested": 575,
+    "optimization_time_seconds": 16373.80331492424,
+    "timestamp": "20251210_024739"
   }
 }

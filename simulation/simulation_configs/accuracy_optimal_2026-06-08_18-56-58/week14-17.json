@@ -1,8 +1,8 @@
 {
-  "config_name": "Accuracy Optimal week6-9 (2026-06-05_11-19-29)",
-  "description": "Weeks 6-9 prediction parameters",
+  "config_name": "Accuracy Optimal week14-17 (2026-06-08_18-56-58)",
+  "description": "Weeks 14-17 prediction parameters",
   "parameters": {
-    "NORMALIZATION_MAX_SCALE": 190,
+    "NORMALIZATION_MAX_SCALE": 63,
     "TEAM_QUALITY_SCORING": {
       "MIN_WEEKS": 1,
       "THRESHOLDS": {
@@ -31,11 +31,11 @@
         "GOOD": 1.025,
         "EXCELLENT": 1.05
       },
-      "WEIGHT": 0.01
+      "WEIGHT": 0.04
     },
     "MATCHUP_SCORING": {
       "MIN_WEEKS": 10,
-      "IMPACT_SCALE": 98,
+      "IMPACT_SCALE": 88,
       "THRESHOLDS": {
         "BASE_POSITION": 0,
         "DIRECTION": "INCREASING",
@@ -51,7 +51,7 @@
     },
     "SCHEDULE_SCORING": {
       "MIN_WEEKS": 10,
-      "IMPACT_SCALE": 98,
+      "IMPACT_SCALE": 88,
       "THRESHOLDS": {
         "BASE_POSITION": 16,
         "DIRECTION": "BI_EXCELLENT_HI",
@@ -66,8 +66,8 @@
       "WEIGHT": 0.14
     },
     "TEMPERATURE_SCORING": {
-      "IMPACT_SCALE": 5,
-      "WEIGHT": 0.02,
+      "IMPACT_SCALE": 135,
+      "WEIGHT": 0.27,
       "THRESHOLDS": {
         "BASE_POSITION": 0,
         "DIRECTION": "DECREASING",
@@ -82,8 +82,8 @@
       }
     },
     "WIND_SCORING": {
-      "IMPACT_SCALE": 129,
-      "WEIGHT": 0.94,
+      "IMPACT_SCALE": 36,
+      "WEIGHT": 0.28,
       "THRESHOLDS": {
         "BASE_POSITION": 0,
         "DIRECTION": "DECREASING",
@@ -97,9 +97,23 @@
       }
     },
     "LOCATION_MODIFIERS": {
-      "HOME": 3.6,
-      "AWAY": 4.3,
-      "INTERNATIONAL": -7.2
+      "HOME": 5.5,
+      "AWAY": 4.2,
+      "INTERNATIONAL": -3.7
+    }
+  },
+  "performance_metrics": {
+    "mae": 4.691023847327251,
+    "player_count": 6553,
+    "total_error": 30740.27927153548,
+    "config_value": 63,
+    "timestamp": "2026-06-08T18:36:27.507314",
+    "ranking_metrics": {
+      "pairwise_accuracy": 0.6349263149325571,
+      "top_5_accuracy": 0.31,
+      "top_10_accuracy": 0.4508333333333333,
+      "top_20_accuracy": 0.6725,
+      "spearman_correlation": 0.393144497215271
     }
   }
 }

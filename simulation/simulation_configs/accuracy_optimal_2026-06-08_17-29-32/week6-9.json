@@ -1,5 +1,5 @@
 {
-  "config_name": "Accuracy Optimal week6-9 (2026-06-05_11-19-29)",
+  "config_name": "Accuracy Optimal week6-9 (2026-06-08_17-29-32)",
   "description": "Weeks 6-9 prediction parameters",
   "parameters": {
     "NORMALIZATION_MAX_SCALE": 190,
@@ -100,6 +100,20 @@
       "HOME": 3.6,
       "AWAY": 4.3,
       "INTERNATIONAL": -7.2
+    }
+  },
+  "performance_metrics": {
+    "mae": 4.465032535072758,
+    "player_count": 6042,
+    "total_error": 26977.726576909605,
+    "config_value": 190,
+    "timestamp": "2026-06-08T17:08:40.288940",
+    "ranking_metrics": {
+      "pairwise_accuracy": 0.6316825381081895,
+      "top_5_accuracy": 0.30833333333333335,
+      "top_10_accuracy": 0.4925,
+      "top_20_accuracy": 0.6858333333333333,
+      "spearman_correlation": 0.3888043896129424
     }
   }
 }
