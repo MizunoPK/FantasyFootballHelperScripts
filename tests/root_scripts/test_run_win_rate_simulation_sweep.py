@@ -21,7 +21,7 @@ def _sweep_args(tmp_path):
     return Namespace(
         data=str(tmp_path), sims=10, workers=2, endless=False, strategy=None,
         log_level="INFO", enable_log_file=False, sweep=True,
-        budget_hours=8.0, top_n=20, calib_sims=2,
+        budget_hours=8.0, top_n=20, calib_sims=2, promote=False,
     )
 
 

@@ -258,6 +258,7 @@ simulation/sim_data/{year}/ + data/configs (baseline)
    → run_accuracy_simulation.py (minimize MAE)  → accuracy_optimal_*/  → (optional --promote) → data/configs/
    → run_win_rate_simulation.py (maximize wins)  → win_rate_meta_data.json
    → run_win_rate_simulation.py --sweep (multi-parameter tournament)  → win_rate_sweep_results.json
+   → run_win_rate_simulation.py --promote (best combination)  → win_rate_sweep_results.json → data/configs/league_config.json
 ```
 
 For boundary-crossing flows in active stories, prefer a Mermaid diagram per `reference/mermaid_diagram_standards.md` and link it from the relevant story's `context.md`.
@@ -354,3 +355,4 @@ This is a **single-operator, local-only** tool; the security model reflects that
 Validated 2026-06-07 — 2 rounds, 1 adversarial sub-agent confirmed
 Touched 2026-06-09 — added win_rate_sweep_results.json data-stores row (story sweep-results-store); additive single-row change re-read for accuracy, no re-validation loop required
 Touched 2026-06-10 — added the `run_win_rate_simulation.py --sweep` line to the optimization data-flow (story sweep-mode-cli); additive single-line change re-read for accuracy
+Touched 2026-06-11 — added `Win-rate sim --promote` to the league_config.json writers column (story config-promoter) and the `run_win_rate_simulation.py --promote` line to the optimization data-flow (story promote-cli); additive changes re-read for accuracy

@@ -20,6 +20,8 @@ from simulation.win_rate.SweepTournament import SweepTournament
 from simulation.win_rate.config_overrides import extract_draft_param_values
 from simulation.win_rate.budget_sizing import measure_unit_cost, compute_sizing
 from simulation.win_rate.sweep_summary import rank_combinations, format_summary
+from simulation.win_rate.config_promoter import promote_best_combination
+from utils.error_handler import ConfigurationError, FileOperationError
 
 LOG_NAME = "win_rate_simulation"
 
@@ -76,6 +78,12 @@ def _build_parser() -> argparse.ArgumentParser:
         "--calib-sims", type=int, default=2, metavar="N",
         help="Simulations used for the per-sim cost calibration before a sweep (default: 2). Sweep mode only."
     )
+    parser.add_argument(
+        "--promote", action="store_true",
+        help="Promote the best-ranked sweep combination into data/configs/league_config.json. "
+             "Alone: promote from the existing sweep results. With --sweep: run the sweep, then promote "
+             "its winner. Incompatible with --endless."
+    )
     return parser
 
 
@@ -123,8 +131,21 @@ def main() -> None:
 
     data_folder = Path(args.data)
 
+    if args.promote and args.endless:
+        logger.error(
+            "--promote cannot be combined with --endless: an endless sweep never "
+            "terminates to promote. Run the sweep, then --promote separately."
+        )
+        sys.exit(2)
+
     if args.sweep:
         _run_sweep_mode(args, data_folder, logger)
+        if args.promote:
+            _run_promote_mode(data_folder, logger)
+        return
+
+    if args.promote:
+        _run_promote_mode(data_folder, logger)
         return
 
     meta_data_manager = WinRateMetaDataManager(data_folder / "win_rate_meta_data.json")
@@ -204,6 +225,29 @@ def _run_sweep_mode(args: argparse.Namespace, data_folder: Path, logger) -> None
         logger.info("Received interrupt — exiting after current pass")
         print(format_summary(rank_combinations(store.get_all_combinations(), args.top_n)))
         sys.exit(0)
+
+
+def _run_promote_mode(data_folder: Path, logger) -> None:
+    """Promote the best sweep combination into league_config.json and report the result."""
+    store = SweepResultsManager(data_folder / "win_rate_sweep_results.json")
+    try:
+        result = promote_best_combination(store, data_folder)
+    except (ConfigurationError, FileOperationError) as e:
+        logger.error(f"Promotion failed: {e}")
+        sys.exit(1)
+    _print_promotion(result)
+
+
+def _print_promotion(result: dict) -> None:
+    """Print a human-readable report of what was promoted to league_config.json."""
+    print("\nPromoted best combination to data/configs/league_config.json")
+    print("──────────────────────────────────────────────────────────────")
+    print(f"  Strategy:  {result['strategy_id']}")
+    print(f"  Win rate:  {result['win_rate']:.3f} over {result['games']} games")
+    print("  Parameters:")
+    for name, value in result["param_values"].items():
+        print(f"    {name}: {value}")
+    print("──────────────────────────────────────────────────────────────")
 
 
 if __name__ == "__main__":
