@@ -50,33 +50,50 @@ def _store(tmp_path, name="win_rate_sweep_results.json"):
 
 
 class TestSweepTournament:
-    """Tests for SweepTournament.run."""
+    """Tests for SweepTournament.run (per-config convergent coordinate ascent)."""
 
-    def test_locks_best_strategy(self, tmp_path):
-        # s2's draft_order scores highest at baseline.
+    def test_tunes_every_config_independently(self, tmp_path):
+        # Each config's win rate depends on its own draft_order; every config is tuned.
         ev = _evaluator(lambda do, pv: 0.9 if do == [{"s": "2"}] else 0.5)
         t = SweepTournament(ev, _store(tmp_path))
         result = t.run(
             [("s1", [{"s": "1"}]), ("s2", [{"s": "2"}]), ("s3", [{"s": "3"}])],
             _baseline(),
         )
-        assert result["strategy_id"] == "s2"
+        assert set(result.keys()) == {"s1", "s2", "s3"}
+        for entry in result.values():
+            assert set(entry.keys()) == {"param_values", "win_rate"}
+            assert set(entry["param_values"].keys()) == set(DRAFT_SWEEP_PARAMS)
 
     def test_sweeps_and_selects_best_value(self, tmp_path):
-        # Higher PRIMARY_BONUS -> higher win rate; greedy should keep the max candidate.
+        # Higher PRIMARY_BONUS -> higher win rate (scaled so each step clears epsilon).
+        # Coordinate ascent should converge on the max candidate for PRIMARY_BONUS.
         ev = _evaluator(lambda do, pv: pv["PRIMARY_BONUS"] / 200.0)
         t = SweepTournament(ev, _store(tmp_path))
         result = t.run([("s1", [{"s": "1"}])], _baseline())
         max_candidate = max(generate_candidate_values(_baseline(), 5)["PRIMARY_BONUS"])
-        assert result["param_values"]["PRIMARY_BONUS"] == max_candidate
+        assert result["s1"]["param_values"]["PRIMARY_BONUS"] == max_candidate
 
-    def test_run_returns_converged_best(self, tmp_path):
+    def test_epsilon_gate_blocks_submargin_gain(self, tmp_path):
+        # Baseline scores 0.50; every non-baseline candidate scores 0.502 — a 0.002 gain,
+        # below default epsilon=0.005, so the strict ε-gate adopts nothing.
+        baseline = _baseline()
+
+        def rate_fn(do, pv):
+            return 0.50 if pv == baseline else 0.502
+
+        t = SweepTournament(_evaluator(rate_fn), _store(tmp_path))
+        result = t.run([("s1", [{"s": "1"}])], baseline)
+        assert result["s1"]["param_values"] == baseline
+
+    def test_converges_on_flat_landscape(self, tmp_path):
+        # Constant win rate -> no candidate ever beats the best by more than epsilon, so a
+        # full pass moves nothing and the loop terminates at the baseline.
         ev = _evaluator(lambda do, pv: 0.6)
         t = SweepTournament(ev, _store(tmp_path))
-        result = t.run([("s1", [{"s": "1"}])], _baseline())
-        assert set(result.keys()) == {"strategy_id", "param_values", "win_rate"}
-        assert result["strategy_id"] == "s1"
-        assert set(result["param_values"].keys()) == set(DRAFT_SWEEP_PARAMS)
+        result = t.run([("s1", [{"s": "1"}]), ("s2", [{"s": "2"}])], _baseline())
+        for entry in result.values():
+            assert entry["param_values"] == _baseline()
 
     def test_records_all_evaluations_to_store(self, tmp_path):
         ev = _evaluator(lambda do, pv: 0.6)
@@ -85,7 +102,7 @@ class TestSweepTournament:
         t.run([("s1", [{"s": "1"}]), ("s2", [{"s": "2"}])], _baseline())
         combos = store.get_all_combinations()
         assert len(combos) > 0
-        # Both strategies were evaluated at baseline -> both appear.
+        # Both configs were evaluated -> both strategy_ids appear in the store.
         strategy_ids = {entry["strategy_id"] for entry in combos.values()}
         assert {"s1", "s2"} <= strategy_ids
 
