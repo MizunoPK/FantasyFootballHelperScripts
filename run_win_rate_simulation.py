@@ -18,7 +18,6 @@ from simulation.win_rate.CombinationEvaluator import CombinationEvaluator
 from simulation.win_rate.SweepResultsManager import SweepResultsManager
 from simulation.win_rate.SweepTournament import SweepTournament
 from simulation.win_rate.config_overrides import extract_draft_param_values
-from simulation.win_rate.budget_sizing import measure_unit_cost, compute_sizing
 from simulation.win_rate.sweep_summary import rank_combinations, format_summary
 from simulation.win_rate.config_promoter import promote_best_combination
 from utils.error_handler import ConfigurationError, FileOperationError
@@ -67,16 +66,12 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Run the multi-parameter sweep (strategy + 7 draft-side params) instead of strategy-only mode."
     )
     parser.add_argument(
-        "--budget-hours", type=float, default=8.0, metavar="H",
-        help="Overnight wall-time budget for a sweep pass in hours (default: 8.0). Sweep mode only."
-    )
-    parser.add_argument(
         "--top-n", type=int, default=20, metavar="N",
         help="Number of top combinations to show in the sweep summary (default: 20). Sweep mode only."
     )
     parser.add_argument(
-        "--calib-sims", type=int, default=2, metavar="N",
-        help="Simulations used for the per-sim cost calibration before a sweep (default: 2). Sweep mode only."
+        "--num-values", type=int, default=5, metavar="N",
+        help="Candidate grid density per draft-side parameter for the sweep (default: 5). Sweep mode only."
     )
     parser.add_argument(
         "--promote", action="store_true",
@@ -179,37 +174,19 @@ def main() -> None:
 
 
 def _run_sweep_mode(args: argparse.Namespace, data_folder: Path, logger) -> None:
-    """Run the multi-parameter sweep: calibrate -> size -> tournament -> ranked summary."""
+    """Run the multi-parameter sweep: tournament with per-config convergence as the stopping rule."""
     triples, _ = load_valid_strategies(data_folder)        # raises FileNotFoundError if none -> caught by main
     if not triples:
         logger.error("No valid strategies found for sweep")
         sys.exit(1)
     strategies = [(filename, draft_order) for filename, draft_order, _ in triples]
 
-    calib = CombinationEvaluator(
-        data_folder=data_folder, num_simulations=args.calib_sims, max_workers=args.workers
-    )
-    baseline_params = extract_draft_param_values(calib.base_config)
-    unit_cost = measure_unit_cost(calib, strategies[0][1], baseline_params, args.calib_sims)
-
-    sizing = compute_sizing(unit_cost, num_strategies=len(strategies),
-                            budget_seconds=args.budget_hours * 3600)
-    logger.info(
-        f"Sweep sizing: num_simulations={sizing['num_simulations']}, "
-        f"num_values={sizing['num_values']}, estimated={sizing['estimated_seconds'] / 3600:.2f}h"
-    )
-    if not sizing["feasible"]:
-        logger.warning(
-            f"Sweep estimate ({sizing['estimated_seconds'] / 3600:.2f}h) exceeds the "
-            f"{args.budget_hours:.1f}h budget even at the minimum sims — running at the floor; "
-            "interrupt with Ctrl+C to stop."
-        )
-
     evaluator = CombinationEvaluator(
-        data_folder=data_folder, num_simulations=sizing["num_simulations"], max_workers=args.workers
+        data_folder=data_folder, num_simulations=args.sims, max_workers=args.workers
     )
+    baseline_params = extract_draft_param_values(evaluator.base_config)
     store = SweepResultsManager(data_folder / "win_rate_sweep_results.json")
-    tournament = SweepTournament(evaluator, store, num_values=sizing["num_values"])
+    tournament = SweepTournament(evaluator, store, num_values=args.num_values)
 
     pass_num = 0
     try:
