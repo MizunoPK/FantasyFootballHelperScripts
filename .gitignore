@@ -233,3 +233,9 @@ simulation/sim_data/win_rate_meta_data.json
 .shamt-core
 CLAUDE.md
 data/team_rankings_cache_*.json
+
+# >>> Shamt (managed) — generated/regenerated content; not tracked in this repo.
+#     Restore .shamt-core/ via import-shamt; regenerate .claude/ via /f4-regen-framework.
+/.shamt-core/
+/.claude/
+# <<< Shamt
