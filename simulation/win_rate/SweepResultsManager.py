@@ -15,13 +15,14 @@ Author: Kai Mizuno
 
 # Standard library
 import datetime
+import hashlib
 import json
 from pathlib import Path
-from typing import Dict
+from typing import Dict, List, Optional
 
 # Local
 from utils.LoggingManager import get_logger
-from utils.error_handler import create_component_error_handler, error_context, FileOperationError
+from utils.error_handler import create_component_error_handler, error_context, ConfigurationError, FileOperationError
 from simulation.win_rate.param_value_generation import DRAFT_SWEEP_PARAMS
 
 logger = get_logger()
@@ -50,10 +51,16 @@ class SweepResultsManager:
         self._load()
 
     def _load(self) -> None:
-        """Load sweep results from disk, or initialize empty if file absent or corrupted."""
+        """Load sweep results from disk, or initialize empty if file absent or corrupted.
+
+        On a successful load of an existing file, defaults the checkpoint keys
+        ``input_fingerprint`` and ``convergence`` when absent, so an old-schema
+        (combinations-only) file loads cleanly while its existing ``combinations``
+        are preserved untouched.
+        """
         if not self._results_path.exists():
             logger.debug(f"No sweep results file at {self._results_path} — starting fresh")
-            self._data = {"last_updated": "", "combinations": {}}
+            self._data = {"last_updated": "", "combinations": {}, "input_fingerprint": "", "convergence": {}}
             return
         try:
             with open(self._results_path, 'r', encoding='utf-8') as f:
@@ -61,7 +68,48 @@ class SweepResultsManager:
             logger.debug(f"Loaded sweep results: {len(self._data.get('combinations', {}))} combinations")
         except json.JSONDecodeError as e:
             logger.warning(f"Corrupted sweep results at {self._results_path}: {e} — starting fresh")
-            self._data = {"last_updated": "", "combinations": {}}
+            self._data = {"last_updated": "", "combinations": {}, "input_fingerprint": "", "convergence": {}}
+            return
+        self._data.setdefault("combinations", {})
+        self._data.setdefault("input_fingerprint", "")
+        self._data.setdefault("convergence", {})
+
+    @staticmethod
+    def compute_input_fingerprint(
+        strategy_ids: List[str],
+        baseline_params: Dict[str, float],
+        num_values: int,
+        epsilon: float,
+    ) -> str:
+        """Compute the sweep input fingerprint (D2).
+
+        Returns a sha256 hex digest over a pinned canonical JSON serialization of the
+        four inputs that fully determine the per-config search space: the sorted
+        strategy ids, the baseline param anchor, the grid density, and the
+        coordinate-ascent epsilon margin. The canonical form is pinned
+        (``sort_keys=True``, compact separators) so recomputing on the same inputs
+        always yields the same digest and any changed input yields a different one.
+
+        Scope is strategy ids only (not draft_order content) — in-place edits to a
+        strategy under the same id are deliberately not detected this slice (D2).
+
+        Args:
+            strategy_ids (List[str]): Strategy identifiers (filenames) in the run.
+            baseline_params (Dict[str, float]): The 7-param baseline anchor.
+            num_values (int): Grid density per parameter.
+            epsilon (float): Coordinate-ascent improvement margin.
+
+        Returns:
+            str: The sha256 hex digest of the canonical input serialization.
+        """
+        payload = {
+            "strategy_ids": sorted(strategy_ids),
+            "baseline_params": baseline_params,
+            "num_values": num_values,
+            "epsilon": epsilon,
+        }
+        canonical = json.dumps(payload, sort_keys=True, separators=(",", ":"))
+        return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 
     @staticmethod
     def make_combo_key(strategy_id: str, param_values: Dict[str, float]) -> str:
@@ -142,6 +190,59 @@ class SweepResultsManager:
                     f"Failed to save sweep results to {self._results_path}: {e}"
                 ) from e
 
+    def set_input_fingerprint(self, fingerprint: str) -> None:
+        """Set the top-level input fingerprint and persist atomically.
+
+        Args:
+            fingerprint (str): The sha256 hex digest from compute_input_fingerprint.
+        """
+        self._data["input_fingerprint"] = fingerprint
+        self._save()
+
+    def get_input_fingerprint(self) -> str:
+        """Return the stored input fingerprint, or "" when unset.
+
+        Returns:
+            str: The stored sha256 hex digest, or an empty string when never set.
+        """
+        return self._data.get("input_fingerprint", "")
+
+    def mark_config_progress(
+        self,
+        strategy_id: str,
+        status: str,
+        best_param_values: Dict[str, float],
+        best_win_rate: float,
+    ) -> None:
+        """Upsert a per-config convergence entry and persist atomically (D3).
+
+        Records the config's current best params, best win rate, completion status,
+        and the write date under ``convergence[strategy_id]``. Overwrites any prior
+        entry for the same id (upsert) and writes via the atomic tmp->rename save so
+        a Ctrl+C / crash never leaves a half-written file.
+
+        Args:
+            strategy_id (str): Strategy identifier (filename) keying the entry.
+            status (str): "converged" or "in_progress".
+            best_param_values (Dict[str, float]): The config's current best 7 params.
+            best_win_rate (float): The config's current best win rate.
+
+        Raises:
+            ConfigurationError: If status is not "converged" or "in_progress".
+        """
+        if status not in ("converged", "in_progress"):
+            raise ConfigurationError(
+                f"mark_config_progress received invalid status {status!r} for "
+                f"strategy {strategy_id!r}; expected 'converged' or 'in_progress'"
+            )
+        self._data["convergence"][strategy_id] = {
+            "status": status,
+            "best_param_values": dict(best_param_values),
+            "best_win_rate": best_win_rate,
+            "updated": datetime.date.today().isoformat(),
+        }
+        self._save()
+
     def get_all_combinations(self) -> Dict[str, Dict]:
         """
         Return all combination entries from the sweep results.
@@ -152,3 +253,40 @@ class SweepResultsManager:
                 'total_runs', 'last_run'.
         """
         return self._data["combinations"]
+
+    def get_config_convergence(self, strategy_id: str) -> Optional[Dict]:
+        """Return the per-config convergence entry for a strategy id, or None.
+
+        Args:
+            strategy_id (str): Strategy identifier keying the convergence map.
+
+        Returns:
+            Optional[Dict]: The entry dict ('status', 'best_param_values',
+                'best_win_rate', 'updated'), or None when no entry exists.
+        """
+        return self._data["convergence"].get(strategy_id)
+
+    def get_all_convergence(self) -> Dict[str, Dict]:
+        """Return the full per-config convergence map.
+
+        Returns:
+            Dict[str, Dict]: strategy_id -> per-config convergence entry.
+        """
+        return self._data["convergence"]
+
+    def is_all_converged(self, strategy_ids: List[str]) -> bool:
+        """Return True iff every given id has a convergence entry marked converged (D3).
+
+        This is the derived "all complete" terminal state — there is no stored
+        all_complete flag. An empty strategy_ids list is vacuously True.
+
+        Args:
+            strategy_ids (List[str]): The strategy ids the run covers.
+
+        Returns:
+            bool: True iff every id has a 'converged' convergence entry.
+        """
+        return all(
+            self._data["convergence"].get(sid, {}).get("status") == "converged"
+            for sid in strategy_ids
+        )
