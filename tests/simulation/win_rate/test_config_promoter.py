@@ -80,6 +80,13 @@ def _patch_strategies(*triples):
     return patch(f"{MODULE}.load_valid_strategies", return_value=(list(triples), 0))
 
 
+def _fresh_config(tmp_path, name):
+    """A fresh tmp copy of the real league_config.json under `name` (never the source)."""
+    dest = tmp_path / name
+    shutil.copyfile(Path("data/configs/league_config.json"), dest)
+    return dest
+
+
 class TestConfigPromoter:
     # --- Step 1: happy path -------------------------------------------------
 
@@ -220,3 +227,51 @@ class TestConfigPromoter:
         # Original config untouched and no orphaned .tmp left behind.
         assert config_path.read_bytes() == before
         assert not tmp_sibling.exists()
+
+    # --- Step 5: deterministic tie-break, order-independent (T12) -----------
+
+    def test_tie_break_is_order_independent(self, tmp_path):
+        """
+        On an exact win_rate AND games tie, the promoted winner is the
+        lexicographically-smallest strategy_id, independent of insertion order.
+
+        Proved with TWO independent stores: the two tied configs are inserted in
+        opposite orders ([X, Y] vs [Y, X]); both stores must promote the same
+        smallest-strategy_id winner. A single shared store could not prove
+        order-independence — both records would coexist in one resulting order.
+        """
+        # Arrange — two configs tied on BOTH win_rate AND games. They share the
+        # 7 params (so make_combo_key's param suffix is identical) and differ only
+        # by strategy_id, forcing the (-win_rate, -games, combo_key) sort to fall
+        # through to combo_key, i.e. the strategy_id prefix. "1_aaa" < "2_bbb".
+        smaller_id = "1_aaa.json"
+        larger_id = "2_bbb.json"
+        shared_params = _WINNER_PARAMS
+        smaller_order = [{"round": 1, "position": "RB"}]
+        larger_order = [{"round": 1, "position": "WR"}]
+
+        store_a = SweepResultsManager(tmp_path / "store_a.json")
+        store_a.update(smaller_id, shared_params, 0.5, 50, 100)  # X first
+        store_a.update(larger_id, shared_params, 0.5, 50, 100)   # then Y
+
+        store_b = SweepResultsManager(tmp_path / "store_b.json")
+        store_b.update(larger_id, shared_params, 0.5, 50, 100)   # Y first
+        store_b.update(smaller_id, shared_params, 0.5, 50, 100)  # then X
+
+        strategies = (
+            (smaller_id, smaller_order, "Smaller"),
+            (larger_id, larger_order, "Larger"),
+        )
+
+        # Act — promote from each independent store to its own throwaway config.
+        with _patch_strategies(*strategies), \
+                patch(f"{MODULE}._has_uncommitted_changes", return_value=False):
+            result_a = promote_best_combination(
+                store_a, Path("unused"), _fresh_config(tmp_path, "config_a.json"))
+            result_b = promote_best_combination(
+                store_b, Path("unused"), _fresh_config(tmp_path, "config_b.json"))
+
+        # Assert — both promote the smallest strategy_id, regardless of order.
+        assert result_a["strategy_id"] == smaller_id
+        assert result_b["strategy_id"] == smaller_id
+        assert result_a["strategy_id"] == result_b["strategy_id"]
