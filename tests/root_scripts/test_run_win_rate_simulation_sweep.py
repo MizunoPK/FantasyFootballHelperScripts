@@ -21,7 +21,7 @@ def _sweep_args(tmp_path):
     return Namespace(
         data=str(tmp_path), sims=10, workers=2, endless=False, strategy=None,
         log_level="INFO", enable_log_file=False, sweep=True,
-        top_n=20, num_values=5, promote=False,
+        num_values=5, promote=False,
     )
 
 
@@ -61,7 +61,8 @@ class TestSweepDispatch:
              patch(f"{MODULE}.SweepResultsManager") as MockStore, \
              patch(f"{MODULE}.SweepTournament") as MockTour, \
              patch(f"{MODULE}.rank_combinations", return_value=[]), \
-             patch(f"{MODULE}.format_summary", return_value="summary"):
+             patch(f"{MODULE}.format_summary", return_value="summary"), \
+             patch(f"{MODULE}.write_sweep_report"):
             MockEval.return_value.base_config = {"parameters": {}}
             MockStore.return_value.get_all_combinations.return_value = {}
             rws._run_sweep_mode(args, Path(args.data), Mock())
@@ -85,6 +86,7 @@ class TestSweepDispatch:
             patch(f"{MODULE}.SweepResultsManager"),
             patch(f"{MODULE}.rank_combinations", return_value=[]),
             patch(f"{MODULE}.format_summary", return_value="summary"),
+            patch(f"{MODULE}.write_sweep_report"),
         ]
 
     def test_run_sweep_mode_endless_until_interrupt(self, tmp_path):
