@@ -18,7 +18,7 @@ from simulation.win_rate.CombinationEvaluator import CombinationEvaluator
 from simulation.win_rate.SweepResultsManager import SweepResultsManager
 from simulation.win_rate.SweepTournament import SweepTournament
 from simulation.win_rate.config_overrides import extract_draft_param_values
-from simulation.win_rate.sweep_summary import rank_combinations, format_summary
+from simulation.win_rate.sweep_summary import rank_combinations, format_summary, write_sweep_report
 from simulation.win_rate.config_promoter import promote_best_combination
 from utils.error_handler import ConfigurationError, FileOperationError
 
@@ -64,10 +64,6 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--sweep", action="store_true",
         help="Run the multi-parameter sweep (strategy + 7 draft-side params) instead of strategy-only mode."
-    )
-    parser.add_argument(
-        "--top-n", type=int, default=20, metavar="N",
-        help="Number of top combinations to show in the sweep summary (default: 20). Sweep mode only."
     )
     parser.add_argument(
         "--num-values", type=int, default=5, metavar="N",
@@ -195,12 +191,16 @@ def _run_sweep_mode(args: argparse.Namespace, data_folder: Path, logger) -> None
             if args.endless:
                 logger.info(f"--- Endless sweep pass {pass_num} starting ---")
             tournament.run(strategies, baseline_params)
-            print(format_summary(rank_combinations(store.get_all_combinations(), args.top_n)))
+            ranked = rank_combinations(store.get_all_combinations())
+            print(format_summary(ranked))
+            write_sweep_report(ranked, data_folder)
             if not args.endless:
                 break
     except KeyboardInterrupt:
         logger.info("Received interrupt — exiting after current pass")
-        print(format_summary(rank_combinations(store.get_all_combinations(), args.top_n)))
+        ranked = rank_combinations(store.get_all_combinations())
+        print(format_summary(ranked))
+        write_sweep_report(ranked, data_folder)
         sys.exit(0)
 
 

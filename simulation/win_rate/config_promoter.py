@@ -69,7 +69,7 @@ def promote_best_combination(
             "No sweep combinations to promote — run the sweep first."
         )
 
-    best = rank_combinations(combinations, n=1)[0]
+    best = rank_combinations(combinations)[0]
     strategy_id = best["strategy_id"]
     param_values = best["param_values"]
 
