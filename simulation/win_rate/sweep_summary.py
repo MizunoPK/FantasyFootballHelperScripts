@@ -80,20 +80,20 @@ def rank_combinations(combinations: Dict[str, Dict]) -> List[Dict]:
 
 def format_summary(ranked: List[Dict]) -> str:
     """
-    Render ranked combination rows as a printable table string.
+    Render per-config rows as a printable table string.
 
     Args:
-        ranked (List[Dict]): Rows from rank_combinations.
+        ranked (List[Dict]): Per-config rows from rank_combinations.
 
     Returns:
         str: A table showing rank, win rate, games (sample size), strategy, and param
-            values; or a clear message when there are no combinations.
+            values; or a clear message when there are no configs.
     """
     if not ranked:
         return "No sweep combinations recorded yet."
 
     lines = [
-        "Sweep Combination Summary (ranked by cumulative win rate)",
+        "Sweep Config Summary (ranked by cumulative win rate)",
         "──────────────────────────────────────────────────────────────",
         "Rank  WinRate  Games  Strategy / Params",
         "────  ───────  ─────  ─────────────────",
@@ -148,8 +148,11 @@ def write_sweep_report(ranked: List[Dict], data_folder: Path,
     Persist the per-config ranked report to two fixed-name files under data_folder (D3).
 
     Writes win_rate_sweep_report.txt (human-readable, mirrors the stdout table) and
-    win_rate_sweep_report.json (structured, D2 schema). Each file is written atomically
-    (tmp -> rename) and overwrites any prior report. The data root is created if absent.
+    win_rate_sweep_report.json (structured, D2 schema). Each file is written via its own
+    atomic tmp -> rename, so the two writes are individually atomic but NOT jointly
+    atomic: neither file is ever left partial, but the writes are independent. A failure
+    on the second (.json) write therefore leaves the first (.txt) already updated to the
+    new run. Each write overwrites any prior report. The data root is created if absent.
 
     Args:
         ranked (List[Dict]): Per-config rows from rank_combinations.
@@ -159,8 +162,9 @@ def write_sweep_report(ranked: List[Dict], data_folder: Path,
             (defaults to today when None).
 
     Raises:
-        FileOperationError: If either atomic write fails (the target file is left
-            untouched and no orphaned .tmp remains).
+        FileOperationError: If either atomic write fails. The failing file is left
+            untouched with no orphaned .tmp; any file already written earlier in the
+            call retains its new contents (writes are not jointly atomic).
     """
     data_folder.mkdir(parents=True, exist_ok=True)
 
@@ -184,7 +188,7 @@ def _atomic_write_text(content: str, path: Path) -> None:
     Raises:
         FileOperationError: On any OSError/PermissionError during the write.
     """
-    tmp_path = path.with_suffix(".tmp")
+    tmp_path = path.with_suffix(path.suffix + ".tmp")
     try:
         with open(tmp_path, "w", encoding="utf-8") as f:
             f.write(content)
