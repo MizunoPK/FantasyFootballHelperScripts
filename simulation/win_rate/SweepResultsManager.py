@@ -197,6 +197,7 @@ class SweepResultsManager:
             fingerprint (str): The sha256 hex digest from compute_input_fingerprint.
         """
         self._data["input_fingerprint"] = fingerprint
+        self._data["last_updated"] = datetime.date.today().isoformat()
         self._save()
 
     def get_input_fingerprint(self) -> str:
@@ -241,6 +242,7 @@ class SweepResultsManager:
             "best_win_rate": best_win_rate,
             "updated": datetime.date.today().isoformat(),
         }
+        self._data["last_updated"] = datetime.date.today().isoformat()
         self._save()
 
     def get_all_combinations(self) -> Dict[str, Dict]:

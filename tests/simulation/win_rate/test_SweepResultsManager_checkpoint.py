@@ -218,3 +218,19 @@ class TestSweepResultsManagerCheckpoint:
         # Existing combinations survive untouched.
         assert mgr.get_all_combinations() == old_schema["combinations"]
 
+    # --- last_updated metadata consistency (PR #17 review) ---
+
+    def test_set_input_fingerprint_bumps_last_updated(self, results_path):
+        SweepResultsManager(results_path).set_input_fingerprint("deadbeef")
+        on_disk = json.loads(results_path.read_text())
+        # A fingerprint-only write must refresh the file metadata, like update() does,
+        # so the store never looks stale after a checkpoint-only persist.
+        assert on_disk["last_updated"] != ""
+
+    def test_mark_config_progress_bumps_last_updated(self, results_path):
+        SweepResultsManager(results_path).mark_config_progress(
+            "1_zero_rb.json", "in_progress", _param_values(), 0.55
+        )
+        on_disk = json.loads(results_path.read_text())
+        assert on_disk["last_updated"] != ""
+
