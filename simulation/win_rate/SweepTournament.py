@@ -116,10 +116,11 @@ class SweepTournament:
                 continue
             if conv is not None and conv.get("status") == "in_progress":
                 # Resume the interrupted config from its checkpointed best point (NOT re-evaluated).
+                # The seed combo already exists in the persisted store from the prior run, so we do
+                # NOT re-record it — a 0-win/0-game update() would bump total_runs / last_run with
+                # zero evidence and skew the per-combo metadata on every resume (PR #18).
                 current = dict(conv["best_param_values"])
                 best_rate = conv["best_win_rate"]
-                # Re-record the seeded combo so it is present in the accumulating store.
-                self._store.update(strategy_id, current, best_rate, 0, 0)
             else:
                 # Per-config baseline evaluation establishes the starting best (also recorded).
                 current = dict(baseline_params)
@@ -146,6 +147,12 @@ class SweepTournament:
                             best_rate = win_rate
                             current[param] = value
                             moved = True
+                            # Persist the new running best immediately, so an interrupt mid-ascent
+                            # leaves the LATEST values on disk (not the stale seed) and a resume
+                            # restarts from them rather than losing this run's progress (PR #18).
+                            self._store.mark_config_progress(
+                                strategy_id, "in_progress", current, best_rate
+                            )
 
             self._store.mark_config_progress(strategy_id, "converged", current, best_rate)
             results[strategy_id] = {"param_values": dict(current), "win_rate": best_rate}

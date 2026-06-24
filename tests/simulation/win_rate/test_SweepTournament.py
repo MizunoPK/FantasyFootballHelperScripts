@@ -180,6 +180,26 @@ class TestSweepTournament:
         assert conv is not None
         assert conv["status"] == "converged"  # final mark is converged
 
+    def test_in_progress_checkpoint_tracks_running_best_mid_ascent(self, tmp_path):
+        # PR #18: an improvement found mid coordinate-ascent must be persisted immediately as an
+        # in_progress checkpoint, so an interrupt before convergence resumes from the latest best
+        # (not the stale seed). Landscape: any non-baseline PRIMARY_BONUS scores higher, so the
+        # first such trial improves and must trigger an in_progress write carrying the new best.
+        store = _store(tmp_path)
+        baseline = _baseline()
+        ev = _evaluator(lambda do, pv: 0.9 if pv["PRIMARY_BONUS"] != 67 else 0.6)
+        store.mark_config_progress = Mock(wraps=store.mark_config_progress)
+        t = SweepTournament(ev, store)
+        t.run([("s1", [{"s": "1"}])], baseline)
+        calls = store.mark_config_progress.call_args_list
+        statuses = [c.args[1] for c in calls]  # args: (strategy_id, status, best_params, best_rate)
+        improved = [
+            i for i, c in enumerate(calls)
+            if c.args[1] == "in_progress" and c.args[3] == 0.9
+        ]
+        assert improved, "no in_progress checkpoint captured the mid-ascent improvement"
+        assert min(improved) < statuses.index("converged")  # running best persisted before converge
+
     def test_resume_false_reproduces_all_from_baseline(self, tmp_path):
         # Regression guard: with resume=False (default), a pre-marked converged config is NOT
         # skipped — every config is re-evaluated from baseline as in the pre-T9 behavior.
