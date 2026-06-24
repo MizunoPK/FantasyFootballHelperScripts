@@ -29,6 +29,12 @@ from simulation.win_rate.param_value_generation import generate_candidate_values
 
 logger = get_logger()
 
+# Coordinate-ascent improvement margin (D5): a param adopts a candidate only when it beats
+# the config's current best win rate by more than this. Module-level so the driver's input
+# fingerprint and the engine's ε-gate share one source of truth (no drift -> no spurious
+# resume mismatch).
+DEFAULT_EPSILON = 0.005
+
 
 class SweepTournament:
     """
@@ -51,14 +57,14 @@ class SweepTournament:
             current best by more than this (strict ε-switch).
     """
 
-    def __init__(self, evaluator, store, num_values: int = 5, epsilon: float = 0.005) -> None:
+    def __init__(self, evaluator, store, num_values: int = 5, epsilon: float = DEFAULT_EPSILON) -> None:
         """
         Args:
             evaluator: CombinationEvaluator used to score each combination.
             store: SweepResultsManager used to record/accumulate every evaluation.
             num_values (int): Candidate values per numeric parameter (default 5).
-            epsilon (float): ε win-rate margin (default 0.005); a param moves only when a
-                candidate beats the config's current best by more than this margin.
+            epsilon (float): ε win-rate margin (default DEFAULT_EPSILON = 0.005); a param moves
+                only when a candidate beats the config's current best by more than this margin.
         """
         self._evaluator = evaluator
         self._store = store
@@ -69,6 +75,7 @@ class SweepTournament:
         self,
         strategies: List[Tuple[str, list]],
         baseline_params: Dict[str, float],
+        resume: bool = False,
     ) -> Dict[str, Dict]:
         """
         Run an independent convergent coordinate-ascent tournament for every draft-order
@@ -77,6 +84,13 @@ class SweepTournament:
         Args:
             strategies: List of (strategy_id, draft_order) configs, each tuned independently.
             baseline_params: The 7 current draft-side param values (each config's anchor / start).
+            resume: When True (D3), consult the injected store's per-config convergence to
+                skip configs already marked "converged" and seed an "in_progress" config's
+                start point from its checkpointed best values; configs with no convergence
+                entry start from baseline. When False (default), every config starts from
+                baseline (the pre-T9 behavior). Either way, per-config progress is written
+                via the store's mark_config_progress so an interrupt leaves a resumable
+                checkpoint.
 
         Returns:
             Dict[str, Dict]: {strategy_id: {"param_values": <7-param dict>, "win_rate": float}}.
@@ -91,10 +105,29 @@ class SweepTournament:
         results: Dict[str, Dict] = {}
 
         for strategy_id, draft_order in strategies:
-            # Per-config baseline evaluation establishes the starting best (also recorded).
-            current = dict(baseline_params)
-            wins, games, best_rate = self._evaluator.evaluate(draft_order, current)
-            self._store.update(strategy_id, current, best_rate, wins, games)
+            # D3: when resuming, consult the per-config convergence to skip / seed.
+            conv = self._store.get_config_convergence(strategy_id) if resume else None
+            if conv is not None and conv.get("status") == "converged":
+                logger.info(f"Config {strategy_id} skipped (already converged)")
+                results[strategy_id] = {
+                    "param_values": dict(conv["best_param_values"]),
+                    "win_rate": conv["best_win_rate"],
+                }
+                continue
+            if conv is not None and conv.get("status") == "in_progress":
+                # Resume the interrupted config from its checkpointed best point (NOT re-evaluated).
+                current = dict(conv["best_param_values"])
+                best_rate = conv["best_win_rate"]
+                # Re-record the seeded combo so it is present in the accumulating store.
+                self._store.update(strategy_id, current, best_rate, 0, 0)
+            else:
+                # Per-config baseline evaluation establishes the starting best (also recorded).
+                current = dict(baseline_params)
+                wins, games, best_rate = self._evaluator.evaluate(draft_order, current)
+                self._store.update(strategy_id, current, best_rate, wins, games)
+
+            # Record in-progress so an interrupt at any point leaves a resumable checkpoint (D3).
+            self._store.mark_config_progress(strategy_id, "in_progress", current, best_rate)
 
             # Loop full coordinate-ascent passes until a pass moves no parameter (convergence
             # is the sole stopping rule — no wall-time, no pass cap).
@@ -114,6 +147,7 @@ class SweepTournament:
                             current[param] = value
                             moved = True
 
+            self._store.mark_config_progress(strategy_id, "converged", current, best_rate)
             results[strategy_id] = {"param_values": dict(current), "win_rate": best_rate}
             logger.info(f"Config {strategy_id} converged | win_rate={best_rate:.3f}")
 
