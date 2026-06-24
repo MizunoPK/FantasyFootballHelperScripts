@@ -249,11 +249,12 @@ def _run_sweep_mode(args: argparse.Namespace, data_folder: Path, logger) -> None
             if args.endless:
                 # T10/D1: build the next pass's per-config seed map from the store's converged
                 # params (continue-from-converged); configs without an entry fall back to baseline.
-                carry_over = {
-                    sid: dict(store.get_config_convergence(sid)["best_param_values"])
-                    for sid in strategy_ids
-                    if store.get_config_convergence(sid)
-                }
+                # Single pass with a local `conv` so get_config_convergence is called once per id.
+                carry_over = {}
+                for sid in strategy_ids:
+                    conv = store.get_config_convergence(sid)
+                    if conv:
+                        carry_over[sid] = dict(conv["best_param_values"])
             ranked = rank_combinations(store.get_all_combinations())
             print(format_summary(ranked))
             write_sweep_report(ranked, data_folder)
