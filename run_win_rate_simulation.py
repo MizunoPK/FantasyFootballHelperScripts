@@ -16,7 +16,7 @@ from simulation.win_rate.DraftStrategyOrchestrator import DraftStrategyOrchestra
 from simulation.win_rate.strategy_loader import load_valid_strategies
 from simulation.win_rate.CombinationEvaluator import CombinationEvaluator
 from simulation.win_rate.SweepResultsManager import SweepResultsManager
-from simulation.win_rate.SweepTournament import SweepTournament
+from simulation.win_rate.SweepTournament import SweepTournament, DEFAULT_EPSILON
 from simulation.win_rate.config_overrides import extract_draft_param_values
 from simulation.win_rate.sweep_summary import rank_combinations, format_summary, write_sweep_report
 from simulation.win_rate.config_promoter import promote_best_combination
@@ -74,6 +74,10 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Promote the best-ranked sweep combination into data/configs/league_config.json. "
              "Alone: promote from the existing sweep results. With --sweep: run the sweep, then promote "
              "its winner. Incompatible with --endless."
+    )
+    parser.add_argument(
+        "--fresh", action="store_true",
+        help="Ignore any existing sweep checkpoint and run every config from baseline. Sweep mode only."
     )
     return parser
 
@@ -182,6 +186,54 @@ def _run_sweep_mode(args: argparse.Namespace, data_folder: Path, logger) -> None
     )
     baseline_params = extract_draft_param_values(evaluator.base_config)
     store = SweepResultsManager(data_folder / "win_rate_sweep_results.json")
+
+    # Auto-resume decision (D1/D2/D4): recompute the input fingerprint with the shared
+    # DEFAULT_EPSILON and string-compare it to the stored one. --fresh, an empty stored
+    # digest, or a mismatch -> no resume (run every config from baseline).
+    strategy_ids = [filename for filename, _ in strategies]
+    fp_now = SweepResultsManager.compute_input_fingerprint(
+        strategy_ids, baseline_params, args.num_values, DEFAULT_EPSILON
+    )
+    if args.fresh:
+        resume = False
+    else:
+        stored = store.get_input_fingerprint()
+        if stored == "":
+            resume = False
+        elif stored == fp_now:
+            resume = True
+        else:
+            logger.warning(
+                "Sweep inputs changed since last checkpoint (fingerprint mismatch) — "
+                "discarding stale checkpoint and starting fresh."
+            )
+            resume = False
+    if resume:
+        if store.is_all_converged(strategy_ids):
+            logger.info(
+                f"Sweep already complete — all {len(strategy_ids)} configs converged; "
+                "nothing to do."
+            )
+        else:
+            converged = [
+                sid for sid in strategy_ids
+                if (store.get_config_convergence(sid) or {}).get("status") == "converged"
+            ]
+            in_progress = [
+                sid for sid in strategy_ids
+                if (store.get_config_convergence(sid) or {}).get("status") == "in_progress"
+            ]
+            not_started = [
+                sid for sid in strategy_ids if store.get_config_convergence(sid) is None
+            ]
+            resuming_id = in_progress[0] if in_progress else "(none)"
+            logger.info(
+                f"Resuming sweep: {len(converged)} configs already converged (skipped), "
+                f"resuming config {resuming_id} from checkpoint; {len(not_started)} not yet started."
+            )
+    # Refresh the stored fingerprint on every launch (D1) so a fresh / input-changed file
+    # records the current inputs.
+    store.set_input_fingerprint(fp_now)
     tournament = SweepTournament(evaluator, store, num_values=args.num_values)
 
     pass_num = 0
@@ -190,7 +242,8 @@ def _run_sweep_mode(args: argparse.Namespace, data_folder: Path, logger) -> None
             pass_num += 1
             if args.endless:
                 logger.info(f"--- Endless sweep pass {pass_num} starting ---")
-            tournament.run(strategies, baseline_params)
+            tournament.run(strategies, baseline_params, resume=resume)
+            resume = False  # endless passes 2+ are always full fresh passes
             ranked = rank_combinations(store.get_all_combinations())
             print(format_summary(ranked))
             write_sweep_report(ranked, data_folder)

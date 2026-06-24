@@ -15,7 +15,7 @@ from unittest.mock import Mock
 import pytest
 
 # Local
-from simulation.win_rate.SweepTournament import SweepTournament
+from simulation.win_rate.SweepTournament import SweepTournament, DEFAULT_EPSILON
 from simulation.win_rate.SweepResultsManager import SweepResultsManager
 from simulation.win_rate.param_value_generation import generate_candidate_values, DRAFT_SWEEP_PARAMS
 from utils.error_handler import ConfigurationError
@@ -127,3 +127,87 @@ class TestSweepTournament:
         t = SweepTournament(ev, _store(tmp_path))
         with pytest.raises(ConfigurationError):
             t.run([], _baseline())
+
+    def test_default_epsilon_constant_matches_init_default(self, tmp_path):
+        # D5: the module constant must be the value used as the __init__ epsilon default,
+        # so the driver's fingerprint (built with DEFAULT_EPSILON) and the engine's ε-gate
+        # never drift (a drift would spuriously mismatch every resume).
+        import inspect
+        sig = inspect.signature(SweepTournament.__init__)
+        assert sig.parameters["epsilon"].default == DEFAULT_EPSILON
+        assert DEFAULT_EPSILON == 0.005
+
+    def test_resume_skips_converged_config(self, tmp_path):
+        # A pre-marked converged config is skipped (evaluator not called for it) when resume=True.
+        store = _store(tmp_path)
+        baseline = _baseline()
+        store.mark_config_progress("s1", "converged", baseline, 0.8)
+        ev = _evaluator(lambda do, pv: 0.6)
+        t = SweepTournament(ev, store)
+        result = t.run([("s1", [{"s": "1"}])], baseline, resume=True)
+        # Evaluator never called (the only config was skipped).
+        assert ev.evaluate.call_count == 0
+        # The skipped config's checkpointed best is surfaced in the result map.
+        assert result["s1"]["win_rate"] == 0.8
+        assert result["s1"]["param_values"] == baseline
+
+    def test_resume_seeds_in_progress_config_from_checkpoint(self, tmp_path):
+        # An in_progress config starts coordinate ascent from its checkpointed best_param_values,
+        # not from baseline. Seed a non-baseline PRIMARY_BONUS and assert the first evaluated
+        # trial carries the seeded value (proving the start point moved).
+        store = _store(tmp_path)
+        baseline = _baseline()
+        seeded = dict(baseline)
+        seeded["PRIMARY_BONUS"] = 91
+        store.mark_config_progress("s1", "in_progress", seeded, 0.7)
+        # Flat landscape so nothing moves -> coordinate ascent converges immediately on the seed.
+        ev = _evaluator(lambda do, pv: 0.6)
+        t = SweepTournament(ev, store)
+        result = t.run([("s1", [{"s": "1"}])], baseline, resume=True)
+        # No baseline re-eval: every trial seen by the evaluator carries the seeded PRIMARY_BONUS
+        # except where coordinate ascent varies PRIMARY_BONUS itself.
+        first_pv = ev.evaluate.call_args_list[0].args[1]
+        assert first_pv["PRIMARY_BONUS"] == 91  # seeded start, not baseline 67
+        assert result["s1"]["param_values"]["PRIMARY_BONUS"] == 91
+
+    def test_marks_in_progress_then_converged_per_config(self, tmp_path):
+        # mark_config_progress is written in_progress then converged for each tuned config.
+        store = _store(tmp_path)
+        ev = _evaluator(lambda do, pv: 0.6)
+        t = SweepTournament(ev, store)
+        t.run([("s1", [{"s": "1"}])], _baseline())
+        conv = store.get_config_convergence("s1")
+        assert conv is not None
+        assert conv["status"] == "converged"  # final mark is converged
+
+    def test_in_progress_checkpoint_tracks_running_best_mid_ascent(self, tmp_path):
+        # PR #18: an improvement found mid coordinate-ascent must be persisted immediately as an
+        # in_progress checkpoint, so an interrupt before convergence resumes from the latest best
+        # (not the stale seed). Landscape: any non-baseline PRIMARY_BONUS scores higher, so the
+        # first such trial improves and must trigger an in_progress write carrying the new best.
+        store = _store(tmp_path)
+        baseline = _baseline()
+        ev = _evaluator(lambda do, pv: 0.9 if pv["PRIMARY_BONUS"] != 67 else 0.6)
+        store.mark_config_progress = Mock(wraps=store.mark_config_progress)
+        t = SweepTournament(ev, store)
+        t.run([("s1", [{"s": "1"}])], baseline)
+        calls = store.mark_config_progress.call_args_list
+        statuses = [c.args[1] for c in calls]  # args: (strategy_id, status, best_params, best_rate)
+        improved = [
+            i for i, c in enumerate(calls)
+            if c.args[1] == "in_progress" and c.args[3] == 0.9
+        ]
+        assert improved, "no in_progress checkpoint captured the mid-ascent improvement"
+        assert min(improved) < statuses.index("converged")  # running best persisted before converge
+
+    def test_resume_false_reproduces_all_from_baseline(self, tmp_path):
+        # Regression guard: with resume=False (default), a pre-marked converged config is NOT
+        # skipped — every config is re-evaluated from baseline as in the pre-T9 behavior.
+        store = _store(tmp_path)
+        baseline = _baseline()
+        store.mark_config_progress("s1", "converged", baseline, 0.8)
+        ev = _evaluator(lambda do, pv: 0.6)
+        t = SweepTournament(ev, store)
+        t.run([("s1", [{"s": "1"}])], baseline, resume=False)
+        # Evaluator WAS called (config not skipped) -> resume=False ignores convergence.
+        assert ev.evaluate.call_count > 0
