@@ -237,13 +237,24 @@ def _run_sweep_mode(args: argparse.Namespace, data_folder: Path, logger) -> None
     tournament = SweepTournament(evaluator, store, num_values=args.num_values)
 
     pass_num = 0
+    carry_over = None  # T10/D3: None on pass 1 (resume governs); built from converged params for passes 2+
     try:
         while True:
             pass_num += 1
             if args.endless:
                 logger.info(f"--- Endless sweep pass {pass_num} starting ---")
-            tournament.run(strategies, baseline_params, resume=resume)
-            resume = False  # endless passes 2+ are always full fresh passes
+                print(f"=== Endless sweep pass {pass_num} ===")  # T10/D2: header before the per-pass table
+            tournament.run(strategies, baseline_params, resume=resume, carry_over_seeds=carry_over)
+            resume = False  # endless passes 2+ are always full fresh passes (carry-over governs them)
+            if args.endless:
+                # T10/D1: build the next pass's per-config seed map from the store's converged
+                # params (continue-from-converged); configs without an entry fall back to baseline.
+                # Single pass with a local `conv` so get_config_convergence is called once per id.
+                carry_over = {}
+                for sid in strategy_ids:
+                    conv = store.get_config_convergence(sid)
+                    if conv:
+                        carry_over[sid] = dict(conv["best_param_values"])
             ranked = rank_combinations(store.get_all_combinations())
             print(format_summary(ranked))
             write_sweep_report(ranked, data_folder)

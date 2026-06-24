@@ -211,3 +211,42 @@ class TestSweepTournament:
         t.run([("s1", [{"s": "1"}])], baseline, resume=False)
         # Evaluator WAS called (config not skipped) -> resume=False ignores convergence.
         assert ev.evaluate.call_count > 0
+
+    def test_carry_over_seed_starts_from_seed_and_tunes_full_grid(self, tmp_path):
+        # T10/D1a: a config with a carry_over_seeds entry starts its ascent from the seed
+        # (not baseline) and is NOT skipped — it tunes over the full grid. Flat landscape so
+        # nothing moves -> ascent converges immediately on the seed, and the FIRST evaluated
+        # trial carries the seeded PRIMARY_BONUS (proving the start point is the seed).
+        baseline = _baseline()
+        seed = dict(baseline)
+        seed["PRIMARY_BONUS"] = 91
+        ev = _evaluator(lambda do, pv: 0.6)
+        t = SweepTournament(ev, _store(tmp_path))
+        result = t.run(
+            [("s1", [{"s": "1"}])], baseline, carry_over_seeds={"s1": seed}
+        )
+        # First evaluation is the seed combo (re-eval once to set best_rate) — carries the seed.
+        first_pv = ev.evaluate.call_args_list[0].args[1]
+        assert first_pv["PRIMARY_BONUS"] == 91  # seeded start, not baseline 67
+        # Not skipped: the evaluator ran a full ascent (more than the single seed eval).
+        assert ev.evaluate.call_count > 1
+        # Converged on the seed (flat landscape), and the config is marked converged.
+        assert result["s1"]["param_values"]["PRIMARY_BONUS"] == 91
+        conv = _store(tmp_path).get_config_convergence("s1")
+        assert conv is not None and conv["status"] == "converged"
+
+    def test_carry_over_seeds_none_is_backward_compatible(self, tmp_path):
+        # T10: carry_over_seeds defaults to None -> unchanged behavior (every config starts
+        # from baseline). A config with NO seed entry also falls back to baseline.
+        baseline = _baseline()
+        ev = _evaluator(lambda do, pv: 0.6)
+        t = SweepTournament(ev, _store(tmp_path))
+        # Default None.
+        result_default = t.run([("s1", [{"s": "1"}])], baseline)
+        assert result_default["s1"]["param_values"] == baseline
+        # Empty seed map -> "s2" has no entry -> baseline start (first trial is baseline).
+        ev2 = _evaluator(lambda do, pv: 0.6)
+        t2 = SweepTournament(ev2, _store(tmp_path, "b.json"))
+        t2.run([("s2", [{"s": "2"}])], baseline, carry_over_seeds={})
+        first_pv = ev2.evaluate.call_args_list[0].args[1]
+        assert first_pv["PRIMARY_BONUS"] == baseline["PRIMARY_BONUS"]  # baseline 67, no seed

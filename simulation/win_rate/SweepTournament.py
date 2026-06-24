@@ -20,7 +20,7 @@ Author: Kai Mizuno
 """
 
 # Standard library
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional, Tuple
 
 # Local
 from utils.LoggingManager import get_logger
@@ -76,6 +76,7 @@ class SweepTournament:
         strategies: List[Tuple[str, list]],
         baseline_params: Dict[str, float],
         resume: bool = False,
+        carry_over_seeds: Optional[Dict[str, Dict[str, float]]] = None,
     ) -> Dict[str, Dict]:
         """
         Run an independent convergent coordinate-ascent tournament for every draft-order
@@ -91,6 +92,17 @@ class SweepTournament:
                 baseline (the pre-T9 behavior). Either way, per-config progress is written
                 via the store's mark_config_progress so an interrupt leaves a resumable
                 checkpoint.
+            carry_over_seeds: When provided (T10/D1a — endless passes 2+ only), a per-config
+                {strategy_id: best_param_values} map. A config with a seed starts its
+                coordinate ascent from dict(seed) (not baseline), is evaluated ONCE to
+                re-establish this pass's best_rate as the ε-gate baseline from fresh
+                evidence (recorded via the existing store.update), is marked in_progress,
+                and then tunes over the FULL grid — it is NOT skipped. Orthogonal to resume:
+                the driver guarantees resume and carry_over_seeds are never both active in one
+                pass (pass 1 -> resume=<decision>, carry_over_seeds=None; passes 2+ ->
+                resume=False, carry_over_seeds=<map>), so conv is None whenever a seed fires.
+                Configs with no seed fall back to the baseline start. Default None ->
+                unchanged behavior.
 
         Returns:
             Dict[str, Dict]: {strategy_id: {"param_values": <7-param dict>, "win_rate": float}}.
@@ -121,6 +133,16 @@ class SweepTournament:
                 # zero evidence and skew the per-combo metadata on every resume (PR #18).
                 current = dict(conv["best_param_values"])
                 best_rate = conv["best_win_rate"]
+            elif carry_over_seeds is not None and strategy_id in carry_over_seeds:
+                # T10/D1a: seed-and-tune from a prior pass's converged params (endless passes 2+).
+                # Unlike the in_progress resume branch, the seed is evaluated ONCE here to
+                # re-establish THIS pass's best_rate as the ε-gate baseline from fresh evidence
+                # (the evaluator is non-deterministic and the store accumulates games), recording
+                # it via the existing update(). The config then falls through to the full
+                # coordinate-ascent below — it is NOT skipped and the grid is unchanged.
+                current = dict(carry_over_seeds[strategy_id])
+                wins, games, best_rate = self._evaluator.evaluate(draft_order, current)
+                self._store.update(strategy_id, current, best_rate, wins, games)
             else:
                 # Per-config baseline evaluation establishes the starting best (also recorded).
                 current = dict(baseline_params)
