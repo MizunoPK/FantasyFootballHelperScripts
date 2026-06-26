@@ -68,10 +68,11 @@ class TestSweepDispatch:
             # Mocked store: get_input_fingerprint() returns a truthy Mock != fp_now -> mismatch -> resume=False.
             rws._run_sweep_mode(args, Path(args.data), Mock())
         MockTour.assert_called_once_with(MockEval.return_value, MockStore.return_value, num_values=args.num_values)
-        MockTour.return_value.run.assert_called_once_with(
-            [("1_a.json", [{"QB": "P"}])], {"PRIMARY_BONUS": 67},
-            resume=False, carry_over_seeds=None,
-        )
+        run_args, run_kwargs = MockTour.return_value.run.call_args
+        assert run_args == ([("1_a.json", [{"QB": "P"}])], {"PRIMARY_BONUS": 67})
+        assert run_kwargs["resume"] is False
+        assert run_kwargs["carry_over_seeds"] is None
+        assert callable(run_kwargs["progress_callback"])  # T16: progress callback wired through
 
     def test_run_sweep_mode_empty_strategies_exits(self, tmp_path):
         from pathlib import Path

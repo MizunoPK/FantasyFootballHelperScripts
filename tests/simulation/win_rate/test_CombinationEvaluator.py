@@ -138,7 +138,8 @@ class TestCombinationEvaluator:
         with patch(f"{MODULE}.ConfigManager") as MockCM, \
              patch(f"{MODULE}.SimDataLoader") as MockLoader, \
              patch(f"{MODULE}.ParallelLeagueRunner", return_value=mock_runner), \
-             patch(f"{MODULE}.logger") as mock_logger:
+             patch(f"{MODULE}.get_logger") as mock_get_logger:
+            mock_logger = mock_get_logger.return_value
             MockCM.return_value.config_name = "test"
             MockCM.return_value.description = "test"
             MockCM.return_value.parameters = _fake_params()

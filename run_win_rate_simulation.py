@@ -17,6 +17,7 @@ from simulation.win_rate.strategy_loader import load_valid_strategies
 from simulation.win_rate.CombinationEvaluator import CombinationEvaluator
 from simulation.win_rate.SweepResultsManager import SweepResultsManager
 from simulation.win_rate.SweepTournament import SweepTournament, DEFAULT_EPSILON
+from simulation.shared.ProgressTracker import ProgressTracker
 from simulation.win_rate.config_overrides import extract_draft_param_values
 from simulation.win_rate.sweep_summary import rank_combinations, format_summary, write_sweep_report
 from simulation.win_rate.config_promoter import promote_best_combination
@@ -236,6 +237,11 @@ def _run_sweep_mode(args: argparse.Namespace, data_folder: Path, logger) -> None
     store.set_input_fingerprint(fp_now)
     tournament = SweepTournament(evaluator, store, num_values=args.num_values)
 
+    # T16/KDD-4: detect once whether stdout is a TTY. TTY -> a redrawing ProgressTracker bar;
+    # non-TTY (piped / backgrounded / --enable-log-file) -> periodic full-line INFO log lines,
+    # so a log file is not spammed with carriage-return partial rewrites.
+    is_tty = sys.stdout.isatty()
+
     pass_num = 0
     carry_over = None  # T10/D3: None on pass 1 (resume governs); built from converged params for passes 2+
     try:
@@ -244,7 +250,29 @@ def _run_sweep_mode(args: argparse.Namespace, data_folder: Path, logger) -> None
             if args.endless:
                 logger.info(f"--- Endless sweep pass {pass_num} starting ---")
                 print(f"=== Endless sweep pass {pass_num} ===")  # T10/D2: header before the per-pass table
-            tournament.run(strategies, baseline_params, resume=resume, carry_over_seeds=carry_over)
+            # T16/KDD-1+KDD-4: on a TTY, a FRESH per-pass ProgressTracker bar (so endless mode
+            # resets cleanly each pass; total = configs in the pass). Off a TTY we build NO
+            # tracker — progress is plain full-line INFO logs via a per-pass counter — so piped /
+            # --enable-log-file output stays logger-lines-only with no ProgressTracker stdout banner.
+            total = len(strategies)
+            tracker = ProgressTracker(total=total, description="Configs") if is_tty else None
+            logged = 0  # off-TTY per-config counter (the bar owns the count on a TTY)
+
+            def progress_cb(strategy_id: str) -> None:
+                """Per-config progress signal: advance the bar (TTY) or log a line (non-TTY)."""
+                nonlocal logged
+                if is_tty:
+                    tracker.update()
+                else:
+                    logged += 1
+                    logger.info(f"config {logged}/{total} ({strategy_id})")
+
+            tournament.run(
+                strategies, baseline_params, resume=resume, carry_over_seeds=carry_over,
+                progress_callback=progress_cb,
+            )
+            if is_tty:
+                tracker.finish()
             resume = False  # endless passes 2+ are always full fresh passes (carry-over governs them)
             if args.endless:
                 # T10/D1: build the next pass's per-config seed map from the store's converged

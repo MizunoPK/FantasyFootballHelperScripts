@@ -20,14 +20,12 @@ Author: Kai Mizuno
 """
 
 # Standard library
-from typing import Dict, List, Optional, Tuple
+from typing import Callable, Dict, List, Optional, Tuple
 
 # Local
 from utils.LoggingManager import get_logger
 from utils.error_handler import ConfigurationError
 from simulation.win_rate.param_value_generation import generate_candidate_values, DRAFT_SWEEP_PARAMS
-
-logger = get_logger()
 
 # Coordinate-ascent improvement margin (D5): a param adopts a candidate only when it beats
 # the config's current best win rate by more than this. Module-level so the driver's input
@@ -77,6 +75,7 @@ class SweepTournament:
         baseline_params: Dict[str, float],
         resume: bool = False,
         carry_over_seeds: Optional[Dict[str, Dict[str, float]]] = None,
+        progress_callback: Optional[Callable[[str], None]] = None,
     ) -> Dict[str, Dict]:
         """
         Run an independent convergent coordinate-ascent tournament for every draft-order
@@ -103,6 +102,13 @@ class SweepTournament:
                 resume=False, carry_over_seeds=<map>), so conv is None whenever a seed fires.
                 Configs with no seed fall back to the baseline start. Default None ->
                 unchanged behavior.
+            progress_callback: Optional callback invoked exactly once per config when that
+                config reaches a terminal state — on BOTH the resume-skip ("already converged")
+                path and the converged path — with the config's strategy_id. When None (the
+                default), no progress signal is emitted and behavior is unchanged. The callback
+                owns the per-config *progress* output (the TTY bar / non-TTY progress lines); the
+                tournament itself does no console (stdout) I/O, though it still emits its own
+                status lines (e.g. "Config ... converged") through the logger.
 
         Returns:
             Dict[str, Dict]: {strategy_id: {"param_values": <7-param dict>, "win_rate": float}}.
@@ -112,6 +118,8 @@ class SweepTournament:
         """
         if not strategies:
             raise ConfigurationError("SweepTournament.run requires a non-empty strategies list")
+
+        logger = get_logger()  # KDD-3: resolve at call time so --log-level governs this output
 
         candidates = generate_candidate_values(baseline_params, self._num_values)  # KDD-3: fixed grid
         results: Dict[str, Dict] = {}
@@ -125,6 +133,8 @@ class SweepTournament:
                     "param_values": dict(conv["best_param_values"]),
                     "win_rate": conv["best_win_rate"],
                 }
+                if progress_callback is not None:  # KDD-2: fire on the resume-skip path
+                    progress_callback(strategy_id)
                 continue
             if conv is not None and conv.get("status") == "in_progress":
                 # Resume the interrupted config from its checkpointed best point (NOT re-evaluated).
@@ -179,5 +189,7 @@ class SweepTournament:
             self._store.mark_config_progress(strategy_id, "converged", current, best_rate)
             results[strategy_id] = {"param_values": dict(current), "win_rate": best_rate}
             logger.info(f"Config {strategy_id} converged | win_rate={best_rate:.3f}")
+            if progress_callback is not None:  # KDD-2: fire on the converged path
+                progress_callback(strategy_id)
 
         return results

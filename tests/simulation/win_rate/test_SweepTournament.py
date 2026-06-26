@@ -250,3 +250,44 @@ class TestSweepTournament:
         t2.run([("s2", [{"s": "2"}])], baseline, carry_over_seeds={})
         first_pv = ev2.evaluate.call_args_list[0].args[1]
         assert first_pv["PRIMARY_BONUS"] == baseline["PRIMARY_BONUS"]  # baseline 67, no seed
+
+
+class TestSweepTournamentProgressCallback:
+    """T16/KDD-2: the optional progress_callback fires exactly once per config (on both the
+    converged and the resume-skip path), and defaults to a no-op when not supplied."""
+
+    def test_callback_fires_once_per_converged_config(self, tmp_path):
+        # Flat landscape: every config converges immediately on baseline. The callback must
+        # fire exactly once per config, with that config's strategy_id.
+        ev = _evaluator(lambda do, pv: 0.6)
+        t = SweepTournament(ev, _store(tmp_path))
+        seen = []
+        t.run(
+            [("s1", [{"s": "1"}]), ("s2", [{"s": "2"}]), ("s3", [{"s": "3"}])],
+            _baseline(),
+            progress_callback=lambda sid: seen.append(sid),
+        )
+        assert seen == ["s1", "s2", "s3"]  # once per config, in order
+
+    def test_callback_fires_on_resume_skip_path(self, tmp_path):
+        # A pre-marked converged config is resume-skipped (evaluator not called) but the callback
+        # must STILL fire once for it, or a resumed pass would never reach 100% on the bar.
+        store = _store(tmp_path)
+        baseline = _baseline()
+        store.mark_config_progress("s1", "converged", baseline, 0.8)
+        ev = _evaluator(lambda do, pv: 0.6)
+        t = SweepTournament(ev, store)
+        seen = []
+        t.run(
+            [("s1", [{"s": "1"}])], baseline, resume=True,
+            progress_callback=lambda sid: seen.append(sid),
+        )
+        assert ev.evaluate.call_count == 0  # skipped (no evaluation)
+        assert seen == ["s1"]  # callback still fired once on the skip path
+
+    def test_callback_default_none_is_noop(self, tmp_path):
+        # No progress_callback -> unchanged behavior, no error. The result map is still produced.
+        ev = _evaluator(lambda do, pv: 0.6)
+        t = SweepTournament(ev, _store(tmp_path))
+        result = t.run([("s1", [{"s": "1"}])], _baseline())
+        assert set(result.keys()) == {"s1"}
