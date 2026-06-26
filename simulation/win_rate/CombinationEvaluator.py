@@ -27,8 +27,6 @@ from simulation.win_rate.ParallelLeagueRunner import ParallelLeagueRunner
 from simulation.win_rate.SimDataLoader import SimDataLoader
 from simulation.win_rate.config_overrides import apply_draft_overrides
 
-logger = get_logger()
-
 
 class CombinationEvaluator:
     """
@@ -65,6 +63,8 @@ class CombinationEvaluator:
             FileOperationError: If the base config cannot be loaded.
             FileNotFoundError: If no 20XX/ season folders exist under data_folder.
         """
+        logger = get_logger()  # KDD-3: resolve at call time so --log-level governs this output
+
         self._num_simulations = num_simulations
 
         try:
