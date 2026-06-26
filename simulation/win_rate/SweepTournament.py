@@ -106,7 +106,9 @@ class SweepTournament:
                 config reaches a terminal state — on BOTH the resume-skip ("already converged")
                 path and the converged path — with the config's strategy_id. When None (the
                 default), no progress signal is emitted and behavior is unchanged. The callback
-                owns any console / log output; the tournament itself does no console I/O.
+                owns the per-config *progress* output (the TTY bar / non-TTY progress lines); the
+                tournament itself does no console (stdout) I/O, though it still emits its own
+                status lines (e.g. "Config ... converged") through the logger.
 
         Returns:
             Dict[str, Dict]: {strategy_id: {"param_values": <7-param dict>, "win_rate": float}}.

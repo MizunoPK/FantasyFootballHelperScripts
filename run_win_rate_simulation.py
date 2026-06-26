@@ -250,23 +250,29 @@ def _run_sweep_mode(args: argparse.Namespace, data_folder: Path, logger) -> None
             if args.endless:
                 logger.info(f"--- Endless sweep pass {pass_num} starting ---")
                 print(f"=== Endless sweep pass {pass_num} ===")  # T10/D2: header before the per-pass table
-            # T16/KDD-1+KDD-4: a FRESH per-pass tracker so endless mode resets cleanly each pass;
-            # total = number of configs in the pass (per-config granularity).
-            tracker = ProgressTracker(total=len(strategies), description="Configs")
+            # T16/KDD-1+KDD-4: on a TTY, a FRESH per-pass ProgressTracker bar (so endless mode
+            # resets cleanly each pass; total = configs in the pass). Off a TTY we build NO
+            # tracker — progress is plain full-line INFO logs via a per-pass counter — so piped /
+            # --enable-log-file output stays logger-lines-only with no ProgressTracker stdout banner.
+            total = len(strategies)
+            tracker = ProgressTracker(total=total, description="Configs") if is_tty else None
+            logged = 0  # off-TTY per-config counter (the bar owns the count on a TTY)
 
             def progress_cb(strategy_id: str) -> None:
                 """Per-config progress signal: advance the bar (TTY) or log a line (non-TTY)."""
+                nonlocal logged
                 if is_tty:
                     tracker.update()
                 else:
-                    logger.info(f"config {tracker.completed + 1}/{tracker.total} ({strategy_id})")
-                    tracker.completed += 1
+                    logged += 1
+                    logger.info(f"config {logged}/{total} ({strategy_id})")
 
             tournament.run(
                 strategies, baseline_params, resume=resume, carry_over_seeds=carry_over,
                 progress_callback=progress_cb,
             )
-            tracker.finish()
+            if is_tty:
+                tracker.finish()
             resume = False  # endless passes 2+ are always full fresh passes (carry-over governs them)
             if args.endless:
                 # T10/D1: build the next pass's per-config seed map from the store's converged

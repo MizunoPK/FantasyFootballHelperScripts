@@ -70,8 +70,9 @@ class TestSweepProgressWiring:
             "config " in str(c.args[0]) for c in logger.info.call_args_list if c.args
         )
 
-    def test_non_tty_callback_logs_a_line_and_does_not_update_bar(self, tmp_path):
-        # Off a TTY the wired callback emits a logger.info line and does NOT call tracker.update().
+    def test_non_tty_callback_logs_a_line_and_builds_no_tracker(self, tmp_path):
+        # Off a TTY the wired callback emits a logger.info line and NO ProgressTracker is built at
+        # all (so finish()'s stdout banner never fires) — a per-pass counter drives the 1-based lines.
         args = _sweep_args(tmp_path)
         logger = Mock()
         with ExitStack() as stack:
@@ -80,9 +81,6 @@ class TestSweepProgressWiring:
             MockTracker = stack.enter_context(patch(f"{MODULE}.ProgressTracker"))
             MockTour = stack.enter_context(patch(f"{MODULE}.SweepTournament"))
             stack.enter_context(patch("sys.stdout.isatty", return_value=False))
-            # A real-ish completed counter so the "completed + 1" formatting works.
-            MockTracker.return_value.completed = 0
-            MockTracker.return_value.total = 2
 
             def fake_run(strategies, baseline_params, resume, carry_over_seeds, progress_callback):
                 for sid, _ in strategies:
@@ -91,13 +89,15 @@ class TestSweepProgressWiring:
             MockTour.return_value.run.side_effect = fake_run
             rws._run_sweep_mode(args, Path(args.data), logger)
 
-        tracker = MockTracker.return_value
-        assert tracker.update.call_count == 0  # non-TTY never redraws the bar
+        # Off a TTY no ProgressTracker is constructed, so neither update() nor finish() can fire.
+        assert MockTracker.call_count == 0
         progress_lines = [
             c.args[0] for c in logger.info.call_args_list
             if c.args and str(c.args[0]).startswith("config ")
         ]
         assert len(progress_lines) == 2  # one INFO line per config
+        assert str(progress_lines[0]).startswith("config 1/2 (")  # 1-based, per-pass counter
+        assert str(progress_lines[1]).startswith("config 2/2 (")
 
     def test_progress_callback_passed_to_tournament_run(self, tmp_path):
         # The callback is wired through as the progress_callback kwarg of tournament.run.
