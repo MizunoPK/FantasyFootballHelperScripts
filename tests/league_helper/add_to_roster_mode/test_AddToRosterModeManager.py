@@ -617,6 +617,20 @@ class TestGetRecommendations:
                 call.kwargs.get('draft_round') == 14 for call in calls
             )
 
+    def test_get_recommendations_full_roster_returns_empty_no_typeerror(
+        self, add_to_roster_manager, mock_player_manager
+    ):
+        """Roster-full guard: when _get_current_round() returns None (full roster),
+        get_recommendations() returns [] without raising TypeError on `current_round - 1`,
+        even if draftable players remain. (Added in Polish per PR #21 review.)"""
+        with patch.object(add_to_roster_manager, '_get_current_round', return_value=None):
+            # Must not raise TypeError (None - 1); returns no recommendations.
+            result = add_to_roster_manager.get_recommendations()
+
+            assert result == []
+            # score_player must never be called once the roster-full guard returns.
+            mock_player_manager.score_player.assert_not_called()
+
     def test_get_recommendations_enables_all_scoring_factors(self, add_to_roster_manager, mock_player_manager):
         """Test that scoring factors are configured correctly for draft mode"""
         with patch.object(add_to_roster_manager, '_get_current_round', return_value=1):
