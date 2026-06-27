@@ -599,7 +599,23 @@ class TestGetRecommendations:
             add_to_roster_manager.get_recommendations()
 
             calls = mock_player_manager.score_player.call_args_list
-            assert any(call.kwargs.get('draft_round') == 5 for call in calls)
+            assert any(call.kwargs.get('draft_round') == 4 for call in calls)
+
+    def test_get_recommendations_final_round_passes_zero_indexed_round(
+        self, add_to_roster_manager, mock_player_manager
+    ):
+        """Regression: final round (15) must pass the 0-indexed round (14) so
+        get_draft_order_bonus indexes draft_order[14], never draft_order[15]
+        (which previously raised IndexError on the last pick)."""
+        with patch.object(add_to_roster_manager, '_get_current_round', return_value=15):
+            # Must not raise (the IndexError this story fixes).
+            add_to_roster_manager.get_recommendations()
+
+            calls = mock_player_manager.score_player.call_args_list
+            assert len(calls) > 0
+            assert all(
+                call.kwargs.get('draft_round') == 14 for call in calls
+            )
 
     def test_get_recommendations_enables_all_scoring_factors(self, add_to_roster_manager, mock_player_manager):
         """Test that scoring factors are configured correctly for draft mode"""

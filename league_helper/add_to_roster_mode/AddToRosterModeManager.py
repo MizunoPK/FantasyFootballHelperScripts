@@ -203,7 +203,7 @@ class AddToRosterModeManager:
         for p in available_players:
             scored_player = self.player_manager.score_player(
                 p,
-                draft_round=current_round,
+                draft_round=current_round - 1,
                 adp=True,
                 player_rating=True,
                 team_quality=True,

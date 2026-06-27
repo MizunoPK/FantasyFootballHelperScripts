@@ -154,7 +154,7 @@ class ConfigManager:
     Example:
         >>> config = ConfigManager(Path("./data"))
         >>> adp_mult = config.get_adp_multiplier(15)  # ADP of 15 → returns multiplier
-        >>> draft_bonus = config.get_draft_order_bonus("RB", 1)  # RB in round 1 → returns bonus
+        >>> draft_bonus = config.get_draft_order_bonus("RB", 0)  # RB in first round (0-indexed) → returns bonus
     """
 
 
@@ -514,10 +514,10 @@ class ConfigManager:
                 - bonus_type: "PRIMARY", "SECONDARY", or "" (no bonus)
 
         Example:
-            Round 1 strategy: {"RB": "P", "WR": "S"}
-            - get_draft_order_bonus("RB", 1) → (10.0, "PRIMARY")
-            - get_draft_order_bonus("WR", 1) → (5.0, "SECONDARY")
-            - get_draft_order_bonus("QB", 1) → (0, "")
+            First round strategy (draft_round=0): {"RB": "P", "WR": "S"}
+            - get_draft_order_bonus("RB", 0) → (10.0, "PRIMARY")
+            - get_draft_order_bonus("WR", 0) → (5.0, "SECONDARY")
+            - get_draft_order_bonus("QB", 0) → (0, "")
         """
         position_with_flex = self.get_position_with_flex(position)
 
