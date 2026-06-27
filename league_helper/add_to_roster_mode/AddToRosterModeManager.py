@@ -200,10 +200,18 @@ class AddToRosterModeManager:
 
         current_round=self._get_current_round()
 
+        # Roster-full guard: _get_current_round() returns None when the roster is full
+        # (15/15). Without this, `draft_round=current_round - 1` below would raise
+        # TypeError if any draftable player still remained. Return no recommendations,
+        # matching the existing "roster full / no pick available" semantics.
+        if current_round is None:
+            self.logger.debug("Roster is full (no current draft round) - no recommendations")
+            return []
+
         for p in available_players:
             scored_player = self.player_manager.score_player(
                 p,
-                draft_round=current_round,
+                draft_round=current_round - 1,
                 adp=True,
                 player_rating=True,
                 team_quality=True,
