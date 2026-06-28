@@ -164,13 +164,17 @@ class TestTeamInitialization:
 
         league = SimulatedLeague(sample_config_dict, tmp_path / "data")
 
-        assert SimulatedLeague.TEAM_STRATEGIES['draft_helper'] == 1
-        assert SimulatedLeague.TEAM_STRATEGIES['adp_aggressive'] == 2
-        assert SimulatedLeague.TEAM_STRATEGIES['projected_points_aggressive'] == 2
-        assert SimulatedLeague.TEAM_STRATEGIES['adp_with_draft_order'] == 2
-        assert SimulatedLeague.TEAM_STRATEGIES['projected_points_with_draft_order'] == 3
+        assert SimulatedLeague.NAIVE_TEAM_STRATEGIES['draft_helper'] == 1
+        assert SimulatedLeague.NAIVE_TEAM_STRATEGIES['adp_aggressive'] == 2
+        assert SimulatedLeague.NAIVE_TEAM_STRATEGIES['projected_points_aggressive'] == 2
+        assert SimulatedLeague.NAIVE_TEAM_STRATEGIES['adp_with_draft_order'] == 2
+        assert SimulatedLeague.NAIVE_TEAM_STRATEGIES['projected_points_with_draft_order'] == 3
 
-        assert sum(SimulatedLeague.TEAM_STRATEGIES.values()) == 10
+        assert sum(SimulatedLeague.NAIVE_TEAM_STRATEGIES.values()) == 10
+
+        # Default composition is self-play: 10 DraftHelperTeams, no SimulatedOpponents.
+        assert SimulatedLeague.SELF_PLAY_TEAM_STRATEGIES == {'draft_helper': 10}
+        assert sum(SimulatedLeague.SELF_PLAY_TEAM_STRATEGIES.values()) == 10
 
     @patch('simulation.win_rate.SimulatedLeague.tempfile.mkdtemp')
     @patch('simulation.win_rate.SimulatedLeague.SimulatedLeague._initialize_teams')

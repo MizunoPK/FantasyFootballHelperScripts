@@ -59,7 +59,7 @@ class TestMeasuredVsReferenceDivergence:
 
         league = None
         try:
-            with patch.object(SimulatedLeague, "TEAM_STRATEGIES", self_play):
+            with patch.object(SimulatedLeague, "SELF_PLAY_TEAM_STRATEGIES", self_play):
                 # Act
                 league = SimulatedLeague(
                     base_config_dict,
@@ -106,7 +106,7 @@ class TestMeasuredConfigZeroDraftHelperGuard:
 
         league = None
         try:
-            with patch.object(SimulatedLeague, "TEAM_STRATEGIES", no_draft_helper):
+            with patch.object(SimulatedLeague, "SELF_PLAY_TEAM_STRATEGIES", no_draft_helper):
                 # Act / Assert
                 with pytest.raises(ValueError) as exc_info:
                     league = SimulatedLeague(

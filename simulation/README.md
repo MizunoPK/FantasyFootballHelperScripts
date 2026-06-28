@@ -505,10 +505,15 @@ PARAM_DEFINITIONS = {
 
 ### Modifying Opponent Strategies
 
-Edit `SimulatedLeague.TEAM_STRATEGIES` to change distribution:
+`SimulatedLeague` selects between two opponent compositions:
+
+- **`SELF_PLAY_TEAM_STRATEGIES`** — the **default**: 10 `DraftHelperTeam`s (`{'draft_helper': 10}`), a self-play field that pulls the measured team's baseline win rate to ~0.50.
+- **`NAIVE_TEAM_STRATEGIES`** — the legacy naive field (1 `DraftHelperTeam` + 9 weaker `SimulatedOpponent`s), selected when `naive_opponents=True` (CLI: `--naive-opponents`), which reproduces the higher ~0.84 baseline.
+
+Edit the relevant constant to change a distribution. For example, to adjust the naive field:
 
 ```python
-TEAM_STRATEGIES = {
+NAIVE_TEAM_STRATEGIES = {
     'draft_helper': 1,
     'adp_aggressive': 3,  # Changed from 2
     'projected_points_aggressive': 3,  # Changed from 2
@@ -516,6 +521,8 @@ TEAM_STRATEGIES = {
     'projected_points_with_draft_order': 2  # Changed from 3
 }
 ```
+
+To run the sweep against the legacy naive regime instead of the self-play default, pass `--naive-opponents` to `run_win_rate_simulation.py`.
 
 ## Credits
 

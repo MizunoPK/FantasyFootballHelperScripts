@@ -80,6 +80,21 @@ def _make_evaluator(tmp_path, per_season_results, num_seasons=2, num_sims=10, va
 class TestCombinationEvaluator:
     """Tests for CombinationEvaluator."""
 
+    def test_naive_opponents_threads_to_runner(self, tmp_path):
+        """naive_opponents passed to the evaluator reaches ParallelLeagueRunner (D2)."""
+        (tmp_path / "2021").mkdir()
+        with patch(f"{MODULE}.ConfigManager") as MockCM, \
+             patch(f"{MODULE}.SimDataLoader") as MockLoader, \
+             patch(f"{MODULE}.ParallelLeagueRunner") as MockRunner:
+            MockCM.return_value.config_name = "test"
+            MockCM.return_value.description = "test"
+            MockCM.return_value.parameters = _fake_params()
+            MockLoader.return_value.is_valid = True
+            MockLoader.return_value.week_data_cache = {1: {}}
+            CombinationEvaluator(tmp_path, num_simulations=10, naive_opponents=True)
+
+        assert MockRunner.call_args.kwargs["naive_opponents"] is True
+
     def test_evaluate_aggregates_wins_and_games_across_seasons(self, tmp_path):
         ev, _ = _make_evaluator(tmp_path, [(10, 7, 1.0), (12, 5, 2.0)], num_seasons=2)
         wins, games, win_rate = ev.evaluate([{"RB": "P"}], _valid_param_values())

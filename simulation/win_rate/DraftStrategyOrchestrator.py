@@ -29,6 +29,7 @@ class DraftStrategyOrchestrator:
         meta_data_manager: WinRateMetaDataManager,
         config_path: Path = Path("data/configs/league_config.json"),
         strategy_filter: Optional[str] = None,
+        naive_opponents: bool = False,
     ) -> None:
         """
         Initialize the orchestrator.
@@ -48,6 +49,8 @@ class DraftStrategyOrchestrator:
                 this exact basename is simulated. Comparison is Path.name == strategy_filter
                 (exact match, no partial/substring matching). Default None runs all
                 strategies.
+            naive_opponents (bool): Forwarded to the CombinationEvaluator (and thus the
+                ParallelLeagueRunner / SimulatedLeague). False (default) = self-play; True = naive.
         """
         self._data_folder = data_folder
         self._num_simulations = num_simulations
@@ -59,6 +62,7 @@ class DraftStrategyOrchestrator:
             num_simulations=num_simulations,
             max_workers=max_workers,
             config_path=config_path,
+            naive_opponents=naive_opponents,
         )
         self._baseline_params: Dict[str, float] = extract_draft_param_values(
             self._evaluator.base_config

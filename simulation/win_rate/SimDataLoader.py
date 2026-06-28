@@ -5,7 +5,7 @@ from typing import Dict, Optional, Any
 from simulation.win_rate.SimulatedLeague import SimulatedLeague, DRAFT_ROUNDS
 from utils.LoggingManager import get_logger
 
-MIN_VALID_PLAYERS = sum(SimulatedLeague.TEAM_STRATEGIES.values()) * DRAFT_ROUNDS
+MIN_VALID_PLAYERS = sum(SimulatedLeague.SELF_PLAY_TEAM_STRATEGIES.values()) * DRAFT_ROUNDS
 
 
 class SimDataLoader:

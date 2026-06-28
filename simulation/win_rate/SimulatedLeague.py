@@ -2,8 +2,9 @@
 Simulated League
 
 Orchestrates a complete fantasy football league simulation including draft
-and 17-week season. Manages 10 teams (1 DraftHelperTeam + 9 SimulatedOpponents)
-through the entire process.
+and 17-week season. Manages 10 teams through the entire process — by default a
+self-play field of 10 DraftHelperTeams, or (naive_opponents=True) the legacy field
+of 1 DraftHelperTeam + 9 SimulatedOpponents.
 
 The simulation process:
 1. Initialize teams with separate PlayerManager instances
@@ -41,12 +42,12 @@ class SimulatedLeague:
     Manages 10 teams through draft and 17-week season, tracking results
     and determining final standings.
 
-    Team Distribution (from TODO):
-    - 1 DraftHelperTeam (our system being tested)
-    - 2 adp_aggressive opponents
-    - 2 projected_points_aggressive opponents
-    - 2 adp_with_draft_order opponents
-    - 3 projected_points_with_draft_order opponents
+    Team Distribution:
+    - Self-play (default): 10 DraftHelperTeams sharing the reference config; one is
+      designated the measured/reported team, the rest are self-play opponents.
+    - Naive (naive_opponents=True): 1 DraftHelperTeam + 9 SimulatedOpponents
+      (2 adp_aggressive, 2 projected_points_aggressive, 2 adp_with_draft_order,
+      3 projected_points_with_draft_order).
 
     Attributes:
         config_dict (dict): League configuration dictionary
@@ -59,16 +60,21 @@ class SimulatedLeague:
         logger: Logger instance
     """
 
-    TEAM_STRATEGIES = {
+    SELF_PLAY_TEAM_STRATEGIES = {
+        'draft_helper': 10
+    }
+    """Self-play composition (the DEFAULT): 10 DraftHelperTeams sharing the reference config, no SimulatedOpponents. dict values sum to 10 total teams per league. With identical configs the only asymmetry between teams is the randomized snake-draft order, so the measured team's baseline win rate sits near ~0.50 — giving config differences headroom to register. _initialize_teams designates one DraftHelperTeam as the measured (reported) team; the rest are self-play opponents."""
+
+    NAIVE_TEAM_STRATEGIES = {
         'draft_helper': 1,
         'adp_aggressive': 2,
         'projected_points_aggressive': 2,
         'adp_with_draft_order': 2,
         'projected_points_with_draft_order': 3
     }
-    """Mapping of opponent strategy name to team count; dict values sum to 9 opponents + 1 DraftHelperTeam = 10 total teams per league. The 1/2/2/2/3 distribution reflects the relative prevalence of each strategy among typical human fantasy drafters."""
+    """Legacy naive-opponent composition (selected when naive_opponents=True): 1 DraftHelperTeam + 9 SimulatedOpponents. dict values sum to 9 opponents + 1 DraftHelperTeam = 10 total teams per league. The 1/2/2/2/3 distribution reflects the relative prevalence of each strategy among typical human fantasy drafters. Retained verbatim so the prior ~0.84 baseline regime stays reproducible (T24)."""
 
-    def __init__(self, config_dict: dict, data_folder: Path = Path("./simulation/sim_data"), preloaded_week_data: Optional[Dict[int, Dict]] = None, measured_config_dict: Optional[dict] = None) -> None:
+    def __init__(self, config_dict: dict, data_folder: Path = Path("./simulation/sim_data"), preloaded_week_data: Optional[Dict[int, Dict]] = None, measured_config_dict: Optional[dict] = None, naive_opponents: bool = False) -> None:
         """
         Initialize SimulatedLeague with configuration.
 
@@ -85,6 +91,10 @@ class SimulatedLeague:
                 the measured team's PlayerManagers are built with this config too, so its draft-side
                 params differ from the opponents'. Default None preserves the legacy single-config
                 behavior (the last draft_helper team is the measured one and shares config_dict).
+            naive_opponents (bool): When False (default) the opponent composition is self-play
+                (SELF_PLAY_TEAM_STRATEGIES — 10 DraftHelperTeams, no SimulatedOpponents). When True
+                the legacy naive composition (NAIVE_TEAM_STRATEGIES — 1 DraftHelperTeam + 9
+                SimulatedOpponents) is used, reproducing the prior ~0.84 baseline regime (T24).
 
         Raises:
             FileNotFoundError: If data files are missing.
@@ -97,6 +107,7 @@ class SimulatedLeague:
 
         self.config_dict = config_dict
         self.measured_config_dict = measured_config_dict
+        self.naive_opponents = naive_opponents
         self.data_folder = data_folder
 
         self.temp_dir = Path(tempfile.mkdtemp(prefix="sim_league_"))
@@ -126,9 +137,9 @@ class SimulatedLeague:
         """
         Initialize all 10 teams with separate PlayerManager instances.
 
-        Creates:
-        - 1 DraftHelperTeam
-        - 9 SimulatedOpponents with strategy distribution
+        Creates either:
+        - self-play (default): 10 DraftHelperTeams (one designated the measured/reported team), or
+        - naive (naive_opponents=True): 1 DraftHelperTeam + 9 SimulatedOpponents with strategy distribution
 
         OPTIMIZATION: Uses shared read-only directories instead of per-team copies.
         Each team gets its own PlayerManager instance (with independent in-memory state)
@@ -142,8 +153,9 @@ class SimulatedLeague:
         """
         self.logger.debug("Initializing 10 teams with shared data directories (optimized)")
 
+        composition = self.NAIVE_TEAM_STRATEGIES if self.naive_opponents else self.SELF_PLAY_TEAM_STRATEGIES
         strategies = []
-        for strategy, count in self.TEAM_STRATEGIES.items():
+        for strategy, count in composition.items():
             strategies.extend([strategy] * count)
 
         random.shuffle(strategies)
@@ -172,7 +184,7 @@ class SimulatedLeague:
                 raise ValueError(
                     "SimulatedLeague._initialize_teams: measured_config_dict was provided but the "
                     "team composition contains no 'draft_helper' team to apply it to. This indicates "
-                    "a wiring bug in the league composition (TEAM_STRATEGIES)."
+                    "a wiring bug in the league composition (NAIVE_TEAM_STRATEGIES / SELF_PLAY_TEAM_STRATEGIES)."
                 )
             try:
                 measured_config = self._build_measured_config(self.measured_config_dict)
