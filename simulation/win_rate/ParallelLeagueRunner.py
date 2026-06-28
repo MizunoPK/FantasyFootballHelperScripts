@@ -352,11 +352,16 @@ class ParallelLeagueRunner:
 
         if self.last_dropped_count > 0:
             drop_rate = self.last_dropped_count / num_simulations if num_simulations else 0.0
-            severity = "HIGH DROP RATE" if drop_rate > self.drop_rate_threshold else "leagues dropped"
-            self.logger.error(
-                f"{severity}: {self.last_dropped_count}/{num_simulations} leagues dropped "
+            msg = (
+                f"{self.last_dropped_count}/{num_simulations} leagues dropped "
                 f"({len(results)}/{num_simulations} completed, rate={drop_rate:.1%})"
             )
+            # KDD-2: prepend the elevated label only when an operator has configured a
+            # non-zero drop_rate_threshold AND this drop rate exceeds it. At the default
+            # threshold (0.0) every drop still logs at ERROR, with the neutral phrasing.
+            if self.drop_rate_threshold > 0.0 and drop_rate > self.drop_rate_threshold:
+                msg = f"HIGH DROP RATE: {msg}"
+            self.logger.error(msg)
 
         self.logger.debug(
             f"Completed {len(results)}/{num_simulations} simulations successfully"
@@ -462,11 +467,16 @@ class ParallelLeagueRunner:
 
         if self.last_dropped_count > 0:
             drop_rate = self.last_dropped_count / num_simulations if num_simulations else 0.0
-            severity = "HIGH DROP RATE" if drop_rate > self.drop_rate_threshold else "leagues dropped"
-            self.logger.error(
-                f"{severity}: {self.last_dropped_count}/{num_simulations} leagues dropped "
+            msg = (
+                f"{self.last_dropped_count}/{num_simulations} leagues dropped "
                 f"({len(results)}/{num_simulations} completed, rate={drop_rate:.1%})"
             )
+            # KDD-2: prepend the elevated label only when an operator has configured a
+            # non-zero drop_rate_threshold AND this drop rate exceeds it. At the default
+            # threshold (0.0) every drop still logs at ERROR, with the neutral phrasing.
+            if self.drop_rate_threshold > 0.0 and drop_rate > self.drop_rate_threshold:
+                msg = f"HIGH DROP RATE: {msg}"
+            self.logger.error(msg)
 
         self.logger.debug(
             f"Completed {len(results)}/{num_simulations} simulations successfully (with weeks)"

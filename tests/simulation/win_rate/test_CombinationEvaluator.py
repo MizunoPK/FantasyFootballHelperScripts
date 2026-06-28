@@ -167,11 +167,12 @@ class TestCombinationEvaluator:
             test_logger = logging.getLogger('test_evaluator')
             mock_get_logger.return_value = test_logger
 
-            ev, mock_runner = _make_evaluator(tmp_path, [(10, 7, 1.0)], num_seasons=2, num_sims=10)
-            # Simulate one drop per season: each run_simulations_for_config call leaves
-            # last_dropped_count == 1, last_requested_count == 10.
+            # One drop per season with one survivor: requested=2, completed=1, dropped=1
+            # (survivor-results length + dropped == requested, matching the real runner
+            # contract where dropped = requested - len(results)).
+            ev, mock_runner = _make_evaluator(tmp_path, [(10, 7, 1.0)], num_seasons=2, num_sims=2)
             mock_runner.last_dropped_count = 1
-            mock_runner.last_requested_count = 10
+            mock_runner.last_requested_count = 2
 
             with caplog.at_level(logging.ERROR, logger='test_evaluator'):
                 wins, games, win_rate = ev.evaluate([{"RB": "P"}], _valid_param_values())
@@ -179,10 +180,10 @@ class TestCombinationEvaluator:
             # Survivor results are unchanged ([(10, 7, 1.0)] per season x 2 seasons).
             assert wins == 20
             assert games == 34
-            # Aggregated drop ERROR surfaced once (2 seasons x 1 drop = 2 of 20 requested).
+            # Aggregated drop ERROR surfaced once (2 seasons x 1 drop = 2 of 4 requested).
             assert any(
                 record.levelno == logging.ERROR
-                and "evaluate dropped 2/20 leagues" in record.getMessage()
+                and "evaluate dropped 2/4 leagues" in record.getMessage()
                 for record in caplog.records
             )
 
@@ -192,9 +193,11 @@ class TestCombinationEvaluator:
             test_logger = logging.getLogger('test_evaluator')
             mock_get_logger.return_value = test_logger
 
-            ev, mock_runner = _make_evaluator(tmp_path, [(10, 7, 1.0)], num_seasons=2, num_sims=10)
+            # All complete: one survivor, requested=1, dropped=0 (survivor-results length
+            # == requested, matching the real runner contract).
+            ev, mock_runner = _make_evaluator(tmp_path, [(10, 7, 1.0)], num_seasons=2, num_sims=1)
             mock_runner.last_dropped_count = 0
-            mock_runner.last_requested_count = 10
+            mock_runner.last_requested_count = 1
 
             with caplog.at_level(logging.ERROR, logger='test_evaluator'):
                 ev.evaluate([{"RB": "P"}], _valid_param_values())
