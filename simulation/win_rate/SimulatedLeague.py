@@ -87,7 +87,11 @@ class SimulatedLeague:
                 behavior (the last draft_helper team is the measured one and shares config_dict).
 
         Raises:
-            FileNotFoundError: If data files are missing
+            FileNotFoundError: If data files are missing.
+            ValueError: If measured_config_dict is provided but the team composition
+                contains no 'draft_helper' team to apply it to (D2), or if the measured
+                config is malformed/invalid (D3, re-raised from ConfigManager; a malformed
+                measured config may alternatively surface as FileNotFoundError).
         """
         self.logger = get_logger()
 
@@ -175,7 +179,8 @@ class SimulatedLeague:
             except (ValueError, FileNotFoundError) as e:
                 self.logger.error(
                     f"SimulatedLeague._initialize_teams: failed to build the measured team's "
-                    f"ConfigManager from measured_config_dict: {e}"
+                    f"ConfigManager from measured_config_dict: {e}",
+                    exc_info=True,
                 )
                 raise
 
