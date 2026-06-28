@@ -36,7 +36,7 @@ def _init_worker_process(week_data: Optional[Dict[int, Dict]]) -> None:
     _WORKER_PRELOADED_WEEK_DATA = week_data
 
 
-def _run_simulation_process(args: Tuple[dict, int, Path]) -> Tuple[int, int, float]:
+def _run_simulation_process(args: Tuple[dict, int, Path, bool]) -> Tuple[int, int, float]:
     """
     Run a single simulation in a separate process.
 
@@ -46,15 +46,15 @@ def _run_simulation_process(args: Tuple[dict, int, Path]) -> Tuple[int, int, flo
     worker by _init_worker_process, avoiding per-simulation pickling.
 
     Args:
-        args: Tuple of (config_dict, simulation_id, data_folder)
+        args: Tuple of (config_dict, simulation_id, data_folder, naive_opponents)
 
     Returns:
         Tuple[int, int, float]: (wins, losses, total_points) for DraftHelperTeam
     """
-    config_dict, simulation_id, data_folder = args
+    config_dict, simulation_id, data_folder, naive_opponents = args
     league = None
     try:
-        league = SimulatedLeague(config_dict, data_folder, _WORKER_PRELOADED_WEEK_DATA)
+        league = SimulatedLeague(config_dict, data_folder, _WORKER_PRELOADED_WEEK_DATA, naive_opponents=naive_opponents)
         league.run_draft()
         league.run_season()
         wins, losses, total_points = league.get_draft_helper_results()
@@ -65,7 +65,7 @@ def _run_simulation_process(args: Tuple[dict, int, Path]) -> Tuple[int, int, flo
             del league
 
 
-def _run_simulation_with_weeks_process(args: Tuple[dict, int, Path]) -> List[Tuple[int, bool, float]]:
+def _run_simulation_with_weeks_process(args: Tuple[dict, int, Path, bool]) -> List[Tuple[int, bool, float]]:
     """
     Run a single simulation with week tracking in a separate process.
 
@@ -75,16 +75,16 @@ def _run_simulation_with_weeks_process(args: Tuple[dict, int, Path]) -> List[Tup
     _init_worker_process, avoiding per-simulation pickling.
 
     Args:
-        args: Tuple of (config_dict, simulation_id, data_folder)
+        args: Tuple of (config_dict, simulation_id, data_folder, naive_opponents)
 
     Returns:
         List[Tuple[int, bool, float]]: Per-week results as list of
             (week_number, won, points) tuples
     """
-    config_dict, simulation_id, data_folder = args
+    config_dict, simulation_id, data_folder, naive_opponents = args
     league = None
     try:
-        league = SimulatedLeague(config_dict, data_folder, _WORKER_PRELOADED_WEEK_DATA)
+        league = SimulatedLeague(config_dict, data_folder, _WORKER_PRELOADED_WEEK_DATA, naive_opponents=naive_opponents)
         league.run_draft()
         league.run_season()
         week_results = league.get_draft_helper_results_by_week()
@@ -127,7 +127,8 @@ class ParallelLeagueRunner:
         max_workers: int = 4,
         data_folder: Optional[Path] = None,
         progress_callback: Optional[Callable[[int, int], None]] = None,
-        use_processes: bool = False
+        use_processes: bool = False,
+        naive_opponents: bool = False
     ) -> None:
         """
         Initialize ParallelLeagueRunner.
@@ -141,10 +142,14 @@ class ParallelLeagueRunner:
                 Default False uses ThreadPoolExecutor. ProcessPoolExecutor bypasses
                 Python's GIL, providing real speedup on multi-core systems for
                 CPU-bound simulation work.
+            naive_opponents (bool): Forwarded verbatim to every SimulatedLeague this runner
+                builds (thread-mode and process-mode workers alike). False (default) selects the
+                self-play composition; True selects the legacy naive composition.
         """
         self.max_workers = max_workers
         self.data_folder = data_folder or Path("simulation/sim_data")
         self.use_processes = use_processes
+        self.naive_opponents = naive_opponents
         self.logger = get_logger()
         self.progress_callback = progress_callback
         self.lock = threading.Lock()
@@ -199,7 +204,7 @@ class ParallelLeagueRunner:
             Exception: Any exception during simulation is logged and re-raised
         """
         try:
-            league = SimulatedLeague(config_dict, self.data_folder, preloaded_week_data)
+            league = SimulatedLeague(config_dict, self.data_folder, preloaded_week_data, naive_opponents=self.naive_opponents)
 
             league.run_draft()
             league.run_season()
@@ -241,7 +246,7 @@ class ParallelLeagueRunner:
             Exception: Any exception during simulation is logged and re-raised
         """
         try:
-            league = SimulatedLeague(config_dict, self.data_folder, preloaded_week_data)
+            league = SimulatedLeague(config_dict, self.data_folder, preloaded_week_data, naive_opponents=self.naive_opponents)
 
             league.run_draft()
             league.run_season()
@@ -305,7 +310,7 @@ class ParallelLeagueRunner:
                 initargs=(preloaded_week_data,)
             )
             sim_args = [
-                (config_dict, sim_id, self.data_folder)
+                (config_dict, sim_id, self.data_folder, self.naive_opponents)
                 for sim_id in range(num_simulations)
             ]
             future_to_sim_id = {
@@ -420,7 +425,7 @@ class ParallelLeagueRunner:
                 initargs=(preloaded_week_data,)
             )
             sim_args = [
-                (config_dict, sim_id, self.data_folder)
+                (config_dict, sim_id, self.data_folder, self.naive_opponents)
                 for sim_id in range(num_simulations)
             ]
             future_to_sim_id = {

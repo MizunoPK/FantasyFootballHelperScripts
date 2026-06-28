@@ -104,7 +104,7 @@ class TestSimDataLoaderWeekDataCache:
 
 class TestSimDataLoaderValidateSeasonData:
     def test_min_valid_players_threshold(self):
-        expected = sum(SimulatedLeague.TEAM_STRATEGIES.values()) * DRAFT_ROUNDS
+        expected = sum(SimulatedLeague.SELF_PLAY_TEAM_STRATEGIES.values()) * DRAFT_ROUNDS
         assert MIN_VALID_PLAYERS == expected
         assert MIN_VALID_PLAYERS == 150
 

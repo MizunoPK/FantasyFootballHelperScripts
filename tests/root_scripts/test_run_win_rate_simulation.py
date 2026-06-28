@@ -180,6 +180,7 @@ class TestMainFlow:
                 max_workers=2,
                 meta_data_manager=mock_mdm_cls.return_value,
                 strategy_filter=None,
+                naive_opponents=False,
             )
 
     def test_keyboard_interrupt_exits_zero(self, tmp_path):

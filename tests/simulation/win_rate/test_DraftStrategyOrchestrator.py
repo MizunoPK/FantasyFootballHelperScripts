@@ -62,3 +62,11 @@ class TestOrchestratorRouting:
 
         assert MockEval.return_value.evaluate.call_count == 2
         assert meta.update.call_count == 2
+
+    def test_naive_opponents_threads_to_evaluator(self, tmp_path):
+        """naive_opponents passed to the orchestrator reaches CombinationEvaluator (D2)."""
+        with patch(f"{MODULE}.CombinationEvaluator") as MockEval:
+            MockEval.return_value.base_config = _fake_base_config()
+            DraftStrategyOrchestrator(tmp_path, num_simulations=10, max_workers=2,
+                                      meta_data_manager=Mock(), naive_opponents=True)
+            assert MockEval.call_args.kwargs["naive_opponents"] is True

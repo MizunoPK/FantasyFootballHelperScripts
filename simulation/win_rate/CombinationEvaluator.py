@@ -48,6 +48,7 @@ class CombinationEvaluator:
         num_simulations: int,
         max_workers: int = 8,
         config_path: Path = Path("data/configs/league_config.json"),
+        naive_opponents: bool = False,
     ) -> None:
         """
         Build the evaluator's reusable resources once.
@@ -58,6 +59,8 @@ class CombinationEvaluator:
             max_workers (int): Worker threads for ParallelLeagueRunner.
             config_path (Path): Path to league_config.json; config_path.parent.parent
                 is the ConfigManager data root. Defaults to data/configs/league_config.json.
+            naive_opponents (bool): Forwarded to the ParallelLeagueRunner (and thus every
+                SimulatedLeague). False (default) = self-play composition; True = legacy naive.
 
         Raises:
             FileOperationError: If the base config cannot be loaded.
@@ -77,7 +80,7 @@ class CombinationEvaluator:
         except (FileNotFoundError, ValueError) as e:
             raise FileOperationError(f"Failed to load config from {config_path}: {e}") from e
 
-        self._runner = ParallelLeagueRunner(max_workers=max_workers, data_folder=data_folder)
+        self._runner = ParallelLeagueRunner(max_workers=max_workers, data_folder=data_folder, naive_opponents=naive_opponents)
 
         seasons = sorted(data_folder.glob("20*/"))
         if not seasons:

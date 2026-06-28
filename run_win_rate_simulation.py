@@ -80,6 +80,11 @@ def _build_parser() -> argparse.ArgumentParser:
         "--fresh", action="store_true",
         help="Ignore any existing sweep checkpoint and run every config from baseline. Sweep mode only."
     )
+    parser.add_argument(
+        "--naive-opponents", action="store_true",
+        help="Use the legacy naive-opponent composition (1 DraftHelperTeam + 9 SimulatedOpponents) "
+             "instead of the default self-play field (10 DraftHelperTeams). Reproduces the prior ~0.84 baseline."
+    )
     return parser
 
 
@@ -151,6 +156,7 @@ def main() -> None:
         max_workers=args.workers,
         meta_data_manager=meta_data_manager,
         strategy_filter=args.strategy,
+        naive_opponents=args.naive_opponents,
     )
 
     pass_num = 0
@@ -183,7 +189,8 @@ def _run_sweep_mode(args: argparse.Namespace, data_folder: Path, logger) -> None
     strategies = [(filename, draft_order) for filename, draft_order, _ in triples]
 
     evaluator = CombinationEvaluator(
-        data_folder=data_folder, num_simulations=args.sims, max_workers=args.workers
+        data_folder=data_folder, num_simulations=args.sims, max_workers=args.workers,
+        naive_opponents=args.naive_opponents
     )
     baseline_params = extract_draft_param_values(evaluator.base_config)
     store = SweepResultsManager(data_folder / "win_rate_sweep_results.json")
