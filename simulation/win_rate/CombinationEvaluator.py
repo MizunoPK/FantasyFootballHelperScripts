@@ -129,18 +129,34 @@ class CombinationEvaluator:
         Raises:
             ConfigurationError: Propagated from apply_draft_overrides on a bad param set.
         """
+        logger = get_logger()  # KDD-3: resolve at call time so --log-level governs this output
+
         config = apply_draft_overrides(self._base_config, draft_order, param_values)
 
         total_wins = 0
         total_losses = 0
+        eval_dropped = 0
+        eval_requested = 0
         for season_folder, week_data_cache in self._season_cache.items():
             self._runner.set_data_folder(season_folder)
             results = self._runner.run_simulations_for_config(
                 config, self._num_simulations, preloaded_week_data=week_data_cache
             )
+            # D3: read the runner's per-call drop counters immediately after the call (safe
+            # because evaluate() runs the runner sequentially per season — see class docstring).
+            eval_dropped += self._runner.last_dropped_count
+            eval_requested += self._runner.last_requested_count
             for wins, losses, _ in results:
                 total_wins += wins
                 total_losses += losses
+
+        if eval_dropped > 0:
+            drop_rate = eval_dropped / eval_requested if eval_requested else 0.0
+            logger.error(
+                f"evaluate dropped {eval_dropped}/{eval_requested} leagues across "
+                f"{len(self._season_cache)} season(s) (rate={drop_rate:.1%}) — "
+                "win_rate is computed over survivors only"
+            )
 
         total_games = total_wins + total_losses
         win_rate = total_wins / total_games if total_games > 0 else 0.0

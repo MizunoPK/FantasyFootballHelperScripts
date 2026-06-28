@@ -149,6 +149,15 @@ class ParallelLeagueRunner:
         self.progress_callback = progress_callback
         self.lock = threading.Lock()
 
+        # Drop-surfacing counters (KDD-1): reset+set per run_simulations_for_config[/_with_weeks]
+        # call so a caller can read the dropped count immediately after the call it just made.
+        self.last_requested_count = 0
+        self.last_completed_count = 0
+        self.last_dropped_count = 0
+        # Drop-rate threshold (KDD-2): default 0.0 so any drop already logs at ERROR; when the
+        # observed drop rate exceeds this, the ERROR message uses elevated phrasing.
+        self.drop_rate_threshold = 0.0
+
         executor_type = "ProcessPoolExecutor" if use_processes else "ThreadPoolExecutor"
         self.logger.debug(f"ParallelLeagueRunner initialized with {max_workers} workers ({executor_type})")
 
@@ -278,6 +287,12 @@ class ParallelLeagueRunner:
             f"Running {num_simulations} simulations with {self.max_workers} {executor_type}"
         )
 
+        # KDD-1: reset per-call drop counters at the start of every call so they describe
+        # exactly this call's outcome (no carry-over from a prior reuse of the runner).
+        self.last_requested_count = num_simulations
+        self.last_completed_count = 0
+        self.last_dropped_count = 0
+
         results = []
         completed_count = 0
 
@@ -332,9 +347,15 @@ class ParallelLeagueRunner:
         finally:
             executor.shutdown(wait=False, cancel_futures=True)
 
-        if len(results) < num_simulations:
-            self.logger.warning(
-                f"Only {len(results)}/{num_simulations} simulations completed"
+        self.last_completed_count = len(results)
+        self.last_dropped_count = num_simulations - len(results)
+
+        if self.last_dropped_count > 0:
+            drop_rate = self.last_dropped_count / num_simulations if num_simulations else 0.0
+            severity = "HIGH DROP RATE" if drop_rate > self.drop_rate_threshold else "leagues dropped"
+            self.logger.error(
+                f"{severity}: {self.last_dropped_count}/{num_simulations} leagues dropped "
+                f"({len(results)}/{num_simulations} completed, rate={drop_rate:.1%})"
             )
 
         self.logger.debug(
@@ -375,6 +396,12 @@ class ParallelLeagueRunner:
         self.logger.debug(
             f"Running {num_simulations} simulations with week tracking ({self.max_workers} {executor_type})"
         )
+
+        # KDD-1: reset per-call drop counters at the start of every call so they describe
+        # exactly this call's outcome (no carry-over from a prior reuse of the runner).
+        self.last_requested_count = num_simulations
+        self.last_completed_count = 0
+        self.last_dropped_count = 0
 
         results = []
         completed_count = 0
@@ -430,9 +457,15 @@ class ParallelLeagueRunner:
         finally:
             executor.shutdown(wait=False, cancel_futures=True)
 
-        if len(results) < num_simulations:
-            self.logger.warning(
-                f"Only {len(results)}/{num_simulations} simulations completed"
+        self.last_completed_count = len(results)
+        self.last_dropped_count = num_simulations - len(results)
+
+        if self.last_dropped_count > 0:
+            drop_rate = self.last_dropped_count / num_simulations if num_simulations else 0.0
+            severity = "HIGH DROP RATE" if drop_rate > self.drop_rate_threshold else "leagues dropped"
+            self.logger.error(
+                f"{severity}: {self.last_dropped_count}/{num_simulations} leagues dropped "
+                f"({len(results)}/{num_simulations} completed, rate={drop_rate:.1%})"
             )
 
         self.logger.debug(

@@ -11,6 +11,7 @@ Author: Kai Mizuno
 
 # Standard library
 import copy
+import logging
 from pathlib import Path
 from unittest.mock import Mock, patch
 
@@ -59,6 +60,9 @@ def _make_evaluator(tmp_path, per_season_results, num_seasons=2, num_sims=10, va
 
     mock_runner = Mock()
     mock_runner.run_simulations_for_config.return_value = per_season_results
+    # Initialize counter attributes (KDD-1) for compatibility with evaluate()'s counter-reading
+    mock_runner.last_dropped_count = 0
+    mock_runner.last_requested_count = num_sims
 
     with patch(f"{MODULE}.ConfigManager") as MockCM, \
          patch(f"{MODULE}.SimDataLoader") as MockLoader, \
@@ -156,3 +160,45 @@ class TestCombinationEvaluator:
         assert cfg == ev._base_config
         cfg["parameters"]["SAME_POS_BYE_WEIGHT"] = 999  # mutate the returned copy
         assert ev._base_config["parameters"]["SAME_POS_BYE_WEIGHT"] != 999  # internal unaffected
+
+    def test_evaluate_surfaces_dropped_leagues_across_seasons(self, tmp_path, caplog):
+        """A dropped league per season is aggregated, logged at ERROR, and total_games is reduced."""
+        with patch(f"{MODULE}.get_logger") as mock_get_logger:
+            test_logger = logging.getLogger('test_evaluator')
+            mock_get_logger.return_value = test_logger
+
+            ev, mock_runner = _make_evaluator(tmp_path, [(10, 7, 1.0)], num_seasons=2, num_sims=10)
+            # Simulate one drop per season: each run_simulations_for_config call leaves
+            # last_dropped_count == 1, last_requested_count == 10.
+            mock_runner.last_dropped_count = 1
+            mock_runner.last_requested_count = 10
+
+            with caplog.at_level(logging.ERROR, logger='test_evaluator'):
+                wins, games, win_rate = ev.evaluate([{"RB": "P"}], _valid_param_values())
+
+            # Survivor results are unchanged ([(10, 7, 1.0)] per season x 2 seasons).
+            assert wins == 20
+            assert games == 34
+            # Aggregated drop ERROR surfaced once (2 seasons x 1 drop = 2 of 20 requested).
+            assert any(
+                record.levelno == logging.ERROR
+                and "evaluate dropped 2/20 leagues" in record.getMessage()
+                for record in caplog.records
+            )
+
+    def test_evaluate_no_drop_error_when_all_complete(self, tmp_path, caplog):
+        """Zero drops -> no evaluate-level ERROR is logged."""
+        with patch(f"{MODULE}.get_logger") as mock_get_logger:
+            test_logger = logging.getLogger('test_evaluator')
+            mock_get_logger.return_value = test_logger
+
+            ev, mock_runner = _make_evaluator(tmp_path, [(10, 7, 1.0)], num_seasons=2, num_sims=10)
+            mock_runner.last_dropped_count = 0
+            mock_runner.last_requested_count = 10
+
+            with caplog.at_level(logging.ERROR, logger='test_evaluator'):
+                ev.evaluate([{"RB": "P"}], _valid_param_values())
+
+            assert not any(
+                "evaluate dropped" in record.getMessage() for record in caplog.records
+            )
