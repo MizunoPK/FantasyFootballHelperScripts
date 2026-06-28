@@ -68,7 +68,7 @@ class SimulatedLeague:
     }
     """Mapping of opponent strategy name to team count; dict values sum to 9 opponents + 1 DraftHelperTeam = 10 total teams per league. The 1/2/2/2/3 distribution reflects the relative prevalence of each strategy among typical human fantasy drafters."""
 
-    def __init__(self, config_dict: dict, data_folder: Path = Path("./simulation/sim_data"), preloaded_week_data: Optional[Dict[int, Dict]] = None) -> None:
+    def __init__(self, config_dict: dict, data_folder: Path = Path("./simulation/sim_data"), preloaded_week_data: Optional[Dict[int, Dict]] = None, measured_config_dict: Optional[dict] = None) -> None:
         """
         Initialize SimulatedLeague with configuration.
 
@@ -77,13 +77,26 @@ class SimulatedLeague:
             data_folder (Path): Path to folder containing weeks/ subfolder with
                                week-specific JSON player data and teams_week_N.csv files
             preloaded_week_data (Optional[Dict[int, Dict]]): Pre-loaded week data from SimDataLoader. If provided, skips internal _preload_all_weeks() file reads.
+            measured_config_dict (Optional[dict]): When provided, the single measured
+                DraftHelperTeam (the one reported by get_draft_helper_results) is built with
+                THIS config while every other team — including any additional self-play
+                DraftHelperTeam opponents — uses config_dict. Because draft scoring runs through
+                each team's own PlayerManager (AddToRosterModeManager -> player_manager.score_player),
+                the measured team's PlayerManagers are built with this config too, so its draft-side
+                params differ from the opponents'. Default None preserves the legacy single-config
+                behavior (the last draft_helper team is the measured one and shares config_dict).
 
         Raises:
-            FileNotFoundError: If data files are missing
+            FileNotFoundError: If data files are missing.
+            ValueError: If measured_config_dict is provided but the team composition
+                contains no 'draft_helper' team to apply it to (D2), or if the measured
+                config is malformed/invalid (D3, re-raised from ConfigManager; a malformed
+                measured config may alternatively surface as FileNotFoundError).
         """
         self.logger = get_logger()
 
         self.config_dict = config_dict
+        self.measured_config_dict = measured_config_dict
         self.data_folder = data_folder
 
         self.temp_dir = Path(tempfile.mkdtemp(prefix="sim_league_"))
@@ -153,19 +166,70 @@ class SimulatedLeague:
             shared_dir, shared_config, shared_schedule_mgr, shared_config.current_nfl_week
         )
 
-        for idx, strategy in enumerate(strategies):
-            projected_pm = PlayerManager(shared_dir, shared_config, shared_team_data_mgr, shared_schedule_mgr)
-            actual_pm = PlayerManager(shared_dir, shared_config, shared_team_data_mgr, shared_schedule_mgr)
+        measured_config = None
+        if self.measured_config_dict is not None:
+            if strategies.count('draft_helper') == 0:
+                raise ValueError(
+                    "SimulatedLeague._initialize_teams: measured_config_dict was provided but the "
+                    "team composition contains no 'draft_helper' team to apply it to. This indicates "
+                    "a wiring bug in the league composition (TEAM_STRATEGIES)."
+                )
+            try:
+                measured_config = self._build_measured_config(self.measured_config_dict)
+            except (ValueError, FileNotFoundError) as e:
+                self.logger.error(
+                    f"SimulatedLeague._initialize_teams: failed to build the measured team's "
+                    f"ConfigManager from measured_config_dict: {e}",
+                    exc_info=True,
+                )
+                raise
 
-            if strategy == 'draft_helper':
-                team = DraftHelperTeam(projected_pm, actual_pm, shared_config, shared_team_data_mgr)
+        measured_assigned = False
+        for idx, strategy in enumerate(strategies):
+            if strategy == 'draft_helper' and measured_config is not None and not measured_assigned:
+                # The single measured DraftHelperTeam scores with its own config: its
+                # PlayerManagers (whose scoring_calculator carries the draft-side params) are
+                # built from measured_config, not shared_config.
+                projected_pm = PlayerManager(shared_dir, measured_config, shared_team_data_mgr, shared_schedule_mgr)
+                actual_pm = PlayerManager(shared_dir, measured_config, shared_team_data_mgr, shared_schedule_mgr)
+                team = DraftHelperTeam(projected_pm, actual_pm, measured_config, shared_team_data_mgr)
                 self.draft_helper_team = team
+                measured_assigned = True
+            elif strategy == 'draft_helper':
+                projected_pm = PlayerManager(shared_dir, shared_config, shared_team_data_mgr, shared_schedule_mgr)
+                actual_pm = PlayerManager(shared_dir, shared_config, shared_team_data_mgr, shared_schedule_mgr)
+                team = DraftHelperTeam(projected_pm, actual_pm, shared_config, shared_team_data_mgr)
+                if measured_config is None:
+                    # Legacy single-config path: the last draft_helper is the measured team.
+                    self.draft_helper_team = team
             else:
+                projected_pm = PlayerManager(shared_dir, shared_config, shared_team_data_mgr, shared_schedule_mgr)
+                actual_pm = PlayerManager(shared_dir, shared_config, shared_team_data_mgr, shared_schedule_mgr)
                 team = SimulatedOpponent(projected_pm, actual_pm, shared_config, shared_team_data_mgr, strategy)
 
             self.teams.append(team)
 
         self.logger.debug(f"Initialized {len(self.teams)} teams (using shared data directory)")
+
+    def _build_measured_config(self, config_dict: dict) -> ConfigManager:
+        """
+        Build a standalone ConfigManager for the measured team from config_dict.
+
+        Writes config_dict as league_config.json into a dedicated temp subdir and loads it via
+        ConfigManager (legacy single-file layout, same as the shared config). Only the config is
+        needed here — player data, schedule, and team data are shared with the rest of the league.
+
+        Args:
+            config_dict (dict): The measured team's configuration dictionary.
+
+        Returns:
+            ConfigManager: Config manager scoped to the measured team.
+        """
+        measured_dir = self.temp_dir / "measured_config_data"
+        measured_dir.mkdir(exist_ok=True)
+        with open(measured_dir / "league_config.json", 'w') as f:
+            json.dump(config_dict, f, indent=2)
+        return ConfigManager(measured_dir)
 
     def _create_shared_data_dir(self, dir_name: str, week_folder: Path) -> Path:
         """
