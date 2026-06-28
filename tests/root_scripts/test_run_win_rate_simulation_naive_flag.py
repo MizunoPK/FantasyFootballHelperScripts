@@ -6,6 +6,8 @@ False), and main() threads args.naive_opponents into DraftStrategyOrchestrator. 
 engine-chain threading (orchestrator -> evaluator -> runner -> SimulatedLeague) is covered by the
 per-link unit tests in test_DraftStrategyOrchestrator.py / test_CombinationEvaluator.py /
 test_ParallelLeagueRunner.py. Composition/wiring only — no win-rate magnitude (D3).
+
+Author: Kai Mizuno
 """
 from unittest.mock import MagicMock, patch
 

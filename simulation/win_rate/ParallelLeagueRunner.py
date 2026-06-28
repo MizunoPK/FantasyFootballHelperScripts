@@ -203,6 +203,7 @@ class ParallelLeagueRunner:
         Raises:
             Exception: Any exception during simulation is logged and re-raised
         """
+        league = None
         try:
             league = SimulatedLeague(config_dict, self.data_folder, preloaded_week_data, naive_opponents=self.naive_opponents)
 
@@ -217,8 +218,9 @@ class ParallelLeagueRunner:
             self.logger.error(f"[Sim {simulation_id}] Failed: {e}", exc_info=True)
             raise
         finally:
-            league.cleanup()
-            del league
+            if league:
+                league.cleanup()
+                del league
 
     def run_single_simulation_with_weeks(
         self,
@@ -245,6 +247,7 @@ class ParallelLeagueRunner:
         Raises:
             Exception: Any exception during simulation is logged and re-raised
         """
+        league = None
         try:
             league = SimulatedLeague(config_dict, self.data_folder, preloaded_week_data, naive_opponents=self.naive_opponents)
 
@@ -259,8 +262,9 @@ class ParallelLeagueRunner:
             self.logger.error(f"[Sim {simulation_id}] Failed: {e}", exc_info=True)
             raise
         finally:
-            league.cleanup()
-            del league
+            if league:
+                league.cleanup()
+                del league
 
     def run_simulations_for_config(
         self,
