@@ -149,6 +149,15 @@ class ParallelLeagueRunner:
         self.progress_callback = progress_callback
         self.lock = threading.Lock()
 
+        # Drop-surfacing counters (KDD-1): reset+set per run_simulations_for_config[/_with_weeks]
+        # call so a caller can read the dropped count immediately after the call it just made.
+        self.last_requested_count = 0
+        self.last_completed_count = 0
+        self.last_dropped_count = 0
+        # Drop-rate threshold (KDD-2): default 0.0 so any drop already logs at ERROR; when the
+        # observed drop rate exceeds this, the ERROR message uses elevated phrasing.
+        self.drop_rate_threshold = 0.0
+
         executor_type = "ProcessPoolExecutor" if use_processes else "ThreadPoolExecutor"
         self.logger.debug(f"ParallelLeagueRunner initialized with {max_workers} workers ({executor_type})")
 
@@ -278,6 +287,12 @@ class ParallelLeagueRunner:
             f"Running {num_simulations} simulations with {self.max_workers} {executor_type}"
         )
 
+        # KDD-1: reset per-call drop counters at the start of every call so they describe
+        # exactly this call's outcome (no carry-over from a prior reuse of the runner).
+        self.last_requested_count = num_simulations
+        self.last_completed_count = 0
+        self.last_dropped_count = 0
+
         results = []
         completed_count = 0
 
@@ -332,10 +347,21 @@ class ParallelLeagueRunner:
         finally:
             executor.shutdown(wait=False, cancel_futures=True)
 
-        if len(results) < num_simulations:
-            self.logger.warning(
-                f"Only {len(results)}/{num_simulations} simulations completed"
+        self.last_completed_count = len(results)
+        self.last_dropped_count = num_simulations - len(results)
+
+        if self.last_dropped_count > 0:
+            drop_rate = self.last_dropped_count / num_simulations if num_simulations else 0.0
+            msg = (
+                f"{self.last_dropped_count}/{num_simulations} leagues dropped "
+                f"({len(results)}/{num_simulations} completed, rate={drop_rate:.1%})"
             )
+            # KDD-2: prepend the elevated label only when an operator has configured a
+            # non-zero drop_rate_threshold AND this drop rate exceeds it. At the default
+            # threshold (0.0) every drop still logs at ERROR, with the neutral phrasing.
+            if self.drop_rate_threshold > 0.0 and drop_rate > self.drop_rate_threshold:
+                msg = f"HIGH DROP RATE: {msg}"
+            self.logger.error(msg)
 
         self.logger.debug(
             f"Completed {len(results)}/{num_simulations} simulations successfully"
@@ -375,6 +401,12 @@ class ParallelLeagueRunner:
         self.logger.debug(
             f"Running {num_simulations} simulations with week tracking ({self.max_workers} {executor_type})"
         )
+
+        # KDD-1: reset per-call drop counters at the start of every call so they describe
+        # exactly this call's outcome (no carry-over from a prior reuse of the runner).
+        self.last_requested_count = num_simulations
+        self.last_completed_count = 0
+        self.last_dropped_count = 0
 
         results = []
         completed_count = 0
@@ -430,10 +462,21 @@ class ParallelLeagueRunner:
         finally:
             executor.shutdown(wait=False, cancel_futures=True)
 
-        if len(results) < num_simulations:
-            self.logger.warning(
-                f"Only {len(results)}/{num_simulations} simulations completed"
+        self.last_completed_count = len(results)
+        self.last_dropped_count = num_simulations - len(results)
+
+        if self.last_dropped_count > 0:
+            drop_rate = self.last_dropped_count / num_simulations if num_simulations else 0.0
+            msg = (
+                f"{self.last_dropped_count}/{num_simulations} leagues dropped "
+                f"({len(results)}/{num_simulations} completed, rate={drop_rate:.1%})"
             )
+            # KDD-2: prepend the elevated label only when an operator has configured a
+            # non-zero drop_rate_threshold AND this drop rate exceeds it. At the default
+            # threshold (0.0) every drop still logs at ERROR, with the neutral phrasing.
+            if self.drop_rate_threshold > 0.0 and drop_rate > self.drop_rate_threshold:
+                msg = f"HIGH DROP RATE: {msg}"
+            self.logger.error(msg)
 
         self.logger.debug(
             f"Completed {len(results)}/{num_simulations} simulations successfully (with weeks)"

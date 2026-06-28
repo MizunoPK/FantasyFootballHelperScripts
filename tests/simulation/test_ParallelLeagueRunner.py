@@ -7,6 +7,7 @@ Author: Kai Mizuno
 """
 
 import pytest
+import logging
 from pathlib import Path
 from unittest.mock import Mock, MagicMock, patch, call
 import threading
@@ -164,6 +165,64 @@ class TestRunSimulationsForConfig:
         assert results[0] == (10, 7, 1234.56)
 
     @patch('simulation.win_rate.ParallelLeagueRunner.SimulatedLeague')
+    def test_run_simulations_zero_drops_quiet(self, mock_league_class, caplog):
+        """All sims succeed -> drop counter is 0 and no ERROR is logged."""
+        mock_league = Mock()
+        mock_league.get_draft_helper_results.return_value = (10, 7, 1234.56)
+        mock_league_class.return_value = mock_league
+
+        runner = ParallelLeagueRunner(max_workers=1)
+        config = {}
+
+        with caplog.at_level(logging.ERROR):
+            results = runner.run_simulations_for_config(config, num_simulations=3)
+
+        assert len(results) == 3
+        assert runner.last_requested_count == 3
+        assert runner.last_completed_count == 3
+        assert runner.last_dropped_count == 0
+        assert not any(
+            "leagues dropped" in record.getMessage() for record in caplog.records
+        )
+
+    @patch('simulation.win_rate.ParallelLeagueRunner.get_logger')
+    @patch('simulation.win_rate.ParallelLeagueRunner.SimulatedLeague')
+    def test_run_simulations_with_weeks_handles_one_failure(self, mock_league_class, mock_get_logger, caplog):
+        """One failed sim in the _with_weeks path -> dropped counter == 1 and ERROR logged."""
+        # Set up caplog-compatible logger
+        test_logger = logging.getLogger('test_runner')
+        mock_get_logger.return_value = test_logger
+
+        call_count = [0]
+
+        def create_league_with_failure(config, data_folder, preloaded_week_data=None):
+            mock_league = Mock()
+            sim_num = call_count[0]
+            call_count[0] += 1
+            if sim_num == 1:
+                mock_league.get_draft_helper_results_by_week.side_effect = Exception("Simulation failed")
+            else:
+                mock_league.get_draft_helper_results_by_week.return_value = [(1, True, 100.0)]
+            return mock_league
+
+        mock_league_class.side_effect = create_league_with_failure
+
+        runner = ParallelLeagueRunner(max_workers=1)
+        config = {}
+
+        with caplog.at_level(logging.ERROR, logger='test_runner'):
+            results = runner.run_simulations_for_config_with_weeks(config, num_simulations=3)
+
+        assert len(results) == 2
+        assert runner.last_requested_count == 3
+        assert runner.last_completed_count == 2
+        assert runner.last_dropped_count == 1
+        assert any(
+            record.levelno == logging.ERROR and "leagues dropped" in record.getMessage()
+            for record in caplog.records
+        )
+
+    @patch('simulation.win_rate.ParallelLeagueRunner.SimulatedLeague')
     def test_run_simulations_multiple_sims(self, mock_league_class):
         """Test running multiple simulations for config"""
         mock_league = Mock()
@@ -209,9 +268,14 @@ class TestRunSimulationsForConfig:
             assert call_args[0][1] == 3
             assert 1 <= call_args[0][0] <= 3
 
+    @patch('simulation.win_rate.ParallelLeagueRunner.get_logger')
     @patch('simulation.win_rate.ParallelLeagueRunner.SimulatedLeague')
-    def test_run_simulations_handles_one_failure(self, mock_league_class):
+    def test_run_simulations_handles_one_failure(self, mock_league_class, mock_get_logger, caplog):
         """Test that one failed simulation doesn't stop others"""
+        # Set up caplog-compatible logger
+        test_logger = logging.getLogger('test_runner')
+        mock_get_logger.return_value = test_logger
+
         call_count = [0]
 
         def create_league_with_failure(config, data_folder, preloaded_week_data=None):
@@ -233,11 +297,19 @@ class TestRunSimulationsForConfig:
         runner = ParallelLeagueRunner(max_workers=1)
         config = {}
 
-        results = runner.run_simulations_for_config(config, num_simulations=3)
+        with caplog.at_level(logging.ERROR, logger='test_runner'):
+            results = runner.run_simulations_for_config(config, num_simulations=3)
 
         assert len(results) == 2
         assert (10, 7, 1234.56) in results
         assert (11, 6, 1345.67) in results
+        assert runner.last_requested_count == 3
+        assert runner.last_completed_count == 2
+        assert runner.last_dropped_count == 1
+        assert any(
+            record.levelno == logging.ERROR and "leagues dropped" in record.getMessage()
+            for record in caplog.records
+        )
 
     @patch('simulation.win_rate.ParallelLeagueRunner.SimulatedLeague')
     def test_run_simulations_zero_simulations(self, mock_league_class):
