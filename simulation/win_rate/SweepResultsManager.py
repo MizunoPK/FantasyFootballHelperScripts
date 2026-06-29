@@ -80,15 +80,21 @@ class SweepResultsManager:
         baseline_params: Dict[str, float],
         num_values: int,
         epsilon: float,
+        base_seed: int,
     ) -> str:
-        """Compute the sweep input fingerprint (D2).
+        """Compute the sweep input fingerprint (D2/T30).
 
         Returns a sha256 hex digest over a pinned canonical JSON serialization of the
-        four inputs that fully determine the per-config search space: the sorted
-        strategy ids, the baseline param anchor, the grid density, and the
-        coordinate-ascent epsilon margin. The canonical form is pinned
-        (``sort_keys=True``, compact separators) so recomputing on the same inputs
-        always yields the same digest and any changed input yields a different one.
+        five inputs that fully determine the per-config search space: the sorted
+        strategy ids, the baseline param anchor, the grid density, the
+        coordinate-ascent epsilon margin, and the run's base seed. The canonical form
+        is pinned (``sort_keys=True``, compact separators) so recomputing on the same
+        inputs always yields the same digest and any changed input yields a different one.
+
+        Including the base seed ensures that an unseeded resume (each run gets a fresh
+        auto-seed) produces a fingerprint mismatch and starts fresh rather than silently
+        mixing seed pools across runs. An explicit ``--seed N`` resume yields the same
+        fingerprint and resumes correctly.
 
         Scope is strategy ids only (not draft_order content) — in-place edits to a
         strategy under the same id are deliberately not detected this slice (D2).
@@ -98,6 +104,7 @@ class SweepResultsManager:
             baseline_params (Dict[str, float]): The 7-param baseline anchor.
             num_values (int): Grid density per parameter.
             epsilon (float): Coordinate-ascent improvement margin.
+            base_seed (int): The run's base seed (auto-assigned or from ``--seed N``).
 
         Returns:
             str: The sha256 hex digest of the canonical input serialization.
@@ -107,6 +114,7 @@ class SweepResultsManager:
             "baseline_params": baseline_params,
             "num_values": num_values,
             "epsilon": epsilon,
+            "base_seed": base_seed,
         }
         canonical = json.dumps(payload, sort_keys=True, separators=(",", ":"))
         return hashlib.sha256(canonical.encode("utf-8")).hexdigest()

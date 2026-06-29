@@ -206,7 +206,7 @@ def _resolve_sweep_seed(args: argparse.Namespace, logger) -> int:
     """
     if args.seed is not None:
         return args.seed
-    base_seed = random.Random().randrange(2 ** 32)
+    base_seed = random.SystemRandom().randrange(2 ** 32)
     logger.info(
         f"Auto-assigned sweep base seed: {base_seed} (re-run with --seed {base_seed} to reproduce)"
     )
@@ -238,7 +238,7 @@ def _run_sweep_mode(args: argparse.Namespace, data_folder: Path, logger) -> None
     # digest, or a mismatch -> no resume (run every config from baseline).
     strategy_ids = [filename for filename, _ in strategies]
     fp_now = SweepResultsManager.compute_input_fingerprint(
-        strategy_ids, baseline_params, args.num_values, DEFAULT_EPSILON
+        strategy_ids, baseline_params, args.num_values, DEFAULT_EPSILON, base_seed
     )
     if args.fresh:
         resume = False

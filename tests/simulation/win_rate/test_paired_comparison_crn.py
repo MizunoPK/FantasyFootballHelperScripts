@@ -107,11 +107,11 @@ class TestPairedVarianceReduction:
     def test_paired_difference_recovers_the_true_gap(self):
         # The paired difference should center on the true gap (P_A - P_B), confirming the
         # variance reduction is around the correct mean rather than a degenerate constant.
-        rep_rng = random.Random(REPLICATE_SEED)
+        # Own dedicated RNG — independent of the F3 test's stream.
+        rep_rng = random.Random(REPLICATE_SEED + 1)
         paired_diffs = []
         for _ in range(R):
             seed_shared = rep_rng.randrange(2 ** 32)
-            rep_rng.randrange(2 ** 32)  # advance identically to the F3 test's stream
             paired_diffs.append(_win_rate(seed_shared, P_A) - _win_rate(seed_shared, P_B))
 
         assert abs(statistics.fmean(paired_diffs) - (P_A - P_B)) < 0.03
@@ -186,9 +186,30 @@ class TestResolveSweepSeed:
             for m in messages
         ), f"expected an auto-assign reproduce hint naming seed {resolved}; got {messages}"
 
-    def test_missing_seed_varies_across_calls(self):
-        # Auto-assignment draws from OS entropy, so two unseeded resolutions almost surely
-        # differ (a fixed constant would silently reuse one draw-set across sweeps).
+    def test_missing_seed_varies_across_calls(self, monkeypatch):
+        # Patch SystemRandom so the test is fully deterministic while proving the code does
+        # NOT return a constant — it passes through the RNG output on each call.
+        # The explicit-seed path must be unaffected (it bypasses the entropy RNG entirely).
+        call_idx = [0]
+        known_values = [1234567, 7654321]
+
+        class FakeSystemRandom:
+            def randrange(self, n):
+                val = known_values[call_idx[0]]
+                call_idx[0] += 1
+                return val
+
+        monkeypatch.setattr(random, "SystemRandom", FakeSystemRandom)
         logger = logging.getLogger("test_resolve_sweep_seed_vary")
-        seeds = {rws._resolve_sweep_seed(Namespace(seed=None), logger) for _ in range(5)}
-        assert len(seeds) > 1
+
+        # Two unseeded calls return the patched non-constant sequence.
+        s1 = rws._resolve_sweep_seed(Namespace(seed=None), logger)
+        s2 = rws._resolve_sweep_seed(Namespace(seed=None), logger)
+        assert s1 == 1234567
+        assert s2 == 7654321
+        assert s1 != s2
+
+        # The explicit-seed path bypasses SystemRandom entirely.
+        s_explicit = rws._resolve_sweep_seed(Namespace(seed=99), logger)
+        assert s_explicit == 99
+        assert call_idx[0] == 2  # no extra randrange call for the explicit path
