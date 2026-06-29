@@ -30,6 +30,7 @@ class DraftStrategyOrchestrator:
         config_path: Path = Path("data/configs/league_config.json"),
         strategy_filter: Optional[str] = None,
         naive_opponents: bool = False,
+        seed: Optional[int] = None,
     ) -> None:
         """
         Initialize the orchestrator.
@@ -51,6 +52,8 @@ class DraftStrategyOrchestrator:
                 strategies.
             naive_opponents (bool): Forwarded to the CombinationEvaluator (and thus the
                 ParallelLeagueRunner / SimulatedLeague). False (default) = self-play; True = naive.
+            seed (Optional[int]): Base seed for deterministic evaluation (D1/T29). Forwarded to
+                CombinationEvaluator → ParallelLeagueRunner. Default None → OS entropy (D3).
         """
         self._data_folder = data_folder
         self._num_simulations = num_simulations
@@ -63,6 +66,7 @@ class DraftStrategyOrchestrator:
             max_workers=max_workers,
             config_path=config_path,
             naive_opponents=naive_opponents,
+            seed=seed,
         )
         self._baseline_params: Dict[str, float] = extract_draft_param_values(
             self._evaluator.base_config

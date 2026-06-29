@@ -85,7 +85,7 @@ class TestRunSingleSimulation:
         runner.run_single_simulation(config, simulation_id=1)
 
         mock_league_class.assert_called_once_with(
-            config, runner.data_folder, None, naive_opponents=True
+            config, runner.data_folder, None, naive_opponents=True, seed=None
         )
 
     @patch('simulation.win_rate.ParallelLeagueRunner.SimulatedLeague')
@@ -100,7 +100,7 @@ class TestRunSingleSimulation:
 
         result = runner.run_single_simulation(config, simulation_id=1)
 
-        mock_league_class.assert_called_once_with(config, runner.data_folder, None, naive_opponents=False)
+        mock_league_class.assert_called_once_with(config, runner.data_folder, None, naive_opponents=False, seed=None)
 
         mock_league.run_draft.assert_called_once()
         mock_league.run_season.assert_called_once()
@@ -211,7 +211,7 @@ class TestRunSimulationsForConfig:
 
         call_count = [0]
 
-        def create_league_with_failure(config, data_folder, preloaded_week_data=None, naive_opponents=False):
+        def create_league_with_failure(config, data_folder, preloaded_week_data=None, naive_opponents=False, seed=None):
             mock_league = Mock()
             sim_num = call_count[0]
             call_count[0] += 1
@@ -294,7 +294,7 @@ class TestRunSimulationsForConfig:
 
         call_count = [0]
 
-        def create_league_with_failure(config, data_folder, preloaded_week_data=None, naive_opponents=False):
+        def create_league_with_failure(config, data_folder, preloaded_week_data=None, naive_opponents=False, seed=None):
             mock_league = Mock()
             sim_num = call_count[0]
             call_count[0] += 1
@@ -444,7 +444,7 @@ class TestTestSingleRun:
         result = runner.test_single_run(config)
 
         assert result == (10, 7, 1234.56)
-        mock_league_class.assert_called_once_with(config, runner.data_folder, None, naive_opponents=False)
+        mock_league_class.assert_called_once_with(config, runner.data_folder, None, naive_opponents=False, seed=None)
 
     @patch('simulation.win_rate.ParallelLeagueRunner.SimulatedLeague')
     def test_test_single_run_with_exception(self, mock_league_class):
@@ -566,7 +566,7 @@ class TestIntegrationScenarios:
 
         runner.test_single_run(config)
 
-        mock_league_class.assert_called_once_with(config, custom_folder, None, naive_opponents=False)
+        mock_league_class.assert_called_once_with(config, custom_folder, None, naive_opponents=False, seed=None)
 
 
 class TestEdgeCases:

@@ -17,7 +17,7 @@ Author: Kai Mizuno
 # Standard library
 import copy
 from pathlib import Path
-from typing import Dict, Tuple
+from typing import Dict, Optional, Tuple
 
 # Local
 from utils.LoggingManager import get_logger
@@ -49,6 +49,7 @@ class CombinationEvaluator:
         max_workers: int = 8,
         config_path: Path = Path("data/configs/league_config.json"),
         naive_opponents: bool = False,
+        seed: Optional[int] = None,
     ) -> None:
         """
         Build the evaluator's reusable resources once.
@@ -61,6 +62,9 @@ class CombinationEvaluator:
                 is the ConfigManager data root. Defaults to data/configs/league_config.json.
             naive_opponents (bool): Forwarded to the ParallelLeagueRunner (and thus every
                 SimulatedLeague). False (default) = self-play composition; True = legacy naive.
+            seed (Optional[int]): Base seed for deterministic evaluation (D1/T29). Forwarded to
+                ParallelLeagueRunner; per-task seeds are derived config-independently (D2). Default
+                None → OS entropy, preserving stochastic behavior (D3).
 
         Raises:
             FileOperationError: If the base config cannot be loaded.
@@ -80,7 +84,7 @@ class CombinationEvaluator:
         except (FileNotFoundError, ValueError) as e:
             raise FileOperationError(f"Failed to load config from {config_path}: {e}") from e
 
-        self._runner = ParallelLeagueRunner(max_workers=max_workers, data_folder=data_folder, naive_opponents=naive_opponents)
+        self._runner = ParallelLeagueRunner(max_workers=max_workers, data_folder=data_folder, naive_opponents=naive_opponents, seed=seed)
 
         seasons = sorted(data_folder.glob("20*/"))
         if not seasons:

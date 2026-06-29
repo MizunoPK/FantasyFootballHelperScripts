@@ -57,7 +57,8 @@ class SimulatedOpponent:
         actual_pm: PlayerManager,
         config: ConfigManager,
         team_data_mgr: TeamDataManager,
-        strategy: str
+        strategy: str,
+        rng: Optional['random.Random'] = None
     ) -> None:
         """
         Initialize SimulatedOpponent.
@@ -68,6 +69,10 @@ class SimulatedOpponent:
             config (ConfigManager): Configuration with scoring parameters
             team_data_mgr (TeamDataManager): Team data for matchup calculations
             strategy (str): Draft strategy to use
+            rng (Optional[random.Random]): RNG instance supplied by the owning SimulatedLeague for
+                deterministic seeding (D1/T29). When provided, _apply_human_error draws through
+                this instance rather than the process-global random module so the league's seed
+                governs every draw. Default None preserves the original stochastic behavior.
 
         Raises:
             ValueError: If strategy is not recognized
@@ -93,6 +98,7 @@ class SimulatedOpponent:
         self.strategy = strategy
 
         self.roster: List[FantasyPlayer] = []
+        self._rng: Optional[random.Random] = rng
 
     def draft_player(self, player: FantasyPlayer) -> None:
         """
@@ -209,9 +215,12 @@ class SimulatedOpponent:
         Returns:
             FantasyPlayer: Selected player (with possible error)
         """
-        if random.random() < self.HUMAN_ERROR_RATE:
+        _rng = self._rng
+        _roll = _rng.random if _rng is not None else random.random
+        _pick = _rng.choice if _rng is not None else random.choice
+        if _roll() < self.HUMAN_ERROR_RATE:
             top_5 = ranked_players[:min(5, len(ranked_players))]
-            return random.choice(top_5)
+            return _pick(top_5)
         else:
             return ranked_players[0]
 
