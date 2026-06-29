@@ -251,8 +251,7 @@ class TestDraft:
     @patch('simulation.win_rate.SimulatedLeague.tempfile.mkdtemp')
     @patch('simulation.win_rate.SimulatedLeague.SimulatedLeague._initialize_teams')
     @patch('simulation.win_rate.SimulatedLeague.SimulatedLeague._generate_schedule')
-    @patch('simulation.win_rate.SimulatedLeague.random.shuffle')
-    def test_run_draft_randomizes_order(self, mock_shuffle, mock_gen_schedule,
+    def test_run_draft_randomizes_order(self, mock_gen_schedule,
                                        mock_init_teams, mock_mkdtemp,
                                        sample_config_dict, tmp_path):
         """Test that draft order is randomized"""
@@ -266,11 +265,12 @@ class TestDraft:
             team.get_draft_recommendation.return_value = Mock(id=1, name="Test", position="QB")
 
         league = SimulatedLeague(sample_config_dict, tmp_path / "data")
+        league._rng = Mock(wraps=league._rng)
         league.teams = mock_teams
 
         league.run_draft()
 
-        assert mock_shuffle.call_count >= 1
+        assert league._rng.shuffle.call_count >= 1
 
     @patch('simulation.win_rate.SimulatedLeague.tempfile.mkdtemp')
     @patch('simulation.win_rate.SimulatedLeague.SimulatedLeague._initialize_teams')

@@ -22,6 +22,7 @@ def _sweep_args(tmp_path):
         data=str(tmp_path), sims=10, workers=2, endless=False, strategy=None,
         log_level="INFO", enable_log_file=False, sweep=True,
         num_values=5, promote=False, fresh=False, naive_opponents=False,
+        seed=None,
     )
 
 

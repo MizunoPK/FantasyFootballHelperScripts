@@ -20,6 +20,7 @@ from pathlib import Path
 from typing import Dict, Callable, Optional, Tuple, List
 from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor, as_completed
 from concurrent.futures.process import BrokenProcessPool
+import hashlib
 import threading
 import gc
 
@@ -36,7 +37,7 @@ def _init_worker_process(week_data: Optional[Dict[int, Dict]]) -> None:
     _WORKER_PRELOADED_WEEK_DATA = week_data
 
 
-def _run_simulation_process(args: Tuple[dict, int, Path, bool]) -> Tuple[int, int, float]:
+def _run_simulation_process(args: Tuple[dict, int, Path, bool, Optional[int]]) -> Tuple[int, int, float]:
     """
     Run a single simulation in a separate process.
 
@@ -46,15 +47,16 @@ def _run_simulation_process(args: Tuple[dict, int, Path, bool]) -> Tuple[int, in
     worker by _init_worker_process, avoiding per-simulation pickling.
 
     Args:
-        args: Tuple of (config_dict, simulation_id, data_folder, naive_opponents)
+        args: Tuple of (config_dict, simulation_id, data_folder, naive_opponents, seed)
+            where seed is the per-task deterministic seed (None → entropy default).
 
     Returns:
         Tuple[int, int, float]: (wins, losses, total_points) for DraftHelperTeam
     """
-    config_dict, simulation_id, data_folder, naive_opponents = args
+    config_dict, simulation_id, data_folder, naive_opponents, seed = args
     league = None
     try:
-        league = SimulatedLeague(config_dict, data_folder, _WORKER_PRELOADED_WEEK_DATA, naive_opponents=naive_opponents)
+        league = SimulatedLeague(config_dict, data_folder, _WORKER_PRELOADED_WEEK_DATA, naive_opponents=naive_opponents, seed=seed)
         league.run_draft()
         league.run_season()
         wins, losses, total_points = league.get_draft_helper_results()
@@ -65,7 +67,7 @@ def _run_simulation_process(args: Tuple[dict, int, Path, bool]) -> Tuple[int, in
             del league
 
 
-def _run_simulation_with_weeks_process(args: Tuple[dict, int, Path, bool]) -> List[Tuple[int, bool, float]]:
+def _run_simulation_with_weeks_process(args: Tuple[dict, int, Path, bool, Optional[int]]) -> List[Tuple[int, bool, float]]:
     """
     Run a single simulation with week tracking in a separate process.
 
@@ -75,16 +77,17 @@ def _run_simulation_with_weeks_process(args: Tuple[dict, int, Path, bool]) -> Li
     _init_worker_process, avoiding per-simulation pickling.
 
     Args:
-        args: Tuple of (config_dict, simulation_id, data_folder, naive_opponents)
+        args: Tuple of (config_dict, simulation_id, data_folder, naive_opponents, seed)
+            where seed is the per-task deterministic seed (None → entropy default).
 
     Returns:
         List[Tuple[int, bool, float]]: Per-week results as list of
             (week_number, won, points) tuples
     """
-    config_dict, simulation_id, data_folder, naive_opponents = args
+    config_dict, simulation_id, data_folder, naive_opponents, seed = args
     league = None
     try:
-        league = SimulatedLeague(config_dict, data_folder, _WORKER_PRELOADED_WEEK_DATA, naive_opponents=naive_opponents)
+        league = SimulatedLeague(config_dict, data_folder, _WORKER_PRELOADED_WEEK_DATA, naive_opponents=naive_opponents, seed=seed)
         league.run_draft()
         league.run_season()
         week_results = league.get_draft_helper_results_by_week()
@@ -93,6 +96,26 @@ def _run_simulation_with_weeks_process(args: Tuple[dict, int, Path, bool]) -> Li
         if league:
             league.cleanup()
             del league
+
+
+def _derive_task_seed(base_seed: int, data_folder: Path, sim_id: int) -> int:
+    """Derive a per-task seed deterministic on (base_seed, data_folder, sim_id).
+
+    Uses SHA-256 for cross-process stability — avoids PYTHONHASHSEED non-determinism
+    of Python's built-in hash() for non-integer objects. Key is config-independent (D2):
+    two different configs evaluated under the same base_seed see the same per-(season,
+    sim_id) draws, which is the property the dependent T30 paired/CRN story consumes.
+
+    Args:
+        base_seed: The run's base seed (from --seed N).
+        data_folder: The active season folder (e.g., Path("simulation/sim_data/2025")).
+        sim_id: The simulation index (0 … num_simulations-1).
+
+    Returns:
+        A 32-bit unsigned integer suitable as a random.Random seed.
+    """
+    key = f"{base_seed}:{data_folder.name}:{sim_id}".encode()
+    return int(hashlib.sha256(key).hexdigest(), 16) % (2 ** 32)
 
 
 class ParallelLeagueRunner:
@@ -128,7 +151,8 @@ class ParallelLeagueRunner:
         data_folder: Optional[Path] = None,
         progress_callback: Optional[Callable[[int, int], None]] = None,
         use_processes: bool = False,
-        naive_opponents: bool = False
+        naive_opponents: bool = False,
+        seed: Optional[int] = None
     ) -> None:
         """
         Initialize ParallelLeagueRunner.
@@ -145,11 +169,16 @@ class ParallelLeagueRunner:
             naive_opponents (bool): Forwarded verbatim to every SimulatedLeague this runner
                 builds (thread-mode and process-mode workers alike). False (default) selects the
                 self-play composition; True selects the legacy naive composition.
+            seed (Optional[int]): Base seed for deterministic evaluation (D1/T29). When provided,
+                each simulation task receives a per-task seed derived from
+                (base_seed, season_folder, sim_id) via _derive_task_seed, making every league's
+                RNG deterministic and config-independent (D2). Default None → OS entropy (D3).
         """
         self.max_workers = max_workers
         self.data_folder = data_folder or Path("simulation/sim_data")
         self.use_processes = use_processes
         self.naive_opponents = naive_opponents
+        self.seed = seed
         self.logger = get_logger()
         self.progress_callback = progress_callback
         self.lock = threading.Lock()
@@ -183,7 +212,8 @@ class ParallelLeagueRunner:
         self,
         config_dict: dict,
         simulation_id: int,
-        preloaded_week_data: Optional[Dict[int, Dict]] = None
+        preloaded_week_data: Optional[Dict[int, Dict]] = None,
+        seed: Optional[int] = None
     ) -> Tuple[int, int, float]:
         """
         Run a single league simulation (thread-safe).
@@ -196,6 +226,8 @@ class ParallelLeagueRunner:
             simulation_id (int): Unique ID for this simulation run
             preloaded_week_data (Optional[Dict[int, Dict]]): Pre-loaded week data from
                 SimDataLoader. If provided, passed to SimulatedLeague to skip file reads.
+            seed (Optional[int]): Per-task deterministic seed derived by the caller (D1/T29).
+                None → OS entropy, preserving stochastic behavior (D3).
 
         Returns:
             Tuple[int, int, float]: (wins, losses, total_points) for DraftHelperTeam
@@ -205,7 +237,7 @@ class ParallelLeagueRunner:
         """
         league = None
         try:
-            league = SimulatedLeague(config_dict, self.data_folder, preloaded_week_data, naive_opponents=self.naive_opponents)
+            league = SimulatedLeague(config_dict, self.data_folder, preloaded_week_data, naive_opponents=self.naive_opponents, seed=seed)
 
             league.run_draft()
             league.run_season()
@@ -226,7 +258,8 @@ class ParallelLeagueRunner:
         self,
         config_dict: dict,
         simulation_id: int,
-        preloaded_week_data: Optional[Dict[int, Dict]] = None
+        preloaded_week_data: Optional[Dict[int, Dict]] = None,
+        seed: Optional[int] = None
     ) -> List[Tuple[int, bool, float]]:
         """
         Run a single league simulation and return per-week results (thread-safe).
@@ -239,6 +272,8 @@ class ParallelLeagueRunner:
             simulation_id (int): Unique ID for this simulation run
             preloaded_week_data (Optional[Dict[int, Dict]]): Pre-loaded week data from
                 SimDataLoader. If provided, passed to SimulatedLeague to skip file reads.
+            seed (Optional[int]): Per-task deterministic seed derived by the caller (D1/T29).
+                None → OS entropy, preserving stochastic behavior (D3).
 
         Returns:
             List[Tuple[int, bool, float]]: Per-week results as list of
@@ -249,7 +284,7 @@ class ParallelLeagueRunner:
         """
         league = None
         try:
-            league = SimulatedLeague(config_dict, self.data_folder, preloaded_week_data, naive_opponents=self.naive_opponents)
+            league = SimulatedLeague(config_dict, self.data_folder, preloaded_week_data, naive_opponents=self.naive_opponents, seed=seed)
 
             league.run_draft()
             league.run_season()
@@ -265,6 +300,25 @@ class ParallelLeagueRunner:
             if league:
                 league.cleanup()
                 del league
+
+    def _derive_task_seeds(self, num_simulations: int) -> List[Optional[int]]:
+        """Derive the per-task seed list for a run (D2/T29).
+
+        Config-independent key (base_seed, season, sim_index); returns None for each
+        task when self.seed is None, preserving the entropy-default (D3). Shared by
+        run_simulations_for_config and run_simulations_for_config_with_weeks so the
+        derivation lives in one place.
+
+        Args:
+            num_simulations (int): Number of simulation tasks in this run.
+
+        Returns:
+            List[Optional[int]]: Per-task seeds aligned to sim_id in range(num_simulations).
+        """
+        return [
+            _derive_task_seed(self.seed, self.data_folder, sim_id) if self.seed is not None else None
+            for sim_id in range(num_simulations)
+        ]
 
     def run_simulations_for_config(
         self,
@@ -305,6 +359,9 @@ class ParallelLeagueRunner:
         results = []
         completed_count = 0
 
+        # Per-task seed derivation (D2/T29) — see _derive_task_seeds.
+        task_seeds = self._derive_task_seeds(num_simulations)
+
         ExecutorClass = ProcessPoolExecutor if self.use_processes else ThreadPoolExecutor
         """Win rate sim uses ThreadPoolExecutor (I/O-bound — disk reads dominate); accuracy sim uses ProcessPoolExecutor (CPU-bound — score computation dominates). ThreadPoolExecutor: lower overhead, sufficient for I/O-bound simulation setup; ProcessPoolExecutor: bypasses GIL for CPU-bound parallelism at the cost of pickling overhead and higher process-creation latency."""
         if self.use_processes:
@@ -314,7 +371,7 @@ class ParallelLeagueRunner:
                 initargs=(preloaded_week_data,)
             )
             sim_args = [
-                (config_dict, sim_id, self.data_folder, self.naive_opponents)
+                (config_dict, sim_id, self.data_folder, self.naive_opponents, task_seeds[sim_id])
                 for sim_id in range(num_simulations)
             ]
             future_to_sim_id = {
@@ -324,7 +381,7 @@ class ParallelLeagueRunner:
         else:
             executor = ExecutorClass(max_workers=self.max_workers)
             future_to_sim_id = {
-                executor.submit(self.run_single_simulation, config_dict, sim_id, preloaded_week_data): sim_id
+                executor.submit(self.run_single_simulation, config_dict, sim_id, preloaded_week_data, task_seeds[sim_id]): sim_id
                 for sim_id in range(num_simulations)
             }
 
@@ -420,6 +477,9 @@ class ParallelLeagueRunner:
         results = []
         completed_count = 0
 
+        # Per-task seed derivation (D2/T29) — see _derive_task_seeds.
+        task_seeds = self._derive_task_seeds(num_simulations)
+
         ExecutorClass = ProcessPoolExecutor if self.use_processes else ThreadPoolExecutor
         """Win rate sim uses ThreadPoolExecutor (I/O-bound — disk reads dominate); accuracy sim uses ProcessPoolExecutor (CPU-bound — score computation dominates). ThreadPoolExecutor: lower overhead, sufficient for I/O-bound simulation setup; ProcessPoolExecutor: bypasses GIL for CPU-bound parallelism at the cost of pickling overhead and higher process-creation latency."""
         if self.use_processes:
@@ -429,7 +489,7 @@ class ParallelLeagueRunner:
                 initargs=(preloaded_week_data,)
             )
             sim_args = [
-                (config_dict, sim_id, self.data_folder, self.naive_opponents)
+                (config_dict, sim_id, self.data_folder, self.naive_opponents, task_seeds[sim_id])
                 for sim_id in range(num_simulations)
             ]
             future_to_sim_id = {
@@ -439,7 +499,7 @@ class ParallelLeagueRunner:
         else:
             executor = ExecutorClass(max_workers=self.max_workers)
             future_to_sim_id = {
-                executor.submit(self.run_single_simulation_with_weeks, config_dict, sim_id, preloaded_week_data): sim_id
+                executor.submit(self.run_single_simulation_with_weeks, config_dict, sim_id, preloaded_week_data, task_seeds[sim_id]): sim_id
                 for sim_id in range(num_simulations)
             }
 

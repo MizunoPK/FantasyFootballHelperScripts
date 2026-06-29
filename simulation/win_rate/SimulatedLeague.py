@@ -74,7 +74,7 @@ class SimulatedLeague:
     }
     """Legacy naive-opponent composition (selected when naive_opponents=True): 1 DraftHelperTeam + 9 SimulatedOpponents. dict values sum to 9 opponents + 1 DraftHelperTeam = 10 total teams per league. The 1/2/2/2/3 distribution reflects the relative prevalence of each strategy among typical human fantasy drafters. Retained verbatim so the prior ~0.84 baseline regime stays reproducible (T24)."""
 
-    def __init__(self, config_dict: dict, data_folder: Path = Path("./simulation/sim_data"), preloaded_week_data: Optional[Dict[int, Dict]] = None, measured_config_dict: Optional[dict] = None, naive_opponents: bool = False) -> None:
+    def __init__(self, config_dict: dict, data_folder: Path = Path("./simulation/sim_data"), preloaded_week_data: Optional[Dict[int, Dict]] = None, measured_config_dict: Optional[dict] = None, naive_opponents: bool = False, seed: Optional[int] = None) -> None:
         """
         Initialize SimulatedLeague with configuration.
 
@@ -95,6 +95,11 @@ class SimulatedLeague:
                 (SELF_PLAY_TEAM_STRATEGIES — 10 DraftHelperTeams, no SimulatedOpponents). When True
                 the legacy naive composition (NAIVE_TEAM_STRATEGIES — 1 DraftHelperTeam + 9
                 SimulatedOpponents) is used, reproducing the prior ~0.84 baseline regime (T24).
+            seed (Optional[int]): Base seed for this league's private RNG (random.Random). When
+                provided, every random draw in this league (team-slot shuffle, draft-order shuffle,
+                opponent human-error picks) is deterministic and isolated from other leagues and
+                from the process-global random module. Default None seeds from OS entropy,
+                preserving today's stochastic behavior (D3/T29).
 
         Raises:
             FileNotFoundError: If data files are missing.
@@ -109,6 +114,10 @@ class SimulatedLeague:
         self.measured_config_dict = measured_config_dict
         self.naive_opponents = naive_opponents
         self.data_folder = data_folder
+        # Per-league private RNG (D1/T29): seeded deterministically when seed is provided so
+        # every draw is isolated from the process-global random module and from other leagues.
+        # seed=None falls back to OS entropy, preserving the original stochastic behavior (D3).
+        self._rng = random.Random(seed)
 
         self.temp_dir = Path(tempfile.mkdtemp(prefix="sim_league_"))
 
@@ -158,7 +167,7 @@ class SimulatedLeague:
         for strategy, count in composition.items():
             strategies.extend([strategy] * count)
 
-        random.shuffle(strategies)
+        self._rng.shuffle(strategies)  # site #1 (T29): team-slot assignment via per-league RNG
 
         weeks_folder = self.data_folder / "weeks"
         available_weeks = sorted([f for f in weeks_folder.iterdir() if f.is_dir() and f.name.startswith("week_")])
@@ -217,7 +226,7 @@ class SimulatedLeague:
             else:
                 projected_pm = PlayerManager(shared_dir, shared_config, shared_team_data_mgr, shared_schedule_mgr)
                 actual_pm = PlayerManager(shared_dir, shared_config, shared_team_data_mgr, shared_schedule_mgr)
-                team = SimulatedOpponent(projected_pm, actual_pm, shared_config, shared_team_data_mgr, strategy)
+                team = SimulatedOpponent(projected_pm, actual_pm, shared_config, shared_team_data_mgr, strategy, rng=self._rng)
 
             self.teams.append(team)
 
@@ -499,7 +508,7 @@ class SimulatedLeague:
         for team in self.teams:
             team.config.current_nfl_week = 1
         self.draft_order = self.teams.copy()
-        random.shuffle(self.draft_order)
+        self._rng.shuffle(self.draft_order)  # site #2 (T29): snake-draft order via per-league RNG
 
         for round_num in range(15):
             if round_num % 2 == 0:
