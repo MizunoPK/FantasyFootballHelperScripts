@@ -7,6 +7,7 @@ Author: Kai Mizuno
 """
 
 import argparse
+import random
 import sys
 from pathlib import Path
 
@@ -187,6 +188,31 @@ def main() -> None:
     _print_summary(meta_data_manager)
 
 
+def _resolve_sweep_seed(args: argparse.Namespace, logger) -> int:
+    """Resolve the base seed for a sweep run (D2/T30: paired-by-default + reproducible).
+
+    With ``--seed N`` the value is returned verbatim. Without ``--seed`` a base seed is
+    auto-assigned from OS entropy and logged with a reproduce hint. A fixed base seed makes
+    the coordinate-ascent trial-vs-current comparison paired (common random numbers) via
+    T29's config-independent per-task seeding, so the variance of their difference collapses
+    while the run stays reproducible by re-supplying the logged value.
+
+    Args:
+        args (argparse.Namespace): Parsed CLI args; reads ``args.seed`` (Optional[int]).
+        logger: Logger used to emit the auto-assign reproduce hint at INFO.
+
+    Returns:
+        int: The base seed to use for the sweep run.
+    """
+    if args.seed is not None:
+        return args.seed
+    base_seed = random.Random().randrange(2 ** 32)
+    logger.info(
+        f"Auto-assigned sweep base seed: {base_seed} (re-run with --seed {base_seed} to reproduce)"
+    )
+    return base_seed
+
+
 def _run_sweep_mode(args: argparse.Namespace, data_folder: Path, logger) -> None:
     """Run the multi-parameter sweep: tournament with per-config convergence as the stopping rule."""
     triples, _ = load_valid_strategies(data_folder)        # raises FileNotFoundError if none -> caught by main
@@ -195,9 +221,14 @@ def _run_sweep_mode(args: argparse.Namespace, data_folder: Path, logger) -> None
         sys.exit(1)
     strategies = [(filename, draft_order) for filename, draft_order, _ in triples]
 
+    # D2/T30: resolve the run's base seed. A fixed base seed makes the coordinate-ascent
+    # trial-vs-current comparison paired (common random numbers) via T29's config-independent
+    # per-task seeding, so the variance of their difference collapses. Without --seed, a base
+    # seed is auto-assigned and logged so the paired run stays reproducible by re-supplying it.
+    base_seed = _resolve_sweep_seed(args, logger)
     evaluator = CombinationEvaluator(
         data_folder=data_folder, num_simulations=args.sims, max_workers=args.workers,
-        naive_opponents=args.naive_opponents, seed=args.seed
+        naive_opponents=args.naive_opponents, seed=base_seed
     )
     baseline_params = extract_draft_param_values(evaluator.base_config)
     store = SweepResultsManager(data_folder / "win_rate_sweep_results.json")
