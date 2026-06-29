@@ -83,12 +83,10 @@ class TestDeriveTaskSeed:
         task_seed = _derive_task_seed(999, data_folder, 5)
         assert 0 <= task_seed < 2 ** 32
 
-    def test_config_independence_same_season_sim_id(self):
-        """Task seed depends only on (base_seed, season_folder, sim_id), NOT on config values.
+    def test_determinism_same_inputs_same_seed(self):
+        """Same inputs always produce the same task seed (determinism).
 
-        This is property D2 that the dependent T30 paired/CRN story requires:
-        two configs evaluated under the same base_seed see the same draws.
-        _derive_task_seed takes no config argument — independence is guaranteed by construction.
+        Two calls with identical (base_seed, season_folder, sim_id) return equal values.
         """
         data_folder = Path("simulation/sim_data/2025")
         base_seed = 100

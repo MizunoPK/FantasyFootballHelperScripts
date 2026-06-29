@@ -301,6 +301,25 @@ class ParallelLeagueRunner:
                 league.cleanup()
                 del league
 
+    def _derive_task_seeds(self, num_simulations: int) -> List[Optional[int]]:
+        """Derive the per-task seed list for a run (D2/T29).
+
+        Config-independent key (base_seed, season, sim_index); returns None for each
+        task when self.seed is None, preserving the entropy-default (D3). Shared by
+        run_simulations_for_config and run_simulations_for_config_with_weeks so the
+        derivation lives in one place.
+
+        Args:
+            num_simulations (int): Number of simulation tasks in this run.
+
+        Returns:
+            List[Optional[int]]: Per-task seeds aligned to sim_id in range(num_simulations).
+        """
+        return [
+            _derive_task_seed(self.seed, self.data_folder, sim_id) if self.seed is not None else None
+            for sim_id in range(num_simulations)
+        ]
+
     def run_simulations_for_config(
         self,
         config_dict: dict,
@@ -340,12 +359,8 @@ class ParallelLeagueRunner:
         results = []
         completed_count = 0
 
-        # Per-task seed derivation (D2/T29): config-independent key (base_seed, season, sim_index).
-        # Returns None for each task when self.seed is None, preserving entropy-default (D3).
-        task_seeds = [
-            _derive_task_seed(self.seed, self.data_folder, sim_id) if self.seed is not None else None
-            for sim_id in range(num_simulations)
-        ]
+        # Per-task seed derivation (D2/T29) — see _derive_task_seeds.
+        task_seeds = self._derive_task_seeds(num_simulations)
 
         ExecutorClass = ProcessPoolExecutor if self.use_processes else ThreadPoolExecutor
         """Win rate sim uses ThreadPoolExecutor (I/O-bound — disk reads dominate); accuracy sim uses ProcessPoolExecutor (CPU-bound — score computation dominates). ThreadPoolExecutor: lower overhead, sufficient for I/O-bound simulation setup; ProcessPoolExecutor: bypasses GIL for CPU-bound parallelism at the cost of pickling overhead and higher process-creation latency."""
@@ -462,12 +477,8 @@ class ParallelLeagueRunner:
         results = []
         completed_count = 0
 
-        # Per-task seed derivation (D2/T29): config-independent key (base_seed, season, sim_index).
-        # Returns None for each task when self.seed is None, preserving entropy-default (D3).
-        task_seeds = [
-            _derive_task_seed(self.seed, self.data_folder, sim_id) if self.seed is not None else None
-            for sim_id in range(num_simulations)
-        ]
+        # Per-task seed derivation (D2/T29) — see _derive_task_seeds.
+        task_seeds = self._derive_task_seeds(num_simulations)
 
         ExecutorClass = ProcessPoolExecutor if self.use_processes else ThreadPoolExecutor
         """Win rate sim uses ThreadPoolExecutor (I/O-bound — disk reads dominate); accuracy sim uses ProcessPoolExecutor (CPU-bound — score computation dominates). ThreadPoolExecutor: lower overhead, sufficient for I/O-bound simulation setup; ProcessPoolExecutor: bypasses GIL for CPU-bound parallelism at the cost of pickling overhead and higher process-creation latency."""

@@ -19,6 +19,7 @@ Author: Kai Mizuno
 
 import random
 from pathlib import Path
+from unittest.mock import patch, Mock
 
 import pytest
 
@@ -179,20 +180,20 @@ class TestDifferentSeedDivergence:
 class TestEntropyDefault:
     """(f) no seed -> OS entropy -> stochastic: repeated instances differ with overwhelming probability."""
 
-    def test_unseeded_leagues_have_different_rng_states(self, base_config_dict):
-        """Two leagues constructed with no seed are in different RNG states (entropy default, D3)."""
-        league1 = league2 = None
-        try:
-            league1 = _make_league(base_config_dict)  # no seed
-            league2 = _make_league(base_config_dict)  # no seed
-            draws1 = [league1._rng.random() for _ in range(5)]
-            draws2 = [league2._rng.random() for _ in range(5)]
-            # Collision probability over 5 draws from independent entropy-seeded RNGs is negligible.
-            assert draws1 != draws2, (
-                "Unseeded leagues should have different RNG states (entropy default, D3). "
-                "If this fails spuriously, re-run — probability is ~2^-160."
-            )
-        finally:
-            for lg in (league1, league2):
-                if lg is not None:
-                    lg.cleanup()
+    def test_unseeded_path_forwards_none_to_random_constructor(self, base_config_dict):
+        """Unseeded path forwards seed=None to random.Random (entropy default, D3).
+
+        Deterministic check: patches random.Random so we can assert it was called with
+        None (OS entropy path). A real random.Random() is used as the mock's return_value
+        so _initialize_teams and run_draft still function correctly.
+        """
+        league = None
+        real_rng = random.Random()
+        mock_random = Mock(return_value=real_rng)
+        with patch("simulation.win_rate.SimulatedLeague.random.Random", mock_random):
+            try:
+                league = _make_league(base_config_dict)  # no seed
+                mock_random.assert_any_call(None)
+            finally:
+                if league is not None:
+                    league.cleanup()

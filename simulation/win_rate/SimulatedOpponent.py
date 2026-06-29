@@ -58,7 +58,7 @@ class SimulatedOpponent:
         config: ConfigManager,
         team_data_mgr: TeamDataManager,
         strategy: str,
-        rng: Optional['random.Random'] = None
+        rng: Optional[random.Random] = None
     ) -> None:
         """
         Initialize SimulatedOpponent.
