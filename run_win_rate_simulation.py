@@ -17,7 +17,12 @@ from simulation.win_rate.DraftStrategyOrchestrator import DraftStrategyOrchestra
 from simulation.win_rate.strategy_loader import load_valid_strategies
 from simulation.win_rate.CombinationEvaluator import CombinationEvaluator
 from simulation.win_rate.SweepResultsManager import SweepResultsManager
-from simulation.win_rate.SweepTournament import SweepTournament, DEFAULT_EPSILON
+from simulation.win_rate.SweepTournament import (
+    SweepTournament,
+    DEFAULT_CONFIDENCE,
+    DEFAULT_MIN_EFFECT_SIZE,
+    DEFAULT_MIN_GAMES,
+)
 from simulation.shared.ProgressTracker import ProgressTracker
 from simulation.win_rate.config_overrides import extract_draft_param_values
 from simulation.win_rate.sweep_summary import rank_combinations, format_summary, write_sweep_report
@@ -234,11 +239,12 @@ def _run_sweep_mode(args: argparse.Namespace, data_folder: Path, logger) -> None
     store = SweepResultsManager(data_folder / "win_rate_sweep_results.json")
 
     # Auto-resume decision (D1/D2/D4): recompute the input fingerprint with the shared
-    # DEFAULT_EPSILON and string-compare it to the stored one. --fresh, an empty stored
-    # digest, or a mismatch -> no resume (run every config from baseline).
+    # significance-gate constants and string-compare it to the stored one. --fresh, an empty
+    # stored digest, or a mismatch -> no resume (run every config from baseline).
     strategy_ids = [filename for filename, _ in strategies]
     fp_now = SweepResultsManager.compute_input_fingerprint(
-        strategy_ids, baseline_params, args.num_values, DEFAULT_EPSILON, base_seed
+        strategy_ids, baseline_params, args.num_values,
+        DEFAULT_CONFIDENCE, DEFAULT_MIN_EFFECT_SIZE, DEFAULT_MIN_GAMES, base_seed
     )
     if args.fresh:
         resume = False

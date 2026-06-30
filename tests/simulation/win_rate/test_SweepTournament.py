@@ -15,7 +15,13 @@ from unittest.mock import Mock
 import pytest
 
 # Local
-from simulation.win_rate.SweepTournament import SweepTournament, DEFAULT_EPSILON
+from simulation.win_rate.SweepTournament import (
+    SweepTournament,
+    _adopt_by_significance,
+    DEFAULT_CONFIDENCE,
+    DEFAULT_MIN_EFFECT_SIZE,
+    DEFAULT_MIN_GAMES,
+)
 from simulation.win_rate.SweepResultsManager import SweepResultsManager
 from simulation.win_rate.param_value_generation import generate_candidate_values, DRAFT_SWEEP_PARAMS
 from utils.error_handler import ConfigurationError
@@ -49,6 +55,29 @@ def _store(tmp_path, name="win_rate_sweep_results.json"):
     return SweepResultsManager(tmp_path / name)
 
 
+def _wg_evaluator(wg_fn):
+    """Mock evaluator: wg_fn(draft_order, param_values) -> (wins, games).
+
+    Lets a test pin exact accumulated wins/games per combination so the significance gate's
+    thresholds (effect size, sample size, significance) are hit deterministically. Each combo
+    is evaluated once on a fresh store, so its accumulated counts equal the returned batch.
+    """
+    ev = Mock()
+
+    def side_effect(draft_order, param_values):
+        wins, games = wg_fn(draft_order, param_values)
+        win_rate = wins / games if games else 0.0
+        return (wins, games, win_rate)
+
+    ev.evaluate.side_effect = side_effect
+    return ev
+
+
+def _max_pb(baseline):
+    """The maximum PRIMARY_BONUS candidate for the committed grid (the ascent target)."""
+    return max(generate_candidate_values(baseline, 5)["PRIMARY_BONUS"])
+
+
 class TestSweepTournament:
     """Tests for SweepTournament.run (per-config convergent coordinate ascent)."""
 
@@ -66,30 +95,39 @@ class TestSweepTournament:
             assert set(entry["param_values"].keys()) == set(DRAFT_SWEEP_PARAMS)
 
     def test_sweeps_and_selects_best_value(self, tmp_path):
-        # Higher PRIMARY_BONUS -> higher win rate (scaled so each step clears epsilon).
-        # Coordinate ascent should converge on the max candidate for PRIMARY_BONUS.
-        ev = _evaluator(lambda do, pv: pv["PRIMARY_BONUS"] / 200.0)
-        t = SweepTournament(ev, _store(tmp_path))
-        result = t.run([("s1", [{"s": "1"}])], _baseline())
-        max_candidate = max(generate_candidate_values(_baseline(), 5)["PRIMARY_BONUS"])
-        assert result["s1"]["param_values"]["PRIMARY_BONUS"] == max_candidate
-
-    def test_epsilon_gate_blocks_submargin_gain(self, tmp_path):
-        # Baseline scores 0.50; every non-baseline candidate scores 0.502 — a 0.002 gain,
-        # below default epsilon=0.005, so the strict ε-gate adopts nothing.
+        # Step landscape: the max PRIMARY_BONUS candidate scores 0.70 (700/1000) with a large,
+        # significant effect over the 0.60 baseline; every other value scores 0.60. Coordinate
+        # ascent adopts the max candidate (significance + effect both clear) and converges there.
         baseline = _baseline()
+        target = _max_pb(baseline)
 
-        def rate_fn(do, pv):
-            return 0.50 if pv == baseline else 0.502
+        def wg(do, pv):
+            return (700, 1000) if pv["PRIMARY_BONUS"] == target else (600, 1000)
 
-        t = SweepTournament(_evaluator(rate_fn), _store(tmp_path))
+        t = SweepTournament(_wg_evaluator(wg), _store(tmp_path))
+        result = t.run([("s1", [{"s": "1"}])], baseline)
+        assert result["s1"]["param_values"]["PRIMARY_BONUS"] == target
+
+    def test_gate_blocks_trivial_effect_gain(self, tmp_path):
+        # Significance is satisfiable (huge n) but the accumulated-rate effect is only 0.005,
+        # which does not exceed min_effect_size (0.01). The AND-ed effect floor blocks adoption
+        # of this statistically-detectable-but-trivial gain — nothing is adopted (D2).
+        baseline = _baseline()
+        target = _max_pb(baseline)
+
+        def wg(do, pv):
+            # 0.505 vs 0.500 -> effect 0.005 (<= 0.01) over n=100000 each (clearly significant).
+            return (50500, 100000) if pv["PRIMARY_BONUS"] == target else (50000, 100000)
+
+        t = SweepTournament(_wg_evaluator(wg), _store(tmp_path))
         result = t.run([("s1", [{"s": "1"}])], baseline)
         assert result["s1"]["param_values"] == baseline
 
     def test_converges_on_flat_landscape(self, tmp_path):
-        # Constant win rate -> no candidate ever beats the best by more than epsilon, so a
-        # full pass moves nothing and the loop terminates at the baseline.
-        ev = _evaluator(lambda do, pv: 0.6)
+        # Constant win rate -> every candidate's accumulated-rate effect over the running best is
+        # 0 (< min_effect_size), so the gate adopts nothing, a full pass moves nothing, and the
+        # loop terminates at the baseline.
+        ev = _wg_evaluator(lambda do, pv: (600, 1000))
         t = SweepTournament(ev, _store(tmp_path))
         result = t.run([("s1", [{"s": "1"}]), ("s2", [{"s": "2"}])], _baseline())
         for entry in result.values():
@@ -128,14 +166,49 @@ class TestSweepTournament:
         with pytest.raises(ConfigurationError):
             t.run([], _baseline())
 
-    def test_default_epsilon_constant_matches_init_default(self, tmp_path):
-        # D5: the module constant must be the value used as the __init__ epsilon default,
-        # so the driver's fingerprint (built with DEFAULT_EPSILON) and the engine's ε-gate
-        # never drift (a drift would spuriously mismatch every resume).
+    def test_gate_constants_match_init_defaults(self, tmp_path):
+        # The module constants must be the constructor defaults, so the driver's fingerprint
+        # (built from the constants) and the engine's gate never drift (a drift would spuriously
+        # mismatch every resume).
         import inspect
         sig = inspect.signature(SweepTournament.__init__)
-        assert sig.parameters["epsilon"].default == DEFAULT_EPSILON
-        assert DEFAULT_EPSILON == 0.005
+        assert sig.parameters["confidence"].default == DEFAULT_CONFIDENCE
+        assert sig.parameters["min_effect_size"].default == DEFAULT_MIN_EFFECT_SIZE
+        assert sig.parameters["min_games"].default == DEFAULT_MIN_GAMES
+        assert DEFAULT_CONFIDENCE == 0.95
+        assert DEFAULT_MIN_EFFECT_SIZE == 0.01
+        assert DEFAULT_MIN_GAMES == 30
+
+    def test_invalid_confidence_raises(self, tmp_path):
+        # NF3: confidence outside the open interval (0, 1) is a configuration error.
+        for bad in (0, 1, -0.1, 1.5):
+            with pytest.raises(ConfigurationError):
+                SweepTournament(_evaluator(lambda do, pv: 0.6), _store(tmp_path), confidence=bad)
+
+    def test_invalid_min_games_raises(self, tmp_path):
+        # min_games < 1 is a configuration error: a zero/negative value breaks the
+        # '_adopt_by_significance' floor assumption (the "floor guarantees n>0" comment)
+        # which would cause a divide-by-zero on 1/n_trial + 1/n_best.
+        ev = _evaluator(lambda do, pv: 0.6)
+        for bad in (0, -1, -10):
+            with pytest.raises(ConfigurationError):
+                SweepTournament(ev, _store(tmp_path), min_games=bad)
+
+    def test_invalid_min_effect_size_raises(self, tmp_path):
+        # min_effect_size outside [0, 1) is a configuration error: a negative value
+        # inverts the effect guard, and >= 1 makes adoption mathematically impossible
+        # (win rates are bounded to [0, 1]).
+        ev = _evaluator(lambda do, pv: 0.6)
+        for bad in (-0.1, -1.0, 1.0, 1.5):
+            with pytest.raises(ConfigurationError):
+                SweepTournament(ev, _store(tmp_path), min_effect_size=bad)
+
+    def test_valid_defaults_construct_without_error(self, tmp_path):
+        # The module defaults (confidence=0.95, min_effect_size=0.01, min_games=30) all
+        # pass the new validation and construct a SweepTournament without error.
+        ev = _evaluator(lambda do, pv: 0.6)
+        t = SweepTournament(ev, _store(tmp_path))  # must not raise
+        assert t is not None
 
     def test_resume_skips_converged_config(self, tmp_path):
         # A pre-marked converged config is skipped (evaluator not called for it) when resume=True.
@@ -183,11 +256,12 @@ class TestSweepTournament:
     def test_in_progress_checkpoint_tracks_running_best_mid_ascent(self, tmp_path):
         # PR #18: an improvement found mid coordinate-ascent must be persisted immediately as an
         # in_progress checkpoint, so an interrupt before convergence resumes from the latest best
-        # (not the stale seed). Landscape: any non-baseline PRIMARY_BONUS scores higher, so the
-        # first such trial improves and must trigger an in_progress write carrying the new best.
+        # (not the stale seed). Landscape: any non-baseline PRIMARY_BONUS scores 0.90 (900/1000)
+        # vs the 0.60 baseline (600/1000) — a large, significant effect — so the first such trial
+        # adopts and must trigger an in_progress write carrying the new accumulated best (0.90).
         store = _store(tmp_path)
         baseline = _baseline()
-        ev = _evaluator(lambda do, pv: 0.9 if pv["PRIMARY_BONUS"] != 67 else 0.6)
+        ev = _wg_evaluator(lambda do, pv: (900, 1000) if pv["PRIMARY_BONUS"] != 67 else (600, 1000))
         store.mark_config_progress = Mock(wraps=store.mark_config_progress)
         t = SweepTournament(ev, store)
         t.run([("s1", [{"s": "1"}])], baseline)
@@ -251,6 +325,36 @@ class TestSweepTournament:
         first_pv = ev2.evaluate.call_args_list[0].args[1]
         assert first_pv["PRIMARY_BONUS"] == baseline["PRIMARY_BONUS"]  # baseline 67, no seed
 
+    def test_holds_when_running_best_unrecorded(self, tmp_path):
+        """None-running-best hold-guard regression (T31/PR #18 checkpoint-resume path).
+
+        When an in_progress resume seeds `current` from convergence metadata but that
+        combo was never update()-ed in this run (no accumulated evidence in the store),
+        ``get_combination(strategy_id, current)`` returns None.  The inner-loop guard
+
+            if best_entry is not None and _adopt_by_significance(...)
+
+        must hold (short-circuit) so run() completes without raising.  Remove the guard
+        and this test fails with TypeError (None["total_wins"]).
+        """
+        store = _store(tmp_path)
+        baseline = _baseline()
+        # Seed `current` to a non-baseline PRIMARY_BONUS that has NEVER been evaluated —
+        # so get_combination("s1", seeded) returns None (no store combination entry exists).
+        seeded = dict(baseline)
+        seeded["PRIMARY_BONUS"] = 91
+        store.mark_config_progress("s1", "in_progress", seeded, 0.7)
+        # Evaluator returns a strongly adoptable result (900/1000) for every trial, so
+        # the inner-loop adoption path is reached and best_entry is None is encountered.
+        ev = _wg_evaluator(lambda do, pv: (900, 1000))
+        t = SweepTournament(ev, store)
+        # Must complete without raising (TypeError if the best_entry guard is removed).
+        result = t.run([("s1", [{"s": "1"}])], baseline, resume=True)
+        # Guard held -> run returned a result without crashing.
+        assert "s1" in result
+        # Guard held -> no adoption over a None running-best -> current stays at the seed.
+        assert result["s1"]["param_values"]["PRIMARY_BONUS"] == 91
+
 
 class TestSweepTournamentProgressCallback:
     """T16/KDD-2: the optional progress_callback fires exactly once per config (on both the
@@ -291,3 +395,105 @@ class TestSweepTournamentProgressCallback:
         t = SweepTournament(ev, _store(tmp_path))
         result = t.run([("s1", [{"s": "1"}])], _baseline())
         assert set(result.keys()) == {"s1"}
+
+
+class TestSweepTournamentSignificanceGate:
+    """T31: end-to-end adoption decisions driven through run() with a real store, exercising
+    the accumulated-evidence significance + effect-size gate (D1/D2/D4/D5)."""
+
+    def test_adopts_significant_and_large_effect(self, tmp_path):
+        # Target PRIMARY_BONUS accumulates 700/1000 (0.70); baseline/others 600/1000 (0.60).
+        # effect 0.10 (> 0.01) and z ~= 4.7 (> z_crit), both combos >= 30 games -> ADOPT.
+        baseline = _baseline()
+        target = _max_pb(baseline)
+
+        def wg(do, pv):
+            return (700, 1000) if pv["PRIMARY_BONUS"] == target else (600, 1000)
+
+        t = SweepTournament(_wg_evaluator(wg), _store(tmp_path))
+        result = t.run([("s1", [{"s": "1"}])], baseline)
+        assert result["s1"]["param_values"]["PRIMARY_BONUS"] == target
+        # F7: returned win_rate is the running-best's ACCUMULATED rate (700/1000 = 0.70).
+        assert result["s1"]["win_rate"] == pytest.approx(0.70)
+
+    def test_holds_when_not_significant(self, tmp_path):
+        # Large effect (0.60 vs 0.40) but tiny n=30 each -> z ~= 1.55 (< z_crit) -> HOLD.
+        # Isolates the significance condition (the effect floor is satisfied).
+        baseline = _baseline()
+        target = _max_pb(baseline)
+
+        def wg(do, pv):
+            return (18, 30) if pv["PRIMARY_BONUS"] == target else (12, 30)
+
+        t = SweepTournament(_wg_evaluator(wg), _store(tmp_path))
+        result = t.run([("s1", [{"s": "1"}])], baseline)
+        assert result["s1"]["param_values"] == baseline
+
+    def test_holds_on_trivial_effect_despite_significance(self, tmp_path):
+        # 0.505 vs 0.500 over n=100000 each -> clearly significant but effect 0.005 (<= 0.01)
+        # -> the AND-ed effect floor blocks the "large-n trivial-difference" bypass -> HOLD.
+        baseline = _baseline()
+        target = _max_pb(baseline)
+
+        def wg(do, pv):
+            return (50500, 100000) if pv["PRIMARY_BONUS"] == target else (50000, 100000)
+
+        t = SweepTournament(_wg_evaluator(wg), _store(tmp_path))
+        result = t.run([("s1", [{"s": "1"}])], baseline)
+        assert result["s1"]["param_values"] == baseline
+
+    def test_holds_below_min_games_floor(self, tmp_path):
+        # Huge effect (1.0 vs 0.0) but only 20 games per combo (< min_games=30) -> HOLD (D5 floor).
+        baseline = _baseline()
+        target = _max_pb(baseline)
+
+        def wg(do, pv):
+            return (20, 20) if pv["PRIMARY_BONUS"] == target else (0, 20)
+
+        t = SweepTournament(_wg_evaluator(wg), _store(tmp_path))
+        result = t.run([("s1", [{"s": "1"}])], baseline)
+        assert result["s1"]["param_values"] == baseline
+
+    def test_holds_on_zero_standard_error_without_crashing(self, tmp_path):
+        # Degenerate all-wins pool above the floor (60/60 vs 30/30) -> p_pool == 1 -> se == 0
+        # -> HOLD via the explicit se==0 guard (no ZeroDivisionError) (D5).
+        baseline = _baseline()
+        target = _max_pb(baseline)
+
+        def wg(do, pv):
+            return (60, 60) if pv["PRIMARY_BONUS"] == target else (30, 30)
+
+        t = SweepTournament(_wg_evaluator(wg), _store(tmp_path))
+        result = t.run([("s1", [{"s": "1"}])], baseline)  # must not raise
+        assert result["s1"]["param_values"] == baseline
+
+
+class TestAdoptBySignificanceBoundaries:
+    """T31/D6: the strict-boundary disposition of the pure gate helper — strict '>' at the
+    significance critical value and the effect-size floor, inclusive '>=' at the games floor."""
+
+    def test_games_floor_is_inclusive(self):
+        # Exactly min_games (30) passes the floor and (significant + large effect) adopts;
+        # one game short (29) holds. Isolates the floor's inclusivity.
+        assert _adopt_by_significance(30, 30, 0, 30, 0.95, 0.01, 30) is True
+        assert _adopt_by_significance(29, 29, 0, 29, 0.95, 0.01, 30) is False
+
+    def test_effect_floor_is_strict(self):
+        # Significant data (700/1000 vs 600/1000); effect exactly == min_effect_size holds
+        # (strict '>'), while a hair below the effect adopts.
+        eff = 700 / 1000 - 600 / 1000  # identical float to the helper's p_trial - p_best
+        assert _adopt_by_significance(700, 1000, 600, 1000, 0.95, eff, 30) is False
+        assert _adopt_by_significance(700, 1000, 600, 1000, 0.95, eff - 1e-9, 30) is True
+
+    def test_significance_critical_value_is_strict(self):
+        # Place z exactly at the critical value by setting confidence = cdf(z) (round-trip
+        # identity) -> strict '>' holds; a slightly lower confidence (lower z_crit) adopts.
+        # Effect (0.20) and games (100) clear their gates, isolating the significance boundary.
+        from math import sqrt
+        from statistics import NormalDist
+        p_pool = (60 + 40) / (100 + 100)
+        se = sqrt(p_pool * (1.0 - p_pool) * (1.0 / 100 + 1.0 / 100))
+        z = (60 / 100 - 40 / 100) / se
+        conf_at = NormalDist().cdf(z)
+        assert _adopt_by_significance(60, 100, 40, 100, conf_at, 0.01, 30) is False
+        assert _adopt_by_significance(60, 100, 40, 100, conf_at - 0.01, 0.01, 30) is True

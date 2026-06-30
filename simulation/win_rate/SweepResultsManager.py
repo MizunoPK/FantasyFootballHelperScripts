@@ -79,17 +79,21 @@ class SweepResultsManager:
         strategy_ids: List[str],
         baseline_params: Dict[str, float],
         num_values: int,
-        epsilon: float,
+        confidence: float,
+        min_effect_size: float,
+        min_games: int,
         base_seed: int,
     ) -> str:
         """Compute the sweep input fingerprint (D2/T30).
 
         Returns a sha256 hex digest over a pinned canonical JSON serialization of the
-        five inputs that fully determine the per-config search space: the sorted
-        strategy ids, the baseline param anchor, the grid density, the
-        coordinate-ascent epsilon margin, and the run's base seed. The canonical form
-        is pinned (``sort_keys=True``, compact separators) so recomputing on the same
-        inputs always yields the same digest and any changed input yields a different one.
+        inputs that fully determine the per-config search space and adoption decision:
+        the sorted strategy ids, the baseline param anchor, the grid density, the three
+        significance-gate parameters (confidence, minimum effect size, minimum games),
+        and the run's base seed. The canonical form is pinned (``sort_keys=True``, compact
+        separators) so recomputing on the same inputs always yields the same digest and
+        any changed input yields a different one — so changing any gate parameter between
+        runs invalidates a stale checkpoint while an unchanged one resumes.
 
         Including the base seed ensures that an unseeded resume (each run gets a fresh
         auto-seed) produces a fingerprint mismatch and starts fresh rather than silently
@@ -103,7 +107,9 @@ class SweepResultsManager:
             strategy_ids (List[str]): Strategy identifiers (filenames) in the run.
             baseline_params (Dict[str, float]): The 7-param baseline anchor.
             num_values (int): Grid density per parameter.
-            epsilon (float): Coordinate-ascent improvement margin.
+            confidence (float): Adoption-gate one-sided confidence level.
+            min_effect_size (float): Adoption-gate minimum accumulated-rate effect.
+            min_games (int): Adoption-gate minimum accumulated games per combination.
             base_seed (int): The run's base seed (auto-assigned or from ``--seed N``).
 
         Returns:
@@ -113,7 +119,9 @@ class SweepResultsManager:
             "strategy_ids": sorted(strategy_ids),
             "baseline_params": baseline_params,
             "num_values": num_values,
-            "epsilon": epsilon,
+            "confidence": confidence,
+            "min_effect_size": min_effect_size,
+            "min_games": min_games,
             "base_seed": base_seed,
         }
         canonical = json.dumps(payload, sort_keys=True, separators=(",", ":"))
@@ -263,6 +271,25 @@ class SweepResultsManager:
                 'total_runs', 'last_run'.
         """
         return self._data["combinations"]
+
+    def get_combination(self, strategy_id: str, param_values: Dict[str, float]) -> Optional[Dict]:
+        """Return the stored entry for one combination, or None if not recorded.
+
+        A single-entry lookup keyed by make_combo_key — avoids re-scanning the full
+        get_all_combinations() map when only one combination's accumulated counts are
+        needed (the T31 adoption gate reads the trial and running-best entries this way).
+
+        Args:
+            strategy_id (str): Strategy identifier keying the combination.
+            param_values (Dict[str, float]): The 7 draft-side param values.
+
+        Returns:
+            Optional[Dict]: The entry dict ('strategy_id', 'param_values',
+                'best_win_rate', 'total_wins', 'total_games', 'total_runs', 'last_run'),
+                or None when the combination has never been recorded.
+        """
+        key = self.make_combo_key(strategy_id, param_values)
+        return self._data["combinations"].get(key)
 
     def get_config_convergence(self, strategy_id: str) -> Optional[Dict]:
         """Return the per-config convergence entry for a strategy id, or None.

@@ -46,67 +46,87 @@ class TestSweepResultsManagerCheckpoint:
     """Tests for the convergence / fingerprint checkpoint surface."""
 
     # --- compute_input_fingerprint: determinism + sensitivity ---
+    # Signature (T31): (strategy_ids, baseline_params, num_values,
+    #                   confidence, min_effect_size, min_games, base_seed).
 
     def test_fingerprint_deterministic_same_inputs(self):
         a = SweepResultsManager.compute_input_fingerprint(
-            ["1_zero_rb.json", "2_hero_rb.json"], _param_values(), 5, 0.005, 0
+            ["1_zero_rb.json", "2_hero_rb.json"], _param_values(), 5, 0.95, 0.01, 30, 0
         )
         b = SweepResultsManager.compute_input_fingerprint(
-            ["1_zero_rb.json", "2_hero_rb.json"], _param_values(), 5, 0.005, 0
+            ["1_zero_rb.json", "2_hero_rb.json"], _param_values(), 5, 0.95, 0.01, 30, 0
         )
         assert a == b
 
     def test_fingerprint_independent_of_strategy_id_order(self):
         a = SweepResultsManager.compute_input_fingerprint(
-            ["1_zero_rb.json", "2_hero_rb.json"], _param_values(), 5, 0.005, 0
+            ["1_zero_rb.json", "2_hero_rb.json"], _param_values(), 5, 0.95, 0.01, 30, 0
         )
         b = SweepResultsManager.compute_input_fingerprint(
-            ["2_hero_rb.json", "1_zero_rb.json"], _param_values(), 5, 0.005, 0
+            ["2_hero_rb.json", "1_zero_rb.json"], _param_values(), 5, 0.95, 0.01, 30, 0
         )
         assert a == b
 
     def test_fingerprint_sensitive_to_strategy_ids(self):
         base = SweepResultsManager.compute_input_fingerprint(
-            ["1_zero_rb.json"], _param_values(), 5, 0.005, 0
+            ["1_zero_rb.json"], _param_values(), 5, 0.95, 0.01, 30, 0
         )
         changed = SweepResultsManager.compute_input_fingerprint(
-            ["1_zero_rb.json", "2_hero_rb.json"], _param_values(), 5, 0.005, 0
+            ["1_zero_rb.json", "2_hero_rb.json"], _param_values(), 5, 0.95, 0.01, 30, 0
         )
         assert changed != base
 
     def test_fingerprint_sensitive_to_baseline_params(self):
         base = SweepResultsManager.compute_input_fingerprint(
-            ["1_zero_rb.json"], _param_values(), 5, 0.005, 0
+            ["1_zero_rb.json"], _param_values(), 5, 0.95, 0.01, 30, 0
         )
         changed = SweepResultsManager.compute_input_fingerprint(
-            ["1_zero_rb.json"], _param_values(PRIMARY_BONUS=80), 5, 0.005, 0
+            ["1_zero_rb.json"], _param_values(PRIMARY_BONUS=80), 5, 0.95, 0.01, 30, 0
         )
         assert changed != base
 
     def test_fingerprint_sensitive_to_num_values(self):
         base = SweepResultsManager.compute_input_fingerprint(
-            ["1_zero_rb.json"], _param_values(), 5, 0.005, 0
+            ["1_zero_rb.json"], _param_values(), 5, 0.95, 0.01, 30, 0
         )
         changed = SweepResultsManager.compute_input_fingerprint(
-            ["1_zero_rb.json"], _param_values(), 7, 0.005, 0
+            ["1_zero_rb.json"], _param_values(), 7, 0.95, 0.01, 30, 0
         )
         assert changed != base
 
-    def test_fingerprint_sensitive_to_epsilon(self):
+    def test_fingerprint_sensitive_to_confidence(self):
         base = SweepResultsManager.compute_input_fingerprint(
-            ["1_zero_rb.json"], _param_values(), 5, 0.005, 0
+            ["1_zero_rb.json"], _param_values(), 5, 0.95, 0.01, 30, 0
         )
         changed = SweepResultsManager.compute_input_fingerprint(
-            ["1_zero_rb.json"], _param_values(), 5, 0.01, 0
+            ["1_zero_rb.json"], _param_values(), 5, 0.99, 0.01, 30, 0
+        )
+        assert changed != base
+
+    def test_fingerprint_sensitive_to_min_effect_size(self):
+        base = SweepResultsManager.compute_input_fingerprint(
+            ["1_zero_rb.json"], _param_values(), 5, 0.95, 0.01, 30, 0
+        )
+        changed = SweepResultsManager.compute_input_fingerprint(
+            ["1_zero_rb.json"], _param_values(), 5, 0.95, 0.02, 30, 0
+        )
+        assert changed != base
+
+    def test_fingerprint_sensitive_to_min_games(self):
+        base = SweepResultsManager.compute_input_fingerprint(
+            ["1_zero_rb.json"], _param_values(), 5, 0.95, 0.01, 30, 0
+        )
+        changed = SweepResultsManager.compute_input_fingerprint(
+            ["1_zero_rb.json"], _param_values(), 5, 0.95, 0.01, 50, 0
         )
         assert changed != base
 
     def test_fingerprint_sensitive_to_base_seed(self):
         base = SweepResultsManager.compute_input_fingerprint(
-            ["1_zero_rb.json"], _param_values(), 5, 0.005, 0
+            ["1_zero_rb.json"], _param_values(), 5, 0.95, 0.01, 30, 0
         )
         changed = SweepResultsManager.compute_input_fingerprint(
-            ["1_zero_rb.json"], _param_values(), 5, 0.005, 99
+            ["1_zero_rb.json"], _param_values(), 5, 0.95, 0.01, 30, 99
         )
         assert changed != base
 
@@ -119,7 +139,7 @@ class TestSweepResultsManagerCheckpoint:
     def test_set_and_get_input_fingerprint_round_trip(self, results_path):
         mgr = SweepResultsManager(results_path)
         fp = SweepResultsManager.compute_input_fingerprint(
-            ["1_zero_rb.json"], _param_values(), 5, 0.005, 0
+            ["1_zero_rb.json"], _param_values(), 5, 0.95, 0.01, 30, 0
         )
         mgr.set_input_fingerprint(fp)
         reloaded = SweepResultsManager(results_path)

@@ -1,0 +1,575 @@
+{
+  "generated": "2026-06-27",
+  "configs": [
+    {
+      "rank": 1,
+      "strategy_id": "1_zero_rb.json",
+      "win_rate": 0.9117647058823529,
+      "games": 68,
+      "param_values": {
+        "DRAFT_NORMALIZATION_MAX_SCALE": 100,
+        "SAME_POS_BYE_WEIGHT": 0.07,
+        "DIFF_POS_BYE_WEIGHT": 0.3,
+        "PRIMARY_BONUS": 25,
+        "SECONDARY_BONUS": 69,
+        "ADP_SCORING_WEIGHT": 4.76,
+        "PLAYER_RATING_SCORING_WEIGHT": 3.52
+      }
+    },
+    {
+      "rank": 2,
+      "strategy_id": "3_rb_heavy_early.json",
+      "win_rate": 0.8970588235294118,
+      "games": 68,
+      "param_values": {
+        "DRAFT_NORMALIZATION_MAX_SCALE": 200,
+        "SAME_POS_BYE_WEIGHT": 0.5,
+        "DIFF_POS_BYE_WEIGHT": 0.01,
+        "PRIMARY_BONUS": 25,
+        "SECONDARY_BONUS": 69,
+        "ADP_SCORING_WEIGHT": 4.76,
+        "PLAYER_RATING_SCORING_WEIGHT": 3.52
+      }
+    },
+    {
+      "rank": 3,
+      "strategy_id": "37_rb_wr_rb_wr.json",
+      "win_rate": 0.8676470588235294,
+      "games": 680,
+      "param_values": {
+        "DRAFT_NORMALIZATION_MAX_SCALE": 150,
+        "SAME_POS_BYE_WEIGHT": 0.07,
+        "DIFF_POS_BYE_WEIGHT": 0.01,
+        "PRIMARY_BONUS": 67,
+        "SECONDARY_BONUS": 150,
+        "ADP_SCORING_WEIGHT": 0.5,
+        "PLAYER_RATING_SCORING_WEIGHT": 3.12
+      }
+    },
+    {
+      "rank": 4,
+      "strategy_id": "8_qb_te_stack.json",
+      "win_rate": 0.8661764705882353,
+      "games": 680,
+      "param_values": {
+        "DRAFT_NORMALIZATION_MAX_SCALE": 150,
+        "SAME_POS_BYE_WEIGHT": 0.25,
+        "DIFF_POS_BYE_WEIGHT": 0.0,
+        "PRIMARY_BONUS": 67,
+        "SECONDARY_BONUS": 150,
+        "ADP_SCORING_WEIGHT": 4.76,
+        "PLAYER_RATING_SCORING_WEIGHT": 4.0
+      }
+    },
+    {
+      "rank": 5,
+      "strategy_id": "17_double_dip_rb.json",
+      "win_rate": 0.8647058823529412,
+      "games": 680,
+      "param_values": {
+        "DRAFT_NORMALIZATION_MAX_SCALE": 100,
+        "SAME_POS_BYE_WEIGHT": 0.38,
+        "DIFF_POS_BYE_WEIGHT": 0.01,
+        "PRIMARY_BONUS": 67,
+        "SECONDARY_BONUS": 69,
+        "ADP_SCORING_WEIGHT": 0.5,
+        "PLAYER_RATING_SCORING_WEIGHT": 3.52
+      }
+    },
+    {
+      "rank": 6,
+      "strategy_id": "22_bookend_rb.json",
+      "win_rate": 0.8647058823529412,
+      "games": 680,
+      "param_values": {
+        "DRAFT_NORMALIZATION_MAX_SCALE": 175,
+        "SAME_POS_BYE_WEIGHT": 0.12,
+        "DIFF_POS_BYE_WEIGHT": 0.01,
+        "PRIMARY_BONUS": 67,
+        "SECONDARY_BONUS": 69,
+        "ADP_SCORING_WEIGHT": 0.5,
+        "PLAYER_RATING_SCORING_WEIGHT": 4.0
+      }
+    },
+    {
+      "rank": 7,
+      "strategy_id": "27_four_wr_four_rb.json",
+      "win_rate": 0.8647058823529412,
+      "games": 680,
+      "param_values": {
+        "DRAFT_NORMALIZATION_MAX_SCALE": 150,
+        "SAME_POS_BYE_WEIGHT": 0.07,
+        "DIFF_POS_BYE_WEIGHT": 0.01,
+        "PRIMARY_BONUS": 67,
+        "SECONDARY_BONUS": 150,
+        "ADP_SCORING_WEIGHT": 0.5,
+        "PLAYER_RATING_SCORING_WEIGHT": 3.52
+      }
+    },
+    {
+      "rank": 8,
+      "strategy_id": "24_mid_late_te.json",
+      "win_rate": 0.861764705882353,
+      "games": 680,
+      "param_values": {
+        "DRAFT_NORMALIZATION_MAX_SCALE": 200,
+        "SAME_POS_BYE_WEIGHT": 0.07,
+        "DIFF_POS_BYE_WEIGHT": 0.01,
+        "PRIMARY_BONUS": 67,
+        "SECONDARY_BONUS": 69,
+        "ADP_SCORING_WEIGHT": 0.5,
+        "PLAYER_RATING_SCORING_WEIGHT": 2.25
+      }
+    },
+    {
+      "rank": 9,
+      "strategy_id": "39_double_dip_wr.json",
+      "win_rate": 0.8602941176470589,
+      "games": 680,
+      "param_values": {
+        "DRAFT_NORMALIZATION_MAX_SCALE": 100,
+        "SAME_POS_BYE_WEIGHT": 0.0,
+        "DIFF_POS_BYE_WEIGHT": 0.01,
+        "PRIMARY_BONUS": 67,
+        "SECONDARY_BONUS": 69,
+        "ADP_SCORING_WEIGHT": 4.76,
+        "PLAYER_RATING_SCORING_WEIGHT": 3.52
+      }
+    },
+    {
+      "rank": 10,
+      "strategy_id": "2_hero_rb.json",
+      "win_rate": 0.8573529411764705,
+      "games": 680,
+      "param_values": {
+        "DRAFT_NORMALIZATION_MAX_SCALE": 100,
+        "SAME_POS_BYE_WEIGHT": 0.07,
+        "DIFF_POS_BYE_WEIGHT": 0.01,
+        "PRIMARY_BONUS": 25,
+        "SECONDARY_BONUS": 119,
+        "ADP_SCORING_WEIGHT": 2.12,
+        "PLAYER_RATING_SCORING_WEIGHT": 3.52
+      }
+    },
+    {
+      "rank": 11,
+      "strategy_id": "12_safe_floor.json",
+      "win_rate": 0.8558823529411764,
+      "games": 680,
+      "param_values": {
+        "DRAFT_NORMALIZATION_MAX_SCALE": 125,
+        "SAME_POS_BYE_WEIGHT": 0.0,
+        "DIFF_POS_BYE_WEIGHT": 0.01,
+        "PRIMARY_BONUS": 67,
+        "SECONDARY_BONUS": 69,
+        "ADP_SCORING_WEIGHT": 0.5,
+        "PLAYER_RATING_SCORING_WEIGHT": 3.52
+      }
+    },
+    {
+      "rank": 12,
+      "strategy_id": "5_wr_heavy_early.json",
+      "win_rate": 0.8558823529411764,
+      "games": 680,
+      "param_values": {
+        "DRAFT_NORMALIZATION_MAX_SCALE": 100,
+        "SAME_POS_BYE_WEIGHT": 0.5,
+        "DIFF_POS_BYE_WEIGHT": 0.01,
+        "PRIMARY_BONUS": 67,
+        "SECONDARY_BONUS": 69,
+        "ADP_SCORING_WEIGHT": 4.76,
+        "PLAYER_RATING_SCORING_WEIGHT": 3.52
+      }
+    },
+    {
+      "rank": 13,
+      "strategy_id": "9_elite_te_early.json",
+      "win_rate": 0.8558823529411764,
+      "games": 680,
+      "param_values": {
+        "DRAFT_NORMALIZATION_MAX_SCALE": 175,
+        "SAME_POS_BYE_WEIGHT": 0.5,
+        "DIFF_POS_BYE_WEIGHT": 0.08,
+        "PRIMARY_BONUS": 67,
+        "SECONDARY_BONUS": 69,
+        "ADP_SCORING_WEIGHT": 4.76,
+        "PLAYER_RATING_SCORING_WEIGHT": 3.52
+      }
+    },
+    {
+      "rank": 14,
+      "strategy_id": "20_depth_first.json",
+      "win_rate": 0.8544117647058823,
+      "games": 680,
+      "param_values": {
+        "DRAFT_NORMALIZATION_MAX_SCALE": 100,
+        "SAME_POS_BYE_WEIGHT": 0.38,
+        "DIFF_POS_BYE_WEIGHT": 0.01,
+        "PRIMARY_BONUS": 67,
+        "SECONDARY_BONUS": 69,
+        "ADP_SCORING_WEIGHT": 4.76,
+        "PLAYER_RATING_SCORING_WEIGHT": 3.52
+      }
+    },
+    {
+      "rank": 15,
+      "strategy_id": "26_value_hunt.json",
+      "win_rate": 0.8544117647058823,
+      "games": 680,
+      "param_values": {
+        "DRAFT_NORMALIZATION_MAX_SCALE": 200,
+        "SAME_POS_BYE_WEIGHT": 0.07,
+        "DIFF_POS_BYE_WEIGHT": 0.01,
+        "PRIMARY_BONUS": 67,
+        "SECONDARY_BONUS": 69,
+        "ADP_SCORING_WEIGHT": 2.12,
+        "PLAYER_RATING_SCORING_WEIGHT": 1.38
+      }
+    },
+    {
+      "rank": 16,
+      "strategy_id": "35_modified_zero_rb.json",
+      "win_rate": 0.8529411764705882,
+      "games": 680,
+      "param_values": {
+        "DRAFT_NORMALIZATION_MAX_SCALE": 100,
+        "SAME_POS_BYE_WEIGHT": 0.07,
+        "DIFF_POS_BYE_WEIGHT": 0.01,
+        "PRIMARY_BONUS": 67,
+        "SECONDARY_BONUS": 69,
+        "ADP_SCORING_WEIGHT": 3.75,
+        "PLAYER_RATING_SCORING_WEIGHT": 3.52
+      }
+    },
+    {
+      "rank": 17,
+      "strategy_id": "36_workhorse_hunt.json",
+      "win_rate": 0.8529411764705882,
+      "games": 680,
+      "param_values": {
+        "DRAFT_NORMALIZATION_MAX_SCALE": 175,
+        "SAME_POS_BYE_WEIGHT": 0.38,
+        "DIFF_POS_BYE_WEIGHT": 0.01,
+        "PRIMARY_BONUS": 25,
+        "SECONDARY_BONUS": 119,
+        "ADP_SCORING_WEIGHT": 4.76,
+        "PLAYER_RATING_SCORING_WEIGHT": 3.52
+      }
+    },
+    {
+      "rank": 18,
+      "strategy_id": "18_anchor_flex.json",
+      "win_rate": 0.8522058823529411,
+      "games": 1360,
+      "param_values": {
+        "DRAFT_NORMALIZATION_MAX_SCALE": 125,
+        "SAME_POS_BYE_WEIGHT": 0.38,
+        "DIFF_POS_BYE_WEIGHT": 0.01,
+        "PRIMARY_BONUS": 87,
+        "SECONDARY_BONUS": 119,
+        "ADP_SCORING_WEIGHT": 0.5,
+        "PLAYER_RATING_SCORING_WEIGHT": 3.52
+      }
+    },
+    {
+      "rank": 19,
+      "strategy_id": "10_rb_rb_start.json",
+      "win_rate": 0.8514705882352941,
+      "games": 680,
+      "param_values": {
+        "DRAFT_NORMALIZATION_MAX_SCALE": 175,
+        "SAME_POS_BYE_WEIGHT": 0.38,
+        "DIFF_POS_BYE_WEIGHT": 0.01,
+        "PRIMARY_BONUS": 67,
+        "SECONDARY_BONUS": 69,
+        "ADP_SCORING_WEIGHT": 0.5,
+        "PLAYER_RATING_SCORING_WEIGHT": 3.52
+      }
+    },
+    {
+      "rank": 20,
+      "strategy_id": "4_late_qb_value.json",
+      "win_rate": 0.85,
+      "games": 680,
+      "param_values": {
+        "DRAFT_NORMALIZATION_MAX_SCALE": 150,
+        "SAME_POS_BYE_WEIGHT": 0.38,
+        "DIFF_POS_BYE_WEIGHT": 0.01,
+        "PRIMARY_BONUS": 67,
+        "SECONDARY_BONUS": 69,
+        "ADP_SCORING_WEIGHT": 4.76,
+        "PLAYER_RATING_SCORING_WEIGHT": 3.52
+      }
+    },
+    {
+      "rank": 21,
+      "strategy_id": "7_elite_qb_early.json",
+      "win_rate": 0.85,
+      "games": 680,
+      "param_values": {
+        "DRAFT_NORMALIZATION_MAX_SCALE": 175,
+        "SAME_POS_BYE_WEIGHT": 0.5,
+        "DIFF_POS_BYE_WEIGHT": 0.01,
+        "PRIMARY_BONUS": 25,
+        "SECONDARY_BONUS": 69,
+        "ADP_SCORING_WEIGHT": 4.76,
+        "PLAYER_RATING_SCORING_WEIGHT": 3.52
+      }
+    },
+    {
+      "rank": 22,
+      "strategy_id": "25_spread_te.json",
+      "win_rate": 0.8485294117647059,
+      "games": 680,
+      "param_values": {
+        "DRAFT_NORMALIZATION_MAX_SCALE": 200,
+        "SAME_POS_BYE_WEIGHT": 0.07,
+        "DIFF_POS_BYE_WEIGHT": 0.01,
+        "PRIMARY_BONUS": 67,
+        "SECONDARY_BONUS": 69,
+        "ADP_SCORING_WEIGHT": 4.76,
+        "PLAYER_RATING_SCORING_WEIGHT": 3.52
+      }
+    },
+    {
+      "rank": 23,
+      "strategy_id": "28_late_te_value.json",
+      "win_rate": 0.8485294117647059,
+      "games": 680,
+      "param_values": {
+        "DRAFT_NORMALIZATION_MAX_SCALE": 150,
+        "SAME_POS_BYE_WEIGHT": 0.38,
+        "DIFF_POS_BYE_WEIGHT": 0.01,
+        "PRIMARY_BONUS": 56,
+        "SECONDARY_BONUS": 56,
+        "ADP_SCORING_WEIGHT": 4.76,
+        "PLAYER_RATING_SCORING_WEIGHT": 3.52
+      }
+    },
+    {
+      "rank": 24,
+      "strategy_id": "11_power_5.json",
+      "win_rate": 0.8455882352941176,
+      "games": 680,
+      "param_values": {
+        "DRAFT_NORMALIZATION_MAX_SCALE": 150,
+        "SAME_POS_BYE_WEIGHT": 0.5,
+        "DIFF_POS_BYE_WEIGHT": 0.01,
+        "PRIMARY_BONUS": 67,
+        "SECONDARY_BONUS": 119,
+        "ADP_SCORING_WEIGHT": 4.76,
+        "PLAYER_RATING_SCORING_WEIGHT": 3.52
+      }
+    },
+    {
+      "rank": 25,
+      "strategy_id": "33_rb_anchor.json",
+      "win_rate": 0.8441176470588235,
+      "games": 680,
+      "param_values": {
+        "DRAFT_NORMALIZATION_MAX_SCALE": 100,
+        "SAME_POS_BYE_WEIGHT": 0.07,
+        "DIFF_POS_BYE_WEIGHT": 0.01,
+        "PRIMARY_BONUS": 67,
+        "SECONDARY_BONUS": 69,
+        "ADP_SCORING_WEIGHT": 4.76,
+        "PLAYER_RATING_SCORING_WEIGHT": 3.52
+      }
+    },
+    {
+      "rank": 26,
+      "strategy_id": "6_balanced_start.json",
+      "win_rate": 0.8441176470588235,
+      "games": 680,
+      "param_values": {
+        "DRAFT_NORMALIZATION_MAX_SCALE": 175,
+        "SAME_POS_BYE_WEIGHT": 0.07,
+        "DIFF_POS_BYE_WEIGHT": 0.01,
+        "PRIMARY_BONUS": 67,
+        "SECONDARY_BONUS": 69,
+        "ADP_SCORING_WEIGHT": 4.76,
+        "PLAYER_RATING_SCORING_WEIGHT": 3.52
+      }
+    },
+    {
+      "rank": 27,
+      "strategy_id": "19_elite_stack.json",
+      "win_rate": 0.8426470588235294,
+      "games": 680,
+      "param_values": {
+        "DRAFT_NORMALIZATION_MAX_SCALE": 100,
+        "SAME_POS_BYE_WEIGHT": 0.38,
+        "DIFF_POS_BYE_WEIGHT": 0.08,
+        "PRIMARY_BONUS": 67,
+        "SECONDARY_BONUS": 56,
+        "ADP_SCORING_WEIGHT": 4.76,
+        "PLAYER_RATING_SCORING_WEIGHT": 3.52
+      }
+    },
+    {
+      "rank": 28,
+      "strategy_id": "21_mid_round_premium.json",
+      "win_rate": 0.8426470588235294,
+      "games": 680,
+      "param_values": {
+        "DRAFT_NORMALIZATION_MAX_SCALE": 150,
+        "SAME_POS_BYE_WEIGHT": 0.38,
+        "DIFF_POS_BYE_WEIGHT": 0.01,
+        "PRIMARY_BONUS": 67,
+        "SECONDARY_BONUS": 69,
+        "ADP_SCORING_WEIGHT": 4.76,
+        "PLAYER_RATING_SCORING_WEIGHT": 3.52
+      }
+    },
+    {
+      "rank": 29,
+      "strategy_id": "13_ceiling_chaser.json",
+      "win_rate": 0.8411764705882353,
+      "games": 680,
+      "param_values": {
+        "DRAFT_NORMALIZATION_MAX_SCALE": 100,
+        "SAME_POS_BYE_WEIGHT": 0.07,
+        "DIFF_POS_BYE_WEIGHT": 0.01,
+        "PRIMARY_BONUS": 67,
+        "SECONDARY_BONUS": 69,
+        "ADP_SCORING_WEIGHT": 5.38,
+        "PLAYER_RATING_SCORING_WEIGHT": 3.52
+      }
+    },
+    {
+      "rank": 30,
+      "strategy_id": "14_robust_rb.json",
+      "win_rate": 0.8411764705882353,
+      "games": 680,
+      "param_values": {
+        "DRAFT_NORMALIZATION_MAX_SCALE": 100,
+        "SAME_POS_BYE_WEIGHT": 0.07,
+        "DIFF_POS_BYE_WEIGHT": 0.01,
+        "PRIMARY_BONUS": 67,
+        "SECONDARY_BONUS": 119,
+        "ADP_SCORING_WEIGHT": 4.76,
+        "PLAYER_RATING_SCORING_WEIGHT": 2.25
+      }
+    },
+    {
+      "rank": 31,
+      "strategy_id": "16_wr_rb_wr_rb.json",
+      "win_rate": 0.8411764705882353,
+      "games": 680,
+      "param_values": {
+        "DRAFT_NORMALIZATION_MAX_SCALE": 150,
+        "SAME_POS_BYE_WEIGHT": 0.25,
+        "DIFF_POS_BYE_WEIGHT": 0.01,
+        "PRIMARY_BONUS": 67,
+        "SECONDARY_BONUS": 69,
+        "ADP_SCORING_WEIGHT": 4.76,
+        "PLAYER_RATING_SCORING_WEIGHT": 3.52
+      }
+    },
+    {
+      "rank": 32,
+      "strategy_id": "29_triple_wr_start.json",
+      "win_rate": 0.8382352941176471,
+      "games": 680,
+      "param_values": {
+        "DRAFT_NORMALIZATION_MAX_SCALE": 150,
+        "SAME_POS_BYE_WEIGHT": 0.25,
+        "DIFF_POS_BYE_WEIGHT": 0.01,
+        "PRIMARY_BONUS": 67,
+        "SECONDARY_BONUS": 69,
+        "ADP_SCORING_WEIGHT": 2.12,
+        "PLAYER_RATING_SCORING_WEIGHT": 3.52
+      }
+    },
+    {
+      "rank": 33,
+      "strategy_id": "32_wr_anchor.json",
+      "win_rate": 0.8382352941176471,
+      "games": 680,
+      "param_values": {
+        "DRAFT_NORMALIZATION_MAX_SCALE": 100,
+        "SAME_POS_BYE_WEIGHT": 0.07,
+        "DIFF_POS_BYE_WEIGHT": 0.0,
+        "PRIMARY_BONUS": 25,
+        "SECONDARY_BONUS": 56,
+        "ADP_SCORING_WEIGHT": 4.76,
+        "PLAYER_RATING_SCORING_WEIGHT": 1.38
+      }
+    },
+    {
+      "rank": 34,
+      "strategy_id": "15_studs_and_duds.json",
+      "win_rate": 0.836764705882353,
+      "games": 680,
+      "param_values": {
+        "DRAFT_NORMALIZATION_MAX_SCALE": 100,
+        "SAME_POS_BYE_WEIGHT": 0.07,
+        "DIFF_POS_BYE_WEIGHT": 0.01,
+        "PRIMARY_BONUS": 67,
+        "SECONDARY_BONUS": 69,
+        "ADP_SCORING_WEIGHT": 4.76,
+        "PLAYER_RATING_SCORING_WEIGHT": 3.52
+      }
+    },
+    {
+      "rank": 35,
+      "strategy_id": "23_wr_wr_start.json",
+      "win_rate": 0.8352941176470589,
+      "games": 680,
+      "param_values": {
+        "DRAFT_NORMALIZATION_MAX_SCALE": 175,
+        "SAME_POS_BYE_WEIGHT": 0.07,
+        "DIFF_POS_BYE_WEIGHT": 0.01,
+        "PRIMARY_BONUS": 67,
+        "SECONDARY_BONUS": 69,
+        "ADP_SCORING_WEIGHT": 4.76,
+        "PLAYER_RATING_SCORING_WEIGHT": 3.52
+      }
+    },
+    {
+      "rank": 36,
+      "strategy_id": "30_triple_rb_start.json",
+      "win_rate": 0.8352941176470589,
+      "games": 680,
+      "param_values": {
+        "DRAFT_NORMALIZATION_MAX_SCALE": 150,
+        "SAME_POS_BYE_WEIGHT": 0.07,
+        "DIFF_POS_BYE_WEIGHT": 0.3,
+        "PRIMARY_BONUS": 67,
+        "SECONDARY_BONUS": 69,
+        "ADP_SCORING_WEIGHT": 4.76,
+        "PLAYER_RATING_SCORING_WEIGHT": 3.52
+      }
+    },
+    {
+      "rank": 37,
+      "strategy_id": "38_late_round_surge.json",
+      "win_rate": 0.8264705882352941,
+      "games": 680,
+      "param_values": {
+        "DRAFT_NORMALIZATION_MAX_SCALE": 125,
+        "SAME_POS_BYE_WEIGHT": 0.07,
+        "DIFF_POS_BYE_WEIGHT": 0.01,
+        "PRIMARY_BONUS": 67,
+        "SECONDARY_BONUS": 69,
+        "ADP_SCORING_WEIGHT": 4.76,
+        "PLAYER_RATING_SCORING_WEIGHT": 0.5
+      }
+    },
+    {
+      "rank": 38,
+      "strategy_id": "34_contrarian.json",
+      "win_rate": 0.8205882352941176,
+      "games": 680,
+      "param_values": {
+        "DRAFT_NORMALIZATION_MAX_SCALE": 150,
+        "SAME_POS_BYE_WEIGHT": 0.12,
+        "DIFF_POS_BYE_WEIGHT": 0.15,
+        "PRIMARY_BONUS": 67,
+        "SECONDARY_BONUS": 69,
+        "ADP_SCORING_WEIGHT": 4.76,
+        "PLAYER_RATING_SCORING_WEIGHT": 3.52
+      }
+    }
+  ]
+}

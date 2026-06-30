@@ -20,6 +20,8 @@ Author: Kai Mizuno
 """
 
 # Standard library
+from math import sqrt
+from statistics import NormalDist
 from typing import Callable, Dict, List, Optional, Tuple
 
 # Local
@@ -27,11 +29,59 @@ from utils.LoggingManager import get_logger
 from utils.error_handler import ConfigurationError
 from simulation.win_rate.param_value_generation import generate_candidate_values, DRAFT_SWEEP_PARAMS
 
-# Coordinate-ascent improvement margin (D5): a param adopts a candidate only when it beats
-# the config's current best win rate by more than this. Module-level so the driver's input
-# fingerprint and the engine's ε-gate share one source of truth (no drift -> no spurious
-# resume mismatch).
-DEFAULT_EPSILON = 0.005
+# Significance-gate parameters (D1/D2/D3/D5/D6). A trial param value is adopted only when its
+# ACCUMULATED win rate (read back from the store) is both statistically significantly higher
+# (one-sided pooled two-proportion z-test at DEFAULT_CONFIDENCE) AND higher by more than
+# DEFAULT_MIN_EFFECT_SIZE than the running-best's accumulated rate; adoption is held until both
+# combos have at least DEFAULT_MIN_GAMES accumulated games. Module-level so the driver's input
+# fingerprint and the engine's gate share one source of truth (no drift -> no spurious resume
+# mismatch).
+DEFAULT_CONFIDENCE = 0.95
+DEFAULT_MIN_EFFECT_SIZE = 0.01
+DEFAULT_MIN_GAMES = 30
+
+
+def _adopt_by_significance(
+    w_trial: int,
+    n_trial: int,
+    w_best: int,
+    n_best: int,
+    confidence: float,
+    min_effect_size: float,
+    min_games: int,
+) -> bool:
+    """Decide whether a trial combination should be adopted over the running best.
+
+    Applies the accumulated-evidence adoption gate (D1/D2/D5/D6): a one-sided pooled
+    two-proportion z-test AND-ed with a minimum-effect-size guard, both over the
+    accumulated wins/games of the two combinations, held below a minimum-games floor and
+    on a degenerate (zero standard error) pool. Stdlib-only (``statistics.NormalDist``).
+
+    Args:
+        w_trial (int): Trial combination's accumulated wins.
+        n_trial (int): Trial combination's accumulated games.
+        w_best (int): Running-best combination's accumulated wins.
+        n_best (int): Running-best combination's accumulated games.
+        confidence (float): One-sided confidence level for the z critical value (0, 1).
+        min_effect_size (float): Minimum accumulated-rate effect (p_trial - p_best) required.
+        min_games (int): Minimum accumulated games required for BOTH combinations.
+
+    Returns:
+        bool: True iff (n_trial >= min_games and n_best >= min_games) and the pooled
+            standard error is non-zero and z > z_crit and effect > min_effect_size.
+    """
+    if n_trial < min_games or n_best < min_games:
+        return False  # D5: hold below the minimum-games floor (also guarantees n_* > 0)
+    p_trial = w_trial / n_trial
+    p_best = w_best / n_best
+    effect = p_trial - p_best
+    p_pool = (w_trial + w_best) / (n_trial + n_best)
+    se = sqrt(p_pool * (1.0 - p_pool) * (1.0 / n_trial + 1.0 / n_best))
+    if se == 0:
+        return False  # D5: hold on a degenerate (all-wins / all-losses) pool — z undefined
+    z = effect / se
+    z_crit = NormalDist().inv_cdf(confidence)
+    return z > z_crit and effect > min_effect_size  # D2/D6: AND-gate, both boundaries strict
 
 
 class SweepTournament:
@@ -40,34 +90,85 @@ class SweepTournament:
 
     Each (strategy_id, draft_order) config is tuned independently: full coordinate-ascent
     passes (all 7 numerics each pass, holding the others at their current best) repeat to
-    convergence under a strict ε-switch — a param adopts a candidate only when it beats the
-    config's current best by more than ε. Convergence (a full pass that moves no parameter)
-    is the sole stopping rule. The candidate grid is fixed per config (computed once from
-    its baseline). Dependencies are injected so the tournament does no file/sim/config
-    loading itself:
+    convergence under a significance gate — a param adopts a candidate only when the
+    candidate's ACCUMULATED win rate (read back from the store) is both significantly higher
+    (one-sided pooled two-proportion z-test at the configured confidence) AND higher by more
+    than the minimum effect size than the running-best's accumulated rate, with adoption held
+    until both combos have at least min_games accumulated games. Convergence (a full pass that
+    moves no parameter) is the sole stopping rule. The candidate grid is fixed per config
+    (computed once from its baseline). Dependencies are injected so the tournament does no
+    file/sim/config loading itself:
 
     Attributes:
         _evaluator: a CombinationEvaluator (evaluate(draft_order, param_values) ->
             (wins, games, win_rate)).
-        _store: a SweepResultsManager (update(strategy_id, param_values, win_rate, wins, games)).
+        _store: a SweepResultsManager (update(...) + get_combination(strategy_id, param_values)).
         _num_values: candidate count per numeric (passed to generate_candidate_values).
-        _epsilon: ε win-rate margin; a param moves only when a candidate beats the config's
-            current best by more than this (strict ε-switch).
+        _confidence: one-sided confidence level for the z critical value (0, 1).
+        _min_effect_size: minimum accumulated-rate effect (p_trial - p_best) to adopt.
+        _min_games: minimum accumulated games required of BOTH combos before a decision.
     """
 
-    def __init__(self, evaluator, store, num_values: int = 5, epsilon: float = DEFAULT_EPSILON) -> None:
+    def __init__(
+        self,
+        evaluator,
+        store,
+        num_values: int = 5,
+        confidence: float = DEFAULT_CONFIDENCE,
+        min_effect_size: float = DEFAULT_MIN_EFFECT_SIZE,
+        min_games: int = DEFAULT_MIN_GAMES,
+    ) -> None:
         """
         Args:
             evaluator: CombinationEvaluator used to score each combination.
             store: SweepResultsManager used to record/accumulate every evaluation.
             num_values (int): Candidate values per numeric parameter (default 5).
-            epsilon (float): ε win-rate margin (default DEFAULT_EPSILON = 0.005); a param moves
-                only when a candidate beats the config's current best by more than this margin.
+            confidence (float): One-sided confidence level for the adoption z-test
+                (default DEFAULT_CONFIDENCE = 0.95); must lie in the open interval (0, 1).
+            min_effect_size (float): Minimum accumulated-rate effect (p_trial - p_best) a
+                candidate must exceed to be adopted (default DEFAULT_MIN_EFFECT_SIZE = 0.01).
+            min_games (int): Minimum accumulated games BOTH combos must reach before a
+                candidate can be adopted (default DEFAULT_MIN_GAMES = 30).
+
+        Raises:
+            ConfigurationError: If confidence is not strictly within (0, 1).
+            ConfigurationError: If min_games is less than 1.
+            ConfigurationError: If min_effect_size is not in [0, 1).
         """
+        if not 0 < confidence < 1:
+            raise ConfigurationError(
+                f"SweepTournament confidence must be in the open interval (0, 1); got {confidence!r}"
+            )
+        if min_games < 1:
+            raise ConfigurationError(
+                f"SweepTournament min_games must be a positive integer (>= 1); got {min_games!r}"
+            )
+        if not 0 <= min_effect_size < 1:
+            raise ConfigurationError(
+                f"SweepTournament min_effect_size must be in the interval [0, 1); got {min_effect_size!r}"
+            )
         self._evaluator = evaluator
         self._store = store
         self._num_values = num_values
-        self._epsilon = epsilon
+        self._confidence = confidence
+        self._min_effect_size = min_effect_size
+        self._min_games = min_games
+
+    def _accumulated_rate(self, strategy_id: str, param_values: Dict[str, float]) -> float:
+        """Return the store's accumulated win rate for one combination.
+
+        Args:
+            strategy_id (str): Strategy identifier keying the combination.
+            param_values (Dict[str, float]): The 7 draft-side param values.
+
+        Returns:
+            float: total_wins / total_games for the combination, or 0.0 when the
+                combination is unrecorded or has zero accumulated games.
+        """
+        entry = self._store.get_combination(strategy_id, param_values)
+        if entry is None or entry["total_games"] == 0:
+            return 0.0
+        return entry["total_wins"] / entry["total_games"]
 
     def run(
         self,
@@ -146,18 +247,22 @@ class SweepTournament:
             elif carry_over_seeds is not None and strategy_id in carry_over_seeds:
                 # T10/D1a: seed-and-tune from a prior pass's converged params (endless passes 2+).
                 # Unlike the in_progress resume branch, the seed is evaluated ONCE here to
-                # re-establish THIS pass's best_rate as the ε-gate baseline from fresh evidence
-                # (the evaluator is non-deterministic and the store accumulates games), recording
-                # it via the existing update(). The config then falls through to the full
+                # re-establish THIS pass's running-best baseline from fresh evidence (the
+                # evaluator is non-deterministic and the store accumulates games), recording it
+                # via the existing update(). best_rate (T31/F7) is the seed combo's ACCUMULATED
+                # rate read back from the store. The config then falls through to the full
                 # coordinate-ascent below — it is NOT skipped and the grid is unchanged.
                 current = dict(carry_over_seeds[strategy_id])
-                wins, games, best_rate = self._evaluator.evaluate(draft_order, current)
-                self._store.update(strategy_id, current, best_rate, wins, games)
+                wins, games, win_rate = self._evaluator.evaluate(draft_order, current)
+                self._store.update(strategy_id, current, win_rate, wins, games)
+                best_rate = self._accumulated_rate(strategy_id, current)
             else:
                 # Per-config baseline evaluation establishes the starting best (also recorded).
+                # best_rate (T31/F7) is the baseline combo's ACCUMULATED rate from the store.
                 current = dict(baseline_params)
-                wins, games, best_rate = self._evaluator.evaluate(draft_order, current)
-                self._store.update(strategy_id, current, best_rate, wins, games)
+                wins, games, win_rate = self._evaluator.evaluate(draft_order, current)
+                self._store.update(strategy_id, current, win_rate, wins, games)
+                best_rate = self._accumulated_rate(strategy_id, current)
 
             # Record in-progress so an interrupt at any point leaves a resumable checkpoint (D3).
             self._store.mark_config_progress(strategy_id, "in_progress", current, best_rate)
@@ -175,9 +280,23 @@ class SweepTournament:
                         trial[param] = value
                         wins, games, win_rate = self._evaluator.evaluate(draft_order, trial)
                         self._store.update(strategy_id, trial, win_rate, wins, games)
-                        if win_rate > best_rate + self._epsilon:   # KDD-2: strict ε-gate
-                            best_rate = win_rate
+                        # T31: decide adoption on ACCUMULATED evidence read back from the store
+                        # (D4) — the trial combo (just update()-ed) vs the running-best (current).
+                        # best_entry is None only when the running-best combo has no accumulated
+                        # evidence this run (e.g. a checkpoint-seeded resume whose seed combo was
+                        # not re-recorded, per PR #18) — treat that as below the floor and hold.
+                        trial_entry = self._store.get_combination(strategy_id, trial)
+                        best_entry = self._store.get_combination(strategy_id, current)
+                        if best_entry is not None and _adopt_by_significance(
+                            trial_entry["total_wins"], trial_entry["total_games"],
+                            best_entry["total_wins"], best_entry["total_games"],
+                            self._confidence, self._min_effect_size, self._min_games,
+                        ):
                             current[param] = value
+                            # After adoption current == trial, so the new running-best's
+                            # accumulated rate (F7) is the trial entry's rate; the floor in the
+                            # gate guarantees total_games >= min_games > 0 (divide-safe).
+                            best_rate = trial_entry["total_wins"] / trial_entry["total_games"]
                             moved = True
                             # Persist the new running best immediately, so an interrupt mid-ascent
                             # leaves the LATEST values on disk (not the stale seed) and a resume
