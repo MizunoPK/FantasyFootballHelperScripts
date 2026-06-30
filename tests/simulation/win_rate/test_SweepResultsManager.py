@@ -100,6 +100,24 @@ class TestSweepResultsManager:
         mgr = SweepResultsManager(results_path)  # file does not exist yet
         assert mgr.get_all_combinations() == {}
 
+    def test_get_combination_returns_recorded_entry(self, results_path):
+        # get_combination returns the same entry get_all_combinations exposes for a key.
+        mgr = SweepResultsManager(results_path)
+        pv = _param_values()
+        mgr.update("1_zero_rb.json", pv, win_rate=0.6, wins=6, games=10)
+        entry = mgr.get_combination("1_zero_rb.json", pv)
+        assert entry is not None
+        assert entry["total_wins"] == 6
+        assert entry["total_games"] == 10
+        # Same object the full-map accessor returns for the combo key.
+        key = mgr.make_combo_key("1_zero_rb.json", pv)
+        assert entry is mgr.get_all_combinations()[key]
+
+    def test_get_combination_absent_returns_none(self, results_path):
+        # An unrecorded combination yields None (not a KeyError).
+        mgr = SweepResultsManager(results_path)
+        assert mgr.get_combination("1_zero_rb.json", _param_values()) is None
+
     def test_load_corrupt_file_starts_fresh(self, results_path):
         results_path.write_text("{ not valid json")
         mgr = SweepResultsManager(results_path)
