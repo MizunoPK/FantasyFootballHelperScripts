@@ -132,10 +132,20 @@ class SweepTournament:
 
         Raises:
             ConfigurationError: If confidence is not strictly within (0, 1).
+            ConfigurationError: If min_games is less than 1.
+            ConfigurationError: If min_effect_size is not in [0, 1).
         """
         if not 0 < confidence < 1:
             raise ConfigurationError(
                 f"SweepTournament confidence must be in the open interval (0, 1); got {confidence!r}"
+            )
+        if min_games < 1:
+            raise ConfigurationError(
+                f"SweepTournament min_games must be a positive integer (>= 1); got {min_games!r}"
+            )
+        if not 0 <= min_effect_size < 1:
+            raise ConfigurationError(
+                f"SweepTournament min_effect_size must be in the interval [0, 1); got {min_effect_size!r}"
             )
         self._evaluator = evaluator
         self._store = store
@@ -239,7 +249,7 @@ class SweepTournament:
                 # Unlike the in_progress resume branch, the seed is evaluated ONCE here to
                 # re-establish THIS pass's running-best baseline from fresh evidence (the
                 # evaluator is non-deterministic and the store accumulates games), recording it
-                # via the existing update(). best_rate (T31/D7) is the seed combo's ACCUMULATED
+                # via the existing update(). best_rate (T31/F7) is the seed combo's ACCUMULATED
                 # rate read back from the store. The config then falls through to the full
                 # coordinate-ascent below — it is NOT skipped and the grid is unchanged.
                 current = dict(carry_over_seeds[strategy_id])
@@ -248,7 +258,7 @@ class SweepTournament:
                 best_rate = self._accumulated_rate(strategy_id, current)
             else:
                 # Per-config baseline evaluation establishes the starting best (also recorded).
-                # best_rate (T31/D7) is the baseline combo's ACCUMULATED rate from the store.
+                # best_rate (T31/F7) is the baseline combo's ACCUMULATED rate from the store.
                 current = dict(baseline_params)
                 wins, games, win_rate = self._evaluator.evaluate(draft_order, current)
                 self._store.update(strategy_id, current, win_rate, wins, games)
@@ -284,7 +294,7 @@ class SweepTournament:
                         ):
                             current[param] = value
                             # After adoption current == trial, so the new running-best's
-                            # accumulated rate (D7) is the trial entry's rate; the floor in the
+                            # accumulated rate (F7) is the trial entry's rate; the floor in the
                             # gate guarantees total_games >= min_games > 0 (divide-safe).
                             best_rate = trial_entry["total_wins"] / trial_entry["total_games"]
                             moved = True

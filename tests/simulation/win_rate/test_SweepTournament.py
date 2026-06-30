@@ -185,6 +185,31 @@ class TestSweepTournament:
             with pytest.raises(ConfigurationError):
                 SweepTournament(_evaluator(lambda do, pv: 0.6), _store(tmp_path), confidence=bad)
 
+    def test_invalid_min_games_raises(self, tmp_path):
+        # min_games < 1 is a configuration error: a zero/negative value breaks the
+        # '_adopt_by_significance' floor assumption (the "floor guarantees n>0" comment)
+        # which would cause a divide-by-zero on 1/n_trial + 1/n_best.
+        ev = _evaluator(lambda do, pv: 0.6)
+        for bad in (0, -1, -10):
+            with pytest.raises(ConfigurationError):
+                SweepTournament(ev, _store(tmp_path), min_games=bad)
+
+    def test_invalid_min_effect_size_raises(self, tmp_path):
+        # min_effect_size outside [0, 1) is a configuration error: a negative value
+        # inverts the effect guard, and >= 1 makes adoption mathematically impossible
+        # (win rates are bounded to [0, 1]).
+        ev = _evaluator(lambda do, pv: 0.6)
+        for bad in (-0.1, -1.0, 1.0, 1.5):
+            with pytest.raises(ConfigurationError):
+                SweepTournament(ev, _store(tmp_path), min_effect_size=bad)
+
+    def test_valid_defaults_construct_without_error(self, tmp_path):
+        # The module defaults (confidence=0.95, min_effect_size=0.01, min_games=30) all
+        # pass the new validation and construct a SweepTournament without error.
+        ev = _evaluator(lambda do, pv: 0.6)
+        t = SweepTournament(ev, _store(tmp_path))  # must not raise
+        assert t is not None
+
     def test_resume_skips_converged_config(self, tmp_path):
         # A pre-marked converged config is skipped (evaluator not called for it) when resume=True.
         store = _store(tmp_path)
@@ -300,6 +325,36 @@ class TestSweepTournament:
         first_pv = ev2.evaluate.call_args_list[0].args[1]
         assert first_pv["PRIMARY_BONUS"] == baseline["PRIMARY_BONUS"]  # baseline 67, no seed
 
+    def test_holds_when_running_best_unrecorded(self, tmp_path):
+        """None-running-best hold-guard regression (T31/PR #18 checkpoint-resume path).
+
+        When an in_progress resume seeds `current` from convergence metadata but that
+        combo was never update()-ed in this run (no accumulated evidence in the store),
+        ``get_combination(strategy_id, current)`` returns None.  The inner-loop guard
+
+            if best_entry is not None and _adopt_by_significance(...)
+
+        must hold (short-circuit) so run() completes without raising.  Remove the guard
+        and this test fails with TypeError (None["total_wins"]).
+        """
+        store = _store(tmp_path)
+        baseline = _baseline()
+        # Seed `current` to a non-baseline PRIMARY_BONUS that has NEVER been evaluated —
+        # so get_combination("s1", seeded) returns None (no store combination entry exists).
+        seeded = dict(baseline)
+        seeded["PRIMARY_BONUS"] = 91
+        store.mark_config_progress("s1", "in_progress", seeded, 0.7)
+        # Evaluator returns a strongly adoptable result (900/1000) for every trial, so
+        # the inner-loop adoption path is reached and best_entry is None is encountered.
+        ev = _wg_evaluator(lambda do, pv: (900, 1000))
+        t = SweepTournament(ev, store)
+        # Must complete without raising (TypeError if the best_entry guard is removed).
+        result = t.run([("s1", [{"s": "1"}])], baseline, resume=True)
+        # Guard held -> run returned a result without crashing.
+        assert "s1" in result
+        # Guard held -> no adoption over a None running-best -> current stays at the seed.
+        assert result["s1"]["param_values"]["PRIMARY_BONUS"] == 91
+
 
 class TestSweepTournamentProgressCallback:
     """T16/KDD-2: the optional progress_callback fires exactly once per config (on both the
@@ -358,7 +413,7 @@ class TestSweepTournamentSignificanceGate:
         t = SweepTournament(_wg_evaluator(wg), _store(tmp_path))
         result = t.run([("s1", [{"s": "1"}])], baseline)
         assert result["s1"]["param_values"]["PRIMARY_BONUS"] == target
-        # D7: returned win_rate is the running-best's ACCUMULATED rate (700/1000 = 0.70).
+        # F7: returned win_rate is the running-best's ACCUMULATED rate (700/1000 = 0.70).
         assert result["s1"]["win_rate"] == pytest.approx(0.70)
 
     def test_holds_when_not_significant(self, tmp_path):
