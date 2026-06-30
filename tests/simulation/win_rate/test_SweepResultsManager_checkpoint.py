@@ -155,8 +155,32 @@ class TestSweepResultsManagerCheckpoint:
         assert entry is not None
         assert entry["status"] == "in_progress"
         assert entry["best_param_values"] == pv
-        assert entry["best_win_rate"] == 0.55
+        assert entry["best_combo_win_rate"] == 0.55
         assert entry["updated"] != ""
+
+    def test_mark_config_progress_migrates_legacy_convergence_key(self, results_path):
+        # D4: an old-schema in-progress convergence entry (legacy "best_win_rate") is fully
+        # replaced by mark_config_progress's upsert — the rewritten entry carries only the new
+        # "best_combo_win_rate" (no stale duplicate key persisted).
+        old_schema = {
+            "last_updated": "2026-06-01",
+            "combinations": {},
+            "convergence": {
+                "1_zero_rb.json": {
+                    "status": "in_progress",
+                    "best_param_values": _param_values(),
+                    "best_win_rate": 0.5,
+                    "updated": "2026-06-01",
+                }
+            },
+        }
+        results_path.write_text(json.dumps(old_schema))
+        mgr = SweepResultsManager(results_path)
+        mgr.mark_config_progress("1_zero_rb.json", "converged", _param_values(), 0.61)
+        # Reload from disk to confirm what actually persisted.
+        entry = SweepResultsManager(results_path).get_config_convergence("1_zero_rb.json")
+        assert entry["best_combo_win_rate"] == 0.61
+        assert "best_win_rate" not in entry
 
     def test_mark_config_progress_upserts_status_transition(self, results_path):
         mgr = SweepResultsManager(results_path)
@@ -167,7 +191,7 @@ class TestSweepResultsManagerCheckpoint:
         entry = mgr.get_config_convergence("1_zero_rb.json")
         assert entry["status"] == "converged"
         assert entry["best_param_values"] == _param_values(PRIMARY_BONUS=80)
-        assert entry["best_win_rate"] == 0.61
+        assert entry["best_combo_win_rate"] == 0.61
         # Upsert, not append: still exactly one entry for this id.
         assert list(mgr.get_all_convergence().keys()) == ["1_zero_rb.json"]
 

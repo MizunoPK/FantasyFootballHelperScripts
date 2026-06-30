@@ -49,7 +49,7 @@ def rank_combinations(combinations: Dict[str, Dict]) -> List[Dict]:
         List[Dict]: One row per config, sorted by cumulative win rate descending,
             tie-broken by games (sample size) descending then combo key ascending.
             Each row carries 'combo_key', 'strategy_id', 'param_values',
-            'win_rate' (cumulative), 'games', 'wins', 'best_win_rate', 'total_runs',
+            'win_rate' (cumulative), 'games', 'wins', 'total_runs',
             'last_run'. Empty input yields an empty list.
     """
     rows = []
@@ -64,7 +64,6 @@ def rank_combinations(combinations: Dict[str, Dict]) -> List[Dict]:
             "win_rate": win_rate,
             "games": games,
             "wins": wins,
-            "best_win_rate": entry.get("best_win_rate", 0.0),
             "total_runs": entry.get("total_runs", 0),
             "last_run": entry.get("last_run", ""),
         })

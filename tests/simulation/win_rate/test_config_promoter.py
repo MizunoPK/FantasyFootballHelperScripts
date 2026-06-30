@@ -3,7 +3,7 @@ Tests for simulation.win_rate.config_promoter.
 
 Covers the live-config promotion writer: promoting the top-ranked combination's
 DRAFT_ORDER + 7 params, preserving all other keys, cumulative-win-rate ranking
-(not best_win_rate), the four error paths that converge to ConfigurationError with
+(not best_single_run_win_rate), the four error paths that converge to ConfigurationError with
 no write (empty store, strategy absent, strategy files missing, config missing/
 corrupt), the git dirty-state warn-and-proceed behavior, the graceful git probe,
 and write-failure safety (FileOperationError + no orphaned .tmp). Exercised against
@@ -146,7 +146,7 @@ class TestConfigPromoter:
         ), patch(f"{MODULE}._has_uncommitted_changes", return_value=False):
             result = promote_best_combination(mgr, Path("unused"), config_path)
 
-        # B (the higher-cumulative combo) is promoted, not A (higher best_win_rate).
+        # B (the higher-cumulative combo) is promoted, not A (higher best_single_run_win_rate).
         assert result["strategy_id"] == _WINNER_ID
         written = json.loads(config_path.read_text())
         assert written["parameters"]["DRAFT_ORDER"] == _WINNER_ORDER

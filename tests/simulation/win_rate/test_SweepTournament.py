@@ -9,6 +9,7 @@ Author: Kai Mizuno
 """
 
 # Standard library
+import json
 from unittest.mock import Mock
 
 # Third-party
@@ -209,6 +210,61 @@ class TestSweepTournament:
         ev = _evaluator(lambda do, pv: 0.6)
         t = SweepTournament(ev, _store(tmp_path))  # must not raise
         assert t is not None
+
+    def test_resume_in_progress_old_schema_convergence_no_keyerror(self, tmp_path):
+        # D4: resuming an in_progress config written under the legacy "best_win_rate" key must
+        # not KeyError — the line-246 baseline read falls back to the legacy key. Flat landscape
+        # so ascent converges immediately on the checkpointed seed.
+        path = tmp_path / "win_rate_sweep_results.json"
+        baseline = _baseline()
+        seeded = dict(baseline)
+        seeded["PRIMARY_BONUS"] = 91
+        old_schema = {
+            "last_updated": "2026-06-01",
+            "combinations": {},
+            "convergence": {
+                "s1": {
+                    "status": "in_progress",
+                    "best_param_values": seeded,
+                    "best_win_rate": 0.7,
+                    "updated": "2026-06-01",
+                }
+            },
+        }
+        path.write_text(json.dumps(old_schema))
+        store = SweepResultsManager(path)
+        ev = _evaluator(lambda do, pv: 0.6)
+        t = SweepTournament(ev, store)
+        result = t.run([("s1", [{"s": "1"}])], baseline, resume=True)  # must not raise KeyError
+        # Resumed from the checkpointed seed (not baseline 67); baseline best_rate read from the
+        # legacy key (0.7) and carried through the flat-landscape (no-move) convergence.
+        assert result["s1"]["param_values"]["PRIMARY_BONUS"] == 91
+        assert result["s1"]["win_rate"] == 0.7
+
+    def test_resume_converged_old_schema_convergence_no_keyerror(self, tmp_path):
+        # D4: a converged config written under the legacy "best_win_rate" key must be skipped on
+        # resume and surface its checkpointed rate via the line-235 fallback read (no KeyError).
+        path = tmp_path / "win_rate_sweep_results.json"
+        baseline = _baseline()
+        old_schema = {
+            "last_updated": "2026-06-01",
+            "combinations": {},
+            "convergence": {
+                "s1": {
+                    "status": "converged",
+                    "best_param_values": baseline,
+                    "best_win_rate": 0.8,
+                    "updated": "2026-06-01",
+                }
+            },
+        }
+        path.write_text(json.dumps(old_schema))
+        store = SweepResultsManager(path)
+        ev = _evaluator(lambda do, pv: 0.6)
+        t = SweepTournament(ev, store)
+        result = t.run([("s1", [{"s": "1"}])], baseline, resume=True)  # must not raise KeyError
+        assert ev.evaluate.call_count == 0           # converged -> skipped
+        assert result["s1"]["win_rate"] == 0.8        # read via legacy-key fallback
 
     def test_resume_skips_converged_config(self, tmp_path):
         # A pre-marked converged config is skipped (evaluator not called for it) when resume=True.

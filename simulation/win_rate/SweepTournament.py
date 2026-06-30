@@ -232,7 +232,8 @@ class SweepTournament:
                 logger.info(f"Config {strategy_id} skipped (already converged)")
                 results[strategy_id] = {
                     "param_values": dict(conv["best_param_values"]),
-                    "win_rate": conv["best_win_rate"],
+                    # D4: new key, else legacy best_win_rate (old-schema resume safety).
+                    "win_rate": conv.get("best_combo_win_rate", conv.get("best_win_rate")),
                 }
                 if progress_callback is not None:  # KDD-2: fire on the resume-skip path
                     progress_callback(strategy_id)
@@ -243,7 +244,8 @@ class SweepTournament:
                 # NOT re-record it — a 0-win/0-game update() would bump total_runs / last_run with
                 # zero evidence and skew the per-combo metadata on every resume (PR #18).
                 current = dict(conv["best_param_values"])
-                best_rate = conv["best_win_rate"]
+                # D4: new key, else legacy best_win_rate (old-schema resume safety).
+                best_rate = conv.get("best_combo_win_rate", conv.get("best_win_rate"))
             elif carry_over_seeds is not None and strategy_id in carry_over_seeds:
                 # T10/D1a: seed-and-tune from a prior pass's converged params (endless passes 2+).
                 # Unlike the in_progress resume branch, the seed is evaluated ONCE here to
