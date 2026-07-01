@@ -26,7 +26,7 @@ MODULE = "simulation.win_rate.CombinationEvaluator"
 
 
 def _fake_params():
-    """A league_config-like parameters dict (the 7 params nested + other keys)."""
+    """A league_config-like parameters dict (the 6 params nested + other keys)."""
     return {
         "CURRENT_NFL_WEEK": 17,
         "NFL_SEASON": 2025,
@@ -43,7 +43,6 @@ def _fake_params():
 
 def _valid_param_values():
     return {
-        "DRAFT_NORMALIZATION_MAX_SCALE": 160,
         "SAME_POS_BYE_WEIGHT": 0.10,
         "DIFF_POS_BYE_WEIGHT": 0.05,
         "PRIMARY_BONUS": 80,
@@ -127,7 +126,6 @@ class TestCombinationEvaluator:
         assert params["DRAFT_ORDER_BONUSES"]["PRIMARY"] == 80
         assert params["ADP_SCORING"]["WEIGHT"] == 5.0
         assert params["PLAYER_RATING_SCORING"]["WEIGHT"] == 3.0
-        assert params["DRAFT_NORMALIZATION_MAX_SCALE"] == 160
 
     def test_evaluate_runs_all_seasons(self, tmp_path):
         ev, mock_runner = _make_evaluator(tmp_path, [(1, 1, 0.0)], num_seasons=3)

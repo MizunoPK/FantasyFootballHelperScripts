@@ -4,7 +4,7 @@ Config Promoter
 Lands the winning combination from a multi-parameter sweep into the live
 league_config.json. Reads the accumulated sweep results, ranks them by cumulative
 win rate, resolves the winning strategy's DRAFT_ORDER, and writes that DRAFT_ORDER
-plus the seven draft-side parameters onto league_config.json via the shared
+plus the six draft-side parameters onto league_config.json via the shared
 apply_draft_overrides helper — preserving every other key.
 
 This is the one component that mutates the operator's live config. The write is
@@ -41,7 +41,7 @@ def promote_best_combination(
     Write the best-ranked sweep combination into league_config.json.
 
     Ranks the store's combinations by cumulative win rate, takes the #1, resolves
-    that strategy's DRAFT_ORDER, and applies it plus the seven draft-side params
+    that strategy's DRAFT_ORDER, and applies it plus the six draft-side params
     onto config_path via apply_draft_overrides (all other keys preserved). The
     write is atomic; a git dirty-state warning is logged (but does not block) when
     config_path has uncommitted changes.

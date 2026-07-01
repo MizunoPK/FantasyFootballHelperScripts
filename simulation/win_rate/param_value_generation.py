@@ -2,7 +2,7 @@
 Param Value Generation
 
 Pure, deterministic candidate-value generation for the win-rate parameter sweep.
-For each of the seven in-scope draft-side parameters, produces a list of discrete
+For each of the six in-scope draft-side parameters, produces a list of discrete
 values to test, evenly spaced across the parameter's [min, max] range at its
 defined precision and always including the parameter's current value (the anchor).
 
@@ -22,10 +22,9 @@ from simulation.shared.ConfigGenerator import ConfigGenerator
 from utils.error_handler import ConfigurationError
 
 
-# The seven draft-side parameters this sweep optimizes (flat names matching
+# The six draft-side parameters this sweep optimizes (flat names matching
 # ConfigGenerator.PARAM_DEFINITIONS).
 DRAFT_SWEEP_PARAMS = (
-    'DRAFT_NORMALIZATION_MAX_SCALE',
     'SAME_POS_BYE_WEIGHT',
     'DIFF_POS_BYE_WEIGHT',
     'PRIMARY_BONUS',
@@ -56,20 +55,20 @@ def generate_candidate_values(
     """
     Generate per-parameter candidate value lists for the sweep tournament.
 
-    For each of the seven DRAFT_SWEEP_PARAMS, returns a sorted list of candidate
+    For each of the six DRAFT_SWEEP_PARAMS, returns a sorted list of candidate
     values: num_values evenly spaced across the parameter's [min, max] range at its
     precision, plus the parameter's current value (anchor). When num_values is at
     least the number of discrete values in range, the full discrete set is returned;
     when num_values <= 1, only the anchor is returned.
 
     Args:
-        current_values: Mapping of each of the seven flat param names to its current
-            value (the anchor). Exactly the seven keys are required.
+        current_values: Mapping of each of the six flat param names to its current
+            value (the anchor). Exactly the six keys are required.
         num_values: Target number of evenly-spaced candidates per parameter
             (the anchor is added on top if not already among them).
 
     Returns:
-        Dict[str, List[float]]: Each of the seven param names mapped to a sorted list
+        Dict[str, List[float]]: Each of the six param names mapped to a sorted list
             of candidate values.
 
     Raises:

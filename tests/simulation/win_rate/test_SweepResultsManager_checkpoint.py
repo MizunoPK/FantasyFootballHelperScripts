@@ -25,7 +25,6 @@ from utils.error_handler import ConfigurationError
 
 def _param_values(**overrides):
     base = {
-        "DRAFT_NORMALIZATION_MAX_SCALE": 150,
         "SAME_POS_BYE_WEIGHT": 0.07,
         "DIFF_POS_BYE_WEIGHT": 0.01,
         "PRIMARY_BONUS": 67,
@@ -286,4 +285,17 @@ class TestSweepResultsManagerCheckpoint:
         )
         on_disk = json.loads(results_path.read_text())
         assert on_disk["last_updated"] != ""
+
+    def test_fingerprint_differs_between_six_and_seven_key_baseline(self):
+        # D5: the scale-drop shrinks baseline_params 7 -> 6 keys, which must change the
+        # fingerprint so any pre-change checkpoint is discarded and the sweep restarts.
+        six_key = _param_values()  # post-change anchor (no scale, per Step 13)
+        seven_key = dict(six_key, DRAFT_NORMALIZATION_MAX_SCALE=150)
+        a = SweepResultsManager.compute_input_fingerprint(
+            ["1_zero_rb.json"], six_key, 5, 0.95, 0.01, 30, 0
+        )
+        b = SweepResultsManager.compute_input_fingerprint(
+            ["1_zero_rb.json"], seven_key, 5, 0.95, 0.01, 30, 0
+        )
+        assert a != b
 

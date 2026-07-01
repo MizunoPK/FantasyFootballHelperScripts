@@ -30,7 +30,7 @@ from simulation.win_rate.config_overrides import apply_draft_overrides
 
 class CombinationEvaluator:
     """
-    Scores one (DRAFT_ORDER + 7-param) combination across all historical seasons.
+    Scores one (DRAFT_ORDER + 6-param) combination across all historical seasons.
 
     Expensive resources are built once in __init__ and reused across evaluate()
     calls, so a sweep that evaluates thousands of combinations does not re-read
@@ -126,7 +126,7 @@ class CombinationEvaluator:
 
         Args:
             draft_order (list): The strategy's DRAFT_ORDER array (applied verbatim).
-            param_values (Dict[str, float]): The 7 draft-side params (see
+            param_values (Dict[str, float]): The 6 draft-side params (see
                 config_overrides.apply_draft_overrides; validated/precision-rounded there).
 
         Returns:

@@ -70,7 +70,7 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--sweep", action="store_true",
-        help="Run the multi-parameter sweep (strategy + 7 draft-side params) instead of strategy-only mode."
+        help="Run the multi-parameter sweep (strategy + 6 draft-side params) instead of strategy-only mode."
     )
     parser.add_argument(
         "--num-values", type=int, default=5, metavar="N",

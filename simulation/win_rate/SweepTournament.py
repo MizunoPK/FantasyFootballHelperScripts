@@ -1,9 +1,9 @@
 """
 Sweep Tournament
 
-A per-draft-order-config convergent coordinate-ascent tournament over the 7 draft-side
+A per-draft-order-config convergent coordinate-ascent tournament over the 6 draft-side
 params. For each (strategy_id, draft_order) config independently, it runs full
-coordinate-ascent passes to convergence: each pass sweeps all 7 numerics (holding the
+coordinate-ascent passes to convergence: each pass sweeps all 6 numerics (holding the
 others at their current best), advancing a param to a candidate value only when that
 candidate beats the config's current best win rate by more than the ε margin (a strict
 ε-switch). Passes repeat until a full pass moves no parameter — convergence is the sole
@@ -112,10 +112,10 @@ def _read_convergence_best_rate(conv: dict) -> float:
 
 class SweepTournament:
     """
-    Per-config convergent coordinate-ascent tournament over the 7 draft-side params.
+    Per-config convergent coordinate-ascent tournament over the 6 draft-side params.
 
     Each (strategy_id, draft_order) config is tuned independently: full coordinate-ascent
-    passes (all 7 numerics each pass, holding the others at their current best) repeat to
+    passes (all 6 numerics each pass, holding the others at their current best) repeat to
     convergence under a significance gate — a param adopts a candidate only when the
     candidate's ACCUMULATED win rate (read back from the store) is both significantly higher
     (one-sided pooled two-proportion z-test at the configured confidence) AND higher by more
@@ -185,7 +185,7 @@ class SweepTournament:
 
         Args:
             strategy_id (str): Strategy identifier keying the combination.
-            param_values (Dict[str, float]): The 7 draft-side param values.
+            param_values (Dict[str, float]): The 6 draft-side param values.
 
         Returns:
             float: total_wins / total_games for the combination, or 0.0 when the
@@ -210,7 +210,7 @@ class SweepTournament:
 
         Args:
             strategies: List of (strategy_id, draft_order) configs, each tuned independently.
-            baseline_params: The 7 current draft-side param values (each config's anchor / start).
+            baseline_params: The 6 current draft-side param values (each config's anchor / start).
             resume: When True (D3), consult the injected store's per-config convergence to
                 skip configs already marked "converged" and seed an "in_progress" config's
                 start point from its checkpointed best values; configs with no convergence
@@ -238,7 +238,7 @@ class SweepTournament:
                 status lines (e.g. "Config ... converged") through the logger.
 
         Returns:
-            Dict[str, Dict]: {strategy_id: {"param_values": <7-param dict>, "win_rate": float}}.
+            Dict[str, Dict]: {strategy_id: {"param_values": <6-param dict>, "win_rate": float}}.
 
         Raises:
             ConfigurationError: If strategies is empty.
@@ -300,7 +300,7 @@ class SweepTournament:
             moved = True
             while moved:
                 moved = False
-                for param in DRAFT_SWEEP_PARAMS:           # all 7 swept every pass
+                for param in DRAFT_SWEEP_PARAMS:           # all 6 swept every pass
                     for value in candidates[param]:
                         if value == current[param]:
                             continue                       # current best already recorded

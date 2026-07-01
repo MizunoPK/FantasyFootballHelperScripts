@@ -54,9 +54,8 @@ def base_config():
 
 @pytest.fixture
 def valid_param_values():
-    """In-bounds, precision-correct values for all seven params."""
+    """In-bounds, precision-correct values for all six params."""
     return {
-        "DRAFT_NORMALIZATION_MAX_SCALE": 160,
         "SAME_POS_BYE_WEIGHT": 0.10,
         "DIFF_POS_BYE_WEIGHT": 0.05,
         "PRIMARY_BONUS": 80,
@@ -74,11 +73,10 @@ def new_draft_order():
 class TestApplyDraftOverrides:
     """Tests for apply_draft_overrides."""
 
-    def test_placement_all_seven_params(self, base_config, valid_param_values, new_draft_order):
+    def test_placement_all_six_params(self, base_config, valid_param_values, new_draft_order):
         result = apply_draft_overrides(base_config, new_draft_order, valid_param_values)
         params = result["parameters"]
 
-        assert params["DRAFT_NORMALIZATION_MAX_SCALE"] == 160
         assert params["SAME_POS_BYE_WEIGHT"] == 0.10
         assert params["DIFF_POS_BYE_WEIGHT"] == 0.05
         assert params["DRAFT_ORDER_BONUSES"]["PRIMARY"] == 80
@@ -91,7 +89,6 @@ class TestApplyDraftOverrides:
         param_values["SAME_POS_BYE_WEIGHT"] = 0.073          # 2dp -> 0.07
         param_values["ADP_SCORING_WEIGHT"] = 5.756           # 2dp -> 5.76
         param_values["PRIMARY_BONUS"] = 80.4                 # int -> 80
-        param_values["DRAFT_NORMALIZATION_MAX_SCALE"] = 160.6  # int -> 161
 
         result = apply_draft_overrides(base_config, new_draft_order, param_values)
         params = result["parameters"]
@@ -99,7 +96,6 @@ class TestApplyDraftOverrides:
         assert params["SAME_POS_BYE_WEIGHT"] == 0.07
         assert params["ADP_SCORING"]["WEIGHT"] == 5.76
         assert params["DRAFT_ORDER_BONUSES"]["PRIMARY"] == 80
-        assert params["DRAFT_NORMALIZATION_MAX_SCALE"] == 161
 
     def test_draft_order_applied_verbatim(self, base_config, valid_param_values, new_draft_order):
         result = apply_draft_overrides(base_config, new_draft_order, valid_param_values)
@@ -158,15 +154,36 @@ class TestApplyDraftOverrides:
         for name in DRAFT_PARAM_LOCATIONS:
             assert name in ConfigGenerator.PARAM_DEFINITIONS
 
+    def test_locations_in_sync_with_sweep_params(self):
+        # Sync invariant: the write map and the swept set must have identical keys.
+        from simulation.win_rate.param_value_generation import DRAFT_SWEEP_PARAMS
+        assert set(DRAFT_PARAM_LOCATIONS) == set(DRAFT_SWEEP_PARAMS)
+        assert len(DRAFT_PARAM_LOCATIONS) == 6
+        assert "DRAFT_NORMALIZATION_MAX_SCALE" not in DRAFT_PARAM_LOCATIONS
+
+    def test_widened_bye_weight_accepted(self, base_config, valid_param_values, new_draft_order):
+        # D2/D3: the widened ceilings are accepted by the bounds validator.
+        param_values = dict(valid_param_values)
+        param_values["SAME_POS_BYE_WEIGHT"] = 1.0
+        param_values["DIFF_POS_BYE_WEIGHT"] = 0.5
+        result = apply_draft_overrides(base_config, new_draft_order, param_values)
+        assert result["parameters"]["SAME_POS_BYE_WEIGHT"] == 1.0
+        assert result["parameters"]["DIFF_POS_BYE_WEIGHT"] == 0.5
+
+    def test_scale_preserved_after_drop(self, base_config, valid_param_values, new_draft_order):
+        # D1: scale is no longer swept; the base config's fixed value is left intact.
+        result = apply_draft_overrides(base_config, new_draft_order, valid_param_values)
+        assert (result["parameters"]["DRAFT_NORMALIZATION_MAX_SCALE"]
+                == base_config["parameters"]["DRAFT_NORMALIZATION_MAX_SCALE"])
+
 
 class TestExtractDraftParamValues:
     """Tests for extract_draft_param_values."""
 
-    def test_extract_returns_seven_current_values(self, base_config):
+    def test_extract_returns_six_current_values(self, base_config):
         from simulation.win_rate.config_overrides import extract_draft_param_values, DRAFT_PARAM_LOCATIONS
         values = extract_draft_param_values(base_config)
         assert set(values.keys()) == set(DRAFT_PARAM_LOCATIONS.keys())
-        assert values["DRAFT_NORMALIZATION_MAX_SCALE"] == 150
         assert values["SAME_POS_BYE_WEIGHT"] == 0.07
         assert values["PRIMARY_BONUS"] == 67
         assert values["SECONDARY_BONUS"] == 69

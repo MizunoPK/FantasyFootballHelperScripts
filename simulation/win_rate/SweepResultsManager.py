@@ -2,7 +2,7 @@
 Sweep Results Manager
 
 Manages the win_rate_sweep_results.json persistence lifecycle for the multi-parameter
-sweep. Records, per (strategy + the 7 draft-side param values) combination, the
+sweep. Records, per (strategy + the 6 draft-side param values) combination, the
 cumulative wins/games, best win rate, and run metadata — accumulating across runs so
 re-runs add evidence rather than overwriting it.
 
@@ -35,7 +35,7 @@ class SweepResultsManager:
 
     Loads the file on construction (initializes empty if absent or corrupted). Exposes
     update() for recording one combination evaluation and writes atomically after every
-    call. Keyed by a canonical combination string built from the strategy id and the 7
+    call. Keyed by a canonical combination string built from the strategy id and the 6
     draft-side param values (see make_combo_key).
     """
 
@@ -105,7 +105,7 @@ class SweepResultsManager:
 
         Args:
             strategy_ids (List[str]): Strategy identifiers (filenames) in the run.
-            baseline_params (Dict[str, float]): The 7-param baseline anchor.
+            baseline_params (Dict[str, float]): The 6-param baseline anchor.
             num_values (int): Grid density per parameter.
             confidence (float): Adoption-gate one-sided confidence level.
             min_effect_size (float): Adoption-gate minimum accumulated-rate effect.
@@ -133,14 +133,14 @@ class SweepResultsManager:
         Build the canonical combination key from a strategy id and param values.
 
         The key is a readable, deterministic string: the strategy id followed by each
-        of the 7 params (in fixed DRAFT_SWEEP_PARAMS order) as NAME=value. Values are
+        of the 6 params (in fixed DRAFT_SWEEP_PARAMS order) as NAME=value. Values are
         assumed already normalized to precision (the sweep produces them via
         generate_candidate_values / apply_draft_overrides), so equal combinations always
         produce equal keys across runs.
 
         Args:
             strategy_id (str): Strategy identifier (e.g., the strategy filename).
-            param_values (Dict[str, float]): The 7 draft-side param values.
+            param_values (Dict[str, float]): The 6 draft-side param values.
 
         Returns:
             str: The canonical combination key.
@@ -166,7 +166,7 @@ class SweepResultsManager:
 
         Args:
             strategy_id (str): Strategy identifier.
-            param_values (Dict[str, float]): The 7 draft-side param values.
+            param_values (Dict[str, float]): The 6 draft-side param values.
             win_rate (float): Win rate from this evaluation (0.0-1.0).
             wins (int): Wins in this evaluation batch.
             games (int): Total games in this evaluation batch (wins + losses).
@@ -247,7 +247,7 @@ class SweepResultsManager:
         Args:
             strategy_id (str): Strategy identifier (filename) keying the entry.
             status (str): "converged" or "in_progress".
-            best_param_values (Dict[str, float]): The config's current best 7 params.
+            best_param_values (Dict[str, float]): The config's current best 6 params.
             best_combo_win_rate (float): The config's current accumulated best-combo
                 win rate (total_wins/total_games of the running-best combo, NOT a
                 single-run rate). Load-bearing for resume.
@@ -289,7 +289,7 @@ class SweepResultsManager:
 
         Args:
             strategy_id (str): Strategy identifier keying the combination.
-            param_values (Dict[str, float]): The 7 draft-side param values.
+            param_values (Dict[str, float]): The 6 draft-side param values.
 
         Returns:
             Optional[Dict]: The entry dict ('strategy_id', 'param_values',

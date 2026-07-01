@@ -37,7 +37,7 @@ class TestOrchestratorRouting:
                                              meta_data_manager=Mock())
             MockEval.assert_called_once()
             assert orch._evaluator is MockEval.return_value
-            assert len(orch._baseline_params) == 7
+            assert len(orch._baseline_params) == 6
             assert orch._baseline_params["ADP_SCORING_WEIGHT"] == 4.76
 
     def test_run_calls_evaluate_per_strategy(self, tmp_path):
