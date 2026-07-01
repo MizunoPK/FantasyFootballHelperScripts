@@ -161,7 +161,8 @@ class SweepResultsManager:
 
         Creates the record on first sight (storing strategy_id + param_values), then
         accumulates wins/games, increments total_runs, updates last_run, and raises
-        best_win_rate when win_rate exceeds it. Writes atomically after every call.
+        best_single_run_win_rate when win_rate exceeds it (migrating any legacy
+        best_win_rate key to the new name on write). Writes atomically after every call.
 
         Args:
             strategy_id (str): Strategy identifier.
@@ -175,7 +176,7 @@ class SweepResultsManager:
             self._data["combinations"][key] = {
                 "strategy_id": strategy_id,
                 "param_values": dict(param_values),
-                "best_win_rate": 0.0,
+                "best_single_run_win_rate": 0.0,
                 "total_wins": 0,
                 "total_games": 0,
                 "total_runs": 0,
@@ -186,8 +187,13 @@ class SweepResultsManager:
         entry["total_wins"] = entry.get("total_wins", 0) + wins
         entry["total_games"] = entry.get("total_games", 0) + games
         entry["last_run"] = datetime.date.today().isoformat()
-        if win_rate > entry["best_win_rate"]:
-            entry["best_win_rate"] = win_rate
+        # D4: read-fallback (new key, else legacy ``best_win_rate``) so an old-schema entry
+        # loaded from the live store never KeyErrors; then write the new key and pop the legacy
+        # key (migrate-on-write) — ``_save`` json.dumps the full entry, so a set-only write would
+        # persist both keys side by side.
+        prior_best = entry.get("best_single_run_win_rate", entry.get("best_win_rate", 0.0))
+        entry["best_single_run_win_rate"] = max(prior_best, win_rate)
+        entry.pop("best_win_rate", None)
         self._data["last_updated"] = datetime.date.today().isoformat()
         self._save()
 
@@ -229,7 +235,7 @@ class SweepResultsManager:
         strategy_id: str,
         status: str,
         best_param_values: Dict[str, float],
-        best_win_rate: float,
+        best_combo_win_rate: float,
     ) -> None:
         """Upsert a per-config convergence entry and persist atomically (D3).
 
@@ -242,7 +248,9 @@ class SweepResultsManager:
             strategy_id (str): Strategy identifier (filename) keying the entry.
             status (str): "converged" or "in_progress".
             best_param_values (Dict[str, float]): The config's current best 7 params.
-            best_win_rate (float): The config's current best win rate.
+            best_combo_win_rate (float): The config's current accumulated best-combo
+                win rate (total_wins/total_games of the running-best combo, NOT a
+                single-run rate). Load-bearing for resume.
 
         Raises:
             ConfigurationError: If status is not "converged" or "in_progress".
@@ -255,7 +263,7 @@ class SweepResultsManager:
         self._data["convergence"][strategy_id] = {
             "status": status,
             "best_param_values": dict(best_param_values),
-            "best_win_rate": best_win_rate,
+            "best_combo_win_rate": best_combo_win_rate,
             "updated": datetime.date.today().isoformat(),
         }
         self._data["last_updated"] = datetime.date.today().isoformat()
@@ -267,7 +275,7 @@ class SweepResultsManager:
 
         Returns:
             Dict[str, Dict]: Combination key -> entry dict with keys 'strategy_id',
-                'param_values', 'best_win_rate', 'total_wins', 'total_games',
+                'param_values', 'best_single_run_win_rate', 'total_wins', 'total_games',
                 'total_runs', 'last_run'.
         """
         return self._data["combinations"]
@@ -285,7 +293,7 @@ class SweepResultsManager:
 
         Returns:
             Optional[Dict]: The entry dict ('strategy_id', 'param_values',
-                'best_win_rate', 'total_wins', 'total_games', 'total_runs', 'last_run'),
+                'best_single_run_win_rate', 'total_wins', 'total_games', 'total_runs', 'last_run'),
                 or None when the combination has never been recorded.
         """
         key = self.make_combo_key(strategy_id, param_values)
@@ -299,7 +307,7 @@ class SweepResultsManager:
 
         Returns:
             Optional[Dict]: The entry dict ('status', 'best_param_values',
-                'best_win_rate', 'updated'), or None when no entry exists.
+                'best_combo_win_rate', 'updated'), or None when no entry exists.
         """
         return self._data["convergence"].get(strategy_id)
 

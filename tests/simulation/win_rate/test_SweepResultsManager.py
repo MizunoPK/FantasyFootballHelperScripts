@@ -68,14 +68,46 @@ class TestSweepResultsManager:
         assert entry["total_games"] == 20
         assert entry["total_runs"] == 2
 
-    def test_update_tracks_best_win_rate(self, results_path):
+    def test_update_tracks_best_single_run_win_rate(self, results_path):
         mgr = SweepResultsManager(results_path)
         pv = _param_values()
         mgr.update("1_zero_rb.json", pv, win_rate=0.6, wins=6, games=10)
         mgr.update("1_zero_rb.json", pv, win_rate=0.8, wins=8, games=10)
         mgr.update("1_zero_rb.json", pv, win_rate=0.7, wins=7, games=10)
         entry = mgr.get_all_combinations()[mgr.make_combo_key("1_zero_rb.json", pv)]
-        assert entry["best_win_rate"] == 0.8
+        assert entry["best_single_run_win_rate"] == 0.8
+
+    def test_update_read_fallback_and_migrates_legacy_combination_key(self, results_path):
+        # D4: an old-schema combination entry (legacy "best_win_rate", no new key) must be read
+        # without KeyError and migrated on write — the legacy key is popped and the new
+        # "best_single_run_win_rate" carries the (fallback-preserved) best.
+        pv = _param_values()
+        key = SweepResultsManager(results_path).make_combo_key("1_zero_rb.json", pv)
+        old_schema = {
+            "last_updated": "2026-06-01",
+            "combinations": {
+                key: {
+                    "strategy_id": "1_zero_rb.json",
+                    "param_values": pv,
+                    "best_win_rate": 0.6,
+                    "total_wins": 6,
+                    "total_games": 10,
+                    "total_runs": 1,
+                    "last_run": "2026-06-01",
+                }
+            },
+        }
+        results_path.write_text(json.dumps(old_schema))
+        mgr = SweepResultsManager(results_path)
+        # A LOWER single-run rate must not lower the best; the fallback read of the legacy
+        # key preserves 0.6, and the legacy key is popped (migrate-on-write).
+        mgr.update("1_zero_rb.json", pv, win_rate=0.5, wins=5, games=10)
+        entry = mgr.get_all_combinations()[key]
+        assert entry["best_single_run_win_rate"] == 0.6
+        assert "best_win_rate" not in entry
+        # A HIGHER single-run rate raises the migrated best.
+        mgr.update("1_zero_rb.json", pv, win_rate=0.9, wins=9, games=10)
+        assert mgr.get_all_combinations()[key]["best_single_run_win_rate"] == 0.9
 
     def test_record_stores_strategy_and_params(self, results_path):
         mgr = SweepResultsManager(results_path)

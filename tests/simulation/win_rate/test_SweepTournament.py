@@ -9,6 +9,7 @@ Author: Kai Mizuno
 """
 
 # Standard library
+import json
 from unittest.mock import Mock
 
 # Third-party
@@ -18,6 +19,7 @@ import pytest
 from simulation.win_rate.SweepTournament import (
     SweepTournament,
     _adopt_by_significance,
+    _read_convergence_best_rate,
     DEFAULT_CONFIDENCE,
     DEFAULT_MIN_EFFECT_SIZE,
     DEFAULT_MIN_GAMES,
@@ -209,6 +211,77 @@ class TestSweepTournament:
         ev = _evaluator(lambda do, pv: 0.6)
         t = SweepTournament(ev, _store(tmp_path))  # must not raise
         assert t is not None
+
+    def test_resume_in_progress_old_schema_convergence_no_keyerror(self, tmp_path):
+        # D4: resuming an in_progress config written under the legacy "best_win_rate" key must
+        # not KeyError — the line-246 baseline read falls back to the legacy key. Flat landscape
+        # so ascent converges immediately on the checkpointed seed.
+        path = tmp_path / "win_rate_sweep_results.json"
+        baseline = _baseline()
+        seeded = dict(baseline)
+        seeded["PRIMARY_BONUS"] = 91
+        old_schema = {
+            "last_updated": "2026-06-01",
+            "combinations": {},
+            "convergence": {
+                "s1": {
+                    "status": "in_progress",
+                    "best_param_values": seeded,
+                    "best_win_rate": 0.7,
+                    "updated": "2026-06-01",
+                }
+            },
+        }
+        path.write_text(json.dumps(old_schema))
+        store = SweepResultsManager(path)
+        ev = _evaluator(lambda do, pv: 0.6)
+        t = SweepTournament(ev, store)
+        result = t.run([("s1", [{"s": "1"}])], baseline, resume=True)  # must not raise KeyError
+        # Resumed from the checkpointed seed (not baseline 67); baseline best_rate read from the
+        # legacy key (0.7) and carried through the flat-landscape (no-move) convergence.
+        assert result["s1"]["param_values"]["PRIMARY_BONUS"] == 91
+        assert result["s1"]["win_rate"] == 0.7
+
+    def test_resume_converged_old_schema_convergence_no_keyerror(self, tmp_path):
+        # D4: a converged config written under the legacy "best_win_rate" key must be skipped on
+        # resume and surface its checkpointed rate via the line-235 fallback read (no KeyError).
+        path = tmp_path / "win_rate_sweep_results.json"
+        baseline = _baseline()
+        old_schema = {
+            "last_updated": "2026-06-01",
+            "combinations": {},
+            "convergence": {
+                "s1": {
+                    "status": "converged",
+                    "best_param_values": baseline,
+                    "best_win_rate": 0.8,
+                    "updated": "2026-06-01",
+                }
+            },
+        }
+        path.write_text(json.dumps(old_schema))
+        store = SweepResultsManager(path)
+        ev = _evaluator(lambda do, pv: 0.6)
+        t = SweepTournament(ev, store)
+        result = t.run([("s1", [{"s": "1"}])], baseline, resume=True)  # must not raise KeyError
+        assert ev.evaluate.call_count == 0           # converged -> skipped
+        assert result["s1"]["win_rate"] == 0.8        # read via legacy-key fallback
+
+    def test_read_convergence_best_rate_new_key(self):
+        # Helper returns best_combo_win_rate when present (D4 primary key).
+        conv = {"best_combo_win_rate": 0.75, "best_win_rate": 0.60}
+        assert _read_convergence_best_rate(conv) == 0.75
+
+    def test_read_convergence_best_rate_legacy_key(self):
+        # Helper falls back to legacy best_win_rate when new key is absent (D4 back-compat).
+        conv = {"best_win_rate": 0.65}
+        assert _read_convergence_best_rate(conv) == 0.65
+
+    def test_read_convergence_best_rate_neither_key_raises(self):
+        # Corrupt entry carrying neither key must raise KeyError — fail-fast, not silent None.
+        conv = {"status": "converged", "best_param_values": {}}
+        with pytest.raises(KeyError, match="missing both"):
+            _read_convergence_best_rate(conv)
 
     def test_resume_skips_converged_config(self, tmp_path):
         # A pre-marked converged config is skipped (evaluator not called for it) when resume=True.

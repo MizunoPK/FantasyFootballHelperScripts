@@ -21,7 +21,7 @@ def _entry(strategy_id, wins, games, **params):
     return {
         "strategy_id": strategy_id,
         "param_values": params or {"PRIMARY_BONUS": 67},
-        "best_win_rate": (wins / games) if games else 0.0,
+        "best_single_run_win_rate": (wins / games) if games else 0.0,
         "total_wins": wins,
         "total_games": games,
         "total_runs": 1,
@@ -86,7 +86,18 @@ class TestSweepSummary:
         assert row["param_values"] == {"PRIMARY_BONUS": 67}
         assert row["win_rate"] == 0.0
         assert row["games"] == 0
-        assert "best_win_rate" in row and "wins" in row
+        assert "wins" in row
+        assert "best_win_rate" not in row
+        assert "best_single_run_win_rate" not in row
+
+    def test_rank_rows_drop_single_run_best_field(self):
+        # D3: even when the stored combination entry carries the diagnostic single-run best,
+        # rank_combinations must NOT propagate it into the report row (the report never rendered it).
+        combos = {"a": _entry("s_a", wins=7, games=10)}
+        assert "best_single_run_win_rate" in combos["a"]  # present in the store entry
+        row = rank_combinations(combos)[0]
+        assert "best_single_run_win_rate" not in row
+        assert "best_win_rate" not in row
 
     def test_rank_empty_returns_empty(self):
         assert rank_combinations({}) == []
