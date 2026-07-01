@@ -65,7 +65,9 @@ def compute_promotion(
 
     Raises:
         ConfigurationError: If the store is empty, the winning strategy cannot be
-            resolved, or config_path is missing/corrupt. No write occurs.
+            resolved, config_path is missing/corrupt, or the config is valid JSON but
+            structurally incomplete (missing the "parameters" section or an expected
+            nested key). No write occurs.
     """
     combinations = store.get_all_combinations()
     if not combinations:
@@ -79,7 +81,13 @@ def compute_promotion(
 
     draft_order = _resolve_draft_order(strategy_id, data_folder)
     base_config = _read_config(config_path)
-    new_config = apply_draft_overrides(base_config, draft_order, param_values)
+    try:
+        new_config = apply_draft_overrides(base_config, draft_order, param_values)
+        diff = _build_promotion_diff(base_config, new_config)
+    except (KeyError, TypeError) as e:
+        raise ConfigurationError(
+            f"Config at {config_path} is structurally incomplete — missing key or section: {e}"
+        ) from e
 
     return {
         "strategy_id": strategy_id,
@@ -87,7 +95,7 @@ def compute_promotion(
         "win_rate": best["win_rate"],
         "games": best["games"],
         "new_config": new_config,
-        "diff": _build_promotion_diff(base_config, new_config),
+        "diff": diff,
     }
 
 

@@ -323,3 +323,12 @@ class TestComputePromotion:
                 patch("sys.stdout.isatty", return_value=False):
             compute_promotion(store, Path("unused"), config_path)
         assert config_path.read_bytes() == before
+
+    def test_compute_promotion_structurally_incomplete_config_raises(self, store, tmp_path):
+        # A valid-JSON config that is structurally incomplete (missing "parameters")
+        # must raise ConfigurationError, NOT a bare KeyError/TypeError.
+        incomplete = tmp_path / "incomplete_config.json"
+        incomplete.write_text(json.dumps({"config_name": "stub", "description": "no parameters"}))
+        with _patch_strategies((_WINNER_ID, _WINNER_ORDER, "Winner")), \
+                pytest.raises(ConfigurationError):
+            compute_promotion(store, Path("unused"), incomplete)
