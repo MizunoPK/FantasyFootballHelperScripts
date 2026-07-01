@@ -25,7 +25,10 @@ import pytest
 
 # Local
 from simulation.win_rate import config_promoter
-from simulation.win_rate.config_promoter import promote_best_combination
+from simulation.win_rate.config_promoter import (
+    compute_promotion,
+    promote_best_combination,
+)
 from simulation.win_rate.config_overrides import extract_draft_param_values
 from simulation.win_rate.SweepResultsManager import SweepResultsManager
 from utils.error_handler import ConfigurationError, FileOperationError
@@ -273,3 +276,50 @@ class TestConfigPromoter:
         assert result_a["strategy_id"] == smaller_id
         assert result_b["strategy_id"] == smaller_id
         assert result_a["strategy_id"] == result_b["strategy_id"]
+
+
+class TestComputePromotion:
+    """compute_promotion: the no-write preview computation behind a bare --promote."""
+
+    def test_compute_promotion_no_write(self, store, config_path):
+        before = config_path.read_bytes()
+        with _patch_strategies((_WINNER_ID, _WINNER_ORDER, "Winner")):
+            plan = compute_promotion(store, Path("unused"), config_path)
+
+        # No write occurred.
+        assert config_path.read_bytes() == before
+        # Plan carries the winner + the proposed config (not yet on disk).
+        assert plan["strategy_id"] == _WINNER_ID
+        assert plan["param_values"] == _WINNER_PARAMS
+        assert extract_draft_param_values(plan["new_config"]) == _WINNER_PARAMS
+        assert plan["new_config"]["parameters"]["DRAFT_ORDER"] == _WINNER_ORDER
+
+    def test_compute_promotion_diff_current_to_proposed(self, store, config_path):
+        current = extract_draft_param_values(json.loads(config_path.read_text()))
+        with _patch_strategies((_WINNER_ID, _WINNER_ORDER, "Winner")):
+            plan = compute_promotion(store, Path("unused"), config_path)
+
+        diff = plan["diff"]
+        # Every changed draft-side param shows the live current -> the winner's value.
+        for name, winner_value in _WINNER_PARAMS.items():
+            if current[name] != winner_value:
+                assert diff[name] == {"current": current[name], "proposed": winner_value}
+        # The winner's DRAFT_ORDER differs from the live order, so it is in the diff.
+        assert "DRAFT_ORDER" in diff
+        assert diff["DRAFT_ORDER"]["proposed"] == _WINNER_ORDER
+
+    def test_compute_promotion_empty_store_raises_no_write(self, tmp_path, config_path):
+        mgr = SweepResultsManager(tmp_path / "empty.json")
+        before = config_path.read_bytes()
+        with pytest.raises(ConfigurationError):
+            compute_promotion(mgr, Path("unused"), config_path)
+        assert config_path.read_bytes() == before
+
+    def test_compute_promotion_non_tty_no_write(self, store, config_path):
+        # The flag, not the TTY, is the gate: even simulating a non-TTY stdout, the
+        # preview computation writes nothing (no isatty/EOF dependency on this path).
+        before = config_path.read_bytes()
+        with _patch_strategies((_WINNER_ID, _WINNER_ORDER, "Winner")), \
+                patch("sys.stdout.isatty", return_value=False):
+            compute_promotion(store, Path("unused"), config_path)
+        assert config_path.read_bytes() == before

@@ -26,7 +26,10 @@ from simulation.win_rate.SweepTournament import (
 from simulation.shared.ProgressTracker import ProgressTracker
 from simulation.win_rate.config_overrides import extract_draft_param_values
 from simulation.win_rate.sweep_summary import rank_combinations, format_summary, write_sweep_report
-from simulation.win_rate.config_promoter import promote_best_combination
+from simulation.win_rate.config_promoter import (
+    compute_promotion,
+    promote_best_combination,
+)
 from utils.error_handler import ConfigurationError, FileOperationError
 
 LOG_NAME = "win_rate_simulation"
@@ -78,9 +81,16 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--promote", action="store_true",
-        help="Promote the best-ranked sweep combination into data/configs/league_config.json. "
-             "Alone: promote from the existing sweep results. With --sweep: run the sweep, then promote "
-             "its winner. Incompatible with --endless."
+        help="Preview promoting the best-ranked sweep combination into data/configs/league_config.json "
+             "(DRY RUN by default — prints the current -> proposed diff and writes nothing). "
+             "Alone: preview from the existing sweep results. With --sweep: run the sweep, then preview "
+             "its winner. Add --confirm to actually write. Incompatible with --endless."
+    )
+    parser.add_argument(
+        "--confirm", action="store_true",
+        help="Required alongside --promote to actually WRITE data/configs/league_config.json. "
+             "Without --confirm, --promote only previews the change (behavior change: a bare --promote "
+             "no longer writes). Safe in non-TTY/scripted runs — the flag, not a prompt, is the write gate."
     )
     parser.add_argument(
         "--fresh", action="store_true",
@@ -154,11 +164,11 @@ def main() -> None:
     if args.sweep:
         _run_sweep_mode(args, data_folder, logger)
         if args.promote:
-            _run_promote_mode(data_folder, logger)
+            _run_promote_mode(data_folder, logger, confirm=args.confirm)
         return
 
     if args.promote:
-        _run_promote_mode(data_folder, logger)
+        _run_promote_mode(data_folder, logger, confirm=args.confirm)
         return
 
     meta_data_manager = WinRateMetaDataManager(data_folder / "win_rate_meta_data.json")
@@ -347,15 +357,32 @@ def _run_sweep_mode(args: argparse.Namespace, data_folder: Path, logger) -> None
         sys.exit(0)
 
 
-def _run_promote_mode(data_folder: Path, logger) -> None:
-    """Promote the best sweep combination into league_config.json and report the result."""
+def _run_promote_mode(data_folder: Path, logger, confirm: bool) -> None:
+    """Preview or (with confirm=True) write the best sweep combination into league_config.json.
+
+    The human-approval gate in front of the live-config write (T34). With confirm=False
+    (a bare --promote) this computes and prints the current -> proposed preview and writes
+    nothing; with confirm=True (--promote --confirm) it performs the atomic write via
+    promote_best_combination and prints the promotion report. The gate is the --confirm
+    flag, not a TTY prompt, so scripted / non-TTY runs are safe and no path writes without
+    --confirm.
+
+    Args:
+        data_folder (Path): Simulation data root holding the sweep results.
+        logger: Logger used to report a promotion failure before exiting.
+        confirm (bool): True to write (--confirm supplied); False to preview only.
+    """
     store = SweepResultsManager(data_folder / "win_rate_sweep_results.json")
     try:
-        result = promote_best_combination(store, data_folder)
+        if confirm:
+            result = promote_best_combination(store, data_folder)
+            _print_promotion(result)
+        else:
+            plan = compute_promotion(store, data_folder)
+            _print_promotion_preview(plan)
     except (ConfigurationError, FileOperationError) as e:
         logger.error(f"Promotion failed: {e}")
         sys.exit(1)
-    _print_promotion(result)
 
 
 def _print_promotion(result: dict) -> None:
@@ -368,6 +395,29 @@ def _print_promotion(result: dict) -> None:
     for name, value in result["param_values"].items():
         print(f"    {name}: {value}")
     print("──────────────────────────────────────────────────────────────")
+
+
+def _print_promotion_preview(plan: dict) -> None:
+    """Print the current -> proposed promotion diff WITHOUT writing (bare --promote).
+
+    The dry-run preview for the human-approval gate (T34): shows the winning strategy,
+    its win rate, and the current -> proposed diff of the changed draft-side keys
+    (plus DRAFT_ORDER when it changes), then the apply hint. Nothing is written to
+    data/configs/league_config.json.
+    """
+    print("\nPromotion preview (DRY RUN) — data/configs/league_config.json NOT modified")
+    print("──────────────────────────────────────────────────────────────")
+    print(f"  Strategy:  {plan['strategy_id']}")
+    print(f"  Win rate:  {plan['win_rate']:.3f} over {plan['games']} games")
+    diff = plan["diff"]
+    if not diff:
+        print("  No changes — the live config already matches the winning combination.")
+    else:
+        print("  Proposed changes (current -> proposed):")
+        for key, change in diff.items():
+            print(f"    {key}: {change['current']} -> {change['proposed']}")
+    print("──────────────────────────────────────────────────────────────")
+    print("  Re-run with --promote --confirm to apply.")
 
 
 if __name__ == "__main__":
