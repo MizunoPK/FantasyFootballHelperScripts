@@ -19,6 +19,7 @@ import pytest
 from simulation.win_rate.SweepTournament import (
     SweepTournament,
     _adopt_by_significance,
+    _read_convergence_best_rate,
     DEFAULT_CONFIDENCE,
     DEFAULT_MIN_EFFECT_SIZE,
     DEFAULT_MIN_GAMES,
@@ -265,6 +266,22 @@ class TestSweepTournament:
         result = t.run([("s1", [{"s": "1"}])], baseline, resume=True)  # must not raise KeyError
         assert ev.evaluate.call_count == 0           # converged -> skipped
         assert result["s1"]["win_rate"] == 0.8        # read via legacy-key fallback
+
+    def test_read_convergence_best_rate_new_key(self):
+        # Helper returns best_combo_win_rate when present (D4 primary key).
+        conv = {"best_combo_win_rate": 0.75, "best_win_rate": 0.60}
+        assert _read_convergence_best_rate(conv) == 0.75
+
+    def test_read_convergence_best_rate_legacy_key(self):
+        # Helper falls back to legacy best_win_rate when new key is absent (D4 back-compat).
+        conv = {"best_win_rate": 0.65}
+        assert _read_convergence_best_rate(conv) == 0.65
+
+    def test_read_convergence_best_rate_neither_key_raises(self):
+        # Corrupt entry carrying neither key must raise KeyError — fail-fast, not silent None.
+        conv = {"status": "converged", "best_param_values": {}}
+        with pytest.raises(KeyError, match="missing both"):
+            _read_convergence_best_rate(conv)
 
     def test_resume_skips_converged_config(self, tmp_path):
         # A pre-marked converged config is skipped (evaluator not called for it) when resume=True.
