@@ -298,4 +298,3 @@ class TestSweepResultsManagerCheckpoint:
             ["1_zero_rb.json"], seven_key, 5, 0.95, 0.01, 30, 0
         )
         assert a != b
-
