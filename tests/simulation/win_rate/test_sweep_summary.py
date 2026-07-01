@@ -116,9 +116,8 @@ class TestSweepSummary:
         assert "10" in out      # games / sample size
 
 
-# Full 7-param vector for D2 key-order assertions.
+# Full 6-param vector for D2 key-order assertions.
 _FULL_PARAMS = {
-    "DRAFT_NORMALIZATION_MAX_SCALE": 1.5,
     "SAME_POS_BYE_WEIGHT": 2,
     "DIFF_POS_BYE_WEIGHT": 3,
     "PRIMARY_BONUS": 80,
@@ -151,7 +150,6 @@ class TestShapeReportJson:
         combos = {"a": _entry("s_a", wins=9, games=10, **_FULL_PARAMS)}
         entry = shape_report_json(rank_combinations(combos))["configs"][0]
         assert list(entry["param_values"].keys()) == [
-            "DRAFT_NORMALIZATION_MAX_SCALE",
             "SAME_POS_BYE_WEIGHT",
             "DIFF_POS_BYE_WEIGHT",
             "PRIMARY_BONUS",
@@ -171,7 +169,7 @@ class TestShapeReportJson:
         assert [c["strategy_id"] for c in configs] == ["s_a", "s_b"]
 
     def test_missing_param_resolves_to_none(self):
-        # _entry with a single param; the other six canonical keys resolve to None.
+        # _entry with a single param; the other five canonical keys resolve to None.
         combos = {"a": _entry("s_a", wins=9, games=10, PRIMARY_BONUS=80)}
         params = shape_report_json(rank_combinations(combos))["configs"][0]["param_values"]
         assert params["PRIMARY_BONUS"] == 80

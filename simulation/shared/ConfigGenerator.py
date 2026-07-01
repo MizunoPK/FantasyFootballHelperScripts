@@ -11,8 +11,8 @@ Parameters Varied (with ranges):
 
 Base Config Parameters:
   1. NORMALIZATION_MAX_SCALE: [50, 200] - Point spread scaling
-  2. SAME_POS_BYE_WEIGHT: [0.0, 0.5] - Same position bye penalty
-  3. DIFF_POS_BYE_WEIGHT: [0.0, 0.3] - Different position bye penalty
+  2. SAME_POS_BYE_WEIGHT: [0.0, 1.0] - Same position bye penalty
+  3. DIFF_POS_BYE_WEIGHT: [0.0, 0.5] - Different position bye penalty
   4. PRIMARY_BONUS: [25, 150] - Primary draft order bonus
   5. SECONDARY_BONUS: [25, 150] - Secondary draft order bonus
   6. DRAFT_ORDER_FILE: [1, 100] - Draft strategy file (discrete)
@@ -69,8 +69,8 @@ class ConfigGenerator:
         # accuracy — excluded from PARAMETER_ORDER but range defined for --params testing.
         'DRAFT_NORMALIZATION_MAX_SCALE': (100, 200, 0),
 
-        'SAME_POS_BYE_WEIGHT': (0.0, 0.5, 2),
-        'DIFF_POS_BYE_WEIGHT': (0.0, 0.3, 2),
+        'SAME_POS_BYE_WEIGHT': (0.0, 1.0, 2),
+        'DIFF_POS_BYE_WEIGHT': (0.0, 0.5, 2),
 
         'PRIMARY_BONUS': (25, 150, 0),
         'SECONDARY_BONUS': (25, 150, 0),

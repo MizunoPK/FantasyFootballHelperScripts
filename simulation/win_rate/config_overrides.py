@@ -2,7 +2,7 @@
 Config Overrides
 
 Pure helpers for the win-rate parameter sweep: apply a draft strategy plus
-concrete values for the seven in-scope draft-side league_config parameters onto
+concrete values for the six in-scope draft-side league_config parameters onto
 a base config, producing a new config the simulation can evaluate. No I/O and no
 simulation execution happen here.
 
@@ -29,7 +29,6 @@ from utils.error_handler import ConfigurationError
 # to its location under config["parameters"]: (section_key, leaf_key). A leaf of
 # None means section_key is itself the top-level scalar to write.
 DRAFT_PARAM_LOCATIONS = {
-    'DRAFT_NORMALIZATION_MAX_SCALE': ('DRAFT_NORMALIZATION_MAX_SCALE', None),
     'SAME_POS_BYE_WEIGHT': ('SAME_POS_BYE_WEIGHT', None),
     'DIFF_POS_BYE_WEIGHT': ('DIFF_POS_BYE_WEIGHT', None),
     'PRIMARY_BONUS': ('DRAFT_ORDER_BONUSES', 'PRIMARY'),
@@ -45,7 +44,7 @@ def apply_draft_overrides(
     param_values: Dict[str, float],
 ) -> dict:
     """
-    Return a deep copy of base_config with DRAFT_ORDER and the seven draft-side
+    Return a deep copy of base_config with DRAFT_ORDER and the six draft-side
     parameters set to the supplied values.
 
     Each value is validated against ConfigGenerator.PARAM_DEFINITIONS bounds and
@@ -58,7 +57,7 @@ def apply_draft_overrides(
         draft_order: The strategy's DRAFT_ORDER list, written verbatim. Structural
             validation of DRAFT_ORDER is the strategy loader's responsibility, not
             this function's.
-        param_values: Exactly the seven keys in DRAFT_PARAM_LOCATIONS, each mapped
+        param_values: Exactly the six keys in DRAFT_PARAM_LOCATIONS, each mapped
             to a numeric value.
 
     Returns:
@@ -108,7 +107,7 @@ def apply_draft_overrides(
 
 def extract_draft_param_values(config: dict) -> Dict[str, float]:
     """
-    Read the current value of each of the 7 draft-side params from a config.
+    Read the current value of each of the 6 draft-side params from a config.
 
     The inverse of apply_draft_overrides: for each flat param name in
     DRAFT_PARAM_LOCATIONS, read its value from config["parameters"] at the mapped
@@ -118,7 +117,7 @@ def extract_draft_param_values(config: dict) -> Dict[str, float]:
         config: Full config dict containing a "parameters" object.
 
     Returns:
-        Dict[str, float]: Each of the 7 flat param names mapped to its current value.
+        Dict[str, float]: Each of the 6 flat param names mapped to its current value.
     """
     params = config["parameters"]
     return {

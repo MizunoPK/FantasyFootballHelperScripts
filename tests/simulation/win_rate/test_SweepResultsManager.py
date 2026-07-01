@@ -21,7 +21,6 @@ from simulation.win_rate.param_value_generation import DRAFT_SWEEP_PARAMS
 
 def _param_values(**overrides):
     base = {
-        "DRAFT_NORMALIZATION_MAX_SCALE": 150,
         "SAME_POS_BYE_WEIGHT": 0.07,
         "DIFF_POS_BYE_WEIGHT": 0.01,
         "PRIMARY_BONUS": 67,
@@ -46,7 +45,7 @@ class TestSweepResultsManager:
         k1 = mgr.make_combo_key("1_zero_rb.json", _param_values())
         k2 = mgr.make_combo_key("1_zero_rb.json", _param_values())
         assert k1 == k2
-        # All 7 params + strategy appear in the key.
+        # All 6 params + strategy appear in the key.
         assert "1_zero_rb.json" in k1
         for p in DRAFT_SWEEP_PARAMS:
             assert p in k1

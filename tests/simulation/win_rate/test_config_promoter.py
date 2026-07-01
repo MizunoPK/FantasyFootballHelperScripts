@@ -2,7 +2,7 @@
 Tests for simulation.win_rate.config_promoter.
 
 Covers the live-config promotion writer: promoting the top-ranked combination's
-DRAFT_ORDER + 7 params, preserving all other keys, cumulative-win-rate ranking
+DRAFT_ORDER + 6 params, preserving all other keys, cumulative-win-rate ranking
 (not best_single_run_win_rate), the four error paths that converge to ConfigurationError with
 no write (empty store, strategy absent, strategy files missing, config missing/
 corrupt), the git dirty-state warn-and-proceed behavior, the graceful git probe,
@@ -32,9 +32,8 @@ from utils.error_handler import ConfigurationError, FileOperationError
 
 MODULE = "simulation.win_rate.config_promoter"
 
-# The live config's current values for the 7 draft-side params.
+# The live config's current values for the 6 draft-side params.
 _LIVE_PARAMS = {
-    "DRAFT_NORMALIZATION_MAX_SCALE": 150,
     "SAME_POS_BYE_WEIGHT": 0.07,
     "DIFF_POS_BYE_WEIGHT": 0.01,
     "PRIMARY_BONUS": 67,
@@ -46,7 +45,6 @@ _LIVE_PARAMS = {
 # Winner values — all in-bounds (per ConfigGenerator.PARAM_DEFINITIONS) and
 # deliberately DISTINCT from _LIVE_PARAMS so a successful promote is observable.
 _WINNER_PARAMS = {
-    "DRAFT_NORMALIZATION_MAX_SCALE": 130,
     "SAME_POS_BYE_WEIGHT": 0.20,
     "DIFF_POS_BYE_WEIGHT": 0.05,
     "PRIMARY_BONUS": 90,
@@ -121,9 +119,9 @@ class TestConfigPromoter:
         # Top-level keys other than parameters are untouched.
         assert written["config_name"] == original["config_name"]
         assert written["description"] == original["description"]
-        # Every parameters key except DRAFT_ORDER and the 7 promoted params is unchanged.
+        # Every parameters key except DRAFT_ORDER and the 6 promoted params is unchanged.
         promoted_sections = {
-            "DRAFT_ORDER", "DRAFT_NORMALIZATION_MAX_SCALE", "SAME_POS_BYE_WEIGHT",
+            "DRAFT_ORDER", "SAME_POS_BYE_WEIGHT",
             "DIFF_POS_BYE_WEIGHT", "DRAFT_ORDER_BONUSES", "ADP_SCORING",
             "PLAYER_RATING_SCORING",
         }
@@ -241,7 +239,7 @@ class TestConfigPromoter:
         order-independence — both records would coexist in one resulting order.
         """
         # Arrange — two configs tied on BOTH win_rate AND games. They share the
-        # 7 params (so make_combo_key's param suffix is identical) and differ only
+        # 6 params (so make_combo_key's param suffix is identical) and differ only
         # by strategy_id, forcing the (-win_rate, -games, combo_key) sort to fall
         # through to combo_key, i.e. the strategy_id prefix. "1_aaa" < "2_bbb".
         smaller_id = "1_aaa.json"

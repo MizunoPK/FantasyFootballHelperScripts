@@ -2,7 +2,7 @@
 Tests for simulation.win_rate.param_value_generation.generate_candidate_values.
 
 Covers per-param bounds/precision, anchor inclusion, evenly-spaced count,
-full-set-when-large, the num_values<=1 edge, determinism, 7-key output shape, and
+full-set-when-large, the num_values<=1 edge, determinism, 6-key output shape, and
 the three error paths. Pure deterministic transform — synthetic in-memory inputs.
 
 Author: Kai Mizuno
@@ -23,9 +23,8 @@ from utils.error_handler import ConfigurationError
 
 @pytest.fixture
 def current_values():
-    """The seven current league_config values (all in-bounds, at precision)."""
+    """The six current league_config values (all in-bounds, at precision)."""
     return {
-        "DRAFT_NORMALIZATION_MAX_SCALE": 150,
         "SAME_POS_BYE_WEIGHT": 0.07,
         "DIFF_POS_BYE_WEIGHT": 0.01,
         "PRIMARY_BONUS": 67,
@@ -69,8 +68,8 @@ class TestGenerateCandidateValues:
 
     def test_full_set_when_count_exceeds_range(self, current_values):
         result = generate_candidate_values(current_values, num_values=1000)
-        # DIFF_POS_BYE_WEIGHT 0.0-0.3 @ 0.01 -> 31 discrete values.
-        expected = sorted(set(_discrete_grid(0.0, 0.3, 2)))
+        # DIFF_POS_BYE_WEIGHT 0.0-0.5 @ 0.01 -> 51 discrete values.
+        expected = sorted(set(_discrete_grid(0.0, 0.5, 2)))
         assert result["DIFF_POS_BYE_WEIGHT"] == expected
 
     def test_num_values_one_returns_anchor(self, current_values):
@@ -86,7 +85,7 @@ class TestGenerateCandidateValues:
         b = generate_candidate_values(current_values, num_values=5)
         assert a == b
 
-    def test_output_has_seven_keys(self, current_values):
+    def test_output_has_six_keys(self, current_values):
         result = generate_candidate_values(current_values, num_values=5)
         assert set(result.keys()) == set(DRAFT_SWEEP_PARAMS)
         for name in DRAFT_SWEEP_PARAMS:
@@ -106,3 +105,21 @@ class TestGenerateCandidateValues:
         current_values["ADP_SCORING_WEIGHT"] = 9.9  # max is 7.0
         with pytest.raises(ConfigurationError):
             generate_candidate_values(current_values, num_values=5)
+
+    def test_sweep_params_has_six_members_without_scale(self):
+        # D1: the swept set drops DRAFT_NORMALIZATION_MAX_SCALE (7 -> 6).
+        assert len(DRAFT_SWEEP_PARAMS) == 6
+        assert "DRAFT_NORMALIZATION_MAX_SCALE" not in DRAFT_SWEEP_PARAMS
+
+    def test_bye_weight_bounds_widened(self):
+        # D2/D3: widened shared PARAM_DEFINITIONS bounds.
+        assert ConfigGenerator.PARAM_DEFINITIONS["SAME_POS_BYE_WEIGHT"] == (0.0, 1.0, 2)
+        assert ConfigGenerator.PARAM_DEFINITIONS["DIFF_POS_BYE_WEIGHT"] == (0.0, 0.5, 2)
+
+    def test_bye_weight_grid_spans_widened_range(self, current_values):
+        # The candidate grid reaches above the old 0.5/0.3 ceilings.
+        result = generate_candidate_values(current_values, num_values=1000)
+        assert max(result["SAME_POS_BYE_WEIGHT"]) == 1.0
+        assert max(result["DIFF_POS_BYE_WEIGHT"]) == 0.5
+        assert any(v > 0.5 for v in result["SAME_POS_BYE_WEIGHT"])
+        assert any(v > 0.3 for v in result["DIFF_POS_BYE_WEIGHT"])

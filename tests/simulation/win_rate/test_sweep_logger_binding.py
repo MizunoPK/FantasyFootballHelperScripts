@@ -17,7 +17,6 @@ from simulation.win_rate.SweepResultsManager import SweepResultsManager
 
 def _baseline():
     return {
-        "DRAFT_NORMALIZATION_MAX_SCALE": 150,
         "SAME_POS_BYE_WEIGHT": 0.07,
         "DIFF_POS_BYE_WEIGHT": 0.01,
         "PRIMARY_BONUS": 67,
