@@ -23,13 +23,113 @@ from pathlib import Path
 from typing import Any, Dict
 
 # Local
-from simulation.win_rate.config_overrides import apply_draft_overrides
+from simulation.win_rate.config_overrides import (
+    apply_draft_overrides,
+    extract_draft_param_values,
+)
 from simulation.win_rate.strategy_loader import load_valid_strategies
 from simulation.win_rate.sweep_summary import rank_combinations
 from utils.error_handler import ConfigurationError, FileOperationError
 from utils.LoggingManager import get_logger
 
 logger = get_logger()
+
+
+def compute_promotion(
+    store,
+    data_folder: Path,
+    config_path: Path = Path("data/configs/league_config.json"),
+) -> Dict[str, Any]:
+    """
+    Compute the winning combination and the proposed config WITHOUT writing.
+
+    Performs every step of a promotion except the disk write: ranks the store's
+    combinations by cumulative win rate, takes the #1, resolves its DRAFT_ORDER,
+    reads the current config, and builds the proposed config via
+    apply_draft_overrides — then computes the current -> proposed diff of the
+    changed draft-side keys. No file is written and config_path is left untouched.
+    This is the no-write path behind the bare ``--promote`` preview; the write path
+    (promote_best_combination) delegates here for the computation.
+
+    Args:
+        store: A SweepResultsManager exposing get_all_combinations().
+        data_folder (Path): Simulation data root, used to resolve the winning
+            strategy's DRAFT_ORDER via load_valid_strategies.
+        config_path (Path): The live league_config.json read for the current values
+            (never written here).
+
+    Returns:
+        Dict[str, Any]: {"strategy_id", "param_values", "win_rate", "games",
+            "new_config", "diff"} — "new_config" is the proposed config dict and
+            "diff" maps each changed key to {"current", "proposed"}.
+
+    Raises:
+        ConfigurationError: If the store is empty, the winning strategy cannot be
+            resolved, config_path is missing/corrupt, or the config is valid JSON but
+            structurally incomplete (missing the "parameters" section or an expected
+            nested key). No write occurs.
+    """
+    combinations = store.get_all_combinations()
+    if not combinations:
+        raise ConfigurationError(
+            "No sweep combinations to promote — run the sweep first."
+        )
+
+    best = rank_combinations(combinations)[0]
+    strategy_id = best["strategy_id"]
+    param_values = best["param_values"]
+
+    draft_order = _resolve_draft_order(strategy_id, data_folder)
+    base_config = _read_config(config_path)
+    try:
+        new_config = apply_draft_overrides(base_config, draft_order, param_values)
+        diff = _build_promotion_diff(base_config, new_config)
+    except (KeyError, TypeError) as e:
+        raise ConfigurationError(
+            f"Config at {config_path} is structurally incomplete — missing key or section: {e}"
+        ) from e
+
+    return {
+        "strategy_id": strategy_id,
+        "param_values": param_values,
+        "win_rate": best["win_rate"],
+        "games": best["games"],
+        "new_config": new_config,
+        "diff": diff,
+    }
+
+
+def _build_promotion_diff(base_config: dict, new_config: dict) -> Dict[str, Dict[str, Any]]:
+    """
+    Build the current -> proposed diff of the keys a promotion changes.
+
+    Compares the six draft-side params (via extract_draft_param_values) and
+    DRAFT_ORDER between the current (base) and proposed (new) configs, returning
+    only the keys whose value changes. Insertion order is the six params (in
+    DRAFT_PARAM_LOCATIONS order) followed by DRAFT_ORDER.
+
+    Args:
+        base_config (dict): The current live config.
+        new_config (dict): The proposed config from apply_draft_overrides.
+
+    Returns:
+        Dict[str, Dict[str, Any]]: {changed_key: {"current": ..., "proposed": ...}}.
+    """
+    diff: Dict[str, Dict[str, Any]] = {}
+
+    current_params = extract_draft_param_values(base_config)
+    proposed_params = extract_draft_param_values(new_config)
+    for name, current_value in current_params.items():
+        proposed_value = proposed_params[name]
+        if current_value != proposed_value:
+            diff[name] = {"current": current_value, "proposed": proposed_value}
+
+    current_order = base_config["parameters"].get("DRAFT_ORDER")
+    proposed_order = new_config["parameters"].get("DRAFT_ORDER")
+    if current_order != proposed_order:
+        diff["DRAFT_ORDER"] = {"current": current_order, "proposed": proposed_order}
+
+    return diff
 
 
 def promote_best_combination(
@@ -63,19 +163,8 @@ def promote_best_combination(
         FileOperationError: If the atomic write itself fails (config_path is left
             untouched and no orphaned .tmp remains).
     """
-    combinations = store.get_all_combinations()
-    if not combinations:
-        raise ConfigurationError(
-            "No sweep combinations to promote — run the sweep first."
-        )
-
-    best = rank_combinations(combinations)[0]
-    strategy_id = best["strategy_id"]
-    param_values = best["param_values"]
-
-    draft_order = _resolve_draft_order(strategy_id, data_folder)
-    base_config = _read_config(config_path)
-    new_config = apply_draft_overrides(base_config, draft_order, param_values)
+    plan = compute_promotion(store, data_folder, config_path)
+    new_config = plan["new_config"]
 
     if _has_uncommitted_changes(config_path):
         logger.warning(
@@ -86,14 +175,14 @@ def promote_best_combination(
     _atomic_write_json(new_config, config_path)
 
     logger.info(
-        f"Promoted {strategy_id} to {config_path} "
-        f"(win_rate={best['win_rate']:.3f} over {best['games']} games)."
+        f"Promoted {plan['strategy_id']} to {config_path} "
+        f"(win_rate={plan['win_rate']:.3f} over {plan['games']} games)."
     )
     return {
-        "strategy_id": strategy_id,
-        "param_values": param_values,
-        "win_rate": best["win_rate"],
-        "games": best["games"],
+        "strategy_id": plan["strategy_id"],
+        "param_values": plan["param_values"],
+        "win_rate": plan["win_rate"],
+        "games": plan["games"],
     }
 
 
