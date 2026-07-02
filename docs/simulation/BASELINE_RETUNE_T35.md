@@ -29,16 +29,16 @@ human-gated `--promote --confirm` step (T34) — out of scope here.
 
 ## Recommended Params (current → recommended)
 
-Winning strategy (DRAFT_ORDER): `[FILL FROM RUN: STRATEGY]`
+Winning strategy (DRAFT_ORDER): `1_zero_rb.json`
 
 | Param | Current (live) | Recommended (bounded sweep) |
 |-------|----------------|-----------------------------|
-| SAME_POS_BYE_WEIGHT | `[FILL FROM RUN]` | `[FILL FROM RUN]` |
-| DIFF_POS_BYE_WEIGHT | `[FILL FROM RUN]` | `[FILL FROM RUN]` |
-| PRIMARY_BONUS | `[FILL FROM RUN]` | `[FILL FROM RUN]` |
-| SECONDARY_BONUS | `[FILL FROM RUN]` | `[FILL FROM RUN]` |
-| ADP_SCORING_WEIGHT | `[FILL FROM RUN]` | `[FILL FROM RUN]` |
-| PLAYER_RATING_SCORING_WEIGHT | `[FILL FROM RUN]` | `[FILL FROM RUN]` |
+| SAME_POS_BYE_WEIGHT | `0.07` | `0.07` |
+| DIFF_POS_BYE_WEIGHT | `0.01` | `0.01` |
+| PRIMARY_BONUS | `67` | `67` |
+| SECONDARY_BONUS | `69` | `69` |
+| ADP_SCORING_WEIGHT | `4.76` | `0.5` |
+| PLAYER_RATING_SCORING_WEIGHT | `3.52` | `3.52` |
 
 ---
 
@@ -46,11 +46,11 @@ Winning strategy (DRAFT_ORDER): `[FILL FROM RUN: STRATEGY]`
 
 | Metric | Value |
 |--------|-------|
-| Current win rate (before) | `[FILL FROM RUN: current_rate]` |
-| Recommended win rate (after) | `[FILL FROM RUN: recommended_rate]` |
-| Δ (recommended − current) | `[FILL FROM RUN: delta]` |
-| z (pooled two-proportion) | `[FILL FROM RUN: z]` |
-| Games (per arm) | `[FILL FROM RUN: games]` |
+| Current win rate (before) | `0.5735` |
+| Recommended win rate (after) | `0.6029` |
+| Δ (recommended − current) | `0.0294` |
+| z (pooled two-proportion) | `0.348` |
+| Games (per arm) | `68` |
 | Seed | `20260701` |
 | Regime | asymmetric measured-vs-reference, CRN-paired |
 
@@ -74,7 +74,7 @@ Exact bounded command (self-play default; fixed seed; write-isolated scratch `--
 - **No live-config write:** no `--promote --confirm` was run. The candidate params were read via
   the dry-run `compute_promotion` path; the live config was read READ-ONLY.
 - **Live config unchanged (D4):** `sha256(data/configs/league_config.json)` =
-  `[FILL FROM RUN: LIVE_SHA256]` (equal before and after the whole run;
+  `c824b8b41af7aaec602323fe528a4cf43b72258fdcabd03579668c60ea83ac6b` (equal before and after the whole run;
   baseline `c824b8b41af7aaec602323fe528a4cf43b72258fdcabd03579668c60ea83ac6b`).
 
 ---
