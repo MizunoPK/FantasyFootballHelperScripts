@@ -64,9 +64,11 @@ Path("simulation/sim_data"), seed=20260701, num_simulations=1)` with the two con
 Exact bounded command (self-play default; fixed seed; write-isolated scratch `--data`):
 
 ```bash
-# $SCRATCH = a mktemp -d dir holding symlinks to the 2021–2025 season folders and a
-# 3-strategy subset (1_zero_rb.json, 12_safe_floor.json, 14_robust_rb.json) under
-# draft_order_possibilities/ — so all sweep writes land in $SCRATCH, never in simulation/sim_data/.
+# $SCRATCH = a mktemp -d dir holding symlinks to the 2021, 2022, 2024, and 2025 season folders
+# (season 2023 was skipped at runtime as invalid — only 85 valid players, below the 150-player
+# threshold — so 4 seasons × 17 games/arm = 68 games/arm) and a 3-strategy subset
+# (1_zero_rb.json, 12_safe_floor.json, 14_robust_rb.json) under draft_order_possibilities/ —
+# so all sweep writes land in $SCRATCH, never in simulation/sim_data/.
 .venv/bin/python run_win_rate_simulation.py --sweep --sims 1 --num-values 3 --seed 20260701 --workers 8 --data "$SCRATCH"
 ```
 

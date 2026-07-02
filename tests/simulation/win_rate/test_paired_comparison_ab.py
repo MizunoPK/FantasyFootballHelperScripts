@@ -158,3 +158,30 @@ class TestNoLiveConfigAccess:
         assert not any(
             p.replace("\\", "/").endswith("configs/league_config.json") for p in opened
         ), f"helper opened the live config path: {opened}"
+
+
+class _FakeLoaderInvalid:
+    """Stand-in for SimDataLoader: always INVALID — simulates a season that fails the player
+    threshold check, so run_paired_ab_comparison skips it and accumulates zero games."""
+
+    def __init__(self, season_folder: Path) -> None:
+        self.season_folder = season_folder
+        self.is_valid = False
+        self.week_data_cache = {}
+
+
+class TestZeroValidGames:
+    """(f) When every season folder is invalid (all skipped), the helper raises ValueError
+    instead of silently returning a degenerate zero-rate result."""
+
+    def test_raises_when_all_seasons_invalid(self, tmp_path, monkeypatch):
+        # Arrange: 3 season dirs, all invalid (FakeLoaderInvalid.is_valid = False).
+        data_folder = tmp_path / "sim_data"
+        for year in ("2021", "2022", "2023"):
+            (data_folder / year).mkdir(parents=True)
+        monkeypatch.setattr(pac, "SimulatedLeague", _FakeLeague)
+        monkeypatch.setattr(pac, "SimDataLoader", _FakeLoaderInvalid)
+
+        # Act / Assert: must raise ValueError, not return a zero-valued result.
+        with pytest.raises(ValueError, match="no valid games evaluated"):
+            run_paired_ab_comparison(_cfg(0.50), _cfg(0.55), data_folder, seed=SEED)

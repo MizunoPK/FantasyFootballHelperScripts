@@ -166,6 +166,8 @@ def run_paired_ab_comparison(
 
     Raises:
         FileNotFoundError: If no 20XX/ season folders exist under data_folder.
+        ValueError: If all season folders are skipped as invalid (zero games evaluated across
+            the whole run), which would otherwise silently produce a degenerate zero-rate result.
     """
     logger = get_logger()
     reference = reference_config if reference_config is not None else current_config
@@ -197,8 +199,14 @@ def run_paired_ab_comparison(
             wins_recommended += rw
             games_recommended += rg
 
-    current_rate = wins_current / games_current if games_current else 0.0
-    recommended_rate = wins_recommended / games_recommended if games_recommended else 0.0
+    if games_current == 0:
+        raise ValueError(
+            "run_paired_ab_comparison: no valid games evaluated — all season folders were "
+            "skipped as invalid"
+        )
+
+    current_rate = wins_current / games_current
+    recommended_rate = wins_recommended / games_recommended
     delta = recommended_rate - current_rate
     z = _pooled_two_proportion_z(wins_current, games_current, wins_recommended, games_recommended)
 
