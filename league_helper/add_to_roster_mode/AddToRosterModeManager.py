@@ -192,13 +192,17 @@ class AddToRosterModeManager:
             - Step 7: Draft order bonus (position-specific PRIMARY/SECONDARY bonuses)
             - Step 8: Bye week penalty (roster overlap conflicts)
             - Step 9: Injury penalty (health risk assessment)
+
+        Note:
+            Under point-in-time (e.g. week-1) projections, the positive-value player pool
+            for a position can be exhausted before every roster slot for that position is
+            filled (T42) — real early-season projections are sparser than season-end ones,
+            and unconstrained opponent drafting can accelerate the exhaustion. When that
+            happens and a roster slot is still open, this method falls back to roster-legal
+            candidates with zero/negative projections rather than returning no
+            recommendations, so the draft can still complete the roster.
         """
-        available_players = self.player_manager.get_player_list(drafted_vals=[0], can_draft=True)
-        self.logger.debug(f"Found {len(available_players)} draftable players for recommendations")
-
-        scored_players : List[ScoredPlayer] = []
-
-        current_round=self._get_current_round()
+        current_round = self._get_current_round()
 
         # Roster-full guard: _get_current_round() returns None when the roster is full
         # (15/15). Without this, `draft_round=current_round - 1` below would raise
@@ -207,6 +211,25 @@ class AddToRosterModeManager:
         if current_round is None:
             self.logger.debug("Roster is full (no current draft round) - no recommendations")
             return []
+
+        available_players = self.player_manager.get_player_list(drafted_vals=[0], can_draft=True)
+
+        if not available_players:
+            # T42 fallback: no positive-value candidates remain for the open slot(s).
+            # Relax the positive-points requirement so the roster can still be
+            # completed with the best roster-legal (if zero-value) player available.
+            available_players = self.player_manager.get_player_list(
+                drafted_vals=[0], can_draft=True, require_positive_points=False
+            )
+            if available_players:
+                self.logger.warning(
+                    f"No positive-value draftable players available for round {current_round} - "
+                    f"falling back to {len(available_players)} zero/negative-value roster-legal candidates"
+                )
+
+        self.logger.debug(f"Found {len(available_players)} draftable players for recommendations")
+
+        scored_players : List[ScoredPlayer] = []
 
         for p in available_players:
             scored_player = self.player_manager.score_player(

@@ -583,7 +583,7 @@ class PlayerManager:
     def draft_player(self, player_to_draft : FantasyPlayer) -> bool:
         return self.team.draft_player(player_to_draft)
     
-    def get_player_list(self, drafted_vals : List[int] = [], can_draft : bool = False, min_scores : Dict[str,float] = {}, unlocked_only=False) -> List[FantasyPlayer]:
+    def get_player_list(self, drafted_vals : List[int] = [], can_draft : bool = False, min_scores : Dict[str,float] = {}, unlocked_only=False, require_positive_points : bool = True) -> List[FantasyPlayer]:
         """
         Get a filtered list of players based on multiple criteria.
 
@@ -592,6 +592,11 @@ class PlayerManager:
             can_draft: If True, only return players that can currently be drafted
             min_scores: Dictionary of minimum scores by position (e.g., {'QB': 50.0, 'RB': 45.0})
             unlocked_only: If True, only return players with locked=0 (not locked from being dropped)
+            require_positive_points: When can_draft is True, only include players with
+                fantasy_points > 0 (the default). Set False to also include roster-legal
+                players whose current point-in-time projection is zero/unset — used as a
+                fallback when a still-open roster slot has no positive-value candidates left
+                (see AddToRosterModeManager.get_recommendations). Ignored when can_draft is False.
 
         Returns:
             List[FantasyPlayer]: Filtered list of players meeting all criteria
@@ -629,7 +634,7 @@ class PlayerManager:
             player_list = [
                 p for p in player_list
                 if self.can_draft(p)
-                and p.fantasy_points and p.fantasy_points > 0
+                and (not require_positive_points or (p.fantasy_points and p.fantasy_points > 0))
             ]
 
         return player_list
