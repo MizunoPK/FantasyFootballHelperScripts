@@ -519,19 +519,26 @@ class ConfigManager:
             - get_draft_order_bonus("WR", 0) → (5.0, "SECONDARY")
             - get_draft_order_bonus("QB", 0) → (0, "")
         """
-        position_with_flex = self.get_position_with_flex(position)
-
         ideal_positions = self.draft_order[draft_round]
 
-        if position_with_flex in ideal_positions:
-            priority = ideal_positions.get(position_with_flex)
-
-            if priority == self.keys.DRAFT_ORDER_PRIMARY_LABEL:
-                return self.draft_order_bonuses[self.keys.BONUS_PRIMARY], self.keys.BONUS_PRIMARY
-            else:
-                return self.draft_order_bonuses[self.keys.BONUS_SECONDARY], self.keys.BONUS_SECONDARY
+        # Match the player's literal position first (e.g. "WR" in {"WR": "P"}),
+        # then fall back to the "FLEX" key for flex-eligible positions (RB/WR).
+        # Previously the position was remapped to "FLEX" *before* the lookup, which
+        # silently dropped the bonus for rounds keyed on the literal "RB"/"WR" names
+        # (e.g. round 1 {"WR":"P","RB":"S"}), so WR/RB priorities never scored.
+        if position in ideal_positions:
+            matched_key = position
+        elif position in self.flex_eligible_positions and 'FLEX' in ideal_positions:
+            matched_key = 'FLEX'
         else:
             return 0, ""
+
+        priority = ideal_positions.get(matched_key)
+
+        if priority == self.keys.DRAFT_ORDER_PRIMARY_LABEL:
+            return self.draft_order_bonuses[self.keys.BONUS_PRIMARY], self.keys.BONUS_PRIMARY
+        else:
+            return self.draft_order_bonuses[self.keys.BONUS_SECONDARY], self.keys.BONUS_SECONDARY
 
     def get_bye_week_penalty(self, same_pos_players: List[FantasyPlayer], diff_pos_players: List[FantasyPlayer]) -> float:
         """
