@@ -297,9 +297,13 @@ class SimulatedOpponent:
             starters.append(dsts[0])
 
         total_actual_points = 0.0
+        # D2: score from actual_pm (<- week_N+1) by id, not the projected_pm roster object
+        # (which reads 0.0 for the current week after the D1 in-place swap).
+        actual_pm_by_id = {p.id: p for p in self.actual_pm.players}
         for starter in starters:
-            if 1 <= week <= 17 and len(starter.actual_points) >= week:
-                actual_points = starter.actual_points[week - 1]
+            actual_player = actual_pm_by_id.get(starter.id)
+            if actual_player is not None and 1 <= week <= 17 and len(actual_player.actual_points) >= week:
+                actual_points = actual_player.actual_points[week - 1]
                 if actual_points is not None:
                     total_actual_points += actual_points
 

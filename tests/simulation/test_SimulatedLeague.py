@@ -654,11 +654,11 @@ class TestJSONLoading:
         assert 12345 in players
         assert players[12345]["name"] == "Patrick Mahomes"
         assert players[12345]["position"] == "QB"
-        assert players[12345]["projected_points"] == "25.0"
-        assert players[12345]["actual_points"] == "28.0"
+        assert players[12345]["projected_points"] == [25.0] * 17
+        assert players[12345]["actual_points"] == [28.0] * 17
 
     def test_parse_players_json_array_extraction(self, tmp_path):
-        """Test correct extraction of week-specific values from arrays"""
+        """Test full projected/actual arrays pass through unchanged (padded to 17)"""
         week_folder = tmp_path / "week_05"
         week_folder.mkdir()
 
@@ -694,8 +694,8 @@ class TestJSONLoading:
             league = SimulatedLeague(config, data_folder)
             players = league._parse_players_json(week_folder, week_num=5)
 
-        assert players[67890]["projected_points"] == "14.0"
-        assert players[67890]["actual_points"] == "13.5"
+        assert players[67890]["projected_points"] == [10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0] + [0.0] * 10
+        assert players[67890]["actual_points"] == [9.0, 10.5, 11.5, 12.5, 13.5, 14.5, 15.5] + [0.0] * 10
 
     def test_parse_players_json_locked_conversion(self, tmp_path):
         """Test field conversions: locked boolean to string"""
@@ -885,8 +885,8 @@ class TestJSONLoading:
             league = SimulatedLeague(config, data_folder)
             players = league._parse_players_json(week_folder, week_num=1)
 
-        assert players[33333]["projected_points"] == "0.0"
-        assert players[33333]["actual_points"] == "0.0"
+        assert players[33333]["projected_points"] == [0.0] * 17
+        assert players[33333]["actual_points"] == [0.0] * 17
 
     def test_parse_players_json_missing_fields(self, tmp_path):
         """Test edge case: missing fields in player dict"""
@@ -923,8 +923,8 @@ class TestJSONLoading:
 
         assert players[44444]["drafted_by"] == ""
         assert players[44444]["locked"] == "0"
-        assert players[44444]["projected_points"] == "0.0"
-        assert players[44444]["actual_points"] == "0.0"
+        assert players[44444]["projected_points"] == [0.0] * 17
+        assert players[44444]["actual_points"] == [0.0] * 17
 
 
 
@@ -990,9 +990,9 @@ class TestWeek17EdgeCase:
 
             actual = league._parse_players_json(week_18, week_num=17, week_num_for_actual=17)
 
-        assert projected[99999]["projected_points"] == "20.0"
+        assert projected[99999]["projected_points"] == [0.0] * 16 + [20.0]
 
-        assert actual[99999]["actual_points"] == "23.2"
+        assert actual[99999]["actual_points"] == [0.0] * 16 + [23.2]
 
     def test_preload_all_weeks_week_17_pattern(self, tmp_path):
         """Test _preload_all_weeks correctly implements week_N+1 for week 17"""
@@ -1038,10 +1038,10 @@ class TestWeek17EdgeCase:
         week17_data = league.week_data_cache[17]
 
         assert 88888 in week17_data['projected']
-        assert week17_data['projected'][88888]["projected_points"] == "17.0"
+        assert week17_data['projected'][88888]["projected_points"] == [17.0] * 17
 
         assert 88888 in week17_data['actual']
-        assert week17_data['actual'][88888]["actual_points"] == "18.5"
+        assert week17_data['actual'][88888]["actual_points"] == [18.5] * 17
 
 
 
@@ -1094,7 +1094,7 @@ class TestEdgeCaseBehavior:
         assert 77777 in week17_data['actual'] or len(week17_data['actual']) >= 0
 
     def test_array_index_out_of_bounds(self, tmp_path):
-        """Test array index out of bounds defaults to 0.0"""
+        """Test short arrays are padded to 17 elements with 0.0"""
         week_folder = tmp_path / "week_10"
         week_folder.mkdir()
 
@@ -1131,8 +1131,8 @@ class TestEdgeCaseBehavior:
 
             players = league._parse_players_json(week_folder, week_num=10)
 
-        assert players[66666]["projected_points"] == "0.0"
-        assert players[66666]["actual_points"] == "0.0"
+        assert players[66666]["projected_points"] == [5.0, 6.0, 7.0, 8.0, 9.0] + [0.0] * 12
+        assert players[66666]["actual_points"] == [4.5, 5.5, 6.5, 7.5, 8.5] + [0.0] * 12
 
 
 if __name__ == "__main__":

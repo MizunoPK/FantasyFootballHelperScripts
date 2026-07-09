@@ -903,52 +903,51 @@ class PlayerManager:
 
     def set_player_data(self, player_data: Dict[int, Dict[str, Any]]) -> None:
         """
-        Update player data from pre-loaded week-specific cache.
+        Replace each player's per-week point arrays from a pre-loaded week-specific dataset.
 
-        This method is used by simulation to load week-specific player data
-        without re-reading CSV files. Updates player attributes from the provided
-        data dictionary and recalculates derived values (max_projection, weighted_projection).
+        Used by the win-rate simulation to swap in point-in-time data at the start of each
+        simulated week without re-reading JSON files. For every player whose id appears in
+        ``player_data`` this replaces ``projected_points`` and ``actual_points`` in place
+        (padded/truncated to 17 like ``FantasyPlayer.from_json``), recomputes
+        ``fantasy_points = sum(projected_points)``, and refreshes the derived normalization
+        state (``max_projection``, ``scoring_calculator.max_projection``, per-player
+        ``weighted_projection``). Draft state (``drafted_by``, ``locked``, roster membership)
+        is deliberately left untouched so it survives the weekly swap. The stale weekly-max
+        cache (``max_weekly_projections`` and ``scoring_calculator.max_weekly_projection``)
+        is invalidated so no prior-week normalization leaks into the new week.
 
         Args:
-            player_data (Dict[int, Dict[str, Any]]): Player data keyed by player ID.
-                Each dict should match the CSV format with keys like 'fantasy_points',
-                'projected_points', 'actual_points', etc.
+            player_data (Dict[int, Dict[str, Any]]): Player data keyed by player ID. Each
+                value dict carries full-season ``projected_points`` and ``actual_points``
+                lists (shorter/longer lists are padded/truncated to 17 elements). An empty
+                mapping is a no-op.
 
         Side Effects:
-            - Updates self.players with new data
-            - Recalculates self.max_projection
-            - Updates weighted_projection for each player
-            - Updates scoring_calculator.max_projection
+            - Replaces projected_points/actual_points arrays in place for matched players
+            - Recomputes fantasy_points, max_projection, scoring_calculator.max_projection,
+              and per-player weighted_projection
+            - Clears max_weekly_projections and scoring_calculator.max_weekly_projection
         """
         if not player_data:
             return
 
         self.logger.debug(f"Updating player data from cache ({len(player_data)} players)")
 
-        new_max_projection = 0.0
-
         for player in self.players:
             if player.id in player_data:
                 data = player_data[player.id]
 
-                for week in range(1, 18):
-                    week_key = f'week_{week}_points'
-                    if week_key in data:
-                        try:
-                            value = float(data[week_key]) if data[week_key] else None
-                            setattr(player, week_key, value)
-                        except (ValueError, TypeError):
-                            pass
+                if 'projected_points' in data:
+                    projected = list(data['projected_points'])
+                    player.projected_points = (projected + [0.0] * 17)[:17]
+                    player.fantasy_points = sum(player.projected_points)
 
-                if 'fantasy_points' in data:
-                    try:
-                        player.fantasy_points = float(data['fantasy_points']) if data['fantasy_points'] else 0.0
-                    except (ValueError, TypeError):
-                        pass
+                if 'actual_points' in data:
+                    actual = list(data['actual_points'])
+                    player.actual_points = (actual + [0.0] * 17)[:17]
 
-                if 'injury_status' in data:
-                    player.injury_status = str(data['injury_status'])
-
+        new_max_projection = 0.0
+        for player in self.players:
             if player.fantasy_points and player.fantasy_points > new_max_projection:
                 new_max_projection = player.fantasy_points
 
@@ -959,6 +958,9 @@ class PlayerManager:
             for player in self.players:
                 if player.fantasy_points and self.max_projection > 0:
                     player.weighted_projection = self.scoring_calculator.weight_projection(player.fantasy_points)
+
+        self.max_weekly_projections = {}
+        self.scoring_calculator.max_weekly_projection = 0.0
 
         self.logger.debug(f"Player data updated, max_projection={self.max_projection:.2f}")
 

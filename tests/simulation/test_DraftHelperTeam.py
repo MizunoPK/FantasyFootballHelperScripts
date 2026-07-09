@@ -353,6 +353,14 @@ class TestSetWeeklyLineup:
         mock_starter_helper_mgr.optimize_lineup.return_value = mock_lineup
         mock_starter_helper_class.return_value = mock_starter_helper_mgr
 
+        actual_players = []
+        for i in range(9):
+            ap = Mock(spec=FantasyPlayer)
+            ap.id = i
+            ap.actual_points = [10.0] * 17
+            actual_players.append(ap)
+        mock_actual_pm.players = actual_players
+
         mock_actual_pm.calculate_max_weekly_projection.return_value = 100.0
 
         result = draft_helper_team.set_weekly_lineup(week=5)
@@ -456,7 +464,9 @@ class TestSetWeeklyLineup:
         starter.player.id = 1
         starter.player.name = "Test Player"
         starter.player.position = "QB"
-        starter.player.actual_points = [25.5] * 17
+        # projected_pm lineup player holds the POST-SWAP current-week value (0.0);
+        # the real result must come from actual_pm, proving the D2 redirect.
+        starter.player.actual_points = [0.0] * 17
 
         mock_lineup.qb = starter
         mock_lineup.rb1 = None
@@ -471,6 +481,11 @@ class TestSetWeeklyLineup:
         mock_starter_helper_mgr = Mock()
         mock_starter_helper_mgr.optimize_lineup.return_value = mock_lineup
         mock_starter_helper_class.return_value = mock_starter_helper_mgr
+
+        actual_player = Mock(spec=FantasyPlayer)
+        actual_player.id = 1
+        actual_player.actual_points = [25.5] * 17
+        mock_actual_pm.players = [actual_player]
 
         mock_actual_pm.calculate_max_weekly_projection.return_value = 100.0
 
@@ -713,6 +728,7 @@ class TestDraftHelperTeamIntegration:
         actual_player = Mock(spec=FantasyPlayer)
         actual_player.id = mock_player.id
         actual_player.drafted_by = ""
+        actual_player.actual_points = [20.5] * 17
         mock_actual_pm.players = [actual_player]
 
         recommended = draft_helper_team.get_draft_recommendation()
