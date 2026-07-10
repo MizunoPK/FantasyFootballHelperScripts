@@ -375,28 +375,33 @@ class SimulatedLeague:
         week_num_for_actual: Optional[int] = None
     ) -> Dict[int, Dict[str, Any]]:
         """
-        Parse 6 JSON files and extract week-specific values from arrays.
+        Parse the 6 position JSON files in a week folder into per-player datasets.
 
-        Reads all position JSON files, extracts the week-specific projected_points
-        and actual_points from arrays. Projected points always use (week_num - 1) index.
-        Actual points use (week_num_for_actual - 1) if provided, otherwise (week_num - 1).
+        Emits, per player id, the FULL 17-element ``projected_points`` and
+        ``actual_points`` arrays from this folder (padded/truncated to 17), for direct
+        in-place replacement by ``PlayerManager.set_player_data``. The per-folder week
+        choice — week_N for projections, week_{N+1} for actuals — is made by the caller
+        (``_preload_all_weeks``); the whole array passes through here, so ``week_num`` and
+        ``week_num_for_actual`` are retained only for call-site/signature stability and are
+        not used for indexing under this array-passthrough shape.
 
-        This dual-index support enables the week_N+1 bug fix: when parsing week_N+1 folder
-        to get week N actuals, we want projected_points[N-1] and actual_points[N-1] from
-        the week_N+1 arrays.
+        NOTE: This method is kept BYTE-FOR-BYTE IDENTICAL between
+        simulation/win_rate/SimulatedLeague.py and simulation/win_rate/SimDataLoader.py
+        (guarded by test_parse_players_json_copies_byte_for_byte_identical). Any change
+        here must be mirrored verbatim in the other copy.
 
         Args:
-            week_folder (Path): Path to week_NN folder containing 6 JSON files
-            week_num (int): Week number for projected_points indexing (1-17)
-            week_num_for_actual (Optional[int]): Week number for actual_points indexing.
-                                                  If None, uses week_num (backward compatible)
+            week_folder (Path): Path to the week_NN folder containing the 6 JSON files.
+            week_num (int): Retained for signature compatibility with the unchanged
+                _preload_all_weeks call site; not used under the array-passthrough shape.
+            week_num_for_actual (Optional[int]): Retained for signature compatibility;
+                not used under the array-passthrough shape.
 
         Returns:
-            Dict[int, Dict[str, Any]]: Player data keyed by player ID with
-                                       single-value fields (matching CSV format)
+            Dict[int, Dict[str, Any]]: Player data keyed by player ID; each value carries
+                full 17-element ``projected_points`` / ``actual_points`` lists plus
+                id/name/position/drafted_by/locked metadata.
         """
-        actual_week = week_num_for_actual if week_num_for_actual is not None else week_num
-
         players = {}
         position_files = ['qb_data.json', 'rb_data.json', 'wr_data.json',
                          'te_data.json', 'k_data.json', 'dst_data.json']
@@ -423,15 +428,8 @@ class SimulatedLeague:
                     projected_array = player_dict.get('projected_points', [])
                     actual_array = player_dict.get('actual_points', [])
 
-                    if len(projected_array) > week_num - 1:
-                        projected = projected_array[week_num - 1]
-                    else:
-                        projected = 0.0
-
-                    if len(actual_array) > actual_week - 1:
-                        actual = actual_array[actual_week - 1]
-                    else:
-                        actual = 0.0
+                    projected_points = (list(projected_array) + [0.0] * 17)[:17]
+                    actual_points = (list(actual_array) + [0.0] * 17)[:17]
 
                     players[player_id] = {
                         'id': str(player_id),
@@ -439,8 +437,8 @@ class SimulatedLeague:
                         'position': player_dict.get('position', ''),
                         'drafted_by': player_dict.get('drafted_by', ''),
                         'locked': str(int(player_dict.get('locked', False))),
-                        'projected_points': str(projected),
-                        'actual_points': str(actual)
+                        'projected_points': projected_points,
+                        'actual_points': actual_points
                     }
                 except (ValueError, KeyError, TypeError) as e:
                     self.logger.warning(f"Error parsing player in {position_file}: {e}")
@@ -507,6 +505,12 @@ class SimulatedLeague:
 
         for team in self.teams:
             team.config.current_nfl_week = 1
+
+        # D3: draft on week-1 point-in-time projections. No-op in legacy no-cache mode
+        # (empty week_data_cache -> _load_week_data early-returns), so unseeded/legacy
+        # runs still draft on the init snapshot exactly as before.
+        self._load_week_data(1)
+
         self.draft_order = self.teams.copy()
         self._rng.shuffle(self.draft_order)  # site #2 (T29): snake-draft order via per-league RNG
 

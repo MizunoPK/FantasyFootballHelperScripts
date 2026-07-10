@@ -76,6 +76,7 @@ class TestWinRateSimulationE2E:
                 "--sims", "1",
                 "--strategy", "1_zero_rb.json",
                 "--data", str(data_folder),
+                "--seed", "42",
                 "--log-level", "WARNING",
             ],
             capture_output=True,
@@ -93,7 +94,12 @@ class TestWinRateSimulationE2E:
 
         entry = meta_data["strategies"]["1_zero_rb.json"]
         assert 0.0 <= entry["best_win_rate"] <= 1.0
-        assert 0.30 <= entry["best_win_rate"] <= 0.85
+        # Deterministic with --seed 42 on this identical-week fixture: best_win_rate == 8/17.
+        # The prior *unseeded* 0.30..0.85 range was flaky — natural unseeded draws span ~0.29..0.77
+        # and dip below 0.30 — so a low draw (not the T42 point-in-time fix) failed the build.
+        # Seeding pins the value; it is identical (8/17) on pre-fix origin/main and the T42 branch,
+        # confirming the fix is behavior-neutral on this homogeneous multi-week fixture. (T42)
+        assert abs(entry["best_win_rate"] - 8 / 17) < 1e-9
         assert "total_wins" in entry
         assert "total_games" in entry
         assert entry["total_games"] >= entry["total_wins"]

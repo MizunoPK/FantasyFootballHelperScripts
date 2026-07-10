@@ -135,12 +135,34 @@ class SimulatedOpponent:
             FantasyPlayer: Recommended player to draft
 
         Raises:
-            ValueError: If no players are available
+            ValueError: If no players are available (including after the roster-legal
+                fallback below)
+
+        Note:
+            Under point-in-time (e.g. week-1) projections, the positive-value candidate
+            pool can be exhausted before every team's roster need is met (T42) — real
+            early-season projections are sparser than season-end ones. When that happens,
+            this mirrors DraftHelperTeam/AddToRosterModeManager's graceful degradation
+            (see AddToRosterModeManager.get_recommendations): it falls back to roster-legal
+            (free-agent) candidates with zero/negative projections rather than raising, so
+            the draft can still complete this opponent's roster.
         """
         available_players = [
             p for p in self.projected_pm.players
             if p.is_free_agent() and p.fantasy_points and p.fantasy_points > 0
         ]
+
+        if not available_players:
+            # T42 fallback: no positive-value candidates remain. Relax the positive-points
+            # requirement so the roster can still be completed with the best roster-legal
+            # (free-agent) player available.
+            available_players = [p for p in self.projected_pm.players if p.is_free_agent()]
+            if available_players:
+                self.logger.warning(
+                    f"SimulatedOpponent ({self.strategy}): no positive-value draftable "
+                    f"players available - falling back to {len(available_players)} "
+                    f"zero/negative-value roster-legal candidates"
+                )
 
         if not available_players:
             raise ValueError("No available players to draft")
@@ -297,9 +319,13 @@ class SimulatedOpponent:
             starters.append(dsts[0])
 
         total_actual_points = 0.0
+        # D2: score from actual_pm (<- week_N+1) by id, not the projected_pm roster object
+        # (which reads 0.0 for the current week after the D1 in-place swap).
+        actual_pm_by_id = {p.id: p for p in self.actual_pm.players}
         for starter in starters:
-            if 1 <= week <= 17 and len(starter.actual_points) >= week:
-                actual_points = starter.actual_points[week - 1]
+            actual_player = actual_pm_by_id.get(starter.id)
+            if actual_player is not None and 1 <= week <= 17 and len(actual_player.actual_points) >= week:
+                actual_points = actual_player.actual_points[week - 1]
                 if actual_points is not None:
                     total_actual_points += actual_points
 

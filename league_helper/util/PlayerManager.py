@@ -583,15 +583,31 @@ class PlayerManager:
     def draft_player(self, player_to_draft : FantasyPlayer) -> bool:
         return self.team.draft_player(player_to_draft)
     
-    def get_player_list(self, drafted_vals : List[int] = [], can_draft : bool = False, min_scores : Dict[str,float] = {}, unlocked_only=False) -> List[FantasyPlayer]:
+    def get_player_list(
+        self,
+        drafted_vals: Optional[List[int]] = None,
+        can_draft: bool = False,
+        min_scores: Optional[Dict[str, float]] = None,
+        unlocked_only: bool = False,
+        require_positive_points: bool = True
+    ) -> List[FantasyPlayer]:
         """
         Get a filtered list of players based on multiple criteria.
 
         Args:
-            drafted_vals: List of draft status values to include (0=available, 1=drafted by others, 2=on roster)
+            drafted_vals: List of draft status values to include (0=available, 1=drafted by
+                others, 2=on roster). Defaults to None (no drafted-status filtering); a fresh
+                list is built internally, never a shared mutable default.
             can_draft: If True, only return players that can currently be drafted
-            min_scores: Dictionary of minimum scores by position (e.g., {'QB': 50.0, 'RB': 45.0})
+            min_scores: Dictionary of minimum scores by position (e.g., {'QB': 50.0, 'RB': 45.0}).
+                Defaults to None (no per-position minimum). A copy is made internally before
+                missing positions are filled in with 0.0, so the caller's dict is never mutated.
             unlocked_only: If True, only return players with locked=0 (not locked from being dropped)
+            require_positive_points: When can_draft is True, only include players with
+                fantasy_points > 0 (the default). Set False to also include roster-legal
+                players whose current point-in-time projection is zero/unset — used as a
+                fallback when a still-open roster slot has no positive-value candidates left
+                (see AddToRosterModeManager.get_recommendations). Ignored when can_draft is False.
 
         Returns:
             List[FantasyPlayer]: Filtered list of players meeting all criteria
@@ -599,6 +615,12 @@ class PlayerManager:
         Note: Maintains backward compatibility with int API.
         Internally uses helper methods (is_free_agent(), is_drafted_by_opponent(), is_rostered()).
         """
+        if drafted_vals is None:
+            drafted_vals = []
+
+        # Copy so filling in missing positions below never mutates a caller-owned dict.
+        min_scores = dict(min_scores) if min_scores else {}
+
         def is_unlocked(val: int) -> bool:
             if unlocked_only:
                 return val == 0
@@ -629,7 +651,7 @@ class PlayerManager:
             player_list = [
                 p for p in player_list
                 if self.can_draft(p)
-                and p.fantasy_points and p.fantasy_points > 0
+                and (not require_positive_points or (p.fantasy_points and p.fantasy_points > 0))
             ]
 
         return player_list
@@ -903,62 +925,70 @@ class PlayerManager:
 
     def set_player_data(self, player_data: Dict[int, Dict[str, Any]]) -> None:
         """
-        Update player data from pre-loaded week-specific cache.
+        Replace each player's per-week point arrays from a pre-loaded week-specific dataset.
 
-        This method is used by simulation to load week-specific player data
-        without re-reading CSV files. Updates player attributes from the provided
-        data dictionary and recalculates derived values (max_projection, weighted_projection).
+        Used by the win-rate simulation to swap in point-in-time data at the start of each
+        simulated week without re-reading JSON files. For every player whose id appears in
+        ``player_data`` this replaces ``projected_points`` and ``actual_points`` in place
+        (padded/truncated to 17 like ``FantasyPlayer.from_json``), recomputes
+        ``fantasy_points = sum(projected_points)``, and unconditionally refreshes the derived
+        normalization state (``max_projection``, ``scoring_calculator.max_projection``,
+        per-player ``weighted_projection``) — including on an all-zero swap, where
+        ``max_projection`` resets to 0.0 and every ``weighted_projection`` resets to 0.0 via
+        ``PlayerScoringCalculator.weight_projection``'s own zero-safe guard (no stale
+        prior-week value, no divide-by-zero). Draft state (``drafted_by``, ``locked``, roster
+        membership) is deliberately left untouched so it survives the weekly swap. The stale
+        weekly-max cache (``max_weekly_projections`` and
+        ``scoring_calculator.max_weekly_projection``) is invalidated so no prior-week
+        normalization leaks into the new week.
 
         Args:
-            player_data (Dict[int, Dict[str, Any]]): Player data keyed by player ID.
-                Each dict should match the CSV format with keys like 'fantasy_points',
-                'projected_points', 'actual_points', etc.
+            player_data (Dict[int, Dict[str, Any]]): Player data keyed by player ID. Each
+                value dict carries full-season ``projected_points`` and ``actual_points``
+                lists (shorter/longer lists are padded/truncated to 17 elements). An empty
+                mapping is a no-op.
 
         Side Effects:
-            - Updates self.players with new data
-            - Recalculates self.max_projection
-            - Updates weighted_projection for each player
-            - Updates scoring_calculator.max_projection
+            - Replaces projected_points/actual_points arrays in place for matched players
+            - Recomputes fantasy_points, max_projection, scoring_calculator.max_projection,
+              and per-player weighted_projection
+            - Clears max_weekly_projections and scoring_calculator.max_weekly_projection
         """
         if not player_data:
             return
 
         self.logger.debug(f"Updating player data from cache ({len(player_data)} players)")
 
-        new_max_projection = 0.0
-
         for player in self.players:
             if player.id in player_data:
                 data = player_data[player.id]
 
-                for week in range(1, 18):
-                    week_key = f'week_{week}_points'
-                    if week_key in data:
-                        try:
-                            value = float(data[week_key]) if data[week_key] else None
-                            setattr(player, week_key, value)
-                        except (ValueError, TypeError):
-                            pass
+                if 'projected_points' in data:
+                    projected = list(data['projected_points'])
+                    player.projected_points = (projected + [0.0] * 17)[:17]
+                    player.fantasy_points = sum(player.projected_points)
 
-                if 'fantasy_points' in data:
-                    try:
-                        player.fantasy_points = float(data['fantasy_points']) if data['fantasy_points'] else 0.0
-                    except (ValueError, TypeError):
-                        pass
+                if 'actual_points' in data:
+                    actual = list(data['actual_points'])
+                    player.actual_points = (actual + [0.0] * 17)[:17]
 
-                if 'injury_status' in data:
-                    player.injury_status = str(data['injury_status'])
-
+        new_max_projection = 0.0
+        for player in self.players:
             if player.fantasy_points and player.fantasy_points > new_max_projection:
                 new_max_projection = player.fantasy_points
 
-        if new_max_projection > 0:
-            self.max_projection = new_max_projection
-            self.scoring_calculator.max_projection = new_max_projection
+        # Refresh normalization state on every swap (not just when new_max_projection > 0) so
+        # an all-zero swap doesn't leave the PRIOR week's max_projection/weighted_projection
+        # stale. weight_projection() guards chosen_max == 0 internally and returns 0.0, so
+        # this is safe even when new_max_projection is 0.0.
+        self.max_projection = new_max_projection
+        self.scoring_calculator.max_projection = new_max_projection
 
-            for player in self.players:
-                if player.fantasy_points and self.max_projection > 0:
-                    player.weighted_projection = self.scoring_calculator.weight_projection(player.fantasy_points)
+        for player in self.players:
+            player.weighted_projection = self.scoring_calculator.weight_projection(player.fantasy_points)
+
+        self.max_weekly_projections = {}
+        self.scoring_calculator.max_weekly_projection = 0.0
 
         self.logger.debug(f"Player data updated, max_projection={self.max_projection:.2f}")
 
