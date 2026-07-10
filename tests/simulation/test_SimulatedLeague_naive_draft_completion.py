@@ -27,6 +27,7 @@ covered even if the committed historical data is later recompiled.
 Author: Kai Mizuno
 """
 
+import random
 from pathlib import Path
 from unittest.mock import Mock
 
@@ -37,6 +38,7 @@ from league_helper.util.ConfigManager import ConfigManager
 from league_helper.util.PlayerManager import PlayerManager
 from league_helper.util.TeamDataManager import TeamDataManager
 from simulation.win_rate.SimulatedLeague import SimulatedLeague
+from simulation.win_rate.SimulatedOpponent import SimulatedOpponent
 from utils.FantasyPlayer import FantasyPlayer
 
 
@@ -211,6 +213,124 @@ class TestPositiveValuePoolExhaustionFallback:
             recommendations = manager.get_recommendations()
 
         assert recommendations == []
+
+
+class TestSimulatedOpponentPositiveValuePoolExhaustionFallback:
+    """
+    Deterministic, data-independent coverage of SimulatedOpponent.get_draft_recommendation()'s
+    T42 Polish (CONCERN-1) fallback: mirrors DraftHelperTeam/AddToRosterModeManager's graceful
+    degradation so a naive opponent facing an exhausted point-in-time positive-value pool falls
+    back to roster-legal (free-agent) zero/negative-value candidates instead of raising
+    ValueError and crashing the whole league to a 0.000 win rate.
+    """
+
+    def test_get_draft_recommendation_falls_back_when_positive_pool_empty(self):
+        """Only zero-value free agents remain -> no ValueError, the zero-value candidate is
+        still returned, and the fallback logs a warning (matching the DraftHelperTeam shape)."""
+        zero_value_qb = _make_player(1, position="QB", fantasy_points=0.0)
+
+        projected_pm = Mock(spec=PlayerManager)
+        projected_pm.players = [zero_value_qb]
+        actual_pm = Mock(spec=PlayerManager)
+        team_data_manager = Mock(spec=TeamDataManager)
+        config = Mock()
+
+        opponent = SimulatedOpponent(
+            projected_pm=projected_pm,
+            actual_pm=actual_pm,
+            config=config,
+            team_data_mgr=team_data_manager,
+            strategy=SimulatedOpponent.STRATEGY_PROJECTED_POINTS_AGGRESSIVE,
+            rng=random.Random(0),
+        )
+        opponent.logger = Mock()
+
+        recommendation = opponent.get_draft_recommendation()
+
+        assert recommendation is zero_value_qb
+        opponent.logger.warning.assert_called_once()
+
+    def test_get_draft_recommendation_raises_when_truly_no_candidates(self):
+        """When even the fallback finds nothing (no free agents at all), the method still
+        raises ValueError rather than crashing on something unexpected downstream."""
+        projected_pm = Mock(spec=PlayerManager)
+        projected_pm.players = []
+        actual_pm = Mock(spec=PlayerManager)
+        team_data_manager = Mock(spec=TeamDataManager)
+        config = Mock()
+
+        opponent = SimulatedOpponent(
+            projected_pm=projected_pm,
+            actual_pm=actual_pm,
+            config=config,
+            team_data_mgr=team_data_manager,
+            strategy=SimulatedOpponent.STRATEGY_PROJECTED_POINTS_AGGRESSIVE,
+        )
+
+        with pytest.raises(ValueError, match="No available players to draft"):
+            opponent.get_draft_recommendation()
+
+    def test_naive_draft_completes_when_positive_pool_exhausted_mid_draft(self):
+        """Multi-round, SimulatedOpponent-only snake-draft-style loop (mirroring the per-pick
+        sequence in SimulatedLeague.run_draft()) against a deliberately sparse (mostly
+        zero-value) shared player pool: every roster must still reach 15 players without
+        get_draft_recommendation() raising, proving the fallback carries a real draft to
+        completion once the positive-value pool is exhausted mid-draft."""
+        positions = ["QB", "RB", "WR", "TE", "K", "DST"]
+        players = []
+        player_id = 1
+        # A sparse positive-value pool per position (exhausted within the first couple of
+        # rounds across 10 teams) plus a deep zero-value bench so most of the draft must run
+        # through the T42 roster-legal fallback rather than the primary positive-value path.
+        for position in positions:
+            for _ in range(3):
+                players.append(_make_player(player_id, position=position, fantasy_points=50.0))
+                player_id += 1
+            for _ in range(40):
+                players.append(_make_player(player_id, position=position, fantasy_points=0.0))
+                player_id += 1
+
+        config = Mock()
+        config.get_draft_order_bonus = Mock(return_value=(0.0, ""))
+
+        pm = Mock(spec=PlayerManager)
+        pm.players = players
+
+        team_data_manager = Mock(spec=TeamDataManager)
+
+        strategies = [
+            SimulatedOpponent.STRATEGY_ADP_AGGRESSIVE,
+            SimulatedOpponent.STRATEGY_PROJECTED_POINTS_AGGRESSIVE,
+            SimulatedOpponent.STRATEGY_ADP_WITH_DRAFT_ORDER,
+            SimulatedOpponent.STRATEGY_PROJECTED_POINTS_WITH_DRAFT_ORDER,
+        ]
+        teams = [
+            SimulatedOpponent(
+                projected_pm=pm,
+                actual_pm=pm,
+                config=config,
+                team_data_mgr=team_data_manager,
+                strategy=strategies[i % len(strategies)],
+                rng=random.Random(i),
+            )
+            for i in range(10)
+        ]
+
+        rng = random.Random(42)
+        draft_order = teams.copy()
+        rng.shuffle(draft_order)
+
+        for round_num in range(15):
+            pick_order = draft_order if round_num % 2 == 0 else list(reversed(draft_order))
+            for team in pick_order:
+                player = team.get_draft_recommendation()  # must not raise ValueError
+                team.draft_player(player)
+                for other_team in teams:
+                    if other_team is not team:
+                        other_team.mark_player_drafted(player.id)
+
+        for team in teams:
+            assert len(team.roster) == 15
 
 
 if __name__ == "__main__":

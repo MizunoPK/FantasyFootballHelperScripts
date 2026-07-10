@@ -583,14 +583,25 @@ class PlayerManager:
     def draft_player(self, player_to_draft : FantasyPlayer) -> bool:
         return self.team.draft_player(player_to_draft)
     
-    def get_player_list(self, drafted_vals : List[int] = [], can_draft : bool = False, min_scores : Dict[str,float] = {}, unlocked_only=False, require_positive_points : bool = True) -> List[FantasyPlayer]:
+    def get_player_list(
+        self,
+        drafted_vals: Optional[List[int]] = None,
+        can_draft: bool = False,
+        min_scores: Optional[Dict[str, float]] = None,
+        unlocked_only: bool = False,
+        require_positive_points: bool = True
+    ) -> List[FantasyPlayer]:
         """
         Get a filtered list of players based on multiple criteria.
 
         Args:
-            drafted_vals: List of draft status values to include (0=available, 1=drafted by others, 2=on roster)
+            drafted_vals: List of draft status values to include (0=available, 1=drafted by
+                others, 2=on roster). Defaults to None (no drafted-status filtering); a fresh
+                list is built internally, never a shared mutable default.
             can_draft: If True, only return players that can currently be drafted
-            min_scores: Dictionary of minimum scores by position (e.g., {'QB': 50.0, 'RB': 45.0})
+            min_scores: Dictionary of minimum scores by position (e.g., {'QB': 50.0, 'RB': 45.0}).
+                Defaults to None (no per-position minimum). A copy is made internally before
+                missing positions are filled in with 0.0, so the caller's dict is never mutated.
             unlocked_only: If True, only return players with locked=0 (not locked from being dropped)
             require_positive_points: When can_draft is True, only include players with
                 fantasy_points > 0 (the default). Set False to also include roster-legal
@@ -604,6 +615,12 @@ class PlayerManager:
         Note: Maintains backward compatibility with int API.
         Internally uses helper methods (is_free_agent(), is_drafted_by_opponent(), is_rostered()).
         """
+        if drafted_vals is None:
+            drafted_vals = []
+
+        # Copy so filling in missing positions below never mutates a caller-owned dict.
+        min_scores = dict(min_scores) if min_scores else {}
+
         def is_unlocked(val: int) -> bool:
             if unlocked_only:
                 return val == 0
@@ -914,12 +931,16 @@ class PlayerManager:
         simulated week without re-reading JSON files. For every player whose id appears in
         ``player_data`` this replaces ``projected_points`` and ``actual_points`` in place
         (padded/truncated to 17 like ``FantasyPlayer.from_json``), recomputes
-        ``fantasy_points = sum(projected_points)``, and refreshes the derived normalization
-        state (``max_projection``, ``scoring_calculator.max_projection``, per-player
-        ``weighted_projection``). Draft state (``drafted_by``, ``locked``, roster membership)
-        is deliberately left untouched so it survives the weekly swap. The stale weekly-max
-        cache (``max_weekly_projections`` and ``scoring_calculator.max_weekly_projection``)
-        is invalidated so no prior-week normalization leaks into the new week.
+        ``fantasy_points = sum(projected_points)``, and unconditionally refreshes the derived
+        normalization state (``max_projection``, ``scoring_calculator.max_projection``,
+        per-player ``weighted_projection``) — including on an all-zero swap, where
+        ``max_projection`` resets to 0.0 and every ``weighted_projection`` resets to 0.0 via
+        ``PlayerScoringCalculator.weight_projection``'s own zero-safe guard (no stale
+        prior-week value, no divide-by-zero). Draft state (``drafted_by``, ``locked``, roster
+        membership) is deliberately left untouched so it survives the weekly swap. The stale
+        weekly-max cache (``max_weekly_projections`` and
+        ``scoring_calculator.max_weekly_projection``) is invalidated so no prior-week
+        normalization leaks into the new week.
 
         Args:
             player_data (Dict[int, Dict[str, Any]]): Player data keyed by player ID. Each
@@ -956,13 +977,15 @@ class PlayerManager:
             if player.fantasy_points and player.fantasy_points > new_max_projection:
                 new_max_projection = player.fantasy_points
 
-        if new_max_projection > 0:
-            self.max_projection = new_max_projection
-            self.scoring_calculator.max_projection = new_max_projection
+        # Refresh normalization state on every swap (not just when new_max_projection > 0) so
+        # an all-zero swap doesn't leave the PRIOR week's max_projection/weighted_projection
+        # stale. weight_projection() guards chosen_max == 0 internally and returns 0.0, so
+        # this is safe even when new_max_projection is 0.0.
+        self.max_projection = new_max_projection
+        self.scoring_calculator.max_projection = new_max_projection
 
-            for player in self.players:
-                if player.fantasy_points and self.max_projection > 0:
-                    player.weighted_projection = self.scoring_calculator.weight_projection(player.fantasy_points)
+        for player in self.players:
+            player.weighted_projection = self.scoring_calculator.weight_projection(player.fantasy_points)
 
         self.max_weekly_projections = {}
         self.scoring_calculator.max_weekly_projection = 0.0

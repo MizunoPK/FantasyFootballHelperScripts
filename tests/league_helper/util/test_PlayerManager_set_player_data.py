@@ -151,6 +151,27 @@ class TestSetPlayerDataArrayContract:
         assert player.projected_points == [5.0] * 17
         assert pm.max_weekly_projections == {5: 999.0}  # untouched on no-op
 
+    def test_all_zero_swap_resets_max_projection_and_weighted_projection(self):
+        """T42 Polish fix: an all-zero-value swap must not leave the PRIOR week's
+        max_projection / weighted_projection stale. Pre-fix, the refresh was guarded by
+        `if new_max_projection > 0`, so a swap where every incoming player has
+        fantasy_points == 0 skipped the refresh entirely and left both values stuck at
+        their previous (positive) week's numbers."""
+        player = _make_player(1, projected=[10.0] * 17)  # positive prior week
+        pm = _make_bare_pm([player])
+        pm.max_projection = 170.0  # stale prior-week max
+        pm.scoring_calculator.max_projection = 170.0
+        player.weighted_projection = 42.0  # stale prior-week weighted value
+
+        pm.set_player_data({1: {
+            'projected_points': [0.0] * 17,
+            'actual_points': [0.0] * 17,
+        }})
+
+        assert pm.max_projection == 0.0
+        assert pm.scoring_calculator.max_projection == 0.0
+        assert player.weighted_projection == 0.0
+
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
