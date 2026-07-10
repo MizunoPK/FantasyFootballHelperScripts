@@ -285,6 +285,33 @@ class TestTemperatureScoring:
         assert score != 100.0
         assert "Temp" in reason
 
+    def test_temperature_bonus_applies_weight_once_regression(self, scoring_calculator, qb_player, mock_game_data_manager):
+        """Regression (T43): temperature bonus applies WEIGHT exactly once.
+
+        With WEIGHT != 1.0 and a fixed mocked multiplier, the additive bonus must equal the
+        single-WEIGHT value (impact_scale * multiplier) - impact_scale, identical to the
+        Matchup/Schedule blocks. The pre-fix doubled formula (... * weight) multiplied by
+        WEIGHT a second time and would fail this assertion.
+        """
+        impact_scale = 50.0
+        multiplier = 1.05
+        scoring_calculator.config.temperature_scoring["IMPACT_SCALE"] = impact_scale
+        scoring_calculator.config.temperature_scoring["WEIGHT"] = 2.0
+        scoring_calculator.config.get_temperature_multiplier = Mock(return_value=(multiplier, "EXCELLENT"))
+
+        game = UpcomingGame(
+            week=6, home_team='KC', away_team='BAL',
+            temperature=60, wind_gust=5, indoor=False,
+            neutral_site=False, country='USA'
+        )
+        mock_game_data_manager.get_game.return_value = game
+
+        score, reason = scoring_calculator._apply_temperature_scoring(qb_player, 100.0)
+
+        expected_bonus = (impact_scale * multiplier) - impact_scale
+        assert score - 100.0 == pytest.approx(expected_bonus)
+        assert "Temp" in reason
+
 
 
 class TestWindScoring:
@@ -387,6 +414,33 @@ class TestWindScoring:
 
         assert score == 100.0
         assert reason == ""
+
+    def test_wind_bonus_applies_weight_once_regression(self, scoring_calculator, qb_player, mock_game_data_manager):
+        """Regression (T43): wind bonus applies WEIGHT exactly once.
+
+        With WEIGHT != 1.0 and a fixed mocked multiplier, the additive bonus must equal the
+        single-WEIGHT value (impact_scale * multiplier) - impact_scale, identical to the
+        Matchup/Schedule blocks. The pre-fix doubled formula (... * weight) multiplied by
+        WEIGHT a second time and would fail this assertion.
+        """
+        impact_scale = 60.0
+        multiplier = 1.05
+        scoring_calculator.config.wind_scoring["IMPACT_SCALE"] = impact_scale
+        scoring_calculator.config.wind_scoring["WEIGHT"] = 2.0
+        scoring_calculator.config.get_wind_multiplier = Mock(return_value=(multiplier, "EXCELLENT"))
+
+        game = UpcomingGame(
+            week=6, home_team='KC', away_team='BAL',
+            temperature=65, wind_gust=0, indoor=False,
+            neutral_site=False, country='USA'
+        )
+        mock_game_data_manager.get_game.return_value = game
+
+        score, reason = scoring_calculator._apply_wind_scoring(qb_player, 100.0)
+
+        expected_bonus = (impact_scale * multiplier) - impact_scale
+        assert score - 100.0 == pytest.approx(expected_bonus)
+        assert "Wind" in reason
 
 
 

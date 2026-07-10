@@ -652,8 +652,7 @@ class PlayerScoringCalculator:
         multiplier, tier = self.config.get_temperature_multiplier(temp_distance)
 
         impact_scale = self.config.temperature_scoring.get('IMPACT_SCALE', 50.0)
-        weight = self.config.temperature_scoring.get('WEIGHT', 1.0)
-        bonus = ((impact_scale * multiplier) - impact_scale) * weight
+        bonus = (impact_scale * multiplier) - impact_scale
 
         ideal_temp = self.config.temperature_scoring.get('IDEAL_TEMPERATURE', 60)
         if bonus >= 0:
@@ -698,8 +697,7 @@ class PlayerScoringCalculator:
         multiplier, tier = self.config.get_wind_multiplier(game.wind_gust)
 
         impact_scale = self.config.wind_scoring.get('IMPACT_SCALE', 60.0)
-        weight = self.config.wind_scoring.get('WEIGHT', 1.0)
-        bonus = ((impact_scale * multiplier) - impact_scale) * weight
+        bonus = (impact_scale * multiplier) - impact_scale
 
         if bonus >= 0:
             reason = f"Wind: {game.wind_gust}mph ({tier}, +{bonus:.1f} pts)"
