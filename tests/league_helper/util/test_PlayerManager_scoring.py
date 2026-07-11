@@ -734,7 +734,20 @@ class TestMatchupMultiplier:
         assert "pts" in reason
 
     def test_matchup_neutral(self, player_manager, test_player):
-        """matchup_score == 0 (no opponent info) short-circuits to a 0.0 bonus with an empty reason (T44 guard)."""
+        """A non-sentinel value inside the NEUTRAL band (-6 < v < 6, e.g. 3) classifies NEUTRAL:
+        0.0 bonus with a NEUTRAL reason line. This is the actual NEUTRAL-tier classification, distinct
+        from the 0-sentinel guard (test_matchup_zero_sentinel_short_circuits)."""
+        test_player.matchup_score = 3  # non-zero, in the NEUTRAL band -> NEUTRAL tier (not the 0 guard)
+        base_score = 100.0
+        result, reason = player_manager.scoring_calculator._apply_matchup_multiplier(test_player, base_score)
+        assert result == pytest.approx(100.0, abs=0.1)
+        assert "NEUTRAL" in reason
+        assert "pts" in reason
+
+    def test_matchup_zero_sentinel_short_circuits(self, player_manager, test_player):
+        """matchup_score == 0 (no opponent info: bye / unavailable / not populated) short-circuits to a
+        0.0 bonus with an EMPTY reason (T44 guard) — the guard returns before classification, so unlike
+        the NEUTRAL tier it emits no reason line. Config-independent (fires regardless of thresholds)."""
         test_player.matchup_score = 0
         base_score = 100.0
         result, reason = player_manager.scoring_calculator._apply_matchup_multiplier(test_player, base_score)
@@ -794,7 +807,12 @@ class TestMatchupMultiplier:
         # Real worst-tier rank (1): NOT caught by the == 0 guard -> classifies VERY_POOR (AC2/AC4).
         test_player.matchup_score = 1
         real_result, real_reason = player_manager.scoring_calculator._apply_matchup_multiplier(test_player, base_score)
-        expected_bonus = (100.0 * 0.70) - 100.0  # single-VERY_POOR bonus = -30.0
+        # The matchup bonus is computed from the configured IMPACT_SCALE (not the player's current
+        # score): bonus = (IMPACT_SCALE * multiplier) - IMPACT_SCALE. Derive the expected value from
+        # IMPACT_SCALE so the assertion stays correct if base_score changes.
+        impact_scale = player_manager.scoring_calculator.config.matchup_scoring["IMPACT_SCALE"]  # 100.0
+        very_poor_mult = 0.70  # config MULTIPLIERS.VERY_POOR (WEIGHT=1.0, so mult ** WEIGHT == mult)
+        expected_bonus = (impact_scale * very_poor_mult) - impact_scale  # = -30.0
         assert real_result == pytest.approx(base_score + expected_bonus, abs=0.1)
         assert "VERY_POOR" in real_reason
 
