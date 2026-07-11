@@ -503,6 +503,9 @@ class PlayerScoringCalculator:
 
     def _apply_matchup_multiplier(self, p: FantasyPlayer, player_score: float) -> Tuple[float, str]:
         """Apply matchup additive bonus (Step 6)."""
+        if p.matchup_score == 0:  # no opponent info (bye / unavailable / not populated)
+            return player_score, ""
+
         multiplier, rating = self.config.get_matchup_multiplier(p.matchup_score)
         impact_scale = self.config.matchup_scoring['IMPACT_SCALE']
         bonus = (impact_scale * multiplier) - impact_scale

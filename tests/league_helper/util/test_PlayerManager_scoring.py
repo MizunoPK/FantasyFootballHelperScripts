@@ -734,13 +734,12 @@ class TestMatchupMultiplier:
         assert "pts" in reason
 
     def test_matchup_neutral(self, player_manager, test_player):
-        """-6 < Matchup < 6 should get NEUTRAL (0.0 pts)"""
+        """matchup_score == 0 (no opponent info) short-circuits to a 0.0 bonus with an empty reason (T44 guard)."""
         test_player.matchup_score = 0
         base_score = 100.0
         result, reason = player_manager.scoring_calculator._apply_matchup_multiplier(test_player, base_score)
         assert result == pytest.approx(100.0, abs=0.1)
-        assert "NEUTRAL" in reason
-        assert "pts" in reason
+        assert reason == ""
 
     def test_matchup_poor(self, player_manager, test_player):
         """-15 < Matchup <= -6 should get POOR (-15.0 pts with IMPACT_SCALE=150.0)"""
@@ -769,6 +768,50 @@ class TestMatchupMultiplier:
         assert "NEUTRAL" in reason
         assert "pts" in reason
 
+    def test_matchup_zero_sentinel_vs_real_worst_rank_rising_thresholds(self, player_manager, test_player):
+        """AC1-AC4 (T44): under production-like RISING thresholds (positive VERY_POOR=6), the 0
+        sentinel (no opponent info) short-circuits to a 0.0 bonus with an empty reason, while a real
+        worst-tier opponent rank (1) still classifies VERY_POOR. The guard neutralizes ONLY the exact
+        0 sentinel, not real ranks 1-32. Absent the guard, 0 <= VERY_POOR(6) would map 0 to VERY_POOR,
+        so the sentinel assertions fail pre-fix and pass post-fix.
+        """
+        # Production-like rising-threshold matchup config: positive VERY_POOR threshold (6), so any
+        # low value (incl. the 0 sentinel, absent the guard) maps to VERY_POOR.
+        player_manager.scoring_calculator.config.matchup_scoring = {
+            "IMPACT_SCALE": 100.0,
+            "THRESHOLDS": {"EXCELLENT": 25, "GOOD": 18, "POOR": 12, "VERY_POOR": 6},
+            "MULTIPLIERS": {"EXCELLENT": 1.25, "GOOD": 1.10, "POOR": 0.90, "VERY_POOR": 0.70},
+            "WEIGHT": 1.0,
+        }
+        base_score = 100.0
+
+        # 0 sentinel (no opponent info): guard short-circuits -> 0.0 bonus, empty reason (AC1/AC3).
+        test_player.matchup_score = 0
+        zero_result, zero_reason = player_manager.scoring_calculator._apply_matchup_multiplier(test_player, base_score)
+        assert zero_result == pytest.approx(100.0, abs=0.1)
+        assert zero_reason == ""
+
+        # Real worst-tier rank (1): NOT caught by the == 0 guard -> classifies VERY_POOR (AC2/AC4).
+        test_player.matchup_score = 1
+        real_result, real_reason = player_manager.scoring_calculator._apply_matchup_multiplier(test_player, base_score)
+        expected_bonus = (100.0 * 0.70) - 100.0  # single-VERY_POOR bonus = -30.0
+        assert real_result == pytest.approx(base_score + expected_bonus, abs=0.1)
+        assert "VERY_POOR" in real_reason
+
+
+
+class TestGetRankDifferenceSentinel:
+    """T44/D4 (C-cleanup): get_rank_difference returns None (was 0) at its no-info sentinel sites."""
+
+    def test_no_matchup_available_returns_none(self):
+        """When matchup data is unavailable, get_rank_difference returns None (defense-in-depth, AC4/D4).
+
+        Dead path today (sole caller load_players_from_csv has zero callers); this asserts the source
+        sentinel now agrees with the live _apply_matchup_multiplier 0-guard if that path is ever revived.
+        """
+        tdm = TeamDataManager.__new__(TeamDataManager)
+        tdm.is_matchup_available = Mock(return_value=False)
+        assert tdm.get_rank_difference("KC", "RB") is None
 
 
 class TestDraftOrderBonus:
