@@ -1,7 +1,7 @@
 """
 Accuracy Simulation Package
 
-Contains classes for evaluating scoring algorithm accuracy using MAE.
+Contains classes for evaluating scoring-config accuracy; selection optimizes pairwise ranking accuracy (MAE is a reported diagnostic).
 """
 
 

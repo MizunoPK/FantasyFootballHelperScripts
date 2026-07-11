@@ -2,7 +2,8 @@
 Run Accuracy Simulation
 
 CLI tool for running accuracy simulation to find optimal scoring algorithm
-parameters. Evaluates prediction accuracy using MAE (Mean Absolute Error).
+parameters. Selection optimizes pairwise ranking accuracy; MAE (Mean Absolute Error)
+is computed and reported as a diagnostic only.
 
 Uses tournament optimization where each parameter is optimized across ALL 4
 weekly horizons (week1-5, week6-9, week10-13, week14-17) before moving
@@ -20,6 +21,9 @@ Examples:
 
     # Run with more test values per parameter
     python run_accuracy_simulation.py --test-values 7
+
+Selection optimizes pairwise ranking accuracy, NOT MAE — do not revert `is_better_than` to an
+MAE comparison; the League Helper's decisions are ordinal. MAE is a reported diagnostic only.
 
 Author: Kai Mizuno
 """
