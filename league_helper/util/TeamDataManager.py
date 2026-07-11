@@ -458,7 +458,7 @@ class TeamDataManager:
         self._load_team_data()
         self._calculate_rankings()
 
-    def get_rank_difference(self, player_team: str, position: str) -> int:
+    def get_rank_difference(self, player_team: str, position: str) -> Optional[int]:
         """
         Calculate matchup quality using position-specific defense rankings.
 
@@ -467,15 +467,16 @@ class TeamDataManager:
             position: Player position (QB, RB, WR, TE, K, DST, DEF, D/ST)
 
         Returns:
-            Opponent defense rank integer, or 0 if data unavailable
+            Opponent defense rank integer (1-32), or None if no matchup info
+            (team data unavailable / no opponent / opponent rank not found).
         """
         if not self.is_matchup_available():
-            return 0
+            return None
 
         opponent_abbr = self.get_team_opponent(player_team)
         if opponent_abbr is None:
             self.logger.debug(f"No opponent found for team: {player_team}")
-            return 0
+            return None
 
         from league_helper.constants import DEFENSE_POSITIONS
         is_defense = position in DEFENSE_POSITIONS
@@ -487,7 +488,7 @@ class TeamDataManager:
 
         if opponent_rank is None:
             self.logger.debug(f"Opponent rank not found: {opponent_abbr} vs {position}")
-            return 0
+            return None
 
         matchup_score = int(opponent_rank)
 
