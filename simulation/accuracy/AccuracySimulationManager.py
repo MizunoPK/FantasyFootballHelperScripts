@@ -2,8 +2,10 @@
 Accuracy Simulation Manager
 
 Orchestrates accuracy simulation to find optimal scoring algorithm configurations.
-Evaluates prediction accuracy by comparing calculated projected points to actual
-player performance using MAE (Mean Absolute Error).
+Selection optimizes pairwise ranking accuracy (how often the config orders any two
+players the same way their actual fantasy points do); MAE (Mean Absolute Error)
+between calculated projected points and actual player performance is also computed,
+but only as a reported diagnostic.
 
 Mode:
 - Weekly: Evaluates per-week projection accuracy
@@ -11,9 +13,12 @@ Mode:
   - Used for Starter Helper and Trade Simulator modes
 
 Unlike win-rate simulation:
-- No randomness (deterministic MAE calculation)
-- Lower MAE is better
+- No randomness (deterministic ranking-metric / MAE calculation, no random draws)
+- Selection optimizes pairwise ranking accuracy (higher is better); MAE is a reported diagnostic
 - Tests prediction parameters (17 params) not strategy parameters
+
+Selection optimizes pairwise ranking accuracy, NOT MAE — do not revert `is_better_than` to an
+MAE comparison; the League Helper's decisions are ordinal. MAE is a reported diagnostic only.
 
 Author: Kai Mizuno
 """

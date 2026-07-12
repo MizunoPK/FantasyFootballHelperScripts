@@ -2,13 +2,16 @@
 Accuracy Results Manager
 
 Manages results storage and best configuration tracking for accuracy simulation.
-Similar to shared/ResultsManager but optimized for MAE-based comparisons
-where lower is better (opposite of win-rate).
+Similar to shared/ResultsManager but selection compares pairwise ranking accuracy
+(higher is better); MAE is stored as a reported diagnostic.
 
 Key differences from win-rate ResultsManager:
-- Lower MAE is better (not higher win-rate)
+- Selection optimizes pairwise ranking accuracy (higher is better); MAE stored as a diagnostic
 - Metrics include mae, player_count instead of win_rate, total_wins
 - Output folder naming: accuracy_optimal_TIMESTAMP/
+
+Selection optimizes pairwise ranking accuracy, NOT MAE — do not revert `is_better_than` to an
+MAE comparison; the League Helper's decisions are ordinal. MAE is a reported diagnostic only.
 
 Author: Kai Mizuno
 """
@@ -42,7 +45,7 @@ class AccuracyConfigPerformance:
 
     Attributes:
         config_dict (dict): The configuration that was tested
-        mae (float): Mean Absolute Error (lower is better)
+        mae (float): Mean Absolute Error — diagnostic metric (lower = better absolute-value fidelity; NOT the selection objective)
         player_count (int): Number of players evaluated
         total_error (float): Sum of all absolute errors
         config_value (Optional[Any]): Value of the parameter that was tested (tournament mode)
@@ -225,7 +228,7 @@ class AccuracyResultsManager:
     Manages accuracy simulation results storage and tracking.
 
     Tracks best configurations per week range and saves results to disk.
-    Uses "lower is better" comparison (opposite of win-rate).
+    Selects the best config by pairwise ranking accuracy (higher is better); MAE is a reported diagnostic.
 
     Attributes:
         output_dir (Path): Base directory for results
