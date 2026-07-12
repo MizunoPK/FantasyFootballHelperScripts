@@ -257,53 +257,62 @@ class AccuracyCalculator:
 
             for season_name, result in season_results:
                 if result.overall_metrics:
-                    pairwise_values.append(result.overall_metrics.pairwise_accuracy)
-                    top_5_values.append(result.overall_metrics.top_5_accuracy)
-                    top_10_values.append(result.overall_metrics.top_10_accuracy)
-                    top_20_values.append(result.overall_metrics.top_20_accuracy)
+                    om = result.overall_metrics
+                    if om.pairwise_accuracy is not None:
+                        pairwise_values.append(om.pairwise_accuracy)
+                    if om.top_5_accuracy is not None:
+                        top_5_values.append(om.top_5_accuracy)
+                    if om.top_10_accuracy is not None:
+                        top_10_values.append(om.top_10_accuracy)
+                    if om.top_20_accuracy is not None:
+                        top_20_values.append(om.top_20_accuracy)
 
-                    if not np.isnan(result.overall_metrics.spearman_correlation):
-                        z = np.arctanh(result.overall_metrics.spearman_correlation)
+                    if om.spearman_correlation is not None and not np.isnan(om.spearman_correlation):
+                        z = np.arctanh(np.clip(om.spearman_correlation, -1 + 1e-6, 1 - 1e-6))
                         spearman_z_values.append(z)
 
                 if result.by_position:
                     for pos, metrics in result.by_position.items():
                         if pos in position_data:
-                            position_data[pos]['pairwise'].append(metrics.pairwise_accuracy)
-                            position_data[pos]['top_5'].append(metrics.top_5_accuracy)
-                            position_data[pos]['top_10'].append(metrics.top_10_accuracy)
-                            position_data[pos]['top_20'].append(metrics.top_20_accuracy)
+                            if metrics.pairwise_accuracy is not None:
+                                position_data[pos]['pairwise'].append(metrics.pairwise_accuracy)
+                            if metrics.top_5_accuracy is not None:
+                                position_data[pos]['top_5'].append(metrics.top_5_accuracy)
+                            if metrics.top_10_accuracy is not None:
+                                position_data[pos]['top_10'].append(metrics.top_10_accuracy)
+                            if metrics.top_20_accuracy is not None:
+                                position_data[pos]['top_20'].append(metrics.top_20_accuracy)
 
-                            if not np.isnan(metrics.spearman_correlation):
-                                z = np.arctanh(metrics.spearman_correlation)
+                            if metrics.spearman_correlation is not None and not np.isnan(metrics.spearman_correlation):
+                                z = np.arctanh(np.clip(metrics.spearman_correlation, -1 + 1e-6, 1 - 1e-6))
                                 position_data[pos]['spearman_z'].append(z)
 
-            if pairwise_values:
-                overall_spearman = 0.0
+            if pairwise_values or top_5_values or top_10_values or top_20_values or spearman_z_values:
+                overall_spearman = None
                 if spearman_z_values:
                     z_mean = np.mean(spearman_z_values)
                     overall_spearman = float(np.tanh(z_mean))
 
                 overall_metrics = RankingMetrics(
-                    pairwise_accuracy=float(np.mean(pairwise_values)),
-                    top_5_accuracy=float(np.mean(top_5_values)),
-                    top_10_accuracy=float(np.mean(top_10_values)),
-                    top_20_accuracy=float(np.mean(top_20_values)),
+                    pairwise_accuracy=float(np.mean(pairwise_values)) if pairwise_values else None,
+                    top_5_accuracy=float(np.mean(top_5_values)) if top_5_values else None,
+                    top_10_accuracy=float(np.mean(top_10_values)) if top_10_values else None,
+                    top_20_accuracy=float(np.mean(top_20_values)) if top_20_values else None,
                     spearman_correlation=overall_spearman
                 )
 
             for pos, data in position_data.items():
-                if data['pairwise']:
-                    pos_spearman = 0.0
+                if data['pairwise'] or data['top_5'] or data['top_10'] or data['top_20'] or data['spearman_z']:
+                    pos_spearman = None
                     if data['spearman_z']:
                         z_mean = np.mean(data['spearman_z'])
                         pos_spearman = float(np.tanh(z_mean))
 
                     by_position[pos] = RankingMetrics(
-                        pairwise_accuracy=float(np.mean(data['pairwise'])),
-                        top_5_accuracy=float(np.mean(data['top_5'])),
-                        top_10_accuracy=float(np.mean(data['top_10'])),
-                        top_20_accuracy=float(np.mean(data['top_20'])),
+                        pairwise_accuracy=float(np.mean(data['pairwise'])) if data['pairwise'] else None,
+                        top_5_accuracy=float(np.mean(data['top_5'])) if data['top_5'] else None,
+                        top_10_accuracy=float(np.mean(data['top_10'])) if data['top_10'] else None,
+                        top_20_accuracy=float(np.mean(data['top_20'])) if data['top_20'] else None,
                         spearman_correlation=pos_spearman
                     )
 
@@ -336,7 +345,8 @@ class AccuracyCalculator:
         Note:
             - Filters to players with actual >= 3 points (meaningful performances)
             - Skips tie comparisons (when actual points are equal)
-            - Returns 0.0 if insufficient data or all ties
+            - Returns np.nan (insufficient-data sentinel) if fewer than 2 qualifying
+              players or all ties; a genuine 0.0 accuracy (all comparisons wrong) is 0.0
         """
         players = []
         for player in player_data:
@@ -345,7 +355,7 @@ class AccuracyCalculator:
 
         if len(players) < 2:
             self.logger.debug(f"Not enough {position} players for pairwise accuracy")
-            return 0.0
+            return np.nan
 
         correct = 0
         total = 0
@@ -367,7 +377,7 @@ class AccuracyCalculator:
 
         if total == 0:
             self.logger.warning(f"No valid comparisons for {position} (all ties)")
-            return 0.0
+            return np.nan
 
         accuracy = correct / total
         self.logger.debug(
@@ -397,7 +407,8 @@ class AccuracyCalculator:
 
         Note:
             - Filters to players with actual >= 3 points
-            - Returns 0.0 if fewer than N players available
+            - Returns np.nan (insufficient-data sentinel) if fewer than N qualifying
+              players; a genuine 0.0 overlap is returned as 0.0
             - Uses set intersection formula: overlap / N
         """
         players = []
@@ -413,7 +424,7 @@ class AccuracyCalculator:
             self.logger.debug(
                 f"Only {len(players)} {position} players, less than top-{n}"
             )
-            return 0.0
+            return np.nan
 
         predicted_top_n = set([
             name for name, proj, _ in
@@ -452,7 +463,8 @@ class AccuracyCalculator:
 
         Note:
             - Filters to players with actual >= 3 points
-            - Returns 0.0 if insufficient data or zero variance
+            - Returns np.nan (insufficient-data sentinel) if fewer than 2 qualifying
+              players, zero variance, or a calculation error; a genuine 0.0 correlation is 0.0
             - Handles NaN and division by zero gracefully
         """
         projected_scores = []
@@ -465,7 +477,7 @@ class AccuracyCalculator:
 
         if len(projected_scores) < 2:
             self.logger.debug(f"Not enough {position} players for correlation")
-            return 0.0
+            return np.nan
 
         try:
             corr, pvalue = spearmanr(projected_scores, actual_scores)
@@ -474,7 +486,7 @@ class AccuracyCalculator:
                 self.logger.warning(
                     f"Zero variance in {position} predictions or actuals"
                 )
-                return 0.0
+                return np.nan
 
             self.logger.debug(
                 f"{position} Spearman correlation: {corr:.3f} (p={pvalue:.4f})"
@@ -485,7 +497,7 @@ class AccuracyCalculator:
             self.logger.warning(
                 f"Correlation calculation failed for {position}: {e}"
             )
-            return 0.0
+            return np.nan
 
     def calculate_ranking_metrics_for_season(
         self,
@@ -512,11 +524,14 @@ class AccuracyCalculator:
 
         position_data = {pos: {
             'pairwise_sum': 0.0,
+            'pairwise_count': 0,
             'top_5_sum': 0.0,
+            'top_5_count': 0,
             'top_10_sum': 0.0,
+            'top_10_count': 0,
             'top_20_sum': 0.0,
-            'spearman_z_values': [],
-            'week_count': 0
+            'top_20_count': 0,
+            'spearman_z_values': []
         } for pos in positions}
 
         for week_num, player_list in player_data_by_week.items():
@@ -524,43 +539,51 @@ class AccuracyCalculator:
                 pairwise = self.calculate_pairwise_accuracy(
                     player_list, pos
                 )
-                position_data[pos]['pairwise_sum'] += pairwise
+                if not np.isnan(pairwise):
+                    position_data[pos]['pairwise_sum'] += pairwise
+                    position_data[pos]['pairwise_count'] += 1
 
                 for n in [5, 10, 20]:
                     top_n = self.calculate_top_n_accuracy(
                         player_list, n, pos
                     )
-                    position_data[pos][f'top_{n}_sum'] += top_n
+                    if not np.isnan(top_n):
+                        position_data[pos][f'top_{n}_sum'] += top_n
+                        position_data[pos][f'top_{n}_count'] += 1
 
                 corr = self.calculate_spearman_correlation(
                     player_list, pos
                 )
-                if not np.isnan(corr) and corr != 0.0:
-                    z = np.arctanh(corr)
+                if not np.isnan(corr):
+                    z = np.arctanh(np.clip(corr, -1 + 1e-6, 1 - 1e-6))
                     position_data[pos]['spearman_z_values'].append(z)
-
-                position_data[pos]['week_count'] += 1
 
         by_position = {}
         for pos in positions:
             data = position_data[pos]
-            week_count = data['week_count']
 
-            if week_count == 0:
-                self.logger.debug(f"No data for {pos}, skipping ranking metrics")
+            has_any_metric = (
+                data['pairwise_count'] > 0
+                or data['top_5_count'] > 0
+                or data['top_10_count'] > 0
+                or data['top_20_count'] > 0
+                or bool(data['spearman_z_values'])
+            )
+            if not has_any_metric:
+                self.logger.debug(f"No valid data for {pos}, skipping ranking metrics")
                 continue
 
             if data['spearman_z_values']:
                 z_mean = np.mean(data['spearman_z_values'])
                 spearman = float(np.tanh(z_mean))
             else:
-                spearman = 0.0
+                spearman = None
 
             by_position[pos] = RankingMetrics(
-                pairwise_accuracy=data['pairwise_sum'] / week_count,
-                top_5_accuracy=data['top_5_sum'] / week_count,
-                top_10_accuracy=data['top_10_sum'] / week_count,
-                top_20_accuracy=data['top_20_sum'] / week_count,
+                pairwise_accuracy=(data['pairwise_sum'] / data['pairwise_count']) if data['pairwise_count'] > 0 else None,
+                top_5_accuracy=(data['top_5_sum'] / data['top_5_count']) if data['top_5_count'] > 0 else None,
+                top_10_accuracy=(data['top_10_sum'] / data['top_10_count']) if data['top_10_count'] > 0 else None,
+                top_20_accuracy=(data['top_20_sum'] / data['top_20_count']) if data['top_20_count'] > 0 else None,
                 spearman_correlation=spearman
             )
 
@@ -569,16 +592,21 @@ class AccuracyCalculator:
             for data in position_data.values():
                 all_z_values.extend(data['spearman_z_values'])
 
-            overall_spearman = 0.0
+            overall_spearman = None
             if all_z_values:
                 z_mean = np.mean(all_z_values)
                 overall_spearman = float(np.tanh(z_mean))
 
+            pairwise_vals = [m.pairwise_accuracy for m in by_position.values() if m.pairwise_accuracy is not None]
+            top_5_vals = [m.top_5_accuracy for m in by_position.values() if m.top_5_accuracy is not None]
+            top_10_vals = [m.top_10_accuracy for m in by_position.values() if m.top_10_accuracy is not None]
+            top_20_vals = [m.top_20_accuracy for m in by_position.values() if m.top_20_accuracy is not None]
+
             overall_metrics = RankingMetrics(
-                pairwise_accuracy=float(np.mean([m.pairwise_accuracy for m in by_position.values()])),
-                top_5_accuracy=float(np.mean([m.top_5_accuracy for m in by_position.values()])),
-                top_10_accuracy=float(np.mean([m.top_10_accuracy for m in by_position.values()])),
-                top_20_accuracy=float(np.mean([m.top_20_accuracy for m in by_position.values()])),
+                pairwise_accuracy=float(np.mean(pairwise_vals)) if pairwise_vals else None,
+                top_5_accuracy=float(np.mean(top_5_vals)) if top_5_vals else None,
+                top_10_accuracy=float(np.mean(top_10_vals)) if top_10_vals else None,
+                top_20_accuracy=float(np.mean(top_20_vals)) if top_20_vals else None,
                 spearman_correlation=overall_spearman
             )
         else:

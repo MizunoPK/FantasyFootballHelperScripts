@@ -992,6 +992,34 @@ class TestAccuracyConfigPerformanceRanking:
         assert perf2.by_position['QB'].pairwise_accuracy == 0.71
         assert perf2.by_position['RB'].pairwise_accuracy == 0.66
 
+    def test_roundtrip_with_none_metric_json_null(self):
+        """A None metric field serializes to JSON null and round-trips back to None (D6)."""
+        metrics = RankingMetrics(
+            pairwise_accuracy=0.68,
+            top_5_accuracy=0.80,
+            top_10_accuracy=None,
+            top_20_accuracy=None,
+            spearman_correlation=None
+        )
+
+        perf1 = AccuracyConfigPerformance(
+            config_dict={'test': 'config'},
+            mae=5.5,
+            player_count=100,
+            total_error=550.0,
+            overall_metrics=metrics
+        )
+
+        serialized = json.dumps(perf1.to_dict())
+        assert '"top_10_accuracy": null' in serialized
+        assert '"spearman_correlation": null' in serialized
+
+        perf2 = AccuracyConfigPerformance.from_dict(json.loads(serialized))
+        assert perf2.overall_metrics.pairwise_accuracy == 0.68
+        assert perf2.overall_metrics.top_10_accuracy is None
+        assert perf2.overall_metrics.top_20_accuracy is None
+        assert perf2.overall_metrics.spearman_correlation is None
+
 
 class TestPropagateToConfigs:
     """Tests for propagate_to_configs module-level function (F02 spec TS1)."""

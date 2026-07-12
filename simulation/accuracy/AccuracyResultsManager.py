@@ -39,6 +39,30 @@ WEEK_RANGES = {
 }
 
 
+def format_metric_pct(value: Optional[float]) -> str:
+    """Format a ranking metric as a percentage for display.
+
+    Args:
+        value: A metric in 0.0-1.0, or None when the metric had zero valid weeks.
+
+    Returns:
+        The value formatted as a percentage (e.g. "68.0%"), or "N/A" when value is None.
+    """
+    return f"{value:.1%}" if value is not None else "N/A"
+
+
+def format_metric_corr(value: Optional[float]) -> str:
+    """Format a correlation metric to three decimals for display.
+
+    Args:
+        value: A correlation in -1.0 to 1.0, or None when the metric had zero valid weeks.
+
+    Returns:
+        The value formatted to three decimals (e.g. "0.820"), or "N/A" when value is None.
+    """
+    return f"{value:.3f}" if value is not None else "N/A"
+
+
 class AccuracyConfigPerformance:
     """
     Performance record for a configuration in accuracy simulation.
@@ -310,9 +334,9 @@ class AccuracyResultsManager:
             if perf.overall_metrics:
                 self.logger.info(
                     f"New best for {week_range_key}: "
-                    f"Pairwise={perf.overall_metrics.pairwise_accuracy:.1%} | "
-                    f"Top-10={perf.overall_metrics.top_10_accuracy:.1%} | "
-                    f"Spearman={perf.overall_metrics.spearman_correlation:.3f} | "
+                    f"Pairwise={format_metric_pct(perf.overall_metrics.pairwise_accuracy)} | "
+                    f"Top-10={format_metric_pct(perf.overall_metrics.top_10_accuracy)} | "
+                    f"Spearman={format_metric_corr(perf.overall_metrics.spearman_correlation)} | "
                     f"MAE={perf.mae:.4f} (diag) | "
                     f"(prev MAE: {previous_mae})"
                 )
@@ -390,9 +414,9 @@ class AccuracyResultsManager:
                 if perf.overall_metrics:
                     self.logger.info(
                         f"  {week_key}: "
-                        f"Pairwise={perf.overall_metrics.pairwise_accuracy:.1%} | "
-                        f"Top-10={perf.overall_metrics.top_10_accuracy:.1%} | "
-                        f"Spearman={perf.overall_metrics.spearman_correlation:.3f} | "
+                        f"Pairwise={format_metric_pct(perf.overall_metrics.pairwise_accuracy)} | "
+                        f"Top-10={format_metric_pct(perf.overall_metrics.top_10_accuracy)} | "
+                        f"Spearman={format_metric_corr(perf.overall_metrics.spearman_correlation)} | "
                         f"MAE={perf.mae:.4f} (diag) | "
                         f"players={perf.player_count} | value={perf.config_value}"
                     )
@@ -717,9 +741,9 @@ class AccuracyResultsManager:
         for week_key, perf in self.best_configs.items():
             if perf and perf.overall_metrics:
                 lines.append(
-                    f"  {week_key}: Pairwise={perf.overall_metrics.pairwise_accuracy:.1%}"
-                    f" | Top-10={perf.overall_metrics.top_10_accuracy:.1%}"
-                    f" | Spearman={perf.overall_metrics.spearman_correlation:.3f}"
+                    f"  {week_key}: Pairwise={format_metric_pct(perf.overall_metrics.pairwise_accuracy)}"
+                    f" | Top-10={format_metric_pct(perf.overall_metrics.top_10_accuracy)}"
+                    f" | Spearman={format_metric_corr(perf.overall_metrics.spearman_correlation)}"
                     f" | MAE={perf.mae:.4f} (diag) ({perf.player_count} players)"
                 )
             elif perf:
