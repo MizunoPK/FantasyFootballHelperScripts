@@ -38,7 +38,12 @@ from simulation.shared.ConfigGenerator import ConfigGenerator
 from simulation.shared.ProgressTracker import ProgressTracker
 from simulation.shared.config_cleanup import cleanup_accuracy_intermediate_folders
 from simulation.accuracy.AccuracyCalculator import AccuracyCalculator, AccuracyResult
-from simulation.accuracy.AccuracyResultsManager import AccuracyResultsManager, WEEK_RANGES
+from simulation.accuracy.AccuracyResultsManager import (
+    AccuracyResultsManager,
+    WEEK_RANGES,
+    format_metric_pct,
+    format_metric_corr,
+)
 from league_helper.util.PlayerManager import PlayerManager
 from league_helper.util.ConfigManager import ConfigManager
 from league_helper.util.TeamDataManager import TeamDataManager
@@ -517,13 +522,15 @@ class AccuracySimulationManager:
             result.overall_metrics = overall_metrics
             result.by_position = by_position
 
-            if overall_metrics and overall_metrics.pairwise_accuracy < PAIRWISE_ACCURACY_WARN_THRESHOLD:
+            if (overall_metrics and overall_metrics.pairwise_accuracy is not None
+                    and overall_metrics.pairwise_accuracy < PAIRWISE_ACCURACY_WARN_THRESHOLD):
                 self.logger.warning(
                     f"[{season_path.name}] Low pairwise accuracy: "
                     f"{overall_metrics.pairwise_accuracy:.1%} (threshold: {PAIRWISE_ACCURACY_WARN_THRESHOLD:.0%})"
                 )
 
-            if overall_metrics and overall_metrics.top_10_accuracy < TOP_10_ACCURACY_WARN_THRESHOLD:
+            if (overall_metrics and overall_metrics.top_10_accuracy is not None
+                    and overall_metrics.top_10_accuracy < TOP_10_ACCURACY_WARN_THRESHOLD):
                 self.logger.warning(
                     f"[{season_path.name}] Low top-10 accuracy: "
                     f"{overall_metrics.top_10_accuracy:.1%} (threshold: {TOP_10_ACCURACY_WARN_THRESHOLD:.0%})"
@@ -729,9 +736,9 @@ class AccuracySimulationManager:
                 if best_perf.overall_metrics:
                     self.logger.info(
                         f"  {week_key}: "
-                        f"Pairwise={best_perf.overall_metrics.pairwise_accuracy:.1%} | "
-                        f"Top-10={best_perf.overall_metrics.top_10_accuracy:.1%} | "
-                        f"Spearman={best_perf.overall_metrics.spearman_correlation:.3f} | "
+                        f"Pairwise={format_metric_pct(best_perf.overall_metrics.pairwise_accuracy)} | "
+                        f"Top-10={format_metric_pct(best_perf.overall_metrics.top_10_accuracy)} | "
+                        f"Spearman={format_metric_corr(best_perf.overall_metrics.spearman_correlation)} | "
                         f"MAE={best_perf.mae:.4f} (diag) "
                         f"(test_{test_idx})"
                     )
