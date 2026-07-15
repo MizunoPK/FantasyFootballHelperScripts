@@ -257,8 +257,10 @@ class PlayerScoringCalculator:
             player: Player to calculate schedule for
 
         Returns:
-            Average defense rank of future opponents (1-32)
-            Higher rank = easier schedule (facing worse defenses)
+            Average opponent rank of future opponents (1-32): the opposing
+            offense's rank for a DST, otherwise the opponent's
+            defense-vs-position rank.
+            Higher rank = easier schedule (facing weaker opponents)
             None if insufficient future games (< 2)
         """
         future_opponents = self.season_schedule_manager.get_future_opponents(
@@ -270,12 +272,16 @@ class PlayerScoringCalculator:
             self.logger.debug(f"{player.name}: No future games (end of season)")
             return None
 
+        is_defense = player.position in Constants.DEFENSE_POSITIONS
         defense_ranks = []
         for opponent in future_opponents:
-            rank = self.team_data_manager.get_team_defense_vs_position_rank(
-                opponent,
-                player.position
-            )
+            if is_defense:
+                rank = self.team_data_manager.get_team_offensive_rank(opponent)
+            else:
+                rank = self.team_data_manager.get_team_defense_vs_position_rank(
+                    opponent,
+                    player.position
+                )
             if rank is not None:
                 defense_ranks.append(rank)
 
@@ -290,7 +296,7 @@ class PlayerScoringCalculator:
 
         self.logger.debug(
             f"{player.name} schedule: {len(defense_ranks)} future games, "
-            f"avg defense rank: {avg_rank:.1f}"
+            f"avg opponent rank: {avg_rank:.1f}"
         )
 
         return avg_rank
@@ -538,7 +544,7 @@ class PlayerScoringCalculator:
         bonus = (impact_scale * multiplier) - impact_scale
 
         new_score = player_score + bonus
-        reason = f"Schedule: {rating} (avg opp def rank: {schedule_value:.1f}, {bonus:+.1f} pts)"
+        reason = f"Schedule: {rating} (avg opp rank: {schedule_value:.1f}, {bonus:+.1f} pts)"
 
         self.logger.debug(
             f"{player.name}: Schedule bonus {bonus:+.1f} pts "

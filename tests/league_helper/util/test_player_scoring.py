@@ -677,6 +677,49 @@ class TestScoringIntegration:
         assert len(result.reason) > 0
 
 
+class TestScheduleSideOfBall:
+    """Test _calculate_schedule_value side-of-ball selection (T48).
+
+    A DST scores off the opposing offense, so its schedule strength must be
+    graded by each future opponent's offensive rank; every other position is
+    still graded by the opponent's defense-vs-position rank.
+    """
+
+    def test_dst_schedule_uses_opponent_offensive_rank(
+        self, scoring_calculator, mock_team_data_manager
+    ):
+        """For a DST, the schedule value averages the opponents' offensive ranks."""
+        # Arrange: distinct per-opponent values so the driving accessor is provable.
+        mock_team_data_manager.get_team_offensive_rank.side_effect = [30, 28, 26]
+        mock_team_data_manager.get_team_defense_vs_position_rank.side_effect = [8, 6, 4]
+        dst = FantasyPlayer(id=1, name="Test DST", team="KC", position="DST")
+
+        # Act
+        result = scoring_calculator._calculate_schedule_value(dst)
+
+        # Assert: offensive ranks drove the average; defense-vs-position untouched.
+        assert result == pytest.approx(28.0)
+        assert mock_team_data_manager.get_team_offensive_rank.call_count == 3
+        mock_team_data_manager.get_team_defense_vs_position_rank.assert_not_called()
+
+    def test_non_dst_schedule_uses_defense_vs_position_rank(
+        self, scoring_calculator, mock_team_data_manager
+    ):
+        """For a non-DST (RB), the schedule value still uses defense-vs-position rank."""
+        # Arrange: distinct per-opponent values so the driving accessor is provable.
+        mock_team_data_manager.get_team_offensive_rank.side_effect = [30, 28, 26]
+        mock_team_data_manager.get_team_defense_vs_position_rank.side_effect = [8, 6, 4]
+        rb = FantasyPlayer(id=2, name="Test RB", team="KC", position="RB")
+
+        # Act
+        result = scoring_calculator._calculate_schedule_value(rb)
+
+        # Assert: defense-vs-position ranks drove the average; offensive untouched.
+        assert result == pytest.approx(6.0)
+        assert mock_team_data_manager.get_team_defense_vs_position_rank.call_count == 3
+        mock_team_data_manager.get_team_offensive_rank.assert_not_called()
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v", "--tb=short"])
 
