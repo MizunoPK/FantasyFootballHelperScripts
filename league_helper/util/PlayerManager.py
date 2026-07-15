@@ -65,7 +65,10 @@ class PlayerManager:
         file_str (str): Path to players.csv file
         team (FantasyTeam): Current fantasy team roster
         players (List[FantasyPlayer]): All available players
-        max_projection (int): Maximum fantasy points projection (for normalization)
+        max_projection (float): Max projection used as the score-normalization denominator — the
+            max rest-of-season projection in the JSON load path (matches the scoring numerator's
+            current_week..17 window; see T47), recomputed per week from fantasy_points by
+            set_player_data in the win-rate sim
 
     Example:
         >>> player_manager = PlayerManager(data_folder, config, team_data_manager, season_schedule_manager)
@@ -272,7 +275,9 @@ class PlayerManager:
 
         Side Effects:
             - Sets self.players to combined list from all position files
-            - Calculates self.max_projection from all players
+            - Calculates self.max_projection as the max rest-of-season projection across all
+              players (the score-normalization denominator; shares the numerator's
+              current_week..17 window — see the NOTE at the assignment)
             - Calls self.load_team() to initialize team roster
 
         """
