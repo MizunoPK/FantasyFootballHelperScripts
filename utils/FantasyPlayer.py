@@ -129,7 +129,7 @@ class FantasyPlayer:
             FantasyPlayer instance
         """
         adp_value = data.get('average_draft_position') or data.get('adp')
-        processed_adp = safe_float_conversion(adp_value, 0.0) if adp_value is not None else None
+        processed_adp = safe_float_conversion(adp_value, None) if adp_value is not None else None
 
         return cls(
             id=safe_int_conversion(data.get('id'), 0),
