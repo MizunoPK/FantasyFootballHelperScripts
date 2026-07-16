@@ -17,7 +17,6 @@ import pytest
 import json
 import tempfile
 import shutil
-import random
 import copy
 from pathlib import Path
 from unittest.mock import patch, Mock
@@ -944,17 +943,26 @@ class TestHorizonBasedInterface:
             assert test_values[horizon][0] == 4
 
     def test_test_values_deterministic_with_seed(self, tmp_path):
-        """Test values should be deterministic when using same seed"""
+        """Two generators built with the same explicit seed produce equal arrays.
+
+        Re-expressed for the T51 private-RNG design: candidate draws come from the
+        per-generator ConfigGenerator._rng (seeded from the constructor's `seed`
+        argument), not the process-global `random` module. Determinism therefore
+        holds without any external random.seed() call; two generators sharing an
+        explicit seed match, and a generator with a different seed differs.
+        """
         config_folder = self.create_6_file_config_folder(tmp_path)
 
-        generator1 = ConfigGenerator(config_folder, num_test_values=5)
-        random.seed(42)
+        generator1 = ConfigGenerator(config_folder, num_test_values=5, seed=42)
         values1 = generator1.generate_horizon_test_values('ADP_SCORING_WEIGHT')
 
-        generator2 = ConfigGenerator(config_folder, num_test_values=5)
-        random.seed(42)
+        generator2 = ConfigGenerator(config_folder, num_test_values=5, seed=42)
         values2 = generator2.generate_horizon_test_values('ADP_SCORING_WEIGHT')
 
+        generator3 = ConfigGenerator(config_folder, num_test_values=5, seed=7)
+        values3 = generator3.generate_horizon_test_values('ADP_SCORING_WEIGHT')
+
         assert values1['shared'] == values2['shared']
+        assert values1['shared'] != values3['shared']
 
 

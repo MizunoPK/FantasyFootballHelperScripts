@@ -34,7 +34,7 @@ from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
 from utils.LoggingManager import get_logger
-from simulation.shared.ConfigGenerator import ConfigGenerator
+from simulation.shared.ConfigGenerator import ConfigGenerator, DEFAULT_ACCURACY_SEED
 from simulation.shared.ProgressTracker import ProgressTracker
 from simulation.shared.config_cleanup import cleanup_accuracy_intermediate_folders
 from simulation.accuracy.AccuracyCalculator import AccuracyCalculator, AccuracyResult
@@ -81,7 +81,8 @@ class AccuracySimulationManager:
         num_test_values: int = 5,
         num_parameters_to_test: int = 1,
         max_workers: int = 8,
-        use_processes: bool = True
+        use_processes: bool = True,
+        seed: int = DEFAULT_ACCURACY_SEED
     ) -> None:
         """
         Initialize AccuracySimulationManager.
@@ -95,6 +96,8 @@ class AccuracySimulationManager:
             num_parameters_to_test (int): Number of parameters to test at once
             max_workers (int): Number of parallel workers for config evaluation
             use_processes (bool): Use ProcessPoolExecutor (True) or ThreadPoolExecutor (False)
+            seed (int): Seed threaded into ConfigGenerator's private candidate-value RNG
+                (default: DEFAULT_ACCURACY_SEED) so config selection is reproducible run-to-run.
         """
         self.logger = get_logger()
         self.logger.info("Initializing AccuracySimulationManager")
@@ -119,7 +122,8 @@ class AccuracySimulationManager:
 
         self.config_generator = ConfigGenerator(
             baseline_config_path,
-            num_test_values=num_test_values
+            num_test_values=num_test_values,
+            seed=seed
         )
         self.accuracy_calculator = AccuracyCalculator()
         self.results_manager = AccuracyResultsManager(output_dir, baseline_config_path)
