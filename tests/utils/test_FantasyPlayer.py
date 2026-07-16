@@ -7,8 +7,12 @@ factory methods, properties, and helper functions.
 Author: Kai Mizuno
 """
 
+from pathlib import Path
+
 import pytest
+
 from utils.FantasyPlayer import FantasyPlayer, safe_int_conversion, safe_float_conversion
+from league_helper.util.ConfigManager import ConfigManager
 
 
 class TestFantasyPlayerLockedIndicator:
@@ -274,6 +278,83 @@ class TestFromDict:
 
         player = FantasyPlayer.from_dict(data_new)
         assert player.average_draft_position == 9.5
+
+
+class TestFromDictUnparseableADP:
+    """Regression suite for the unparseable-ADP fix (T49).
+
+    A present-but-unparseable ADP must resolve to None (neutral), not 0.0 —
+    under the lower-is-better ADP direction, 0.0 scores best-tier (EXCELLENT)
+    instead of NEUTRAL. Mirrors the adjacent player_rating peer's None default.
+    """
+
+    def test_from_dict_unparseable_adp_yields_none(self):
+        """AC1: a present-but-unparseable ADP string parses to None, not 0.0."""
+        data = {
+            'id': 1,
+            'name': 'Garbage ADP',
+            'team': 'KC',
+            'position': 'QB',
+            'average_draft_position': 'N/A'
+        }
+
+        player = FantasyPlayer.from_dict(data)
+
+        assert player.average_draft_position is None
+
+    def test_from_dict_unparseable_adp_scores_neutral_not_best_tier(self):
+        """AC2: an unparseable ADP scores NEUTRAL, not EXCELLENT (best-tier)."""
+        config = ConfigManager(Path("data"))
+        data = {
+            'id': 2,
+            'name': 'Garbage ADP',
+            'team': 'KC',
+            'position': 'QB',
+            'average_draft_position': 'N/A'
+        }
+
+        player = FantasyPlayer.from_dict(data)
+        multiplier, label = config.get_adp_multiplier(player.adp)
+
+        assert label == "NEUTRAL"
+        assert multiplier == 1.0
+        # Pin the tier direction the fix depends on: the old 0.0 default scored
+        # EXCELLENT (best-tier), while None (the fix) scores NEUTRAL.
+        assert config.get_adp_multiplier(0.0)[1] == "EXCELLENT"
+        assert config.get_adp_multiplier(None)[1] == "NEUTRAL"
+
+    def test_from_dict_missing_adp_yields_none(self):
+        """AC3: a truly-missing ADP (both keys absent) still yields None."""
+        data = {
+            'id': 3,
+            'name': 'No ADP',
+            'team': 'DAL',
+            'position': 'RB'
+        }
+
+        player = FantasyPlayer.from_dict(data)
+
+        assert player.average_draft_position is None
+
+    def test_from_dict_valid_adp_still_parses(self):
+        """AC4: a valid ADP (float or numeric string) still parses to its value."""
+        player_float = FantasyPlayer.from_dict({
+            'id': 4,
+            'name': 'Float ADP',
+            'team': 'BUF',
+            'position': 'WR',
+            'average_draft_position': 15.3
+        })
+        player_string = FantasyPlayer.from_dict({
+            'id': 5,
+            'name': 'String ADP',
+            'team': 'SF',
+            'position': 'TE',
+            'average_draft_position': '15.3'
+        })
+
+        assert player_float.average_draft_position == 15.3
+        assert player_string.average_draft_position == 15.3
 
 
 class TestPlayerMethods:
