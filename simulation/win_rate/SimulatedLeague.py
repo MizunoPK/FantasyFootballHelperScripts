@@ -552,6 +552,8 @@ class SimulatedLeague:
 
             self._update_team_rankings(week_num)
 
+            self._refresh_matchup_scores()
+
             matchups = self.season_schedule[week_num - 1]
 
             week = Week(week_num, matchups)
@@ -575,6 +577,22 @@ class SimulatedLeague:
             if hasattr(team, 'team_data_mgr') and team.team_data_mgr:
                 team.team_data_mgr.set_current_week(week_num)
 
+
+    def _refresh_matchup_scores(self) -> None:
+        """Recompute per-player matchup scores for each team's projected PlayerManager.
+
+        The win-rate season advances weeks in place without rebuilding PlayerManagers, so a
+        load-time populate alone would freeze matchup_score at the construction week. Called
+        each week in run_season AFTER _update_team_rankings (which advances the shared
+        TeamDataManager via set_current_week), this recomputes matchup_score from the now-current
+        week so the win-rate sim's matchup factor matches the scored week. All PlayerManagers and
+        the team share one TeamDataManager instance, so the refresh reads the advanced week.
+        Only projected_pm is refreshed — it is the matchup-scored PlayerManager (Starter Helper
+        reads it in DraftHelperTeam.set_weekly_lineup); actual_pm is not matchup-scored.
+        """
+        for team in self.teams:
+            if hasattr(team, 'projected_pm') and team.projected_pm:
+                team.projected_pm.refresh_matchup_scores()
 
     def get_draft_helper_results(self) -> Tuple[int, int, float]:
         """

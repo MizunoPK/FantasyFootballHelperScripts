@@ -98,6 +98,7 @@ def _make_player_manager(data_folder, config):
     pm.max_projection = 0.0
     pm.logger = Mock()
     pm.load_team = Mock()
+    pm.team_data_manager = Mock()
     pm.scoring_calculator = PlayerScoringCalculator(
         config,
         pm,
