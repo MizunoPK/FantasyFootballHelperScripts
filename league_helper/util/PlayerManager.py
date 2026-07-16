@@ -336,6 +336,8 @@ class PlayerManager:
         self.players = all_players
         self.logger.debug(f"All position files loaded: {len(self.players)} total players across all positions")
 
+        self.refresh_matchup_scores()
+
         if self.players:
             # NOTE (T47): fantasy_points stays the full-season sum(projected_points); the
             # normalization DENOMINATOR intentionally uses the rest-of-season projection so it
@@ -350,6 +352,24 @@ class PlayerManager:
         self.load_team()
 
         return True
+
+    def refresh_matchup_scores(self) -> None:
+        """Recompute each loaded player's matchup_score from the current TeamDataManager week.
+
+        Mirrors the population the deprecated CSV path performs (load_players_from_csv):
+        assigns TeamDataManager.get_rank_difference(team, position) — an opponent-defense
+        rank (1-32) or None on genuine no-info (bye / team data unavailable) — verbatim to
+        each player. Called at load (load_players_from_json) and per-week in the win-rate
+        season loop so the matchup factor reflects the correct week's opponent. Matchup is
+        week-dependent, so it is computed here, never precomputed into the JSON files.
+
+        Returns:
+            None. Mutates each FantasyPlayer.matchup_score in self.players in place.
+        """
+        for player in self.players:
+            player.matchup_score = self.team_data_manager.get_rank_difference(
+                player.team, player.position
+            )
 
     def calculate_max_weekly_projection(self, week_num: int) -> float:
         """

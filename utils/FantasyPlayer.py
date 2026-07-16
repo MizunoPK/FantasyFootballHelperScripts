@@ -106,7 +106,7 @@ class FantasyPlayer:
     score: float = 0.0
     weighted_projection: float = 0.0
     consistency: float = 0.0
-    matchup_score: int = 0
+    matchup_score: Optional[int] = None
 
     team_offensive_rank: Optional[int] = None
     team_defensive_rank: Optional[int] = None
