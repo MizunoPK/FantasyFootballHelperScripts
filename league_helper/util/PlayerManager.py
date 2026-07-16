@@ -275,6 +275,9 @@ class PlayerManager:
 
         Side Effects:
             - Sets self.players to combined list from all position files
+            - Populates each loaded player's matchup_score from the current TeamDataManager
+              week (via refresh_matchup_scores()), so the matchup factor discriminates and
+              survives reloads
             - Calculates self.max_projection as the max rest-of-season projection across all
               players (the score-normalization denominator; shares the numerator's
               current_week..17 window — see the NOTE at the assignment)
