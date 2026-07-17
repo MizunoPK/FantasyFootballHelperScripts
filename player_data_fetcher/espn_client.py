@@ -19,7 +19,7 @@ from typing import Dict, List, Any, Optional, Set
 from urllib.parse import urlparse
 
 import httpx
-from tenacity import retry, stop_after_attempt, wait_random_exponential
+from tenacity import retry, stop_after_attempt, wait_random_exponential, retry_if_not_exception_type
 
 from player_data_fetcher.player_data_models import ESPNPlayerData, ScoringFormat
 from player_data_fetcher.fantasy_points_calculator import FantasyPointsExtractor, FantasyPointsConfig
@@ -141,7 +141,7 @@ class BaseAPIClient:
                 f"Add a mapping to BaseAPIClient._get_fixture_filename()."
             )
 
-    @retry(stop=stop_after_attempt(3), wait=wait_random_exponential(multiplier=1, max=10))
+    @retry(stop=stop_after_attempt(3), wait=wait_random_exponential(multiplier=1, max=10), retry=retry_if_not_exception_type(FileNotFoundError))
     async def _make_request(self, method: str, url: str, **kwargs) -> Dict[str, Any]:
         """
         Make HTTP request with automatic retry logic and rate limiting.
@@ -163,6 +163,7 @@ class BaseAPIClient:
             ESPNRateLimitError: If ESPN returns 429 (Too Many Requests)
             ESPNServerError: If ESPN returns 500+ (server error)
             ESPNAPIError: For other HTTP errors (400-499) or network failures
+            FileNotFoundError: If ESPN_FIXTURE_DIR is set and the fixture file is missing; non-retryable in fixture mode (excluded from the retry predicate, raised on the first attempt).
         """
         self.logger.debug(f"Making request to: {url}")
 
