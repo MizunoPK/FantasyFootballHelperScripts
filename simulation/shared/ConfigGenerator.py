@@ -52,6 +52,15 @@ from itertools import product
 from utils.LoggingManager import get_logger
 from simulation.shared.config_constants import BASE_CONFIG_PARAMS, WEEK_SPECIFIC_PARAMS
 
+# Default seed for the accuracy engine's private candidate-value RNG (T51). A fixed
+# default makes the plain `run_accuracy_simulation.py` command reproducible run-to-run;
+# the `--seed N` CLI flag overrides it. 42 matches the value the existing suite already
+# uses for candidate generation. Mirrors the win-rate private-RNG pattern
+# (simulation/win_rate/SimulatedLeague.py) but diverges (approved) on the default:
+# win-rate defaults to None/OS-entropy for deliberate Monte-Carlo exploration, whereas
+# the accuracy tournament requires default reproducibility.
+DEFAULT_ACCURACY_SEED = 42
+
 
 class ConfigGenerator:
     """
@@ -303,7 +312,7 @@ class ConfigGenerator:
         logger.info(f"Loaded 5 horizon configs from folder: {folder_path}")
         return horizon_configs
 
-    def __init__(self, baseline_config_path: Path, num_test_values: int = 5) -> None:
+    def __init__(self, baseline_config_path: Path, num_test_values: int = 5, seed: int = DEFAULT_ACCURACY_SEED) -> None:
         """
         Initialize ConfigGenerator with baseline configuration from a folder.
 
@@ -315,6 +324,10 @@ class ConfigGenerator:
             baseline_config_path (Path): Path to config folder (NOT a single JSON file)
             num_test_values (int): Number of random values to generate per parameter (default: 5)
                 This creates (num_test_values + 1) total values per parameter (optimal + random)
+            seed (int): Seed for the private candidate-value RNG (default: DEFAULT_ACCURACY_SEED).
+                A fixed default makes candidate generation reproducible run-to-run; pass a
+                different value (e.g. via the accuracy sim's --seed flag) for a different
+                reproducible candidate set.
 
         Raises:
             ValueError: If path is a file instead of folder, or folder is missing required files
@@ -339,6 +352,10 @@ class ConfigGenerator:
         self.param_definitions = self.PARAM_DEFINITIONS
         self.num_test_values = num_test_values
         self.baseline_folder = baseline_config_path
+        # Private per-generator RNG (T51): isolates candidate draws from the process-global
+        # `random` module so accuracy config selection is deterministic run-to-run. Mirrors
+        # SimulatedLeague._rng (simulation/win_rate/SimulatedLeague.py:120).
+        self._rng = random.Random(seed)
 
         self._cached_test_values = {}
         self._current_param = None
@@ -1284,9 +1301,9 @@ class ConfigGenerator:
 
         for _ in range(self.num_test_values):
             if precision == 0:
-                val = random.randint(int(min_val), int(max_val))
+                val = self._rng.randint(int(min_val), int(max_val))
             else:
-                val = random.uniform(min_val, max_val)
+                val = self._rng.uniform(min_val, max_val)
                 val = round(val, precision)
             values.append(val)
 

@@ -37,6 +37,7 @@ from typing import Dict, Optional
 
 from simulation.accuracy.AccuracySimulationManager import AccuracySimulationManager
 from simulation.accuracy.AccuracyResultsManager import propagate_to_configs
+from simulation.shared.ConfigGenerator import DEFAULT_ACCURACY_SEED
 from utils.LoggingManager import setup_logger, get_logger
 
 
@@ -270,6 +271,17 @@ def main() -> None:
     )
 
     parser.add_argument(
+        '--seed',
+        type=int,
+        default=DEFAULT_ACCURACY_SEED,
+        metavar='N',
+        help=f"Seed for candidate-config generation (default: {DEFAULT_ACCURACY_SEED}). "
+             "With the fixed default, repeated runs on identical inputs adopt identical "
+             "configs across all 4 horizons. Pass --seed N for a different reproducible "
+             "candidate set."
+    )
+
+    parser.add_argument(
         '--max-workers',
         type=int,
         default=DEFAULT_MAX_WORKERS,
@@ -441,7 +453,8 @@ def main() -> None:
             num_test_values=args.test_values,
             num_parameters_to_test=args.num_params,
             max_workers=args.max_workers,
-            use_processes=args.use_processes
+            use_processes=args.use_processes,
+            seed=args.seed
         )
     except Exception as e:
         logger.error(f"Failed to initialize AccuracySimulationManager: {e}")
