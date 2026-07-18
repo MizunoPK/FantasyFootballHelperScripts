@@ -86,26 +86,26 @@ def parse_args(argv=None):
         '--drafted-data-path',
         type=str,
         default=str(_DATA_ROOT / 'drafted_data.csv'),
-        help='Path to drafted data CSV (default: ../data/drafted_data.csv)'
+        help='Path to drafted data CSV (default: <repo>/data/drafted_data.csv)'
     )
 
     parser.add_argument(
         '--position-json-output',
         type=str,
         default=str(_DATA_ROOT / 'player_data'),
-        help='Output directory for position JSON files (default: ../data/player_data)'
+        help='Output directory for position JSON files (default: <repo>/data/player_data)'
     )
     parser.add_argument(
         '--team-data-folder',
         type=str,
         default=str(_DATA_ROOT / 'team_data'),
-        help='Output directory for team data files (default: ../data/team_data)'
+        help='Output directory for team data files (default: <repo>/data/team_data)'
     )
     parser.add_argument(
         '--game-data-csv',
         type=str,
         default=str(_DATA_ROOT / 'game_data.csv'),
-        help='Output path for game data CSV (default: ../data/game_data.csv)'
+        help='Output path for game data CSV (default: <repo>/data/game_data.csv)'
     )
 
     parser.add_argument(
