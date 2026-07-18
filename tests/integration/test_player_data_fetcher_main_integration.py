@@ -15,30 +15,31 @@ from player_data_fetcher.player_data_models import ProjectionData
 class TestPlayerDataFetcherMainIntegration:
     """Integration tests for the empty response guard in player_data_fetcher_main.main()."""
 
-    _SETTINGS_DICT = {
-        'season': 2025,
-        'current_nfl_week': 1,
-        'request_timeout': 30,
-        'rate_limit_delay': 0.2,
-        'espn_player_limit': 2000,
-        'position_json_output': '../data/player_data',
-        'team_data_folder': '../data/team_data',
-        'game_data_csv': '../data/game_data.csv',
-        'enable_historical_save': False,
-        'enable_game_data': False,
-        'load_drafted_data': False,
-        'drafted_data_path': '../data/drafted_data.csv',
-        'my_team_name': 'Test Team',
-        'progress_frequency': 10,
-        'log_level': 'INFO',
-        'logging_to_file': False,
-        'e2e_test': True,
-        'scoring_format': 'ppr',
-    }
+    def _settings_dict(self, tmp_path):
+        return {
+            'season': 2025,
+            'current_nfl_week': 1,
+            'request_timeout': 30,
+            'rate_limit_delay': 0.2,
+            'espn_player_limit': 2000,
+            'position_json_output': str(tmp_path / 'player_data'),
+            'team_data_folder': str(tmp_path / 'team_data'),
+            'game_data_csv': str(tmp_path / 'game_data.csv'),
+            'enable_historical_save': False,
+            'enable_game_data': False,
+            'load_drafted_data': False,
+            'drafted_data_path': str(tmp_path / 'drafted_data.csv'),
+            'my_team_name': 'Test Team',
+            'progress_frequency': 10,
+            'log_level': 'INFO',
+            'logging_to_file': False,
+            'e2e_test': True,
+            'scoring_format': 'ppr',
+        }
 
     @patch('player_data_fetcher.player_data_fetcher_main.NFLProjectionsCollector')
     @patch('player_data_fetcher.player_data_fetcher_main.setup_logger')
-    def test_guard_fires_on_zero_total_players(self, mock_setup, mock_collector_class):
+    def test_guard_fires_on_zero_total_players(self, mock_setup, mock_collector_class, tmp_path):
         """AC3/AC5: Guard fires when all positions return zero players; export_data not called."""
         mock_collector = mock_collector_class.return_value
         mock_collector.collect_all_projections = AsyncMock(return_value={
@@ -49,14 +50,14 @@ class TestPlayerDataFetcherMainIntegration:
         mock_collector.save_to_historical_data = Mock(return_value=False)
 
         with pytest.raises(SystemExit) as exc_info:
-            asyncio.run(main(self._SETTINGS_DICT))
+            asyncio.run(main(self._settings_dict(tmp_path)))
 
         assert exc_info.value.code == 1
         mock_collector.export_data.assert_not_called()
 
     @patch('player_data_fetcher.player_data_fetcher_main.NFLProjectionsCollector')
     @patch('player_data_fetcher.player_data_fetcher_main.setup_logger')
-    def test_guard_fires_on_insufficient_total_players(self, mock_setup, mock_collector_class):
+    def test_guard_fires_on_insufficient_total_players(self, mock_setup, mock_collector_class, tmp_path):
         """AC4: Guard fires when total player count is below MIN_EXPECTED_PLAYER_COUNT (100)."""
         mock_collector = mock_collector_class.return_value
         mock_collector.collect_all_projections = AsyncMock(return_value={
@@ -68,7 +69,7 @@ class TestPlayerDataFetcherMainIntegration:
         mock_collector.save_to_historical_data = Mock(return_value=False)
 
         with pytest.raises(SystemExit) as exc_info:
-            asyncio.run(main(self._SETTINGS_DICT))
+            asyncio.run(main(self._settings_dict(tmp_path)))
 
         assert exc_info.value.code == 1
         mock_collector.export_data.assert_not_called()
@@ -76,7 +77,7 @@ class TestPlayerDataFetcherMainIntegration:
     @patch('player_data_fetcher.player_data_fetcher_main.validate_output_files')
     @patch('player_data_fetcher.player_data_fetcher_main.NFLProjectionsCollector')
     @patch('player_data_fetcher.player_data_fetcher_main.setup_logger')
-    def test_guard_passes_on_sufficient_players(self, mock_setup, mock_collector_class, mock_validate):
+    def test_guard_passes_on_sufficient_players(self, mock_setup, mock_collector_class, mock_validate, tmp_path):
         """AC5: Guard does not fire when total player count is at or above 100; export_data called."""
         mock_collector = mock_collector_class.return_value
         mock_collector.collect_all_projections = AsyncMock(return_value={
@@ -86,13 +87,13 @@ class TestPlayerDataFetcherMainIntegration:
         mock_collector.fetch_game_data = Mock(return_value=False)
         mock_collector.save_to_historical_data = Mock(return_value=False)
 
-        asyncio.run(main(self._SETTINGS_DICT))
+        asyncio.run(main(self._settings_dict(tmp_path)))
 
         mock_collector.export_data.assert_called_once()
 
     @patch('player_data_fetcher.player_data_fetcher_main.NFLProjectionsCollector')
     @patch('player_data_fetcher.player_data_fetcher_main.setup_logger')
-    def test_error_logged_on_guard_trigger(self, mock_setup, mock_collector_class):
+    def test_error_logged_on_guard_trigger(self, mock_setup, mock_collector_class, tmp_path):
         """AC6: logger.error called with message containing player count and threshold when guard triggers."""
         mock_collector = mock_collector_class.return_value
         mock_collector.collect_all_projections = AsyncMock(return_value={
@@ -103,7 +104,7 @@ class TestPlayerDataFetcherMainIntegration:
         mock_collector.save_to_historical_data = Mock(return_value=False)
 
         with pytest.raises(SystemExit):
-            asyncio.run(main(self._SETTINGS_DICT))
+            asyncio.run(main(self._settings_dict(tmp_path)))
 
         mock_setup.return_value.error.assert_called_once()
         error_call_str = str(mock_setup.return_value.error.call_args)
@@ -113,7 +114,7 @@ class TestPlayerDataFetcherMainIntegration:
     @patch('player_data_fetcher.player_data_fetcher_main.validate_output_files')
     @patch('player_data_fetcher.player_data_fetcher_main.NFLProjectionsCollector')
     @patch('player_data_fetcher.player_data_fetcher_main.setup_logger')
-    def test_game_data_exception_logs_warning_and_continues(self, mock_setup, mock_collector_class, mock_validate):
+    def test_game_data_exception_logs_warning_and_continues(self, mock_setup, mock_collector_class, mock_validate, tmp_path):
         """R3: Exception from fetch_game_data logs warning and execution continues."""
         mock_collector = mock_collector_class.return_value
         mock_collector.collect_all_projections = AsyncMock(return_value={
@@ -123,7 +124,7 @@ class TestPlayerDataFetcherMainIntegration:
         mock_collector.fetch_game_data = Mock(side_effect=RuntimeError("network failure"))
         mock_collector.save_to_historical_data = Mock(return_value=False)
 
-        asyncio.run(main(self._SETTINGS_DICT))
+        asyncio.run(main(self._settings_dict(tmp_path)))
 
         mock_setup.return_value.warning.assert_called_once()
         warning_call_str = str(mock_setup.return_value.warning.call_args)

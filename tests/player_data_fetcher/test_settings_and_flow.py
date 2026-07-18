@@ -18,8 +18,8 @@ from player_data_fetcher.player_data_models import ProjectionData
 
 
 
-def _make_settings_dict(**overrides):
-    """Build a minimal valid settings dict, with all required keys."""
+def _make_settings_dict(tmp_path, **overrides):
+    """Build a minimal valid settings dict rooted at tmp_path, with all required keys."""
     base = {
         'e2e_test': False,
         'log_level': 'INFO',
@@ -28,10 +28,10 @@ def _make_settings_dict(**overrides):
         'season': 2025,
         'my_team_name': 'Sea Sharp',
         'load_drafted_data': False,
-        'drafted_data_path': '../data/drafted_data.csv',
-        'position_json_output': '../data/player_data',
-        'team_data_folder': '../data/team_data',
-        'game_data_csv': '../data/game_data.csv',
+        'drafted_data_path': str(tmp_path / 'drafted_data.csv'),
+        'position_json_output': str(tmp_path / 'player_data'),
+        'team_data_folder': str(tmp_path / 'team_data'),
+        'game_data_csv': str(tmp_path / 'game_data.csv'),
         'enable_historical_save': False,
         'enable_game_data': False,
         'espn_player_limit': 100,
@@ -75,15 +75,15 @@ class TestSettingsDataclass:
         for field in required_fields:
             assert hasattr(settings, field), f"Missing field: {field}"
 
-    def test_create_settings_from_dict_maps_current_nfl_week(self):
+    def test_create_settings_from_dict_maps_current_nfl_week(self, tmp_path):
         """3.4: create_settings_from_dict maps dict 'current_nfl_week' to Settings field"""
-        d = _make_settings_dict(current_nfl_week=10)
+        d = _make_settings_dict(tmp_path, current_nfl_week=10)
         settings = create_settings_from_dict(d)
         assert settings.current_nfl_week == 10
 
-    def test_create_settings_from_dict_with_multiple_fields(self):
+    def test_create_settings_from_dict_with_multiple_fields(self, tmp_path):
         """3.5: create_settings_from_dict correctly maps all provided fields"""
-        d = _make_settings_dict(season=2023, current_nfl_week=5, log_level='DEBUG')
+        d = _make_settings_dict(tmp_path, season=2023, current_nfl_week=5, log_level='DEBUG')
         settings = create_settings_from_dict(d)
         assert settings.season == 2023
         assert settings.current_nfl_week == 5
@@ -102,9 +102,9 @@ class TestMainSignature:
     """Test main() function signature and integration with settings"""
 
     @pytest.mark.asyncio
-    async def test_main_accepts_settings_dict(self):
+    async def test_main_accepts_settings_dict(self, tmp_path):
         """I-4: main(settings_dict) builds Settings from dict and runs"""
-        settings_dict = _make_settings_dict()
+        settings_dict = _make_settings_dict(tmp_path)
         with patch('player_data_fetcher.player_data_fetcher_main.NFLProjectionsCollector') as mock_cls:
             mock_collector = MagicMock()
             mock_collector.collect_all_projections = AsyncMock(return_value={
@@ -127,9 +127,9 @@ class TestMainSignature:
         param = sig.parameters['settings_dict']
         assert param.default is None
 
-    def test_log_level_passed_through_to_settings(self):
+    def test_log_level_passed_through_to_settings(self, tmp_path):
         """I-14: log_level from settings dict is stored in Settings"""
-        d = _make_settings_dict(log_level='WARNING')
+        d = _make_settings_dict(tmp_path, log_level='WARNING')
         settings = create_settings_from_dict(d)
         assert settings.log_level == 'WARNING'
 
@@ -138,9 +138,9 @@ class TestMainSignature:
 class TestSettingsEdgeCases:
     """Edge case tests for Settings construction"""
 
-    def test_extra_keys_in_dict_do_not_cause_error(self):
+    def test_extra_keys_in_dict_do_not_cause_error(self, tmp_path):
         """E-8: Extra keys in args_dict are ignored (not accessed by create_settings_from_dict)"""
-        d = _make_settings_dict()
+        d = _make_settings_dict(tmp_path)
         d['completely_unknown_key'] = 'surprise_value'
         settings = create_settings_from_dict(d)
         assert settings.season == d['season']
@@ -151,9 +151,9 @@ class TestSettingsEdgeCases:
             settings = Settings()
             assert settings.season != 1999
 
-    def test_week_to_current_nfl_week_mapping(self):
+    def test_week_to_current_nfl_week_mapping(self, tmp_path):
         """E-19: Runner's --week arg maps to 'current_nfl_week' in dict → Settings.current_nfl_week"""
-        d = _make_settings_dict(current_nfl_week=7)
+        d = _make_settings_dict(tmp_path, current_nfl_week=7)
         settings = create_settings_from_dict(d)
         assert settings.current_nfl_week == 7
 
@@ -178,6 +178,7 @@ class TestE2EGracefulSkip:
         """11.2 / E-1: E2E mode + missing drafted data file → no FileNotFoundError"""
         missing_path = str(tmp_path / 'nonexistent_drafted.csv')
         settings_dict = _make_settings_dict(
+            tmp_path,
             e2e_test=True,
             load_drafted_data=True,
             drafted_data_path=missing_path,
@@ -199,6 +200,7 @@ class TestE2EGracefulSkip:
         drafted_csv = tmp_path / 'drafted.csv'
         drafted_csv.write_text('player_name,team_name\nTest Player,Sea Sharp\n')
         settings_dict = _make_settings_dict(
+            tmp_path,
             e2e_test=True,
             load_drafted_data=True,
             drafted_data_path=str(drafted_csv),
@@ -219,6 +221,7 @@ class TestE2EGracefulSkip:
         """E-2: Non-E2E mode + missing drafted data file → FileNotFoundError"""
         missing_path = str(tmp_path / 'nonexistent_drafted.csv')
         settings_dict = _make_settings_dict(
+            tmp_path,
             e2e_test=False,
             load_drafted_data=True,
             drafted_data_path=missing_path,
@@ -230,6 +233,7 @@ class TestE2EGracefulSkip:
     def test_e2e_settings_flag_is_true(self, tmp_path):
         """E-1: e2e_test=True in settings_dict → Settings.e2e_test is True"""
         settings_dict = _make_settings_dict(
+            tmp_path,
             e2e_test=True,
             drafted_data_path=str(tmp_path / 'nonexistent.csv'),
         )
@@ -241,10 +245,10 @@ class TestE2EGracefulSkip:
 class TestLogLevelWiring:
     """Test that log_level flows correctly from settings dict through to Settings"""
 
-    def test_log_level_from_dict_stored_in_settings(self):
+    def test_log_level_from_dict_stored_in_settings(self, tmp_path):
         """13.2: log_level in settings dict is correctly stored in Settings"""
         for level in ['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']:
-            d = _make_settings_dict(log_level=level)
+            d = _make_settings_dict(tmp_path, log_level=level)
             settings = create_settings_from_dict(d)
             assert settings.log_level == level
 

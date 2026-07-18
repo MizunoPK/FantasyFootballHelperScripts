@@ -20,6 +20,9 @@ from pathlib import Path
 from player_data_fetcher.player_data_fetcher_main import main
 
 
+_DATA_ROOT = Path(__file__).parent / 'data'
+
+
 def parse_args(argv=None):
     """Parse command-line arguments for the player data fetcher runner."""
     parser = argparse.ArgumentParser(
@@ -82,26 +85,26 @@ def parse_args(argv=None):
     parser.add_argument(
         '--drafted-data-path',
         type=str,
-        default='../data/drafted_data.csv',
+        default=str(_DATA_ROOT / 'drafted_data.csv'),
         help='Path to drafted data CSV (default: ../data/drafted_data.csv)'
     )
 
     parser.add_argument(
         '--position-json-output',
         type=str,
-        default='../data/player_data',
+        default=str(_DATA_ROOT / 'player_data'),
         help='Output directory for position JSON files (default: ../data/player_data)'
     )
     parser.add_argument(
         '--team-data-folder',
         type=str,
-        default='../data/team_data',
+        default=str(_DATA_ROOT / 'team_data'),
         help='Output directory for team data files (default: ../data/team_data)'
     )
     parser.add_argument(
         '--game-data-csv',
         type=str,
-        default='../data/game_data.csv',
+        default=str(_DATA_ROOT / 'game_data.csv'),
         help='Output path for game data CSV (default: ../data/game_data.csv)'
     )
 

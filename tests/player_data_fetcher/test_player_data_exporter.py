@@ -152,12 +152,15 @@ class TestDataExporterKAI10:
         assert exporter.my_team_name == 'Sea Sharp'
         assert exporter.load_drafted_data is True
 
-    def test_exporter_defaults_match_old_config_values(self, tmp_path):
-        """I-8: DataExporter defaults preserve backward compat with old config values"""
+    def test_exporter_defaults_anchored_to_repo_data_root(self, tmp_path):
+        """I-8 (T41): DataExporter path defaults are repo-anchored absolute paths, no longer cwd-relative '../data/...'"""
         exporter = DataExporter(output_dir=str(tmp_path))
-        assert exporter.position_json_output == '../data/player_data'
-        assert exporter.team_data_folder == '../data/team_data'
-        assert exporter.drafted_data_path == '../data/drafted_data.csv'
+        assert Path(exporter.position_json_output).is_absolute()
+        assert exporter.position_json_output.endswith('data/player_data')
+        assert Path(exporter.team_data_folder).is_absolute()
+        assert exporter.team_data_folder.endswith('data/team_data')
+        assert Path(exporter.drafted_data_path).is_absolute()
+        assert exporter.drafted_data_path.endswith('data/drafted_data.csv')
 
     def test_exporter_custom_team_name_used(self, tmp_path):
         """E-14: DataExporter with custom my_team_name stores it correctly"""
