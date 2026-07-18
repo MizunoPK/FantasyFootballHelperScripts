@@ -24,6 +24,9 @@ from utils.LoggingManager import get_logger
 from utils.DraftedRosterManager import DraftedRosterManager
 
 
+_DATA_ROOT = Path(__file__).parent.parent / 'data'
+
+
 class DataExporter:
     """Handles exporting projection data to position JSON and team CSV formats with async I/O"""
 
@@ -32,10 +35,10 @@ class DataExporter:
         self,
         output_dir: str,
         current_nfl_week: int = 17,
-        position_json_output: str = '../data/player_data',
-        team_data_folder: str = '../data/team_data',
+        position_json_output: str = str(_DATA_ROOT / 'player_data'),
+        team_data_folder: str = str(_DATA_ROOT / 'team_data'),
         load_drafted_data: bool = True,
-        drafted_data_path: str = '../data/drafted_data.csv',
+        drafted_data_path: str = str(_DATA_ROOT / 'drafted_data.csv'),
         my_team_name: str = 'Sea Sharp'
     ):
         self.output_dir = Path(output_dir)
