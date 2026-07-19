@@ -73,6 +73,7 @@ def store(tmp_path):
     """A real SweepResultsManager holding the winning combination as the sole entry."""
     mgr = SweepResultsManager(tmp_path / "sweep.json")
     mgr.update(_WINNER_ID, _WINNER_PARAMS, 0.75, 75, 100)
+    mgr.set_discriminating(True)
     return mgr
 
 
@@ -140,6 +141,7 @@ class TestConfigPromoter:
         mgr.update("1_alpha.json", _LIVE_PARAMS, 0.9, 9, 10)
         mgr.update("1_alpha.json", _LIVE_PARAMS, 0.0, 0, 10)
         mgr.update(_WINNER_ID, _WINNER_PARAMS, 0.6, 6, 10)
+        mgr.set_discriminating(True)
 
         with _patch_strategies(
             ("1_alpha.json", alpha_order, "Alpha"),
@@ -157,6 +159,7 @@ class TestConfigPromoter:
 
     def test_empty_store_raises_no_write(self, tmp_path, config_path):
         mgr = SweepResultsManager(tmp_path / "empty.json")
+        mgr.set_discriminating(True)
         before = config_path.read_bytes()
         with pytest.raises(ConfigurationError):
             promote_best_combination(mgr, Path("unused"), config_path)
@@ -254,10 +257,12 @@ class TestConfigPromoter:
         store_a = SweepResultsManager(tmp_path / "store_a.json")
         store_a.update(smaller_id, shared_params, 0.5, 50, 100)  # X first
         store_a.update(larger_id, shared_params, 0.5, 50, 100)   # then Y
+        store_a.set_discriminating(True)
 
         store_b = SweepResultsManager(tmp_path / "store_b.json")
         store_b.update(larger_id, shared_params, 0.5, 50, 100)   # Y first
         store_b.update(smaller_id, shared_params, 0.5, 50, 100)  # then X
+        store_b.set_discriminating(True)
 
         strategies = (
             (smaller_id, smaller_order, "Smaller"),
@@ -276,6 +281,56 @@ class TestConfigPromoter:
         assert result_a["strategy_id"] == smaller_id
         assert result_b["strategy_id"] == smaller_id
         assert result_a["strategy_id"] == result_b["strategy_id"]
+
+
+class TestPromoteGuard:
+    """T54/D3: promote guard blocks non-discriminating stores, passes discriminating ones."""
+
+    def test_compute_promotion_blocks_when_flag_absent(self, tmp_path, config_path):
+        """Guard blocks when discriminating flag absent (pre-fix store)."""
+        mgr = SweepResultsManager(tmp_path / "sweep.json")
+        mgr.update(_WINNER_ID, _WINNER_PARAMS, 0.75, 75, 100)
+        # Do NOT call set_discriminating — pre-fix store
+        before = config_path.read_bytes()
+
+        with pytest.raises(ConfigurationError, match="non-discriminating"):
+            compute_promotion(mgr, Path("unused"), config_path)
+
+        assert config_path.read_bytes() == before
+
+    def test_compute_promotion_blocks_when_flag_false(self, tmp_path, config_path):
+        """Guard blocks when discriminating flag explicitly False."""
+        mgr = SweepResultsManager(tmp_path / "sweep.json")
+        mgr.update(_WINNER_ID, _WINNER_PARAMS, 0.75, 75, 100)
+        mgr.set_discriminating(False)
+        before = config_path.read_bytes()
+
+        with pytest.raises(ConfigurationError, match="non-discriminating"):
+            compute_promotion(mgr, Path("unused"), config_path)
+
+        assert config_path.read_bytes() == before
+
+    def test_promote_best_combination_blocks_when_flag_absent(self, tmp_path, config_path):
+        """Guard blocks write entry point when flag absent."""
+        mgr = SweepResultsManager(tmp_path / "sweep.json")
+        mgr.update(_WINNER_ID, _WINNER_PARAMS, 0.75, 75, 100)
+        # Do NOT call set_discriminating
+        before = config_path.read_bytes()
+
+        with pytest.raises(ConfigurationError, match="non-discriminating"):
+            promote_best_combination(mgr, Path("unused"), config_path)
+
+        assert config_path.read_bytes() == before
+
+    def test_promote_succeeds_when_flag_true(self, store, config_path):
+        """Promote succeeds when store is discriminating."""
+        with _patch_strategies((_WINNER_ID, _WINNER_ORDER, "Winner")), \
+                patch(f"{MODULE}._has_uncommitted_changes", return_value=False):
+            result = promote_best_combination(store, Path("unused"), config_path)
+
+        # Promote succeeds -> result contains the promoted combination.
+        assert result["strategy_id"] == _WINNER_ID
+        assert result["param_values"] == _WINNER_PARAMS
 
 
 class TestComputePromotion:

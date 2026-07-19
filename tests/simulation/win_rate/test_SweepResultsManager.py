@@ -162,3 +162,43 @@ class TestSweepResultsManager:
         mgr.update("1_zero_rb.json", _param_values(), win_rate=0.6, wins=6, games=10)
         assert results_path.exists()
         assert not meta_path.exists()
+
+    def test_set_get_discriminating_round_trip(self, results_path):
+        """AC5: set_discriminating(True) -> get_discriminating() is True."""
+        mgr = SweepResultsManager(results_path)
+        mgr.set_discriminating(True)
+        assert mgr.get_discriminating() is True
+
+    def test_get_discriminating_defaults_false_when_absent(self, results_path):
+        """AC3: fresh store (no set) returns False; legacy store without key also returns False."""
+        mgr = SweepResultsManager(results_path)
+        assert mgr.get_discriminating() is False
+
+        # Also test a hand-written legacy store without the key.
+        pv = _param_values()
+        legacy_schema = {
+            "last_updated": "2026-06-01",
+            "combinations": {
+                mgr.make_combo_key("1_zero_rb.json", pv): {
+                    "strategy_id": "1_zero_rb.json",
+                    "param_values": pv,
+                    "best_single_run_win_rate": 0.6,
+                    "total_wins": 6,
+                    "total_games": 10,
+                    "total_runs": 1,
+                    "last_run": "2026-06-01",
+                }
+            },
+        }
+        results_path.write_text(json.dumps(legacy_schema))
+        mgr2 = SweepResultsManager(results_path)
+        assert mgr2.get_discriminating() is False
+
+    def test_discriminating_persists_across_reload(self, results_path):
+        """AC5: set_discriminating(True) -> reload -> get_discriminating() is True."""
+        mgr = SweepResultsManager(results_path)
+        mgr.set_discriminating(True)
+
+        # Construct a new manager instance over the same path.
+        mgr2 = SweepResultsManager(results_path)
+        assert mgr2.get_discriminating() is True

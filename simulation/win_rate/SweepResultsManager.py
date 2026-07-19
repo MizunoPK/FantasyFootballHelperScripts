@@ -60,7 +60,7 @@ class SweepResultsManager:
         """
         if not self._results_path.exists():
             logger.debug(f"No sweep results file at {self._results_path} — starting fresh")
-            self._data = {"last_updated": "", "combinations": {}, "input_fingerprint": "", "convergence": {}}
+            self._data = {"last_updated": "", "combinations": {}, "input_fingerprint": "", "convergence": {}, "discriminating": False}
             return
         try:
             with open(self._results_path, 'r', encoding='utf-8') as f:
@@ -68,11 +68,12 @@ class SweepResultsManager:
             logger.debug(f"Loaded sweep results: {len(self._data.get('combinations', {}))} combinations")
         except json.JSONDecodeError as e:
             logger.warning(f"Corrupted sweep results at {self._results_path}: {e} — starting fresh")
-            self._data = {"last_updated": "", "combinations": {}, "input_fingerprint": "", "convergence": {}}
+            self._data = {"last_updated": "", "combinations": {}, "input_fingerprint": "", "convergence": {}, "discriminating": False}
             return
         self._data.setdefault("combinations", {})
         self._data.setdefault("input_fingerprint", "")
         self._data.setdefault("convergence", {})
+        self._data.setdefault("discriminating", False)
 
     @staticmethod
     def compute_input_fingerprint(
@@ -229,6 +230,29 @@ class SweepResultsManager:
             str: The stored sha256 hex digest, or an empty string when never set.
         """
         return self._data.get("input_fingerprint", "")
+
+    def set_discriminating(self, value: bool) -> None:
+        """Set the top-level discriminating flag and persist atomically (T54/D3).
+
+        Recorded once per sweep run to certify the store was produced under the
+        measured-vs-incumbent (discriminating) regime. Read by config_promoter to
+        fail-safe-block a promote from a non-discriminating (or pre-fix) store.
+
+        Args:
+            value (bool): True to certify the store as discriminating.
+        """
+        self._data["discriminating"] = value
+        self._data["last_updated"] = datetime.date.today().isoformat()
+        self._save()
+
+    def get_discriminating(self) -> bool:
+        """Return the stored discriminating flag, or False when absent (T54/D3).
+
+        Returns:
+            bool: The stored flag; False when never set (a pre-fix store), so absence
+                fail-safe-blocks a promote.
+        """
+        return self._data.get("discriminating", False)
 
     def mark_config_progress(
         self,

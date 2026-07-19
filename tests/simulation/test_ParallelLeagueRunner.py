@@ -85,7 +85,7 @@ class TestRunSingleSimulation:
         runner.run_single_simulation(config, simulation_id=1)
 
         mock_league_class.assert_called_once_with(
-            config, runner.data_folder, None, naive_opponents=True, seed=None
+            config, runner.data_folder, None, measured_config_dict=None, naive_opponents=True, seed=None
         )
 
     @patch('simulation.win_rate.ParallelLeagueRunner.SimulatedLeague')
@@ -100,7 +100,7 @@ class TestRunSingleSimulation:
 
         result = runner.run_single_simulation(config, simulation_id=1)
 
-        mock_league_class.assert_called_once_with(config, runner.data_folder, None, naive_opponents=False, seed=None)
+        mock_league_class.assert_called_once_with(config, runner.data_folder, None, measured_config_dict=None, naive_opponents=False, seed=None)
 
         mock_league.run_draft.assert_called_once()
         mock_league.run_season.assert_called_once()
@@ -161,6 +161,46 @@ class TestRunSingleSimulation:
 
         assert result == (0, 17, 0.0)
 
+    @patch('simulation.win_rate.ParallelLeagueRunner.SimulatedLeague')
+    def test_measured_config_reaches_simulated_league_thread_mode(self, mock_league_class):
+        """AC1/AC4 wiring: measured_config_dict reaches SimulatedLeague in thread mode."""
+        mock_league = Mock()
+        mock_league.get_draft_helper_results.return_value = (10, 7, 1234.56)
+        mock_league_class.return_value = mock_league
+
+        runner = ParallelLeagueRunner(use_processes=False)  # Thread mode (default)
+        config = {'base': 'config'}
+        measured = {'measured': 'config'}
+
+        runner.run_single_simulation(config, simulation_id=1, measured_config_dict=measured)
+
+        # Assert measured_config_dict was passed to SimulatedLeague
+        mock_league_class.assert_called_once()
+        call_kwargs = mock_league_class.call_args.kwargs
+        assert call_kwargs['measured_config_dict'] == measured
+
+    def test_measured_config_packed_into_process_sim_args(self):
+        """AC1/AC4 wiring: measured_config_dict packed into process-mode sim_args tuple."""
+        from simulation.win_rate.ParallelLeagueRunner import _run_simulation_process
+
+        with patch('simulation.win_rate.ParallelLeagueRunner.SimulatedLeague') as mock_league_class:
+            mock_league = Mock()
+            mock_league.get_draft_helper_results.return_value = (10, 7, 1234.56)
+            mock_league_class.return_value = mock_league
+
+            config = {'base': 'config'}
+            measured = {'measured': 'config'}
+            data_folder = Path('/test/data')
+            args = (config, 0, data_folder, False, None, measured)
+
+            # Call _run_simulation_process directly with the 6-element tuple
+            _run_simulation_process(args)
+
+            # Assert measured_config_dict was passed to SimulatedLeague
+            mock_league_class.assert_called_once()
+            call_kwargs = mock_league_class.call_args.kwargs
+            assert call_kwargs['measured_config_dict'] == measured
+
 
 class TestRunSimulationsForConfig:
     """Test run_simulations_for_config functionality"""
@@ -211,7 +251,7 @@ class TestRunSimulationsForConfig:
 
         call_count = [0]
 
-        def create_league_with_failure(config, data_folder, preloaded_week_data=None, naive_opponents=False, seed=None):
+        def create_league_with_failure(config, data_folder, preloaded_week_data=None, measured_config_dict=None, naive_opponents=False, seed=None):
             mock_league = Mock()
             sim_num = call_count[0]
             call_count[0] += 1
@@ -294,7 +334,7 @@ class TestRunSimulationsForConfig:
 
         call_count = [0]
 
-        def create_league_with_failure(config, data_folder, preloaded_week_data=None, naive_opponents=False, seed=None):
+        def create_league_with_failure(config, data_folder, preloaded_week_data=None, measured_config_dict=None, naive_opponents=False, seed=None):
             mock_league = Mock()
             sim_num = call_count[0]
             call_count[0] += 1
@@ -444,7 +484,7 @@ class TestTestSingleRun:
         result = runner.test_single_run(config)
 
         assert result == (10, 7, 1234.56)
-        mock_league_class.assert_called_once_with(config, runner.data_folder, None, naive_opponents=False, seed=None)
+        mock_league_class.assert_called_once_with(config, runner.data_folder, None, measured_config_dict=None, naive_opponents=False, seed=None)
 
     @patch('simulation.win_rate.ParallelLeagueRunner.SimulatedLeague')
     def test_test_single_run_with_exception(self, mock_league_class):
@@ -566,7 +606,7 @@ class TestIntegrationScenarios:
 
         runner.test_single_run(config)
 
-        mock_league_class.assert_called_once_with(config, custom_folder, None, naive_opponents=False, seed=None)
+        mock_league_class.assert_called_once_with(config, custom_folder, None, measured_config_dict=None, naive_opponents=False, seed=None)
 
 
 class TestEdgeCases:

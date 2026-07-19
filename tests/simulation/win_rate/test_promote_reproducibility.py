@@ -91,7 +91,7 @@ class FakeEvaluator:
         progress = sum(_param_progress(name, param_values[name]) for name in DRAFT_SWEEP_PARAMS)
         return P_BASE + bonus + (GAP / len(DRAFT_SWEEP_PARAMS)) * progress
 
-    def evaluate(self, draft_order, param_values):
+    def evaluate(self, draft_order, param_values, incumbent_param_values=None):
         p = self._skill(draft_order, param_values)
         wins = 0
         for sim_id in range(N_DRAWS):

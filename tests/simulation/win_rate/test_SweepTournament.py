@@ -44,7 +44,7 @@ def _evaluator(rate_fn):
     """Mock evaluator: rate_fn(draft_order, param_values) -> win_rate in [0,1]."""
     ev = Mock()
 
-    def side_effect(draft_order, param_values):
+    def side_effect(draft_order, param_values, incumbent_param_values=None):
         wr = rate_fn(draft_order, param_values)
         return (int(round(wr * 10)), 10, wr)
 
@@ -65,7 +65,7 @@ def _wg_evaluator(wg_fn):
     """
     ev = Mock()
 
-    def side_effect(draft_order, param_values):
+    def side_effect(draft_order, param_values, incumbent_param_values=None):
         wins, games = wg_fn(draft_order, param_values)
         win_rate = wins / games if games else 0.0
         return (wins, games, win_rate)
@@ -426,6 +426,30 @@ class TestSweepTournament:
         assert "s1" in result
         # Guard held -> no adoption over a None running-best -> current stays at the seed.
         assert result["s1"]["param_values"]["PRIMARY_BONUS"] == 91
+
+    def test_trials_pass_running_best_incumbent(self, tmp_path):
+        """D2: trials pass incumbent_param_values=current, anchors remain 2-arg (T54/D2)."""
+        baseline = _baseline()
+        ev = _wg_evaluator(lambda do, pv: (600, 1000))
+        t = SweepTournament(ev, _store(tmp_path))
+        t.run([("s1", [{"s": "1"}])], baseline)
+
+        # Inspect mock call history: at least one trial call has incumbent_param_values kwarg
+        # (the trials at line 309 in the coordinate-ascent loop).
+        # The baseline/seed/anchor evaluations (lines 284, 291) are called without incumbent_param_values.
+        assert ev.evaluate.call_count > 1, "Should have multiple evaluate calls (baseline + trials)"
+
+        call_args_list = ev.evaluate.call_args_list
+        # First call should be the baseline/seed (2-arg, no incumbent_param_values)
+        baseline_call = call_args_list[0]
+        assert "incumbent_param_values" not in baseline_call.kwargs or baseline_call.kwargs.get("incumbent_param_values") is None
+
+        # At least one trial call should have incumbent_param_values as a kwarg
+        trial_calls_with_incumbent = [
+            call for call in call_args_list[1:]
+            if "incumbent_param_values" in call.kwargs and call.kwargs["incumbent_param_values"] is not None
+        ]
+        assert len(trial_calls_with_incumbent) > 0, "Should have at least one trial with incumbent_param_values"
 
 
 class TestSweepTournamentProgressCallback:

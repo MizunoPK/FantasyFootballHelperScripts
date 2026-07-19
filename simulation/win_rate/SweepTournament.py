@@ -306,7 +306,7 @@ class SweepTournament:
                             continue                       # current best already recorded
                         trial = dict(current)
                         trial[param] = value
-                        wins, games, win_rate = self._evaluator.evaluate(draft_order, trial)
+                        wins, games, win_rate = self._evaluator.evaluate(draft_order, trial, incumbent_param_values=current)
                         self._store.update(strategy_id, trial, win_rate, wins, games)
                         # T31: decide adoption on ACCUMULATED evidence read back from the store
                         # (D4) — the trial combo (just update()-ed) vs the running-best (current).

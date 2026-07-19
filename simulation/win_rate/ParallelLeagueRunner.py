@@ -37,7 +37,7 @@ def _init_worker_process(week_data: Optional[Dict[int, Dict]]) -> None:
     _WORKER_PRELOADED_WEEK_DATA = week_data
 
 
-def _run_simulation_process(args: Tuple[dict, int, Path, bool, Optional[int]]) -> Tuple[int, int, float]:
+def _run_simulation_process(args: Tuple[dict, int, Path, bool, Optional[int], Optional[dict]]) -> Tuple[int, int, float]:
     """
     Run a single simulation in a separate process.
 
@@ -47,16 +47,18 @@ def _run_simulation_process(args: Tuple[dict, int, Path, bool, Optional[int]]) -
     worker by _init_worker_process, avoiding per-simulation pickling.
 
     Args:
-        args: Tuple of (config_dict, simulation_id, data_folder, naive_opponents, seed)
-            where seed is the per-task deterministic seed (None → entropy default).
+        args: Tuple of (config_dict, simulation_id, data_folder, naive_opponents, seed,
+            measured_config_dict) where seed is the per-task deterministic seed (None →
+            entropy default) and measured_config_dict is the measured team's trial config
+            (T54/D1; None → symmetric single-config behavior).
 
     Returns:
         Tuple[int, int, float]: (wins, losses, total_points) for DraftHelperTeam
     """
-    config_dict, simulation_id, data_folder, naive_opponents, seed = args
+    config_dict, simulation_id, data_folder, naive_opponents, seed, measured_config_dict = args
     league = None
     try:
-        league = SimulatedLeague(config_dict, data_folder, _WORKER_PRELOADED_WEEK_DATA, naive_opponents=naive_opponents, seed=seed)
+        league = SimulatedLeague(config_dict, data_folder, _WORKER_PRELOADED_WEEK_DATA, measured_config_dict=measured_config_dict, naive_opponents=naive_opponents, seed=seed)
         league.run_draft()
         league.run_season()
         wins, losses, total_points = league.get_draft_helper_results()
@@ -213,7 +215,8 @@ class ParallelLeagueRunner:
         config_dict: dict,
         simulation_id: int,
         preloaded_week_data: Optional[Dict[int, Dict]] = None,
-        seed: Optional[int] = None
+        seed: Optional[int] = None,
+        measured_config_dict: Optional[dict] = None
     ) -> Tuple[int, int, float]:
         """
         Run a single league simulation (thread-safe).
@@ -228,6 +231,10 @@ class ParallelLeagueRunner:
                 SimDataLoader. If provided, passed to SimulatedLeague to skip file reads.
             seed (Optional[int]): Per-task deterministic seed derived by the caller (D1/T29).
                 None → OS entropy, preserving stochastic behavior (D3).
+            measured_config_dict (Optional[dict]): The measured team's trial config (T54/D1).
+                When non-None the single measured DraftHelperTeam drafts with it while the other
+                teams draft with config_dict (the incumbent). None (default) → legacy single-config
+                self-play (measured team shares config_dict).
 
         Returns:
             Tuple[int, int, float]: (wins, losses, total_points) for DraftHelperTeam
@@ -237,7 +244,7 @@ class ParallelLeagueRunner:
         """
         league = None
         try:
-            league = SimulatedLeague(config_dict, self.data_folder, preloaded_week_data, naive_opponents=self.naive_opponents, seed=seed)
+            league = SimulatedLeague(config_dict, self.data_folder, preloaded_week_data, measured_config_dict=measured_config_dict, naive_opponents=self.naive_opponents, seed=seed)
 
             league.run_draft()
             league.run_season()
@@ -324,7 +331,8 @@ class ParallelLeagueRunner:
         self,
         config_dict: dict,
         num_simulations: int,
-        preloaded_week_data: Optional[Dict[int, Dict]] = None
+        preloaded_week_data: Optional[Dict[int, Dict]] = None,
+        measured_config_dict: Optional[dict] = None
     ) -> list[Tuple[int, int, float]]:
         """
         Run multiple simulations for a single configuration in parallel.
@@ -336,6 +344,9 @@ class ParallelLeagueRunner:
             config_dict (dict): Configuration dictionary
             num_simulations (int): Number of simulations to run
             preloaded_week_data (Optional[Dict[int, Dict]]): Pre-loaded week data from SimDataLoader. If provided, skips per-simulation file reads.
+            measured_config_dict (Optional[dict]): The measured team's trial config (T54/D1), threaded
+                to SimulatedLeague through BOTH the thread-mode submit and the process-mode sim_args
+                tuple. None (default) → symmetric single-config behavior.
 
         Returns:
             list[Tuple[int, int, float]]: List of (wins, losses, points) tuples
@@ -371,7 +382,7 @@ class ParallelLeagueRunner:
                 initargs=(preloaded_week_data,)
             )
             sim_args = [
-                (config_dict, sim_id, self.data_folder, self.naive_opponents, task_seeds[sim_id])
+                (config_dict, sim_id, self.data_folder, self.naive_opponents, task_seeds[sim_id], measured_config_dict)
                 for sim_id in range(num_simulations)
             ]
             future_to_sim_id = {
@@ -381,7 +392,7 @@ class ParallelLeagueRunner:
         else:
             executor = ExecutorClass(max_workers=self.max_workers)
             future_to_sim_id = {
-                executor.submit(self.run_single_simulation, config_dict, sim_id, preloaded_week_data, task_seeds[sim_id]): sim_id
+                executor.submit(self.run_single_simulation, config_dict, sim_id, preloaded_week_data, task_seeds[sim_id], measured_config_dict): sim_id
                 for sim_id in range(num_simulations)
             }
 
