@@ -242,7 +242,7 @@ class AccuracySimulationManager:
         Logic:
             - No intermediate folders → (False, 0, None) - start from beginning
             - Folders for all parameters → (False, 0, None) - completed, cleanup and restart
-            - Folders for some parameters → (True, highest_idx, path) - resume from next parameter
+            - Folders for some parameters → (True, highest_idx + 1, path) - resume from next (first not-yet-optimized) parameter
             - Parameter order mismatch → (False, 0, None) - validation failed, start fresh
         """
         self.logger.debug(f"_detect_resume_state: mode={mode}, output_dir={self.output_dir}")
@@ -611,7 +611,12 @@ class AccuracySimulationManager:
                 )
                 self.results_manager.load_intermediate_results(last_config_path)
             else:
-                optimal_folders = sorted(self.output_dir.glob("accuracy_optimal_*"))
+                required_files = ['league_config.json', 'week1-5.json', 'week6-9.json', 'week10-13.json', 'week14-17.json']
+                optimal_folders = sorted(
+                    (p for p in self.output_dir.glob("accuracy_optimal_*")
+                     if p.is_dir() and all((p / f).exists() for f in required_files)),
+                    key=lambda p: p.stat().st_mtime
+                )
                 if optimal_folders:
                     baseline_to_use = optimal_folders[-1]
                     self.logger.info(f"Using latest optimal config as baseline: {baseline_to_use.name}")
@@ -622,7 +627,7 @@ class AccuracySimulationManager:
                 self.logger.info(f"Loaded {len(self.config_generator.baseline_configs)} horizon configs from {baseline_to_use.name}")
 
             for param_idx, param_name in enumerate(self.parameter_order):
-                if should_resume and param_idx <= resume_param_idx:
+                if should_resume and param_idx < resume_param_idx:
                     continue
 
                 test_values_dict = self.config_generator.generate_horizon_test_values(param_name)

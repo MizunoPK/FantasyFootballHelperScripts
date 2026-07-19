@@ -438,32 +438,110 @@ class TestAccuracyResultsManager:
         assert len(all_files) == 6
 
     def test_load_intermediate_results(self, results_manager, temp_dir):
-        """Test loading intermediate results from standard config files."""
+        """Test that loading fully reconstructs best_configs for optimized horizons
+        and leaves baseline-only horizons as None (D2)."""
         intermediate_path = temp_dir / "accuracy_intermediate_00_TEST"
         intermediate_path.mkdir()
 
-        config_data = {
-            'config_name': 'Test Config',
-            'description': 'Test description',
-            'parameters': {'test': 'config'},
+        league_config = {
+            'config_name': 'League',
+            'description': 'league base',
+            'parameters': {'BASE_PARAM': 1}
+        }
+        with open(intermediate_path / "league_config.json", 'w') as f:
+            json.dump(league_config, f)
+
+        optimized = {
+            'config_name': 'Optimized week1-5',
+            'description': 'optimized',
+            'parameters': {'WEEK_PARAM': 2},
             'performance_metrics': {
                 'mae': 5.0,
                 'player_count': 100,
-                'config_value': 2.5
+                'config_value': 2.5,
+                'ranking_metrics': {
+                    'pairwise_accuracy': 0.68,
+                    'top_5_accuracy': 0.80,
+                    'top_10_accuracy': 0.75,
+                    'top_20_accuracy': 0.70,
+                    'spearman_correlation': 0.82,
+                    'by_position': {
+                        'QB': {
+                            'pairwise_accuracy': 0.70,
+                            'top_5_accuracy': 0.60,
+                            'top_10_accuracy': 0.65,
+                            'top_20_accuracy': 0.55,
+                            'spearman_correlation': 0.50
+                        }
+                    }
+                }
             }
         }
         with open(intermediate_path / "week1-5.json", 'w') as f:
-            json.dump(config_data, f)
+            json.dump(optimized, f)
+
+        baseline_only = {
+            'config_name': 'Baseline horizon',
+            'description': 'from baseline (no optimization yet)',
+            'parameters': {'WEEK_PARAM': 1},
+            'performance_metrics': {
+                'mae': None,
+                'player_count': None,
+                'total_error': None,
+                'config_value': None
+            }
+        }
+        for filename in ['week6-9.json', 'week10-13.json', 'week14-17.json']:
+            with open(intermediate_path / filename, 'w') as f:
+                json.dump(baseline_only, f)
+
+        metadata = {
+            'best_mae_per_horizon': {
+                'week_1_5': {'mae': 5.0, 'test_idx': 3},
+                'week_6_9': {'mae': None, 'test_idx': -1},
+                'week_10_13': {'mae': None, 'test_idx': -1},
+                'week_14_17': {'mae': None, 'test_idx': -1}
+            }
+        }
+        with open(intermediate_path / "metadata.json", 'w') as f:
+            json.dump(metadata, f)
 
         success = results_manager.load_intermediate_results(intermediate_path)
 
         assert success
-        assert results_manager.best_configs['week_1_5'] is None
+        reconstructed = results_manager.best_configs['week_1_5']
+        assert reconstructed is not None
+        assert reconstructed.mae == 5.0
+        assert reconstructed.player_count == 100
+        assert reconstructed.config_value == 2.5
+        assert reconstructed.total_error == 500.0
+        assert reconstructed.overall_metrics is not None
+        assert reconstructed.overall_metrics.pairwise_accuracy == 0.68
+        assert reconstructed.by_position['QB'].pairwise_accuracy == 0.70
+        assert reconstructed.test_idx == 3
+        assert 'parameters' in reconstructed.config_dict
+        assert results_manager.best_configs['week_6_9'] is None
 
     def test_load_intermediate_results_not_found(self, results_manager, temp_dir):
         """Test loading from non-existent folder."""
         success = results_manager.load_intermediate_results(temp_dir / "nonexistent")
         assert not success
+
+    def test_load_intermediate_results_incomplete_folder(self, results_manager, temp_dir):
+        """S2: an incomplete intermediate folder (missing required files) is handled
+        gracefully — load returns False (not a raised ValueError) and best_configs
+        is left untouched."""
+        incomplete = temp_dir / "accuracy_intermediate_00_TEST"
+        incomplete.mkdir()
+        # Only league_config.json present; the 4 week files are missing, so
+        # ConfigGenerator.load_baseline_from_folder would raise — S2 catches it.
+        with open(incomplete / "league_config.json", 'w') as f:
+            json.dump({'config_name': 'partial'}, f)
+
+        success = results_manager.load_intermediate_results(incomplete)
+
+        assert success is False
+        assert all(v is None for v in results_manager.best_configs.values())
 
     def test_get_summary(self, results_manager):
         """Test getting results summary."""
