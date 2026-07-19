@@ -11,9 +11,16 @@ tests/
 ├── README.md                          # This file
 ├── conftest.py                        # Pytest configuration (path setup)
 ├── run_all_tests.py                   # Test runner script (100% pass requirement)
-└── league_helper/
-    └── util/
-        └── test_PlayerManager_scoring.py   # PlayerManager scoring tests (60 tests)
+├── league_helper/                     # Tests mirroring league_helper/ (modes + util/)
+├── utils/                             # Shared utility / helper tests
+├── player_data_fetcher/               # Player-data fetcher tests
+├── historical_data_compiler/          # Historical-data compiler tests
+├── schedule_data_fetcher/             # Schedule-data fetcher tests
+├── simulation/                        # Win-rate + accuracy engine tests
+├── integration/                       # Offline end-to-end fetcher/compiler tests
+├── unit/                              # Standalone unit tests
+├── root_scripts/                      # Repo-root runner-script tests
+└── fixtures/                          # Committed offline JSON/CSV fixtures
 ```
 
 For each source file, create a corresponding test file:
@@ -90,9 +97,9 @@ Date: YYYY-MM-DD
 import pytest
 from unittest.mock import Mock, MagicMock, patch
 
-# Imports work via conftest.py which sets up paths
-from util.ModuleName import ClassName
+# Imports work via conftest.py which puts the project root on sys.path
 from utils.FantasyPlayer import FantasyPlayer
+from league_helper.util.PlayerManager import PlayerManager
 
 # ============================================================================
 # FIXTURES
@@ -124,22 +131,26 @@ class TestClassName:
 
 ## Current Test Coverage
 
-### PlayerManager Scoring System
-**File**: `tests/league_helper/util/test_PlayerManager_scoring.py`
-**Tests**: 60 (100% passing)
-**Coverage**: All 9 scoring steps
+The suite mirrors the source tree across several buckets and spans many `test_<module>.py`
+files (as of this refresh, ~143 test files). Rather than freeze a snapshot
+that will drift, run the canonical runner for the authoritative live picture — `python
+tests/run_all_tests.py` (full suite, strict 100% pass gate) or `python tests/run_all_tests.py
+--verbose` (individual test names).
 
-- ✅ Normalization (2 tests)
-- ✅ ADP Multiplier (9 tests)
-- ✅ Player Rating Multiplier (6 tests)
-- ✅ Team Quality Multiplier (6 tests)
-- ✅ Consistency Multiplier (8 tests)
-- ✅ Matchup Multiplier (6 tests)
-- ✅ Draft Order Bonus (6 tests)
-- ✅ Bye Week Penalty (4 tests)
-- ✅ Injury Penalty (6 tests)
-- ✅ Full Integration (7 tests)
-- ✅ Edge Cases (2 tests)
+Coverage buckets (each mirrors the corresponding source package):
+
+- `tests/league_helper/` — League Helper modes and `util/` (scoring, config, roster, team data, …)
+- `tests/utils/` — shared utility / helper modules
+- `tests/player_data_fetcher/` — player-data fetcher
+- `tests/historical_data_compiler/` — historical-data compiler
+- `tests/schedule_data_fetcher/` — schedule-data fetcher
+- `tests/simulation/` — win-rate and accuracy simulation engines
+- `tests/integration/` — offline end-to-end fetcher/compiler flows (via committed fixtures)
+- `tests/unit/` — standalone unit tests
+- `tests/root_scripts/` — repo-root runner scripts
+- `tests/fixtures/` — committed offline JSON/CSV fixtures (data the suite reads, not tests)
+
+Run `python tests/run_all_tests.py` for the current total and per-file breakdown.
 
 ## Configuration
 
@@ -217,7 +228,7 @@ If you get `ModuleNotFoundError`:
 
 If tests can't find source files:
 1. Check that `conftest.py` is setting up paths correctly
-2. Ensure you're using imports like `from util.Module import Class`
+2. Ensure you're using package-rooted imports like `from utils.FantasyPlayer import FantasyPlayer` or `from league_helper.util.PlayerManager import PlayerManager`
 3. Run pytest from project root directory
 
 ### Test Discovery Issues
@@ -229,15 +240,12 @@ If tests aren't being discovered:
 
 ## Future Test Additions
 
-As the project grows, add tests for:
-- ⏳ `ConfigManager` - Configuration loading and validation
-- ⏳ `TeamDataManager` - Team data management
-- ⏳ `FantasyTeam` - Team operations
-- ⏳ `AddToRosterModeManager` - Add to Roster mode logic
-- ⏳ Other mode managers as they're implemented
+As the project grows, add a mirrored `test_<module>.py` under the matching `tests/` path for
+each new source module (see **Adding New Tests** above) — covering the happy path, edge cases,
+and error handling — and keep the suite at a 100% pass rate. The modules once listed here as
+pending (`ConfigManager`, `TeamDataManager`, `FantasyTeam`, `AddToRosterModeManager`, and the
+other mode managers) are now covered.
 
 ---
 
-**Last Updated**: 2025-10-09
-**Test Count**: 60
-**Pass Rate**: 100%
+**Last refreshed**: 2026-07-18 — counts are not frozen in this doc; run `python tests/run_all_tests.py` for the authoritative live total and pass rate (strict 100% pass gate). As of this refresh: ~3073 tests across 143 `test_*.py` files (point-in-time snapshot).
