@@ -5,7 +5,7 @@ A practical guide to using Fantasy Football Helper Scripts throughout your fanta
 ## Overview
 
 This project provides tools to help you make data-driven decisions at every stage of your fantasy football season:
-- **Pre-season**: Fetch player data and optimize your draft strategy
+- **Pre-season**: Fetch player data and tune your scoring parameters
 - **Draft day**: Get real-time player recommendations during your draft
 - **In-season**: Optimize weekly lineups and evaluate trade opportunities
 
@@ -18,7 +18,7 @@ This project provides tools to help you make data-driven decisions at every stag
 ```bash
 # Clone the repository
 git clone <repository-url>
-cd FantasyFootballHelperScriptsRefactored
+cd FantasyFootballHelperScripts
 
 # Install dependencies
 pip install -r requirements.txt
@@ -34,29 +34,31 @@ python tests/run_all_tests.py
 python run_player_fetcher.py
 ```
 
-This creates `data/players.csv` with current season projections.
+This writes the per-position player pool under `data/player_data/` (`qb_data.json`, `rb_data.json`, `wr_data.json`, `te_data.json`, `k_data.json`, `dst_data.json`).
 
-### 3. Fetch Schedule and Game Data
+### 3. Fetch Schedule and Historical Data
 
 ```bash
-# Fetch NFL season schedule
+# Fetch the NFL season schedule (including bye weeks)
 python run_schedule_fetcher.py
 
-# Fetch game data (venue, weather)
-python run_game_data_fetcher.py
+# Compile a historical season (games, weather, per-team stats) for the simulation engines
+python compile_historical_data.py --year 2024
 ```
 
-### 4. (Optional) Run Simulations
+### 4. (Optional) Tune Scoring Parameters
 
-If you want to optimize scoring parameters:
+If you want to optimize scoring parameters, run one of the two simulation engines:
 
 ```bash
-# Quick test (5 simulations)
-python run_simulation.py single --sims 5
+# Win-rate optimization (ranks strategies / parameter combinations by simulated win rate)
+python run_win_rate_simulation.py --sweep
 
-# Full optimization (~2-3 hours)
-python run_simulation.py iterative --sims 100 --workers 8
+# Pairwise-ranking-accuracy optimization
+python run_accuracy_simulation.py
 ```
+
+Both engines replay the committed historical seasons under `simulation/sim_data/`. Use `--promote` (win-rate: add `--confirm` to write) to promote the winning config into `data/configs/`.
 
 ---
 
@@ -80,7 +82,7 @@ python run_league_helper.py
 **Tips:**
 - Keep the helper running throughout your draft
 - Pay attention to bye week warnings
-- Consider the "why" behind each recommendation (shown in scoring breakdown)
+- Consider the "why" behind each recommendation (shown in the scoring breakdown)
 
 ---
 
@@ -94,18 +96,18 @@ Before each week, refresh your data:
 # Update player projections
 python run_player_fetcher.py
 
-# Update scores and team rankings
-python run_scores_fetcher.py
+# Refresh the schedule if needed
+python run_schedule_fetcher.py
 ```
 
 ### 2. Update Ownership Data
 
 Use the Chrome extension to import current league rosters:
 
-1. Install extension from `nfl-fantasy-exporter-extension/`
+1. Install the extension from `nfl-fantasy-exporter-extension/`
 2. Go to NFL Fantasy → Players → All Taken Players
-3. Click extension → "Extract All Pages" → Download CSV
-4. Move file to `data/drafted_data.csv`
+3. Click the extension → "Extract All Pages" → Download CSV
+4. Move the file to `data/drafted_data.csv`
 
 ### 3. Optimize Your Lineup
 
@@ -123,7 +125,7 @@ Select **"Starter Helper"** mode to see:
 
 In the League Helper, select **"Trade Simulator"** mode:
 
-- **Waiver Optimizer**: Find best waiver wire pickups
+- **Waiver Optimizer**: Find the best waiver-wire pickups
 - **Trade Suggestor**: Discover mutually beneficial trades
 - **Manual Trade Visualizer**: Analyze specific trade proposals
 
@@ -137,23 +139,24 @@ In the League Helper, select **"Trade Simulator"** mode:
 |--------|---------|-------------|
 | `run_league_helper.py` | Interactive draft/lineup/trade tool | Draft day, weekly |
 | `run_player_fetcher.py` | Download player projections | Pre-season, weekly |
-| `run_scores_fetcher.py` | Update NFL scores and rankings | Weekly |
-| `run_schedule_fetcher.py` | Fetch NFL schedule | Pre-season |
-| `run_game_data_fetcher.py` | Fetch game/weather data | Pre-season, weekly |
-| `run_simulation.py` | Optimize scoring parameters | Pre-season |
-| `run_draft_order_simulation.py` | Test draft strategies | Pre-season |
+| `run_schedule_fetcher.py` | Fetch the NFL schedule | Pre-season |
+| `compile_historical_data.py` | Compile a historical season for simulation | Pre-season |
+| `validate_sim_data.py` | Sanity-check a compiled sim_data season | Pre-season |
+| `run_win_rate_simulation.py` | Tune scoring params by win rate | Pre-season |
+| `run_accuracy_simulation.py` | Tune scoring params by ranking accuracy | Pre-season |
+| `run_pre_commit_validation.py` | Run the full test suite (pre-commit gate) | Before commits |
 
 ### Common Commands
 
 ```bash
-# Start league helper (most common)
+# Start the league helper (most common)
 python run_league_helper.py
 
-# Update all data before weekly decisions
-python run_player_fetcher.py && python run_scores_fetcher.py
+# Update player data before weekly decisions
+python run_player_fetcher.py
 
-# Run quick simulation test
-python run_simulation.py single --sims 5
+# Run a win-rate parameter sweep
+python run_win_rate_simulation.py --sweep
 
 # Run all tests
 python tests/run_all_tests.py
@@ -164,6 +167,6 @@ python tests/run_all_tests.py
 ## Need More Help?
 
 - **Detailed documentation**: See `README.md`
-- **System architecture**: See `ARCHITECTURE.md`
-- **Scoring algorithms**: See `docs/scoring_v2/`
+- **System architecture**: See `.shamt-core/project-specific-files/ARCHITECTURE.md`
+- **Scoring algorithms**: See `docs/scoring/`
 - **Development guidelines**: See `CLAUDE.md`

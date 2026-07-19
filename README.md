@@ -1,6 +1,6 @@
 # Fantasy Football Helper Scripts
 
-A comprehensive Python-based system for optimizing fantasy football draft decisions, evaluating trades, and simulating league outcomes through advanced statistical modeling and parallel simulation.
+A comprehensive Python-based toolkit for optimizing fantasy football draft decisions, evaluating trades, and tuning the scoring algorithm by replaying historical NFL seasons.
 
 ## Table of Contents
 
@@ -20,21 +20,21 @@ A comprehensive Python-based system for optimizing fantasy football draft decisi
 
 The Fantasy Football Helper Scripts provide a complete suite of tools for serious fantasy football managers:
 
-1. **League Helper**: Interactive draft assistant with real-time player recommendations and trade evaluation
-2. **Simulation System**: Parallel league simulation engine for parameter optimization (tests thousands of configurations)
-3. **Data Fetchers**: Automated collection of player projections and NFL scores
+1. **League Helper**: Interactive, menu-driven assistant for draft recommendations, weekly lineup optimization, and trade/waiver evaluation.
+2. **Simulation engines**: Two offline parameter-optimization engines that replay historical NFL seasons to tune the scoring algorithm — a **win-rate** engine (`run_win_rate_simulation.py`) and a **pairwise-ranking-accuracy** engine (`run_accuracy_simulation.py`).
+3. **Data fetchers / compilers**: Scripts that pull live data from public APIs (ESPN, Open-Meteo) and shape it into the CSV/JSON files the other tools consume.
 
-The system uses projected and actual player statistics, team rankings, bye weeks, injury risk, consistency metrics, and configurable scoring parameters to provide data-driven recommendations.
+The system uses projected and actual player statistics, team rankings, bye weeks, injury risk, consistency metrics, and configurable scoring parameters to provide data-driven recommendations. All state is plain files on disk (CSV + JSON); there is no database and no network service.
 
 ## Key Features
 
-- **Draft Assistant**: Real-time player recommendations using advanced scoring algorithms
+- **Draft Assistant**: Real-time player recommendations using a multi-step scoring pipeline
 - **Trade Simulator**: Evaluate trades by simulating their impact on your roster strength
-- **Roster Optimizer**: Optimize starting lineup each week based on matchups and bye weeks
+- **Roster Optimizer**: Optimize the starting lineup each week based on matchups and bye weeks
 - **Player Data Editor**: Modify player stats, projections, and injury status
-- **Multi-Mode Simulation**: Test parameter configurations through full grid search or iterative optimization
-- **Parallel Processing**: Efficient multi-threaded simulation execution (8+ workers supported)
-- **Comprehensive Testing**: 2,255 tests across 70 test files ensuring system reliability
+- **Two Simulation Engines**: Tune scoring parameters by win rate or by pairwise ranking accuracy across historical seasons
+- **Parallel Processing**: Multi-worker simulation execution (`--workers` / `--max-workers`)
+- **Comprehensive Testing**: Full offline suite run via `python tests/run_all_tests.py` (~3,000+ tests; 100% pass required)
 - **Flexible Configuration**: Customizable scoring weights, penalties, and multipliers
 - **Data Validation**: Type-safe operations with Pydantic runtime validation
 - **Error Recovery**: Robust error handling with detailed logging
@@ -43,7 +43,7 @@ The system uses projected and actual player statistics, team rankings, bye weeks
 
 ### Requirements
 
-- Python 3.13.6+ (recommended)
+- Python 3.13+ (developed/tested on 3.13–3.14)
 - pip package manager
 
 ### Setup
@@ -51,7 +51,7 @@ The system uses projected and actual player statistics, team rankings, bye weeks
 1. Clone the repository:
 ```bash
 git clone <repository-url>
-cd FantasyFootballHelperScriptsRefactored
+cd FantasyFootballHelperScripts
 ```
 
 2. Install dependencies:
@@ -64,7 +64,7 @@ pip install -r requirements.txt
 python tests/run_all_tests.py
 ```
 
-All 2,255 tests should pass (100% pass rate required).
+The full offline suite (~3,000+ tests) should pass at 100% (a 100% pass rate is required before commits). The authoritative count is whatever `python tests/run_all_tests.py` reports.
 
 ## Quick Start
 
@@ -78,306 +78,149 @@ python run_player_fetcher.py
 python run_player_fetcher.py --enable-log-file
 ```
 
-This fetches projected statistics for all NFL players and saves them to `data/players.csv`.
+This fetches projections for all NFL players and writes the per-position pool under `data/player_data/` (`qb_data.json`, `rb_data.json`, `wr_data.json`, `te_data.json`, `k_data.json`, `dst_data.json`).
 
-**Automatic Historical Data Archiving**: The player data fetcher automatically saves weekly snapshots of player and team data to `data/historical_data/{Season}/{WeekNumber}/` (e.g., `data/historical_data/2025/11/`). This feature:
-- Preserves historical data for each week (players.csv, players_projected.csv, teams.csv)
-- Skips saving if data for the current week has already been archived
-- Uses zero-padded week numbers (01, 02, ..., 17) for consistent folder naming
-- Can be disabled by setting `ENABLE_HISTORICAL_DATA_SAVE = False` in `player-data-fetcher/config.py`
+**Historical data archiving**: the player data fetcher can save weekly snapshots of player/team data. This is controlled by the `enable_historical_save` field on the `Settings` dataclass in `player_data_fetcher/player_data_fetcher_main.py` (set it to `False` to disable).
 
-### 2. Run League Helper (Interactive Mode)
-
-```bash
-# Start the interactive draft assistant
-python run_league_helper.py
-```
-
-Follow the prompts to:
-- Select your mode (Draft Helper, Trade Simulator, or Modify Player Data)
-- Get player recommendations during draft
-- Evaluate potential trades
-- Optimize your roster
-
-### 3. Run Simulations (Optional - for Advanced Users)
-
-```bash
-# Test a single configuration (fast)
-python run_simulation.py single --sims 5
-
-# Run iterative parameter optimization (recommended)
-python run_simulation.py iterative --sims 100 --workers 8
-
-# Run full grid search (exhaustive but slow)
-python run_simulation.py full --sims 100 --workers 8
-```
-
-## Main Applications
-
-### League Helper (`run_league_helper.py`)
-
-Interactive application with **four main modes**:
-
-#### 1. Add to Roster Mode (Draft Helper)
-- Real-time player recommendations during draft
-- Considers roster needs, bye weeks, injury risk, and opponent strength
-- Displays top N recommendations with detailed scoring breakdown
-- Updates automatically after each pick
-- Tracks drafted players and roster composition
-
-#### 2. Starter Helper Mode (Roster Optimizer)
-- Optimizes starting lineup for each week
-- Considers opponent matchups and bye weeks
-- Displays best starters vs bench recommendations
-- Shows expected points for each position
-- Validates lineup against league rules
-
-#### 3. Trade Simulator Mode
-Three trade evaluation sub-modes:
-
-##### 1. Waiver Optimizer
-Find optimal waiver wire pickups (drop/add combinations) with two scoring modes:
-
-**Mode Selection**:
-- **Rest of Season**: Seasonal projections with standard scoring (player rating, schedule strength)
-- **Current Week**: Weekly projections for streaming (matches Starter Helper scoring with matchup multipliers)
-
-**Use Cases**:
-- **Rest of Season**: Target long-term value, season-long pickups
-- **Current Week**: Stream positions (QB, TE, K, DST) based on weekly matchups
-
-##### 2. Trade Suggestor
-Find mutually beneficial trades with league opponents based on roster needs.
-
-##### 3. Manual Trade Visualizer
-Evaluate specific trade proposals with before/after comparison (exports to txt and Excel files).
-
-**Supported Trade Types:**
-- **Equal Trades**: 1-for-1, 2-for-2, 3-for-3 (balanced player exchanges)
-- **Unequal Trades**: 2-for-1, 1-for-2, 3-for-1, 1-for-3, 3-for-2, 2-for-3 (asymmetric exchanges)
-
-**Advanced Features:**
-- **Waiver Recommendations**: Automatically suggests waiver wire pickups when trading away more players than receiving
-- **Drop System**: Identifies lowest-value players to drop when receiving more players than giving away
-- **Trade Threshold**: Enforces minimum 30-point improvement for trade suggestions (0-point minimum for waiver moves)
-
-#### 4. Modify Player Data Mode
-- Update player statistics, projections, or draft status
-- Add custom players or modify existing data
-- Adjust injury status, bye weeks, or team assignments
-- Persist changes to CSV files for future sessions
-
-### Simulation System (`run_simulation.py`)
-
-Parameter optimization engine that runs thousands of simulated leagues to identify optimal configuration settings.
-
-**Three Optimization Modes:**
-
-1. **Single Config Test** (debugging):
-```bash
-python run_simulation.py single --sims 5
-```
-- Tests one configuration quickly
-- Useful for validating changes
-
-2. **Iterative Optimization** (recommended):
-```bash
-python run_simulation.py iterative --sims 100 --workers 8
-```
-- Coordinate descent approach with random parameter exploration
-- For each parameter: tests individual values + cartesian product of NUM_PARAMETERS_TO_TEST parameters
-- Default: NUM_PARAMETERS_TO_TEST=1 (single parameter at a time)
-- With NUM_PARAMETERS_TO_TEST=2: tests base parameter + 1 random parameter + all value combinations
-- Example (NUM_PARAMETERS_TO_TEST=2, N=5): 48 configs per parameter (12 individual + 36 combinations)
-- Total configs: 14 parameters x configs per parameter
-- Much faster than full grid search (~2-3 hours vs days)
-- **Configuration**: Edit NUM_PARAMETERS_TO_TEST in `simulation/ConfigGenerator.py` to explore multiple parameters simultaneously
-- **Auto-resume**: If interrupted mid-optimization, automatically resumes from last completed parameter
-  - Detects existing intermediate_*.json files and continues where it left off
-  - Validates parameter order consistency before resuming
-  - Cleans up intermediate files when full optimization completes
-
-3. **Full Grid Search** (exhaustive):
-```bash
-python run_simulation.py full --sims 100 --workers 8
-```
-- Tests all parameter combinations
-- (test_values + 1)^6 total configs (default: 7,776 configs)
-- Finds global optimum but very slow
-
-**How Simulation Works:**
-1. Creates 10-team fantasy league (1 DraftHelper team + 9 opponents with various strategies)
-2. Runs snake draft (15 rounds, 150 total picks)
-3. Simulates 17-week regular season
-4. Tracks wins, losses, and total points
-5. Repeats N times per configuration
-6. Identifies configuration with best win rate
-
-**Positional Slot Assignment Draft Logic:**
-
-The draft system uses a **positional slot assignment** algorithm to ensure roster diversity and compliance with MAX_POSITIONS limits:
-
-1. **Draft Order Configuration**: Defines which positions are PRIMARY (highest priority) or SECONDARY (alternative) for each of the 15 draft rounds
-   - Example Round 1: `{"QB": "P", "FLEX": "S"}` - QB is primary, FLEX positions (RB/WR) are secondary
-   - Example Round 3: `{"RB": "P", "WR": "S"}` - RB is primary, WR is secondary
-
-2. **Dynamic Round Assignment**: When a player is drafted, they are assigned to a round slot where their position matches the PRIMARY position
-   - If you draft an RB in Round 1 (where QB is PRIMARY), the RB gets assigned to Round 3 (first round with RB as PRIMARY)
-   - Round 1 remains "unfilled" and becomes the next draft target
-   - This continues until Round 1 gets a QB (its PRIMARY position)
-
-3. **Position Limit Enforcement** (`MAX_POSITIONS`): Once a position reaches its limit (e.g., 4 RBs), that position is filtered out of recommendations
-   - `can_draft()` checks `slot_assignments[position]` against `MAX_POSITIONS[position]`
-   - Players of that position will never appear in recommendations again
-   - Forces diversification across all positions (QB, RB, WR, TE, K, DST)
-
-4. **Current Round Calculation** (`_get_current_round()`): Determines next pick by finding first unfilled round slot
-   - Uses `_match_players_to_rounds()` to assign existing roster players to their optimal rounds
-   - Returns the first round number (1-15) without a player assigned
-   - This round determines which PRIMARY/SECONDARY bonuses apply to scoring
-
-5. **FLEX Eligibility**: RB and WR positions can match both their native position rounds AND FLEX rounds
-   - RB can fill: RB-PRIMARY rounds, RB-SECONDARY rounds, or FLEX rounds
-   - WR can fill: WR-PRIMARY rounds, WR-SECONDARY rounds, or FLEX rounds
-   - QB, TE, K, DST must exactly match their position rounds
-
-**Example Draft Sequence:**
-```
-Round 1 (QB=P, FLEX=S): Draft RB → RB assigned to Round 3 (RB=P), Round 1 still empty
-Round 1 (retry): Draft QB → QB assigned to Round 1 (QB=P), Round 1 now filled
-Round 2 (TE=P, FLEX=S): Draft TE → TE assigned to Round 2 (TE=P), Round 2 now filled
-Round 3: Already filled by RB from earlier, move to Round 4
-...continues until 15 rounds filled with diverse positions
-```
-
-This ensures teams always draft a balanced roster that can fill all 9 starting lineup positions (QB, RB1, RB2, WR1, WR2, TE, FLEX, K, DST).
-
-### Draft Order Strategy Analyzer (`run_draft_order_simulation.py`)
-
-Tests all 75 draft order strategies to identify which strategies perform best in league simulations. Produces a JSON report mapping each strategy to its win percentage.
-
-**Usage:**
-```bash
-# Default: 15 simulations per strategy (~10-15 minutes)
-python run_draft_order_simulation.py
-
-# More accurate: 50 simulations per strategy (~30-45 minutes)
-python run_draft_order_simulation.py --sims 50
-
-# Quick test: 5 simulations per strategy (~3-5 minutes)
-python run_draft_order_simulation.py --sims 5
-```
-
-**Output:**
-Generates `simulation/draft_order_results/draft_order_win_rates_YYYYMMDD_HHMMSS.json`:
-```json
-{
-  "metadata": {
-    "timestamp": "2025-11-24 12:34:56",
-    "num_simulations_per_file": 15,
-    "total_files_tested": 75,
-    "successful_files": 75,
-    "failed_files": [],
-    "baseline_config": "auto-detected",
-    "runtime_minutes": 12.5
-  },
-  "results": {
-    "1": 70.2,
-    "2": 80.1,
-    "3": 65.8,
-    ...
-  }
-}
-```
-
-**Draft Strategies Tested:**
-- Zero RB, Hero RB, Robust RB strategies
-- WR-first, TE-premium strategies
-- QB early vs late strategies
-- Balanced, contrarian, and value-based approaches
-- 75 unique strategies total
-
-### Player Data Fetcher (`run_player_fetcher.py`)
-
-Downloads current player projections from data sources and saves to `data/players.csv`.
-
-**Features:**
-- Async HTTP requests with retry logic
-- Pydantic validation for data integrity
-- Automatic backup of previous data
-
-### Scores Fetcher (`run_scores_fetcher.py`)
-
-Downloads NFL game scores and updates team rankings.
-
-### Schedule Fetcher (`run_schedule_fetcher.py`)
-
-Fetches NFL season schedule from ESPN API and saves to `data/season_schedule.csv`.
+### 2. Fetch the Season Schedule
 
 ```bash
 python run_schedule_fetcher.py
 ```
 
-### Game Data Fetcher (`run_game_data_fetcher.py`)
+This fetches the NFL season schedule (including bye weeks) from the ESPN API and writes `data/season_schedule.csv`.
 
-Fetches game data including venue, weather, and scores from ESPN and Open-Meteo APIs.
-
-```bash
-# Fetch current season data
-python run_game_data_fetcher.py
-
-# Fetch specific season for simulation
-python run_game_data_fetcher.py --season 2024 --output simulation/sim_data/game_data.csv
-
-# Fetch specific weeks
-python run_game_data_fetcher.py --weeks 1-5
-```
-
-### Draft Order Loop (`run_draft_order_loop.py`)
-
-Advanced simulation tool that loops through all draft order strategies, running iterative optimization for each one with dedicated per-strategy config folders.
+### 3. Run League Helper (Interactive Mode)
 
 ```bash
-# Run with default settings
-python run_draft_order_loop.py
-
-# More simulations per config
-python run_draft_order_loop.py --sims 100
-
-# Use ProcessPoolExecutor for true parallelism
-python run_draft_order_loop.py --use-processes
+# Start the interactive assistant
+python run_league_helper.py
 ```
 
-### NFL Fantasy Data Exporter (Chrome Extension)
+Follow the prompts to select a mode (e.g. Add to Roster, Starter Helper, Trade Simulator, Modify Player Data), get recommendations during your draft, optimize your weekly lineup, or evaluate trades.
 
-Chrome extension (`nfl-fantasy-exporter-extension/`) that extracts player ownership data from NFL Fantasy and exports to CSV format.
+### 4. (Optional) Tune Scoring Parameters
 
-**Installation:**
-1. Open Chrome → `chrome://extensions/`
-2. Enable Developer mode
-3. Click "Load unpacked" → Select `nfl-fantasy-exporter-extension/` folder
+```bash
+# Win-rate optimization (ranks draft strategies / parameter combinations by simulated win rate)
+python run_win_rate_simulation.py --sweep
 
-**Usage:**
-1. Navigate to fantasy.nfl.com → Your league → Players → All Taken Players
-2. Click extension icon → "Extract All Pages"
-3. Download CSV → Move to `data/drafted_data.csv`
+# Pairwise-ranking-accuracy optimization
+python run_accuracy_simulation.py
+```
 
-See `nfl-fantasy-exporter-extension/README.md` for detailed instructions.
+See [Main Applications](#main-applications) for the full flag set.
+
+## Main Applications
+
+### League Helper (`run_league_helper.py`)
+
+Interactive, menu-driven application. Its modes are implemented as the `league_helper/*_mode/` subpackages:
+
+#### Add to Roster Mode (Draft Helper)
+- Real-time player recommendations during a draft
+- Considers roster needs, bye weeks, injury risk, and opponent strength
+- Displays top-N recommendations with a detailed scoring breakdown
+- Updates automatically after each pick
+
+#### Starter Helper Mode (Roster Optimizer)
+- Optimizes the starting lineup for each week
+- Considers opponent matchups and bye weeks
+- Shows expected points for each position
+
+#### Trade Simulator Mode
+Three trade-evaluation sub-modes:
+
+##### 1. Waiver Optimizer
+Find optimal waiver-wire pickups (drop/add combinations) with two scoring modes:
+- **Rest of Season**: seasonal projections with standard scoring
+- **Current Week**: weekly projections for streaming (matchup-aware; matches Starter Helper scoring)
+
+##### 2. Trade Suggestor
+Find mutually beneficial trades with league opponents based on roster needs.
+
+##### 3. Manual Trade Visualizer
+Evaluate specific trade proposals with a before/after comparison (exports to txt and Excel).
+
+**Supported Trade Types:**
+- **Equal Trades**: 1-for-1, 2-for-2, 3-for-3
+- **Unequal Trades**: 2-for-1, 1-for-2, 3-for-1, 1-for-3, 3-for-2, 2-for-3
+
+#### Modify Player Data Mode
+- Update player statistics, projections, or draft status
+- Persist changes to the `data/player_data/` files for future sessions
+
+#### Save Calculated Projected Points Mode
+- Computes and saves the calculated projected points for the current player pool for later use
+- Implemented under `league_helper/save_calculated_points_mode/`
+
+### Win-Rate Simulation Engine (`run_win_rate_simulation.py`)
+
+Optimizes the draft/season scoring parameters by replaying historical seasons and ranking draft strategies (and, in `--sweep` mode, parameter combinations) by simulated league win rate.
+
+- Reads simulation data from `simulation/sim_data/` (override with `--data`) and draft strategies from `simulation/sim_data/draft_order_possibilities/*.json`.
+- Bare `--promote` **previews** the winning combination (dry-run, no write); `--promote --confirm` **writes** it into `data/configs/league_config.json`.
+- `--seed N` makes an evaluation reproducible from a base seed (omit for OS entropy).
+
+```bash
+# Parameter sweep (coordinate-ascent optimization)
+python run_win_rate_simulation.py --sweep
+
+# Reproducible run with an explicit seed and more workers
+python run_win_rate_simulation.py --sweep --seed 42 --workers 8
+
+# Preview the winning config, then write it to data/configs/league_config.json
+python run_win_rate_simulation.py --sweep --promote
+python run_win_rate_simulation.py --sweep --promote --confirm
+```
+
+Key flags: `--sweep`, `--data`, `--seed N`, `--sims` (sample size per evaluation), `--num-values` (grid density per parameter), `--workers`, `--promote` / `--promote --confirm`.
+
+### Accuracy Simulation Engine (`run_accuracy_simulation.py`)
+
+Tunes scoring parameters to optimize per-player **pairwise ranking accuracy** across four weekly horizons (week1-5, week6-9, week10-13, week14-17). MAE is computed and reported as a **diagnostic**, never as the selection objective — the League Helper's decisions are ordinal, so correct ordering matters more than a calibrated point total.
+
+- Reads `simulation/sim_data/` and writes optimal/intermediate config folders under `simulation/simulation_configs/`.
+- `--promote [FOLDER]` copies an optimal folder into `data/configs/`.
+- `--seed N` sets the candidate-generation seed; unlike the win-rate engine, the accuracy engine is **deterministic by default** (fixed `DEFAULT_ACCURACY_SEED`).
+
+```bash
+# Run the accuracy tournament
+python run_accuracy_simulation.py
+
+# Promote an optimal config folder into data/configs/
+python run_accuracy_simulation.py --promote <optimal-folder>
+```
+
+Key flags: `--seed N`, `--promote [FOLDER]`, `--max-workers`.
+
+### Player Data Fetcher (`run_player_fetcher.py`)
+
+Downloads current player projections from the ESPN API and writes the per-position pool under `data/player_data/`.
+
+**Features:**
+- Async HTTP requests with retry logic (`httpx` + `tenacity`)
+- Pydantic validation for data integrity
+- Offline/fixture support via `ESPN_FIXTURE_DIR` (see [Testing & Fixture Mode](#testing--fixture-mode))
+
+### Schedule Fetcher (`run_schedule_fetcher.py`)
+
+Fetches the NFL season schedule (including bye weeks) from the ESPN API and writes `data/season_schedule.csv`.
+
+```bash
+python run_schedule_fetcher.py
+```
 
 ### Historical Data Compiler (`compile_historical_data.py`)
 
-Standalone script that compiles historical NFL season data from ESPN APIs for simulation testing.
+Compiles historical NFL season data (players, games, weather, per-team stats) from the ESPN and Open-Meteo APIs into the `simulation/sim_data/{YEAR}/` trees the simulation engines replay.
 
-**Usage:**
 ```bash
-# Compile 2024 season data
+# Compile a season
 python compile_historical_data.py --year 2024
 
 # With verbose logging
 python compile_historical_data.py --year 2024 --verbose
-
-# Custom output directory
-python compile_historical_data.py --year 2024 --output-dir /path/to/output
 ```
 
 **Output Structure:**
@@ -385,115 +228,96 @@ python compile_historical_data.py --year 2024 --output-dir /path/to/output
 simulation/sim_data/{YEAR}/
 ├── season_schedule.csv       # Full season schedule with bye weeks
 ├── game_data.csv             # Game results with weather data
-├── team_data/                # 32 team CSV files (defensive stats)
-│   ├── KC.csv
-│   └── ... (all 32 teams)
+├── team_data/                # Per-team CSV files (defensive stats)
 └── weeks/                    # Point-in-time weekly snapshots
     ├── week_01/
     │   ├── players.csv       # Actual + projected points
     │   └── players_projected.csv
-    └── ... week_17/
+    └── ...                    # ... through week_17/
 ```
 
-**Features:**
-- Fetches player data from ESPN Fantasy API (actual and projected points)
-- Fetches game data from ESPN Scoreboard API with weather from Open-Meteo
-- Creates point-in-time snapshots for each week (what the system would "see" at that point)
-- Supports seasons 2021+ (weekly data available)
+Supports seasons 2021+ (weekly data available).
+
+### Sim-Data Validator (`validate_sim_data.py`)
+
+Sanity-checks a compiled `simulation/sim_data/{YEAR}/` tree for completeness and consistency before it is replayed by the simulation engines.
+
+### Pre-Commit Validation (`run_pre_commit_validation.py`)
+
+Wrapper that runs the full test suite (the same runner as `tests/run_all_tests.py`) as the gate before committing.
+
+### NFL Fantasy Data Exporter (Chrome Extension)
+
+Chrome extension (`nfl-fantasy-exporter-extension/`) that extracts league ownership ("All Taken Players") from fantasy.nfl.com and exports it to CSV.
+
+**Installation:**
+1. Open Chrome → `chrome://extensions/`
+2. Enable Developer mode
+3. Click "Load unpacked" → select the `nfl-fantasy-exporter-extension/` folder
+
+**Usage:**
+1. Navigate to fantasy.nfl.com → your league → Players → All Taken Players
+2. Click the extension icon → "Extract All Pages"
+3. Download the CSV → move it to `data/drafted_data.csv`
+
+See `nfl-fantasy-exporter-extension/README.md` for details.
 
 ## Project Structure
 
 ```
-FantasyFootballHelperScriptsRefactored/
-
-   run_league_helper.py          # Main league helper application
-   run_simulation.py              # Simulation system CLI
-   run_player_fetcher.py          # Player data downloader
-   run_scores_fetcher.py          # NFL scores fetcher
-   run_pre_commit_validation.py   # Pre-commit test runner
-
-   league_helper/                 # Main application logic
-      LeagueHelperManager.py     # Main controller for league helper modes
-      modes/                     # Application modes
-         DraftHelperMode.py     # Draft recommendation engine
-         ModifyPlayerDataMode.py # Player data modification
-      trade_simulator_mode/      # Trade evaluation system
-         TradeSimulatorModeManager.py
-         TradeSimTeam.py
-         TradeSnapshot.py
-      util/                      # Core utilities
-          PlayerManager.py       # Player data management
-          ConfigManager.py       # Configuration loader
-          FantasyTeam.py         # Roster management
-          FantasyPlayer.py       # Player model
-          TeamDataManager.py     # Team rankings data
-
-   simulation/                    # Simulation system
-      SimulationManager.py       # Main simulation controller
-      ParallelLeagueRunner.py    # Multi-threaded execution
-      ConfigGenerator.py         # Parameter combination generator
-      ResultsManager.py          # Results aggregation
-      SimulatedLeague.py         # Single league simulation
-      DraftHelperTeam.py         # Team using DraftHelper system
-      SimulatedOpponent.py       # AI opponent teams
-      Week.py                    # Weekly matchup simulation
-      sim_data/                  # Simulation data files
-
-   player-data-fetcher/           # Data collection system
-      PlayerFetcher.py           # Main fetcher
-      data_sources/              # API integrations
-
-   utils/                         # Shared utilities
-      LoggingManager.py          # Centralized logging
-      error_handler.py           # Error handling utilities
-      csv_utils.py               # CSV I/O helpers
-
-   tests/                         # Tests (2,255 tests across 70 files)
-      run_all_tests.py           # Test runner
-      [mirrors source structure]
-
-   data/                          # Data files
-      league_config.json         # League configuration
-      players.csv                # Player statistics
-      team_data/                 # Per-team rankings (32 CSV files)
-
-   requirements.txt               # Python dependencies
-   README.md                      # This file
-   CLAUDE.md                      # Development guidelines
-   rules.txt                      # Development workflow rules
+FantasyFootballHelperScripts/
+├── run_league_helper.py          # Interactive entry point (draft / lineup / trade / edit)
+├── run_player_fetcher.py         # Fetch player projections from ESPN
+├── run_schedule_fetcher.py       # Fetch season schedule from ESPN
+├── run_win_rate_simulation.py    # Win-rate parameter optimization engine
+├── run_accuracy_simulation.py    # Pairwise-ranking-accuracy optimization engine (MAE = diagnostic)
+├── compile_historical_data.py    # Build simulation/sim_data/{YEAR}/ from ESPN/Open-Meteo
+├── validate_sim_data.py          # Sanity-check a compiled sim_data/{YEAR}/ tree
+├── run_pre_commit_validation.py  # Wrapper that runs the full test suite (pre-commit gate)
+├── league_helper/                # Interactive application, its *_mode/ subpackages, and util/
+├── simulation/                   # win_rate/ + accuracy/ engines, shared/, utils/, sim_data, configs
+├── player_data_fetcher/          # Live ESPN player + game-data fetching package
+├── schedule_data_fetcher/        # Live ESPN schedule fetching package
+├── historical_data_compiler/     # Multi-season historical compiler package
+├── utils/                        # Cross-cutting shared utilities (logging, errors, CSV, models)
+├── tests/                        # pytest suite mirroring the source tree (+ fixtures, integration)
+├── data/                         # Live working data (configs, player_data, team_data, schedule)
+├── docs/                         # Scoring algorithm, ESPN API, simulation, and research docs
+├── nfl-fantasy-exporter-extension/ # Chrome extension exporting league ownership to CSV
+├── requirements.txt              # pip dependencies
+├── pytest.ini                    # pytest markers (live_api, offline)
+└── CLAUDE.md                     # Shamt framework rules (rendered template)
 ```
+
+**Key directories:**
+- `league_helper/` — the interactive tool. `LeagueHelperManager.py` is the menu controller; `util/` holds the core domain logic (`ConfigManager`, `PlayerManager`, scoring); the `*_mode/` subpackages implement each menu mode (`add_to_roster_mode`, `starter_helper_mode`, `trade_simulator_mode`, `modify_player_data_mode`, `save_calculated_points_mode`).
+- `simulation/win_rate/` and `simulation/accuracy/` — the two optimization engines. `simulation/sim_data/{YEAR}/` — committed per-season snapshots the engines replay. `simulation/simulation_configs/` — sim output (intermediate/optimal config folders).
+- `player_data_fetcher/`, `schedule_data_fetcher/`, `historical_data_compiler/` — the live-data acquisition layer (the only code that touches the network).
+- `utils/` — shared helpers imported everywhere (`LoggingManager`, `error_handler`, `csv_utils`, and the data models).
+- `data/` — the live working dataset. `tests/` — the pytest suite plus committed `fixtures/` for offline runs.
 
 ## Configuration
 
-### League Configuration (`data/league_config.json`)
+### League Configuration (`data/configs/league_config.json`)
 
-Controls scoring weights, penalties, and roster settings:
+The primary live scoring config is `data/configs/league_config.json`, with per-horizon week overrides `data/configs/week1-5.json`, `week6-9.json`, `week10-13.json`, and `week14-17.json`. `ConfigManager` merges the base config with the active week file. (A legacy top-level `league_config.json` fallback is consulted only when `data/configs/` is absent, and is kept for back-compat/tests.)
 
 **Key Parameters:**
-- `num_recommendations`: Number of draft recommendations to display
-- `lineup_size`: Total roster size (e.g., 15)
-- `[position]_slots`: Position limits (QB: 2, RB: 4, WR: 4, TE: 2, FLEX: 2, K: 1)
-- `FLEX_ELIGIBLE_POSITIONS`: Positions that can fill FLEX slots (default: ["RB", "WR"])
-- `consistency_multipliers`: Bonuses for consistent performers
-- `injury_penalties`: Penalties based on injury risk (Out/Doubtful/Questionable)
-- `SAME_POS_BYE_WEIGHT` / `DIFF_POS_BYE_WEIGHT`: Weights for median-based bye week penalty calculation
-- `team_multipliers`: Bonuses/penalties based on team strength
-- `draft_order_adp_weight`: How much to favor earlier picks
-- **`MATCHUP_SCORING.IMPACT_SCALE`**: Controls magnitude of matchup bonus/penalty (default: 150.0, range: 100-200)
-- **`SCHEDULE_SCORING.IMPACT_SCALE`**: Controls magnitude of schedule bonus/penalty (default: 80.0, range: 40-120)
+- `num_recommendations`: number of draft recommendations to display
+- `[position]_slots`: position limits (e.g. QB, RB, WR, TE, FLEX, K, DST)
+- `FLEX_ELIGIBLE_POSITIONS`: positions that can fill FLEX slots (default: `["RB", "WR"]`)
+- `consistency_multipliers`: bonuses for consistent performers
+- `injury_penalties`: penalties based on injury risk (Out/Doubtful/Questionable)
+- `SAME_POS_BYE_WEIGHT` / `DIFF_POS_BYE_WEIGHT`: weights for the median-based bye-week penalty
+- `team_multipliers`: bonuses/penalties based on team strength
+- `MATCHUP_SCORING.IMPACT_SCALE`: magnitude of the matchup bonus/penalty
+- `SCHEDULE_SCORING.IMPACT_SCALE`: magnitude of the schedule bonus/penalty
 
-**Editing Configuration:**
-You can modify `league_config.json` directly or use the simulation system to find optimal values.
+**Editing configuration:** edit `data/configs/league_config.json` directly, or use the simulation engines to find and `--promote` optimal values.
 
 ### Logging Configuration
 
-Each main script has logging settings at the top:
-
-```python
-LOGGING_LEVEL = 'INFO'        # DEBUG, INFO, WARNING, ERROR, CRITICAL
-LOGGING_TO_FILE = False       # Console vs file output
-LOGGING_FORMAT = 'standard'   # detailed / standard / simple
-```
+Each entry-point script accepts `--enable-log-file` to write logs under `logs/<script>/` (console-only by default).
 
 ## Testing
 
@@ -508,35 +332,13 @@ python tests/run_all_tests.py --verbose
 
 # Show full test output
 python tests/run_all_tests.py --detailed
-
-# Faster single-command mode
-python tests/run_all_tests.py --single
 ```
 
-**Test Requirements:**
-- 100% pass rate required before commits
-- Exit code 0 = success, 1 = failure
-- All tests located in `tests/` directory
+`python tests/run_all_tests.py` is the canonical full-suite gate: it discovers every `test_*.py` under `tests/`, runs each through `pytest -m "not live_api"`, and requires a 100% pass rate (exit `0` = success, `1` = failure). The default suite is fully offline (~3,000+ tests); the exact count is whatever the runner reports. The pre-commit wrapper `python run_pre_commit_validation.py` calls the same runner.
 
 ### Test Structure
 
-Tests mirror source code structure:
-```
-tests/
-   league_helper/
-      util/
-         test_PlayerManager.py
-      modes/
-          test_DraftHelperMode.py
-   simulation/
-       test_SimulatedLeague.py
-```
-
-**Writing Tests:**
-- Use pytest framework
-- Mock external dependencies
-- Follow Arrange-Act-Assert pattern
-- See `tests/README.md` for detailed guidelines
+Tests mirror the source tree under `tests/` (files named `test_<module>.py`, sometimes split as `test_<module>_<aspect>.py`). See `tests/README.md` for detailed guidelines.
 
 ### Testing & Fixture Mode
 
@@ -589,96 +391,65 @@ filenames matching what offline mode expects (e.g.,
 
 **MANDATORY before every commit:**
 
-1. Run all unit tests:
+1. Run the full test suite:
 ```bash
 python tests/run_all_tests.py
 ```
 
-2. Verify 100% pass rate (exit code 0)
+2. Verify a 100% pass rate (exit code 0). The wrapper `python run_pre_commit_validation.py` runs the same gate.
 
-3. Update documentation if functionality changed
+3. Update documentation if functionality changed.
 
-4. Commit with clear message (no emojis, under 50 chars)
+4. Commit with a clear message.
 
 ### Code Standards
 
-- **Type hints**: Required for all public methods
-- **Docstrings**: Google-style format required
-- **Error handling**: Use context managers from `utils/error_handler.py`
-- **Logging**: Use `utils/LoggingManager.py` (DEBUG for details, INFO for progress)
-- **CSV operations**: Use `utils/csv_utils.py` helpers
-- **Path handling**: Always use `pathlib.Path` objects
+- **Type hints**: required for public methods
+- **Docstrings**: Google-style format
+- **Error handling**: use the context managers from `utils/error_handler.py`
+- **Logging**: use `utils/LoggingManager.py` (DEBUG for details, INFO for progress)
+- **CSV operations**: use the `utils/csv_utils.py` helpers
+- **Path handling**: use `pathlib.Path` objects
 
-**Example:**
-```python
-from typing import List, Optional
-from pathlib import Path
-
-def load_players(filepath: Path, position: Optional[str] = None) -> List[FantasyPlayer]:
-    """
-    Load players from CSV file.
-
-    Args:
-        filepath (Path): Path to players CSV file
-        position (Optional[str]): Filter by position (QB, RB, WR, TE, K)
-
-    Returns:
-        List[FantasyPlayer]: Loaded player objects
-
-    Raises:
-        FileNotFoundError: If CSV file doesn't exist
-    """
-    pass
-```
-
-### Development Workflow
-
-See `CLAUDE.md` for complete development guidelines including:
-- Update workflow (using `updates/` folder)
-- TODO file creation and tracking
-- Test requirements
-- Commit standards
-- Documentation requirements
-
-See `rules.txt` for detailed protocols including:
-- TODO file verification (3+ iteration requirement)
-- Requirement verification before completion
-- Pre-commit validation steps
-- Integration testing requirements
+The authoritative development workflow lives in `CLAUDE.md` (the Shamt framework rules); project coding conventions live in `.shamt-core/project-specific-files/CODING_STANDARDS.md`.
 
 ## Data Files
 
 ### Required Files
 
-**Player Data** (`data/players.csv`):
-- Columns: id, name, position, team, projected_points, adp, consistency, injury_risk, bye_week, etc.
-- Generated by: `run_player_fetcher.py`
+**Player pool** (`data/player_data/{qb,rb,wr,te,k,dst}_data.json`):
+- Per-position projection/stat files
+- Generated by `run_player_fetcher.py` (and edited by Modify Player Data mode)
 
 **Team Data** (`data/team_data/*.csv`):
-- Per-team CSV files (32 total, one per NFL team)
-- Contains weekly fantasy points allowed by position
-- Generated by: `run_scores_fetcher.py`
+- Per-team CSV files (32 total, one per NFL team); weekly fantasy points allowed by position
+- Generated/updated by the data-fetch pipeline
 
-**Configuration** (`data/league_config.json`):
+**Schedule / games** (`data/season_schedule.csv`, `data/game_data.csv`):
+- Season schedule (including bye weeks) and game results (including weather)
+- Generated by `run_schedule_fetcher.py` and the game-data fetch
+
+**Configuration** (`data/configs/league_config.json` + `week{N}.json` overrides):
 - League settings and scoring parameters
-- Edit directly or use simulation to optimize
+- Edit directly or `--promote` from a simulation run
 
 ### Simulation Data Files
 
-**Simulation data** (`simulation/sim_data/`):
-- `players_projected.csv`: Projected stats for simulation
-- `players_actual.csv`: Actual stats for simulation
-- `teams_week_N.csv`: Weekly team rankings
+**Historical replay corpus** (`simulation/sim_data/{YEAR}/`):
+- Point-in-time weekly snapshots per season (2021+), committed to the repo
+- Generated by `compile_historical_data.py`
+- Draft strategies the win-rate engine ranks live under `simulation/sim_data/draft_order_possibilities/*.json`
 
-These files are separate from main data files to allow simulation testing without affecting live league helper data.
+**Simulation output** (`simulation/simulation_configs/`):
+- `accuracy_intermediate_*` and `accuracy_optimal_*` config folders produced by the accuracy engine
 
 ## Common Issues
 
 ### Tests Failing
 
-1. Ensure all dependencies installed: `pip install -r requirements.txt`
-2. Check Python version: `python --version` (3.13.6+ recommended)
-3. Run with verbose flag: `python tests/run_all_tests.py --verbose`
+1. Ensure all dependencies are installed: `pip install -r requirements.txt`
+2. Check the Python version: `python --version` (3.13+)
+3. Run with the verbose flag: `python tests/run_all_tests.py --verbose`
 
 ### No Player Data
 
@@ -692,28 +463,25 @@ python run_player_fetcher.py --enable-log-file
 
 ### Simulation Taking Too Long
 
-Use iterative mode instead of full grid search:
+Reduce the sample size or grid density, or add workers:
 ```bash
-python run_simulation.py iterative --sims 50 --workers 8
+python run_win_rate_simulation.py --sweep --sims 50 --workers 8
 ```
 
 ### Import Errors
 
-Ensure you're running scripts from the project root directory:
+Run scripts from the project root directory:
 ```bash
-cd /path/to/FantasyFootballHelperScriptsRefactored
+cd /path/to/FantasyFootballHelperScripts
 python run_league_helper.py
 ```
 
 ## Contributing
 
 Before making changes:
-1. Read `CLAUDE.md` for development guidelines
-2. Read `rules.txt` for workflow protocols
-3. Create update specification in `updates/` folder
-4. Follow TODO file creation and verification process
-5. Maintain 100% test pass rate
-6. Update documentation as needed
+1. Read `CLAUDE.md` for the development workflow (Shamt framework rules).
+2. Follow the Engineer flow and maintain a 100% test pass rate.
+3. Update documentation as needed.
 
 ## License
 
@@ -725,11 +493,7 @@ Kai Mizuno
 
 ## Additional Documentation
 
-- `CLAUDE.md`: Complete development guidelines and coding standards
-- `ARCHITECTURE.md`: System architecture and design documentation
-- `docs/scoring_v2/`: **Comprehensive scoring algorithm documentation** (10 metrics, 10,000+ lines)
-  - `docs/scoring_v2/README.md`: Scoring algorithm overview and dependency diagram
-  - Individual metric reports (01-10): Detailed analysis of each scoring step
-- `rules.txt`: Development workflow protocols and requirements
-- `tests/README.md`: Testing guidelines and patterns
-- `updates/`: Pending and completed update specifications
+- `CLAUDE.md`: development workflow (Shamt framework rules)
+- `.shamt-core/project-specific-files/ARCHITECTURE.md`: system architecture and design documentation
+- `docs/scoring/`: comprehensive scoring-algorithm documentation (per-step metric reports)
+- `tests/README.md`: testing guidelines and patterns
