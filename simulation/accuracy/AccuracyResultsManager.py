@@ -27,6 +27,7 @@ from typing import Dict, List, Optional, Any
 from utils.LoggingManager import get_logger
 from simulation.shared.config_cleanup import cleanup_old_accuracy_optimal_folders
 from simulation.shared.config_constants import WEEK_SPECIFIC_PARAMS
+from simulation.shared.ConfigGenerator import ConfigGenerator
 from simulation.accuracy.accuracy_types import RankingMetrics
 from simulation.accuracy.AccuracyCalculator import AccuracyResult
 
@@ -687,14 +688,21 @@ class AccuracyResultsManager:
         """
         Load intermediate results to resume optimization.
 
-        Loads from standard config files (week1-5.json, week6-9.json, etc.)
-        which contain performance_metrics for resume capability.
+        Fully reconstructs each optimized horizon's AccuracyConfigPerformance into
+        self.best_configs from the metrics the intermediate folder already persists
+        (no re-evaluation), so a resumed run's best_configs matches a cold run's state
+        at the same resume point. Horizons saved baseline-only
+        (performance_metrics.mae is None) remain None, matching cold-run state.
+
+        The merged per-horizon config_dict comes from
+        ConfigGenerator.load_baseline_from_folder (league_config.json + the horizon's
+        week file), which requires the folder's full 5-file set.
 
         Args:
             folder_path: Path to intermediate folder
 
         Returns:
-            bool: True if results were loaded successfully
+            bool: True if at least one horizon was reconstructed
         """
         if not folder_path.exists():
             self.logger.warning(f"Intermediate folder not found: {folder_path}")
@@ -706,6 +714,21 @@ class AccuracyResultsManager:
             'week_10_13': 'week10-13.json',
             'week_14_17': 'week14-17.json',
         }
+        horizon_mapping = {
+            'week_1_5': '1-5',
+            'week_6_9': '6-9',
+            'week_10_13': '10-13',
+            'week_14_17': '14-17',
+        }
+
+        merged_configs = ConfigGenerator.load_baseline_from_folder(folder_path)
+
+        metadata = {}
+        metadata_path = folder_path / 'metadata.json'
+        if metadata_path.exists():
+            with open(metadata_path, 'r') as f:
+                metadata = json.load(f)
+        best_mae_per_horizon = metadata.get('best_mae_per_horizon', {})
 
         loaded_count = 0
         for week_key in self.best_configs.keys():
@@ -714,21 +737,62 @@ class AccuracyResultsManager:
                 continue
 
             config_path = folder_path / standard_filename
-            if config_path.exists():
-                with open(config_path, 'r') as f:
-                    data = json.load(f)
+            if not config_path.exists():
+                continue
 
-                if 'performance_metrics' in data and 'parameters' in data:
-                    metrics = data['performance_metrics']
+            with open(config_path, 'r') as f:
+                data = json.load(f)
 
-                    if 'mae' in metrics and metrics['mae'] is not None:
-                        loaded_count += 1
-                        self.logger.debug(
-                            f"Found intermediate config {standard_filename} for {week_key} "
-                            f"(parameters only, not loading metrics)"
-                        )
-                    else:
-                        self.logger.debug(f"Skipped {standard_filename} - not accuracy format (missing mae field)")
+            metrics = data.get('performance_metrics', {})
+            mae = metrics.get('mae')
+            if mae is None:
+                self.logger.debug(f"Skipped {standard_filename} - baseline-only horizon (mae is None)")
+                continue
+
+            ranking_metrics = metrics.get('ranking_metrics', {})
+            overall_metrics = None
+            if ranking_metrics:
+                overall_metrics = RankingMetrics(
+                    pairwise_accuracy=ranking_metrics.get('pairwise_accuracy'),
+                    top_5_accuracy=ranking_metrics.get('top_5_accuracy'),
+                    top_10_accuracy=ranking_metrics.get('top_10_accuracy'),
+                    top_20_accuracy=ranking_metrics.get('top_20_accuracy'),
+                    spearman_correlation=ranking_metrics.get('spearman_correlation')
+                )
+
+            by_position = {}
+            for pos, pos_metrics in ranking_metrics.get('by_position', {}).items():
+                by_position[pos] = RankingMetrics(
+                    pairwise_accuracy=pos_metrics.get('pairwise_accuracy'),
+                    top_5_accuracy=pos_metrics.get('top_5_accuracy'),
+                    top_10_accuracy=pos_metrics.get('top_10_accuracy'),
+                    top_20_accuracy=pos_metrics.get('top_20_accuracy'),
+                    spearman_correlation=pos_metrics.get('spearman_correlation')
+                )
+
+            player_count = metrics.get('player_count')
+            config_value = metrics.get('config_value')
+            total_error = mae * player_count if player_count is not None else None
+            test_idx = best_mae_per_horizon.get(week_key, {}).get('test_idx')
+
+            horizon_key = horizon_mapping[week_key]
+            config_dict = merged_configs[horizon_key]
+
+            self.best_configs[week_key] = AccuracyConfigPerformance(
+                config_dict=config_dict,
+                mae=mae,
+                player_count=player_count,
+                total_error=total_error,
+                config_value=config_value,
+                overall_metrics=overall_metrics,
+                by_position=by_position,
+                test_idx=test_idx
+            )
+            loaded_count += 1
+            self.logger.debug(
+                f"Reconstructed best_config for {week_key} from {standard_filename} "
+                f"(mae={mae}, player_count={player_count})"
+            )
 
         self.logger.info(f"Loaded {loaded_count} intermediate configs from {folder_path}")
         return loaded_count > 0

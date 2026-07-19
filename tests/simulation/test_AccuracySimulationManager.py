@@ -641,6 +641,52 @@ class TestAccuracySimulationManagerResumeState:
         assert should_resume is False
         assert start_idx == 0
 
+    def test_resume_optimizes_first_incomplete_param(self, manager_with_output, tmp_path):
+        """D1 regression: on resume, the first not-yet-optimized parameter
+        (index resume_param_idx == highest_idx + 1) is optimized, and all
+        strictly-earlier indices are skipped."""
+        manager = manager_with_output
+
+        # highest completed idx = 2 -> resume_param_idx = 3
+        intermediate = manager.output_dir / "accuracy_intermediate_02_TEAM_QUALITY_MIN_WEEKS"
+        intermediate.mkdir()
+        league_config = {'config_name': 'League', 'parameters': {'BASE_PARAM': 1}}
+        with open(intermediate / "league_config.json", 'w') as f:
+            json.dump(league_config, f)
+        for filename in ['week1-5.json', 'week6-9.json', 'week10-13.json', 'week14-17.json']:
+            with open(intermediate / filename, 'w') as f:
+                json.dump(
+                    {'config_name': 'c', 'parameters': {'WEEK_PARAM': 1},
+                     'performance_metrics': {'mae': 10.5, 'player_count': 10, 'config_value': 1.0}},
+                    f
+                )
+
+        # Configure the mocked collaborators so run_both's loop body is survivable.
+        manager.config_generator.generate_horizon_test_values.return_value = {
+            '1-5': [0.1], '6-9': [0.1], '10-13': [0.1], '14-17': [0.1]
+        }
+        manager.config_generator.num_test_values = 5
+        manager.results_manager.best_configs = {
+            'week_1_5': None, 'week_6_9': None, 'week_10_13': None, 'week_14_17': None
+        }
+        manager.parallel_runner = Mock()
+        manager.parallel_runner.evaluate_configs_parallel.return_value = []
+
+        manager.run_both()
+
+        called_params = [
+            call.args[0]
+            for call in manager.config_generator.generate_horizon_test_values.call_args_list
+        ]
+
+        # First param actually optimized is index 3 (resume_param_idx), not 4.
+        assert called_params[0] == TEST_PARAMETER_ORDER[3]
+        # Strictly-earlier indices (0,1,2) are skipped.
+        for skipped in TEST_PARAMETER_ORDER[:3]:
+            assert skipped not in called_params
+        # The previously-buggy off-by-one would have skipped index 3 too.
+        assert TEST_PARAMETER_ORDER[3] in called_params
+
 
 class TestSweepOrphanedTempDirs:
     """Tests for AccuracySimulationManager._sweep_orphaned_temp_dirs()."""
@@ -901,6 +947,49 @@ class TestRunBothCliWiring:
         )
         for fname in ["week1-5.json", "week6-9.json", "week10-13.json", "week14-17.json"]:
             assert (optimal_folder / fname).exists(), f"Missing {fname} in optimal folder"
+
+
+class TestRunBothBaselineSelection:
+    """Tests for run_both non-resume baseline selection (D3: mtime, not lexical)."""
+
+    def test_run_both_picks_mtime_latest_baseline(self, tmp_path):
+        """Given two accuracy_optimal_* folders whose lexical and mtime orderings
+        disagree, run_both's non-resume pick selects the mtime-latest folder
+        (matching find_baseline_config), not the lexical-latest."""
+        config_path = tmp_path / "baseline.json"
+        with open(config_path, 'w') as f:
+            json.dump({'config_name': 'test'}, f)
+
+        data_folder = tmp_path / "sim_data"
+        (data_folder / "2024" / "weeks").mkdir(parents=True)
+
+        output_dir = tmp_path / "output"
+        output_dir.mkdir()
+
+        # Lexically-last but older by mtime.
+        lexical_latest = output_dir / "accuracy_optimal_2020"
+        lexical_latest.mkdir()
+        # Lexically-earlier but newer by mtime.
+        mtime_latest = output_dir / "accuracy_optimal_2019"
+        mtime_latest.mkdir()
+
+        old_time = time.time() - 1000
+        new_time = time.time()
+        os.utime(lexical_latest, (old_time, old_time))
+        os.utime(mtime_latest, (new_time, new_time))
+
+        with patch('simulation.accuracy.AccuracySimulationManager.ConfigGenerator') as mock_cg, \
+             patch('simulation.accuracy.AccuracySimulationManager.AccuracyCalculator'), \
+             patch('simulation.accuracy.AccuracySimulationManager.AccuracyResultsManager'):
+            manager = AccuracySimulationManager(
+                baseline_config_path=config_path,
+                output_dir=output_dir,
+                data_folder=data_folder,
+                parameter_order=[]
+            )
+            manager.run_both()
+
+        mock_cg.load_baseline_from_folder.assert_called_once_with(mtime_latest)
 
 
 if __name__ == "__main__":
