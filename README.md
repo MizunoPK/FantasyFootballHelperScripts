@@ -302,16 +302,15 @@ FantasyFootballHelperScripts/
 
 The primary live scoring config is `data/configs/league_config.json`, with per-horizon week overrides `data/configs/week1-5.json`, `week6-9.json`, `week10-13.json`, and `week14-17.json`. `ConfigManager` merges the base config with the active week file. (A legacy top-level `league_config.json` fallback is consulted only when `data/configs/` is absent, and is kept for back-compat/tests.)
 
-**Key Parameters:**
-- `num_recommendations`: number of draft recommendations to display
-- `[position]_slots`: position limits (e.g. QB, RB, WR, TE, FLEX, K, DST)
+**Key Parameters** (under `parameters`):
+- `MAX_POSITIONS`: roster position limits (QB, RB, WR, TE, FLEX, K, DST)
 - `FLEX_ELIGIBLE_POSITIONS`: positions that can fill FLEX slots (default: `["RB", "WR"]`)
-- `consistency_multipliers`: bonuses for consistent performers
-- `injury_penalties`: penalties based on injury risk (Out/Doubtful/Questionable)
-- `SAME_POS_BYE_WEIGHT` / `DIFF_POS_BYE_WEIGHT`: weights for the median-based bye-week penalty
-- `team_multipliers`: bonuses/penalties based on team strength
-- `MATCHUP_SCORING.IMPACT_SCALE`: magnitude of the matchup bonus/penalty
-- `SCHEDULE_SCORING.IMPACT_SCALE`: magnitude of the schedule bonus/penalty
+- `INJURY_PENALTIES`: penalties by injury-risk tier (`LOW` / `MEDIUM` / `HIGH`)
+- `SAME_POS_BYE_WEIGHT` / `DIFF_POS_BYE_WEIGHT`: weights for the bye-week penalty
+- `ADP_SCORING` / `PLAYER_RATING_SCORING`: `THRESHOLDS` / `MULTIPLIERS` / `WEIGHT` for the ADP and player-rating scoring components
+- `DRAFT_ORDER_BONUSES` / `DRAFT_ORDER`: positional draft strategy (primary/secondary targets per round)
+- `NFL_SCORING_FORMAT`: league scoring format (e.g. `ppr`)
+- `MATCHUP_SCORING.IMPACT_SCALE` / `SCHEDULE_SCORING.IMPACT_SCALE`: magnitude of the matchup and schedule bonus/penalty
 
 **Editing configuration:** edit `data/configs/league_config.json` directly, or use the simulation engines to find and `--promote` optimal values.
 
