@@ -120,6 +120,7 @@ class CombinationEvaluator:
         self,
         draft_order: list,
         param_values: Dict[str, float],
+        incumbent_param_values: Optional[Dict[str, float]] = None,
     ) -> Tuple[int, int, float]:
         """
         Score one combination across all cached seasons.
@@ -128,6 +129,10 @@ class CombinationEvaluator:
             draft_order (list): The strategy's DRAFT_ORDER array (applied verbatim).
             param_values (Dict[str, float]): The 6 draft-side params (see
                 config_overrides.apply_draft_overrides; validated/precision-rounded there).
+            incumbent_param_values (Optional[Dict[str, float]]): The reference (incumbent)
+                6-param set the 9 opponents draft with; the measured team drafts with
+                param_values (D1/D2). None (default) falls back to param_values, reproducing
+                the symmetric single-config behavior byte-for-byte (D4).
 
         Returns:
             Tuple[int, int, float]: (total_wins, total_games, win_rate), aggregated
@@ -138,7 +143,9 @@ class CombinationEvaluator:
         """
         logger = get_logger()  # KDD-3: resolve at call time so --log-level governs this output
 
-        config = apply_draft_overrides(self._base_config, draft_order, param_values)
+        incumbent = param_values if incumbent_param_values is None else incumbent_param_values
+        trial_config = apply_draft_overrides(self._base_config, draft_order, param_values)
+        incumbent_config = apply_draft_overrides(self._base_config, draft_order, incumbent)
 
         total_wins = 0
         total_losses = 0
@@ -147,7 +154,8 @@ class CombinationEvaluator:
         for season_folder, week_data_cache in self._season_cache.items():
             self._runner.set_data_folder(season_folder)
             results = self._runner.run_simulations_for_config(
-                config, self._num_simulations, preloaded_week_data=week_data_cache
+                incumbent_config, self._num_simulations, preloaded_week_data=week_data_cache,
+                measured_config_dict=trial_config if incumbent_param_values is not None else None
             )
             # D3: read the runner's per-call drop counters immediately after the call (safe
             # because evaluate() runs the runner sequentially per season — see class docstring).

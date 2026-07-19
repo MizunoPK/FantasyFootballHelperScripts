@@ -296,6 +296,9 @@ def _run_sweep_mode(args: argparse.Namespace, data_folder: Path, logger) -> None
     # Refresh the stored fingerprint on every launch (D1) so a fresh / input-changed file
     # records the current inputs.
     store.set_input_fingerprint(fp_now)
+    # T54/D3: certify this store as produced under the discriminating (measured-vs-incumbent)
+    # regime so config_promoter allows a promote from it (a flagless store is fail-safe blocked).
+    store.set_discriminating(True)
     tournament = SweepTournament(evaluator, store, num_values=args.num_values)
 
     # T16/KDD-4: detect once whether stdout is a TTY. TTY -> a redrawing ProgressTracker bar;

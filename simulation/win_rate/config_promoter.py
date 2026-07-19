@@ -69,6 +69,13 @@ def compute_promotion(
             structurally incomplete (missing the "parameters" section or an expected
             nested key). No write occurs.
     """
+    if not store.get_discriminating():
+        raise ConfigurationError(
+            "Refusing to promote: the sweep store was not produced under the discriminating "
+            "(measured-vs-incumbent) regime — re-run the sweep. A noise-driven winner from a "
+            "non-discriminating sweep must not be written."
+        )
+
     combinations = store.get_all_combinations()
     if not combinations:
         raise ConfigurationError(

@@ -28,7 +28,7 @@ def _baseline():
 
 def _evaluator():
     ev = Mock()
-    ev.evaluate.side_effect = lambda do, pv: (6, 10, 0.6)  # flat landscape -> immediate convergence
+    ev.evaluate.side_effect = lambda do, pv, incumbent_param_values=None: (6, 10, 0.6)  # flat landscape -> immediate convergence
     return ev
 
 
