@@ -154,7 +154,7 @@ class TestBaseAPIClientOfflineMode:
 
     @pytest.mark.asyncio
     async def test_raises_file_not_found_on_miss(self, monkeypatch, tmp_path):
-        """Verify FileNotFoundError (or RetryError wrapping it) is raised when fixture is missing."""
+        """Verify FileNotFoundError is raised on the first attempt (non-retryable, not wrapped in RetryError) when the fixture is missing."""
         from player_data_fetcher.espn_client import BaseAPIClient
 
         espn_dir = tmp_path / "espn_api"
@@ -165,7 +165,7 @@ class TestBaseAPIClientOfflineMode:
 
         settings = types.SimpleNamespace(rate_limit_delay=0.0, request_timeout=5.0)
         client = BaseAPIClient(settings)
-        with pytest.raises((FileNotFoundError, RetryError)):
+        with pytest.raises(FileNotFoundError):
             await client._make_request("GET", scoreboard_url, params={"week": 7, "dates": 2025})
 
     @pytest.mark.asyncio
@@ -192,6 +192,118 @@ class TestBaseAPIClientOfflineMode:
         await client._make_request("GET", scoreboard_url, params={"week": 1, "dates": 2025})
 
         assert mock_sleep.call_count == 1
+
+    @pytest.mark.asyncio
+    async def test_offline_unmapped_url_value_error_fast_aborts(self, monkeypatch, tmp_path):
+        """Offline: an unmapped-URL ValueError aborts on the first attempt (T53).
+
+        The deterministic fixture-resolution ValueError must NOT be retried/backed-off in
+        fixture mode: the raw ValueError propagates (a RetryError wrapper would not match
+        pytest.raises(ValueError)) and no tenacity backoff sleep occurs.
+        """
+        from player_data_fetcher.espn_client import BaseAPIClient
+
+        espn_dir = tmp_path / "espn_api"
+        espn_dir.mkdir()
+        monkeypatch.setenv("ESPN_FIXTURE_DIR", str(tmp_path))
+        mock_sleep = AsyncMock()
+        monkeypatch.setattr(asyncio, "sleep", mock_sleep)
+
+        settings = types.SimpleNamespace(rate_limit_delay=0.0, request_timeout=5.0)
+        client = BaseAPIClient(settings)
+        unmapped_url = "https://site.api.espn.com/apis/site/v2/sports/football/nfl/unknown_endpoint"
+
+        with pytest.raises(ValueError) as exc_info:
+            await client._make_request("GET", unmapped_url, params={})
+
+        assert "No fixture filename defined for URL" in str(exc_info.value)
+        assert mock_sleep.call_count == 0  # first-attempt abort, no retry/backoff loop
+
+    @pytest.mark.asyncio
+    async def test_offline_corrupt_fixture_json_error_fast_aborts(self, monkeypatch, tmp_path):
+        """Offline: a corrupt-fixture json.JSONDecodeError aborts on the first attempt (T53).
+
+        json.JSONDecodeError subclasses ValueError; in fixture mode it must fast-abort with
+        no retry/backoff. A RetryError wrapper would not match pytest.raises(json.JSONDecodeError).
+        """
+        from player_data_fetcher.espn_client import BaseAPIClient
+
+        espn_dir = tmp_path / "espn_api"
+        espn_dir.mkdir()
+        scoreboard_url = "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard"
+        (espn_dir / "scoreboard_week_6_2025.json").write_text("{ this is not valid json")
+
+        monkeypatch.setenv("ESPN_FIXTURE_DIR", str(tmp_path))
+        mock_sleep = AsyncMock()
+        monkeypatch.setattr(asyncio, "sleep", mock_sleep)
+
+        settings = types.SimpleNamespace(rate_limit_delay=0.0, request_timeout=5.0)
+        client = BaseAPIClient(settings)
+
+        with pytest.raises(json.JSONDecodeError):
+            await client._make_request("GET", scoreboard_url, params={"week": 6, "dates": 2025})
+
+        assert mock_sleep.call_count == 0  # first-attempt abort, no retry/backoff loop
+
+    @pytest.mark.asyncio
+    async def test_live_transient_error_still_retried(self, monkeypatch, tmp_path):
+        """Live path (ESPN_FIXTURE_DIR unset): a transient ESPNServerError is STILL retried 3x.
+
+        Positive control proving the offline ValueError exclusion did not leak into the live
+        path (offline-confinement — D2/D4). asyncio.sleep is mocked so the retry loop is instant.
+        """
+        from player_data_fetcher.espn_client import BaseAPIClient, ESPNServerError
+
+        monkeypatch.delenv("ESPN_FIXTURE_DIR", raising=False)
+        mock_sleep = AsyncMock()
+        monkeypatch.setattr(asyncio, "sleep", mock_sleep)
+
+        mock_response = MagicMock()
+        mock_response.status_code = 500
+
+        mock_http_client = AsyncMock()
+        mock_http_client.request.return_value = mock_response
+
+        settings = types.SimpleNamespace(rate_limit_delay=0.1, request_timeout=5.0)
+        client = BaseAPIClient(settings)
+        client._client = mock_http_client
+
+        scoreboard_url = "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard"
+        with pytest.raises(RetryError):
+            await client._make_request("GET", scoreboard_url, params={"week": 1, "dates": 2025})
+
+        assert mock_http_client.request.call_count == 3  # transient set still retried 3x
+
+    @pytest.mark.asyncio
+    async def test_live_response_json_decode_error_still_retried(self, monkeypatch, tmp_path):
+        """Live path (ESPN_FIXTURE_DIR unset): a response.json() JSONDecodeError is STILL retried.
+
+        The decisive D2 positive control: the live malformed-body JSONDecodeError (a ValueError
+        subclass) must keep retrying — the env gate confines the offline ValueError exclusion so
+        it never fires here. An unconditional ValueError exclusion (Option A) would fail this.
+        """
+        from player_data_fetcher.espn_client import BaseAPIClient
+
+        monkeypatch.delenv("ESPN_FIXTURE_DIR", raising=False)
+        mock_sleep = AsyncMock()
+        monkeypatch.setattr(asyncio, "sleep", mock_sleep)
+
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.side_effect = json.JSONDecodeError("Expecting value", "", 0)
+
+        mock_http_client = AsyncMock()
+        mock_http_client.request.return_value = mock_response
+
+        settings = types.SimpleNamespace(rate_limit_delay=0.1, request_timeout=5.0)
+        client = BaseAPIClient(settings)
+        client._client = mock_http_client
+
+        scoreboard_url = "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard"
+        with pytest.raises(RetryError):
+            await client._make_request("GET", scoreboard_url, params={"week": 1, "dates": 2025})
+
+        assert mock_http_client.request.call_count == 3  # live JSONDecodeError still retried (D2)
 
 
 class TestGetFixtureFilename:

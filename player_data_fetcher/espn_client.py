@@ -19,7 +19,7 @@ from typing import Dict, List, Any, Optional, Set
 from urllib.parse import urlparse
 
 import httpx
-from tenacity import retry, stop_after_attempt, wait_random_exponential, retry_if_not_exception_type
+from tenacity import retry, stop_after_attempt, wait_random_exponential, retry_if_exception
 
 from player_data_fetcher.player_data_models import ESPNPlayerData, ScoringFormat
 from player_data_fetcher.fantasy_points_calculator import FantasyPointsExtractor, FantasyPointsConfig
@@ -44,6 +44,35 @@ class ESPNRateLimitError(ESPNAPIError):
 class ESPNServerError(ESPNAPIError):
     """ESPN server error exception"""  
     pass
+
+
+def _should_retry_espn_request(exc: BaseException) -> bool:
+    """tenacity retry predicate for BaseAPIClient._make_request.
+
+    Retries live transient failures, but never retries deterministic errors that
+    cannot succeed on a retry:
+      - a missing fixture (FileNotFoundError) — unconditional (T13); FileNotFoundError
+        is only ever raised in the offline branch, so this is offline-only in practice.
+      - in offline fixture mode (ESPN_FIXTURE_DIR set), any deterministic
+        fixture-resolution/parse error (ValueError, including its json.JSONDecodeError
+        and UnicodeDecodeError subclasses) — the T53 broadening.
+
+    The ValueError exclusion is gated on ESPN_FIXTURE_DIR so it never fires on the live
+    request path (env unset), where response.json() legitimately raises a
+    json.JSONDecodeError (a ValueError subclass) that must keep retrying. Do NOT drop
+    the env gate — an unconditional ValueError exclusion would regress live retries (D2).
+
+    Args:
+        exc: The exception raised by the wrapped request attempt.
+
+    Returns:
+        True to retry the request, False to abort on the first attempt.
+    """
+    if isinstance(exc, FileNotFoundError):
+        return False
+    if os.environ.get("ESPN_FIXTURE_DIR") and isinstance(exc, ValueError):
+        return False
+    return True
 
 
 class BaseAPIClient:
@@ -141,7 +170,7 @@ class BaseAPIClient:
                 f"Add a mapping to BaseAPIClient._get_fixture_filename()."
             )
 
-    @retry(stop=stop_after_attempt(3), wait=wait_random_exponential(multiplier=1, max=10), retry=retry_if_not_exception_type(FileNotFoundError))
+    @retry(stop=stop_after_attempt(3), wait=wait_random_exponential(multiplier=1, max=10), retry=retry_if_exception(_should_retry_espn_request))
     async def _make_request(self, method: str, url: str, **kwargs) -> Dict[str, Any]:
         """
         Make HTTP request with automatic retry logic and rate limiting.
@@ -164,6 +193,7 @@ class BaseAPIClient:
             ESPNServerError: If ESPN returns 500+ (server error)
             ESPNAPIError: For other HTTP errors (400-499) or network failures
             FileNotFoundError: If ESPN_FIXTURE_DIR is set and the fixture file is missing; non-retryable in fixture mode (excluded from the retry predicate, raised on the first attempt).
+            ValueError: If ESPN_FIXTURE_DIR is set and a fixture is unresolvable or unparseable (an unmapped-URL ValueError, or a corrupt-fixture json.JSONDecodeError / UnicodeDecodeError — both ValueError subclasses); non-retryable in fixture mode, raised on the first attempt. On the live path (ESPN_FIXTURE_DIR unset) a response.json() JSONDecodeError is still retried.
         """
         self.logger.debug(f"Making request to: {url}")
 
