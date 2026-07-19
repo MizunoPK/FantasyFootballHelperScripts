@@ -293,7 +293,7 @@ class TestPromoteGuard:
         # Do NOT call set_discriminating — pre-fix store
         before = config_path.read_bytes()
 
-        with pytest.raises(ConfigurationError, match="non-discriminating"):
+        with pytest.raises(ConfigurationError, match="Refusing to promote"):
             compute_promotion(mgr, Path("unused"), config_path)
 
         assert config_path.read_bytes() == before
@@ -305,7 +305,7 @@ class TestPromoteGuard:
         mgr.set_discriminating(False)
         before = config_path.read_bytes()
 
-        with pytest.raises(ConfigurationError, match="non-discriminating"):
+        with pytest.raises(ConfigurationError, match="Refusing to promote"):
             compute_promotion(mgr, Path("unused"), config_path)
 
         assert config_path.read_bytes() == before
@@ -317,7 +317,7 @@ class TestPromoteGuard:
         # Do NOT call set_discriminating
         before = config_path.read_bytes()
 
-        with pytest.raises(ConfigurationError, match="non-discriminating"):
+        with pytest.raises(ConfigurationError, match="Refusing to promote"):
             promote_best_combination(mgr, Path("unused"), config_path)
 
         assert config_path.read_bytes() == before
