@@ -155,7 +155,7 @@ class CombinationEvaluator:
             self._runner.set_data_folder(season_folder)
             results = self._runner.run_simulations_for_config(
                 incumbent_config, self._num_simulations, preloaded_week_data=week_data_cache,
-                measured_config_dict=trial_config
+                measured_config_dict=trial_config if incumbent_param_values is not None else None
             )
             # D3: read the runner's per-call drop counters immediately after the call (safe
             # because evaluate() runs the runner sequentially per season — see class docstring).
