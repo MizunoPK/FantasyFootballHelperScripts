@@ -721,7 +721,14 @@ class AccuracyResultsManager:
             'week_14_17': '14-17',
         }
 
-        merged_configs = ConfigGenerator.load_baseline_from_folder(folder_path)
+        try:
+            merged_configs = ConfigGenerator.load_baseline_from_folder(folder_path)
+        except (ValueError, FileNotFoundError) as e:
+            self.logger.warning(
+                f"Cannot reconstruct best_configs from incomplete intermediate folder "
+                f"{folder_path}: {e}"
+            )
+            return False
 
         metadata = {}
         metadata_path = folder_path / 'metadata.json'

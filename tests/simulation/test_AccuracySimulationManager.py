@@ -952,10 +952,20 @@ class TestRunBothCliWiring:
 class TestRunBothBaselineSelection:
     """Tests for run_both non-resume baseline selection (D3: mtime, not lexical)."""
 
+    @staticmethod
+    def _write_complete_optimal_folder(folder):
+        """Populate a folder with the 5 files find_baseline_config requires valid."""
+        folder.mkdir(parents=True, exist_ok=True)
+        for fname in ['league_config.json', 'week1-5.json', 'week6-9.json',
+                      'week10-13.json', 'week14-17.json']:
+            with open(folder / fname, 'w') as f:
+                json.dump({'config_name': fname}, f)
+
     def test_run_both_picks_mtime_latest_baseline(self, tmp_path):
-        """Given two accuracy_optimal_* folders whose lexical and mtime orderings
-        disagree, run_both's non-resume pick selects the mtime-latest folder
-        (matching find_baseline_config), not the lexical-latest."""
+        """Given accuracy_optimal_* folders whose lexical and mtime orderings
+        disagree, run_both's non-resume pick selects the mtime-latest *valid*
+        folder (matching find_baseline_config), not the lexical-latest — and
+        skips an even-newer folder that is missing required files (D3 + S1)."""
         config_path = tmp_path / "baseline.json"
         with open(config_path, 'w') as f:
             json.dump({'config_name': 'test'}, f)
@@ -966,17 +976,24 @@ class TestRunBothBaselineSelection:
         output_dir = tmp_path / "output"
         output_dir.mkdir()
 
-        # Lexically-last but older by mtime.
+        # Lexically-last but older by mtime (complete, valid).
         lexical_latest = output_dir / "accuracy_optimal_2020"
-        lexical_latest.mkdir()
-        # Lexically-earlier but newer by mtime.
+        self._write_complete_optimal_folder(lexical_latest)
+        # Lexically-earlier but newer by mtime (complete, valid) — the expected pick.
         mtime_latest = output_dir / "accuracy_optimal_2019"
-        mtime_latest.mkdir()
+        self._write_complete_optimal_folder(mtime_latest)
+        # Newest by mtime but INCOMPLETE (missing week files) — must be skipped (S1).
+        incomplete_newest = output_dir / "accuracy_optimal_2099"
+        incomplete_newest.mkdir()
+        with open(incomplete_newest / "league_config.json", 'w') as f:
+            json.dump({'config_name': 'partial'}, f)
 
         old_time = time.time() - 1000
-        new_time = time.time()
+        new_time = time.time() - 500
+        newest_time = time.time()
         os.utime(lexical_latest, (old_time, old_time))
         os.utime(mtime_latest, (new_time, new_time))
+        os.utime(incomplete_newest, (newest_time, newest_time))
 
         with patch('simulation.accuracy.AccuracySimulationManager.ConfigGenerator') as mock_cg, \
              patch('simulation.accuracy.AccuracySimulationManager.AccuracyCalculator'), \
@@ -989,6 +1006,7 @@ class TestRunBothBaselineSelection:
             )
             manager.run_both()
 
+        # mtime-latest among the VALID folders (skips the newer incomplete one).
         mock_cg.load_baseline_from_folder.assert_called_once_with(mtime_latest)
 
 

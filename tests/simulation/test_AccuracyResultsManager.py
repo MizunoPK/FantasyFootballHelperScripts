@@ -527,6 +527,22 @@ class TestAccuracyResultsManager:
         success = results_manager.load_intermediate_results(temp_dir / "nonexistent")
         assert not success
 
+    def test_load_intermediate_results_incomplete_folder(self, results_manager, temp_dir):
+        """S2: an incomplete intermediate folder (missing required files) is handled
+        gracefully — load returns False (not a raised ValueError) and best_configs
+        is left untouched."""
+        incomplete = temp_dir / "accuracy_intermediate_00_TEST"
+        incomplete.mkdir()
+        # Only league_config.json present; the 4 week files are missing, so
+        # ConfigGenerator.load_baseline_from_folder would raise — S2 catches it.
+        with open(incomplete / "league_config.json", 'w') as f:
+            json.dump({'config_name': 'partial'}, f)
+
+        success = results_manager.load_intermediate_results(incomplete)
+
+        assert success is False
+        assert all(v is None for v in results_manager.best_configs.values())
+
     def test_get_summary(self, results_manager):
         """Test getting results summary."""
         config = {'test': 'config'}

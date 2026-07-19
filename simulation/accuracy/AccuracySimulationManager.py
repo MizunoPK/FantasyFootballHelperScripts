@@ -611,7 +611,12 @@ class AccuracySimulationManager:
                 )
                 self.results_manager.load_intermediate_results(last_config_path)
             else:
-                optimal_folders = sorted((p for p in self.output_dir.glob("accuracy_optimal_*") if p.is_dir()), key=lambda p: p.stat().st_mtime)
+                required_files = ['league_config.json', 'week1-5.json', 'week6-9.json', 'week10-13.json', 'week14-17.json']
+                optimal_folders = sorted(
+                    (p for p in self.output_dir.glob("accuracy_optimal_*")
+                     if p.is_dir() and all((p / f).exists() for f in required_files)),
+                    key=lambda p: p.stat().st_mtime
+                )
                 if optimal_folders:
                     baseline_to_use = optimal_folders[-1]
                     self.logger.info(f"Using latest optimal config as baseline: {baseline_to_use.name}")
