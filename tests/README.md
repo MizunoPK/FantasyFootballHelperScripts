@@ -12,8 +12,11 @@ tests/
 ├── conftest.py                        # Pytest configuration (path setup)
 ├── run_all_tests.py                   # Test runner script (100% pass requirement)
 ├── league_helper/                     # Tests mirroring league_helper/ (modes + util/)
-├── simulation/                        # Win-rate + accuracy engine tests
+├── utils/                             # Shared utility / helper tests
 ├── player_data_fetcher/               # Player-data fetcher tests
+├── historical_data_compiler/          # Historical-data compiler tests
+├── schedule_data_fetcher/             # Schedule-data fetcher tests
+├── simulation/                        # Win-rate + accuracy engine tests
 ├── integration/                       # Offline end-to-end fetcher/compiler tests
 ├── unit/                              # Standalone unit tests
 ├── root_scripts/                      # Repo-root runner-script tests
@@ -137,8 +140,11 @@ tests/run_all_tests.py` (full suite, strict 100% pass gate) or `python tests/run
 Coverage buckets (each mirrors the corresponding source package):
 
 - `tests/league_helper/` — League Helper modes and `util/` (scoring, config, roster, team data, …)
-- `tests/simulation/` — win-rate and accuracy simulation engines
+- `tests/utils/` — shared utility / helper modules
 - `tests/player_data_fetcher/` — player-data fetcher
+- `tests/historical_data_compiler/` — historical-data compiler
+- `tests/schedule_data_fetcher/` — schedule-data fetcher
+- `tests/simulation/` — win-rate and accuracy simulation engines
 - `tests/integration/` — offline end-to-end fetcher/compiler flows (via committed fixtures)
 - `tests/unit/` — standalone unit tests
 - `tests/root_scripts/` — repo-root runner scripts
