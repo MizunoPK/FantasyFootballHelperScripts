@@ -5,16 +5,17 @@ A per-draft-order-config convergent coordinate-ascent tournament over the 6 draf
 params. For each (strategy_id, draft_order) config independently, it runs full
 coordinate-ascent passes to convergence: each pass sweeps all 6 numerics (holding the
 others at their current best), advancing a param to a candidate value only when that
-candidate beats the config's current best win rate by more than the ε margin (a strict
-ε-switch). Passes repeat until a full pass moves no parameter — convergence is the sole
-stopping rule. The candidate grid is computed once per config from its baseline and
-reused across passes (a fixed, finite search space).
+candidate's FRESH head-to-head evaluation against the incumbent clears the adoption gate
+(a one-sided one-sample z-test against the 0.50 null AND-ed with a minimum-effect-size
+floor — see _adopt_by_significance). Passes repeat until a full pass moves no parameter —
+convergence is the sole stopping rule. The candidate grid is computed once per config from
+its baseline and reused across passes (a fixed, finite search space).
 
-Each combination is scored via an injected CombinationEvaluator (called sequentially)
-and recorded into an injected SweepResultsManager. The authoritative ranked best is read
-back from the accumulating store; the returned per-config map is a convenience handle
-over the same recorded data. Re-running accumulates more evidence into the same store
-records.
+Each combination is scored via an injected CombinationEvaluator (called sequentially) and
+recorded into an injected SweepResultsManager. The store is the durable record, the
+reporting source, and the `--promote` input — it is NOT read by the adoption gate (T58/D2).
+The returned per-config map carries each config's converged params and the fresh win rate
+of the evaluation that won it.
 
 Author: Kai Mizuno
 """
@@ -29,13 +30,16 @@ from utils.LoggingManager import get_logger
 from utils.error_handler import ConfigurationError
 from simulation.win_rate.param_value_generation import generate_candidate_values, DRAFT_SWEEP_PARAMS
 
-# Significance-gate parameters (D1/D2/D3/D5/D6). A trial param value is adopted only when its
-# ACCUMULATED win rate (read back from the store) is both statistically significantly higher
-# (one-sided pooled two-proportion z-test at DEFAULT_CONFIDENCE) AND higher by more than
-# DEFAULT_MIN_EFFECT_SIZE than the running-best's accumulated rate; adoption is held until both
-# combos have at least DEFAULT_MIN_GAMES accumulated games. Module-level so the driver's input
-# fingerprint and the engine's gate share one source of truth (no drift -> no spurious resume
-# mismatch).
+# Significance-gate parameters (T58/D1/D3). A trial param value is adopted only when its FRESH
+# head-to-head win rate (the single evaluation just run against the incumbent, T54) is both
+# statistically significantly above the 0.50 null (one-sided ONE-SAMPLE z-test at
+# DEFAULT_CONFIDENCE) AND above 0.50 by more than DEFAULT_MIN_EFFECT_SIZE; adoption is held when
+# that evaluation yields fewer than DEFAULT_MIN_GAMES games. The 0.50 null is exact by
+# construction: the measured team plays the trial config while all nine opponents hold the
+# incumbent config, so "trial == incumbent" implies an expected win rate of exactly 0.5. The
+# running-best's separately-accumulated rate is a DIFFERENT estimand and is no longer read.
+# Module-level so the driver's input fingerprint and the engine's gate share one source of truth
+# (no drift -> no spurious resume mismatch).
 DEFAULT_CONFIDENCE = 0.95
 DEFAULT_MIN_EFFECT_SIZE = 0.01
 DEFAULT_MIN_GAMES = 30
@@ -44,44 +48,44 @@ DEFAULT_MIN_GAMES = 30
 def _adopt_by_significance(
     w_trial: int,
     n_trial: int,
-    w_best: int,
-    n_best: int,
     confidence: float,
     min_effect_size: float,
     min_games: int,
 ) -> bool:
     """Decide whether a trial combination should be adopted over the running best.
 
-    Applies the accumulated-evidence adoption gate (D1/D2/D5/D6): a one-sided pooled
-    two-proportion z-test AND-ed with a minimum-effect-size guard, both over the
-    accumulated wins/games of the two combinations, held below a minimum-games floor and
-    on a degenerate (zero standard error) pool. Stdlib-only (``statistics.NormalDist``).
+    Applies the head-to-head adoption gate (T58/D1/D3): a one-sided ONE-SAMPLE
+    normal-approximation z-test of the trial's own win rate against the 0.50 null,
+    AND-ed with a minimum-effect-size guard, both over the trial's FRESH head-to-head
+    evaluation, held below a minimum-games floor. The 0.50 null is exact by construction:
+    under the measured-vs-incumbent design (T54) the measured team plays the trial config
+    while all nine opponents hold the incumbent config, so "trial config == incumbent
+    config" implies an expected win rate of exactly 0.5. The running-best's separately
+    accumulated rate is a DIFFERENT estimand — it mixes symmetric self-play games with
+    head-to-head games against OLDER incumbents — and is deliberately not read. Stdlib-only
+    (``math.sqrt`` + ``statistics.NormalDist``).
 
     Args:
-        w_trial (int): Trial combination's accumulated wins.
-        n_trial (int): Trial combination's accumulated games.
-        w_best (int): Running-best combination's accumulated wins.
-        n_best (int): Running-best combination's accumulated games.
+        w_trial (int): Wins from the trial's fresh head-to-head evaluation.
+        n_trial (int): Games from the trial's fresh head-to-head evaluation.
         confidence (float): One-sided confidence level for the z critical value (0, 1).
-        min_effect_size (float): Minimum accumulated-rate effect (p_trial - p_best) required.
-        min_games (int): Minimum accumulated games required for BOTH combinations.
+        min_effect_size (float): Minimum effect (p_trial - 0.5) required.
+        min_games (int): Minimum games required of the trial's own fresh evaluation.
 
     Returns:
-        bool: True iff (n_trial >= min_games and n_best >= min_games) and the pooled
-            standard error is non-zero and z > z_crit and effect > min_effect_size.
+        bool: True iff n_trial >= min_games and z > z_crit and effect > min_effect_size.
     """
-    if n_trial < min_games or n_best < min_games:
-        return False  # D5: hold below the minimum-games floor (also guarantees n_* > 0)
-    p_trial = w_trial / n_trial
-    p_best = w_best / n_best
-    effect = p_trial - p_best
-    p_pool = (w_trial + w_best) / (n_trial + n_best)
-    se = sqrt(p_pool * (1.0 - p_pool) * (1.0 / n_trial + 1.0 / n_best))
-    if se == 0:
-        return False  # D5: hold on a degenerate (all-wins / all-losses) pool — z undefined
+    if n_trial < min_games:
+        return False  # D3: hold below the minimum-games floor (also guarantees n_trial > 0)
+    effect = w_trial / n_trial - 0.5
+    # Null standard error: under H0 (p == 0.5) the per-game variance is exactly 0.25, so
+    # se = sqrt(0.25 / n) — strictly positive for EVERY n >= 1. The floor above plus the
+    # min_games >= 1 constructor validation guarantee n_trial >= 1 here, so the division is
+    # unconditionally safe and no zero-standard-error guard is possible or needed (T58/D3).
+    se = sqrt(0.25 / n_trial)
     z = effect / se
     z_crit = NormalDist().inv_cdf(confidence)
-    return z > z_crit and effect > min_effect_size  # D2/D6: AND-gate, both boundaries strict
+    return z > z_crit and effect > min_effect_size  # D3: AND-gate, both boundaries strict
 
 
 def _read_convergence_best_rate(conv: dict) -> float:
@@ -116,14 +120,15 @@ class SweepTournament:
 
     Each (strategy_id, draft_order) config is tuned independently: full coordinate-ascent
     passes (all 6 numerics each pass, holding the others at their current best) repeat to
-    convergence under a significance gate — a param adopts a candidate only when the
-    candidate's ACCUMULATED win rate (read back from the store) is both significantly higher
-    (one-sided pooled two-proportion z-test at the configured confidence) AND higher by more
-    than the minimum effect size than the running-best's accumulated rate, with adoption held
-    until both combos have at least min_games accumulated games. Convergence (a full pass that
-    moves no parameter) is the sole stopping rule. The candidate grid is fixed per config
-    (computed once from its baseline). Dependencies are injected so the tournament does no
-    file/sim/config loading itself:
+    convergence under a significance gate — a param adopts a candidate only when that
+    candidate's FRESH head-to-head win rate (the single evaluation just run against the
+    incumbent, T54) is both significantly above the 0.50 null (one-sided ONE-SAMPLE z-test at
+    the configured confidence) AND above 0.50 by more than the minimum effect size, with
+    adoption held when that evaluation yields fewer than min_games games. The store is NOT a
+    gate input (T58/D2) — it remains the durable record, the reporting source, and the
+    `--promote` input. Convergence (a full pass that moves no parameter) is the sole stopping
+    rule. The candidate grid is fixed per config (computed once from its baseline).
+    Dependencies are injected so the tournament does no file/sim/config loading itself:
 
     Attributes:
         _evaluator: a CombinationEvaluator (evaluate(draft_order, param_values) ->
@@ -131,8 +136,9 @@ class SweepTournament:
         _store: a SweepResultsManager (update(...) + get_combination(strategy_id, param_values)).
         _num_values: candidate count per numeric (passed to generate_candidate_values).
         _confidence: one-sided confidence level for the z critical value (0, 1).
-        _min_effect_size: minimum accumulated-rate effect (p_trial - p_best) to adopt.
-        _min_games: minimum accumulated games required of BOTH combos before a decision.
+        _min_effect_size: minimum effect (p_trial - 0.5) the trial's fresh rate must exceed.
+        _min_games: minimum games the trial's own fresh evaluation must yield before a
+            decision (a degenerate-input guard, not a live gate at production sample sizes).
     """
 
     def __init__(
@@ -151,10 +157,10 @@ class SweepTournament:
             num_values (int): Candidate values per numeric parameter (default 5).
             confidence (float): One-sided confidence level for the adoption z-test
                 (default DEFAULT_CONFIDENCE = 0.95); must lie in the open interval (0, 1).
-            min_effect_size (float): Minimum accumulated-rate effect (p_trial - p_best) a
+            min_effect_size (float): Minimum effect against the 0.50 null (p_trial - 0.5) a
                 candidate must exceed to be adopted (default DEFAULT_MIN_EFFECT_SIZE = 0.01).
-            min_games (int): Minimum accumulated games BOTH combos must reach before a
-                candidate can be adopted (default DEFAULT_MIN_GAMES = 30).
+            min_games (int): Minimum games the trial's OWN fresh head-to-head evaluation must
+                yield before a candidate can be adopted (default DEFAULT_MIN_GAMES = 30).
 
         Raises:
             ConfigurationError: If confidence is not strictly within (0, 1).
@@ -308,23 +314,24 @@ class SweepTournament:
                         trial[param] = value
                         wins, games, win_rate = self._evaluator.evaluate(draft_order, trial, incumbent_param_values=current)
                         self._store.update(strategy_id, trial, win_rate, wins, games)
-                        # T31: decide adoption on ACCUMULATED evidence read back from the store
-                        # (D4) — the trial combo (just update()-ed) vs the running-best (current).
-                        # best_entry is None only when the running-best combo has no accumulated
-                        # evidence this run (e.g. a checkpoint-seeded resume whose seed combo was
-                        # not re-recorded, per PR #18) — treat that as below the floor and hold.
-                        trial_entry = self._store.get_combination(strategy_id, trial)
-                        best_entry = self._store.get_combination(strategy_id, current)
-                        if best_entry is not None and _adopt_by_significance(
-                            trial_entry["total_wins"], trial_entry["total_games"],
-                            best_entry["total_wins"], best_entry["total_games"],
+                        # T58/D2: decide adoption on the trial's FRESH head-to-head evidence
+                        # (the `wins, games` bound from the evaluate() above), tested against the
+                        # 0.50 null. The store is deliberately NOT read here: the running-best's
+                        # accumulated totals mix symmetric self-play games (the baseline and
+                        # carry-over anchors) with head-to-head games against OLDER incumbents,
+                        # and the trial's own accumulated totals could likewise span earlier
+                        # passes against a different incumbent. The fresh pair is same-reference
+                        # by construction, so the old None-entry hold-guard has no failure mode
+                        # left to defend (the PR #18 resume path can no longer reach the gate).
+                        if _adopt_by_significance(
+                            wins, games,
                             self._confidence, self._min_effect_size, self._min_games,
                         ):
                             current[param] = value
-                            # After adoption current == trial, so the new running-best's
-                            # accumulated rate (F7) is the trial entry's rate; the floor in the
-                            # gate guarantees total_games >= min_games > 0 (divide-safe).
-                            best_rate = trial_entry["total_wins"] / trial_entry["total_games"]
+                            # After adoption current == trial, so the new running-best's rate is
+                            # THIS trial's fresh head-to-head win_rate (T58/R4) — not a
+                            # store-accumulated rate blending other incumbents' games.
+                            best_rate = win_rate
                             moved = True
                             # Persist the new running best immediately, so an interrupt mid-ascent
                             # leaves the LATEST values on disk (not the stale seed) and a resume

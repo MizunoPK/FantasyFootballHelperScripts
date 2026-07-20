@@ -10,6 +10,7 @@ Author: Kai Mizuno
 
 # Standard library
 import json
+import random
 from unittest.mock import Mock
 
 # Third-party
@@ -96,23 +97,30 @@ class TestSweepTournament:
             assert set(entry["param_values"].keys()) == set(DRAFT_SWEEP_PARAMS)
 
     def test_sweeps_and_selects_best_value(self, tmp_path):
-        # Step landscape: the max PRIMARY_BONUS candidate scores 0.70 (700/1000) with a large,
-        # significant effect over the 0.60 baseline; every other value scores 0.60. Coordinate
-        # ascent adopts the max candidate (significance + effect both clear) and converges there.
+        # T58 step landscape: exactly ONE combination — baseline with PRIMARY_BONUS at the max
+        # candidate — scores 0.70 head-to-head (700/1000): effect 0.20 over the 0.50 null and
+        # z ~= 12.6, so it adopts. EVERY other combination sits exactly at the 0.50 null
+        # (500/1000), effect 0.0, and is held by both gate conditions. Keying on the WHOLE param
+        # dict (not PRIMARY_BONUS alone) is load-bearing: under a one-sample-vs-0.50 gate a fake
+        # that kept returning >0.50 after the first adoption would make every later candidate
+        # significant too, so `moved` would never go False and run() would never terminate.
         baseline = _baseline()
         target = _max_pb(baseline)
+        winner = dict(baseline)
+        winner["PRIMARY_BONUS"] = target
 
         def wg(do, pv):
-            return (700, 1000) if pv["PRIMARY_BONUS"] == target else (600, 1000)
+            return (700, 1000) if pv == winner else (500, 1000)
 
         t = SweepTournament(_wg_evaluator(wg), _store(tmp_path))
         result = t.run([("s1", [{"s": "1"}])], baseline)
         assert result["s1"]["param_values"]["PRIMARY_BONUS"] == target
 
     def test_gate_blocks_trivial_effect_gain(self, tmp_path):
-        # Significance is satisfiable (huge n) but the accumulated-rate effect is only 0.005,
-        # which does not exceed min_effect_size (0.01). The AND-ed effect floor blocks adoption
-        # of this statistically-detectable-but-trivial gain — nothing is adopted (D2).
+        # T58: the target's fresh rate is 0.505 -> effect 0.005 against the 0.50 null, which does
+        # not exceed min_effect_size (0.01), while z ~= 3.16 DOES clear significance. This is the
+        # genuine large-n demonstration that the AND-ed effect floor is live: it blocks a
+        # statistically-detectable-but-trivial gain. Every other combo is exactly at 0.500.
         baseline = _baseline()
         target = _max_pb(baseline)
 
@@ -125,10 +133,12 @@ class TestSweepTournament:
         assert result["s1"]["param_values"] == baseline
 
     def test_converges_on_flat_landscape(self, tmp_path):
-        # Constant win rate -> every candidate's accumulated-rate effect over the running best is
-        # 0 (< min_effect_size), so the gate adopts nothing, a full pass moves nothing, and the
-        # loop terminates at the baseline.
-        ev = _wg_evaluator(lambda do, pv: (600, 1000))
+        # T58: a flat landscape sitting exactly AT the 0.50 null (500/1000). Every candidate's
+        # effect is 0.0, so both gate conditions hold it, the first full pass moves nothing, and
+        # the loop terminates at the baseline. The fake MUST sit at or below 0.50 — the old
+        # 600/1000 constant is p = 0.60 with z ~= 6.3, which under the one-sample gate would
+        # adopt EVERY candidate forever and hang run() rather than failing an assertion.
+        ev = _wg_evaluator(lambda do, pv: (500, 1000))
         t = SweepTournament(ev, _store(tmp_path))
         result = t.run([("s1", [{"s": "1"}]), ("s2", [{"s": "2"}])], _baseline())
         for entry in result.values():
@@ -328,12 +338,18 @@ class TestSweepTournament:
     def test_in_progress_checkpoint_tracks_running_best_mid_ascent(self, tmp_path):
         # PR #18: an improvement found mid coordinate-ascent must be persisted immediately as an
         # in_progress checkpoint, so an interrupt before convergence resumes from the latest best
-        # (not the stale seed). Landscape: any non-baseline PRIMARY_BONUS scores 0.90 (900/1000)
-        # vs the 0.60 baseline (600/1000) — a large, significant effect — so the first such trial
-        # adopts and must trigger an in_progress write carrying the new accumulated best (0.90).
+        # (not the stale seed). T58 landscape: exactly ONE combination — baseline with
+        # PRIMARY_BONUS at the max candidate — scores 0.90 (900/1000) head-to-head; every other
+        # combination sits at the 0.50 null (500/1000) and is held. That single adoption writes an
+        # in_progress checkpoint carrying best_rate 0.9 — which under T58/R4 is the trial's FRESH
+        # win_rate, not a store-accumulated rate. Keying on the WHOLE param dict is load-bearing:
+        # the old "any non-baseline PRIMARY_BONUS" fake would re-adopt on every later candidate
+        # under the one-sample gate and run() would never terminate.
         store = _store(tmp_path)
         baseline = _baseline()
-        ev = _wg_evaluator(lambda do, pv: (900, 1000) if pv["PRIMARY_BONUS"] != 67 else (600, 1000))
+        winner = dict(baseline)
+        winner["PRIMARY_BONUS"] = _max_pb(baseline)
+        ev = _wg_evaluator(lambda do, pv: (900, 1000) if pv == winner else (500, 1000))
         store.mark_config_progress = Mock(wraps=store.mark_config_progress)
         t = SweepTournament(ev, store)
         t.run([("s1", [{"s": "1"}])], baseline)
@@ -397,40 +413,14 @@ class TestSweepTournament:
         first_pv = ev2.evaluate.call_args_list[0].args[1]
         assert first_pv["PRIMARY_BONUS"] == baseline["PRIMARY_BONUS"]  # baseline 67, no seed
 
-    def test_holds_when_running_best_unrecorded(self, tmp_path):
-        """None-running-best hold-guard regression (T31/PR #18 checkpoint-resume path).
-
-        When an in_progress resume seeds `current` from convergence metadata but that
-        combo was never update()-ed in this run (no accumulated evidence in the store),
-        ``get_combination(strategy_id, current)`` returns None.  The inner-loop guard
-
-            if best_entry is not None and _adopt_by_significance(...)
-
-        must hold (short-circuit) so run() completes without raising.  Remove the guard
-        and this test fails with TypeError (None["total_wins"]).
-        """
-        store = _store(tmp_path)
-        baseline = _baseline()
-        # Seed `current` to a non-baseline PRIMARY_BONUS that has NEVER been evaluated —
-        # so get_combination("s1", seeded) returns None (no store combination entry exists).
-        seeded = dict(baseline)
-        seeded["PRIMARY_BONUS"] = 91
-        store.mark_config_progress("s1", "in_progress", seeded, 0.7)
-        # Evaluator returns a strongly adoptable result (900/1000) for every trial, so
-        # the inner-loop adoption path is reached and best_entry is None is encountered.
-        ev = _wg_evaluator(lambda do, pv: (900, 1000))
-        t = SweepTournament(ev, store)
-        # Must complete without raising (TypeError if the best_entry guard is removed).
-        result = t.run([("s1", [{"s": "1"}])], baseline, resume=True)
-        # Guard held -> run returned a result without crashing.
-        assert "s1" in result
-        # Guard held -> no adoption over a None running-best -> current stays at the seed.
-        assert result["s1"]["param_values"]["PRIMARY_BONUS"] == 91
-
     def test_trials_pass_running_best_incumbent(self, tmp_path):
         """D2: trials pass incumbent_param_values=current, anchors remain 2-arg (T54/D2)."""
         baseline = _baseline()
-        ev = _wg_evaluator(lambda do, pv: (600, 1000))
+        # T58: flat landscape AT the 0.50 null so nothing adopts and the ascent terminates after
+        # one pass. This test pins the T54 CALL SHAPE (anchors 2-arg, trials pass an incumbent),
+        # not any adoption outcome, so a null-centred fake is the correct fixture. The old
+        # 600/1000 constant would adopt every candidate under the one-sample gate and hang.
+        ev = _wg_evaluator(lambda do, pv: (500, 1000))
         t = SweepTournament(ev, _store(tmp_path))
         t.run([("s1", [{"s": "1"}])], baseline)
 
@@ -494,27 +484,41 @@ class TestSweepTournamentProgressCallback:
 
 
 class TestSweepTournamentSignificanceGate:
-    """T31: end-to-end adoption decisions driven through run() with a real store, exercising
-    the accumulated-evidence significance + effect-size gate (D1/D2/D4/D5)."""
+    """T31, revised by T58: end-to-end adoption decisions driven through run() with a real store,
+    exercising the one-sample (vs the 0.50 null) significance + effect-size gate over each trial's
+    FRESH head-to-head evaluation.
+
+    HANG HAZARD — read before changing any fake in this class: run()'s only stopping rule is a
+    full pass that moves no parameter. Under a one-sample-vs-0.50 gate, a fake returning a
+    constant rate above 0.50 at large n makes EVERY candidate significant, so `moved` never goes
+    False and run() never returns — the suite hangs rather than failing an assertion. Every
+    non-adopting arm must therefore sit at or below 0.50, and any adopting arm must be keyed on
+    the WHOLE param dict so it cannot re-fire after the adoption.
+    """
 
     def test_adopts_significant_and_large_effect(self, tmp_path):
-        # Target PRIMARY_BONUS accumulates 700/1000 (0.70); baseline/others 600/1000 (0.60).
-        # effect 0.10 (> 0.01) and z ~= 4.7 (> z_crit), both combos >= 30 games -> ADOPT.
+        # T58: the winning combination scores 0.70 head-to-head (700/1000) — effect 0.20 over the
+        # 0.50 null and z ~= 12.6 (> z_crit), n = 1000 >= 30 -> ADOPT. Every other combination
+        # sits at the 0.50 null (500/1000) and is held, which is also what makes the ascent
+        # terminate under a one-sample gate (see the class-level hang note).
         baseline = _baseline()
         target = _max_pb(baseline)
+        winner = dict(baseline)
+        winner["PRIMARY_BONUS"] = target
 
         def wg(do, pv):
-            return (700, 1000) if pv["PRIMARY_BONUS"] == target else (600, 1000)
+            return (700, 1000) if pv == winner else (500, 1000)
 
         t = SweepTournament(_wg_evaluator(wg), _store(tmp_path))
         result = t.run([("s1", [{"s": "1"}])], baseline)
         assert result["s1"]["param_values"]["PRIMARY_BONUS"] == target
-        # F7: returned win_rate is the running-best's ACCUMULATED rate (700/1000 = 0.70).
+        # T58/R4: returned win_rate is the winning trial's FRESH head-to-head rate (0.70).
         assert result["s1"]["win_rate"] == pytest.approx(0.70)
 
     def test_holds_when_not_significant(self, tmp_path):
-        # Large effect (0.60 vs 0.40) but tiny n=30 each -> z ~= 1.55 (< z_crit) -> HOLD.
-        # Isolates the significance condition (the effect floor is satisfied).
+        # T58: the target's fresh rate is 18/30 = 0.60 -> effect 0.10 (clears the 0.01 floor) but
+        # n = 30 gives z = 0.10 / sqrt(0.25/30) ~= 1.10 < z_crit ~= 1.645 -> HOLD. Isolates the
+        # one-sample significance condition. Every other combo is 12/30 = 0.40 (negative effect).
         baseline = _baseline()
         target = _max_pb(baseline)
 
@@ -526,8 +530,9 @@ class TestSweepTournamentSignificanceGate:
         assert result["s1"]["param_values"] == baseline
 
     def test_holds_on_trivial_effect_despite_significance(self, tmp_path):
-        # 0.505 vs 0.500 over n=100000 each -> clearly significant but effect 0.005 (<= 0.01)
-        # -> the AND-ed effect floor blocks the "large-n trivial-difference" bypass -> HOLD.
+        # T58: the target's fresh rate is 0.505 over n = 100000 -> z ~= 3.16 clears significance
+        # but the effect against the 0.50 null is 0.005 (<= 0.01) -> the AND-ed effect floor
+        # blocks the "large-n trivial-difference" bypass -> HOLD.
         baseline = _baseline()
         target = _max_pb(baseline)
 
@@ -539,7 +544,9 @@ class TestSweepTournamentSignificanceGate:
         assert result["s1"]["param_values"] == baseline
 
     def test_holds_below_min_games_floor(self, tmp_path):
-        # Huge effect (1.0 vs 0.0) but only 20 games per combo (< min_games=30) -> HOLD (D5 floor).
+        # T58: a maximal effect (the target's fresh rate is 20/20 = 1.0) but the evaluation yields
+        # only n = 20 games (< min_games = 30) -> HOLD on the floor, now applied to the trial's
+        # OWN fresh evaluation rather than to accumulated games.
         baseline = _baseline()
         target = _max_pb(baseline)
 
@@ -550,46 +557,294 @@ class TestSweepTournamentSignificanceGate:
         result = t.run([("s1", [{"s": "1"}])], baseline)
         assert result["s1"]["param_values"] == baseline
 
-    def test_holds_on_zero_standard_error_without_crashing(self, tmp_path):
-        # Degenerate all-wins pool above the floor (60/60 vs 30/30) -> p_pool == 1 -> se == 0
-        # -> HOLD via the explicit se==0 guard (no ZeroDivisionError) (D5).
-        baseline = _baseline()
-        target = _max_pb(baseline)
-
-        def wg(do, pv):
-            return (60, 60) if pv["PRIMARY_BONUS"] == target else (30, 30)
-
-        t = SweepTournament(_wg_evaluator(wg), _store(tmp_path))
-        result = t.run([("s1", [{"s": "1"}])], baseline)  # must not raise
-        assert result["s1"]["param_values"] == baseline
-
 
 class TestAdoptBySignificanceBoundaries:
-    """T31/D6: the strict-boundary disposition of the pure gate helper — strict '>' at the
-    significance critical value and the effect-size floor, inclusive '>=' at the games floor."""
+    """T31/D6, revised by T58: the strict-boundary disposition of the pure gate helper under the
+    one-sample-vs-0.50 statistic — strict '>' at the significance critical value and at the
+    effect-size floor, inclusive '>=' at the games floor. All evidence is the trial's OWN
+    (wins, games); there is no second arm."""
 
     def test_games_floor_is_inclusive(self):
-        # Exactly min_games (30) passes the floor and (significant + large effect) adopts;
-        # one game short (29) holds. Isolates the floor's inclusivity.
-        assert _adopt_by_significance(30, 30, 0, 30, 0.95, 0.01, 30) is True
-        assert _adopt_by_significance(29, 29, 0, 29, 0.95, 0.01, 30) is False
+        # Exactly min_games (30) passes the floor and (p = 1.0 -> effect 0.5, z ~= 5.48) adopts;
+        # one game short (29) holds. Isolates the floor's inclusivity on the trial's own n.
+        assert _adopt_by_significance(30, 30, 0.95, 0.01, 30) is True
+        assert _adopt_by_significance(29, 29, 0.95, 0.01, 30) is False
 
     def test_effect_floor_is_strict(self):
-        # Significant data (700/1000 vs 600/1000); effect exactly == min_effect_size holds
-        # (strict '>'), while a hair below the effect adopts.
-        eff = 700 / 1000 - 600 / 1000  # identical float to the helper's p_trial - p_best
-        assert _adopt_by_significance(700, 1000, 600, 1000, 0.95, eff, 30) is False
-        assert _adopt_by_significance(700, 1000, 600, 1000, 0.95, eff - 1e-9, 30) is True
+        # Significant data (700/1000 -> effect 0.20 against the 0.50 null, z ~= 12.6). With
+        # min_effect_size exactly == the effect the strict '>' holds; a hair below, it adopts.
+        eff = 700 / 1000 - 0.5  # identical float to the helper's w_trial / n_trial - 0.5
+        assert _adopt_by_significance(700, 1000, 0.95, eff, 30) is False
+        assert _adopt_by_significance(700, 1000, 0.95, eff - 1e-9, 30) is True
 
     def test_significance_critical_value_is_strict(self):
-        # Place z exactly at the critical value by setting confidence = cdf(z) (round-trip
-        # identity) -> strict '>' holds; a slightly lower confidence (lower z_crit) adopts.
-        # Effect (0.20) and games (100) clear their gates, isolating the significance boundary.
+        # Place z exactly at the critical value by setting confidence = cdf(z) (the same
+        # round-trip identity as before, with the NULL standard error sqrt(0.25/n) substituted
+        # for the old pooled SE) -> strict '>' holds; a slightly lower confidence adopts.
+        # Effect (0.10) and games (100) clear their own gates, isolating the significance
+        # boundary.
         from math import sqrt
         from statistics import NormalDist
-        p_pool = (60 + 40) / (100 + 100)
-        se = sqrt(p_pool * (1.0 - p_pool) * (1.0 / 100 + 1.0 / 100))
-        z = (60 / 100 - 40 / 100) / se
+        se = sqrt(0.25 / 100)
+        z = (60 / 100 - 0.5) / se
         conf_at = NormalDist().cdf(z)
-        assert _adopt_by_significance(60, 100, 40, 100, conf_at, 0.01, 30) is False
-        assert _adopt_by_significance(60, 100, 40, 100, conf_at - 0.01, 0.01, 30) is True
+        assert _adopt_by_significance(60, 100, conf_at, 0.01, 30) is False
+        assert _adopt_by_significance(60, 100, conf_at - 0.01, 0.01, 30) is True
+
+    def test_holds_at_and_below_the_null(self):
+        # T58 core semantics: a trial exactly AT the 0.50 null has effect 0.0 -> both conditions
+        # hold it, at any n. A trial BELOW the null has a negative effect -> held at any n.
+        assert _adopt_by_significance(500, 1000, 0.95, 0.01, 30) is False
+        assert _adopt_by_significance(50000, 100000, 0.95, 0.01, 30) is False
+        assert _adopt_by_significance(400, 1000, 0.95, 0.01, 30) is False
+        assert _adopt_by_significance(1, 1000, 0.95, 0.01, 30) is False
+
+    def test_adopts_on_a_significant_excess_over_the_null(self):
+        # A genuine head-to-head excess at a realistic n: 0.60 over 1000 games -> effect 0.10,
+        # z = 0.10 / sqrt(0.25/1000) ~= 6.32 > 1.645, effect > 0.01 -> ADOPT.
+        assert _adopt_by_significance(600, 1000, 0.95, 0.01, 30) is True
+
+    def test_no_zero_standard_error_case_exists(self):
+        # T58/D3 replacement analysis for the deleted `if se == 0` guard: the NULL standard
+        # error sqrt(0.25/n) is strictly positive for every n >= 1, so the degenerate pools that
+        # zeroed the old POOLED SE (all-wins / all-losses) are ordinary inputs here — they
+        # return a bool rather than raising ZeroDivisionError.
+        assert _adopt_by_significance(60, 60, 0.95, 0.01, 30) is True    # p = 1.0
+        assert _adopt_by_significance(0, 60, 0.95, 0.01, 30) is False    # p = 0.0
+        # Smallest legal n: the point is that it RETURNS A BOOL rather than raising. It is
+        # False, not True — at n = 1 even a maximal p = 1.0 gives z = 0.5 / sqrt(0.25/1) = 1.0,
+        # which is below z_crit ~= 1.645. (Verified numerically, not assumed.)
+        assert _adopt_by_significance(1, 1, 0.95, 0.01, 1) is False      # smallest legal n
+
+
+class TestAdoptionGateIsStoreIndependent:
+    """T58/D2 + AC1: the adoption gate reads ONLY the trial's fresh head-to-head evaluation.
+
+    These are the decisive regressions for the store's demotion from gate input to
+    record/report/promote surface. Each pre-seeds the store with accumulated totals that would
+    have changed the OLD (pooled two-proportion, accumulated-evidence) decision, and asserts the
+    new outcome is driven entirely by the fresh evaluation.
+    """
+
+    def test_pre_seeded_incumbent_totals_do_not_block_adoption(self, tmp_path):
+        # Pre-seed the BASELINE (incumbent) combo with an overwhelming 0.95 accumulated rate over
+        # 10000 games. Under the old pooled rule the trial's 0.70 would have had a NEGATIVE
+        # effect against that incumbent and could never adopt. Under T58 the incumbent's totals
+        # are not read at all, so the trial's fresh 0.70 (effect 0.20 over the 0.50 null) adopts.
+        store = _store(tmp_path)
+        baseline = _baseline()
+        target = _max_pb(baseline)
+        winner = dict(baseline)
+        winner["PRIMARY_BONUS"] = target
+        store.update("s1", baseline, 0.95, 9500, 10000)
+
+        def wg(do, pv):
+            return (700, 1000) if pv == winner else (500, 1000)
+
+        t = SweepTournament(_wg_evaluator(wg), store)
+        result = t.run([("s1", [{"s": "1"}])], baseline)
+        assert result["s1"]["param_values"]["PRIMARY_BONUS"] == target
+
+    def test_best_rate_is_the_fresh_rate_not_the_accumulated_rate(self, tmp_path):
+        # T58/R4 provenance. Pre-seed the WINNING combo with 0/1000 accumulated games, so after
+        # this run's fresh 700/1000 evaluation its ACCUMULATED rate is 700/2000 = 0.35 while its
+        # FRESH rate is 0.70. The reported win_rate must be the fresh 0.70 (the old code reported
+        # the accumulated 0.35).
+        store = _store(tmp_path)
+        baseline = _baseline()
+        target = _max_pb(baseline)
+        winner = dict(baseline)
+        winner["PRIMARY_BONUS"] = target
+        store.update("s1", winner, 0.0, 0, 1000)
+
+        def wg(do, pv):
+            return (700, 1000) if pv == winner else (500, 1000)
+
+        t = SweepTournament(_wg_evaluator(wg), store)
+        result = t.run([("s1", [{"s": "1"}])], baseline)
+        assert result["s1"]["param_values"]["PRIMARY_BONUS"] == target
+        assert result["s1"]["win_rate"] == pytest.approx(0.70)
+
+    def test_store_still_records_every_evaluation(self, tmp_path):
+        # T58/R3: the gate stops READING the store, but store.update(...) is retained — the
+        # record / reporting / --promote surface is unchanged.
+        store = _store(tmp_path)
+        baseline = _baseline()
+        t = SweepTournament(_wg_evaluator(lambda do, pv: (500, 1000)), store)
+        t.run([("s1", [{"s": "1"}])], baseline)
+        combos = store.get_all_combinations()
+        assert len(combos) > 1  # the baseline anchor plus every swept candidate
+        assert all(entry["total_games"] > 0 for entry in combos.values())
+
+
+class TestAdoptionGateSampleSizeAndCost:
+    """T58/AC2 + N1: the new gate fires at a SMALLER sample size than the old pooled rule, at
+    unchanged simulation cost."""
+
+    @staticmethod
+    def _old_pooled_rule(w_trial, n_trial, w_best, n_best, confidence, min_effect_size,
+                         min_games):
+        """Frozen reference copy of the PRE-T58 pooled two-proportion gate.
+
+        Deliberately duplicated here rather than imported: the production implementation is
+        deleted by this story, and this copy exists only so the side-by-side AC2 comparison
+        remains executable. It is never called by production code.
+        """
+        from math import sqrt
+        from statistics import NormalDist
+        if n_trial < min_games or n_best < min_games:
+            return False
+        effect = w_trial / n_trial - w_best / n_best
+        p_pool = (w_trial + w_best) / (n_trial + n_best)
+        se = sqrt(p_pool * (1.0 - p_pool) * (1.0 / n_trial + 1.0 / n_best))
+        if se == 0:
+            return False
+        return effect / se > NormalDist().inv_cdf(confidence) and effect > min_effect_size
+
+    def test_new_rule_fires_at_a_smaller_sample_size(self):
+        # Fixed synthetic true effect: the trial wins 55% head-to-head against a 50% incumbent.
+        # Sweep n upward and record the smallest n at which each rule first adopts. The new rule
+        # needs only ONE arm's worth of variance, so it fires at roughly half the sample size.
+        def smallest_n(fires):
+            for n in range(DEFAULT_MIN_GAMES, 20001):
+                if fires(n):
+                    return n
+            raise AssertionError("rule never fired below n = 20000")
+
+        n_new = smallest_n(lambda n: _adopt_by_significance(
+            round(0.55 * n), n, DEFAULT_CONFIDENCE, DEFAULT_MIN_EFFECT_SIZE, DEFAULT_MIN_GAMES
+        ))
+        n_old = smallest_n(lambda n: self._old_pooled_rule(
+            round(0.55 * n), n, round(0.50 * n), n,
+            DEFAULT_CONFIDENCE, DEFAULT_MIN_EFFECT_SIZE, DEFAULT_MIN_GAMES
+        ))
+        assert n_new < n_old
+        # Recorded reference values at the committed constants: n_new = 261, n_old = 521.
+        assert n_new == 261
+        assert n_old == 521
+
+    def test_evaluation_call_shape_is_unchanged(self, tmp_path):
+        # T58/N1: exactly one evaluate() per trial plus the single baseline anchor — no second
+        # arm, no extra evaluation. On a flat 0.50 landscape nothing adopts, so the ascent is a
+        # single pass over every non-current candidate of every param.
+        baseline = _baseline()
+        ev = _wg_evaluator(lambda do, pv: (500, 1000))
+        t = SweepTournament(ev, _store(tmp_path))
+        t.run([("s1", [{"s": "1"}])], baseline)
+        cands = generate_candidate_values(baseline, 5)
+        expected = 1 + sum(
+            len([v for v in cands[p] if v != baseline[p]]) for p in DRAFT_SWEEP_PARAMS
+        )
+        assert ev.evaluate.call_count == expected
+
+
+class TestAdoptionGateFalseAdoptionRate:
+    """T58/AC3: league-level synthetic-null false-adoption measurement for the one-sample gate.
+
+    Pure-Python, fully seeded, offline — no simulation engine, no network. Each replication
+    builds one evaluation's worth of evidence the way the real engine does: LEAGUES leagues,
+    each contributing LEAGUE_GAMES correlated weekly outcomes drawn from that league's own
+    latent quality, then aggregated to the game-level (wins, games) pair the gate actually
+    receives. The trial is identically as strong as the incumbent, so every adoption is FALSE.
+
+    Recorded results at SEED = 20260719, REPLICATIONS = 1200, LEAGUES = 60, LEAGUE_GAMES = 17
+    (n = 1020 games per replication):
+      - Arm (a), zero intra-league correlation: false-adoption rate = 4.83% against a nominal
+        1 - DEFAULT_CONFIDENCE = 5% -> pass condition (a) satisfied.
+      - Arm (b), positive intra-league correlation (per-league latent quality 0.5 +/- 0.10,
+        intra-class correlation rho ~= 0.04, variance-inflation factor 1 + 16*rho ~= 1.64):
+        false-adoption rate = 9.08% — roughly 2x nominal.
+
+    Arm (b) is the QUANTIFIED anti-conservatism of the game-level sampling unit (spec D4). It is
+    RECORDED, not a build failure: this is not a regression (the pre-T58 pooled z divided by the
+    same inflated n), and the priced first correction is a league-level sampling unit, deferred
+    to a follow-up story. Do NOT "fix" arm (b) by tightening the gate.
+    """
+
+    SEED = 20260719
+    REPLICATIONS = 1200
+    LEAGUES = 60
+    LEAGUE_GAMES = 17
+
+    def _false_adoption_rate(self, latent_delta):
+        """Fraction of replications the gate falsely adopts under an exact 0.50 null.
+
+        Args:
+            latent_delta (float): Half-width of the per-league latent quality draw. 0.0 gives
+                independent games (zero intra-league correlation); a positive value makes the
+                LEAGUE_GAMES outcomes inside a league positively correlated while keeping the
+                marginal win probability exactly 0.5.
+
+        Returns:
+            float: The observed false-adoption rate over REPLICATIONS replications.
+        """
+        rng = random.Random(self.SEED)
+        games = self.LEAGUES * self.LEAGUE_GAMES
+        adopted = 0
+        for _ in range(self.REPLICATIONS):
+            wins = 0
+            for _ in range(self.LEAGUES):
+                q = 0.5 + (latent_delta if rng.random() < 0.5 else -latent_delta)
+                for _ in range(self.LEAGUE_GAMES):
+                    if rng.random() < q:
+                        wins += 1
+            if _adopt_by_significance(
+                wins, games, DEFAULT_CONFIDENCE, DEFAULT_MIN_EFFECT_SIZE, DEFAULT_MIN_GAMES
+            ):
+                adopted += 1
+        return adopted / self.REPLICATIONS
+
+    def test_pass_condition_a_uncorrelated_rate_at_or_below_nominal(self):
+        # Zero intra-league correlation -> the game-level n is the true sample size, so the gate
+        # should hold its nominal 1 - confidence = 5% false-adoption level. Monte-Carlo SE at
+        # 1200 replications is ~0.0063; the bound below is nominal + ~4 SE.
+        rate = self._false_adoption_rate(0.0)
+        assert rate <= 0.075
+
+    def test_pass_condition_b_correlated_rate_is_measured_and_inflated(self):
+        # Positive intra-league correlation -> the game-level n overstates the true sample size,
+        # so the gate is anti-conservative. This asserts only the DIRECTION and records the
+        # magnitude in the class docstring and ARCHITECTURE Decision 6; it is not a nominal-level
+        # gate, because exceeding 5% here is the documented D4 caveat, not a defect.
+        rate_uncorrelated = self._false_adoption_rate(0.0)
+        rate_correlated = self._false_adoption_rate(0.10)
+        assert rate_correlated > rate_uncorrelated
+        assert rate_correlated < 0.5  # sanity: still a null, not a broken generator
+
+
+class TestSweepTerminatesUnderTheOneSampleGate:
+    """T58/AC7: run() terminates under the one-sample gate — the explicit guard against the
+    non-convergence hazard the statistic introduces.
+
+    Convergence is run()'s ONLY stopping rule (a full pass that moves no parameter). Because the
+    gate now compares against a FIXED 0.50 null rather than against the moving running-best, a
+    landscape whose every combination sits above 0.50 would adopt forever. These tests pin the
+    two shapes that must terminate: an at-the-null flat landscape, and a landscape with a single
+    dominant winner.
+    """
+
+    def test_flat_null_landscape_terminates(self, tmp_path):
+        baseline = _baseline()
+        t = SweepTournament(_wg_evaluator(lambda do, pv: (500, 1000)), _store(tmp_path))
+        result = t.run([("s1", [{"s": "1"}])], baseline)
+        assert result["s1"]["param_values"] == baseline
+
+    def test_single_winner_landscape_terminates_on_the_winner(self, tmp_path):
+        baseline = _baseline()
+        winner = dict(baseline)
+        winner["PRIMARY_BONUS"] = _max_pb(baseline)
+        t = SweepTournament(
+            _wg_evaluator(lambda do, pv: (800, 1000) if pv == winner else (500, 1000)),
+            _store(tmp_path),
+        )
+        result = t.run([("s1", [{"s": "1"}])], baseline)
+        assert result["s1"]["param_values"] == winner
+        assert result["s1"]["win_rate"] == pytest.approx(0.80)
+
+    def test_below_the_null_landscape_terminates_without_adopting(self, tmp_path):
+        # Every combination is WORSE than the incumbent -> negative effect everywhere -> the gate
+        # holds every candidate and the first pass converges on the baseline.
+        baseline = _baseline()
+        t = SweepTournament(_wg_evaluator(lambda do, pv: (300, 1000)), _store(tmp_path))
+        result = t.run([("s1", [{"s": "1"}])], baseline)
+        assert result["s1"]["param_values"] == baseline

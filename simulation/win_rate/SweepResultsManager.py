@@ -309,7 +309,9 @@ class SweepResultsManager:
 
         A single-entry lookup keyed by make_combo_key — avoids re-scanning the full
         get_all_combinations() map when only one combination's accumulated counts are
-        needed (the T31 adoption gate reads the trial and running-best entries this way).
+        needed (SweepTournament._accumulated_rate reads a combination's rate this way). NOTE:
+        as of T58 the adoption gate no longer reads the store at all — it decides on the
+        trial's fresh head-to-head evaluation against the 0.50 null.
 
         Args:
             strategy_id (str): Strategy identifier keying the combination.

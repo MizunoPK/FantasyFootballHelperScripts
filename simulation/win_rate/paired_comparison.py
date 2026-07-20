@@ -13,7 +13,12 @@ empirically discriminating regime the investigation validated (Exp 6).
 This is the measurement half of the T35 baseline re-tune (the sweep SELECTS candidates; this
 helper MEASURES the delta) and is designed for reuse by the T24 discrimination-validation
 feature. It is deterministic under a fixed seed and stdlib-only for statistics (a pooled
-two-proportion z, the same statistic SweepTournament._adopt_by_significance gates on, T31).
+two-proportion z over the two independently-run arms). That statistic is DELIBERATELY
+DIFFERENT from the sweep's adoption gate: as of T58, SweepTournament._adopt_by_significance
+is a ONE-SAMPLE z of a single head-to-head evaluation against the 0.50 null, whereas this
+helper is a TWO-ARM before/after measurement of two separately-run configs. No helper is
+shared between them — they answer different questions, so unifying them would be a false
+abstraction.
 
 Purity / no live-config write: the signature takes config dicts + a data_folder, never a
 config *path*. It never imports, reads, or writes data/configs/league_config.json — the
@@ -44,8 +49,9 @@ class PairedComparisonResult:
         recommended_rate (float): Measured-team win rate for the RECOMMENDED config arm.
         delta (float): recommended_rate - current_rate (the before/after improvement).
         z (float): Pooled two-proportion z for (recommended - current); 0.0 on a degenerate
-            (zero standard error) pool. Same pooled-SE statistic as
-            SweepTournament._adopt_by_significance (T31).
+            (zero standard error) pool. A TWO-ARM before/after measurement — deliberately
+            NOT the sweep's adoption gate, which since T58 is a one-sample z against the
+            0.50 null over a single head-to-head evaluation.
         games (int): Games evaluated per arm (equal across arms under CRN — identical
             seeds/seasons/sims).
         seed (int): The base seed used for the run (echoed for reproducibility).
@@ -62,11 +68,13 @@ class PairedComparisonResult:
 def _pooled_two_proportion_z(w_a: int, n_a: int, w_b: int, n_b: int) -> float:
     """Signed pooled two-proportion z for (p_b - p_a).
 
-    Mirrors the pooled standard-error construction in
-    SweepTournament._adopt_by_significance (T31): z = (p_b - p_a) / sqrt(p_pool *
-    (1 - p_pool) * (1/n_a + 1/n_b)). Stdlib-only (math.sqrt). Returns 0.0 on a degenerate
-    pool (either arm has zero games, or the pooled standard error is zero — an all-wins /
-    all-losses pool where z is undefined), the same zero-SE guard the T31 gate applies.
+    A two-arm pooled construction: z = (p_b - p_a) / sqrt(p_pool * (1 - p_pool) *
+    (1/n_a + 1/n_b)). Stdlib-only (math.sqrt). Returns 0.0 on a degenerate pool (either arm
+    has zero games, or the pooled standard error is zero — an all-wins / all-losses pool
+    where z is undefined). That zero-SE guard is REAL here, because a SAMPLE-pooled standard
+    error genuinely can be zero; it has no counterpart in SweepTournament's gate, whose NULL
+    standard error sqrt(0.25 / n) is strictly positive for every n >= 1 (T58/D3). The two
+    statistics are deliberately different and share no helper.
 
     Args:
         w_a (int): Arm A wins. n_a (int): Arm A games.
