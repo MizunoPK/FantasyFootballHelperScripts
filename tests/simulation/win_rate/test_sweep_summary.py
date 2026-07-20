@@ -139,13 +139,27 @@ class TestShapeReportJson:
         assert len(report["configs"]) == 1
 
     def test_config_entry_fields(self):
+        # T62: the entry gains 'lcb' (the ordering key) and 'wins'. 'win_rate' is retained but
+        # is now max_selected — the in-sample maximum, not an estimate.
         combos = {"a": _entry("s_a", wins=9, games=10, **_FULL_PARAMS)}
         entry = shape_report_json(rank_combinations(combos))["configs"][0]
         assert entry["rank"] == 1
         assert entry["strategy_id"] == "s_a"
         assert entry["win_rate"] == 0.9
         assert entry["games"] == 10
-        assert set(entry.keys()) == {"rank", "strategy_id", "win_rate", "games", "param_values"}
+        assert entry["wins"] == 9
+        assert round(entry["lcb"], 6) == 0.652281
+        assert set(entry.keys()) == {
+            "rank", "strategy_id", "lcb", "win_rate", "games", "wins", "param_values",
+        }
+
+    def test_wrapper_carries_rate_semantics_and_pooling_caveat(self):
+        # T62: the report JSON states its own rate semantics + the T68 pooling caveat, so a
+        # reader of the FILE (not just of the module) knows what the numbers are not.
+        combos = {"a": _entry("s_a", wins=9, games=10, **_FULL_PARAMS)}
+        report = shape_report_json(rank_combinations(combos))
+        assert "max_selected" in report["rate_semantics"]
+        assert "T68" in report["pooling_caveat"]
 
     def test_param_values_in_canonical_order(self):
         combos = {"a": _entry("s_a", wins=9, games=10, **_FULL_PARAMS)}

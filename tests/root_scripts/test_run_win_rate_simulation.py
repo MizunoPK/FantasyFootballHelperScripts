@@ -97,18 +97,25 @@ class TestSummaryTable:
         captured = capsys.readouterr()
         assert "No strategies evaluated yet." in captured.out
 
-    def test_sorted_by_win_rate_descending(self, capsys):
+    def test_sorted_by_cumulative_win_rate_descending(self, capsys):
+        # T62: the table now sorts on the CUMULATIVE rate (total_wins / total_games), not on
+        # the best_win_rate running single-run MAXIMUM, so the entries must carry the
+        # cumulative totals. B's cumulative 0.700 beats A's 0.500 and B is listed first.
         mock_mdm = MagicMock()
         mock_mdm.get_all_strategies.return_value = {
             "1_strategy_a.json": {
                 "name": "Strategy A",
                 "best_win_rate": 0.500,
+                "total_wins": 500,
+                "total_games": 1000,
                 "total_runs": 5,
                 "last_run": "2026-01-01",
             },
             "2_strategy_b.json": {
                 "name": "Strategy B",
                 "best_win_rate": 0.700,
+                "total_wins": 700,
+                "total_games": 1000,
                 "total_runs": 5,
                 "last_run": "2026-01-01",
             },
@@ -116,6 +123,33 @@ class TestSummaryTable:
         _print_summary(mock_mdm)
         captured = capsys.readouterr()
         assert captured.out.index("Strategy B") < captured.out.index("Strategy A")
+
+    def test_sort_key_is_cumulative_not_best_win_rate(self, capsys):
+        # The load-bearing T62 assertion: A has the HIGHER best_win_rate (a lucky single-run
+        # maximum) but the LOWER cumulative rate. Under the old sort key A came first; under
+        # the cumulative key B must.
+        mock_mdm = MagicMock()
+        mock_mdm.get_all_strategies.return_value = {
+            "1_lucky.json": {
+                "name": "Lucky",
+                "best_win_rate": 0.950,
+                "total_wins": 450,
+                "total_games": 1000,
+                "total_runs": 5,
+                "last_run": "2026-01-01",
+            },
+            "2_steady.json": {
+                "name": "Steady",
+                "best_win_rate": 0.620,
+                "total_wins": 600,
+                "total_games": 1000,
+                "total_runs": 5,
+                "last_run": "2026-01-01",
+            },
+        }
+        _print_summary(mock_mdm)
+        captured = capsys.readouterr()
+        assert captured.out.index("Steady") < captured.out.index("Lucky")
 
     def test_win_rate_formatted_as_3_decimal(self, capsys):
         mock_mdm = MagicMock()
