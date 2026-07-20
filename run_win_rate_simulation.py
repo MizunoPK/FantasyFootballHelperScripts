@@ -29,6 +29,8 @@ from simulation.win_rate.sweep_summary import rank_combinations, format_summary,
 from simulation.win_rate.config_promoter import (
     compute_promotion,
     promote_best_combination,
+    DEFAULT_PROMOTE_SHORTLIST,
+    DEFAULT_PROMOTE_SIMS,
 )
 from utils.error_handler import ConfigurationError, FileOperationError
 
@@ -93,6 +95,19 @@ def _build_parser() -> argparse.ArgumentParser:
              "no longer writes). Safe in non-TTY/scripted runs — the flag, not a prompt, is the write gate."
     )
     parser.add_argument(
+        "--promote-shortlist", type=int, default=DEFAULT_PROMOTE_SHORTLIST, metavar="N",
+        help=f"How many top-ranked sweep candidates --promote re-measures head-to-head on "
+             f"fresh data before promoting one (default: {DEFAULT_PROMOTE_SHORTLIST}). Cost "
+             f"scales linearly: each candidate replays 2 arms x every season x --promote-sims. "
+             f"Use 1 for a fast bounded run."
+    )
+    parser.add_argument(
+        "--promote-sims", type=int, default=DEFAULT_PROMOTE_SIMS, metavar="N",
+        help=f"Simulations per season per arm for each --promote re-measurement "
+             f"(default: {DEFAULT_PROMOTE_SIMS}). At the defaults a promote is a deliberate "
+             f"long-running operator action (tens of minutes); use 1 for a fast bounded run."
+    )
+    parser.add_argument(
         "--fresh", action="store_true",
         help="Ignore any existing sweep checkpoint and run every config from baseline. Sweep mode only."
     )
@@ -110,15 +125,36 @@ def _build_parser() -> argparse.ArgumentParser:
     return parser
 
 
+def _cumulative_rate(entry: dict) -> float:
+    """Cumulative win rate (total_wins / total_games) of one strategy entry; 0.0 at zero games.
+
+    Args:
+        entry (dict): A WinRateMetaDataManager per-strategy entry.
+
+    Returns:
+        float: The cumulative rate, or 0.0 when no games are recorded.
+    """
+    total_games = entry.get("total_games", 0)
+    if total_games <= 0:
+        return 0.0
+    return entry.get("total_wins", 0) / total_games
+
+
 def _print_summary(meta_data_manager: WinRateMetaDataManager) -> None:
     """Print a ranked, table-formatted summary of strategy win rates to stdout."""
     strategies = meta_data_manager.get_all_strategies()
     if not strategies:
         print("No strategies evaluated yet.")
         return
+    # T62: rank on the CUMULATIVE rate, not the best_win_rate running single-run MAXIMUM —
+    # a maximum over noisy runs is upward-biased and orders strategies by luck. This store is
+    # written only by strategy-only mode (no moving incumbent), so its cumulative totals are
+    # homogeneous and this ordering is unambiguously correct here. Only the sort key changes;
+    # the displayed WinRate column still renders the stored best_win_rate, whose RENAME is
+    # T32-relabel-best-winrate-diagnostic-store-and-report's territory, not this story's.
     sorted_entries = sorted(
         strategies.items(),
-        key=lambda kv: kv[1].get("best_win_rate", 0.0),
+        key=lambda kv: _cumulative_rate(kv[1]),
         reverse=True,
     )
     print("\nStrategy Win Rate Summary")
@@ -164,11 +200,22 @@ def main() -> None:
     if args.sweep:
         _run_sweep_mode(args, data_folder, logger)
         if args.promote:
-            _run_promote_mode(data_folder, logger, confirm=args.confirm)
+            # The sweep's own seed is not plumbed out of _run_sweep_mode, and re-using it
+            # would couple two independently reproducible phases — so promote resolves its
+            # own. mode_label keeps the two auto-assign hints distinguishable.
+            _run_promote_mode(
+                data_folder, logger, confirm=args.confirm,
+                seed=_resolve_sweep_seed(args, logger, mode_label="promote"),
+                shortlist=args.promote_shortlist, sims=args.promote_sims,
+            )
         return
 
     if args.promote:
-        _run_promote_mode(data_folder, logger, confirm=args.confirm)
+        _run_promote_mode(
+            data_folder, logger, confirm=args.confirm,
+            seed=_resolve_sweep_seed(args, logger, mode_label="promote"),
+            shortlist=args.promote_shortlist, sims=args.promote_sims,
+        )
         return
 
     meta_data_manager = WinRateMetaDataManager(data_folder / "win_rate_meta_data.json")
@@ -203,7 +250,7 @@ def main() -> None:
     _print_summary(meta_data_manager)
 
 
-def _resolve_sweep_seed(args: argparse.Namespace, logger) -> int:
+def _resolve_sweep_seed(args: argparse.Namespace, logger, mode_label: str = "sweep") -> int:
     """Resolve the base seed for a sweep run (D2/T30: paired-by-default + reproducible).
 
     With ``--seed N`` the value is returned verbatim. Without ``--seed`` a base seed is
@@ -215,15 +262,21 @@ def _resolve_sweep_seed(args: argparse.Namespace, logger) -> int:
     Args:
         args (argparse.Namespace): Parsed CLI args; reads ``args.seed`` (Optional[int]).
         logger: Logger used to emit the auto-assign reproduce hint at INFO.
+        mode_label (str): Names the phase in the auto-assign log line (default "sweep").
+            Promote mode passes "promote" so that a combined ``--sweep --promote`` run, in
+            which the sweep and the promote each resolve their OWN seed, emits two
+            DISTINGUISHABLE reproduce hints rather than two lines that read as a
+            contradiction. The default keeps every existing caller's message byte-identical.
 
     Returns:
-        int: The base seed to use for the sweep run.
+        int: The base seed to use for the run.
     """
     if args.seed is not None:
         return args.seed
     base_seed = random.SystemRandom().randrange(2 ** 32)
     logger.info(
-        f"Auto-assigned sweep base seed: {base_seed} (re-run with --seed {base_seed} to reproduce)"
+        f"Auto-assigned {mode_label} base seed: {base_seed} "
+        f"(re-run with --seed {base_seed} to reproduce)"
     )
     return base_seed
 
@@ -360,8 +413,9 @@ def _run_sweep_mode(args: argparse.Namespace, data_folder: Path, logger) -> None
         sys.exit(0)
 
 
-def _run_promote_mode(data_folder: Path, logger, confirm: bool) -> None:
-    """Preview or (with confirm=True) write the best sweep combination into league_config.json.
+def _run_promote_mode(data_folder: Path, logger, confirm: bool, seed: int,
+                      shortlist: int, sims: int) -> None:
+    """Preview or (with confirm=True) write the re-measured winning combination.
 
     The human-approval gate in front of the live-config write (T34). With confirm=False
     (a bare --promote) this computes and prints the current -> proposed preview and writes
@@ -370,48 +424,90 @@ def _run_promote_mode(data_folder: Path, logger, confirm: bool) -> None:
     flag, not a TTY prompt, so scripted / non-TTY runs are safe and no path writes without
     --confirm.
 
+    Both paths now RE-MEASURE the shortlisted candidates on fresh season data (T62), so both
+    run simulations and are correspondingly slow at the default shortlist/sims. Every failure
+    mode — including the re-measurement's own missing-season-data and no-valid-games cases —
+    is surfaced as ConfigurationError and handled here.
+
     Args:
-        data_folder (Path): Simulation data root holding the sweep results.
+        data_folder (Path): Simulation data root holding the sweep results AND the 20XX/
+            season folders the re-measurement replays.
         logger: Logger used to report a promotion failure before exiting.
         confirm (bool): True to write (--confirm supplied); False to preview only.
+        seed (int): Base seed for the re-measurement (resolved by the caller via
+            _resolve_sweep_seed, so an unseeded run logs a reproduce hint).
+        shortlist (int): How many top-ranked candidates to re-measure (--promote-shortlist).
+        sims (int): Simulations per season per arm per candidate (--promote-sims).
     """
     store = SweepResultsManager(data_folder / "win_rate_sweep_results.json")
     try:
         if confirm:
-            result = promote_best_combination(store, data_folder)
+            result = promote_best_combination(
+                store, data_folder, seed=seed, shortlist=shortlist, sims=sims
+            )
             _print_promotion(result)
         else:
-            plan = compute_promotion(store, data_folder)
+            plan = compute_promotion(
+                store, data_folder, seed=seed, shortlist=shortlist, sims=sims
+            )
             _print_promotion_preview(plan)
     except (ConfigurationError, FileOperationError) as e:
         logger.error(f"Promotion failed: {e}")
         sys.exit(1)
 
 
+def _print_promotion_evidence(plan: dict) -> None:
+    """Print the shared re-measurement evidence block for both promotion printers (T62).
+
+    Ordering is the requirement, not a preference: the FRESH re-measured rate and its
+    clustering-widened Wilson interval lead, labelled as the winner of a K-way
+    re-measurement (K printed) so the residual max-over-K bias and the uncorrected K-fold
+    multiplicity are visible; the delta and z sit beneath as the decision evidence, labelled
+    so the absolute rate is not misread as the improvement; the store-derived rate comes
+    LAST, explicitly labelled max_selected and stated not to be an estimate.
+
+    Args:
+        plan (dict): A compute_promotion / promote_best_combination result.
+    """
+    ci_low, ci_high = plan["remeasured_ci"]
+    k = plan["shortlist_size"]
+    print(f"  Strategy:  {plan['strategy_id']}")
+    print(f"  Re-measured win rate:  {plan['remeasured_rate']:.3f} "
+          f"[{ci_low:.3f}, {ci_high:.3f}]  over {plan['remeasured_games']} games/arm")
+    print(f"    winner of a {k}-way re-measurement on fresh data — NOT an unconditional "
+          f"estimate of this config's rate")
+    print(f"    interval widened for clustering; the {k} significance tests are uncorrected "
+          f"for multiplicity")
+    print(f"  Improvement vs live config:  delta={plan['delta']:+.4f}  "
+          f"z={plan['z']:.2f}  z_adjusted={plan['z_adjusted']:.2f}")
+    print(f"  Seed:  {plan['seed']}")
+    print("  Parameters:")
+    for name, value in plan["param_values"].items():
+        print(f"    {name}: {value}")
+    print(f"  max_selected (in-sample maximum — not an estimate):  "
+          f"{plan['max_selected_win_rate']:.3f} over {plan['max_selected_games']} store "
+          f"games, shortlist lcb={plan['lcb']:.3f}")
+
+
 def _print_promotion(result: dict) -> None:
     """Print a human-readable report of what was promoted to league_config.json."""
-    print("\nPromoted best combination to data/configs/league_config.json")
+    print("\nPromoted re-measured winner to data/configs/league_config.json")
     print("──────────────────────────────────────────────────────────────")
-    print(f"  Strategy:  {result['strategy_id']}")
-    print(f"  Win rate:  {result['win_rate']:.3f} over {result['games']} games")
-    print("  Parameters:")
-    for name, value in result["param_values"].items():
-        print(f"    {name}: {value}")
+    _print_promotion_evidence(result)
     print("──────────────────────────────────────────────────────────────")
 
 
 def _print_promotion_preview(plan: dict) -> None:
     """Print the current -> proposed promotion diff WITHOUT writing (bare --promote).
 
-    The dry-run preview for the human-approval gate (T34): shows the winning strategy,
-    its win rate, and the current -> proposed diff of the changed draft-side keys
-    (plus DRAFT_ORDER when it changes), then the apply hint. Nothing is written to
+    The dry-run preview for the human-approval gate (T34): shows the re-measurement evidence
+    for the winning candidate, then the current -> proposed diff of the changed draft-side
+    keys (plus DRAFT_ORDER when it changes), then the apply hint. Nothing is written to
     data/configs/league_config.json.
     """
     print("\nPromotion preview (DRY RUN) — data/configs/league_config.json NOT modified")
     print("──────────────────────────────────────────────────────────────")
-    print(f"  Strategy:  {plan['strategy_id']}")
-    print(f"  Win rate:  {plan['win_rate']:.3f} over {plan['games']} games")
+    _print_promotion_evidence(plan)
     diff = plan["diff"]
     if not diff:
         print("  No changes — the live config already matches the winning combination.")
