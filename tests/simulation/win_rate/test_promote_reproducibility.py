@@ -31,7 +31,10 @@ from pathlib import Path
 from simulation.win_rate.SweepTournament import SweepTournament
 from simulation.win_rate.SweepResultsManager import SweepResultsManager
 from simulation.win_rate.sweep_summary import rank_combinations
-from simulation.win_rate.param_value_generation import DRAFT_SWEEP_PARAMS
+from simulation.win_rate.param_value_generation import (
+    DRAFT_SWEEP_PARAMS,
+    generate_candidate_values,
+)
 from simulation.win_rate.ParallelLeagueRunner import _derive_task_seed
 from simulation.shared.ConfigGenerator import ConfigGenerator
 
@@ -113,13 +116,34 @@ class FakeEvaluator:
         return wins, N_DRAWS, wins / N_DRAWS
 
 
-def _run_selection(base_seed: int, store_path: Path) -> dict:
-    """Drive the REAL SweepTournament end-to-end over the constructed landscape and return the
-    selected winner row (rank_combinations(...)[0]) — exactly the config --promote would pick."""
+def _run_tournament(base_seed: int, store_path: Path) -> tuple:
+    """Drive the REAL SweepTournament end-to-end over the constructed landscape.
+
+    Returns:
+        tuple: (per-config run result from ``SweepTournament.run``, selected winner row from
+            ``rank_combinations(...)[0]`` — exactly the config ``--promote`` would pick).
+    """
     store = SweepResultsManager(store_path)
     tournament = SweepTournament(evaluator=FakeEvaluator(base_seed), store=store, num_values=2)
-    tournament.run(STRATEGIES, dict(BASELINE_PARAMS))
-    return rank_combinations(store.get_all_combinations())[0]
+    result = tournament.run(STRATEGIES, dict(BASELINE_PARAMS))
+    return result, rank_combinations(store.get_all_combinations())[0]
+
+
+def _run_selection(base_seed: int, store_path: Path) -> dict:
+    """The selected winner row only — see :func:`_run_tournament`."""
+    return _run_tournament(base_seed, store_path)[1]
+
+
+def _expected_optimum_params() -> dict:
+    """The constructed optimum's PARAM SET — each param at its max grid endpoint.
+
+    Deliberately params-only: post-T54 a config is measured head-to-head against its own
+    incumbent, so the per-strategy STRAT_BONUS cancels and cross-STRATEGY quality is not
+    expressible in recorded rates (see TestSameWinnerAcrossThreeSeeds). The param set, by
+    contrast, IS a landscape-driven property the ascent genuinely proves.
+    """
+    candidates = generate_candidate_values(BASELINE_PARAMS, 2)
+    return {name: max(candidates[name]) for name in DRAFT_SWEEP_PARAMS}
 
 
 class TestSameWinnerAcrossThreeSeeds:
@@ -144,15 +168,36 @@ class TestSameWinnerAcrossThreeSeeds:
     """
 
     def test_same_winner_across_three_seeds(self, tmp_path):
-        # Act: drive the real selection under each base seed with a fresh store each time.
-        winners = []
-        for base_seed in BASE_SEEDS:
-            winner = _run_selection(base_seed, tmp_path / f"results_{base_seed}.json")
-            winners.append((winner["strategy_id"], winner["param_values"]))
+        # Arrange
+        expected_params = _expected_optimum_params()
 
-        # Assert: all three independent seeds select the identical config — the selection is
-        # reproducible, not sampling luck. (Which config that is, is T62/T68's concern; see the
-        # class docstring.)
+        # Act: drive the real tournament under each base seed with a fresh store each time.
+        winners, converged = [], []
+        for base_seed in BASE_SEEDS:
+            result, winner = _run_tournament(base_seed, tmp_path / f"results_{base_seed}.json")
+            winners.append((winner["strategy_id"], winner["param_values"]))
+            converged.append({sid: entry["param_values"] for sid, entry in result.items()})
+
+        # Assert (1) — THE LOAD-BEARING ONE. Every config's coordinate ascent CLIMBED to the
+        # constructed optimum (all params at their max grid endpoint) under every base seed.
+        # This is landscape-driven and genuinely seed-sensitive: each single-param step is a
+        # +GAP/6 = +0.05 head-to-head edge that must clear the one-sample gate on its own drawn
+        # sample (z ~= 3.87 at N_DRAWS), so a gate regression or a mis-modelled evaluator shows
+        # up here as a config that failed to climb.
+        for base_seed, per_config in zip(BASE_SEEDS, converged):
+            for strategy_id, params in per_config.items():
+                assert params == expected_params, (
+                    f"seed {base_seed}: {strategy_id} converged at {params}, "
+                    f"expected the all-max optimum {expected_params}"
+                )
+
+        # Assert (2) — the ranked selection is identical across the three seeds. NOTE this is a
+        # weaker statement than it looks: every adopted trial scores exactly p = 0.55 (each param
+        # contributes the same GAP/6), and _derive_task_seed is combination-INDEPENDENT (real
+        # production CRN), so the top combinations tie exactly and rank_combinations'
+        # (-win_rate, -games, combo_key) tie-break decides. It is retained as a stability check
+        # on that tie-break, NOT as evidence that the better strategy is selected — post-T54 the
+        # store cannot express that (see the class docstring; T62/T68).
         assert winners[0] == winners[1] == winners[2], (
             f"selection differed across base seeds: {winners}"
         )
