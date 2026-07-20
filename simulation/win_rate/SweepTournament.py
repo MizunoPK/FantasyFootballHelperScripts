@@ -245,6 +245,14 @@ class SweepTournament:
 
         Returns:
             Dict[str, Dict]: {strategy_id: {"param_values": <6-param dict>, "win_rate": float}}.
+                CAVEAT (T58/C2, absorbed by T62/D4) — "win_rate" carries TWO DIFFERENT
+                ESTIMANDS and the two are NOT comparable across configs. When the config's
+                ascent adopted at least one parameter, it is the FRESH HEAD-TO-HEAD rate of
+                the last adopted trial against its incumbent. When the ascent never moved a
+                parameter, it is the ACCUMULATED SELF-PLAY rate of the baseline/carry-over
+                anchor — symmetric by construction, so ~0.50 and carrying no strength
+                information. Ranking configs on this field mixes the two (the
+                incommensurability ARCHITECTURE.md Decision 6 describes).
 
         Raises:
             ConfigurationError: If strategies is empty.
@@ -342,7 +350,11 @@ class SweepTournament:
 
             self._store.mark_config_progress(strategy_id, "converged", current, best_rate)
             results[strategy_id] = {"param_values": dict(current), "win_rate": best_rate}
-            logger.info(f"Config {strategy_id} converged | win_rate={best_rate:.3f}")
+            logger.info(
+                f"Config {strategy_id} converged | win_rate={best_rate:.3f} "
+                f"(fresh head-to-head rate if a param moved, else the accumulated self-play "
+                f"anchor ~0.50 — different estimands, not comparable across configs)"
+            )
             if progress_callback is not None:  # KDD-2: fire on the converged path
                 progress_callback(strategy_id)
 
