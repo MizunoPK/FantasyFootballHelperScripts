@@ -31,10 +31,7 @@ from pathlib import Path
 from simulation.win_rate.SweepTournament import SweepTournament
 from simulation.win_rate.SweepResultsManager import SweepResultsManager
 from simulation.win_rate.sweep_summary import rank_combinations
-from simulation.win_rate.param_value_generation import (
-    DRAFT_SWEEP_PARAMS,
-    generate_candidate_values,
-)
+from simulation.win_rate.param_value_generation import DRAFT_SWEEP_PARAMS
 from simulation.win_rate.ParallelLeagueRunner import _derive_task_seed
 from simulation.shared.ConfigGenerator import ConfigGenerator
 
@@ -92,7 +89,22 @@ class FakeEvaluator:
         return P_BASE + bonus + (GAP / len(DRAFT_SWEEP_PARAMS)) * progress
 
     def evaluate(self, draft_order, param_values, incumbent_param_values=None):
-        p = self._skill(draft_order, param_values)
+        # T58: model the POST-T54 evaluator contract — a HEAD-TO-HEAD measurement of the trial
+        # config against the incumbent, so the returned rate is centred on the 0.50 null and is
+        # exactly 0.50 when trial == incumbent. Returning an ABSOLUTE skill here (this fake's
+        # pre-T54 shape) puts every combo at or above the null; under the one-sample adoption
+        # gate every candidate is then significant at N_DRAWS, `moved` never goes False, and
+        # run() — whose only stopping rule is a pass that moves nothing — NEVER TERMINATES.
+        if incumbent_param_values is None:
+            # The baseline / carry-over anchors pass no incumbent, so CombinationEvaluator falls
+            # back to symmetric self-play: 0.50 by construction, carrying no strength signal.
+            p = 0.5
+        else:
+            p = 0.5 + (
+                self._skill(draft_order, param_values)
+                - self._skill(draft_order, incumbent_param_values)
+            )
+            p = min(max(p, 0.0), 1.0)
         wins = 0
         for sim_id in range(N_DRAWS):
             task_seed = _derive_task_seed(self._base_seed, SEASON, sim_id)
@@ -110,32 +122,40 @@ def _run_selection(base_seed: int, store_path: Path) -> dict:
     return rank_combinations(store.get_all_combinations())[0]
 
 
-def _expected_optimum() -> tuple:
-    """The constructed global optimum (winner strategy + each param at its max grid endpoint)."""
-    candidates = generate_candidate_values(BASELINE_PARAMS, 2)
-    return WINNER_ID, {name: max(candidates[name]) for name in DRAFT_SWEEP_PARAMS}
-
-
 class TestSameWinnerAcrossThreeSeeds:
-    """(a) The selection picks the same winning config across 3 independent base seeds."""
+    """(a) The selection picks the same winning config across 3 independent base seeds.
+
+    T58 NARROWING — what this test can honestly prove changed with the statistic.
+    It previously also asserted the selected winner IS the constructed optimum (the winner
+    strategy at all-max params). That assertion only held because the fake returned an
+    ABSOLUTE skill, which made STRAT_BONUS visible in the recorded rates. Under the post-T54
+    head-to-head contract the fake now models, a config is always measured against ITS OWN
+    incumbent (same draft_order, different params), so STRAT_BONUS cancels in every recorded
+    rate and cross-STRATEGY quality is simply not expressible in the store.
+
+    That is a real property of the production engine, not a fixture artefact: ranking configs
+    by cumulative head-to-head rate compares apples to oranges. Making that ranking meaningful
+    is [[T62-winrate-max-selection-optimistic-bias]] (select on a lower confidence bound, then
+    re-measure the shortlisted winner on fresh data) and
+    [[T68-winrate-heterogeneous-reference-pooling]] (per-reference bookkeeping in the store).
+    Until those land, this test asserts the property it still genuinely covers —
+    REPRODUCIBILITY: the selection is a deterministic function of the landscape, identical
+    across independent base seeds — and deliberately does not assert which config wins.
+    """
 
     def test_same_winner_across_three_seeds(self, tmp_path):
-        # Arrange
-        expected_id, expected_params = _expected_optimum()
-
         # Act: drive the real selection under each base seed with a fresh store each time.
         winners = []
         for base_seed in BASE_SEEDS:
             winner = _run_selection(base_seed, tmp_path / f"results_{base_seed}.json")
             winners.append((winner["strategy_id"], winner["param_values"]))
 
-        # Assert: every seed selects the constructed optimum (winner strategy + all-max params).
-        for strat_id, params in winners:
-            assert strat_id == expected_id, f"seed selected {strat_id!r}, expected {expected_id!r}"
-            assert params == expected_params, f"seed selected params {params}, expected {expected_params}"
-
-        # And all three selections are identical to each other (reproducible, not sampling luck).
-        assert winners[0] == winners[1] == winners[2]
+        # Assert: all three independent seeds select the identical config — the selection is
+        # reproducible, not sampling luck. (Which config that is, is T62/T68's concern; see the
+        # class docstring.)
+        assert winners[0] == winners[1] == winners[2], (
+            f"selection differed across base seeds: {winners}"
+        )
 
 
 class TestSameSeedDeterminism:
