@@ -69,10 +69,10 @@ def _evaluate_config_tournament_process(
     logger = calculator.logger
     config_label = f"{param_name}={param_value} [{config_horizon}]"
     logger.info(f"━━━ Config Complete: {config_label} ━━━")
-    logger.info(f"  week_1_5:   MAE={results['week_1_5'].mae:.4f} (players={results['week_1_5'].player_count})")
-    logger.info(f"  week_6_9:   MAE={results['week_6_9'].mae:.4f} (players={results['week_6_9'].player_count})")
-    logger.info(f"  week_10_13: MAE={results['week_10_13'].mae:.4f} (players={results['week_10_13'].player_count})")
-    logger.info(f"  week_14_17: MAE={results['week_14_17'].mae:.4f} (players={results['week_14_17'].player_count})")
+    logger.info(f"  week_1_5:   MAE={results['week_1_5'].mae:.4f} (players={results['week_1_5'].player_count}, weeks={results['week_1_5'].weeks_evaluated}/{results['week_1_5'].weeks_requested})")
+    logger.info(f"  week_6_9:   MAE={results['week_6_9'].mae:.4f} (players={results['week_6_9'].player_count}, weeks={results['week_6_9'].weeks_evaluated}/{results['week_6_9'].weeks_requested})")
+    logger.info(f"  week_10_13: MAE={results['week_10_13'].mae:.4f} (players={results['week_10_13'].player_count}, weeks={results['week_10_13'].weeks_evaluated}/{results['week_10_13'].weeks_requested})")
+    logger.info(f"  week_14_17: MAE={results['week_14_17'].mae:.4f} (players={results['week_14_17'].player_count}, weeks={results['week_14_17'].weeks_evaluated}/{results['week_14_17'].weeks_requested})")
 
     return (config_dict, results)
 

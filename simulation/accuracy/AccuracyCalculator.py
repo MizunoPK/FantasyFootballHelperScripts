@@ -35,6 +35,8 @@ class AccuracyResult:
         errors (List[float]): Individual player errors (for debugging)
         overall_metrics (Optional[RankingMetrics]): Overall ranking metrics across all positions
         by_position (Optional[Dict[str, RankingMetrics]]): Ranking metrics per position
+        weeks_evaluated (int): Weeks actually scored for this result (observability; default 0)
+        weeks_requested (int): Weeks the horizon range asked for (observability; default 0)
     """
 
     def __init__(
@@ -44,7 +46,9 @@ class AccuracyResult:
         total_error: float,
         errors: Optional[List[float]] = None,
         overall_metrics=None,
-        by_position: Optional[dict] = None
+        by_position: Optional[dict] = None,
+        weeks_evaluated: int = 0,
+        weeks_requested: int = 0
     ) -> None:
         self.mae = mae
         self.player_count = player_count
@@ -52,6 +56,8 @@ class AccuracyResult:
         self.errors = errors or []
         self.overall_metrics = overall_metrics
         self.by_position = by_position or {}
+        self.weeks_evaluated = weeks_evaluated
+        self.weeks_requested = weeks_requested
 
     def __repr__(self) -> str:
         return f"AccuracyResult(mae={self.mae:.4f}, players={self.player_count})"
@@ -174,7 +180,13 @@ class AccuracyCalculator:
             f"{len(player_data)} player-week combinations"
         )
 
-        return self.calculate_mae(player_data)
+        result = self.calculate_mae(player_data)
+        result.weeks_requested = end_week - start_week + 1
+        result.weeks_evaluated = sum(
+            1 for w in range(start_week, end_week + 1)
+            if w in week_projections and w in week_actuals
+        )
+        return result
 
     def aggregate_season_results(
         self,
@@ -197,10 +209,14 @@ class AccuracyCalculator:
         """
         total_error = 0.0
         total_players = 0
+        total_weeks_evaluated = 0
+        total_weeks_requested = 0
 
         for season_name, result in season_results:
             total_error += result.total_error
             total_players += result.player_count
+            total_weeks_evaluated += result.weeks_evaluated
+            total_weeks_requested += result.weeks_requested
             self.logger.debug(
                 f"Season {season_name}: MAE={result.mae:.4f}, "
                 f"players={result.player_count}"
@@ -208,7 +224,11 @@ class AccuracyCalculator:
 
         if total_players == 0:
             self.logger.warning("No players across all seasons")
-            return AccuracyResult(mae=0.0, player_count=0, total_error=0.0)
+            return AccuracyResult(
+                mae=0.0, player_count=0, total_error=0.0,
+                weeks_evaluated=total_weeks_evaluated,
+                weeks_requested=total_weeks_requested
+            )
 
         aggregated_mae = total_error / total_players
 
@@ -321,7 +341,9 @@ class AccuracyCalculator:
             player_count=total_players,
             total_error=total_error,
             overall_metrics=overall_metrics,
-            by_position=by_position
+            by_position=by_position,
+            weeks_evaluated=total_weeks_evaluated,
+            weeks_requested=total_weeks_requested
         )
 
     def calculate_pairwise_accuracy(

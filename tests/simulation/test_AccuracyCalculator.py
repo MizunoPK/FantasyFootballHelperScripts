@@ -46,6 +46,21 @@ class TestAccuracyResult:
         assert "mae=5.5000" in repr(result)
         assert "players=100" in repr(result)
 
+    def test_accuracy_result_coverage_defaults(self):
+        """weeks_evaluated / weeks_requested default to 0 (backward-compatible, D3)."""
+        result = AccuracyResult(mae=5.5, player_count=100, total_error=550.0)
+        assert result.weeks_evaluated == 0
+        assert result.weeks_requested == 0
+
+    def test_accuracy_result_coverage_set(self):
+        """weeks_evaluated / weeks_requested are settable via constructor (D3)."""
+        result = AccuracyResult(
+            mae=5.5, player_count=100, total_error=550.0,
+            weeks_evaluated=3, weeks_requested=4
+        )
+        assert result.weeks_evaluated == 3
+        assert result.weeks_requested == 4
+
 
 class TestAccuracyCalculator:
     """Tests for AccuracyCalculator class."""
@@ -195,6 +210,30 @@ class TestAccuracyCalculatorWeekly:
         assert result.player_count == 2
         assert result.mae == 5.0
 
+    def test_calculate_weekly_mae_full_coverage(self, calculator):
+        """Coverage: every requested week present -> evaluated == requested (D1, AC3)."""
+        week_projections = {1: {1: 15.0}, 2: {1: 16.0}}
+        week_actuals = {1: {1: 12.0}, 2: {1: 14.0}}
+
+        result = calculator.calculate_weekly_mae(
+            week_projections, week_actuals, (1, 2)
+        )
+
+        assert result.weeks_requested == 2
+        assert result.weeks_evaluated == 2
+
+    def test_calculate_weekly_mae_partial_coverage(self, calculator):
+        """Coverage: a missing week is requested-but-not-evaluated (D1, AC3)."""
+        week_projections = {1: {1: 15.0}}
+        week_actuals = {1: {1: 12.0}}
+
+        result = calculator.calculate_weekly_mae(
+            week_projections, week_actuals, (1, 2)
+        )
+
+        assert result.weeks_requested == 2
+        assert result.weeks_evaluated == 1
+
 
 class TestAccuracyCalculatorAggregation:
     """Tests for season result aggregation."""
@@ -247,6 +286,22 @@ class TestAccuracyCalculatorAggregation:
 
         assert result.mae == 5.0
         assert result.player_count == 100
+
+    def test_aggregate_sums_coverage(self, calculator):
+        """Coverage: aggregate sums weeks_evaluated/weeks_requested across seasons,
+        and leaves mae / player_count untouched (D2, AC4)."""
+        r1 = AccuracyResult(mae=5.0, player_count=100, total_error=500.0,
+                            weeks_evaluated=4, weeks_requested=4)
+        r2 = AccuracyResult(mae=4.0, player_count=100, total_error=400.0,
+                            weeks_evaluated=3, weeks_requested=4)
+        season_results = [('2023', r1), ('2024', r2)]
+
+        result = calculator.aggregate_season_results(season_results)
+
+        assert result.weeks_evaluated == 7
+        assert result.weeks_requested == 8
+        assert result.mae == 4.5
+        assert result.player_count == 200
 
 
 class TestPairwiseAccuracy:
