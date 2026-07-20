@@ -13,6 +13,7 @@ from simulation.win_rate.sweep_summary import (
     rank_combinations,
     format_summary,
     shape_report_json,
+    wilson_interval,
     write_sweep_report,
 )
 
@@ -225,3 +226,79 @@ class TestWriteSweepReport:
         write_sweep_report(ranked, nested)
         assert (nested / "win_rate_sweep_report.txt").exists()
         assert (nested / "win_rate_sweep_report.json").exists()
+
+
+class TestWilsonShortlistCoverage:
+    """T62/D1 + D5: LCB ordering, the opt-in games floor, and what is NOT inflated.
+
+    New coverage owned by T62's test_build_plan.md — none of these behaviours existed before
+    the Wilson shortlist replaced the rate-first sort at sweep_summary.py:71.
+    """
+
+    def test_small_sample_high_rate_loses_to_accumulated_higher_lcb(self):
+        # THE ordering regression (spec.md "New coverage required", bullet 2). Under the old
+        # (-win_rate, -games, combo_key) sort the 170-game 0.588 draw ranked FIRST, because the
+        # rate came first and sample size was only a tie-break. Under the Wilson LCB ordering
+        # the 10,000-game 0.550 accumulation ranks first:
+        #     LCB(100/170)    = 0.525238
+        #     LCB(5500/10000) = 0.541805
+        # Both values were executed with the one-sided helper before being written down.
+        combos = {
+            "lucky": _entry("s_lucky", wins=100, games=170),     # 0.588 over 170
+            "steady": _entry("s_steady", wins=5500, games=10000),  # 0.550 over 10,000
+        }
+        ranked = rank_combinations(combos)
+        assert [r["combo_key"] for r in ranked] == ["steady", "lucky"]
+        # The raw rate still favours the small sample — proving it is the ORDERING that
+        # changed, not the underlying data.
+        assert ranked[1]["win_rate"] > ranked[0]["win_rate"]
+        assert round(ranked[0]["lcb"], 6) == 0.541805
+        assert round(ranked[1]["lcb"], 6) == 0.525238
+
+    def test_min_games_floor_excludes_below_floor_rows(self):
+        combos = {
+            "tiny": _entry("s_tiny", wins=20, games=29),
+            "ok": _entry("s_ok", wins=20, games=30),
+        }
+        # No floor by default: both survive.
+        assert {r["combo_key"] for r in rank_combinations(combos)} == {"tiny", "ok"}
+        # With the floor the below-floor row is excluded ENTIRELY, not merely demoted.
+        assert [r["combo_key"] for r in rank_combinations(combos, min_games=30)] == ["ok"]
+
+    def test_min_games_floor_can_empty_the_shortlist(self):
+        # The precondition for config_promoter's empty-shortlist refusal.
+        combos = {"tiny": _entry("s_tiny", wins=8, games=10)}
+        assert rank_combinations(combos, min_games=30) == []
+
+    def test_report_path_keeps_every_config_at_the_default_floor(self):
+        # sweep_summary.py's documented "all configs always appear — there is no top-N cap"
+        # contract survives, because min_games defaults to 0 and only --promote passes a floor.
+        combos = {"tiny": _entry("s_tiny", wins=1, games=2)}
+        assert len(rank_combinations(combos)) == 1
+
+    def test_shortlist_lcb_is_not_clustering_inflated(self):
+        # T62/D5's asymmetry, asserted rather than assumed: the shortlist bound is an internal
+        # FILTER over incommensurable pooled totals and carries NO inflation. Only the
+        # operator-facing re-measured interval (config_promoter) is widened by 1.28.
+        row = rank_combinations({"a": _entry("s_a", wins=105, games=170)})[0]
+        uninflated = wilson_interval(105, 170, 0.90)[0]
+        inflated = wilson_interval(105, 170, 0.90, se_inflation=1.28)[0]
+        assert row["lcb"] == uninflated
+        assert row["lcb"] != inflated
+        # A wider interval has a LOWER lower endpoint — so the two are genuinely distinguishable
+        # and this assertion could not pass by coincidence.
+        assert inflated < uninflated
+
+    def test_se_inflation_widens_the_interval_in_both_directions(self):
+        # 935/1700 -> plain (0.526265, 0.573510); x1.28 -> (0.519600, 0.580031). Values
+        # executed before being written down. This is the exact interval config_promoter
+        # reports for the stubbed re-measurement used in test_config_promoter.py.
+        plain_low, plain_high = wilson_interval(935, 1700, 0.95)
+        wide_low, wide_high = wilson_interval(935, 1700, 0.95, se_inflation=1.28)
+        assert (round(plain_low, 6), round(plain_high, 6)) == (0.526265, 0.57351)
+        assert (round(wide_low, 6), round(wide_high, 6)) == (0.5196, 0.580031)
+        assert wide_low < plain_low
+        assert wide_high > plain_high
+
+    def test_wilson_interval_zero_games_is_degenerate_not_a_crash(self):
+        assert wilson_interval(0, 0, 0.95) == (0.0, 0.0)
