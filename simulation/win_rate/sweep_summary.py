@@ -195,8 +195,8 @@ def format_summary(ranked: List[Dict]) -> str:
 
     Returns:
         str: A table showing rank, Wilson lower confidence bound (the ordering key), the
-            max_selected in-sample rate, games (sample size), strategy, and param values; or
-            a clear message when there are no configs.
+            non-self-play pooled rate for the selected combo, games (sample size), strategy,
+            and param values; or a clear message when there are no configs.
     """
     if not ranked:
         return "No sweep combinations recorded yet."
@@ -232,7 +232,7 @@ def shape_report_json(ranked: List[Dict], generated: Optional[str] = None) -> Di
         Dict: A wrapper object {"generated": <date>, "rate_semantics": <str>,
             "pooling_caveat": <str>, "configs": [...]} where each config entry carries
             'rank' (1-based), 'strategy_id', 'lcb' (the ordering key), 'win_rate'
-            (max_selected — the in-sample maximum, not an estimate), 'games', 'wins', and
+            (the selected combo's non-self-play pooled rate, not an estimate), 'games', 'wins', and
             'param_values' — the latter keyed in canonical DRAFT_SWEEP_PARAMS order for
             deterministic, diff-stable output. Missing params resolve to None. The two
             top-level label strings state the rate semantics and the T68 heterogeneous-
