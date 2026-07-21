@@ -194,13 +194,19 @@ class SweepTournament:
             param_values (Dict[str, float]): The 6 draft-side param values.
 
         Returns:
-            float: total_wins / total_games for the combination, or 0.0 when the
-                combination is unrecorded or has zero accumulated games.
+            float: The self_play bucket rate (wins / games) for the combination, or 0.0 when the
+                combination is unrecorded, has no self_play bucket, or that bucket has zero games.
+                T68/D4: both call sites are self-play anchor reads (baseline / carry-over), so the
+                anchor's accumulated rate SHOULD be its self-play rate — never a blend with any
+                head-to-head games the same combo accrued when it was itself a trial.
         """
         entry = self._store.get_combination(strategy_id, param_values)
-        if entry is None or entry["total_games"] == 0:
+        if entry is None:
             return 0.0
-        return entry["total_wins"] / entry["total_games"]
+        bucket = entry.get("by_reference", {}).get("self_play")
+        if not bucket or bucket["games"] == 0:
+            return 0.0
+        return bucket["wins"] / bucket["games"]
 
     def run(
         self,
@@ -296,14 +302,16 @@ class SweepTournament:
                 # coordinate-ascent below — it is NOT skipped and the grid is unchanged.
                 current = dict(carry_over_seeds[strategy_id])
                 wins, games, win_rate = self._evaluator.evaluate(draft_order, current)
-                self._store.update(strategy_id, current, win_rate, wins, games)
+                # T68/D1: carry-over anchor is symmetric self-play -> the self_play bucket.
+                self._store.update(strategy_id, current, win_rate, wins, games, incumbent_param_values=None)
                 best_rate = self._accumulated_rate(strategy_id, current)
             else:
                 # Per-config baseline evaluation establishes the starting best (also recorded).
                 # best_rate (T31/F7) is the baseline combo's ACCUMULATED rate from the store.
                 current = dict(baseline_params)
                 wins, games, win_rate = self._evaluator.evaluate(draft_order, current)
-                self._store.update(strategy_id, current, win_rate, wins, games)
+                # T68/D1: baseline anchor is symmetric self-play -> the self_play bucket.
+                self._store.update(strategy_id, current, win_rate, wins, games, incumbent_param_values=None)
                 best_rate = self._accumulated_rate(strategy_id, current)
 
             # Record in-progress so an interrupt at any point leaves a resumable checkpoint (D3).
@@ -321,7 +329,8 @@ class SweepTournament:
                         trial = dict(current)
                         trial[param] = value
                         wins, games, win_rate = self._evaluator.evaluate(draft_order, trial, incumbent_param_values=current)
-                        self._store.update(strategy_id, trial, win_rate, wins, games)
+                        # T68/D1: the trial was measured against `current` -> the matching reference bucket.
+                        self._store.update(strategy_id, trial, win_rate, wins, games, incumbent_param_values=current)
                         # T58/D2: decide adoption on the trial's FRESH head-to-head evidence
                         # (the `wins, games` bound from the evaluate() above), tested against the
                         # 0.50 null. The store is deliberately NOT read here: the running-best's
