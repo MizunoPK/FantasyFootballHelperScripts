@@ -34,7 +34,10 @@ def _patches_for_run():
     triples = [("1_a.json", [{"QB": "P"}], "A"), ("2_b.json", [{"QB": "Q"}], "B")]
     return [
         patch(f"{MODULE}.load_valid_strategies", return_value=(triples, 0)),
-        patch(f"{MODULE}.CombinationEvaluator"),
+        # T61: pin season_count to a real int — the pre-flight multiplies it and compares the
+        # product to the floor, which a bare MagicMock cannot satisfy. 17 x 10 sims x 1 = 170,
+        # above the floor, so the pre-flight stays silent and these tests are unaffected.
+        patch(f"{MODULE}.CombinationEvaluator", **{"return_value.season_count": 1}),
         patch(f"{MODULE}.extract_draft_param_values", return_value={"PRIMARY_BONUS": 67}),
         patch(f"{MODULE}.SweepResultsManager"),
         patch(f"{MODULE}.rank_combinations", return_value=[]),

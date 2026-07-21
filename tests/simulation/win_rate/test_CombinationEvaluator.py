@@ -174,6 +174,19 @@ class TestCombinationEvaluator:
         cfg["parameters"]["SAME_POS_BYE_WEIGHT"] = 999  # mutate the returned copy
         assert ev._base_config["parameters"]["SAME_POS_BYE_WEIGHT"] != 999  # internal unaffected
 
+    def test_season_count_reports_valid_seasons(self, tmp_path):
+        # T61/D5: the read-only property mirrors base_config and reports len(_season_cache),
+        # which is the factor the sweep's games-per-evaluation pre-flight multiplies.
+        ev, _ = _make_evaluator(tmp_path, [(1, 1, 0.0)], num_seasons=3)
+        assert ev.season_count == 3
+
+    def test_season_count_excludes_invalid_seasons(self, tmp_path):
+        # T61/D5: VALID seasons, not folders present — a folder failing SimDataLoader validation
+        # is excluded, which is exactly the run most likely to be starved. Two folders exist and
+        # neither validates, so the count is 0 (the reachable divide-by-zero case).
+        ev, _ = _make_evaluator(tmp_path, [(1, 1, 0.0)], num_seasons=2, valid=False)
+        assert ev.season_count == 0
+
     def test_evaluate_surfaces_dropped_leagues_across_seasons(self, tmp_path, caplog):
         """A dropped league per season is aggregated, logged at ERROR, and total_games is reduced."""
         with patch(f"{MODULE}.get_logger") as mock_get_logger:

@@ -34,6 +34,13 @@ from utils.LoggingManager import get_logger
 
 DRAFT_ROUNDS = 15
 
+# T61/D7: the fixed regular-season length every SimulatedLeague plays, defined once here (next
+# to DRAFT_ROUNDS, the module's existing exported constant) rather than as a magic literal.
+# _generate_schedule below passes it to generate_schedule_for_nfl_season, and the win-rate sweep
+# driver's games-per-evaluation pre-flight (WEEKS_PER_SEASON x --sims x valid seasons) reads the
+# SAME number, so the two can never silently diverge.
+WEEKS_PER_SEASON = 17
+
 
 class SimulatedLeague:
     """
@@ -307,7 +314,7 @@ class SimulatedLeague:
         team plays each other team twice (as close as possible in 17 weeks).
         """
         self.logger.debug("Generating 17-week round-robin schedule")
-        self.season_schedule = generate_schedule_for_nfl_season(self.teams, num_weeks=17)
+        self.season_schedule = generate_schedule_for_nfl_season(self.teams, num_weeks=WEEKS_PER_SEASON)
         self.logger.debug(f"Generated schedule: {len(self.season_schedule)} weeks")
 
     def _preload_all_weeks(self) -> None:

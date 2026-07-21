@@ -233,6 +233,75 @@ class TestSweepResultsManagerCheckpoint:
         mgr.mark_config_progress("1_zero_rb.json", "converged", _param_values(), 0.6)
         assert mgr.is_all_converged(["1_zero_rb.json", "2_hero_rb.json"]) is False
 
+    # --- T61: the "starved" terminal status ---
+
+    def test_mark_config_progress_accepts_starved_status(self, results_path):
+        # T61/D4: "starved" is the third legal status — a terminal mark for a run whose
+        # games-per-evaluation could never clear the adoption gate's floor.
+        mgr = SweepResultsManager(results_path)
+        mgr.mark_config_progress("1_zero_rb.json", "starved", _param_values(), 0.5)
+        entry = mgr.get_config_convergence("1_zero_rb.json")
+        assert entry["status"] == "starved"
+        assert entry["best_param_values"] == _param_values()
+
+    def test_is_all_converged_false_when_one_starved(self, results_path):
+        # T61: THE poisoning fix. A starved entry must not read as a completed sweep, or the
+        # driver short-circuits every later resume with "Sweep already complete — nothing to do"
+        # and the sweep becomes unrecoverable short of deleting the store.
+        mgr = SweepResultsManager(results_path)
+        mgr.mark_config_progress("1_zero_rb.json", "converged", _param_values(), 0.6)
+        mgr.mark_config_progress("2_hero_rb.json", "starved", _param_values(), 0.5)
+        assert mgr.is_all_converged(["1_zero_rb.json", "2_hero_rb.json"]) is False
+
+    def test_pre_starved_store_loads_and_reads_back_unchanged(self, results_path):
+        # T61 back-compat: a store written BEFORE "starved" existed (only converged /
+        # in_progress, one entry on the legacy best_win_rate key) loads and behaves identically —
+        # the change adds a legal VALUE, not a field, so there is no migration and no quarantine.
+        # The fixture is deliberately T68-shaped (every combination record carries by_reference)
+        # so T68's pre-existing structural quarantine trigger does not fire and wipe the
+        # convergence map for a reason unrelated to this story.
+        pre_change = {
+            "last_updated": "2026-07-01",
+            "input_fingerprint": "abc123",
+            "discriminating": True,
+            "combinations": {
+                "1_zero_rb.json|PRIMARY_BONUS=67": {
+                    "strategy_id": "1_zero_rb.json",
+                    "param_values": _param_values(),
+                    "best_win_rate": 0.6,
+                    "by_reference": {"self_play": {"wins": 6, "games": 10}},
+                    "total_wins": 6,
+                    "total_games": 10,
+                    "total_runs": 1,
+                    "last_run": "2026-07-01",
+                }
+            },
+            "convergence": {
+                "1_zero_rb.json": {
+                    "status": "converged",
+                    "best_param_values": _param_values(),
+                    "best_win_rate": 0.6,  # legacy key, pre-dates best_combo_win_rate
+                    "updated": "2026-07-01",
+                },
+                "2_hero_rb.json": {
+                    "status": "in_progress",
+                    "best_param_values": _param_values(),
+                    "best_combo_win_rate": 0.55,
+                    "updated": "2026-07-01",
+                },
+            },
+        }
+        results_path.write_text(json.dumps(pre_change))
+        mgr = SweepResultsManager(results_path)
+        # Not quarantined: combinations and fingerprint survive the load untouched.
+        assert mgr.get_all_combinations() == pre_change["combinations"]
+        assert mgr.get_input_fingerprint() == "abc123"
+        # Both pre-change statuses still read back verbatim.
+        assert mgr.get_config_convergence("1_zero_rb.json") == pre_change["convergence"]["1_zero_rb.json"]
+        assert mgr.get_config_convergence("2_hero_rb.json")["status"] == "in_progress"
+        # And the derived all-complete state is unchanged for a purely converged id set.
+        assert mgr.is_all_converged(["1_zero_rb.json"]) is True
+
     # --- _load() tolerance: absent, corrupt, old-schema ---
 
     def test_load_absent_file_defaults_new_keys(self, results_path):

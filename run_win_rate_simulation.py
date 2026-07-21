@@ -16,6 +16,7 @@ from simulation.win_rate.WinRateMetaDataManager import WinRateMetaDataManager
 from simulation.win_rate.DraftStrategyOrchestrator import DraftStrategyOrchestrator
 from simulation.win_rate.strategy_loader import load_valid_strategies
 from simulation.win_rate.CombinationEvaluator import CombinationEvaluator
+from simulation.win_rate.SimulatedLeague import WEEKS_PER_SEASON
 from simulation.win_rate.SweepResultsManager import SweepResultsManager
 from simulation.win_rate.SweepTournament import (
     SweepTournament,
@@ -298,6 +299,45 @@ def _run_sweep_mode(args: argparse.Namespace, data_folder: Path, logger) -> None
         data_folder=data_folder, num_simulations=args.sims, max_workers=args.workers,
         naive_opponents=args.naive_opponents, seed=base_seed
     )
+
+    # T61/D1: games-per-evaluation reachability pre-flight, run BEFORE any evaluation and at
+    # zero simulation cost. Every simulated league plays a fixed WEEKS_PER_SEASON-week schedule
+    # and each week result is counted as exactly one win or one loss, so a single evaluation
+    # yields exactly WEEKS_PER_SEASON x --sims x valid-season-count games. Post-T58 that product
+    # IS the adoption gate's operand, so when it is below the floor the gate can never fire for
+    # any trial: no parameter can ever be adopted and (pre-T61) every config was recorded as
+    # "converged" at its baseline, which then short-circuited every later resume.
+    # T61/D2: log loudly at ERROR and CONTINUE — the codebase's convention for a
+    # result-invalidating but non-fatal condition (CombinationEvaluator.evaluate's dropped-league
+    # ERROR, ParallelLeagueRunner's drop ERROR); sys.exit here would refuse the documented
+    # --sweep --sims 1 bounded-smoke practice. Correctness is restored by the "starved"
+    # disposition below, not by refusing to run.
+    season_count = evaluator.season_count
+    games_per_evaluation = WEEKS_PER_SEASON * args.sims * season_count
+    if games_per_evaluation < DEFAULT_MIN_GAMES:
+        if season_count == 0:
+            # T61: reachable (folders present but none pass SimDataLoader validation) and the
+            # only divide-by-zero trap here — no --sims value can clear a zero product, so the
+            # minimum-sims term is undefined and the season-folder lever is named alone.
+            remedy = (
+                f"no valid season data was loaded, so raising the simulation count cannot help — "
+                f"add or repair season folders (20XX/) under --data {data_folder}"
+            )
+        else:
+            # Ceiling division without importing math: -(-a // b).
+            min_sims = -(-DEFAULT_MIN_GAMES // (WEEKS_PER_SEASON * season_count))
+            remedy = (
+                f"raise --sims to at least {min_sims}, or add season folders under "
+                f"--data {data_folder}"
+            )
+        logger.error(
+            f"Sweep starved: {games_per_evaluation} games per evaluation "
+            f"({WEEKS_PER_SEASON} weeks x {args.sims} sims x {season_count} valid season(s)) "
+            f"is below the adoption gate's minimum of {DEFAULT_MIN_GAMES}. No candidate can "
+            f"clear the gate, so no parameter can be adopted and no config can be tuned; every "
+            f"config will be recorded as 'starved', not 'converged'. Remedy: {remedy}."
+        )
+
     baseline_params = extract_draft_param_values(evaluator.base_config)
     store = SweepResultsManager(data_folder / "win_rate_sweep_results.json")
 
@@ -341,10 +381,17 @@ def _run_sweep_mode(args: argparse.Namespace, data_folder: Path, logger) -> None
             not_started = [
                 sid for sid in strategy_ids if store.get_config_convergence(sid) is None
             ]
+            # T61/D4: starved entries belong to none of the three buckets above, so without this
+            # they would silently vanish from the breakdown and the counts would not add up.
+            starved = [
+                sid for sid in strategy_ids
+                if (store.get_config_convergence(sid) or {}).get("status") == "starved"
+            ]
             resuming_id = in_progress[0] if in_progress else "(none)"
             logger.info(
                 f"Resuming sweep: {len(converged)} configs already converged (skipped), "
-                f"resuming config {resuming_id} from checkpoint; {len(not_started)} not yet started."
+                f"resuming config {resuming_id} from checkpoint; {len(not_started)} not yet "
+                f"started; {len(starved)} starved (re-tuned from baseline)."
             )
     # Refresh the stored fingerprint on every launch (D1) so a fresh / input-changed file
     # records the current inputs.
@@ -352,7 +399,12 @@ def _run_sweep_mode(args: argparse.Namespace, data_folder: Path, logger) -> None
     # T54/D3: certify this store as produced under the discriminating (measured-vs-incumbent)
     # regime so config_promoter allows a promote from it (a flagless store is fail-safe blocked).
     store.set_discriminating(True)
-    tournament = SweepTournament(evaluator, store, num_values=args.num_values)
+    # T61/D3: hand the tournament the RAW pre-flight count (not a boolean), so it decides the
+    # terminal disposition against its OWN min_games rather than trusting the driver's floor.
+    tournament = SweepTournament(
+        evaluator, store, num_values=args.num_values,
+        games_per_evaluation=games_per_evaluation,
+    )
 
     # T16/KDD-4: detect once whether stdout is a TTY. TTY -> a redrawing ProgressTracker bar;
     # non-TTY (piped / backgrounded / --enable-log-file) -> periodic full-line INFO log lines,
