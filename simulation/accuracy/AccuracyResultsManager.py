@@ -78,6 +78,8 @@ class AccuracyConfigPerformance:
         param_name (Optional[str]): Parameter being optimized (tournament mode)
         test_idx (Optional[int]): Test value index (tournament mode)
         base_horizon (Optional[str]): Horizon this config originated from (tournament mode)
+        weeks_evaluated (int): Weeks actually scored (observability; default 0)
+        weeks_requested (int): Weeks requested by the horizon range (observability; default 0)
     """
 
     def __init__(
@@ -92,7 +94,9 @@ class AccuracyConfigPerformance:
         test_idx: Optional[int] = None,
         base_horizon: Optional[str] = None,
         overall_metrics: Optional[RankingMetrics] = None,
-        by_position: Optional[Dict[str, RankingMetrics]] = None
+        by_position: Optional[Dict[str, RankingMetrics]] = None,
+        weeks_evaluated: int = 0,
+        weeks_requested: int = 0
     ) -> None:
         self.config_dict = copy.deepcopy(config_dict)
         self.mae = mae
@@ -105,6 +109,8 @@ class AccuracyConfigPerformance:
         self.base_horizon = base_horizon
         self.overall_metrics = overall_metrics
         self.by_position = by_position or {}
+        self.weeks_evaluated = weeks_evaluated
+        self.weeks_requested = weeks_requested
 
     def _extract_param_value(self, config: dict, param_name: Optional[str]) -> Optional[Any]:
         """
@@ -321,7 +327,9 @@ class AccuracyResultsManager:
             test_idx=test_idx,
             base_horizon=base_horizon,
             overall_metrics=accuracy_result.overall_metrics,
-            by_position=accuracy_result.by_position
+            by_position=accuracy_result.by_position,
+            weeks_evaluated=accuracy_result.weeks_evaluated,
+            weeks_requested=accuracy_result.weeks_requested
         )
 
         self.all_results.append(perf)
@@ -465,7 +473,9 @@ class AccuracyResultsManager:
                     'player_count': perf.player_count,
                     'total_error': perf.total_error,
                     'config_value': perf.config_value,
-                    'timestamp': perf.timestamp
+                    'timestamp': perf.timestamp,
+                    'weeks_evaluated': perf.weeks_evaluated,
+                    'weeks_requested': perf.weeks_requested
                 }
                 if perf.overall_metrics:
                     perf_metrics['ranking_metrics'] = {
@@ -589,7 +599,9 @@ class AccuracyResultsManager:
                     perf_metrics = {
                         'mae': perf.mae,
                         'player_count': perf.player_count,
-                        'config_value': perf.config_value
+                        'config_value': perf.config_value,
+                        'weeks_evaluated': perf.weeks_evaluated,
+                        'weeks_requested': perf.weeks_requested
                     }
                     if perf.overall_metrics:
                         perf_metrics['ranking_metrics'] = {
@@ -781,6 +793,8 @@ class AccuracyResultsManager:
             config_value = metrics.get('config_value')
             total_error = mae * player_count if player_count is not None else None
             test_idx = best_mae_per_horizon.get(week_key, {}).get('test_idx')
+            weeks_evaluated = metrics.get('weeks_evaluated', 0)
+            weeks_requested = metrics.get('weeks_requested', 0)
 
             horizon_key = horizon_mapping[week_key]
             config_dict = merged_configs[horizon_key]
@@ -793,7 +807,9 @@ class AccuracyResultsManager:
                 config_value=config_value,
                 overall_metrics=overall_metrics,
                 by_position=by_position,
-                test_idx=test_idx
+                test_idx=test_idx,
+                weeks_evaluated=weeks_evaluated,
+                weeks_requested=weeks_requested
             )
             loaded_count += 1
             self.logger.debug(

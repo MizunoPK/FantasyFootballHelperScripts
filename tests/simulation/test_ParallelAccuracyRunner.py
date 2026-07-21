@@ -12,7 +12,7 @@ import json
 import pytest
 from pathlib import Path
 
-from simulation.accuracy.ParallelAccuracyRunner import _evaluate_config_tournament_process
+from simulation.accuracy.ParallelAccuracyRunner import _evaluate_config_tournament_process, _load_season_data
 from simulation.accuracy.AccuracyCalculator import AccuracyResult
 
 project_root = Path(__file__).parent.parent.parent
@@ -20,6 +20,10 @@ project_root = Path(__file__).parent.parent.parent
 
 def create_mock_historical_season_f05(data_folder: Path, year: str = "2024") -> None:
     """Create a mock historical season folder structure for F05 unit testing.
+
+    Builds week_01..week_18: week_18 is the validated actuals snapshot that
+    resolves week 17's actuals (week_N+1), so _load_season_data(season, 17) is
+    non-None (T56 refutation).
 
     Implements spec.md R4: duplicated fixture helper pattern from
     tests/integration/test_accuracy_simulation_integration.py create_mock_historical_season().
@@ -66,7 +70,7 @@ def create_mock_historical_season_f05(data_folder: Path, year: str = "2024") -> 
             points.append(round(week_points, 1))
         return points
 
-    for week_num in range(1, 18):
+    for week_num in range(1, 19):
         week_folder = weeks_folder / f"week_{week_num:02d}"
         week_folder.mkdir(exist_ok=True)
 
@@ -198,6 +202,46 @@ class TestEvaluateConfigTournamentProcess:
                     f"results_dict['{horizon_key}'].overall_metrics.pairwise_accuracy "
                     f"should be in [0.0, 1.0], got {pairwise}"
                 )
+
+
+class TestLoadSeasonDataWeek17Refutation:
+    """Pins the T56 refutation (AC1): week 17 resolves a non-None
+    (projected, actual) pair via the live worker _load_season_data. The
+    stage-0 headline 'week 17 is silently dropped' is false — every shipped
+    season carries a validated week_18 actuals snapshot (week_N+1)."""
+
+    @pytest.mark.offline
+    def test_week_17_resolves_non_none_pair_synthetic(self, tmp_path):
+        """Hermetic 18-week fixture: _load_season_data(season, 17) resolves to
+        (week_17, week_18), both non-None (D6 primary)."""
+        data_path = tmp_path / "sim_data"
+        data_path.mkdir()
+        create_mock_historical_season_f05(data_path, "2024")
+        season_path = data_path / "2024"
+
+        projected_folder, actual_folder = _load_season_data(season_path, 17)
+
+        assert projected_folder is not None
+        assert actual_folder is not None
+        assert projected_folder.name == "week_17"
+        assert actual_folder.name == "week_18"
+
+    @pytest.mark.offline
+    @pytest.mark.skipif(
+        not (project_root / "simulation" / "sim_data").exists(),
+        reason="real simulation/sim_data is untracked; present only locally"
+    )
+    def test_week_17_resolves_non_none_pair_real_seasons(self):
+        """Literal ticket check over the real shipped seasons when present
+        (skipped in a fresh checkout / CI) (D6 secondary)."""
+        sim_data = project_root / "simulation" / "sim_data"
+        for year in ("2021", "2022", "2023", "2024", "2025"):
+            season_path = sim_data / year
+            if not season_path.exists():
+                continue
+            projected_folder, actual_folder = _load_season_data(season_path, 17)
+            assert projected_folder is not None, f"{year}: week 17 projected missing"
+            assert actual_folder is not None, f"{year}: week 17 actual (week_18) missing"
 
 
 if __name__ == "__main__":

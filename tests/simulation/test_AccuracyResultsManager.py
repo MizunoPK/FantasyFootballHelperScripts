@@ -408,6 +408,86 @@ class TestAccuracyResultsManager:
         assert 'performance_metrics' in saved_config
         assert saved_config['performance_metrics']['mae'] == 5.0
 
+    def test_add_result_threads_coverage(self, results_manager):
+        """add_result copies weeks_evaluated/weeks_requested from the
+        AccuracyResult into the stored AccuracyConfigPerformance (D4)."""
+        metrics = RankingMetrics(pairwise_accuracy=0.70, top_5_accuracy=0.80,
+                                 top_10_accuracy=0.75, top_20_accuracy=0.70,
+                                 spearman_correlation=0.82)
+        result = AccuracyResult(mae=5.0, player_count=100, total_error=500.0,
+                                weeks_evaluated=18, weeks_requested=20,
+                                overall_metrics=metrics)
+        results_manager.add_result('week_1_5', {'test': 'config'}, result)
+        best = results_manager.best_configs['week_1_5']
+        assert best.weeks_evaluated == 18
+        assert best.weeks_requested == 20
+
+    def test_save_optimal_configs_includes_coverage(self, results_manager):
+        """save_optimal_configs writes the coverage pair into
+        performance_metrics (D5)."""
+        metrics = RankingMetrics(pairwise_accuracy=0.70, top_5_accuracy=0.80,
+                                 top_10_accuracy=0.75, top_20_accuracy=0.70,
+                                 spearman_correlation=0.82)
+        result = AccuracyResult(mae=5.0, player_count=100, total_error=500.0,
+                                weeks_evaluated=19, weeks_requested=20,
+                                overall_metrics=metrics)
+        results_manager.add_result('week_1_5', {'X': 1}, result)
+        optimal_path = results_manager.save_optimal_configs()
+        with open(optimal_path / "week1-5.json") as f:
+            saved = json.load(f)
+        assert saved['performance_metrics']['weeks_evaluated'] == 19
+        assert saved['performance_metrics']['weeks_requested'] == 20
+
+    def test_intermediate_resume_roundtrips_coverage(self, results_manager, mock_baseline, temp_dir):
+        """save_intermediate_results writes the pair and load_intermediate_results
+        reconstructs it — a resumed run reports real coverage, not 0/0 (D4)."""
+        metrics = RankingMetrics(pairwise_accuracy=0.70, top_5_accuracy=0.80,
+                                 top_10_accuracy=0.75, top_20_accuracy=0.70,
+                                 spearman_correlation=0.82)
+        result = AccuracyResult(mae=5.0, player_count=100, total_error=500.0,
+                                weeks_evaluated=19, weeks_requested=20,
+                                overall_metrics=metrics)
+        results_manager.add_result('week_1_5', {'test': 'config'}, result)
+
+        intermediate_path = results_manager.save_intermediate_results(0, 'NORMALIZATION')
+
+        with open(intermediate_path / "week1-5.json") as f:
+            saved = json.load(f)
+        assert saved['performance_metrics']['weeks_evaluated'] == 19
+        assert saved['performance_metrics']['weeks_requested'] == 20
+
+        fresh = AccuracyResultsManager(temp_dir / "resumed_output", mock_baseline)
+        fresh.load_intermediate_results(intermediate_path)
+        reconstructed = fresh.best_configs['week_1_5']
+        assert reconstructed is not None
+        assert reconstructed.weeks_evaluated == 19
+        assert reconstructed.weeks_requested == 20
+
+    def test_is_better_than_ignores_coverage(self):
+        """AC4: coverage is never read by selection. Equal pairwise compares
+        symmetrically despite very different coverage, and a higher-pairwise
+        config wins even with worse coverage."""
+        metrics = RankingMetrics(pairwise_accuracy=0.70, top_5_accuracy=0.80,
+                                 top_10_accuracy=0.75, top_20_accuracy=0.70,
+                                 spearman_correlation=0.82)
+        full = AccuracyConfigPerformance(config_dict={'v': 1}, mae=5.0,
+                                         player_count=100, total_error=500.0,
+                                         overall_metrics=metrics,
+                                         weeks_evaluated=20, weeks_requested=20)
+        partial = AccuracyConfigPerformance(config_dict={'v': 2}, mae=5.0,
+                                            player_count=100, total_error=500.0,
+                                            overall_metrics=metrics,
+                                            weeks_evaluated=15, weeks_requested=20)
+        assert full.is_better_than(partial) == partial.is_better_than(full)
+
+        better_partial = AccuracyConfigPerformance(
+            config_dict={'v': 3}, mae=5.0, player_count=100, total_error=500.0,
+            overall_metrics=RankingMetrics(pairwise_accuracy=0.90,
+                top_5_accuracy=0.80, top_10_accuracy=0.75, top_20_accuracy=0.70,
+                spearman_correlation=0.82),
+            weeks_evaluated=10, weeks_requested=20)
+        assert better_partial.is_better_than(full)
+
     def test_save_intermediate_results(self, results_manager):
         """Test saving intermediate results."""
         config = {'test': 'config'}
