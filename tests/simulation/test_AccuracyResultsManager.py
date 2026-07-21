@@ -1502,7 +1502,6 @@ class TestPropagateToConfigs:
         write (the injected failure is reached only in Phase 2).
         """
         import logging
-        from simulation.shared.atomic_io import atomic_write_json as real_write
         config_files = ['league_config.json', 'week1-5.json', 'week6-9.json',
                         'week10-13.json', 'week14-17.json']
         optimal = tmp_path / "optimal"
@@ -1516,14 +1515,15 @@ class TestPropagateToConfigs:
         (target / 'week6-9.json').write_text(sentinel)
         failing_before = (target / 'week6-9.json').read_bytes()
 
-        def flaky(data, path, error_message=None):
-            if path.name == 'week6-9.json':
-                raise FileOperationError(f"{error_message}: injected write failure")
-            return real_write(data, path, error_message=error_message)
+        real_replace = Path.replace
+
+        def flaky_replace(self, target_arg):
+            if Path(target_arg).name == 'week6-9.json':
+                raise OSError("injected rename failure")
+            return real_replace(self, target_arg)
 
         logger = logging.getLogger('test')
-        with patch('simulation.accuracy.AccuracyResultsManager.atomic_write_json',
-                   side_effect=flaky):
+        with patch.object(Path, 'replace', flaky_replace):
             with pytest.raises(FileOperationError):
                 propagate_to_configs(optimal, target, logger)
         # Failing target unchanged and no .tmp residue anywhere in the target dir.
