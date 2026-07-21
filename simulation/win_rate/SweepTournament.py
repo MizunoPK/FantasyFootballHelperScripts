@@ -382,6 +382,11 @@ class SweepTournament:
             # T61/D4: a starved run reaches a DISTINCT terminal disposition. "starved" is not
             # "converged", so is_all_converged stays False and a later resume re-tunes this
             # config from baseline instead of short-circuiting with "Sweep already complete".
+            # Note: this terminal mark SUPERSEDES any prior healthy run's "in_progress"
+            # checkpoint for this config, so the next (fixed) run re-tunes it from baseline
+            # rather than resuming from its earlier mid-ascent point. That is deliberate: a
+            # starved pass can adopt nothing, so its partial ascent is not trustworthy
+            # evidence, and re-tuning from baseline is the conservative direction.
             self._store.mark_config_progress(
                 strategy_id, "starved" if starved_run else "converged", current, best_rate
             )
