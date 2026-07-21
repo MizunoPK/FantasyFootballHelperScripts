@@ -419,6 +419,21 @@ def _run_sweep_mode(args: argparse.Namespace, data_folder: Path, logger) -> None
     # launch under the OTHER regime quarantines instead of blending two estimands. Written on
     # EVERY launch (one more atomic save on a path that already performs two), so an unmarked
     # pre-T57 store self-heals after a single run.
+    # T57/D8 (Phase-8 S1): that self-heal is an INFERENCE when the store ALREADY holds
+    # evidence — the label is taken from THIS run, not from whatever regime the existing
+    # games were drawn under. Say so once so the operator can act; log-only, it changes no
+    # predicate and never quarantines. Fires only when combinations exist AND the marker is
+    # absent/None, so a fresh/empty store and an already-marked store stay silent.
+    existing_combinations = store.get_all_combinations()
+    if store.get_naive_opponents() is None and existing_combinations:
+        logger.warning(
+            f"Sweep store has no recorded opponent regime but already holds "
+            f"{len(existing_combinations)} combination(s); labelling that pre-existing "
+            f"evidence naive_opponents={args.naive_opponents} from THIS run. Its true "
+            f"regime is unknown. If it was accumulated under the other regime, start from "
+            f"a fresh --data root (or move/delete the store by hand); otherwise no action "
+            f"is needed and this notice will not repeat."
+        )
     store.set_naive_opponents(args.naive_opponents)
     # T61/D3: hand the tournament the RAW pre-flight count (not a boolean), so it decides the
     # terminal disposition against its OWN min_games rather than trusting the driver's floor.
