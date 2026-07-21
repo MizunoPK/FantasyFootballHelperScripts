@@ -339,7 +339,15 @@ def _run_sweep_mode(args: argparse.Namespace, data_folder: Path, logger) -> None
         )
 
     baseline_params = extract_draft_param_values(evaluator.base_config)
-    store = SweepResultsManager(data_folder / "win_rate_sweep_results.json")
+    # T57/D3/D4: hand the store THIS run's opponent regime so _load can quarantine-and-restart
+    # a store accumulated under the OTHER regime (a different estimand) BEFORE any reader can
+    # observe it. args.naive_opponents is in scope from the top of this function, so no
+    # statement reordering is required — fp_now stays exactly where it is. _run_promote_mode
+    # passes nothing and keeps the default (None => the regime trigger is inert there).
+    store = SweepResultsManager(
+        data_folder / "win_rate_sweep_results.json",
+        expected_naive_opponents=args.naive_opponents,
+    )
 
     # Auto-resume decision (D1/D2/D4): recompute the input fingerprint with the shared
     # significance-gate constants and string-compare it to the stored one. --fresh, an empty
@@ -347,7 +355,8 @@ def _run_sweep_mode(args: argparse.Namespace, data_folder: Path, logger) -> None
     strategy_ids = [filename for filename, _ in strategies]
     fp_now = SweepResultsManager.compute_input_fingerprint(
         strategy_ids, baseline_params, args.num_values,
-        DEFAULT_CONFIDENCE, DEFAULT_MIN_EFFECT_SIZE, DEFAULT_MIN_GAMES, base_seed
+        DEFAULT_CONFIDENCE, DEFAULT_MIN_EFFECT_SIZE, DEFAULT_MIN_GAMES, base_seed,
+        args.naive_opponents
     )
     if args.fresh:
         resume = False
@@ -358,9 +367,16 @@ def _run_sweep_mode(args: argparse.Namespace, data_folder: Path, logger) -> None
         elif stored == fp_now:
             resume = True
         else:
+            # T57/D5: this branch does NOT archive anything — under T57/D4 only an
+            # opponent-regime change quarantines, and that happens earlier at LOAD time with
+            # its own WARNING. Under the unseeded default this branch is the COMMON case
+            # (a fresh auto-seed every run), so say what is true: not resuming, re-tuning
+            # every config from baseline, accumulated evidence RETAINED.
             logger.warning(
-                "Sweep inputs changed since last checkpoint (fingerprint mismatch) — "
-                "discarding stale checkpoint and starting fresh."
+                "Sweep inputs changed since last checkpoint (fingerprint mismatch) — not "
+                "resuming; every config will be re-tuned from baseline. The accumulated "
+                "evidence in the store is retained (a store is archived only when the "
+                "opponent regime changes)."
             )
             resume = False
     if resume:
@@ -399,6 +415,11 @@ def _run_sweep_mode(args: argparse.Namespace, data_folder: Path, logger) -> None
     # T54/D3: certify this store as produced under the discriminating (measured-vs-incumbent)
     # regime so config_promoter allows a promote from it (a flagless store is fail-safe blocked).
     store.set_discriminating(True)
+    # T57/D8: record the opponent regime this store accumulates its evidence under, so a later
+    # launch under the OTHER regime quarantines instead of blending two estimands. Written on
+    # EVERY launch (one more atomic save on a path that already performs two), so an unmarked
+    # pre-T57 store self-heals after a single run.
+    store.set_naive_opponents(args.naive_opponents)
     # T61/D3: hand the tournament the RAW pre-flight count (not a boolean), so it decides the
     # terminal disposition against its OWN min_games rather than trusting the driver's floor.
     tournament = SweepTournament(
