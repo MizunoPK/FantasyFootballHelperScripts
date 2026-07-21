@@ -164,6 +164,90 @@ class TestAccuracyConfigPerformance:
         assert not perf1.is_better_than(perf2)
         assert not perf2.is_better_than(perf1)
 
+    def test_is_better_than_self_pairwise_none_not_better(self):
+        """AC1: self has non-None overall_metrics but pairwise_accuracy is None
+        (no usable primary metric) -> not better, and no TypeError raised."""
+        self_metrics = RankingMetrics(
+            pairwise_accuracy=None,
+            top_5_accuracy=0.80,
+            top_10_accuracy=0.75,
+            top_20_accuracy=0.70,
+            spearman_correlation=0.82
+        )
+        other_metrics = RankingMetrics(
+            pairwise_accuracy=0.65,
+            top_5_accuracy=0.80,
+            top_10_accuracy=0.75,
+            top_20_accuracy=0.70,
+            spearman_correlation=0.82
+        )
+        perf_self = AccuracyConfigPerformance(
+            config_dict={}, mae=4.0, player_count=100, total_error=400.0,
+            overall_metrics=self_metrics
+        )
+        perf_other = AccuracyConfigPerformance(
+            config_dict={}, mae=5.0, player_count=100, total_error=500.0,
+            overall_metrics=other_metrics
+        )
+
+        assert perf_self.is_better_than(perf_other) is False
+
+    def test_is_better_than_other_pairwise_none_self_wins(self):
+        """AC1: other has non-None overall_metrics but pairwise_accuracy is None
+        while self has a usable pairwise value -> this config wins, no TypeError."""
+        self_metrics = RankingMetrics(
+            pairwise_accuracy=0.65,
+            top_5_accuracy=0.80,
+            top_10_accuracy=0.75,
+            top_20_accuracy=0.70,
+            spearman_correlation=0.82
+        )
+        other_metrics = RankingMetrics(
+            pairwise_accuracy=None,
+            top_5_accuracy=0.80,
+            top_10_accuracy=0.75,
+            top_20_accuracy=0.70,
+            spearman_correlation=0.82
+        )
+        perf_self = AccuracyConfigPerformance(
+            config_dict={}, mae=4.0, player_count=100, total_error=400.0,
+            overall_metrics=self_metrics
+        )
+        perf_other = AccuracyConfigPerformance(
+            config_dict={}, mae=5.0, player_count=100, total_error=500.0,
+            overall_metrics=other_metrics
+        )
+
+        assert perf_self.is_better_than(perf_other) is True
+
+    def test_is_better_than_both_pairwise_none_not_better(self):
+        """AC1: both operands have non-None overall_metrics with pairwise_accuracy
+        is None -> False via the self-first check, no TypeError."""
+        both_metrics_self = RankingMetrics(
+            pairwise_accuracy=None,
+            top_5_accuracy=0.80,
+            top_10_accuracy=0.75,
+            top_20_accuracy=0.70,
+            spearman_correlation=0.82
+        )
+        both_metrics_other = RankingMetrics(
+            pairwise_accuracy=None,
+            top_5_accuracy=0.85,
+            top_10_accuracy=0.80,
+            top_20_accuracy=0.75,
+            spearman_correlation=0.85
+        )
+        perf_self = AccuracyConfigPerformance(
+            config_dict={}, mae=4.0, player_count=100, total_error=400.0,
+            overall_metrics=both_metrics_self
+        )
+        perf_other = AccuracyConfigPerformance(
+            config_dict={}, mae=5.0, player_count=100, total_error=500.0,
+            overall_metrics=both_metrics_other
+        )
+
+        assert perf_self.is_better_than(perf_other) is False
+
     def test_to_dict_from_dict_roundtrip(self):
         """Test serialization roundtrip."""
         config = {'param1': 'value1'}
@@ -601,6 +685,90 @@ class TestAccuracyResultsManager:
         assert reconstructed.test_idx == 3
         assert 'parameters' in reconstructed.config_dict
         assert results_manager.best_configs['week_6_9'] is None
+
+    def test_resume_null_pairwise_then_add_result_selects(self, results_manager, temp_dir):
+        """AC3: a resume reading a week file whose ranking_metrics.pairwise_accuracy
+        is null reconstructs a None-pairwise incumbent; a subsequent add_result with a
+        usable pairwise value completes and selects it instead of raising TypeError."""
+        intermediate_path = temp_dir / "accuracy_intermediate_00_TEST"
+        intermediate_path.mkdir()
+
+        league_config = {
+            'config_name': 'League',
+            'description': 'league base',
+            'parameters': {'BASE_PARAM': 1}
+        }
+        with open(intermediate_path / "league_config.json", 'w') as f:
+            json.dump(league_config, f)
+
+        null_pairwise = {
+            'config_name': 'Optimized week1-5',
+            'description': 'usable spearman/top-N but no pairwise samples',
+            'parameters': {'WEEK_PARAM': 2},
+            'performance_metrics': {
+                'mae': 5.0,
+                'player_count': 100,
+                'config_value': 2.5,
+                'ranking_metrics': {
+                    'pairwise_accuracy': None,
+                    'top_5_accuracy': 0.80,
+                    'top_10_accuracy': 0.75,
+                    'top_20_accuracy': 0.70,
+                    'spearman_correlation': 0.82
+                }
+            }
+        }
+        with open(intermediate_path / "week1-5.json", 'w') as f:
+            json.dump(null_pairwise, f)
+
+        baseline_only = {
+            'config_name': 'Baseline horizon',
+            'description': 'from baseline (no optimization yet)',
+            'parameters': {'WEEK_PARAM': 1},
+            'performance_metrics': {
+                'mae': None,
+                'player_count': None,
+                'total_error': None,
+                'config_value': None
+            }
+        }
+        for filename in ['week6-9.json', 'week10-13.json', 'week14-17.json']:
+            with open(intermediate_path / filename, 'w') as f:
+                json.dump(baseline_only, f)
+
+        metadata = {
+            'best_mae_per_horizon': {
+                'week_1_5': {'mae': 5.0, 'test_idx': 3},
+                'week_6_9': {'mae': None, 'test_idx': -1},
+                'week_10_13': {'mae': None, 'test_idx': -1},
+                'week_14_17': {'mae': None, 'test_idx': -1}
+            }
+        }
+        with open(intermediate_path / "metadata.json", 'w') as f:
+            json.dump(metadata, f)
+
+        assert results_manager.load_intermediate_results(intermediate_path)
+        incumbent = results_manager.best_configs['week_1_5']
+        assert incumbent is not None
+        assert incumbent.overall_metrics is not None
+        assert incumbent.overall_metrics.pairwise_accuracy is None
+
+        new_metrics = RankingMetrics(
+            pairwise_accuracy=0.68,
+            top_5_accuracy=0.80,
+            top_10_accuracy=0.75,
+            top_20_accuracy=0.70,
+            spearman_correlation=0.82
+        )
+        new_result = AccuracyResult(
+            mae=4.0, player_count=100, total_error=400.0,
+            overall_metrics=new_metrics
+        )
+
+        is_best = results_manager.add_result('week_1_5', {'test': 'config'}, new_result)
+
+        assert is_best is True
+        assert results_manager.best_configs['week_1_5'].overall_metrics.pairwise_accuracy == 0.68
 
     def test_load_intermediate_results_not_found(self, results_manager, temp_dir):
         """Test loading from non-existent folder."""

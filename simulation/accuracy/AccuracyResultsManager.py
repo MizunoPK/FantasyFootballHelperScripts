@@ -157,6 +157,10 @@ class AccuracyConfigPerformance:
             bool: True if this config is better, False otherwise.
                   Returns False if this config has player_count=0 or missing overall_metrics.
                   Returns True if other is None or has missing overall_metrics.
+                  When overall_metrics is present but pairwise_accuracy is None (no usable
+                  primary metric), the same policy applies: returns False if this config's
+                  pairwise_accuracy is None (not better), and True if only the other's is None
+                  (this config wins). Both None resolves to False (this config checked first).
         """
         if self.player_count == 0:
             return False
@@ -171,6 +175,12 @@ class AccuracyConfigPerformance:
             return False
 
         if not other.overall_metrics:
+            return True
+
+        if self.overall_metrics.pairwise_accuracy is None:
+            return False
+
+        if other.overall_metrics.pairwise_accuracy is None:
             return True
 
         return self.overall_metrics.pairwise_accuracy > other.overall_metrics.pairwise_accuracy
