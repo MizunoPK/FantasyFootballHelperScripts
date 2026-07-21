@@ -11,7 +11,7 @@ Author: Kai Mizuno
 # Standard library
 import json
 import random
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
 # Third-party
 import pytest
@@ -334,6 +334,88 @@ class TestSweepTournament:
         conv = store.get_config_convergence("s1")
         assert conv is not None
         assert conv["status"] == "converged"  # final mark is converged
+
+    # --- T61: the starved terminal disposition ---
+
+    def test_default_games_per_evaluation_preserves_converged_marking(self, tmp_path):
+        # T61/D3: games_per_evaluation defaults to None = "unknown, behave as today", so every
+        # pre-existing caller and test keeps the converged mark unchanged.
+        store = _store(tmp_path)
+        ev = _evaluator(lambda do, pv: 0.6)
+        t = SweepTournament(ev, store)
+        t.run([("s1", [{"s": "1"}])], _baseline())
+        assert store.get_config_convergence("s1")["status"] == "converged"
+
+    def test_starved_run_marks_starved_and_is_not_all_converged(self, tmp_path):
+        # T61/D3+D4 regression — no false convergence. With a games-per-evaluation below the
+        # gate's floor, no candidate can ever be adopted, so the terminal mark is "starved" and
+        # is_all_converged over those ids is False. Pre-fix this wrote "converged" and True,
+        # which is what poisoned the store.
+        store = _store(tmp_path)
+        ev = _evaluator(lambda do, pv: 0.6)
+        t = SweepTournament(ev, store, games_per_evaluation=17)
+        t.run([("s1", [{"s": "1"}])], _baseline())
+        assert store.get_config_convergence("s1")["status"] == "starved"
+        assert store.is_all_converged(["s1"]) is False
+
+    def test_starved_run_logs_a_distinct_terminal_line(self, tmp_path):
+        # The starved terminal line must be visibly distinct from the ordinary
+        # "Config {id} converged" INFO line.
+        store = _store(tmp_path)
+        ev = _evaluator(lambda do, pv: 0.6)
+        with patch(
+            "simulation.win_rate.SweepTournament.get_logger"
+        ) as mock_get_logger:
+            logger = mock_get_logger.return_value
+            t = SweepTournament(ev, store, games_per_evaluation=17)
+            t.run([("s1", [{"s": "1"}])], _baseline())
+        assert any(
+            "starved" in str(c.args[0]) for c in logger.warning.call_args_list if c.args
+        )
+        assert not any(
+            "converged" in str(c.args[0]) for c in logger.info.call_args_list if c.args
+        )
+
+    def test_starved_entry_is_re_tuned_on_a_later_resume(self, tmp_path):
+        # T61 regression — no resume poisoning. A "starved" entry is neither skipped as
+        # converged nor seeded as an interrupted in_progress checkpoint: it falls through to the
+        # baseline branch and is re-tuned, so the operator's higher---sims re-run actually runs.
+        store = _store(tmp_path)
+        baseline = _baseline()
+        store.mark_config_progress("s1", "starved", baseline, 0.5)
+        ev = _evaluator(lambda do, pv: 0.6)
+        t = SweepTournament(ev, store)  # the healthy re-run: no games_per_evaluation
+        t.run([("s1", [{"s": "1"}])], baseline, resume=True)
+        assert ev.evaluate.call_count > 0  # re-tuned, not skipped
+        assert store.get_config_convergence("s1")["status"] == "converged"
+
+    def test_games_per_evaluation_equal_to_min_games_is_not_starved(self, tmp_path):
+        # Boundary: the starvation test is strict `<`, mirroring the gate's `n < min_games`.
+        # NOT constructible at the default floor — 17 x sims x seasons is 17, 34, 51, ... and
+        # never 30 — so the boundary is built with a floor the product can actually hit.
+        store = _store(tmp_path)
+        ev = _evaluator(lambda do, pv: 0.6)
+        t = SweepTournament(ev, store, min_games=34, games_per_evaluation=34)
+        t.run([("s1", [{"s": "1"}])], _baseline())
+        assert store.get_config_convergence("s1")["status"] == "converged"
+
+    def test_games_per_evaluation_one_below_min_games_is_starved(self, tmp_path):
+        # The other side of the same boundary, against the same constructible floor.
+        store = _store(tmp_path)
+        ev = _evaluator(lambda do, pv: 0.6)
+        t = SweepTournament(ev, store, min_games=34, games_per_evaluation=33)
+        t.run([("s1", [{"s": "1"}])], _baseline())
+        assert store.get_config_convergence("s1")["status"] == "starved"
+
+    def test_starved_disposition_uses_the_tournaments_own_min_games(self, tmp_path):
+        # T61/D3: the RAW count is passed, not a boolean verdict, so a caller that overrides
+        # min_games gets a disposition computed against the floor its gate actually used —
+        # 40 games/eval is above the module default (30) but below this tournament's 50.
+        store = _store(tmp_path)
+        ev = _evaluator(lambda do, pv: 0.6)
+        t = SweepTournament(ev, store, min_games=50, games_per_evaluation=40)
+        t.run([("s1", [{"s": "1"}])], _baseline())
+        assert store.get_config_convergence("s1")["status"] == "starved"
 
     def test_in_progress_checkpoint_tracks_running_best_mid_ascent(self, tmp_path):
         # PR #18: an improvement found mid coordinate-ascent must be persisted immediately as an

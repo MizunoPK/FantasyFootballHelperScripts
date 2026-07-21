@@ -116,6 +116,21 @@ class CombinationEvaluator:
         """Return a deep copy of the base config (callers read only)."""
         return copy.deepcopy(self._base_config)
 
+    @property
+    def season_count(self) -> int:
+        """Return the number of VALID seasons this evaluator will simulate over (T61/D5).
+
+        Mirrors base_config's read-only accessor shape so a caller never reaches into the
+        private _season_cache. This is the count of season folders that PASSED SimDataLoader
+        validation — not the number of 20XX/ folders present — which is exactly the factor the
+        sweep driver's games-per-evaluation pre-flight needs. It can legitimately be 0: when
+        folders exist but none validate, __init__ warns and continues.
+
+        Returns:
+            int: Count of valid seasons (0 when no season folder passed validation).
+        """
+        return len(self._season_cache)
+
     def evaluate(
         self,
         draft_order: list,

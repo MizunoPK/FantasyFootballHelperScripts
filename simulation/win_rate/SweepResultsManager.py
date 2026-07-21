@@ -383,19 +383,24 @@ class SweepResultsManager:
 
         Args:
             strategy_id (str): Strategy identifier (filename) keying the entry.
-            status (str): "converged" or "in_progress".
+            status (str): "converged", "in_progress", or "starved" (T61/D4 — a terminal
+                mark for a run whose games-per-evaluation could never clear the adoption
+                gate's floor, so no parameter could be adopted; deliberately NOT
+                "converged" so is_all_converged stays False and a later resume re-tunes).
             best_param_values (Dict[str, float]): The config's current best 6 params.
             best_combo_win_rate (float): The config's current accumulated best-combo
                 win rate (total_wins/total_games of the running-best combo, NOT a
                 single-run rate). Load-bearing for resume.
 
         Raises:
-            ConfigurationError: If status is not "converged" or "in_progress".
+            ConfigurationError: If status is not "converged", "in_progress", or "starved".
         """
-        if status not in ("converged", "in_progress"):
+        # T61/D4: the whitelist is WIDENED by exactly one value, never removed — an unknown or
+        # typo'd status must still be rejected so garbage can never enter the persisted record.
+        if status not in ("converged", "in_progress", "starved"):
             raise ConfigurationError(
                 f"mark_config_progress received invalid status {status!r} for "
-                f"strategy {strategy_id!r}; expected 'converged' or 'in_progress'"
+                f"strategy {strategy_id!r}; expected 'converged', 'in_progress', or 'starved'"
             )
         self._data["convergence"][strategy_id] = {
             "status": status,

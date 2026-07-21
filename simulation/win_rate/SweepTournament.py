@@ -139,6 +139,11 @@ class SweepTournament:
         _min_effect_size: minimum effect (p_trial - 0.5) the trial's fresh rate must exceed.
         _min_games: minimum games the trial's own fresh evaluation must yield before a
             decision (a degenerate-input guard, not a live gate at production sample sizes).
+        _games_per_evaluation: T61/D3 — the run's KNOWN games-per-evaluation, computed by the
+            driver before any simulation (weeks x --sims x valid seasons) and passed in, or
+            None when unknown. When it is below _min_games the adoption gate can never fire
+            for any trial, so every config reaches its terminal mark as "starved" instead of
+            "converged". None (the default) = unknown -> behave exactly as before.
     """
 
     def __init__(
@@ -149,6 +154,7 @@ class SweepTournament:
         confidence: float = DEFAULT_CONFIDENCE,
         min_effect_size: float = DEFAULT_MIN_EFFECT_SIZE,
         min_games: int = DEFAULT_MIN_GAMES,
+        games_per_evaluation: Optional[int] = None,
     ) -> None:
         """
         Args:
@@ -161,6 +167,12 @@ class SweepTournament:
                 candidate must exceed to be adopted (default DEFAULT_MIN_EFFECT_SIZE = 0.01).
             min_games (int): Minimum games the trial's OWN fresh head-to-head evaluation must
                 yield before a candidate can be adopted (default DEFAULT_MIN_GAMES = 30).
+            games_per_evaluation (Optional[int]): T61/D3 — the run's known games per
+                evaluation, supplied by the caller that owns the arithmetic (the sweep
+                driver). The RAW COUNT is passed, not a boolean verdict, so the persisted
+                disposition is always computed against THIS tournament's own min_games rather
+                than the caller's floor. Default None = "unknown, behave as today", which
+                keeps every existing construction site byte-identical in behavior.
 
         Raises:
             ConfigurationError: If confidence is not strictly within (0, 1).
@@ -185,6 +197,7 @@ class SweepTournament:
         self._confidence = confidence
         self._min_effect_size = min_effect_size
         self._min_games = min_games
+        self._games_per_evaluation = games_per_evaluation
 
     def _accumulated_rate(self, strategy_id: str, param_values: Dict[str, float]) -> float:
         """Return the store's accumulated win rate for one combination.
@@ -270,6 +283,15 @@ class SweepTournament:
 
         candidates = generate_candidate_values(baseline_params, self._num_values)  # KDD-3: fixed grid
         results: Dict[str, Dict] = {}
+
+        # T61/D3: the run-level starvation verdict, computed ONCE from the caller-supplied
+        # games-per-evaluation against THIS tournament's own gate floor. Strict `<` mirrors
+        # _adopt_by_significance's `n_trial < min_games` hold, so the disposition agrees exactly
+        # with the gate that produced it. None = unknown -> False -> unchanged behavior.
+        starved_run = (
+            self._games_per_evaluation is not None
+            and self._games_per_evaluation < self._min_games
+        )
 
         for strategy_id, draft_order in strategies:
             # D3: when resuming, consult the per-config convergence to skip / seed.
@@ -357,13 +379,31 @@ class SweepTournament:
                                 strategy_id, "in_progress", current, best_rate
                             )
 
-            self._store.mark_config_progress(strategy_id, "converged", current, best_rate)
-            results[strategy_id] = {"param_values": dict(current), "win_rate": best_rate}
-            logger.info(
-                f"Config {strategy_id} converged | win_rate={best_rate:.3f} "
-                f"(fresh head-to-head rate if a param moved, else the accumulated self-play "
-                f"anchor ~0.50 — different estimands, not comparable across configs)"
+            # T61/D4: a starved run reaches a DISTINCT terminal disposition. "starved" is not
+            # "converged", so is_all_converged stays False and a later resume re-tunes this
+            # config from baseline instead of short-circuiting with "Sweep already complete".
+            # Note: this terminal mark SUPERSEDES any prior healthy run's "in_progress"
+            # checkpoint for this config, so the next (fixed) run re-tunes it from baseline
+            # rather than resuming from its earlier mid-ascent point. That is deliberate: a
+            # starved pass can adopt nothing, so its partial ascent is not trustworthy
+            # evidence, and re-tuning from baseline is the conservative direction.
+            self._store.mark_config_progress(
+                strategy_id, "starved" if starved_run else "converged", current, best_rate
             )
+            results[strategy_id] = {"param_values": dict(current), "win_rate": best_rate}
+            if starved_run:
+                logger.warning(
+                    f"Config {strategy_id} NOT tuned (starved) | games per evaluation="
+                    f"{self._games_per_evaluation} < min_games={self._min_games} — no parameter "
+                    f"could be adopted, so the params are unchanged from this config's starting "
+                    f"point; recorded as 'starved' (not 'converged') so a later resume re-tunes it"
+                )
+            else:
+                logger.info(
+                    f"Config {strategy_id} converged | win_rate={best_rate:.3f} "
+                    f"(fresh head-to-head rate if a param moved, else the accumulated self-play "
+                    f"anchor ~0.50 — different estimands, not comparable across configs)"
+                )
             if progress_callback is not None:  # KDD-2: fire on the converged path
                 progress_callback(strategy_id)
 
