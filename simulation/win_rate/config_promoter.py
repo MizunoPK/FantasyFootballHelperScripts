@@ -43,6 +43,7 @@ from typing import Any, Dict
 
 # Local
 from league_helper.util.ConfigManager import ConfigManager
+from simulation.shared.atomic_io import atomic_write_json
 from simulation.win_rate.config_overrides import (
     apply_draft_overrides,
     extract_draft_param_values,
@@ -51,7 +52,7 @@ from simulation.win_rate.paired_comparison import run_paired_ab_comparison
 from simulation.win_rate.strategy_loader import load_valid_strategies
 from simulation.win_rate.SweepTournament import DEFAULT_CONFIDENCE
 from simulation.win_rate.sweep_summary import rank_combinations, wilson_interval
-from utils.error_handler import ConfigurationError, FileOperationError
+from utils.error_handler import ConfigurationError
 from utils.LoggingManager import get_logger
 
 logger = get_logger()
@@ -515,17 +516,11 @@ def _atomic_write_json(data: dict, path: Path) -> None:
     """
     Write `data` as JSON to `path` atomically via tmp file -> rename.
 
-    Mirrors SweepResultsManager._save: a mid-write failure leaves `path`
-    untouched, and the orphaned .tmp is removed before re-raising.
+    Thin wrapper over the shared simulation.shared.atomic_io.atomic_write_json,
+    passing this module's exact FileOperationError wording. A mid-write failure
+    leaves `path` untouched and removes the orphaned .tmp before re-raising.
 
     Raises:
         FileOperationError: On any OSError/PermissionError during the write.
     """
-    tmp_path = path.with_suffix(".tmp")
-    try:
-        with open(tmp_path, "w", encoding="utf-8") as f:
-            json.dump(data, f, indent=2)
-        tmp_path.replace(path)
-    except (PermissionError, OSError) as e:
-        tmp_path.unlink(missing_ok=True)
-        raise FileOperationError(f"Failed to write config to {path}: {e}") from e
+    atomic_write_json(data, path, error_message=f"Failed to write config to {path}")

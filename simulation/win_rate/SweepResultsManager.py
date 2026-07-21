@@ -23,6 +23,7 @@ from typing import Dict, List, Optional
 # Local
 from utils.LoggingManager import get_logger
 from utils.error_handler import create_component_error_handler, error_context, ConfigurationError, FileOperationError
+from simulation.shared.atomic_io import atomic_write_json
 from simulation.win_rate.param_value_generation import DRAFT_SWEEP_PARAMS
 
 logger = get_logger()
@@ -313,18 +314,17 @@ class SweepResultsManager:
 
     def _save(self) -> None:
         """Write _data atomically to _results_path via tmp file -> rename."""
-        tmp_path = self._results_path.with_suffix('.tmp')
         try:
-            with open(tmp_path, 'w', encoding='utf-8') as f:
-                json.dump(self._data, f, indent=2)
-            tmp_path.replace(self._results_path)
-            logger.debug(f"Sweep results saved to {self._results_path}")
-        except (PermissionError, OSError) as e:
+            atomic_write_json(
+                self._data,
+                self._results_path,
+                error_message=f"Failed to save sweep results to {self._results_path}",
+            )
+        except FileOperationError:
             with error_context("saving sweep results", component="SweepResultsManager",
                                file_path=str(self._results_path)):
-                raise FileOperationError(
-                    f"Failed to save sweep results to {self._results_path}: {e}"
-                ) from e
+                raise
+        logger.debug(f"Sweep results saved to {self._results_path}")
 
     def set_input_fingerprint(self, fingerprint: str) -> None:
         """Set the top-level input fingerprint and persist atomically.
