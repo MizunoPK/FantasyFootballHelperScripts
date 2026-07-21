@@ -25,6 +25,7 @@ from pathlib import Path
 from typing import Dict, List, Optional, Any
 
 from utils.LoggingManager import get_logger
+from simulation.shared.atomic_io import atomic_write_json
 from simulation.shared.config_cleanup import cleanup_old_accuracy_optimal_folders
 from simulation.shared.config_constants import WEEK_SPECIFIC_PARAMS
 from simulation.shared.ConfigGenerator import ConfigGenerator
@@ -869,9 +870,13 @@ def propagate_to_configs(
     by save_optimal_configs() at write time). The simulation-only 'performance_metrics'
     block is stripped from all written files before writing.
 
-    Note: If a target file exists but contains malformed JSON, json.load raises
-    mid-loop and leaves the target folder in a partially-promoted state (some files
-    written, others not). Callers should treat partial promotion as an error state.
+    All five payloads are built in memory (Phase 1: read + preserve-merge + strip)
+    BEFORE any target write (Phase 2: atomic tmp->rename each). So a malformed source
+    file (files 2-5) or a write/permission/ENOSPC error (files 2-5) raises with
+    data/configs/ left entirely untouched (no partial promotion). Each Phase-2 write
+    is atomic, so no target is ever observed truncated and no .tmp residue survives.
+    Residual: a mid-rename I/O failure BETWEEN two of the five Phase-2 writes can
+    still leave a mixed set (set-level five-file transactionality is out of scope).
 
     Args:
         optimal_folder (Path): Path to accuracy_optimal_* folder with source configs.
@@ -895,7 +900,11 @@ def propagate_to_configs(
 
     target_folder.mkdir(parents=True, exist_ok=True)
 
-    copied_count = 0
+    # ---- Phase 1: validate + build all payloads (NO writes) ----
+    # A missing source is warned + skipped (contributes no payload); a malformed
+    # source, or the league_config.json preserve-merge target read, raises here —
+    # before any write — so data/configs/ is left entirely untouched on failure.
+    built = []  # list of (config_file, target_path, updated_config)
     for config_file in CONFIG_FILES:
         optimal_path = optimal_folder / config_file
         target_path = target_folder / config_file
@@ -921,9 +930,16 @@ def propagate_to_configs(
 
         updated_config.pop('performance_metrics', None)
 
-        with open(target_path, 'w') as f:
-            json.dump(updated_config, f, indent=2)
+        built.append((config_file, target_path, updated_config))
 
+    # ---- Phase 2: write each built payload atomically (tmp -> rename) ----
+    copied_count = 0
+    for config_file, target_path, updated_config in built:
+        atomic_write_json(
+            updated_config,
+            target_path,
+            error_message=f"Failed to write config to {target_path}",
+        )
         logger.info(f"Copied {config_file} → {target_folder}/{config_file}")
         copied_count += 1
 

@@ -9,7 +9,7 @@ Author: Kai Mizuno
 import json
 import pytest
 from pathlib import Path
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 import tempfile
 import shutil
 
@@ -21,6 +21,7 @@ from simulation.accuracy.AccuracyResultsManager import (
     propagate_to_configs,
 )
 from simulation.accuracy.AccuracyCalculator import AccuracyResult
+from utils.error_handler import FileOperationError
 
 
 class TestAccuracyConfigPerformance:
@@ -1467,6 +1468,108 @@ class TestPropagateToConfigs:
                 f"{fname} must have performance_metrics stripped"
             assert written['parameters'] == {'X': 1}, \
                 f"{fname} parameters must be preserved"
+
+    def test_malformed_source_leaves_configs_byte_identical(self, tmp_path):
+        """Malformed mid-list source (week6-9.json): Phase 1 raises, target dir untouched (D1)."""
+        import logging
+        optimal = tmp_path / "optimal"
+        optimal.mkdir()
+        target = tmp_path / "target"
+        target.mkdir()
+        # Pre-existing target files whose bytes must be unchanged after a failed promote.
+        sentinel = json.dumps({'parameters': {'SENTINEL': True}}, indent=2)
+        for cf in ('league_config.json', 'week1-5.json'):
+            (target / cf).write_text(sentinel)
+        before = {p.name: p.read_bytes() for p in target.iterdir()}
+        # Valid sources for files 1-2, malformed source for file 3 (week6-9.json).
+        (optimal / 'league_config.json').write_text(json.dumps({'parameters': {'X': 1}}))
+        (optimal / 'week1-5.json').write_text(json.dumps({'parameters': {'X': 1}}))
+        (optimal / 'week6-9.json').write_text('{ this is not valid json ')
+        logger = logging.getLogger('test')
+        with pytest.raises(json.JSONDecodeError):
+            propagate_to_configs(optimal, target, logger)
+        after = {p.name: p.read_bytes() for p in target.iterdir()}
+        assert after == before, "target dir must be byte-identical after a Phase-1 failure"
+        assert not list(target.glob('*.tmp')), "no .tmp residue after a failed promote"
+
+    def test_unwritable_non_first_target_no_tmp_and_failing_target_unchanged(self, tmp_path):
+        """Write failure on a non-first file: failing target unchanged, no .tmp residue (D1).
+
+        Files written before the failing one in Phase 2 are the accepted set-level
+        residual (spec Out of Scope: five-file transactionality is OOS). The in-scope
+        guarantees asserted here are per-file atomicity of the failing write (no .tmp,
+        failing target byte-identical) and that Phase 1 built every payload before any
+        write (the injected failure is reached only in Phase 2).
+        """
+        import logging
+        config_files = ['league_config.json', 'week1-5.json', 'week6-9.json',
+                        'week10-13.json', 'week14-17.json']
+        optimal = tmp_path / "optimal"
+        optimal.mkdir()
+        target = tmp_path / "target"
+        target.mkdir()
+        for cf in config_files:
+            (optimal / cf).write_text(json.dumps({'parameters': {'X': 1}}))
+        # A pre-existing failing target whose bytes must be unchanged.
+        sentinel = json.dumps({'parameters': {'SENTINEL': True}}, indent=2)
+        (target / 'week6-9.json').write_text(sentinel)
+        failing_before = (target / 'week6-9.json').read_bytes()
+
+        real_replace = Path.replace
+
+        def flaky_replace(self, target_arg):
+            if Path(target_arg).name == 'week6-9.json':
+                raise OSError("injected rename failure")
+            return real_replace(self, target_arg)
+
+        logger = logging.getLogger('test')
+        with patch.object(Path, 'replace', flaky_replace):
+            with pytest.raises(FileOperationError):
+                propagate_to_configs(optimal, target, logger)
+        # Failing target unchanged and no .tmp residue anywhere in the target dir.
+        assert (target / 'week6-9.json').read_bytes() == failing_before
+        assert not list(target.glob('*.tmp')), "no .tmp residue after a failed write"
+
+    def test_malformed_existing_league_target_leaves_configs_byte_identical(self, tmp_path):
+        """Malformed existing target league_config.json: Phase 1 preserve-merge read raises (D1)."""
+        import logging
+        config_files = ['league_config.json', 'week1-5.json', 'week6-9.json',
+                        'week10-13.json', 'week14-17.json']
+        optimal = tmp_path / "optimal"
+        optimal.mkdir()
+        target = tmp_path / "target"
+        target.mkdir()
+        for cf in config_files:
+            (optimal / cf).write_text(json.dumps({'parameters': {'X': 1}}))
+        # Existing league_config target is malformed -> preserve-merge read raises on file 1.
+        (target / 'league_config.json').write_text('{ not valid json ')
+        before = {p.name: p.read_bytes() for p in target.iterdir()}
+        logger = logging.getLogger('test')
+        with pytest.raises(json.JSONDecodeError):
+            propagate_to_configs(optimal, target, logger)
+        after = {p.name: p.read_bytes() for p in target.iterdir()}
+        assert after == before, "target dir must be byte-identical after a Phase-1 failure"
+        assert not list(target.glob('*.tmp')), "no .tmp residue after a failed promote"
+
+    def test_happy_path_all_five_land_stripped_bytes_identical_no_tmp(self, tmp_path):
+        """Happy path: all five land, performance_metrics stripped, indent=2 bytes, no .tmp (D4)."""
+        import logging
+        config_files = ['league_config.json', 'week1-5.json', 'week6-9.json',
+                        'week10-13.json', 'week14-17.json']
+        optimal = tmp_path / "optimal"
+        optimal.mkdir()
+        target = tmp_path / "target"
+        src = {'parameters': {'X': 1}, 'performance_metrics': {'mae': 1.23}}
+        expected = {'parameters': {'X': 1}}
+        for cf in config_files:
+            (optimal / cf).write_text(json.dumps(src))
+        logger = logging.getLogger('test')
+        propagate_to_configs(optimal, target, logger)
+        for cf in config_files:
+            written = (target / cf).read_text()
+            assert written == json.dumps(expected, indent=2), \
+                f"{cf} must be byte-identical to json.dump(indent=2) with metrics stripped"
+        assert not list(target.glob('*.tmp')), "no .tmp residue after a successful promote"
 
 
 if __name__ == "__main__":
