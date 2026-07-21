@@ -255,6 +255,7 @@ class TestSweepResultsManagerCheckpoint:
                     "strategy_id": "1_zero_rb.json",
                     "param_values": _param_values(),
                     "best_win_rate": 0.6,
+                    "by_reference": {"self_play": {"wins": 6, "games": 10}},
                     "total_wins": 6,
                     "total_games": 10,
                     "total_runs": 1,

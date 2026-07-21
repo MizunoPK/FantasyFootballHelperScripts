@@ -19,10 +19,14 @@ from simulation.win_rate.sweep_summary import (
 
 
 def _entry(strategy_id, wins, games, **params):
+    # T68: wins/games live in ONE non-self-play reference bucket so rank_combinations (which now
+    # pools only non-self-play buckets) has rankable head-to-head evidence. total_wins/total_games
+    # are kept as the derived sum for any consumer that still reads them.
     return {
         "strategy_id": strategy_id,
         "param_values": params or {"PRIMARY_BONUS": 67},
         "best_single_run_win_rate": (wins / games) if games else 0.0,
+        "by_reference": {"ref_A": {"wins": wins, "games": games}},
         "total_wins": wins,
         "total_games": games,
         "total_runs": 1,
@@ -81,12 +85,12 @@ class TestSweepSummary:
         assert ranked[0]["combo_key"] == "many"
 
     def test_rank_rows_carry_required_fields(self):
-        combos = {"a": _entry("s_a", wins=3, games=0)}  # games == 0 -> win_rate 0.0
+        combos = {"a": _entry("s_a", wins=3, games=10)}
         row = rank_combinations(combos)[0]
         assert row["strategy_id"] == "s_a"
         assert row["param_values"] == {"PRIMARY_BONUS": 67}
-        assert row["win_rate"] == 0.0
-        assert row["games"] == 0
+        assert row["win_rate"] == 0.3
+        assert row["games"] == 10
         assert "wins" in row
         assert "best_win_rate" not in row
         assert "best_single_run_win_rate" not in row
@@ -115,6 +119,46 @@ class TestSweepSummary:
         assert "PRIMARY_BONUS=80" in out
         assert "0.900" in out   # win rate
         assert "10" in out      # games / sample size
+
+    def test_self_play_bucket_excluded_from_ranking(self):
+        # T68/D2: a combo's ~0.50 self_play bucket never enters the pooled margin — only the
+        # non-self-play bucket feeds the row (60/100), NOT the blended 110/200.
+        entry = {
+            "strategy_id": "s_a", "param_values": {"PRIMARY_BONUS": 67},
+            "by_reference": {
+                "self_play": {"wins": 50, "games": 100},
+                "refA": {"wins": 60, "games": 100},
+            },
+            "total_wins": 110, "total_games": 200, "total_runs": 2, "last_run": "2026-07-20",
+        }
+        row = rank_combinations({"a": entry})[0]
+        assert row["games"] == 100
+        assert row["wins"] == 60
+        assert row["win_rate"] == 0.6
+
+    def test_self_play_only_combo_is_excluded(self):
+        # A combo with ONLY a self_play bucket has no reference-relative evidence -> excluded.
+        entry = {
+            "strategy_id": "s_a", "param_values": {"PRIMARY_BONUS": 67},
+            "by_reference": {"self_play": {"wins": 50, "games": 100}},
+            "total_wins": 50, "total_games": 100, "total_runs": 1, "last_run": "x",
+        }
+        assert rank_combinations({"a": entry}) == []
+
+    def test_two_incumbents_pool_but_self_play_does_not(self):
+        # AC6 at the ranking layer: two head-to-head buckets pool (60+70)/(100+100); self_play excluded.
+        entry = {
+            "strategy_id": "s_a", "param_values": {"PRIMARY_BONUS": 67},
+            "by_reference": {
+                "self_play": {"wins": 50, "games": 100},
+                "refA": {"wins": 60, "games": 100},
+                "refB": {"wins": 70, "games": 100},
+            },
+            "total_wins": 180, "total_games": 300, "total_runs": 3, "last_run": "x",
+        }
+        row = rank_combinations({"a": entry})[0]
+        assert row["wins"] == 130 and row["games"] == 200
+        assert row["win_rate"] == 0.65
 
 
 # Full 6-param vector for D2 key-order assertions.
@@ -148,7 +192,7 @@ class TestShapeReportJson:
         assert entry["win_rate"] == 0.9
         assert entry["games"] == 10
         assert entry["wins"] == 9
-        assert round(entry["lcb"], 6) == 0.652281
+        assert round(entry["lcb"], 6) == 0.152281  # T68: margin-over-reference (0.652281 - 0.50)
         assert set(entry.keys()) == {
             "rank", "strategy_id", "lcb", "win_rate", "games", "wins", "param_values",
         }
@@ -158,7 +202,7 @@ class TestShapeReportJson:
         # reader of the FILE (not just of the module) knows what the numbers are not.
         combos = {"a": _entry("s_a", wins=9, games=10, **_FULL_PARAMS)}
         report = shape_report_json(rank_combinations(combos))
-        assert "max_selected" in report["rate_semantics"]
+        assert "shortlist filter" in report["rate_semantics"]
         assert "T68" in report["pooling_caveat"]
 
     def test_param_values_in_canonical_order(self):
@@ -266,8 +310,9 @@ class TestWilsonShortlistCoverage:
         # The raw rate still favours the small sample — proving it is the ORDERING that
         # changed, not the underlying data.
         assert ranked[1]["win_rate"] > ranked[0]["win_rate"]
-        assert round(ranked[0]["lcb"], 6) == 0.541805
-        assert round(ranked[1]["lcb"], 6) == 0.525238
+        # T68: lcb is now the margin over the 0.50 reference null (raw LCB - 0.50).
+        assert round(ranked[0]["lcb"], 6) == 0.041805  # steady: 0.541805 - 0.50
+        assert round(ranked[1]["lcb"], 6) == 0.025238  # lucky:  0.525238 - 0.50
 
     def test_min_games_floor_excludes_below_floor_rows(self):
         combos = {
@@ -297,8 +342,9 @@ class TestWilsonShortlistCoverage:
         row = rank_combinations({"a": _entry("s_a", wins=105, games=170)})[0]
         uninflated = wilson_interval(105, 170, 0.90)[0]
         inflated = wilson_interval(105, 170, 0.90, se_inflation=1.28)[0]
-        assert row["lcb"] == uninflated
-        assert row["lcb"] != inflated
+        # T68: the reported lcb is the MARGIN of the uninflated bound (raw - 0.50), still uninflated.
+        assert row["lcb"] == uninflated - 0.50
+        assert row["lcb"] != inflated - 0.50
         # A wider interval has a LOWER lower endpoint — so the two are genuinely distinguishable
         # and this assertion could not pass by coincidence.
         assert inflated < uninflated

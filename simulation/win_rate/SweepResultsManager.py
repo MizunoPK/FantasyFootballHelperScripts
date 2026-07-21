@@ -50,6 +50,22 @@ class SweepResultsManager:
         self._results_path = results_path
         self._load()
 
+    @staticmethod
+    def _empty_data() -> Dict:
+        """Return a fresh empty store shape (the absent / corrupt / quarantine reset state).
+
+        Returns:
+            Dict: A new dict with the canonical top-level keys — an empty combinations map,
+                empty input_fingerprint, empty convergence map, and discriminating False.
+        """
+        return {
+            "last_updated": "",
+            "combinations": {},
+            "input_fingerprint": "",
+            "convergence": {},
+            "discriminating": False,
+        }
+
     def _load(self) -> None:
         """Load sweep results from disk, or initialize empty if file absent or corrupted.
 
@@ -60,7 +76,7 @@ class SweepResultsManager:
         """
         if not self._results_path.exists():
             logger.debug(f"No sweep results file at {self._results_path} — starting fresh")
-            self._data = {"last_updated": "", "combinations": {}, "input_fingerprint": "", "convergence": {}, "discriminating": False}
+            self._data = self._empty_data()
             return
         try:
             with open(self._results_path, 'r', encoding='utf-8') as f:
@@ -68,12 +84,68 @@ class SweepResultsManager:
             logger.debug(f"Loaded sweep results: {len(self._data.get('combinations', {}))} combinations")
         except json.JSONDecodeError as e:
             logger.warning(f"Corrupted sweep results at {self._results_path}: {e} — starting fresh")
-            self._data = {"last_updated": "", "combinations": {}, "input_fingerprint": "", "convergence": {}, "discriminating": False}
+            self._data = self._empty_data()
             return
         self._data.setdefault("combinations", {})
         self._data.setdefault("input_fingerprint", "")
         self._data.setdefault("convergence", {})
         self._data.setdefault("discriminating", False)
+        self._quarantine_if_incompatible()
+
+    def _incompatibility_reason(self) -> Optional[str]:
+        """Return why the loaded store is structurally incompatible, or None if it is usable (T68/D3).
+
+        The union trigger set — T68 wires ONE trigger; T57 later adds fingerprint-mismatch by
+        extending THIS method, reusing the same _quarantine_and_restart primitive (no forked
+        mechanism). Trigger (T68): a NON-EMPTY combinations map in which ANY record lacks the
+        by_reference dimension. Such a store holds a pre-fix, reference-free cumulative mixture
+        that is mathematically unrecoverable (no per-eval retention). A brand-new EMPTY store is
+        NOT pre-fix and must NOT trip this (the `if combinations` guard); a T68-written store
+        always carries by_reference on every record. Deliberately structural — it does NOT read
+        the `discriminating` flag, which certifies a DIFFERENT property (a discriminating pre-fix
+        store must still quarantine).
+
+        Returns:
+            Optional[str]: A human-readable reason string when incompatible, else None.
+        """
+        combinations = self._data.get("combinations", {})
+        if combinations and any("by_reference" not in record for record in combinations.values()):
+            return (
+                "pre-T68 store: at least one combination record has no 'by_reference' "
+                "dimension (reference-free cumulative totals are an unrecoverable mixture)"
+            )
+        return None
+
+    def _quarantine_if_incompatible(self) -> None:
+        """Quarantine-and-restart the store when it is structurally incompatible, else no-op (T68/D3).
+
+        Run during construction (from _load), before the manager is used for any read/write, so
+        no reader can ever consume a pre-fix mixture as if it were same-reference (the no-silent-
+        re-pool guarantee).
+        """
+        reason = self._incompatibility_reason()
+        if reason is not None:
+            self._quarantine_and_restart(reason)
+
+    def _quarantine_and_restart(self, reason: str) -> None:
+        """Preserve the incompatible store on disk and restart empty (T68/D3 — shared primitive).
+
+        Emits a loud WARNING naming the reason, RENAMES (never deletes) the store file to a
+        timestamped sibling so the old data is retained for the operator, and resets in-memory
+        state to the empty shape. The rename preserves the atomic-write invariant: the live path
+        is free for the next _save.
+
+        Args:
+            reason (str): Why the store is being quarantined (from _incompatibility_reason).
+        """
+        stamp = datetime.datetime.now().strftime("%Y-%m-%dT%H%M")
+        quarantine_path = self._results_path.with_name(f"{self._results_path.name}.quarantined-{stamp}")
+        logger.warning(
+            f"QUARANTINING incompatible sweep store {self._results_path} — {reason}. "
+            f"Renaming to {quarantine_path} (old data preserved, NOT deleted) and starting empty."
+        )
+        self._results_path.rename(quarantine_path)
+        self._data = self._empty_data()
 
     @staticmethod
     def compute_input_fingerprint(
@@ -149,6 +221,29 @@ class SweepResultsManager:
         parts = [strategy_id] + [f"{p}={param_values[p]}" for p in DRAFT_SWEEP_PARAMS]
         return "|".join(parts)
 
+    @staticmethod
+    def make_reference_key(incumbent_param_values: Optional[Dict[str, float]]) -> str:
+        """Build the by_reference bucket key identifying the incumbent an eval was taken against (T68/D1).
+
+        Mirrors make_combo_key's readable value-formatting — the 6 params (in fixed
+        DRAFT_SWEEP_PARAMS order) as NAME=value — but WITHOUT the strategy_id prefix, which
+        is redundant within a combo row (the incumbent is always the same strategy's config
+        with different params). The no-incumbent (symmetric self-play) case maps to the
+        distinguished literal sentinel "self_play".
+
+        Args:
+            incumbent_param_values (Optional[Dict[str, float]]): The 6-param incumbent set the
+                nine opponents drafted with, or None for the symmetric self-play baseline /
+                carry-over anchor.
+
+        Returns:
+            str: The reference key — "self_play" when incumbent_param_values is None, else the
+                NAME=value tail over DRAFT_SWEEP_PARAMS order.
+        """
+        if incumbent_param_values is None:
+            return "self_play"
+        return "|".join(f"{p}={incumbent_param_values[p]}" for p in DRAFT_SWEEP_PARAMS)
+
     def update(
         self,
         strategy_id: str,
@@ -156,6 +251,7 @@ class SweepResultsManager:
         win_rate: float,
         wins: int,
         games: int,
+        incumbent_param_values: Optional[Dict[str, float]] = None,
     ) -> None:
         """
         Record the result of one combination evaluation.
@@ -171,6 +267,11 @@ class SweepResultsManager:
             win_rate (float): Win rate from this evaluation (0.0-1.0).
             wins (int): Wins in this evaluation batch.
             games (int): Total games in this evaluation batch (wins + losses).
+            incumbent_param_values (Optional[Dict[str, float]]): The incumbent the nine
+                opponents drafted with for this evaluation; None (default) for the symmetric
+                self-play baseline / carry-over anchor (T68/D1). The wins/games accumulate into
+                by_reference[make_reference_key(incumbent_param_values)] so evaluations against
+                different references are NEVER pooled into one rate.
         """
         key = self.make_combo_key(strategy_id, param_values)
         if key not in self._data["combinations"]:
@@ -178,15 +279,27 @@ class SweepResultsManager:
                 "strategy_id": strategy_id,
                 "param_values": dict(param_values),
                 "best_single_run_win_rate": 0.0,
+                "by_reference": {},
                 "total_wins": 0,
                 "total_games": 0,
                 "total_runs": 0,
                 "last_run": "",
             }
         entry = self._data["combinations"][key]
+        # T68/D1: accumulate into the per-reference bucket, NEVER a single blended total. The
+        # setdefault tolerates a mid-life record predating this key (quarantine removes pre-fix
+        # records, so in practice this fires only on a freshly created record).
+        by_reference = entry.setdefault("by_reference", {})
+        reference_key = self.make_reference_key(incumbent_param_values)
+        bucket = by_reference.setdefault(reference_key, {"wins": 0, "games": 0})
+        bucket["wins"] += wins
+        bucket["games"] += games
         entry["total_runs"] = entry.get("total_runs", 0) + 1
-        entry["total_wins"] = entry.get("total_wins", 0) + wins
-        entry["total_games"] = entry.get("total_games", 0) + games
+        # T68/D1: total_wins / total_games are a DERIVED cross-bucket SUM kept for back-compat and
+        # human inspection ONLY — never again a ranking or report-display input (both readers now
+        # read by_reference). Recomputed (not incremented) so they can never drift from the buckets.
+        entry["total_wins"] = sum(b["wins"] for b in by_reference.values())
+        entry["total_games"] = sum(b["games"] for b in by_reference.values())
         entry["last_run"] = datetime.date.today().isoformat()
         # D4: read-fallback (new key, else legacy ``best_win_rate``) so an old-schema entry
         # loaded from the live store never KeyErrors; then write the new key and pop the legacy
@@ -299,7 +412,9 @@ class SweepResultsManager:
 
         Returns:
             Dict[str, Dict]: Combination key -> entry dict with keys 'strategy_id',
-                'param_values', 'best_single_run_win_rate', 'total_wins', 'total_games',
+                'param_values', 'best_single_run_win_rate', 'by_reference'
+                (per-reference {wins, games} buckets, incl. the 'self_play' bucket — T68/D1),
+                'total_wins', 'total_games' (a DERIVED cross-bucket sum, NON-ranking),
                 'total_runs', 'last_run'.
         """
         return self._data["combinations"]
@@ -319,7 +434,9 @@ class SweepResultsManager:
 
         Returns:
             Optional[Dict]: The entry dict ('strategy_id', 'param_values',
-                'best_single_run_win_rate', 'total_wins', 'total_games', 'total_runs', 'last_run'),
+                'best_single_run_win_rate', 'by_reference' — per-reference {wins, games} buckets
+                incl. 'self_play' (T68/D1), 'total_wins', 'total_games' (a DERIVED cross-bucket
+                sum, NON-ranking), 'total_runs', 'last_run'),
                 or None when the combination has never been recorded.
         """
         key = self.make_combo_key(strategy_id, param_values)

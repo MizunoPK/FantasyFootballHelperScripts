@@ -2,18 +2,19 @@
 Sweep Summary
 
 Per-config ranked readout of the multi-parameter sweep results (the records produced by
-SweepResultsManager). Every config is ranked by a Wilson lower confidence bound (lcb) over
-its single best record's cumulative totals, so a high rate over few games no longer outranks
-a confident one over many (T62/D1 — sample size used to be a mere tie-break). All configs
-always appear — there is no top-N cap, and the games floor is opt-in (only --promote passes
-it).
+SweepResultsManager). Every config is ranked by a Wilson lower confidence bound (lcb) on its
+best record's MARGIN over its reference (rate - 0.50), pooled across that record's non-self-play
+buckets (T68/D2), so a high rate over few games no longer outranks a confident one over many
+(T62/D1 — sample size used to be a mere tie-break). All configs always appear — there is no
+top-N cap, and the games floor is opt-in (only --promote passes it).
 
-These rows are CANDIDATES, not estimates. The pooled totals mix games played against
-different reference configs and the store carries no reference dimension (T68), so the lcb is
-a better-behaved heuristic filter over incommensurable numbers rather than a confidence
-statement. The displayed rate is max_selected — the in-sample maximum over a config's
-recorded combinations. The number an operator should trust is the fresh re-measurement
-config_promoter performs at --promote time, never a number from this report.
+These rows are CANDIDATES, not estimates. Per-reference bucketing (T68) segregates each combo's
+evaluations by the incumbent they were measured against and EXCLUDES the ~0.50 self-play
+baseline/carry-over bucket, so the lcb and win_rate pool only same-objective head-to-head games —
+no per-combo number an operator reads is a cross-reference mixture. The margin still pools a
+combo's DIFFERENT older incumbents, so the lcb remains a promising-ness FILTER, not a confidence
+statement. The number an operator should trust is the fresh re-measurement config_promoter
+performs at --promote time, never a number from this report.
 
 `rank_combinations`, `format_summary`, and `shape_report_json` are pure (no I/O);
 `write_sweep_report` is the one I/O function — it persists the human-readable and
@@ -45,16 +46,18 @@ REPORT_JSON_NAME = "win_rate_sweep_report.json"
 # T62/D1: the report's rate semantics, carried in the JSON so a reader of the file (not just
 # a reader of this module) knows what the numbers are and are not.
 RATE_SEMANTICS_LABEL = (
-    "Candidates are ordered by 'lcb', a Wilson lower confidence bound over each config's "
-    "pooled sweep totals, used ONLY as a shortlist filter. 'win_rate' is max_selected — the "
-    "in-sample MAXIMUM over that config's recorded combinations, not an estimate of its true "
-    "rate. The promoted headline comes from a fresh re-measurement (--promote), not from here."
+    "Candidates are ordered by 'lcb', a Wilson lower confidence bound on each config's MARGIN "
+    "over its reference (rate - 0.50) pooled across its non-self-play buckets (T68), used ONLY "
+    "as a shortlist filter. 'win_rate' is the selected combo's non-self-play pooled rate, not an "
+    "estimate of its true rate. The promoted headline comes from a fresh re-measurement "
+    "(--promote), not from here."
 )
 POOLING_CAVEAT = (
-    "Pooled totals mix games played against DIFFERENT reference/incumbent configs, and the "
-    "sweep store has no reference dimension, so the mixture is unrecoverable "
-    "(T68-winrate-heterogeneous-reference-pooling). Treat 'lcb' and 'win_rate' as a heuristic "
-    "filter over incommensurable totals, never as a confidence statement about any config."
+    "Per-reference bucketing (T68-winrate-heterogeneous-reference-pooling) segregates each combo's "
+    "evaluations by the incumbent they were measured against and excludes the ~0.50 self-play "
+    "baseline/carry-over bucket, so 'lcb' and 'win_rate' pool only same-objective head-to-head "
+    "games. The margin still pools a combo's DIFFERENT older incumbents, so treat 'lcb' as a "
+    "promising-ness filter, never as a confidence statement about any config."
 )
 
 
@@ -112,16 +115,18 @@ def rank_combinations(combinations: Dict[str, Dict], min_games: int = 0) -> List
     """
     Rank every config's best CANDIDATE combination by a Wilson lower confidence bound (T62/D1).
 
-    Groups the store's combo records by strategy_id, picks each config's best record by
-    Wilson lower confidence bound over its cumulative totals, and returns exactly one row per
-    config ordered by that bound descending. Replaces the former rate-first ordering, under
-    which sample size was only a tie-break — so a 170-game 0.62 strictly outranked a
-    10,000-game 0.55. An LCB penalises the small sample in the ordering itself.
+    Groups the store's combo records by strategy_id, picks each config's best record by the
+    Wilson lower bound of its MARGIN over reference (rate - 0.50) pooled across its non-self-play
+    buckets (T68/D2), and returns exactly one row per config ordered by that bound descending.
+    Replaces the former rate-first ordering, under which sample size was only a tie-break — so a
+    170-game 0.62 strictly outranked a 10,000-game 0.55. An LCB penalises the small sample in the
+    ordering itself.
 
-    The bound is a candidate FILTER, not an estimate: the pooled totals mix games played
-    against different reference configs and the store has no reference dimension to separate
-    them by (T68), so the ordering is a better-behaved heuristic over incommensurable numbers.
-    The promoted headline comes from config_promoter's fresh re-measurement, never from here.
+    The bound is a candidate FILTER, not an estimate: per-reference bucketing excludes the
+    ~0.50 self-play bucket, but the margin still pools a combo's different older incumbents (T68),
+    so the ordering is a promising-ness heuristic. A combo with zero aggregate non-self-play games
+    has no reference-relative evidence and is excluded. The promoted headline comes from
+    config_promoter's fresh re-measurement, never from here.
 
     There is no top-N cap — with the default min_games=0 all configs always appear, preserving
     the report's documented contract. Only the promote path passes a floor.
@@ -138,23 +143,34 @@ def rank_combinations(combinations: Dict[str, Dict], min_games: int = 0) -> List
             tie-broken by games (sample size) descending then combo key ascending (a
             deterministic final tie-break, since float bounds make exact ties rarer but not
             impossible). Each row carries 'combo_key', 'strategy_id', 'param_values',
-            'win_rate' (cumulative — the in-sample maximum, i.e. max_selected), 'lcb',
-            'games', 'wins', 'total_runs', 'last_run'. Empty input, or input entirely below
-            min_games, yields an empty list.
+            'win_rate' (the selected combo's non-self-play pooled rate), 'lcb' (the margin-over-
+            reference lower bound, rate - 0.50), 'games', 'wins' (both pooled over non-self-play
+            buckets), 'total_runs', 'last_run'. Empty input, input entirely below min_games, or
+            input with no non-self-play evidence, yields an empty list.
     """
     rows = []
     for combo_key, entry in combinations.items():
-        wins = entry.get("total_wins", 0)
-        games = entry.get("total_games", 0)
-        if games < min_games:
+        # T68/D2: pool ONLY the combo's non-self-play (head-to-head) buckets — the same-objective
+        # margin-over-reference evidence. The ~0.50 self_play baseline/carry-over bucket carries no
+        # strength signal and is excluded. A combo with zero aggregate non-self-play games has no
+        # reference-relative evidence and is skipped entirely.
+        by_reference = entry.get("by_reference", {})
+        wins = sum(b["wins"] for key, b in by_reference.items() if key != "self_play")
+        games = sum(b["games"] for key, b in by_reference.items() if key != "self_play")
+        if games == 0 or games < min_games:
             continue
-        win_rate = wins / games if games > 0 else 0.0
+        win_rate = wins / games
+        # T68/D2: rank on the Wilson lower bound of the MARGIN over the 0.50 reference null
+        # (rate - 0.50), not the raw pooled rate. Order-equivalent to ordering by the raw LCB
+        # (a subtracted constant), but the reported number is honestly framed as improvement-
+        # over-reference. Same 0.50 null the T58 gate rests on.
+        margin_lcb = _wilson_lower_bound(wins, games, DEFAULT_CONFIDENCE) - 0.50
         rows.append({
             "combo_key": combo_key,
             "strategy_id": entry.get("strategy_id", ""),
             "param_values": entry.get("param_values", {}),
             "win_rate": win_rate,
-            "lcb": _wilson_lower_bound(wins, games, DEFAULT_CONFIDENCE),
+            "lcb": margin_lcb,
             "games": games,
             "wins": wins,
             "total_runs": entry.get("total_runs", 0),
@@ -179,17 +195,17 @@ def format_summary(ranked: List[Dict]) -> str:
 
     Returns:
         str: A table showing rank, Wilson lower confidence bound (the ordering key), the
-            max_selected in-sample rate, games (sample size), strategy, and param values; or
-            a clear message when there are no configs.
+            non-self-play pooled rate for the selected combo, games (sample size), strategy,
+            and param values; or a clear message when there are no configs.
     """
     if not ranked:
         return "No sweep combinations recorded yet."
 
     lines = [
-        "Sweep Config Candidates (ranked by Wilson lower confidence bound)",
-        "MaxSel = in-sample maximum over the config's records — NOT an estimate of its rate.",
+        "Sweep Config Candidates (ranked by margin-over-reference lower bound)",
+        "Rate = the selected combo's non-self-play pooled win rate — NOT an estimate of its rate.",
         "──────────────────────────────────────────────────────────────",
-        "Rank      LCB   MaxSel  Games  Strategy / Params",
+        "Rank      LCB     Rate  Games  Strategy / Params",
         "────  ───────  ───────  ─────  ─────────────────",
     ]
     for rank, row in enumerate(ranked, 1):
@@ -216,7 +232,7 @@ def shape_report_json(ranked: List[Dict], generated: Optional[str] = None) -> Di
         Dict: A wrapper object {"generated": <date>, "rate_semantics": <str>,
             "pooling_caveat": <str>, "configs": [...]} where each config entry carries
             'rank' (1-based), 'strategy_id', 'lcb' (the ordering key), 'win_rate'
-            (max_selected — the in-sample maximum, not an estimate), 'games', 'wins', and
+            (the selected combo's non-self-play pooled rate, not an estimate), 'games', 'wins', and
             'param_values' — the latter keyed in canonical DRAFT_SWEEP_PARAMS order for
             deterministic, diff-stable output. Missing params resolve to None. The two
             top-level label strings state the rate semantics and the T68 heterogeneous-

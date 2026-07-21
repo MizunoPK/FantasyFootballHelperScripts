@@ -10,6 +10,7 @@ Author: Kai Mizuno
 
 # Standard library
 import json
+from unittest.mock import MagicMock, patch
 
 # Third-party
 import pytest
@@ -63,6 +64,8 @@ class TestSweepResultsManager:
         mgr.update("1_zero_rb.json", pv, win_rate=0.5, wins=5, games=10)
         key = mgr.make_combo_key("1_zero_rb.json", pv)
         entry = mgr.get_all_combinations()[key]
+        # T68/D1: both updates had no incumbent -> the self_play bucket; totals are the derived sum.
+        assert entry["by_reference"]["self_play"] == {"wins": 11, "games": 20}
         assert entry["total_wins"] == 11
         assert entry["total_games"] == 20
         assert entry["total_runs"] == 2
@@ -89,6 +92,7 @@ class TestSweepResultsManager:
                     "strategy_id": "1_zero_rb.json",
                     "param_values": pv,
                     "best_win_rate": 0.6,
+                    "by_reference": {"self_play": {"wins": 6, "games": 10}},
                     "total_wins": 6,
                     "total_games": 10,
                     "total_runs": 1,
@@ -115,6 +119,7 @@ class TestSweepResultsManager:
         entry = mgr.get_all_combinations()[mgr.make_combo_key("1_zero_rb.json", pv)]
         assert entry["strategy_id"] == "1_zero_rb.json"
         assert entry["param_values"] == pv
+        assert entry["by_reference"] == {"self_play": {"wins": 6, "games": 10}}
 
     def test_atomic_write_produces_valid_json(self, results_path):
         mgr = SweepResultsManager(results_path)
@@ -183,6 +188,7 @@ class TestSweepResultsManager:
                     "strategy_id": "1_zero_rb.json",
                     "param_values": pv,
                     "best_single_run_win_rate": 0.6,
+                    "by_reference": {"self_play": {"wins": 6, "games": 10}},
                     "total_wins": 6,
                     "total_games": 10,
                     "total_runs": 1,
@@ -202,3 +208,95 @@ class TestSweepResultsManager:
         # Construct a new manager instance over the same path.
         mgr2 = SweepResultsManager(results_path)
         assert mgr2.get_discriminating() is True
+
+
+class TestReferenceBucketing:
+    """T68/D1 + AC6: evaluations against different references never merge into one rate."""
+
+    def test_make_reference_key_self_play_and_value_tail(self, results_path):
+        pv = _param_values()
+        assert SweepResultsManager.make_reference_key(None) == "self_play"
+        key = SweepResultsManager.make_reference_key(pv)
+        # NAME=value tail over DRAFT_SWEEP_PARAMS order, no strategy_id prefix.
+        assert key == "|".join(f"{p}={pv[p]}" for p in DRAFT_SWEEP_PARAMS)
+        assert "self_play" != key
+
+    def test_heterogeneous_references_are_not_merged(self, results_path):
+        # AC6 (the load-bearing correctness test): three evals of ONE combo against three
+        # references (self-play, incumbent A, incumbent B) land in three distinct buckets and are
+        # NEVER pooled into a single rate. FAILS on pre-fix main (no by_reference); passes now.
+        mgr = SweepResultsManager(results_path)
+        trial = _param_values()
+        incumbent_a = _param_values(PRIMARY_BONUS=80)
+        incumbent_b = _param_values(PRIMARY_BONUS=90)
+        mgr.update("1_zero_rb.json", trial, win_rate=0.5, wins=50, games=100)  # self_play (None)
+        mgr.update("1_zero_rb.json", trial, win_rate=0.6, wins=60, games=100,
+                   incumbent_param_values=incumbent_a)
+        mgr.update("1_zero_rb.json", trial, win_rate=0.7, wins=70, games=100,
+                   incumbent_param_values=incumbent_b)
+        entry = mgr.get_combination("1_zero_rb.json", trial)
+        by_ref = entry["by_reference"]
+        key_a = SweepResultsManager.make_reference_key(incumbent_a)
+        key_b = SweepResultsManager.make_reference_key(incumbent_b)
+        assert set(by_ref) == {"self_play", key_a, key_b}
+        assert by_ref["self_play"] == {"wins": 50, "games": 100}
+        assert by_ref[key_a] == {"wins": 60, "games": 100}
+        assert by_ref[key_b] == {"wins": 70, "games": 100}
+        # Derived cross-bucket totals are the SUM, never a single merged rate.
+        assert entry["total_wins"] == 180
+        assert entry["total_games"] == 300
+
+    def test_same_reference_accumulates_in_one_bucket(self, results_path):
+        mgr = SweepResultsManager(results_path)
+        trial = _param_values()
+        incumbent = _param_values(PRIMARY_BONUS=80)
+        mgr.update("1_zero_rb.json", trial, 0.6, 60, 100, incumbent_param_values=incumbent)
+        mgr.update("1_zero_rb.json", trial, 0.5, 50, 100, incumbent_param_values=incumbent)
+        by_ref = mgr.get_combination("1_zero_rb.json", trial)["by_reference"]
+        assert by_ref[SweepResultsManager.make_reference_key(incumbent)] == {"wins": 110, "games": 200}
+        assert "self_play" not in by_ref
+
+
+class TestQuarantineAndRestart:
+    """T68/D3 + AC5: a pre-fix store is quarantined (renamed, never destroyed) and restarts empty;
+    an empty/fresh store is never quarantined."""
+
+    def _prefix_store(self, results_path):
+        pv = _param_values()
+        key = SweepResultsManager(results_path).make_combo_key("1_zero_rb.json", pv)
+        results_path.write_text(json.dumps({
+            "last_updated": "2026-06-01",
+            "combinations": {
+                key: {  # NO by_reference -> pre-fix / reference-free mixture
+                    "strategy_id": "1_zero_rb.json", "param_values": pv,
+                    "best_single_run_win_rate": 0.6, "total_wins": 6, "total_games": 10,
+                    "total_runs": 1, "last_run": "2026-06-01",
+                }
+            },
+        }))
+
+    def test_prefix_store_is_renamed_not_destroyed_and_restarts_empty(self, results_path):
+        self._prefix_store(results_path)
+        with patch("simulation.win_rate.SweepResultsManager.logger", MagicMock()) as mock_logger:
+            mgr = SweepResultsManager(results_path)
+        # Live store restarts empty.
+        assert mgr.get_all_combinations() == {}
+        # Old data preserved on disk under exactly one timestamped sibling (renamed, not deleted).
+        siblings = list(results_path.parent.glob(results_path.name + ".quarantined-*"))
+        assert len(siblings) == 1
+        assert json.loads(siblings[0].read_text())["combinations"] != {}
+        # Loud WARNING emitted.
+        assert mock_logger.warning.called
+
+    def test_empty_store_is_not_quarantined(self, results_path):
+        mgr = SweepResultsManager(results_path)      # absent -> empty
+        mgr.set_discriminating(True)                 # writes an empty-combinations store
+        SweepResultsManager(results_path)            # reload must NOT quarantine
+        assert not list(results_path.parent.glob(results_path.name + ".quarantined-*"))
+
+    def test_post_fix_store_is_not_quarantined(self, results_path):
+        mgr = SweepResultsManager(results_path)
+        mgr.update("1_zero_rb.json", _param_values(), 0.6, 6, 10)  # writes by_reference
+        reloaded = SweepResultsManager(results_path)
+        assert len(reloaded.get_all_combinations()) == 1
+        assert not list(results_path.parent.glob(results_path.name + ".quarantined-*"))

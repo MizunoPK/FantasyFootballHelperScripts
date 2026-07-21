@@ -441,6 +441,29 @@ class TestSweepTournament:
         ]
         assert len(trial_calls_with_incumbent) > 0, "Should have at least one trial with incumbent_param_values"
 
+    def test_accumulated_rate_reads_only_the_self_play_bucket(self, tmp_path):
+        # T68/D4: _accumulated_rate returns the self_play bucket rate, never a blend with any
+        # head-to-head games the same combo accrued as a trial.
+        store = _store(tmp_path)
+        baseline = _baseline()
+        incumbent = dict(baseline, PRIMARY_BONUS=80)
+        store.update("s1", baseline, 0.5, 50, 100)                                  # self_play
+        store.update("s1", baseline, 0.9, 90, 100, incumbent_param_values=incumbent)  # head-to-head
+        t = SweepTournament(_evaluator(lambda do, pv: 0.6), store)
+        # self_play rate (0.50), NOT the blended 140/200 = 0.70.
+        assert t._accumulated_rate("s1", baseline) == 0.5
+
+    def test_accumulated_rate_zero_when_no_self_play_bucket(self, tmp_path):
+        # A combo evaluated ONLY head-to-head has no self_play bucket -> 0.0 (defensive guard).
+        store = _store(tmp_path)
+        baseline = _baseline()
+        incumbent = dict(baseline, PRIMARY_BONUS=80)
+        store.update("s1", baseline, 0.9, 90, 100, incumbent_param_values=incumbent)
+        t = SweepTournament(_evaluator(lambda do, pv: 0.6), store)
+        assert t._accumulated_rate("s1", baseline) == 0.0
+        # Unrecorded combo -> 0.0.
+        assert t._accumulated_rate("s1", dict(baseline, PRIMARY_BONUS=999)) == 0.0
+
 
 class TestSweepTournamentProgressCallback:
     """T16/KDD-2: the optional progress_callback fires exactly once per config (on both the

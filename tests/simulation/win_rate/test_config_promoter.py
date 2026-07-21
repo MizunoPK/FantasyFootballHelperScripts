@@ -109,7 +109,7 @@ def config_path(tmp_path):
 def store(tmp_path):
     """A real SweepResultsManager holding the winning combination as the sole entry."""
     mgr = SweepResultsManager(tmp_path / "sweep.json")
-    mgr.update(_WINNER_ID, _WINNER_PARAMS, 0.75, 75, 100)
+    mgr.update(_WINNER_ID, _WINNER_PARAMS, 0.75, 75, 100, incumbent_param_values=_LIVE_PARAMS)
     mgr.set_discriminating(True)
     return mgr
 
@@ -251,9 +251,9 @@ class TestConfigPromoter:
         # first-by-LCB candidate (B) is promoted — so this still asserts the RANKING.
         alpha_order = [{"round": 1, "position": "QB"}]
         mgr = SweepResultsManager(tmp_path / "sweep.json")
-        mgr.update("1_alpha.json", _LIVE_PARAMS, 0.9, 90, 100)
-        mgr.update("1_alpha.json", _LIVE_PARAMS, 0.0, 0, 100)
-        mgr.update(_WINNER_ID, _WINNER_PARAMS, 0.6, 60, 100)
+        mgr.update("1_alpha.json", _LIVE_PARAMS, 0.9, 90, 100, incumbent_param_values=_LIVE_PARAMS)
+        mgr.update("1_alpha.json", _LIVE_PARAMS, 0.0, 0, 100, incumbent_param_values=_LIVE_PARAMS)
+        mgr.update(_WINNER_ID, _WINNER_PARAMS, 0.6, 60, 100, incumbent_param_values=_LIVE_PARAMS)
         mgr.set_discriminating(True)
 
         with _patch_strategies(
@@ -368,13 +368,13 @@ class TestConfigPromoter:
         larger_order = [{"round": 1, "position": "WR"}]
 
         store_a = SweepResultsManager(tmp_path / "store_a.json")
-        store_a.update(smaller_id, shared_params, 0.5, 50, 100)  # X first
-        store_a.update(larger_id, shared_params, 0.5, 50, 100)   # then Y
+        store_a.update(smaller_id, shared_params, 0.5, 50, 100, incumbent_param_values=_LIVE_PARAMS)  # X first
+        store_a.update(larger_id, shared_params, 0.5, 50, 100, incumbent_param_values=_LIVE_PARAMS)   # then Y
         store_a.set_discriminating(True)
 
         store_b = SweepResultsManager(tmp_path / "store_b.json")
-        store_b.update(larger_id, shared_params, 0.5, 50, 100)   # Y first
-        store_b.update(smaller_id, shared_params, 0.5, 50, 100)  # then X
+        store_b.update(larger_id, shared_params, 0.5, 50, 100, incumbent_param_values=_LIVE_PARAMS)   # Y first
+        store_b.update(smaller_id, shared_params, 0.5, 50, 100, incumbent_param_values=_LIVE_PARAMS)  # then X
         store_b.set_discriminating(True)
 
         strategies = (
@@ -404,7 +404,7 @@ class TestPromoteGuard:
     def test_compute_promotion_blocks_when_flag_absent(self, tmp_path, config_path):
         """Guard blocks when discriminating flag absent (pre-fix store)."""
         mgr = SweepResultsManager(tmp_path / "sweep.json")
-        mgr.update(_WINNER_ID, _WINNER_PARAMS, 0.75, 75, 100)
+        mgr.update(_WINNER_ID, _WINNER_PARAMS, 0.75, 75, 100, incumbent_param_values=_LIVE_PARAMS)
         # Do NOT call set_discriminating — pre-fix store
         before = config_path.read_bytes()
 
@@ -416,7 +416,7 @@ class TestPromoteGuard:
     def test_compute_promotion_blocks_when_flag_false(self, tmp_path, config_path):
         """Guard blocks when discriminating flag explicitly False."""
         mgr = SweepResultsManager(tmp_path / "sweep.json")
-        mgr.update(_WINNER_ID, _WINNER_PARAMS, 0.75, 75, 100)
+        mgr.update(_WINNER_ID, _WINNER_PARAMS, 0.75, 75, 100, incumbent_param_values=_LIVE_PARAMS)
         mgr.set_discriminating(False)
         before = config_path.read_bytes()
 
@@ -428,7 +428,7 @@ class TestPromoteGuard:
     def test_promote_best_combination_blocks_when_flag_absent(self, tmp_path, config_path):
         """Guard blocks write entry point when flag absent."""
         mgr = SweepResultsManager(tmp_path / "sweep.json")
-        mgr.update(_WINNER_ID, _WINNER_PARAMS, 0.75, 75, 100)
+        mgr.update(_WINNER_ID, _WINNER_PARAMS, 0.75, 75, 100, incumbent_param_values=_LIVE_PARAMS)
         # Do NOT call set_discriminating
         before = config_path.read_bytes()
 
@@ -561,6 +561,7 @@ def _equal_true_rate_store(tmp_path):
         mgr.update(
             f"{index}_noise.json", _WINNER_PARAMS,
             wins / _EQUAL_RATE_GAMES, wins, _EQUAL_RATE_GAMES,
+            incumbent_param_values=_LIVE_PARAMS,
         )
     mgr.set_discriminating(True)
     return mgr
@@ -649,7 +650,7 @@ class TestPromoteRefusals:
     def test_refuses_when_every_combination_is_below_the_games_floor(self, tmp_path, config_path):
         # spec.md "New coverage required", bullet 3 (the empty-shortlist half).
         mgr = SweepResultsManager(tmp_path / "tiny.json")
-        mgr.update(_WINNER_ID, _WINNER_PARAMS, 0.75, 15, 20)  # 20 games < the 30-game floor
+        mgr.update(_WINNER_ID, _WINNER_PARAMS, 0.75, 15, 20, incumbent_param_values=_LIVE_PARAMS)  # 20 non-self-play games < the 30-game floor
         mgr.set_discriminating(True)
         before = config_path.read_bytes()
 
