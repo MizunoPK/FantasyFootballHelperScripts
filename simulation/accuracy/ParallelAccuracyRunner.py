@@ -88,10 +88,21 @@ def _evaluate_config_weekly_worker(
     param_value: Any,
     config_horizon: str
 ) -> AccuracyResult:
-    """
-    Worker function to evaluate weekly configuration.
+    """Evaluate one config over a single weekly horizon across every available season.
 
-    Replicates AccuracySimulationManager._evaluate_config_weekly() logic for parallel execution.
+    For each season, walks every week in week_range: loads that week's projected and
+    actual data paths (skipping weeks whose data is missing), scores each player on the
+    projected side, reads each player's recorded actual for that week and keeps it only
+    when it is positive, and pairs the two into per-player records for the players
+    present on both sides.
+    Each season's collected weeks become an AccuracyResult via the calculator's
+    weekly-MAE and ranking-metric passes, and the per-season results are aggregated
+    into the single AccuracyResult returned, labelled from param_name, param_value,
+    and config_horizon.
+
+    Runs inside the ProcessPoolExecutor worker process that evaluates a single config.
+    Season paths come from available_seasons; the data_folder parameter is currently
+    unused.
     """
     start_week, end_week = week_range
     season_results = []
