@@ -89,6 +89,19 @@ simulation/
 
 Player data is stored in **per-position JSON files** organized by week. Each season has 18 weeks of data (weeks 1-18), with week 18 used for week 17 actuals.
 
+> **The 18-week shape is enforced, not just documented (since T73).** `SimDataLoader._validate_season_data`
+> requires every `week_01` … `week_18` folder and marks a season **invalid** otherwise, logging an ERROR
+> that names the season and the missing weeks. An invalid season is dropped from the run: the win-rate
+> sweep degrades to the remaining valid seasons (and reports `N valid season(s)`), or reports that none
+> are usable rather than producing numbers. This matches `validate_sim_data.py`, which already failed a
+> short season.
+>
+> **Consequence for partial compiles:** `compile_historical_data.py --weeks N` and `--keep-partial`
+> deliberately produce a truncated `weeks/` tree. That output is fine for inspection, but the win-rate
+> engine will **refuse** it — previously it silently substituted the `week_N` projected data for the
+> missing actuals, which zeroes that week's scoring and shifts the reported win rate. Use a complete
+> 18-week compile for any run whose numbers you intend to trust.
+
 #### File Organization
 
 ```

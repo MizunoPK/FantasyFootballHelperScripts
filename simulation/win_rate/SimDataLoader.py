@@ -2,14 +2,20 @@ import json
 from pathlib import Path
 from typing import Dict, Optional, Any
 
-from simulation.win_rate.SimulatedLeague import SimulatedLeague, DRAFT_ROUNDS, load_week_player_data
+from simulation.win_rate.SimulatedLeague import (
+    SimulatedLeague,
+    DRAFT_ROUNDS,
+    WEEKS_PER_SEASON,
+    load_week_player_data,
+)
 from utils.LoggingManager import get_logger
 
 MIN_VALID_PLAYERS = sum(SimulatedLeague.SELF_PLAY_TEAM_STRATEGIES.values()) * DRAFT_ROUNDS
 
 # T73/R2: the complete season shape SimDataLoader requires — weeks 1..17 are simulated
 # (WEEKS_PER_SEASON) and week_18 supplies week 17's actuals, so 18 folders are needed.
-WEEKS_REQUIRED = 18
+# Derived rather than hardcoded so a change to WEEKS_PER_SEASON carries here automatically.
+WEEKS_REQUIRED = WEEKS_PER_SEASON + 1
 
 
 class SimDataLoader:
@@ -24,7 +30,8 @@ class SimDataLoader:
         season_folder (Path): Path to the season directory (e.g. simulation/sim_data/2023/)
         week_data_cache (Dict[int, Dict]): Pre-loaded week data keyed by week number.
             Structure: {week_num: {'projected': {player_id: dict}, 'actual': {player_id: dict}}}
-        is_valid (bool): True if season data passed validation (MIN_VALID_PLAYERS check).
+        is_valid (bool): True if season data passed validation — both the MIN_VALID_PLAYERS
+            check on week_01 and (T73/R2) the complete week_01..week_18 folder requirement.
         logger: Logger instance
     """
 

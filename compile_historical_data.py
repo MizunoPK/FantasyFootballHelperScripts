@@ -100,12 +100,20 @@ Output will be written to:
     parser.add_argument(
         "--keep-partial",
         action="store_true",
-        help="Preserve partial output on failure instead of cleaning up"
+        help=(
+            "Preserve partial output on failure instead of cleaning up. "
+            "NOTE: a partial season is REFUSED by the win-rate simulation, which requires "
+            "the complete week_01..week_18 tree; use it for inspection, not for a scored run."
+        )
     )
     parser.add_argument(
         "--weeks",
         type=int,
-        help="Limit compilation to first N weeks"
+        help=(
+            "Limit compilation to first N weeks. NOTE: produces an incomplete season that the "
+            "win-rate simulation REFUSES (it needs week_01..week_18, week_18 supplying week 17's "
+            "actuals); the season is dropped with an ERROR rather than silently simulated."
+        )
     )
     parser.add_argument(
         "--verbose", "-v",

@@ -74,6 +74,11 @@ def load_week_player_data(
         FileNotFoundError: If the week_N+1 folder needed for week N's actuals is absent.
             T73/D3: this path previously substituted the projected dataset for the missing
             actuals, which yields all-zero actual_points and charges every team a loss.
+            The NET effect on a measured win rate is UNMEASURED — do not infer a direction
+            from the per-week loss. A T73 Phase-4 run with the fallback firing came out
+            HIGHER (0.529) than the same run on complete data (0.500), which is why the
+            story treats the corruption as direction-unknown. What is established is that
+            the reported number moves; the sign is an open question.
     """
     projected_folder = weeks_folder / f"week_{week_num:02d}"
 

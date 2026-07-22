@@ -65,7 +65,7 @@ ALL_IDS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
 def _actual_array_for(folder_week):
     """actual_points array a week_0K folder carries (real for weeks < K, 0.0 otherwise)."""
     arr = [0.0] * 17
-    for completed_week in range(1, min(folder_week, 18)):
+    for completed_week in range(1, min(folder_week, FIXTURE_WEEK_FOLDERS)):
         arr[completed_week - 1] = WEEK_ACTUAL[completed_week]
     return arr
 
