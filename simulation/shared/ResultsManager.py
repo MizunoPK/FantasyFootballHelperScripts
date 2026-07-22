@@ -2,8 +2,8 @@
 Results Manager
 
 Aggregates and manages performance results across all configuration tests.
-Tracks results for all 46,656 configurations, identifies the best performing
-configuration, and saves optimal configs to disk.
+Tracks the results recorded for every configuration evaluated in a run, identifies
+the best performing configuration, and saves optimal configs to disk.
 
 Author: Kai Mizuno
 """

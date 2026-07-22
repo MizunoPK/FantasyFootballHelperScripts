@@ -166,13 +166,13 @@ python run_win_rate_simulation.py full --test-values 3 --sims 100
 
 **Behavior**:
 - Tests ALL combinations of parameter values
-- For 5 test values per parameter: **(5+1)^6 = 46,656 configurations**
+- The configuration count is the product of every varied parameter's candidate-value count, so it grows multiplicatively with the number of parameters varied
 - **EXTREMELY SLOW** - impractical for all 7 parameters
 - Typically used for testing 2-3 parameters in isolation
 
-**Formula**: `(test_values + 1)^6` total configurations (6 parameters varied simultaneously)
+**Formula**: the product of each varied parameter's `test_values + 1` candidate values — a full cartesian product over the parameters varied simultaneously
 
-**Note**: The code uses 6 as the exponent (not 7), likely because one parameter is held constant or optimized separately.
+> **⚠️ Stale (T65, 2026-07-22):** `run_win_rate_simulation.py` exposes no positional mode argument, so the invocation above is not runnable as documented; the implemented sweep is coordinate descent (`SweepTournament.py`), not a cartesian grid search.
 
 **Use Cases**:
 - Exploring interactions between 2-3 specific parameters
@@ -735,7 +735,7 @@ Total Execution Time (iterative):
 | Mode | Formula | Default Count | Notes |
 |------|---------|---------------|-------|
 | Single | 1 | 1 | Baseline only |
-| Full | (test_values+1)^6 | 46,656 | Impractical |
+| Full | product of each varied parameter's (test_values + 1) values | grows multiplicatively | Impractical |
 | Iterative | params × (test_values+1) | 7 × 6 = 42 | **Recommended** |
 
 ---

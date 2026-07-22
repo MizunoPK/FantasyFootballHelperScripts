@@ -278,7 +278,7 @@ python simulation/run_simulation.py full --sims 100 --workers 8 --output results
 
 1. **Configuration Generation** (ConfigGenerator)
    - Loads baseline configuration
-   - Generates parameter combinations (default: 13.1 billion for 13 parameters)
+   - Generates candidate values for each optimizable parameter (the baseline optimal value plus N random variations)
    - Each combination varies all optimizable parameters
 
 2. **League Simulation** (SimulatedLeague)
@@ -357,7 +357,7 @@ Complete results for all tested configurations:
 
 ```json
 {
-  "total_configs": 13123110400,
+  "total_configs": 42,
   "configs": {
     "config_00000": {
       "config_id": "config_00000",
@@ -372,7 +372,7 @@ Complete results for all tested configurations:
 }
 ```
 
-**Note**: With 13 parameters generating 13.1B+ combinations, the all_results.json file would be prohibitively large. Iterative optimization or database storage is required for full-scale runs.
+**Note**: `all_results.json` grows with the number of configurations actually tested. Enumerating the full cartesian product over every optimizable parameter would be prohibitively large, which is why the engines optimize one parameter at a time.
 
 ## Testing
 
@@ -442,11 +442,11 @@ Based on average hardware (modern laptop/desktop):
 | Subset | 10 | 10 | 100 | 4 | ~1-2 min |
 | Subset | 20 | 50 | 1,000 | 8 | ~10-15 min |
 | Subset | 100 | 100 | 10,000 | 8 | ~2-3 hours |
-| Full | 13.1B | 100 | 1.3T+ | 8 | Impossible* |
+| Full | full cartesian product | 100 | — | 8 | Impossible* |
 
 **Note**: Times vary based on CPU speed and system load. Single simulation takes ~0.7 seconds on average.
 
-\*Full cartesian product with 13 parameters (13.1B configs) is impossible. Use iterative optimization instead.
+\*Enumerating the full cartesian product over every optimizable parameter is impossible. Use iterative optimization instead.
 
 ## Troubleshooting
 
