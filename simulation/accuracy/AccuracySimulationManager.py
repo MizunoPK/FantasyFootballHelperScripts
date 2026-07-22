@@ -15,7 +15,7 @@ Mode:
 Unlike win-rate simulation:
 - No randomness (deterministic ranking-metric / MAE calculation, no random draws)
 - Selection optimizes pairwise ranking accuracy (higher is better); MAE is a reported diagnostic
-- Tests prediction parameters (17 params) not strategy parameters
+- Tests prediction parameters (PARAMETER_ORDER in run_accuracy_simulation.py) not strategy parameters
 
 Selection optimizes pairwise ranking accuracy, NOT MAE — do not revert `is_better_than` to an
 MAE comparison; the League Helper's decisions are ordinal. MAE is a reported diagnostic only.
