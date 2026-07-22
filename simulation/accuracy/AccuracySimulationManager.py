@@ -23,31 +23,25 @@ MAE comparison; the League Helper's decisions are ordinal. MAE is a reported dia
 Author: Kai Mizuno
 """
 
-import copy
-import json
 import re
 import shutil
 import signal
 import tempfile
 import time
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import List, Optional, Tuple
 
 from utils.LoggingManager import get_logger
 from simulation.shared.ConfigGenerator import ConfigGenerator, DEFAULT_ACCURACY_SEED
 from simulation.shared.ProgressTracker import ProgressTracker
 from simulation.shared.config_cleanup import cleanup_accuracy_intermediate_folders
-from simulation.accuracy.AccuracyCalculator import AccuracyCalculator, AccuracyResult
+from simulation.accuracy.AccuracyCalculator import AccuracyCalculator
 from simulation.accuracy.AccuracyResultsManager import (
     AccuracyResultsManager,
     WEEK_RANGES,
     format_metric_pct,
     format_metric_corr,
 )
-from league_helper.util.PlayerManager import PlayerManager
-from league_helper.util.ConfigManager import ConfigManager
-from league_helper.util.TeamDataManager import TeamDataManager
-from league_helper.util.SeasonScheduleManager import SeasonScheduleManager
 
 PAIRWISE_ACCURACY_WARN_THRESHOLD = 0.65
 TOP_10_ACCURACY_WARN_THRESHOLD = 0.70
@@ -321,253 +315,6 @@ class AccuracySimulationManager:
         self.logger.debug(f"_detect_resume_state exit: should_resume=True, start_idx={highest_idx + 1}, last_config={highest_path}")
         return (True, highest_idx + 1, highest_path)
 
-    def _load_season_data(
-        self,
-        season_path: Path,
-        week_num: int
-    ) -> Tuple[Optional[Path], Optional[Path]]:
-        """
-        Load data paths for a specific week in a season.
-
-        For accuracy calculations, we need TWO week folders:
-        - week_N folder: Contains projected_points for week N
-        - week_N+1 folder: Contains actual_points for week N
-
-        This is because week_N folder represents data "as of" week N's start,
-        so week N's actual results aren't known until week N+1.
-
-        Args:
-            season_path: Path to season folder (e.g., sim_data/2024/)
-            week_num: Week number (1-17)
-
-        Returns:
-            Tuple of (projected_folder, actual_folder) or (None, None) if folders not found
-            - projected_folder: week_N folder (for projected_points)
-            - actual_folder: week_N+1 folder (for actual_points)
-        """
-        self.logger.debug(f"_load_season_data: season_path={season_path}, week_num={week_num}")
-
-        projected_folder = season_path / "weeks" / f"week_{week_num:02d}"
-
-        actual_week_num = week_num + 1
-        actual_folder = season_path / "weeks" / f"week_{actual_week_num:02d}"
-
-        if not projected_folder.exists():
-            self.logger.warning(f"Projected folder not found: {projected_folder}")
-            self.logger.debug("_load_season_data exit: projected=None, actual=None (projected folder missing)")
-            return None, None
-
-        if not actual_folder.exists():
-            self.logger.warning(
-                f"Actual folder not found: {actual_folder} "
-                f"(needed for week {week_num} actuals). Using projected data as fallback."
-            )
-            self.logger.debug(f"_load_season_data exit: projected={projected_folder}, actual={projected_folder} (fallback)")
-            return projected_folder, projected_folder
-
-        self.logger.debug(f"_load_season_data exit: projected={projected_folder}, actual={actual_folder}")
-        return projected_folder, actual_folder
-
-    def _create_player_manager(
-        self,
-        config_dict: dict,
-        week_data_path: Path,
-        season_path: Path,
-        week_num: int
-    ) -> PlayerManager:
-        """
-        Create a PlayerManager with the given configuration.
-
-        Args:
-            config_dict: Configuration dictionary
-            week_data_path: Path to week folder containing position JSON files
-            season_path: Path to season folder containing season_schedule.csv, team_data/
-            week_num: NFL week number being simulated (1-17)
-
-        Returns:
-            PlayerManager: Configured player manager
-        """
-        import tempfile
-        import shutil
-
-        temp_dir = Path(tempfile.mkdtemp(prefix="accuracy_sim_"))
-
-        player_data_dir = temp_dir / "player_data"
-        player_data_dir.mkdir(exist_ok=True)
-
-        position_files = ['qb_data.json', 'rb_data.json', 'wr_data.json',
-                          'te_data.json', 'k_data.json', 'dst_data.json']
-        for filename in position_files:
-            source_file = week_data_path / filename
-            if source_file.exists():
-                shutil.copy(source_file, player_data_dir / filename)
-            else:
-                self.logger.warning(f"Missing position file: {filename} in {week_data_path}")
-
-        season_schedule = season_path / "season_schedule.csv"
-        if season_schedule.exists():
-            shutil.copy(season_schedule, temp_dir / "season_schedule.csv")
-
-        game_data = season_path / "game_data.csv"
-        if game_data.exists():
-            shutil.copy(game_data, temp_dir / "game_data.csv")
-
-        team_data_source = season_path / "team_data"
-        if team_data_source.exists():
-            shutil.copytree(team_data_source, temp_dir / "team_data")
-
-        config_dict_copy = copy.deepcopy(config_dict)
-        config_dict_copy['parameters']['CURRENT_NFL_WEEK'] = week_num
-
-        config_path = temp_dir / "league_config.json"
-        with open(config_path, 'w') as f:
-            json.dump(config_dict_copy, f, indent=2)
-
-        config_mgr = ConfigManager(temp_dir)
-        schedule_mgr = SeasonScheduleManager(temp_dir)
-        team_data_mgr = TeamDataManager(temp_dir, config_mgr, schedule_mgr, config_mgr.current_nfl_week)
-        player_mgr = PlayerManager(temp_dir, config_mgr, team_data_mgr, schedule_mgr)
-
-        player_mgr._temp_dir = temp_dir
-
-        return player_mgr
-
-    def _cleanup_player_manager(self, player_mgr: PlayerManager) -> None:
-        """Clean up temporary files from player manager."""
-        if hasattr(player_mgr, '_temp_dir') and player_mgr._temp_dir.exists():
-            import shutil
-            shutil.rmtree(player_mgr._temp_dir)
-
-    def _evaluate_config_weekly(
-        self,
-        config_dict: dict,
-        week_range: Tuple[int, int]
-    ) -> AccuracyResult:
-        """
-        Evaluate a configuration for weekly mode.
-
-        Args:
-            config_dict: Configuration to evaluate
-            week_range: (start_week, end_week) inclusive
-
-        Returns:
-            AccuracyResult: MAE result for the week range across all seasons
-        """
-        start_week, end_week = week_range
-        season_results = []
-
-        for season_path in self.available_seasons:
-            week_projections = {}
-            week_actuals = {}
-            player_data_by_week = {}
-
-            for week_num in range(start_week, end_week + 1):
-                projected_path, actual_path = self._load_season_data(season_path, week_num)
-                if not projected_path or not actual_path:
-                    continue
-
-                projected_mgr = self._create_player_manager(config_dict, projected_path, season_path, week_num)
-                actual_mgr = self._create_player_manager(config_dict, actual_path, season_path, week_num)
-
-                try:
-                    projections = {}
-                    actuals = {}
-                    player_data = []
-
-                    max_weekly = projected_mgr.calculate_max_weekly_projection(week_num)
-                    projected_mgr.scoring_calculator.max_weekly_projection = max_weekly
-
-                    for player in projected_mgr.players:
-                        scored = projected_mgr.score_player(
-                            player,
-                            use_weekly_projection=True,
-                            adp=False,
-                            player_rating=False,
-                            team_quality=True,
-                            performance=True,
-                            matchup=True,
-                            schedule=False,
-                            bye=False,
-                            injury=False,
-                            temperature=True,
-                            wind=True,
-                            location=True
-                        )
-                        if scored:
-                            projections[player.id] = scored.projected_points
-
-                    for player in actual_mgr.players:
-                        if 1 <= week_num <= 17:
-                            actual = player.actual_points[week_num - 1] if len(player.actual_points) > week_num - 1 else 0.0
-                            if actual is not None:
-                                actuals[player.id] = actual
-
-                                if player.id in projections:
-                                    player_data.append({
-                                        'name': player.name,
-                                        'position': player.position,
-                                        'projected': projections[player.id],
-                                        'actual': actual
-                                    })
-
-                    week_projections[week_num] = projections
-                    week_actuals[week_num] = actuals
-                    player_data_by_week[week_num] = player_data
-
-                finally:
-                    self._cleanup_player_manager(projected_mgr)
-                    self._cleanup_player_manager(actual_mgr)
-
-            result = self.accuracy_calculator.calculate_weekly_mae(
-                week_projections, week_actuals, week_range
-            )
-
-            overall_metrics, by_position = self.accuracy_calculator.calculate_ranking_metrics_for_season(player_data_by_week)
-            result.overall_metrics = overall_metrics
-            result.by_position = by_position
-
-            if (overall_metrics and overall_metrics.pairwise_accuracy is not None
-                    and overall_metrics.pairwise_accuracy < PAIRWISE_ACCURACY_WARN_THRESHOLD):
-                self.logger.warning(
-                    f"[{season_path.name}] Low pairwise accuracy: "
-                    f"{overall_metrics.pairwise_accuracy:.1%} (threshold: {PAIRWISE_ACCURACY_WARN_THRESHOLD:.0%})"
-                )
-
-            if (overall_metrics and overall_metrics.top_10_accuracy is not None
-                    and overall_metrics.top_10_accuracy < TOP_10_ACCURACY_WARN_THRESHOLD):
-                self.logger.warning(
-                    f"[{season_path.name}] Low top-10 accuracy: "
-                    f"{overall_metrics.top_10_accuracy:.1%} (threshold: {TOP_10_ACCURACY_WARN_THRESHOLD:.0%})"
-                )
-
-            season_results.append((season_path.name, result))
-
-        return self.accuracy_calculator.aggregate_season_results(season_results)
-
-    def _evaluate_config_tournament(
-        self,
-        config_dict: dict,
-        horizon: str
-    ) -> Dict[str, AccuracyResult]:
-        """
-        Evaluate single config across all 4 weekly horizons for tournament optimization.
-
-        Args:
-            config_dict: Configuration to evaluate
-            horizon: Base horizon this config was generated from ('1-5', '6-9', etc.)
-
-        Returns:
-            Dict mapping each horizon to its AccuracyResult (using week_key format for add_result()):
-            {'week_1_5': result_1_5, 'week_6_9': result_6_9, 'week_10_13': result_10_13, 'week_14_17': result_14_17}
-        """
-        results = {}
-
-
-        for week_key, week_range in WEEK_RANGES.items():
-            results[week_key] = self._evaluate_config_weekly(config_dict, week_range)
-
-        return results
-
     def run_both(self) -> Path:
         """
         Run tournament optimization: each parameter optimizes across ALL 4 weekly horizons.
@@ -719,6 +466,8 @@ class AccuracySimulationManager:
 
             optimal_path = self.results_manager.save_optimal_configs()
 
+            self._warn_low_accuracy_promoted()
+
             deleted_count = cleanup_accuracy_intermediate_folders(self.output_dir)
             if deleted_count > 0:
                 self.logger.info(f"Cleaned up {deleted_count} intermediate folders")
@@ -732,6 +481,35 @@ class AccuracySimulationManager:
 
         finally:
             self._restore_signal_handlers()
+
+    def _warn_low_accuracy_promoted(self) -> None:
+        """Warn once per horizon when the promoted config scores below the accuracy bar.
+
+        Reads the winning AccuracyConfigPerformance for each horizon straight from
+        results_manager.best_configs at the moment save_optimal_configs() has written
+        them, so each warning names the config the run is actually shipping. Emits at
+        most one line per threshold per horizon (<= 8 lines per run, 0 when healthy).
+        """
+        for week_key in WEEK_RANGES.keys():
+            best_perf = self.results_manager.best_configs.get(week_key)
+            if not best_perf or not best_perf.overall_metrics:
+                continue
+
+            metrics = best_perf.overall_metrics
+
+            if (metrics.pairwise_accuracy is not None
+                    and metrics.pairwise_accuracy < PAIRWISE_ACCURACY_WARN_THRESHOLD):
+                self.logger.warning(
+                    f"[{week_key}] Low pairwise accuracy: "
+                    f"{metrics.pairwise_accuracy:.1%} (threshold: {PAIRWISE_ACCURACY_WARN_THRESHOLD:.0%})"
+                )
+
+            if (metrics.top_10_accuracy is not None
+                    and metrics.top_10_accuracy < TOP_10_ACCURACY_WARN_THRESHOLD):
+                self.logger.warning(
+                    f"[{week_key}] Low top-10 accuracy: "
+                    f"{metrics.top_10_accuracy:.1%} (threshold: {TOP_10_ACCURACY_WARN_THRESHOLD:.0%})"
+                )
 
     def _log_parameter_summary(self, param_name: str) -> None:
         """Log summary of best results for all horizons after parameter completes."""

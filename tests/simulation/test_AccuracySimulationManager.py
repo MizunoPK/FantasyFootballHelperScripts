@@ -280,247 +280,6 @@ class TestAccuracySimulationManagerSignalHandlers:
         assert mock_signal.call_count >= 2
 
 
-class TestAccuracySimulationManagerDataLoading:
-    """Tests for data loading helpers."""
-
-    @pytest.fixture
-    def manager_with_data(self, tmp_path):
-        """Create manager with mock data folder."""
-        config = {'config_name': 'test'}
-        config_path = tmp_path / "baseline.json"
-        with open(config_path, 'w') as f:
-            json.dump(config, f)
-
-        data_folder = tmp_path / "sim_data"
-        data_folder.mkdir()
-
-        season = data_folder / "2024"
-        season.mkdir()
-        weeks = season / "weeks"
-        weeks.mkdir()
-
-        for week in [1, 2, 5]:
-            week_folder = weeks / f"week_{week:02d}"
-            week_folder.mkdir()
-            (week_folder / "players.csv").write_text("id,name\n1,Test\n")
-            (week_folder / "players_projected.csv").write_text("id,name\n1,Test\n")
-
-        output_dir = tmp_path / "output"
-
-        with patch('simulation.accuracy.AccuracySimulationManager.ConfigGenerator'), \
-             patch('simulation.accuracy.AccuracySimulationManager.AccuracyCalculator'), \
-             patch('simulation.accuracy.AccuracySimulationManager.AccuracyResultsManager'):
-            return AccuracySimulationManager(
-                baseline_config_path=config_path,
-                output_dir=output_dir,
-                data_folder=data_folder,
-                parameter_order=TEST_PARAMETER_ORDER
-            )
-
-    def test_load_season_data_existing_week(self, manager_with_data):
-        """Test loading data for an existing week."""
-        season_path = manager_with_data.available_seasons[0]
-        projected, actual = manager_with_data._load_season_data(season_path, 1)
-
-        assert projected is not None
-        assert actual is not None
-        assert projected.exists()
-        assert actual.exists()
-
-    def test_load_season_data_missing_week(self, manager_with_data):
-        """Test loading data for a missing week returns None."""
-        season_path = manager_with_data.available_seasons[0]
-        projected, actual = manager_with_data._load_season_data(season_path, 10)
-
-        assert projected is None
-        assert actual is None
-
-    def test_load_season_data_returns_two_folders(self, tmp_path):
-        """Test that _load_season_data returns two different folders (week_N and week_N+1)."""
-        config = {'config_name': 'test'}
-        config_path = tmp_path / "baseline.json"
-        with open(config_path, 'w') as f:
-            json.dump(config, f)
-
-        data_folder = tmp_path / "sim_data"
-        data_folder.mkdir()
-        season = data_folder / "2024"
-        season.mkdir()
-        weeks = season / "weeks"
-        weeks.mkdir()
-
-        for week_num in [1, 2, 17, 18]:
-            week_folder = weeks / f"week_{week_num:02d}"
-            week_folder.mkdir()
-
-        output_dir = tmp_path / "output"
-
-        with patch('simulation.accuracy.AccuracySimulationManager.ConfigGenerator'), \
-             patch('simulation.accuracy.AccuracySimulationManager.AccuracyCalculator'), \
-             patch('simulation.accuracy.AccuracySimulationManager.AccuracyResultsManager'):
-            manager = AccuracySimulationManager(
-                baseline_config_path=config_path,
-                output_dir=output_dir,
-                data_folder=data_folder,
-                parameter_order=TEST_PARAMETER_ORDER
-            )
-
-        season_path = manager.available_seasons[0]
-
-        projected, actual = manager._load_season_data(season_path, 1)
-        assert projected is not None
-        assert actual is not None
-        assert projected.name == "week_01"
-        assert actual.name == "week_02"
-        assert projected != actual
-
-        projected, actual = manager._load_season_data(season_path, 17)
-        assert projected is not None
-        assert actual is not None
-        assert projected.name == "week_17"
-        assert actual.name == "week_18"
-        assert projected != actual
-
-    def test_load_season_data_handles_missing_actual_folder(self, tmp_path):
-        """Test that _load_season_data handles missing week_N+1 folder gracefully."""
-        config = {'config_name': 'test'}
-        config_path = tmp_path / "baseline.json"
-        with open(config_path, 'w') as f:
-            json.dump(config, f)
-
-        data_folder = tmp_path / "sim_data"
-        data_folder.mkdir()
-        season = data_folder / "2024"
-        season.mkdir()
-        weeks = season / "weeks"
-        weeks.mkdir()
-
-        week_18 = weeks / "week_18"
-        week_18.mkdir()
-
-        output_dir = tmp_path / "output"
-
-        with patch('simulation.accuracy.AccuracySimulationManager.ConfigGenerator'), \
-             patch('simulation.accuracy.AccuracySimulationManager.AccuracyCalculator'), \
-             patch('simulation.accuracy.AccuracySimulationManager.AccuracyResultsManager'):
-            manager = AccuracySimulationManager(
-                baseline_config_path=config_path,
-                output_dir=output_dir,
-                data_folder=data_folder,
-                parameter_order=TEST_PARAMETER_ORDER
-            )
-
-        season_path = manager.available_seasons[0]
-
-        projected, actual = manager._load_season_data(season_path, 18)
-
-        assert projected is not None
-        assert actual is not None
-        assert projected.name == "week_18"
-        assert actual.name == "week_18"
-        assert projected == actual
-
-
-    def test_load_season_data_handles_missing_projected_folder(self, tmp_path):
-        """Test that _load_season_data handles missing week_N folder gracefully."""
-        config = {'config_name': 'test'}
-        config_path = tmp_path / "baseline.json"
-        with open(config_path, 'w') as f:
-            json.dump(config, f)
-
-        data_folder = tmp_path / "sim_data"
-        data_folder.mkdir()
-        season = data_folder / "2024"
-        season.mkdir()
-        weeks = season / "weeks"
-        weeks.mkdir()
-
-        output_dir = tmp_path / "output"
-
-        with patch('simulation.accuracy.AccuracySimulationManager.ConfigGenerator'), \
-             patch('simulation.accuracy.AccuracySimulationManager.AccuracyCalculator'), \
-             patch('simulation.accuracy.AccuracySimulationManager.AccuracyResultsManager'):
-            manager = AccuracySimulationManager(
-                baseline_config_path=config_path,
-                output_dir=output_dir,
-                data_folder=data_folder,
-                parameter_order=TEST_PARAMETER_ORDER
-            )
-
-        season_path = manager.available_seasons[0]
-
-        projected, actual = manager._load_season_data(season_path, 1)
-
-        assert projected is None
-        assert actual is None
-
-
-
-    def test_evaluate_config_weekly_uses_two_player_managers(self, tmp_path):
-        """Test that _evaluate_config_weekly creates TWO PlayerManager instances (projected and actual)."""
-        config = {'config_name': 'test', 'parameters': {}}
-        config_path = tmp_path / "baseline.json"
-        with open(config_path, 'w') as f:
-            json.dump(config, f)
-
-        data_folder = tmp_path / "sim_data"
-        data_folder.mkdir()
-        season = data_folder / "2024"
-        season.mkdir()
-        weeks = season / "weeks"
-        weeks.mkdir()
-
-        for week_num in [1, 2]:
-            week_folder = weeks / f"week_{week_num:02d}"
-            week_folder.mkdir()
-
-        output_dir = tmp_path / "output"
-
-        mock_calc = MagicMock()
-        mock_calc.calculate_weekly_mae.return_value = MagicMock(mae=5.0)
-        mock_calc.calculate_ranking_metrics_for_season.return_value = ({}, {})
-
-        with patch('simulation.accuracy.AccuracySimulationManager.ConfigGenerator'), \
-             patch('simulation.accuracy.AccuracySimulationManager.AccuracyCalculator', return_value=mock_calc), \
-             patch('simulation.accuracy.AccuracySimulationManager.AccuracyResultsManager'):
-            manager = AccuracySimulationManager(
-                baseline_config_path=config_path,
-                output_dir=output_dir,
-                data_folder=data_folder,
-                parameter_order=TEST_PARAMETER_ORDER
-            )
-
-        season_path = manager.available_seasons[0]
-
-        mock_projected_mgr = MagicMock()
-        mock_actual_mgr = MagicMock()
-        mock_projected_mgr.players = []
-        mock_actual_mgr.players = []
-        mock_projected_mgr.calculate_max_weekly_projection.return_value = 100.0
-
-        call_count = [0]
-        def create_manager_side_effect(config_dict, week_folder, season_path, week_num):
-            call_count[0] += 1
-            if call_count[0] == 1:
-                return mock_projected_mgr
-            else:
-                return mock_actual_mgr
-
-        with patch.object(manager, '_create_player_manager', side_effect=create_manager_side_effect) as mock_create:
-            with patch.object(manager, '_cleanup_player_manager') as mock_cleanup:
-                result = manager._evaluate_config_weekly(config, (1, 1))
-
-        assert mock_create.call_count == 2, f"Expected 2 calls to _create_player_manager, got {mock_create.call_count}"
-
-        first_call_folder = mock_create.call_args_list[0][0][1]
-        assert first_call_folder.name == "week_01", f"First call should use week_01, got {first_call_folder.name}"
-
-        second_call_folder = mock_create.call_args_list[1][0][1]
-        assert second_call_folder.name == "week_02", f"Second call should use week_02, got {second_call_folder.name}"
-
-        assert mock_cleanup.call_count == 2, f"Expected 2 cleanup calls, got {mock_cleanup.call_count}"
-
-
 class TestAccuracySimulationManagerResumeState:
     """Tests for resume state detection."""
 
@@ -1004,10 +763,174 @@ class TestRunBothBaselineSelection:
                 data_folder=data_folder,
                 parameter_order=[]
             )
+            # The promoted-config warner (T59) reads best_configs after
+            # save_optimal_configs(); seed the four horizons so the mocked
+            # results manager yields None rather than an uncomparable MagicMock.
+            manager.results_manager.best_configs = {
+                'week_1_5': None, 'week_6_9': None,
+                'week_10_13': None, 'week_14_17': None
+            }
             manager.run_both()
 
         # mtime-latest among the VALID folders (skips the newer incomplete one).
         mock_cg.load_baseline_from_folder.assert_called_once_with(mtime_latest)
+
+
+def _perf(pairwise, top_10):
+    """A best_configs entry stub carrying just the two metrics the warner reads."""
+    return Mock(overall_metrics=Mock(pairwise_accuracy=pairwise, top_10_accuracy=top_10))
+
+
+def _perf_without_metrics():
+    """A best_configs entry whose overall_metrics is None (no valid weeks)."""
+    return Mock(overall_metrics=None)
+
+
+class TestLowAccuracyPromotedWarnings:
+    """T59 R5/R6/R7: the low-accuracy threshold warnings fire in the PARENT,
+    once per horizon, against the promoted config -- and stay wired to run_both.
+    Silent detachment from run_both is exactly how the original (dead) warnings
+    died, so the wiring is pinned by an explicit call-order assertion."""
+
+    @staticmethod
+    def _make_manager(tmp_path):
+        """Build a manager with mocked collaborators and a MagicMock logger."""
+        config_path = tmp_path / "baseline.json"
+        with open(config_path, 'w') as f:
+            json.dump({'config_name': 'test'}, f)
+
+        data_folder = tmp_path / "sim_data"
+        (data_folder / "2024" / "weeks").mkdir(parents=True)
+
+        output_dir = tmp_path / "output"
+        output_dir.mkdir()
+
+        with patch('simulation.accuracy.AccuracySimulationManager.ConfigGenerator'), \
+             patch('simulation.accuracy.AccuracySimulationManager.AccuracyCalculator'), \
+             patch('simulation.accuracy.AccuracySimulationManager.AccuracyResultsManager'):
+            manager = AccuracySimulationManager(
+                baseline_config_path=config_path,
+                output_dir=output_dir,
+                data_folder=data_folder,
+                parameter_order=[]
+            )
+
+        manager.logger = MagicMock()
+        return manager
+
+    @staticmethod
+    def _warnings(manager):
+        return [call.args[0] for call in manager.logger.warning.call_args_list]
+
+    def test_threshold_constants_keep_their_values(self):
+        """R5: both constants survive the deletion at their original values."""
+        from simulation.accuracy import AccuracySimulationManager as module
+
+        assert module.PAIRWISE_ACCURACY_WARN_THRESHOLD == 0.65
+        assert module.TOP_10_ACCURACY_WARN_THRESHOLD == 0.70
+
+    def test_below_threshold_warns_once_per_metric_per_horizon(self, tmp_path):
+        """R6: every horizon below both bars emits exactly one warning per bar."""
+        manager = self._make_manager(tmp_path)
+        manager.results_manager.best_configs = {
+            'week_1_5': _perf(0.50, 0.60),
+            'week_6_9': _perf(0.50, 0.60),
+            'week_10_13': _perf(0.50, 0.60),
+            'week_14_17': _perf(0.50, 0.60),
+        }
+
+        manager._warn_low_accuracy_promoted()
+
+        messages = self._warnings(manager)
+        assert len(messages) == 8
+        assert len([m for m in messages if 'Low pairwise accuracy' in m]) == 4
+        assert len([m for m in messages if 'Low top-10 accuracy' in m]) == 4
+        for week_key in ['week_1_5', 'week_6_9', 'week_10_13', 'week_14_17']:
+            assert len([m for m in messages if f"[{week_key}]" in m]) == 2
+
+    def test_exactly_at_threshold_does_not_warn(self, tmp_path):
+        """R6 boundary: the comparison is strict `<`, so a value EQUAL to the
+        threshold must stay silent."""
+        manager = self._make_manager(tmp_path)
+        manager.results_manager.best_configs = {
+            'week_1_5': _perf(0.65, 0.70),
+            'week_6_9': _perf(0.65, 0.70),
+            'week_10_13': _perf(0.65, 0.70),
+            'week_14_17': _perf(0.65, 0.70),
+        }
+
+        manager._warn_low_accuracy_promoted()
+
+        assert self._warnings(manager) == []
+
+    def test_above_threshold_does_not_warn(self, tmp_path):
+        """R6: a healthy run emits zero warning lines."""
+        manager = self._make_manager(tmp_path)
+        manager.results_manager.best_configs = {
+            'week_1_5': _perf(0.80, 0.90),
+            'week_6_9': _perf(0.80, 0.90),
+            'week_10_13': _perf(0.80, 0.90),
+            'week_14_17': _perf(0.80, 0.90),
+        }
+
+        manager._warn_low_accuracy_promoted()
+
+        assert self._warnings(manager) == []
+
+    def test_none_metrics_are_skipped_without_raising(self, tmp_path):
+        """None-guard parity with AccuracyResultsManager.is_better_than (T63):
+        a None overall_metrics, a None pairwise_accuracy, and a None entry are
+        all skipped rather than raising."""
+        manager = self._make_manager(tmp_path)
+        manager.results_manager.best_configs = {
+            'week_1_5': _perf_without_metrics(),
+            'week_6_9': _perf(None, 0.60),
+            'week_10_13': None,
+            'week_14_17': _perf(0.50, None),
+        }
+
+        manager._warn_low_accuracy_promoted()
+
+        messages = self._warnings(manager)
+        assert len(messages) == 2
+        assert any('[week_6_9] Low top-10 accuracy' in m for m in messages)
+        assert any('[week_14_17] Low pairwise accuracy' in m for m in messages)
+
+    def test_missing_horizon_key_is_skipped(self, tmp_path):
+        """An absent week_key is skipped via .get(), never a KeyError."""
+        manager = self._make_manager(tmp_path)
+        manager.results_manager.best_configs = {}
+
+        manager._warn_low_accuracy_promoted()
+
+        assert self._warnings(manager) == []
+
+    def test_run_both_warns_immediately_after_save_optimal_configs(self, tmp_path):
+        """R6 wiring: the helper runs right after save_optimal_configs(), so a
+        future refactor cannot silently detach it (the original failure mode)."""
+        manager = self._make_manager(tmp_path)
+
+        call_order = []
+        optimal_folder = manager.output_dir / "accuracy_optimal_test"
+        manager.results_manager.save_optimal_configs.side_effect = (
+            lambda: call_order.append('save_optimal_configs') or optimal_folder
+        )
+
+        with patch.object(manager, '_warn_low_accuracy_promoted',
+                          side_effect=lambda: call_order.append('_warn_low_accuracy_promoted')):
+            manager.run_both()
+
+        assert call_order == ['save_optimal_configs', '_warn_low_accuracy_promoted']
+
+    def test_no_threshold_warning_in_the_worker_module(self):
+        """R7: neither constant is imported into, or evaluated inside, the module
+        whose functions run in a worker process."""
+        runner_source = (
+            project_root / "simulation" / "accuracy" / "ParallelAccuracyRunner.py"
+        ).read_text()
+
+        assert 'PAIRWISE_ACCURACY_WARN_THRESHOLD' not in runner_source
+        assert 'TOP_10_ACCURACY_WARN_THRESHOLD' not in runner_source
 
 
 if __name__ == "__main__":

@@ -244,5 +244,61 @@ class TestLoadSeasonDataWeek17Refutation:
             assert actual_folder is not None, f"{year}: week 17 actual (week_18) missing"
 
 
+class TestLoadSeasonDataOffsetContract:
+    """The week_N -> (week_N, week_N+1) offset contract, pinned against the LIVE
+    module-level _load_season_data (retargeted from the deleted
+    AccuracySimulationManager copy — T59 disposition rows 2/3/4/5)."""
+
+    @pytest.mark.offline
+    def test_returns_week_n_and_week_n_plus_one(self, tmp_path):
+        """week_N resolves to a distinct, non-None (week_N, week_N+1) pair, at
+        both the start and the end of the season."""
+        data_path = tmp_path / "sim_data"
+        data_path.mkdir()
+        create_mock_historical_season_f05(data_path, "2024")
+        season_path = data_path / "2024"
+
+        projected_folder, actual_folder = _load_season_data(season_path, 1)
+
+        assert projected_folder is not None
+        assert actual_folder is not None
+        assert projected_folder.name == "week_01"
+        assert actual_folder.name == "week_02"
+        assert projected_folder != actual_folder
+
+        projected_folder, actual_folder = _load_season_data(season_path, 17)
+
+        assert projected_folder is not None
+        assert actual_folder is not None
+        assert projected_folder.name == "week_17"
+        assert actual_folder.name == "week_18"
+        assert projected_folder != actual_folder
+
+    @pytest.mark.offline
+    def test_missing_week_n_returns_none_pair(self, tmp_path):
+        """A week whose week_N folder does not exist resolves to (None, None) --
+        the week is skipped, never substituted."""
+        data_path = tmp_path / "sim_data"
+        data_path.mkdir()
+        create_mock_historical_season_f05(data_path, "2024")
+        season_path = data_path / "2024"
+
+        projected_folder, actual_folder = _load_season_data(season_path, 20)
+
+        assert projected_folder is None
+        assert actual_folder is None
+
+    @pytest.mark.offline
+    def test_season_with_no_week_folders_returns_none_pair(self, tmp_path):
+        """A season whose weeks/ directory is empty resolves to (None, None)."""
+        season_path = tmp_path / "sim_data" / "2024"
+        (season_path / "weeks").mkdir(parents=True)
+
+        projected_folder, actual_folder = _load_season_data(season_path, 1)
+
+        assert projected_folder is None
+        assert actual_folder is None
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
