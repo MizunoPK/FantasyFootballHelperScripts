@@ -279,7 +279,7 @@ python simulation/run_simulation.py full --sims 100 --workers 8 --output results
 1. **Configuration Generation** (ConfigGenerator)
    - Loads baseline configuration
    - Generates candidate values for each optimizable parameter (the baseline optimal value plus N random variations)
-   - Each combination varies all optimizable parameters
+   - Each candidate varies **one** parameter, holding the others at the incumbent values — the engines optimize one parameter at a time rather than enumerating a cartesian product
 
 2. **League Simulation** (SimulatedLeague)
    - Creates 10-team league:
@@ -357,7 +357,7 @@ Complete results for all tested configurations:
 
 ```json
 {
-  "total_configs": 42,
+  "total_configs": 44,
   "configs": {
     "config_00000": {
       "config_id": "config_00000",
