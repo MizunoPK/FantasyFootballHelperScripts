@@ -15,7 +15,6 @@ from pathlib import Path
 from unittest.mock import Mock, patch, MagicMock
 import json
 import tempfile
-import shutil
 
 project_root = Path(__file__).parent.parent.parent
 
@@ -23,6 +22,7 @@ from simulation.shared.ConfigGenerator import ConfigGenerator
 from simulation.accuracy.AccuracySimulationManager import AccuracySimulationManager
 from simulation.accuracy.AccuracyResultsManager import AccuracyResultsManager, RankingMetrics, WEEK_RANGES
 from simulation.accuracy.AccuracyCalculator import AccuracyCalculator, AccuracyResult
+from simulation.accuracy.ParallelAccuracyRunner import _load_season_data
 
 
 TEST_PARAMETER_ORDER = [
@@ -522,74 +522,25 @@ class TestAccuracySimulationManagerIntegration:
         assert manager.parameter_order == TEST_PARAMETER_ORDER
 
 
-    def test_load_season_data_week_n_plus_one(self, baseline_config, temp_accuracy_data, tmp_path):
-        """Test _load_season_data uses week_N+1 pattern for actual data"""
-        output_dir = tmp_path / "results"
-        manager = AccuracySimulationManager(
-            baseline_config_path=baseline_config,
-            output_dir=output_dir,
-            data_folder=temp_accuracy_data,
-            parameter_order=TEST_PARAMETER_ORDER,
-            num_test_values=1
-        )
 
+class TestWorkerLoadSeasonDataOffsetContract:
+    """The live worker's week_N -> week_N+1 offset contract (T59 R4).
+
+    Lives in its own class rather than under TestAccuracySimulationManagerIntegration
+    because it exercises ParallelAccuracyRunner's module-level _load_season_data and
+    touches no manager instance.
+    """
+
+    def test_load_season_data_week_n_plus_one(self, temp_accuracy_data):
+        """The live worker's _load_season_data uses the week_N+1 pattern for actual
+        data, on a general mid-season week against real fixture data (T59 R4)."""
         season_folder = temp_accuracy_data / "2024"
 
-        projected_folder, actual_folder = manager._load_season_data(season_folder, week_num=5)
+        projected_folder, actual_folder = _load_season_data(season_folder, week_num=5)
 
         assert projected_folder.name == "week_05"
 
         assert actual_folder.name == "week_06"
-
-
-
-class TestEdgeCaseAlignment:
-    """Tests for edge case alignment between Accuracy Sim and Win Rate Sim"""
-
-    @staticmethod
-    def _load_merged_config(baseline_config: Path) -> dict:
-        """Helper to load and merge base + week-specific config"""
-        with open(baseline_config / 'league_config.json') as f:
-            base_config = json.load(f)
-        with open(baseline_config / 'week1-5.json') as f:
-            week_config = json.load(f)
-
-        merged_config = base_config.copy()
-        merged_config['parameters'].update(week_config['parameters'])
-        return merged_config
-
-    def test_missing_week_n_plus_one_folder_fallback(self, baseline_config, temp_accuracy_data, tmp_path):
-        """Test missing week_N+1 folder falls back to projected data (Task 11 alignment)"""
-        output_dir = tmp_path / "results"
-        manager = AccuracySimulationManager(
-            baseline_config_path=baseline_config,
-            output_dir=output_dir,
-            data_folder=temp_accuracy_data,
-            parameter_order=TEST_PARAMETER_ORDER,
-            num_test_values=1
-        )
-
-        season_folder = temp_accuracy_data / "2024"
-
-        week_17_folder = season_folder / "weeks" / "week_17"
-        week_18_folder = season_folder / "weeks" / "week_18"
-
-        if week_17_folder.exists():
-            projected_folder, actual_folder = manager._load_season_data(season_folder, week_num=16)
-
-            assert projected_folder.name == "week_16"
-
-            assert actual_folder.name == "week_17"
-
-        if week_18_folder.exists():
-            shutil.rmtree(week_18_folder)
-
-        projected_folder, actual_folder = manager._load_season_data(season_folder, week_num=17)
-
-        assert projected_folder.name == "week_17"
-
-        assert actual_folder.name == "week_17", "Should fallback to projected folder when week_18 missing"
-
 
 
 class TestWeekRanges:
