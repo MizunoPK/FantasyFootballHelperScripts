@@ -475,11 +475,11 @@ def run_both(self) -> Path:
 - **Projections**: Load `week_05/qb_data.json` → Read `projected_points[4]` (index 4 = week 5)
 - **Actuals**: Load `week_06/qb_data.json` → Read `actual_points[4]` (index 4 = week 5, available after week 5 completes)
 
-**⚠️ INCONSISTENCY DETECTED**:
-- `AccuracySimulationManager._load_season_data` (lines 330-336) has fallback: if actual_folder doesn't exist, use projected_folder for both
-- `ParallelAccuracyRunner._load_season_data` (lines 238-243) has NO fallback: returns (None, None) if actual_folder doesn't exist
-- **Impact**: Worker processes skip weeks where actual folder is missing, main manager would use projected data as fallback
-- **Actual behavior**: Since workers are used in tournament mode, the fallback is never activated
+**Missing-actuals behaviour — a single definition** (resolved by T59, 2026-07-21):
+- `ParallelAccuracyRunner._load_season_data` returns `(None, None)` when the `week_N+1` actuals folder does not exist, so that week is skipped rather than scored.
+- This is now the **only** definition for the accuracy engine. A second, divergent copy formerly lived on `AccuracySimulationManager` and substituted the projected folder for the missing actuals folder (scoring projections against themselves). That copy was unreachable dead code and has been deleted; no code path under `simulation/accuracy/` returns projected data as actuals.
+
+> **Note:** the win-rate engine (`simulation/win_rate/SimDataLoader.py`, `simulation/win_rate/SimulatedLeague.py`) carries its own, independent instance of the substitute-projected-for-missing-actuals pattern. That is **live** code in a different engine, outside the accuracy engine described here, and is tracked separately as ticket **T73**.
 
 ---
 
@@ -1452,23 +1452,15 @@ total_configs = (args.test_values + 1) * 4  # Correct for accuracy sim
 
 ---
 
-### 2. Week Offset Fallback Inconsistency
+### 2. Week Offset Fallback Inconsistency — ✅ RESOLVED (T59, 2026-07-21)
 
-**Location 1**: `AccuracySimulationManager._load_season_data` (lines 330-336)
-```python
-if not actual_folder.exists():
-    # Fallback to projected data
-    return projected_folder, projected_folder
-```
+This issue described a divergence between two copies of `_load_season_data`: the dead copy on `AccuracySimulationManager` substituted the projected folder for a missing actuals folder (`return projected_folder, projected_folder` — scoring projections against themselves), while the live `ParallelAccuracyRunner` copy correctly returned `(None, None)`.
 
-**Location 2**: `ParallelAccuracyRunner._load_season_data` (lines 238-243)
-```python
-if not actual_folder.exists():
-    # No fallback
-    return None, None
-```
+As this section itself noted, the manager's copy was **dead code** — tournament mode always runs through the workers. T59 deleted the entire dead cluster (five methods, 246 lines), leaving the worker's `(None, None)` as the single definition for the accuracy engine. There is no longer a divergence to reconcile.
 
-**Impact**: Worker processes (used in tournament mode) skip weeks with missing actual folder, while main manager would use projected data as fallback. Since tournament mode always uses workers, the fallback is dead code.
+**Verified after the fix:** no code path under `simulation/accuracy/` returns the projected folder as the actual folder, and no test asserts that it should. The two tests that had pinned the fabricating fallback as intended behaviour were deleted outright, and the `week_N` → `week_N+1` offset contract was retargeted onto the live worker function.
+
+> **Still open elsewhere:** the win-rate engine holds its own independent instance of the same substitute-projected-for-missing-actuals pattern (`simulation/win_rate/SimDataLoader.py`, `simulation/win_rate/SimulatedLeague.py`), which is **live** rather than dead. Tracked as ticket **T73** — not covered by T59.
 
 ---
 

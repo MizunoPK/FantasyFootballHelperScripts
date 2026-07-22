@@ -522,6 +522,15 @@ class TestAccuracySimulationManagerIntegration:
         assert manager.parameter_order == TEST_PARAMETER_ORDER
 
 
+
+class TestWorkerLoadSeasonDataOffsetContract:
+    """The live worker's week_N -> week_N+1 offset contract (T59 R4).
+
+    Lives in its own class rather than under TestAccuracySimulationManagerIntegration
+    because it exercises ParallelAccuracyRunner's module-level _load_season_data and
+    touches no manager instance.
+    """
+
     def test_load_season_data_week_n_plus_one(self, temp_accuracy_data):
         """The live worker's _load_season_data uses the week_N+1 pattern for actual
         data, on a general mid-season week against real fixture data (T59 R4)."""
@@ -532,7 +541,6 @@ class TestAccuracySimulationManagerIntegration:
         assert projected_folder.name == "week_05"
 
         assert actual_folder.name == "week_06"
-
 
 
 class TestWeekRanges:

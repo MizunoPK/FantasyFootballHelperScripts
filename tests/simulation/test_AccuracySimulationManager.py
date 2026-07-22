@@ -923,14 +923,31 @@ class TestLowAccuracyPromotedWarnings:
         assert call_order == ['save_optimal_configs', '_warn_low_accuracy_promoted']
 
     def test_no_threshold_warning_in_the_worker_module(self):
-        """R7: neither constant is imported into, or evaluated inside, the module
-        whose functions run in a worker process."""
-        runner_source = (
-            project_root / "simulation" / "accuracy" / "ParallelAccuracyRunner.py"
-        ).read_text()
+        """R7: neither constant is imported into, or evaluated inside, any accuracy
+        module other than the manager that defines them.
 
-        assert 'PAIRWISE_ACCURACY_WARN_THRESHOLD' not in runner_source
-        assert 'TOP_10_ACCURACY_WARN_THRESHOLD' not in runner_source
+        R7 is worded against 'any function executed in a worker process', so this
+        scans every module under simulation/accuracy/ rather than only
+        ParallelAccuracyRunner.py -- a threshold evaluation added to any helper the
+        workers import would otherwise slip through.
+        """
+        accuracy_dir = project_root / "simulation" / "accuracy"
+        owning_module = "AccuracySimulationManager.py"
+
+        offenders = []
+        for module_path in sorted(accuracy_dir.glob("*.py")):
+            if module_path.name == owning_module:
+                continue
+            source = module_path.read_text()
+            for constant in ('PAIRWISE_ACCURACY_WARN_THRESHOLD',
+                             'TOP_10_ACCURACY_WARN_THRESHOLD'):
+                if constant in source:
+                    offenders.append(f"{module_path.name}: {constant}")
+
+        assert offenders == [], (
+            "Low-accuracy thresholds must be evaluated only in the parent process "
+            f"({owning_module}), never in worker-executed code. Found: {offenders}"
+        )
 
 
 if __name__ == "__main__":
