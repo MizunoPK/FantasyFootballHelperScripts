@@ -182,6 +182,12 @@ class TestSweepDispatch:
             _, run_kwargs = MockTour.return_value.run.call_args
             assert run_kwargs["resume"] is False
             assert logger.warning.call_count == 1
+            # T57/D5 + AC6: the branch no longer claims to discard anything — under T57/D4 only
+            # an opponent-regime change archives, and it does so at LOAD time with its own
+            # WARNING. This message must state that the accumulated evidence is retained.
+            message = logger.warning.call_args[0][0]
+            assert "discarding" not in message
+            assert "retained" in message
 
     def test_fingerprint_written_on_launch(self, tmp_path):
         from contextlib import ExitStack
@@ -198,6 +204,114 @@ class TestSweepDispatch:
             ):
                 rws._run_sweep_mode(args, Path(args.data), Mock())
             MockStore.return_value.set_input_fingerprint.assert_called_once_with("newfp")
+            # T57/D8 + D3: the regime marker is recorded on EVERY launch, and the store is
+            # constructed with this run's expected regime so a cross-regime store is
+            # quarantined at load before any reader can observe it.
+            MockStore.return_value.set_naive_opponents.assert_called_once_with(False)
+            assert MockStore.call_args.kwargs["expected_naive_opponents"] is False
+
+    def test_naive_opponents_reaches_fingerprint_and_store(self, tmp_path):
+        # T57/D1 + D3: --naive-opponents reaches BOTH the fingerprint payload (the resume
+        # decision) and the store constructor (the quarantine gate), taken from
+        # args.naive_opponents with no statement reordering in the driver.
+        from contextlib import ExitStack
+        from pathlib import Path
+        args = _sweep_args(tmp_path)
+        args.naive_opponents = True
+        with ExitStack() as stack:
+            for p in self._patches_for_run():
+                stack.enter_context(p)
+            stack.enter_context(patch(f"{MODULE}.SweepTournament"))
+            MockStore = stack.enter_context(patch(f"{MODULE}.SweepResultsManager"))
+            MockStore.return_value.get_input_fingerprint.return_value = ""
+            with patch.object(
+                rws.SweepResultsManager, "compute_input_fingerprint", return_value="fp"
+            ) as mock_fp:
+                rws._run_sweep_mode(args, Path(args.data), Mock())
+            # The regime is the LAST positional argument of the fingerprint call.
+            assert mock_fp.call_args[0][-1] is True
+            assert MockStore.call_args.kwargs["expected_naive_opponents"] is True
+            MockStore.return_value.set_naive_opponents.assert_called_once_with(True)
+
+    def _regime_notices(self, tmp_path, marker, combinations, naive_opponents=False):
+        """Run _run_sweep_mode against a store with the given marker/combinations state.
+
+        Returns the list of first-run marker-stamp notices the driver emitted (T57 S1).
+        """
+        from contextlib import ExitStack
+        from pathlib import Path
+        args = _sweep_args(tmp_path)
+        args.naive_opponents = naive_opponents
+        logger = Mock()
+        with ExitStack() as stack:
+            for p in self._patches_for_run():
+                stack.enter_context(p)
+            stack.enter_context(patch(f"{MODULE}.SweepTournament"))
+            MockStore = stack.enter_context(patch(f"{MODULE}.SweepResultsManager"))
+            MockStore.return_value.get_input_fingerprint.return_value = ""
+            MockStore.return_value.get_naive_opponents.return_value = marker
+            MockStore.return_value.get_all_combinations.return_value = combinations
+            with patch.object(
+                rws.SweepResultsManager, "compute_input_fingerprint", return_value="fp"
+            ):
+                rws._run_sweep_mode(args, Path(args.data), logger)
+            # The marker is still stamped unconditionally — the notice is log-only.
+            MockStore.return_value.set_naive_opponents.assert_called_once_with(naive_opponents)
+        return [
+            call[0][0] for call in logger.warning.call_args_list
+            if "no recorded opponent regime" in call[0][0]
+        ]
+
+    def test_unmarked_store_with_evidence_warns_that_the_label_is_inferred(self, tmp_path):
+        # T57/D8 (Phase-8 S1): a pre-T57 store that ALREADY holds evidence is silently
+        # labelled with THIS run's regime. Say so once, name the unknown, and tell the
+        # operator what to do if the evidence came from the other regime.
+        notices = self._regime_notices(
+            tmp_path, marker=None, combinations={"a": {}, "b": {}}, naive_opponents=True
+        )
+        assert len(notices) == 1
+        message = notices[0]
+        assert "2 combination(s)" in message
+        assert "naive_opponents=True" in message
+        assert "unknown" in message
+        assert "fresh --data root" in message
+
+    def test_unmarked_but_empty_store_does_not_warn(self, tmp_path):
+        # No accumulated evidence => nothing is being mislabelled; a fresh store stays silent.
+        assert self._regime_notices(tmp_path, marker=None, combinations={}) == []
+
+    def test_already_marked_store_does_not_warn(self, tmp_path):
+        # The marker is present, so the label is recorded fact, not an inference — and a
+        # cross-regime store was already quarantined at load. Silent in both directions.
+        assert self._regime_notices(tmp_path, marker=False, combinations={"a": {}}) == []
+        assert self._regime_notices(
+            tmp_path, marker=True, combinations={"a": {}}, naive_opponents=True
+        ) == []
+
+    def test_sims_change_alone_leaves_the_fingerprint_identical(self, tmp_path):
+        # T57/D2 + AC2: --sims sets sample SIZE only. Under CRN the per-task key is
+        # (base_seed, season_folder, sim_id) over range(num_simulations), so a wider --sims
+        # re-draws the same first N tasks and appends new ones — additive evidence on the SAME
+        # estimand, which must keep resuming. It must therefore never reach the fingerprint.
+        from contextlib import ExitStack
+        from pathlib import Path
+        calls = []
+        for sims in (10, 40):
+            args = _sweep_args(tmp_path)
+            args.seed = 42  # pin the seed so base_seed is identical across both runs
+            args.sims = sims
+            with ExitStack() as stack:
+                for p in self._patches_for_run():
+                    stack.enter_context(p)
+                stack.enter_context(patch(f"{MODULE}.SweepTournament"))
+                MockStore = stack.enter_context(patch(f"{MODULE}.SweepResultsManager"))
+                MockStore.return_value.get_input_fingerprint.return_value = ""
+                with patch.object(
+                    rws.SweepResultsManager, "compute_input_fingerprint", return_value="fp"
+                ) as mock_fp:
+                    rws._run_sweep_mode(args, Path(args.data), Mock())
+                calls.append(mock_fp.call_args)
+        assert calls[0] == calls[1]
 
     def test_endless_carry_over_none_on_pass1_then_map_on_pass2(self, tmp_path):
         # T10/D1+D3: pass 1 runs with carry_over_seeds=None; pass 2 runs with a seed map

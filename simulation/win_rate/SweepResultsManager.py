@@ -40,15 +40,24 @@ class SweepResultsManager:
     draft-side param values (see make_combo_key).
     """
 
-    def __init__(self, results_path: Path) -> None:
+    def __init__(self, results_path: Path, expected_naive_opponents: Optional[bool] = None) -> None:
         """
         Initialize the manager and load existing sweep results from disk.
 
         Args:
             results_path (Path): Path to win_rate_sweep_results.json. File need not
                 exist — if absent, starts with an empty data structure.
+            expected_naive_opponents (Optional[bool]): The opponent regime THIS run will
+                accumulate under (T57/D3/D4). When supplied, _incompatibility_reason
+                quarantines a store whose RECORDED regime differs (a different estimand).
+                Omit (the default None) to disable the regime check entirely — the
+                --promote path and every non-sweep caller pass nothing and keep today's
+                behavior exactly.
         """
         self._results_path = results_path
+        # T57/D3: assigned BEFORE _load() — _load calls _quarantine_if_incompatible, which
+        # reads this attribute, so this ordering is load-bearing.
+        self._expected_naive_opponents = expected_naive_opponents
         self._load()
 
     @staticmethod
@@ -57,7 +66,10 @@ class SweepResultsManager:
 
         Returns:
             Dict: A new dict with the canonical top-level keys — an empty combinations map,
-                empty input_fingerprint, empty convergence map, and discriminating False.
+                empty input_fingerprint, empty convergence map, discriminating False, and an
+                UNKNOWN (None) opponent-regime marker (T57/D8 — None, NOT False, because False
+                is the real self-play regime and a restarted store has accumulated nothing
+                under any regime yet, so it must never ASSERT one it was not run under).
         """
         return {
             "last_updated": "",
@@ -65,6 +77,7 @@ class SweepResultsManager:
             "input_fingerprint": "",
             "convergence": {},
             "discriminating": False,
+            "naive_opponents": None,
         }
 
     def _load(self) -> None:
@@ -96,9 +109,12 @@ class SweepResultsManager:
     def _incompatibility_reason(self) -> Optional[str]:
         """Return why the loaded store is structurally incompatible, or None if it is usable (T68/D3).
 
-        The union trigger set — T68 wires ONE trigger; T57 later adds fingerprint-mismatch by
-        extending THIS method, reusing the same _quarantine_and_restart primitive (no forked
-        mechanism). Trigger (T68): a NON-EMPTY combinations map in which ANY record lacks the
+        The union trigger set — T68 wired ONE trigger; T57 added the SECOND by extending THIS
+        method, reusing the same _quarantine_and_restart primitive (no forked mechanism). T57's
+        realized trigger is an OPPONENT-REGIME change, NOT a fingerprint mismatch: quarantine
+        keys on the ESTIMAND while the driver's resume decision keeps the FULL input fingerprint
+        (T57/D4, spec OQ1 — the two questions must not share a predicate, or unseeded runs could
+        never accumulate). Trigger (T68): a NON-EMPTY combinations map in which ANY record lacks the
         by_reference dimension. Such a store holds a pre-fix, reference-free cumulative mixture
         that is mathematically unrecoverable (no per-eval retention). A brand-new EMPTY store is
         NOT pre-fix and must NOT trip this (the `if combinations` guard); a T68-written store
@@ -114,6 +130,28 @@ class SweepResultsManager:
             return (
                 "pre-T68 store: at least one combination record has no 'by_reference' "
                 "dimension (reference-free cumulative totals are an unrecoverable mixture)"
+            )
+        # T57/D4: the SECOND trigger — an opponent-regime change. Keyed on the ESTIMAND, never on
+        # the input fingerprint: a fresh auto-seed, an added strategy file, or a wider
+        # --num-values re-draws from the SAME distribution and must keep accumulating
+        # (resume=False, store KEPT), while the regime shifts the estimand itself (~0.84 naive
+        # vs ~0.50 self-play). All four guards are required: no expected regime supplied
+        # (--promote and every non-sweep caller) -> inert; an absent/null recorded marker is
+        # UNKNOWN and is never guessed at (T57/D8 — guessing would move an operator's file on an
+        # inference); equal regimes are compatible; and an empty combinations map has nothing to
+        # preserve, mirroring T68's `if combinations` guard above.
+        stored_naive_opponents = self._data.get("naive_opponents")
+        if (
+            self._expected_naive_opponents is not None
+            and stored_naive_opponents is not None
+            and stored_naive_opponents != self._expected_naive_opponents
+            and combinations
+        ):
+            return (
+                f"opponent-regime change: this store accumulated its evidence under "
+                f"naive_opponents={stored_naive_opponents} but this run is "
+                f"naive_opponents={self._expected_naive_opponents} — a DIFFERENT estimand "
+                f"(~0.84 naive vs ~0.50 self-play), so the two evidence pools cannot be pooled"
             )
         return None
 
@@ -134,13 +172,27 @@ class SweepResultsManager:
         Emits a loud WARNING naming the reason, RENAMES (never deletes) the store file to a
         timestamped sibling so the old data is retained for the operator, and resets in-memory
         state to the empty shape. The rename preserves the atomic-write invariant: the live path
-        is free for the next _save.
+        is free for the next _save. The sibling name is disambiguated with an ascending numeric
+        suffix when it is already taken (T57/D7), so a repeat quarantine can never overwrite an
+        earlier archive.
 
         Args:
             reason (str): Why the store is being quarantined (from _incompatibility_reason).
         """
         stamp = datetime.datetime.now().strftime("%Y-%m-%dT%H%M")
-        quarantine_path = self._results_path.with_name(f"{self._results_path.name}.quarantined-{stamp}")
+        base_name = f"{self._results_path.name}.quarantined-{stamp}"
+        quarantine_path = self._results_path.with_name(base_name)
+        # T57/D7: the stamp is MINUTE-resolution and Path.rename SILENTLY REPLACES an existing
+        # destination on POSIX. Under T68 a collision was unreachable (the structural trigger
+        # fires at most once per store); T57's regime trigger can fire repeatedly for one store
+        # (a regime toggled back and forth), and two quarantines can land inside one clock
+        # minute during a smoke run or a scripted pair of --sweep invocations. Disambiguate with
+        # an ascending suffix so an earlier archive is NEVER destroyed — otherwise the WARNING
+        # below would claim a preservation the code does not hold.
+        collision_index = 2
+        while quarantine_path.exists():
+            quarantine_path = self._results_path.with_name(f"{base_name}-{collision_index}")
+            collision_index += 1
         logger.warning(
             f"QUARANTINING incompatible sweep store {self._results_path} — {reason}. "
             f"Renaming to {quarantine_path} (old data preserved, NOT deleted) and starting empty."
@@ -157,6 +209,7 @@ class SweepResultsManager:
         min_effect_size: float,
         min_games: int,
         base_seed: int,
+        naive_opponents: bool,
     ) -> str:
         """Compute the sweep input fingerprint (D2/T30).
 
@@ -174,6 +227,16 @@ class SweepResultsManager:
         mixing seed pools across runs. An explicit ``--seed N`` resume yields the same
         fingerprint and resumes correctly.
 
+        Including the opponent regime (T57/D1) ensures that toggling ``--naive-opponents``
+        between two runs at the same pinned ``--seed`` invalidates the checkpoint: the regime
+        changes the ESTIMAND (~0.84 naive vs ~0.50 self-play), not merely the sample, so a
+        checkpoint measured under the other regime must never be continued. ``--sims`` stays
+        deliberately EXCLUDED (T57/D2): under CRN the per-task key is
+        ``(base_seed, season_folder, sim_id)`` over ``range(num_simulations)``, so a larger
+        ``--sims`` re-draws the same first N tasks and appends new ones — additive evidence on
+        the same estimand, which must keep resuming. NOTE this digest drives the RESUME
+        decision ONLY; the quarantine-and-restart trigger keys on the regime ALONE (T57/D4).
+
         Scope is strategy ids only (not draft_order content) — in-place edits to a
         strategy under the same id are deliberately not detected this slice (D2).
 
@@ -185,6 +248,10 @@ class SweepResultsManager:
             min_effect_size (float): Adoption-gate minimum accumulated-rate effect.
             min_games (int): Adoption-gate minimum accumulated games per combination.
             base_seed (int): The run's base seed (auto-assigned or from ``--seed N``).
+            naive_opponents (bool): The run's opponent regime — True under
+                ``--naive-opponents`` (the legacy ~0.84 field), False for the self-play
+                default (~0.50). A ``store_true`` argparse flag, so always a plain bool,
+                which canonicalizes cleanly under ``json.dumps(..., sort_keys=True)``.
 
         Returns:
             str: The sha256 hex digest of the canonical input serialization.
@@ -197,6 +264,7 @@ class SweepResultsManager:
             "min_effect_size": min_effect_size,
             "min_games": min_games,
             "base_seed": base_seed,
+            "naive_opponents": naive_opponents,
         }
         canonical = json.dumps(payload, sort_keys=True, separators=(",", ":"))
         return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
@@ -366,6 +434,37 @@ class SweepResultsManager:
                 fail-safe-blocks a promote.
         """
         return self._data.get("discriminating", False)
+
+    def set_naive_opponents(self, value: bool) -> None:
+        """Set the top-level opponent-regime marker and persist atomically (T57/D8).
+
+        Recorded once per sweep launch to record WHICH opponent regime the store's
+        accumulated evidence was drawn under. Read at load time by _incompatibility_reason,
+        which quarantines-and-restarts a store whose recorded regime differs from the run's
+        (a different estimand). Mirrors set_discriminating's shape — same top-level key, same
+        last_updated bump, same atomic _save path; no new mechanism.
+
+        Args:
+            value (bool): True when the run uses --naive-opponents, else False (self-play).
+        """
+        self._data["naive_opponents"] = value
+        self._data["last_updated"] = datetime.date.today().isoformat()
+        self._save()
+
+    def get_naive_opponents(self) -> Optional[bool]:
+        """Return the stored opponent-regime marker, or None when unknown (T57/D8).
+
+        Deliberately has NO False default — the one intentional divergence from
+        get_discriminating, whose absent case must fail-safe BLOCK a promote. Here False is a
+        REAL regime value (self-play) and so cannot double as "unknown"; a pre-T57 store
+        records no regime and nothing can recover it, and an unknown regime must never move an
+        operator's file on a guess. The marker is written on every sweep launch, so the unknown
+        state self-heals after one run.
+
+        Returns:
+            Optional[bool]: True/False when recorded; None when the key is absent or null.
+        """
+        return self._data.get("naive_opponents")
 
     def mark_config_progress(
         self,

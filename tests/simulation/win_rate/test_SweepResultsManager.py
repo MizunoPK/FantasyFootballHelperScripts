@@ -300,3 +300,165 @@ class TestQuarantineAndRestart:
         reloaded = SweepResultsManager(results_path)
         assert len(reloaded.get_all_combinations()) == 1
         assert not list(results_path.parent.glob(results_path.name + ".quarantined-*"))
+
+
+class TestNaiveOpponentsRegimeMarker:
+    """T57/D8: the additive top-level opponent-regime marker round-trips, and reads as
+    UNKNOWN (None) when the key is absent or null."""
+
+    def test_set_get_naive_opponents_round_trip(self, results_path):
+        mgr = SweepResultsManager(results_path)
+        mgr.set_naive_opponents(True)
+        assert mgr.get_naive_opponents() is True
+        assert SweepResultsManager(results_path).get_naive_opponents() is True
+
+    def test_set_naive_opponents_false_round_trips_as_false_not_none(self, results_path):
+        # False is a REAL regime (self-play), not "unknown" — the deliberate divergence from
+        # the discriminating pair, whose absent case correctly defaults to False.
+        mgr = SweepResultsManager(results_path)
+        mgr.set_naive_opponents(False)
+        assert SweepResultsManager(results_path).get_naive_opponents() is False
+
+    def test_get_naive_opponents_is_none_when_never_set(self, results_path):
+        assert SweepResultsManager(results_path).get_naive_opponents() is None
+
+    def test_get_naive_opponents_is_none_when_key_is_null(self, results_path):
+        results_path.write_text(json.dumps({
+            "last_updated": "2026-07-01", "combinations": {}, "naive_opponents": None,
+        }))
+        assert SweepResultsManager(results_path).get_naive_opponents() is None
+
+    def test_empty_data_seeds_marker_none_not_false(self, results_path):
+        # A quarantine-restarted / absent store must never ASSERT a regime it never ran under.
+        assert SweepResultsManager._empty_data()["naive_opponents"] is None
+
+
+class TestRegimeChangeQuarantine:
+    """T57/D3/D4/D7 + AC1/AC3/AC5/AC8/AC9: an opponent-regime change quarantines through T68's
+    shared primitive; NOTHING else does; and a repeat quarantine never clobbers an earlier one."""
+
+    def _regime_store(self, results_path, stored_regime, wins=6, fingerprint="old-fp"):
+        """Write a post-T68-shaped store (every record carries by_reference, so T68's
+        structural trigger cannot fire) whose recorded regime is stored_regime. Pass the
+        string "absent" to omit the marker key entirely (a pre-T57 store)."""
+        pv = _param_values()
+        data = {
+            "last_updated": "2026-07-01",
+            "input_fingerprint": fingerprint,
+            "discriminating": True,
+            "combinations": {
+                SweepResultsManager.make_combo_key("1_zero_rb.json", pv): {
+                    "strategy_id": "1_zero_rb.json", "param_values": pv,
+                    "best_single_run_win_rate": 0.6,
+                    "by_reference": {"self_play": {"wins": wins, "games": 10}},
+                    "total_wins": wins, "total_games": 10, "total_runs": 1,
+                    "last_run": "2026-07-01",
+                }
+            },
+            "convergence": {},
+        }
+        if stored_regime != "absent":
+            data["naive_opponents"] = stored_regime
+        results_path.write_text(json.dumps(data))
+        return data
+
+    def test_regime_flip_false_to_true_quarantines_and_restarts_empty(self, results_path):
+        """AC1/AC3: a self-play store re-run under --naive-opponents is archived and the live
+        store restarts empty with an emptied fingerprint, so the driver cannot resume."""
+        self._regime_store(results_path, stored_regime=False)
+        with patch("simulation.win_rate.SweepResultsManager.logger", MagicMock()) as mock_logger:
+            mgr = SweepResultsManager(results_path, expected_naive_opponents=True)
+        assert mgr.get_all_combinations() == {}
+        assert mgr.get_input_fingerprint() == ""
+        assert mgr.get_naive_opponents() is None
+        assert len(list(results_path.parent.glob(results_path.name + ".quarantined-*"))) == 1
+        assert mock_logger.warning.called
+        assert "opponent-regime change" in mock_logger.warning.call_args[0][0]
+
+    def test_regime_flip_true_to_false_quarantines(self, results_path):
+        self._regime_store(results_path, stored_regime=True)
+        with patch("simulation.win_rate.SweepResultsManager.logger", MagicMock()):
+            mgr = SweepResultsManager(results_path, expected_naive_opponents=False)
+        assert mgr.get_all_combinations() == {}
+        assert len(list(results_path.parent.glob(results_path.name + ".quarantined-*"))) == 1
+
+    def test_archived_sibling_preserves_pre_toggle_combinations(self, results_path):
+        """AC3: rename-never-delete — the archived sibling's combinations equal exactly what
+        was written pre-toggle (T68 asserts only non-emptiness, which is weaker)."""
+        written = self._regime_store(results_path, stored_regime=False)
+        with patch("simulation.win_rate.SweepResultsManager.logger", MagicMock()):
+            SweepResultsManager(results_path, expected_naive_opponents=True)
+        siblings = list(results_path.parent.glob(results_path.name + ".quarantined-*"))
+        assert len(siblings) == 1
+        assert json.loads(siblings[0].read_text())["combinations"] == written["combinations"]
+
+    def test_unseeded_rerun_fingerprint_mismatch_does_not_quarantine(self, results_path):
+        """AC9 (spec OQ1's user decision): a NON-estimand input change — a fresh auto-seed on
+        an unseeded re-run, an added strategy file, a different --num-values — all reach the
+        store as a DIFFERING stored input_fingerprint at the SAME regime. That must set
+        resume=False in the driver but must NOT archive: no sibling, store kept intact."""
+        written = self._regime_store(results_path, stored_regime=False, fingerprint="stale-fp")
+        mgr = SweepResultsManager(results_path, expected_naive_opponents=False)
+        assert not list(results_path.parent.glob(results_path.name + ".quarantined-*"))
+        assert results_path.exists()
+        assert mgr.get_all_combinations() == written["combinations"]
+        assert mgr.get_input_fingerprint() == "stale-fp"
+
+    def test_absent_marker_never_quarantines_and_store_is_not_rewritten(self, results_path):
+        """AC5 / D8: a pre-T57 store carries no regime marker — UNKNOWN, never guessed at.
+        _load adds no setdefault for the key, so the file is left byte-identical on load."""
+        self._regime_store(results_path, stored_regime="absent")
+        raw_before = results_path.read_text()
+        mgr = SweepResultsManager(results_path, expected_naive_opponents=True)
+        assert not list(results_path.parent.glob(results_path.name + ".quarantined-*"))
+        assert mgr.get_naive_opponents() is None
+        assert results_path.read_text() == raw_before
+        assert "naive_opponents" not in json.loads(raw_before)
+
+    def test_null_marker_never_quarantines(self, results_path):
+        self._regime_store(results_path, stored_regime=None)
+        mgr = SweepResultsManager(results_path, expected_naive_opponents=True)
+        assert not list(results_path.parent.glob(results_path.name + ".quarantined-*"))
+        assert len(mgr.get_all_combinations()) == 1
+
+    def test_no_expected_regime_never_quarantines(self, results_path):
+        """AC7: --promote and every pre-existing test construct with ONE positional argument;
+        the default None must leave the regime trigger completely inert."""
+        self._regime_store(results_path, stored_regime=False)
+        mgr = SweepResultsManager(results_path)
+        assert not list(results_path.parent.glob(results_path.name + ".quarantined-*"))
+        assert len(mgr.get_all_combinations()) == 1
+
+    def test_matching_regime_never_quarantines(self, results_path):
+        self._regime_store(results_path, stored_regime=True)
+        mgr = SweepResultsManager(results_path, expected_naive_opponents=True)
+        assert not list(results_path.parent.glob(results_path.name + ".quarantined-*"))
+        assert len(mgr.get_all_combinations()) == 1
+
+    def test_empty_combinations_never_quarantines_on_regime_change(self, results_path):
+        """Mirrors T68's `if combinations` guard: nothing to preserve, so no operator-visible
+        empty sibling is produced."""
+        results_path.write_text(json.dumps({
+            "last_updated": "2026-07-01", "combinations": {}, "naive_opponents": False,
+        }))
+        SweepResultsManager(results_path, expected_naive_opponents=True)
+        assert not list(results_path.parent.glob(results_path.name + ".quarantined-*"))
+
+    def test_repeat_quarantine_in_same_minute_does_not_clobber(self, results_path):
+        """AC8 / D7: two quarantines of the same store at the SAME minute-resolution stamp
+        leave BOTH archives on disk with distinct content. Pre-D7 the bare Path.rename would
+        silently replace the first archive and only one file would survive."""
+        fake_datetime = MagicMock()
+        fake_datetime.datetime.now.return_value.strftime.return_value = "2026-07-21T1200"
+        fake_datetime.date.today.return_value.isoformat.return_value = "2026-07-21"
+        with patch("simulation.win_rate.SweepResultsManager.datetime", fake_datetime), \
+             patch("simulation.win_rate.SweepResultsManager.logger", MagicMock()):
+            first = self._regime_store(results_path, stored_regime=False, wins=6)
+            SweepResultsManager(results_path, expected_naive_opponents=True)
+            second = self._regime_store(results_path, stored_regime=False, wins=9)
+            SweepResultsManager(results_path, expected_naive_opponents=True)
+        siblings = sorted(results_path.parent.glob(results_path.name + ".quarantined-*"))
+        assert len(siblings) == 2
+        archived = [json.loads(s.read_text())["combinations"] for s in siblings]
+        assert first["combinations"] in archived
+        assert second["combinations"] in archived
