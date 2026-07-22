@@ -1,9 +1,11 @@
 import json
+import shutil
+
 import pytest
 from pathlib import Path
 from unittest.mock import patch
 
-from simulation.win_rate.SimDataLoader import SimDataLoader, MIN_VALID_PLAYERS
+from simulation.win_rate.SimDataLoader import SimDataLoader, MIN_VALID_PLAYERS, WEEKS_REQUIRED
 from simulation.win_rate.SimulatedLeague import SimulatedLeague, DRAFT_ROUNDS
 
 
@@ -14,7 +16,14 @@ def _write_position_file(week_folder, position_file, players):
 
 
 def _make_season_folder(tmp_path, n_valid=150, add_weeks=True, add_week_01=True):
-    """Create a mock season folder with n_valid undrafted players in week_01."""
+    """
+    Create a mock season folder with n_valid undrafted players in every week folder.
+
+    T73/R12: builds the COMPLETE week_01..week_18 tree SimDataLoader now requires
+    (week_N+1 supplies week N's actuals, so a partial tree is invalid input). Week_01's
+    contents are unchanged from the pre-T73 fixture, so the MIN_VALID_PLAYERS assertions
+    keyed on n_valid are unaffected.
+    """
     if not add_weeks:
         return tmp_path
 
@@ -23,9 +32,6 @@ def _make_season_folder(tmp_path, n_valid=150, add_weeks=True, add_week_01=True)
 
     if not add_week_01:
         return tmp_path
-
-    week_01 = weeks / "week_01"
-    week_01.mkdir()
 
     players = [
         {
@@ -39,15 +45,13 @@ def _make_season_folder(tmp_path, n_valid=150, add_weeks=True, add_week_01=True)
         }
         for i in range(n_valid)
     ]
-    _write_position_file(week_01, "rb_data.json", players)
-    for pos in ["qb_data.json", "wr_data.json", "te_data.json", "k_data.json", "dst_data.json"]:
-        _write_position_file(week_01, pos, [])
 
-    week_02 = weeks / "week_02"
-    week_02.mkdir()
-    _write_position_file(week_02, "rb_data.json", players)
-    for pos in ["qb_data.json", "wr_data.json", "te_data.json", "k_data.json", "dst_data.json"]:
-        _write_position_file(week_02, pos, [])
+    for week_num in range(1, WEEKS_REQUIRED + 1):
+        week_folder = weeks / f"week_{week_num:02d}"
+        week_folder.mkdir()
+        _write_position_file(week_folder, "rb_data.json", players)
+        for pos in ["qb_data.json", "wr_data.json", "te_data.json", "k_data.json", "dst_data.json"]:
+            _write_position_file(week_folder, pos, [])
 
     return tmp_path
 
@@ -137,6 +141,44 @@ class TestSimDataLoaderValidateSeasonData:
             _write_position_file(weeks, pos, [])
         loader = SimDataLoader(tmp_path)
         assert loader.is_valid is False
+
+
+class TestSimDataLoaderWeekCompleteness:
+    """T73/R2 + R8: an incomplete week_01..week_18 tree is refused, loudly."""
+
+    def test_missing_week_18_sets_is_valid_false(self, tmp_path):
+        season = _make_season_folder(tmp_path, n_valid=150)
+        shutil.rmtree(season / "weeks" / "week_18")
+        loader = SimDataLoader(season)
+        assert loader.is_valid is False
+        assert loader.week_data_cache == {}
+
+    def test_missing_intermediate_week_sets_is_valid_false(self, tmp_path):
+        season = _make_season_folder(tmp_path, n_valid=150)
+        shutil.rmtree(season / "weeks" / "week_09")
+        loader = SimDataLoader(season)
+        assert loader.is_valid is False
+        assert loader.week_data_cache == {}
+
+    def test_incomplete_season_logs_error_naming_season_and_weeks(self, tmp_path):
+        season = _make_season_folder(tmp_path, n_valid=150)
+        shutil.rmtree(season / "weeks" / "week_09")
+        shutil.rmtree(season / "weeks" / "week_18")
+        with patch("simulation.win_rate.SimDataLoader.get_logger") as mock_get_logger:
+            loader = SimDataLoader(season)
+        assert loader.is_valid is False
+        messages = " ".join(
+            str(call.args[0]) for call in mock_get_logger.return_value.error.call_args_list
+        )
+        assert season.name in messages
+        assert "week_09" in messages
+        assert "week_18" in messages
+
+    def test_complete_season_caches_all_17_weeks(self, tmp_path):
+        season = _make_season_folder(tmp_path, n_valid=150)
+        loader = SimDataLoader(season)
+        assert loader.is_valid is True
+        assert sorted(loader.week_data_cache) == list(range(1, 18))
 
 
 class TestSimulatedLeaguePreloadedWeekData:

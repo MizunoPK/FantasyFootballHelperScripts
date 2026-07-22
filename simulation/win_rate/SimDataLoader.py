@@ -2,10 +2,20 @@ import json
 from pathlib import Path
 from typing import Dict, Optional, Any
 
-from simulation.win_rate.SimulatedLeague import SimulatedLeague, DRAFT_ROUNDS
+from simulation.win_rate.SimulatedLeague import (
+    SimulatedLeague,
+    DRAFT_ROUNDS,
+    WEEKS_PER_SEASON,
+    load_week_player_data,
+)
 from utils.LoggingManager import get_logger
 
 MIN_VALID_PLAYERS = sum(SimulatedLeague.SELF_PLAY_TEAM_STRATEGIES.values()) * DRAFT_ROUNDS
+
+# T73/R2: the complete season shape SimDataLoader requires — weeks 1..17 are simulated
+# (WEEKS_PER_SEASON) and week_18 supplies week 17's actuals, so 18 folders are needed.
+# Derived rather than hardcoded so a change to WEEKS_PER_SEASON carries here automatically.
+WEEKS_REQUIRED = WEEKS_PER_SEASON + 1
 
 
 class SimDataLoader:
@@ -20,7 +30,8 @@ class SimDataLoader:
         season_folder (Path): Path to the season directory (e.g. simulation/sim_data/2023/)
         week_data_cache (Dict[int, Dict]): Pre-loaded week data keyed by week number.
             Structure: {week_num: {'projected': {player_id: dict}, 'actual': {player_id: dict}}}
-        is_valid (bool): True if season data passed validation (MIN_VALID_PLAYERS check).
+        is_valid (bool): True if season data passed validation — both the MIN_VALID_PLAYERS
+            check on week_01 and (T73/R2) the complete week_01..week_18 folder requirement.
         logger: Logger instance
     """
 
@@ -52,10 +63,35 @@ class SimDataLoader:
         warning; validation succeeds based on the total count across valid files.
         Sets is_valid to False and logs a warning if the total falls below
         MIN_VALID_PLAYERS or if the week_01 folder is unreadable.
+
+        T73/D2: additionally requires the COMPLETE weeks/week_01..week_18 tree. A season
+        missing any week folder is refused (ERROR, is_valid stays False) rather than
+        simulated with fabricated actuals; CombinationEvaluator then drops it from
+        _season_cache, so season_count and games_per_evaluation stay exact.
         """
         week_01_folder = self.season_folder / "weeks" / "week_01"
         if not week_01_folder.is_dir():
             self.logger.warning(f"Season {self.season_folder.name}: week_01 folder missing — skipping")
+            return
+
+        # T73/D2: a season must carry the FULL week_01..week_18 tree. Weeks 1-17 supply the
+        # projections and week_N+1 supplies week N's actuals, so a truncated tree (e.g. from
+        # compile_historical_data.py --weeks N / --keep-partial) has no valid actuals for its
+        # last simulated week. Refuse the whole season here rather than fabricating actuals;
+        # CombinationEvaluator drops it from _season_cache and season_count stays exact.
+        weeks_folder = self.season_folder / "weeks"
+        missing_weeks = [
+            f"week_{week_num:02d}"
+            for week_num in range(1, WEEKS_REQUIRED + 1)
+            if not (weeks_folder / f"week_{week_num:02d}").is_dir()
+        ]
+        if missing_weeks:
+            self.logger.error(
+                f"Season {self.season_folder.name}: incomplete week data — missing "
+                f"{', '.join(missing_weeks)} under {weeks_folder}. "
+                f"All {WEEKS_REQUIRED} week folders (week_01-week_{WEEKS_REQUIRED:02d}) are "
+                f"required; week_N+1 supplies week N's actuals. Season skipped."
+            )
             return
 
         position_files = [
@@ -128,30 +164,12 @@ class SimDataLoader:
         self.logger.debug("Pre-loading all 17 weeks of player data (projected + actual)")
 
         for week_num in range(1, 18):
-            projected_folder = weeks_folder / f"week_{week_num:02d}"
-
-            actual_week_num = week_num + 1
-            actual_folder = weeks_folder / f"week_{actual_week_num:02d}"
-
-            if not projected_folder.exists():
-                self.logger.warning(f"Week {week_num} projected folder not found at {projected_folder}")
+            week_data = load_week_player_data(
+                weeks_folder, week_num, self._parse_players_json, self.logger
+            )
+            if week_data is None:
                 continue
-
-            projected_data = self._parse_players_json(projected_folder, week_num)
-
-            if actual_folder.exists():
-                actual_data = self._parse_players_json(actual_folder, week_num, week_num_for_actual=week_num)
-            else:
-                self.logger.warning(
-                    f"Week {actual_week_num} actual folder not found (needed for week {week_num} actuals). "
-                    f"Using projected data as fallback."
-                )
-                actual_data = projected_data
-
-            self.week_data_cache[week_num] = {
-                'projected': projected_data,
-                'actual': actual_data
-            }
+            self.week_data_cache[week_num] = week_data
 
         self.logger.debug(f"Pre-loaded {len(self.week_data_cache)} weeks of player data")
 
