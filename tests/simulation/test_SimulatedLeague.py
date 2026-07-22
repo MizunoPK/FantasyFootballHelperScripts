@@ -1045,37 +1045,40 @@ class TestWeek17EdgeCase:
 
 
 
-class TestEdgeCaseBehavior:
-    """Test edge case handling for JSON loading"""
+class TestSelfLoadRefusesMissingActuals:
+    """
+    T73/R5+R8c: the SimulatedLeague self-load path (preloaded_week_data=None) has no
+    validation gate ahead of it, so a week whose week_N+1 actual folder is absent must raise
+    FileNotFoundError out of __init__ — the constructor's already-documented contract —
+    rather than substituting the (all-zero) projected dataset for the missing actuals.
+    """
 
-    def test_missing_week_18_fallback(self, tmp_path):
-        """Test missing week_18 folder triggers fallback to projected data"""
-        weeks_folder = tmp_path / "weeks"
-        weeks_folder.mkdir()
-
-        week_17 = weeks_folder / "week_17"
-        week_17.mkdir()
-
+    @staticmethod
+    def _write_week(weeks_folder, week_num):
+        week_folder = weeks_folder / f"week_{week_num:02d}"
+        week_folder.mkdir()
         qb_data = [
             {
                 "id": "77777",
-                "name": "Week 17 QB",
+                "name": f"Week {week_num} QB",
                 "position": "QB",
                 "drafted_by": "",
                 "locked": False,
                 "projected_points": [15.0] * 17,
-                "actual_points": [0.0] * 17
+                "actual_points": [0.0] * 17,
             }
         ]
-        (week_17 / "qb_data.json").write_text(json.dumps({"qb_data": qb_data}))
-
+        (week_folder / "qb_data.json").write_text(json.dumps({"qb_data": qb_data}))
         for pos in ['rb', 'wr', 'te', 'k', 'dst']:
-            (week_17 / f"{pos}_data.json").write_text(json.dumps({f"{pos}_data": []}))
+            (week_folder / f"{pos}_data.json").write_text(json.dumps({f"{pos}_data": []}))
 
-        from simulation.win_rate.SimulatedLeague import SimulatedLeague
+    def _build_league(self, tmp_path, present_weeks):
+        weeks_folder = tmp_path / "weeks"
+        weeks_folder.mkdir()
+        for week_num in present_weeks:
+            self._write_week(weeks_folder, week_num)
 
         config = {"config_name": "test", "description": "test", "parameters": {"num_teams": 2, "draft_rounds": 1}}
-        data_folder = tmp_path
 
         with patch('simulation.win_rate.SimulatedLeague.tempfile.mkdtemp') as mock_mkdtemp, \
              patch('simulation.win_rate.SimulatedLeague.SimulatedLeague._initialize_teams'), \
@@ -1083,15 +1086,32 @@ class TestEdgeCaseBehavior:
             temp_dir = tmp_path / "temp"
             temp_dir.mkdir()
             mock_mkdtemp.return_value = str(temp_dir)
+            return SimulatedLeague(config, tmp_path)
 
-            league = SimulatedLeague(config, data_folder)
-            league._preload_all_weeks()
+    def test_missing_week_18_raises_for_week_17(self, tmp_path):
+        with pytest.raises(FileNotFoundError, match="week_18"):
+            self._build_league(tmp_path, [17])
 
+    def test_missing_intermediate_actual_folder_raises(self, tmp_path):
+        # week_01 + week_02 present: week 1 resolves, week 2's actuals need an absent week_03.
+        with pytest.raises(FileNotFoundError, match="week_03"):
+            self._build_league(tmp_path, [1, 2])
+
+    def test_complete_pair_does_not_raise(self, tmp_path):
+        # Control: with the week_N+1 folder present nothing raises and the week is cached.
+        league = self._build_league(tmp_path, [17, 18])
         assert 17 in league.week_data_cache
-        week17_data = league.week_data_cache[17]
+        assert 77777 in league.week_data_cache[17]['actual']
 
-        assert 77777 in week17_data['projected'] or len(week17_data['projected']) >= 0
-        assert 77777 in week17_data['actual'] or len(week17_data['actual']) >= 0
+
+class TestEdgeCaseBehavior:
+    """Test edge case handling for JSON loading"""
+
+    # T73/D5+R7: test_missing_week_18_fallback was DELETED here, not retargeted. It asserted
+    # the fabricating projected-as-actual fallback as intended behaviour (T59/D4 forbids
+    # carrying such a test over) and both of its fallback assertions were always-true dict
+    # length tautologies that could never fail. The scenario it named is covered below by
+    # TestSelfLoadRefusesMissingActuals, whose assertions DO fail against the pre-T73 code.
 
     def test_array_index_out_of_bounds(self, tmp_path):
         """Test short arrays are padded to 17 elements with 0.0"""

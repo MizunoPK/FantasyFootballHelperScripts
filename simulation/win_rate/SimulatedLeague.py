@@ -20,7 +20,7 @@ import shutil
 import tempfile
 import json
 from pathlib import Path
-from typing import List, Dict, Tuple, Optional, Any
+from typing import Callable, List, Dict, Tuple, Optional, Any
 
 from league_helper.util.PlayerManager import PlayerManager
 from league_helper.util.ConfigManager import ConfigManager
@@ -40,6 +40,65 @@ DRAFT_ROUNDS = 15
 # driver's games-per-evaluation pre-flight (WEEKS_PER_SEASON x --sims x valid seasons) reads the
 # SAME number, so the two can never silently diverge.
 WEEKS_PER_SEASON = 17
+
+
+def load_week_player_data(
+    weeks_folder: Path,
+    week_num: int,
+    parse_players_json: Callable[..., Dict[int, Dict[str, Any]]],
+    logger: Any,
+) -> Optional[Dict[str, Dict[int, Dict[str, Any]]]]:
+    """
+    Resolve and parse one simulated week's projected + actual player datasets.
+
+    T73/D4: this is the SINGLE implementation of the per-week resolve-and-parse block.
+    Both SimDataLoader._preload_all_weeks and SimulatedLeague._preload_all_weeks call it,
+    so the two loaders cannot drift on the week_N -> week_N+1 offset or on the
+    missing-actuals disposition (guarded by
+    TestPreloadCopiesShareOneImplementation in tests/simulation/test_SimulatedLeague_pointintime.py).
+
+    Week N's projections live in the week_N folder; week N's RESULTS are only known in
+    the week_N+1 snapshot, hence the offset.
+
+    Args:
+        weeks_folder (Path): The season's weeks/ directory.
+        week_num (int): The simulated week (1..17).
+        parse_players_json (Callable): The caller's _parse_players_json bound method.
+        logger: Logger instance used for the missing-projected-folder warning.
+
+    Returns:
+        Optional[Dict]: {'projected': {...}, 'actual': {...}} for this week, or None when
+            the week_N projected folder is absent (the caller skips the week).
+
+    Raises:
+        FileNotFoundError: If the week_N+1 folder needed for week N's actuals is absent.
+            T73/D3: this path previously substituted the projected dataset for the missing
+            actuals, which yields all-zero actual_points and charges every team a loss.
+    """
+    projected_folder = weeks_folder / f"week_{week_num:02d}"
+
+    actual_week_num = week_num + 1
+    actual_folder = weeks_folder / f"week_{actual_week_num:02d}"
+
+    if not projected_folder.exists():
+        logger.warning(f"Week {week_num} projected folder not found at {projected_folder}")
+        return None
+
+    projected_data = parse_players_json(projected_folder, week_num)
+
+    if not actual_folder.exists():
+        raise FileNotFoundError(
+            f"Week {actual_week_num} actual folder not found at {actual_folder} "
+            f"(needed for week {week_num} actuals). Recompile this season with all 18 "
+            f"week folders; projected data is NOT a valid substitute for actuals."
+        )
+
+    actual_data = parse_players_json(actual_folder, week_num, week_num_for_actual=week_num)
+
+    return {
+        'projected': projected_data,
+        'actual': actual_data
+    }
 
 
 class SimulatedLeague:
@@ -348,30 +407,12 @@ class SimulatedLeague:
         self.logger.debug("Pre-loading all 17 weeks of player data (projected + actual)")
 
         for week_num in range(1, 18):
-            projected_folder = weeks_folder / f"week_{week_num:02d}"
-
-            actual_week_num = week_num + 1
-            actual_folder = weeks_folder / f"week_{actual_week_num:02d}"
-
-            if not projected_folder.exists():
-                self.logger.warning(f"Week {week_num} projected folder not found at {projected_folder}")
+            week_data = load_week_player_data(
+                weeks_folder, week_num, self._parse_players_json, self.logger
+            )
+            if week_data is None:
                 continue
-
-            projected_data = self._parse_players_json(projected_folder, week_num)
-
-            if actual_folder.exists():
-                actual_data = self._parse_players_json(actual_folder, week_num, week_num_for_actual=week_num)
-            else:
-                self.logger.warning(
-                    f"Week {actual_week_num} actual folder not found (needed for week {week_num} actuals). "
-                    f"Using projected data as fallback."
-                )
-                actual_data = projected_data
-
-            self.week_data_cache[week_num] = {
-                'projected': projected_data,
-                'actual': actual_data
-            }
+            self.week_data_cache[week_num] = week_data
 
         self.logger.debug(f"Pre-loaded {len(self.week_data_cache)} weeks of player data")
 

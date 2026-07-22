@@ -65,7 +65,11 @@ class TestWinRateSimulationE2E:
 
         week_counts = {"QB": 50, "RB": 50, "WR": 50, "TE": 50, "K": 20, "DST": 20}
 
-        for week_num in range(1, 18):
+        # T73/R12: the full week_01..week_18 tree. Weeks 1-17 are simulated and week_18
+        # supplies week 17's actuals, so SimDataLoader._validate_season_data now refuses a
+        # 17-folder season outright (season_count == 0 -> the sweep reports 0.0). Every week
+        # folder carries identical actual_points, so the pinned 8/17 below is unchanged.
+        for week_num in range(1, 19):
             week_dir = data_folder / "2024" / "weeks" / f"week_{week_num:02d}"
             self._write_week(week_dir, week_counts)
 

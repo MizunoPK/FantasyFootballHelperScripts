@@ -10,12 +10,15 @@ Proves, on a concrete 3-week fixture, the acceptance core:
      post-swap 0.0 projected_pm value) for BOTH DraftHelperTeam and SimulatedOpponent.
 Also guards that the two byte-for-byte _parse_players_json copies stay in sync (D4).
 
-Fixture (weeks/week_01..03, 6 position files each):
-  projected_points: folder-distinct constant — week_01=5.0, week_02=15.0, week_03=25.0
+Fixture (weeks/week_01..18, 6 position files each — T73/R12: the loaders now require the
+complete 18-week tree, since week_N+1 supplies week N's actuals):
+  projected_points: folder-distinct constant — week_0K = 5.0 + (K-1)*10.0
+                    (week_01=5.0, week_02=15.0, week_03=25.0, ... unchanged for 1..3)
   actual_points:    real for completed weeks, 0.0 for current/future —
                     week_01 -> all 0.0
                     week_02 -> actual_points[0] (week 1) = 12.0, rest 0.0
                     week_03 -> actual_points[0] = 12.0, actual_points[1] (week 2) = 8.0, rest 0.0
+                    week_0K -> actual_points[j-1] = WEEK_ACTUAL[j] for every completed week j < K
 
 Author: Kai Mizuno
 """
@@ -28,7 +31,7 @@ from unittest.mock import Mock, patch
 import pytest
 
 from league_helper.util.PlayerManager import PlayerManager
-from simulation.win_rate.SimulatedLeague import SimulatedLeague
+from simulation.win_rate.SimulatedLeague import SimulatedLeague, load_week_player_data
 from simulation.win_rate.SimDataLoader import SimDataLoader
 from simulation.win_rate.DraftHelperTeam import DraftHelperTeam
 from simulation.win_rate.SimulatedOpponent import SimulatedOpponent
@@ -36,9 +39,17 @@ from utils.FantasyPlayer import FantasyPlayer
 
 
 # Fixture constants (also reused as the expected post-swap values in TestWinTallyingSourcesActualPm).
-WEEK_PROJECTED = {1: 5.0, 2: 15.0, 3: 25.0}
+# T73/R12: generalised from the original 3-week literals to the full 18-folder tree the loaders
+# now require. The week-1/2/3 values are byte-equivalent to the originals (5.0/15.0/25.0), so
+# every pre-existing offset assertion below is preserved exactly.
+FIXTURE_WEEK_FOLDERS = 18
+WEEK_PROJECTED = {k: 5.0 + (k - 1) * 10.0 for k in range(1, FIXTURE_WEEK_FOLDERS + 1)}
 WEEK1_ACTUAL = 12.0   # real week-1 result — lives in the week_02 folder
 WEEK2_ACTUAL = 8.0    # real week-2 result — lives in the week_03 folder
+# Real result for each completed week, indexed by the week number it belongs to. Weeks 1 and 2
+# keep the original fixture values the per-folder-sourcing assertions pin.
+WEEK_ACTUAL = {1: WEEK1_ACTUAL, 2: WEEK2_ACTUAL}
+WEEK_ACTUAL.update({k: 100.0 + k for k in range(3, FIXTURE_WEEK_FOLDERS)})
 
 POSITIONS = [
     ("qb_data.json", "QB", [1]),
@@ -54,10 +65,8 @@ ALL_IDS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
 def _actual_array_for(folder_week):
     """actual_points array a week_0K folder carries (real for weeks < K, 0.0 otherwise)."""
     arr = [0.0] * 17
-    if folder_week >= 2:
-        arr[0] = WEEK1_ACTUAL  # week 1 completed
-    if folder_week >= 3:
-        arr[1] = WEEK2_ACTUAL  # week 2 completed
+    for completed_week in range(1, min(folder_week, 18)):
+        arr[completed_week - 1] = WEEK_ACTUAL[completed_week]
     return arr
 
 
@@ -85,10 +94,10 @@ def _write_week_folder(weeks_folder, folder_week):
 
 @pytest.fixture
 def season_folder(tmp_path):
-    """Build a 3-week fixture season (week_01..03) under tmp_path."""
+    """Build a complete 18-folder fixture season (week_01..week_18) under tmp_path."""
     weeks_folder = tmp_path / "weeks"
     weeks_folder.mkdir()
-    for fw in (1, 2, 3):
+    for fw in range(1, FIXTURE_WEEK_FOLDERS + 1):
         _write_week_folder(weeks_folder, fw)
     return tmp_path
 
@@ -116,11 +125,16 @@ def _by_id(pm, pid):
     return next(p for p in pm.players if p.id == pid)
 
 
+def _make_bare_parser():
+    """A stand-in for the bound _parse_players_json, so the helper can be driven directly."""
+    return lambda week_folder, week_num, week_num_for_actual=None: {}
+
+
 def _make_league_with_bare_teams(season_folder):
     """
     Minimal SimulatedLeague pointed at the fixture (teams/schedule stubbed). __init__ runs
     _preload_all_weeks() for real against the fixture, so week_data_cache is populated
-    {1,2,3}. One team carries two real (bare) PlayerManagers for the swap to write into.
+    {1..17}. One team carries two real (bare) PlayerManagers for the swap to write into.
     """
     config = {"config_name": "test", "description": "test", "parameters": {}}
     with patch.object(SimulatedLeague, '_initialize_teams'), \
@@ -252,6 +266,39 @@ class TestParserCopiesInSync:
         src_league = inspect.getsource(SimulatedLeague._parse_players_json)
         src_loader = inspect.getsource(SimDataLoader._parse_players_json)
         assert src_league == src_loader
+
+
+class TestPreloadCopiesShareOneImplementation:
+    """
+    T73/D4+R6: the per-week resolve-and-parse block exists exactly once, as the module-level
+    load_week_player_data helper. Same inspect.getsource idiom as TestParserCopiesInSync —
+    a single implementation cannot be compared against itself, so the pin asserts instead that
+    each _preload_all_weeks copy DELEGATES and that neither re-inlines the deleted fabricating
+    fallback.
+    """
+
+    def test_both_preload_copies_call_the_shared_helper(self):
+        for owner in (SimulatedLeague, SimDataLoader):
+            src = inspect.getsource(owner._preload_all_weeks)
+            assert "load_week_player_data(" in src, f"{owner.__name__} no longer delegates"
+
+    def test_neither_preload_copy_reinlines_the_fabricating_fallback(self):
+        for owner in (SimulatedLeague, SimDataLoader):
+            src = inspect.getsource(owner._preload_all_weeks)
+            assert "actual_data = projected_data" not in src, f"{owner.__name__} re-inlined it"
+            assert "Using projected data as fallback" not in src, f"{owner.__name__} re-inlined it"
+
+    def test_shared_helper_raises_when_actual_folder_missing(self, tmp_path):
+        weeks_folder = tmp_path / "weeks"
+        weeks_folder.mkdir()
+        _write_week_folder(weeks_folder, 1)  # week_01 only: week 1's actuals need week_02
+        with pytest.raises(FileNotFoundError):
+            load_week_player_data(weeks_folder, 1, _make_bare_parser(), Mock())
+
+    def test_shared_helper_returns_none_when_projected_folder_missing(self, tmp_path):
+        weeks_folder = tmp_path / "weeks"
+        weeks_folder.mkdir()
+        assert load_week_player_data(weeks_folder, 5, _make_bare_parser(), Mock()) is None
 
 
 if __name__ == "__main__":
