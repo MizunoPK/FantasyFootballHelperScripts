@@ -313,27 +313,15 @@ python run_accuracy_simulation.py --test-values 5 --max-workers 8 --use-processe
 - **Parallel processing** enabled by default (ProcessPoolExecutor)
 - **Auto-resume support** - resumes from last completed parameter if interrupted
 
-### 🐛 CLI BUG: Incorrect Config Count Display
+### CLI Config Count Display — ✅ RESOLVED (T65, 2026-07-22)
 
-**Source**: `run_accuracy_simulation.py:268`
+**Source**: `run_accuracy_simulation.py:435`
 
-```python
-total_configs = (args.test_values + 1) ** 6  # BUG: Wrong formula!
-```
+This issue described the accuracy CLI's run banner reporting a per-parameter configuration count borrowed from the win-rate simulation's full-grid arithmetic instead of from the accuracy tournament's own. At `--test-values 5` the banner displayed a figure roughly two thousand times the number of configurations the tournament actually generates.
 
-**The Problem**:
-- Line 268 displays: `Configs per parameter: 46,656` (for test_values=5)
-- This uses the **win-rate simulation formula** `(test_values+1)^6`
-- **ACTUAL behavior**: 24 configs per parameter (4 horizons × 6 test values)
+T65 replaced that single figure with two explicitly labelled quantities derived from the tournament's real arithmetic — the candidate values generated per parameter per horizon, and the configurations generated per horizon-specific parameter across the four weekly horizons. `AccuracySimulationManager.__init__` previously logged a duplicate of the same wrong figure and now publishes those same two quantities under the same wording.
 
-**Why It's Wrong**:
-- Win-rate simulation varies 6 parameters simultaneously → combinatorial explosion
-- Accuracy simulation varies 1 parameter at a time across 4 horizons → linear scaling
-- The code correctly runs 24 configs, but the display is misleading
-
-**Source of Truth**: `AccuracySimulationManager.py:762` shows `total_configs = sum(len(vals) for vals in test_values_dict.values())` which correctly calculates 24.
-
-**Fix Required**: Change line 268 to `total_configs = (args.test_values + 1) * 4`
+**Verified after the fix:** the banner's figures agree with `AccuracySimulationManager.py:390` — `total_configs = sum(len(vals) for vals in test_values_dict.values())`, with `total_evaluations = total_configs * 4` on the following line — which remains the source of truth for the per-parameter counts. At `--test-values 5` that is 24 configs per parameter, matching the figures recorded above.
 
 ---
 
@@ -1434,21 +1422,15 @@ Infinite Loop Impact:
 
 ## Code Inconsistencies & Bugs
 
-### 1. CLI Config Count Display Bug
+### 1. CLI Config Count Display Bug — ✅ RESOLVED (T65, 2026-07-22)
 
-**Location**: `run_accuracy_simulation.py:268`
+**Location**: `run_accuracy_simulation.py:435`
 
-**Bug**:
-```python
-total_configs = (args.test_values + 1) ** 6  # WRONG!
-```
+This issue described the accuracy CLI banner reporting a per-parameter configuration count taken from the win-rate simulation's full-grid arithmetic rather than from the accuracy tournament's own, so the displayed figure vastly overstated the run's real size.
 
-**Should be**:
-```python
-total_configs = (args.test_values + 1) * 4  # Correct for accuracy sim
-```
+T65 replaced it with two explicitly labelled quantities — candidate values per parameter per horizon, and configurations per horizon-specific parameter across the four weekly horizons — and applied the same wording to the duplicate figure `AccuracySimulationManager.__init__` logged.
 
-**Impact**: Misleading output (shows 46,656 instead of 24)
+**Verified after the fix:** the reported figures derive from the same arithmetic as `AccuracySimulationManager.py:390` (`total_configs = sum(len(vals) for vals in test_values_dict.values())`), so the banner and the tournament can no longer disagree. See §"CLI Config Count Display — ✅ RESOLVED (T65, 2026-07-22)" above for the full record.
 
 ---
 

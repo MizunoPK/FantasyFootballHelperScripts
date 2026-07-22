@@ -128,9 +128,13 @@ class AccuracySimulationManager:
             f"{[s.name for s in self.available_seasons]}"
         )
 
-        total_configs = (num_test_values + 1) ** 6
+        candidate_values = num_test_values + 1
+        configs_per_param = candidate_values * 4
         self.logger.info(
-            f"AccuracySimulationManager initialized: {total_configs:,} configs/param"
+            f"AccuracySimulationManager initialized: "
+            f"Candidate values per parameter per horizon: {candidate_values:,}; "
+            f"Configs per horizon-specific parameter: {candidate_values:,} × 4 horizons "
+            f"= {configs_per_param:,}"
         )
 
     def _sweep_orphaned_temp_dirs(self) -> None:

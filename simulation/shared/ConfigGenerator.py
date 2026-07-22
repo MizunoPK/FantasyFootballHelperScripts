@@ -1,11 +1,11 @@
 """
 Configuration Generator
 
-Generates parameter combinations for simulation optimization. Creates combinations
-by varying 23 key parameters, with N+1 values per parameter (optimal + N random variations).
+Generates parameter candidate values for simulation optimization. Each parameter gets
+N+1 values (the baseline optimal + N random variations), N = num_test_values (default: 5).
 
-Total configurations = (N+1)^23 where N = num_test_values (default: 5)
-For practical use, iterative optimization tests one parameter at a time.
+The accuracy tournament optimizes one parameter at a time: a horizon-specific parameter
+yields an independent N+1 array per weekly horizon; a shared parameter yields a single array.
 
 Parameters Varied (with ranges):
 
@@ -1068,15 +1068,13 @@ class ConfigGenerator:
             List[dict]: All configurations ready for simulation
 
         Note:
-            Total configs = (num_test_values + 1)^13
-            Each config is ~10KB
-            Example: 6^13 = ~13.1 billion configs = impractical for full cartesian product
-            For practical use, use iterative optimization instead
+            The number of configs is the size of the full cartesian product over every
+            varied parameter's value set, so it grows multiplicatively with the number of
+            parameters varied. Each config is ~10KB, which makes enumerating the full
+            product impractical; for practical use, use iterative optimization instead.
         """
-        total_configs = (self.num_test_values + 1) ** 13
-        self.logger.info(f"Generating all {total_configs:,} complete configurations")
-
         combinations = self.generate_all_combinations()
+        self.logger.info(f"Generating all {len(combinations):,} complete configurations")
         configs = []
 
         for combo in combinations:

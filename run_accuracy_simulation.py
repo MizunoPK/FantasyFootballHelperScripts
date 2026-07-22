@@ -432,7 +432,8 @@ def main() -> None:
         logger.error(f"Data folder not found: {data_path}")
         sys.exit(1)
 
-    total_configs = (args.test_values + 1) ** 6
+    candidate_values = args.test_values + 1
+    configs_per_param = candidate_values * 4
     print("\n" + "=" * 60)
     print("ACCURACY SIMULATION - TOURNAMENT OPTIMIZATION")
     print("=" * 60)
@@ -441,7 +442,11 @@ def main() -> None:
     print(f"Data folder: {data_path}")
     print(f"Test values per param: {args.test_values}")
     print(f"Num params to test: {args.num_params}")
-    print(f"Configs per parameter: {total_configs:,}")
+    print(f"Candidate values per parameter per horizon: {candidate_values:,}")
+    print(
+        f"Configs per horizon-specific parameter: {candidate_values:,} × 4 horizons "
+        f"= {configs_per_param:,}"
+    )
     print("=" * 60 + "\n")
 
     try:
