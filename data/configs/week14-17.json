@@ -1,10 +1,10 @@
 {
-  "config_name": "Accuracy Optimal week14-17 (2026-06-05_11-19-29)",
+  "config_name": "Accuracy Optimal week14-17 (2026-07-24_07-01-27)",
   "description": "Weeks 14-17 prediction parameters",
   "parameters": {
-    "NORMALIZATION_MAX_SCALE": 63,
+    "NORMALIZATION_MAX_SCALE": 200,
     "TEAM_QUALITY_SCORING": {
-      "MIN_WEEKS": 1,
+      "MIN_WEEKS": 10,
       "THRESHOLDS": {
         "BASE_POSITION": 0,
         "DIRECTION": "DECREASING",
@@ -16,14 +16,14 @@
         "GOOD": 1.025,
         "EXCELLENT": 1.05
       },
-      "WEIGHT": 0.0
+      "WEIGHT": 2.77
     },
     "PERFORMANCE_SCORING": {
-      "MIN_WEEKS": 1,
+      "MIN_WEEKS": 2,
       "THRESHOLDS": {
         "BASE_POSITION": 0.0,
         "DIRECTION": "BI_EXCELLENT_HI",
-        "STEPS": 0.1
+        "STEPS": 0.18
       },
       "MULTIPLIERS": {
         "VERY_POOR": 0.95,
@@ -31,11 +31,11 @@
         "GOOD": 1.025,
         "EXCELLENT": 1.05
       },
-      "WEIGHT": 0.04
+      "WEIGHT": 0.89
     },
     "MATCHUP_SCORING": {
-      "MIN_WEEKS": 10,
-      "IMPACT_SCALE": 88,
+      "MIN_WEEKS": 9,
+      "IMPACT_SCALE": 39,
       "THRESHOLDS": {
         "BASE_POSITION": 0,
         "DIRECTION": "INCREASING",
@@ -47,11 +47,11 @@
         "GOOD": 1.025,
         "EXCELLENT": 1.05
       },
-      "WEIGHT": 0.14
+      "WEIGHT": 3.01
     },
     "SCHEDULE_SCORING": {
-      "MIN_WEEKS": 10,
-      "IMPACT_SCALE": 88,
+      "MIN_WEEKS": 5,
+      "IMPACT_SCALE": 127,
       "THRESHOLDS": {
         "BASE_POSITION": 16,
         "DIRECTION": "BI_EXCELLENT_HI",
@@ -63,43 +63,42 @@
         "GOOD": 1.025,
         "EXCELLENT": 1.05
       },
-      "WEIGHT": 0.14
+      "WEIGHT": 0.9
     },
     "TEMPERATURE_SCORING": {
-      "IMPACT_SCALE": 135,
-      "WEIGHT": 0.27,
+      "IDEAL_TEMPERATURE": 60,
+      "IMPACT_SCALE": 32,
       "THRESHOLDS": {
         "BASE_POSITION": 0,
         "DIRECTION": "DECREASING",
         "STEPS": 10
       },
-      "IDEAL_TEMPERATURE": 60,
       "MULTIPLIERS": {
-        "EXCELLENT": 1.05,
-        "GOOD": 1.025,
+        "VERY_POOR": 0.95,
         "POOR": 0.975,
-        "VERY_POOR": 0.95
-      }
+        "GOOD": 1.025,
+        "EXCELLENT": 1.05
+      },
+      "WEIGHT": 0.98
     },
     "WIND_SCORING": {
-      "IMPACT_SCALE": 36,
-      "WEIGHT": 0.28,
+      "IDEAL_WIND": 5,
+      "IMPACT_SCALE": 32,
       "THRESHOLDS": {
         "BASE_POSITION": 0,
         "DIRECTION": "DECREASING",
         "STEPS": 8
       },
       "MULTIPLIERS": {
-        "EXCELLENT": 1.05,
-        "GOOD": 1.025,
+        "VERY_POOR": 0.95,
         "POOR": 0.975,
-        "VERY_POOR": 0.95
-      }
+        "GOOD": 1.025,
+        "EXCELLENT": 1.05
+      },
+      "WEIGHT": 1.9
     },
     "LOCATION_MODIFIERS": {
-      "HOME": 5.5,
-      "AWAY": 4.2,
-      "INTERNATIONAL": -3.7
+      "HOME": 0.5
     }
   }
 }

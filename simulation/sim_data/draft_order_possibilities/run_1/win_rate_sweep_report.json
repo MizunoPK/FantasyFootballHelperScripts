@@ -1,0 +1,87 @@
+{
+  "generated": "2026-07-24",
+  "rate_semantics": "Candidates are ordered by 'lcb', a Wilson lower confidence bound on each config's MARGIN over its reference (rate - 0.50) pooled across its non-self-play buckets (T68), used ONLY as a shortlist filter. 'win_rate' is the selected combo's non-self-play pooled rate, not an estimate of its true rate. The promoted headline comes from a fresh re-measurement (--promote), not from here.",
+  "pooling_caveat": "Per-reference bucketing (T68-winrate-heterogeneous-reference-pooling) segregates each combo's evaluations by the incumbent they were measured against and excludes the ~0.50 self-play baseline/carry-over bucket, so 'lcb' and 'win_rate' pool only same-objective head-to-head games. The margin still pools a combo's DIFFERENT older incumbents, so treat 'lcb' as a promising-ness filter, never as a confidence statement about any config.",
+  "configs": [
+    {
+      "rank": 1,
+      "strategy_id": "1_zero_rb.json",
+      "lcb": 0.056901561869441175,
+      "win_rate": 0.5882352941176471,
+      "games": 680,
+      "wins": 400,
+      "param_values": {
+        "SAME_POS_BYE_WEIGHT": 0.05,
+        "DIFF_POS_BYE_WEIGHT": 0.25,
+        "PRIMARY_BONUS": 50,
+        "SECONDARY_BONUS": 50,
+        "ADP_SCORING_WEIGHT": 3.75,
+        "PLAYER_RATING_SCORING_WEIGHT": 3.12
+      }
+    },
+    {
+      "rank": 2,
+      "strategy_id": "4_late_qb_value.json",
+      "lcb": 0.021431533252689317,
+      "win_rate": 0.5529411764705883,
+      "games": 680,
+      "wins": 376,
+      "param_values": {
+        "SAME_POS_BYE_WEIGHT": 0.05,
+        "DIFF_POS_BYE_WEIGHT": 0.01,
+        "PRIMARY_BONUS": 50,
+        "SECONDARY_BONUS": 50,
+        "ADP_SCORING_WEIGHT": 2.12,
+        "PLAYER_RATING_SCORING_WEIGHT": 4.0
+      }
+    },
+    {
+      "rank": 3,
+      "strategy_id": "2_hero_rb.json",
+      "lcb": 0.0066994967662081795,
+      "win_rate": 0.538235294117647,
+      "games": 680,
+      "wins": 366,
+      "param_values": {
+        "SAME_POS_BYE_WEIGHT": 0.05,
+        "DIFF_POS_BYE_WEIGHT": 0.01,
+        "PRIMARY_BONUS": 50,
+        "SECONDARY_BONUS": 50,
+        "ADP_SCORING_WEIGHT": 2.12,
+        "PLAYER_RATING_SCORING_WEIGHT": 4.0
+      }
+    },
+    {
+      "rank": 4,
+      "strategy_id": "3_rb_heavy_early.json",
+      "lcb": 0.0022852302291472837,
+      "win_rate": 0.5338235294117647,
+      "games": 680,
+      "wins": 363,
+      "param_values": {
+        "SAME_POS_BYE_WEIGHT": 0.05,
+        "DIFF_POS_BYE_WEIGHT": 0.01,
+        "PRIMARY_BONUS": 50,
+        "SECONDARY_BONUS": 50,
+        "ADP_SCORING_WEIGHT": 2.12,
+        "PLAYER_RATING_SCORING_WEIGHT": 4.0
+      }
+    },
+    {
+      "rank": 5,
+      "strategy_id": "5_wr_heavy_early.json",
+      "lcb": 0.0008143544163797811,
+      "win_rate": 0.5323529411764706,
+      "games": 680,
+      "wins": 362,
+      "param_values": {
+        "SAME_POS_BYE_WEIGHT": 0.25,
+        "DIFF_POS_BYE_WEIGHT": 0.01,
+        "PRIMARY_BONUS": 50,
+        "SECONDARY_BONUS": 50,
+        "ADP_SCORING_WEIGHT": 1.5,
+        "PLAYER_RATING_SCORING_WEIGHT": 1.8
+      }
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+Sweep Config Candidates (ranked by margin-over-reference lower bound)
+Rate = the selected combo's non-self-play pooled win rate — NOT an estimate of its rate.
+──────────────────────────────────────────────────────────────
+Rank      LCB     Rate  Games  Strategy / Params
+────  ───────  ───────  ─────  ─────────────────
+   1    0.057    0.588    680  1_zero_rb.json | SAME_POS_BYE_WEIGHT=0.05, DIFF_POS_BYE_WEIGHT=0.25, PRIMARY_BONUS=50, SECONDARY_BONUS=50, ADP_SCORING_WEIGHT=3.75, PLAYER_RATING_SCORING_WEIGHT=3.12
+   2    0.021    0.553    680  4_late_qb_value.json | SAME_POS_BYE_WEIGHT=0.05, DIFF_POS_BYE_WEIGHT=0.01, PRIMARY_BONUS=50, SECONDARY_BONUS=50, ADP_SCORING_WEIGHT=2.12, PLAYER_RATING_SCORING_WEIGHT=4.0
+   3    0.007    0.538    680  2_hero_rb.json | SAME_POS_BYE_WEIGHT=0.05, DIFF_POS_BYE_WEIGHT=0.01, PRIMARY_BONUS=50, SECONDARY_BONUS=50, ADP_SCORING_WEIGHT=2.12, PLAYER_RATING_SCORING_WEIGHT=4.0
+   4    0.002    0.534    680  3_rb_heavy_early.json | SAME_POS_BYE_WEIGHT=0.05, DIFF_POS_BYE_WEIGHT=0.01, PRIMARY_BONUS=50, SECONDARY_BONUS=50, ADP_SCORING_WEIGHT=2.12, PLAYER_RATING_SCORING_WEIGHT=4.0
+   5    0.001    0.532    680  5_wr_heavy_early.json | SAME_POS_BYE_WEIGHT=0.25, DIFF_POS_BYE_WEIGHT=0.01, PRIMARY_BONUS=50, SECONDARY_BONUS=50, ADP_SCORING_WEIGHT=1.5, PLAYER_RATING_SCORING_WEIGHT=1.8
+──────────────────────────────────────────────────────────────
