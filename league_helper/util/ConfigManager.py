@@ -513,19 +513,31 @@ class ConfigManager:
                 - bonus_points: Point bonus to add to score
                 - bonus_type: "PRIMARY", "SECONDARY", or "" (no bonus)
 
+        Position matching (precedence):
+            1. The round entry's key for the player's NATIVE position, when the round
+               names it.
+            2. Otherwise the "FLEX" key, when the position is FLEX-eligible and the
+               round names "FLEX".
+            3. Otherwise no match — (0, "").
+
+            The NATIVE key wins when a round names both: for {"WR": "P", "FLEX": "S"}
+            a WR is awarded the "WR" tier (PRIMARY), not the "FLEX" tier.
+
         Example:
             First round strategy (draft_round=0): {"RB": "P", "WR": "S"}
-            - get_draft_order_bonus("RB", 0) → (10.0, "PRIMARY")
-            - get_draft_order_bonus("WR", 0) → (5.0, "SECONDARY")
+            - get_draft_order_bonus("RB", 0) → (<PRIMARY bonus>, "PRIMARY")
+            - get_draft_order_bonus("WR", 0) → (<SECONDARY bonus>, "SECONDARY")
             - get_draft_order_bonus("QB", 0) → (0, "")
+
+            The bonus magnitudes are read from the config's DRAFT_ORDER_BONUSES and are
+            re-tunable by the win-rate simulation's --promote, so they are named rather
+            than restated here.
         """
         ideal_positions = self.draft_order[draft_round]
 
-        # Match the player's literal position first (e.g. "WR" in {"WR": "P"}),
-        # then fall back to the "FLEX" key for flex-eligible positions (RB/WR).
-        # Previously the position was remapped to "FLEX" *before* the lookup, which
-        # silently dropped the bonus for rounds keyed on the literal "RB"/"WR" names
-        # (e.g. round 1 {"WR":"P","RB":"S"}), so WR/RB priorities never scored.
+        # The NATIVE position key is matched before the "FLEX" alias so a round naming
+        # RB/WR literally awards its own tier; converting the position to "FLEX" first
+        # would make those literal keys permanently unreachable.
         if position in ideal_positions:
             matched_key = position
         elif position in self.flex_eligible_positions and 'FLEX' in ideal_positions:
