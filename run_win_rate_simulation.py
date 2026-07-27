@@ -608,10 +608,5 @@ def _print_promotion_preview(plan: dict) -> None:
 
 
 if __name__ == "__main__":
-    while True:
-        try:
-            main()
-        except KeyboardInterrupt:
-            print("\nReceived interrupt — exiting")
-            sys.exit(0)
+    main()
 
