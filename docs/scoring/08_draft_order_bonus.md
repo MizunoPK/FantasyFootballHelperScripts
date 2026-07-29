@@ -77,7 +77,7 @@ def get_draft_order_bonus(position: str, draft_round: int) -> Tuple[float, str]:
 }
 ```
 
-Note: FLEX-eligible positions (RB, WR, TE, DST) all map to "FLEX" for bonus lookup. The actual configuration values may vary based on simulation optimization results.
+Note: a round's **natively named position wins**. A position is looked up under its own name first (so a round naming `RB` or `WR` awards that round's bonus directly), and only falls back to the `"FLEX"` key when the position is FLEX-eligible *and* the round names `FLEX`. The shipped `FLEX_ELIGIBLE_POSITIONS` is `["RB", "WR"]`. The actual configuration values may vary based on simulation optimization results.
 
 ### Example Calculation
 
@@ -109,14 +109,22 @@ Note: SECONDARY bonus (80.47) is intentionally higher than PRIMARY (72.81) in th
 
 ### FLEX Handling
 
-FLEX-eligible positions get bonus if FLEX is prioritized:
+The native position name is matched **first**. A FLEX-eligible position falls back to the `"FLEX"` key only when the round does not name that position natively:
 
 ```python
-if position in FLEX_ELIGIBLE_POSITIONS:
-    flex_priority = DRAFT_ORDER[round].get("FLEX", "")
-    if flex_priority:
-        return get_bonus_for_type(flex_priority)
+# 1. Native name wins - a round naming "RB" awards the bonus to an RB directly.
+if position in DRAFT_ORDER[round]:
+    return get_bonus_for_type(DRAFT_ORDER[round][position])
+
+# 2. FLEX fallback - only for FLEX-eligible positions, and only if the round names FLEX.
+if position in FLEX_ELIGIBLE_POSITIONS and "FLEX" in DRAFT_ORDER[round]:
+    return get_bonus_for_type(DRAFT_ORDER[round]["FLEX"])
+
+# 3. Otherwise no bonus.
+return 0, ""
 ```
+
+A position that is **not** FLEX-eligible never matches a `"FLEX"` key. So in a round `{"WR": "P", "FLEX": "S"}`: a WR takes PRIMARY natively, an RB takes SECONDARY via FLEX, and a TE takes no bonus at all.
 
 ## Implementation Details
 
