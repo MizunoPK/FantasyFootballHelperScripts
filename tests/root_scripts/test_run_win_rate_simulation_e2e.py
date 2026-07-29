@@ -68,7 +68,8 @@ class TestWinRateSimulationE2E:
         # T73/R12: the full week_01..week_18 tree. Weeks 1-17 are simulated and week_18
         # supplies week 17's actuals, so SimDataLoader._validate_season_data now refuses a
         # 17-folder season outright (season_count == 0 -> the sweep reports 0.0). Every week
-        # folder carries identical actual_points, so the pinned 8/17 below is unchanged.
+        # folder carries identical actual_points, so T73/R12 itself left the pin below
+        # unchanged (it was 8/17 then; T79 later moved it to 10/17 — see that comment).
         for week_num in range(1, 19):
             week_dir = data_folder / "2024" / "weeks" / f"week_{week_num:02d}"
             self._write_week(week_dir, week_counts)
@@ -98,12 +99,19 @@ class TestWinRateSimulationE2E:
 
         entry = meta_data["strategies"]["1_zero_rb.json"]
         assert 0.0 <= entry["best_win_rate"] <= 1.0
-        # Deterministic with --seed 42 on this identical-week fixture: best_win_rate == 8/17.
-        # The prior *unseeded* 0.30..0.85 range was flaky — natural unseeded draws span ~0.29..0.77
-        # and dip below 0.30 — so a low draw (not the T42 point-in-time fix) failed the build.
-        # Seeding pins the value; it is identical (8/17) on pre-fix origin/main and the T42 branch,
-        # confirming the fix is behavior-neutral on this homogeneous multi-week fixture. (T42)
-        assert abs(entry["best_win_rate"] - 8 / 17) < 1e-9
+        # Deterministic with --seed 42 on this identical-week fixture: best_win_rate == 10/17.
+        # The value is pinned, not ranged: the original *unseeded* 0.30..0.85 range was flaky
+        # (natural unseeded draws span ~0.29..0.77 and dip below 0.30), so a low draw failed the
+        # build. Seeding plus an exact pin removed that flakiness and must keep doing so — widen
+        # this back to a range and the flakiness returns.
+        # The pin was 8/17 through T42, which was behavior-neutral on this fixture. T79 is NOT:
+        # it makes draft rounds that name RB/WR natively award their PRIMARY/SECONDARY bonus
+        # (previously silently 0), and the real 1_zero_rb.json strategy this fixture loads names
+        # RB/WR natively — so opponent drafting, and hence the simulated win rate, changed BY
+        # DESIGN. 10/17 is the post-T79 deterministic value at --seed 42 (observed identical on
+        # three consecutive runs, 2026-07-28). Re-pin, never re-range, if a future change moves
+        # it again. (T79; see the story's simulation_impact.md for the measured strategy deltas.)
+        assert abs(entry["best_win_rate"] - 10 / 17) < 1e-9
         assert "total_wins" in entry
         assert "total_games" in entry
         assert entry["total_games"] >= entry["total_wins"]
