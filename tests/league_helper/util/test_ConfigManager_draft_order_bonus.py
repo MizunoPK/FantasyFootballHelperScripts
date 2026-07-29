@@ -135,3 +135,23 @@ class TestLiteralPrecedenceOverFlex:
     def test_rb_falls_back_to_flex(self, config):
         # RB is not listed literally in round 3, so it uses the FLEX key
         assert config.get_draft_order_bonus("RB", 3) == (30, "SECONDARY")
+
+
+class TestNonFlexEligibleNeverMatchesFlex:
+    """A position outside FLEX_ELIGIBLE_POSITIONS must never collect a round's FLEX bonus.
+
+    Guards the `position in self.flex_eligible_positions` clause of the FLEX-fallback
+    branch. Without that clause every non-flex position would silently inherit the FLEX
+    tier, and the rest of this file would still pass — so these are the only two cases
+    that pin it. FLEX_ELIGIBLE_POSITIONS is ["RB", "WR"] in this fixture, so TE and DST
+    are outside it.
+    """
+
+    def test_te_does_not_match_flex_key(self, config):
+        # round 3 = {"WR": "P", "FLEX": "S"} — TE is not named natively and is not
+        # FLEX-eligible, so it must take nothing (not the SECONDARY the FLEX key offers)
+        assert config.get_draft_order_bonus("TE", 3) == (0, "")
+
+    def test_dst_does_not_match_flex_key(self, config):
+        # round 1 = {"QB": "P", "FLEX": "S"} — same rule for DST
+        assert config.get_draft_order_bonus("DST", 1) == (0, "")
