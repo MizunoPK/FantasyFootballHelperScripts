@@ -12,6 +12,7 @@ Created: 2026-07-29
 import pytest
 import json
 
+import league_helper.constants as Constants
 from league_helper.util.ConfigManager import ConfigManager
 
 
@@ -147,6 +148,24 @@ class TestOpponentTeamsValidation:
         config_file.write_text(json.dumps(minimal_config))
 
         with pytest.raises(ValueError, match="OPPONENT_TEAMS entries must be non-empty strings"):
+            ConfigManager(temp_data_folder)
+
+    def test_opponent_teams_whitespace_only_element_raises_error(self, temp_data_folder, minimal_config):
+        """Test that a whitespace-only element in OPPONENT_TEAMS raises ValueError."""
+        minimal_config["parameters"]["OPPONENT_TEAMS"] = ["Fishoutawater", "   "]
+        config_file = temp_data_folder / "league_config.json"
+        config_file.write_text(json.dumps(minimal_config))
+
+        with pytest.raises(ValueError, match="OPPONENT_TEAMS entries must be non-empty strings"):
+            ConfigManager(temp_data_folder)
+
+    def test_opponent_teams_containing_own_team_raises_error(self, temp_data_folder, minimal_config):
+        """Test that including FANTASY_TEAM_NAME in OPPONENT_TEAMS raises ValueError."""
+        minimal_config["parameters"]["OPPONENT_TEAMS"] = ["Fishoutawater", Constants.FANTASY_TEAM_NAME]
+        config_file = temp_data_folder / "league_config.json"
+        config_file.write_text(json.dumps(minimal_config))
+
+        with pytest.raises(ValueError, match="OPPONENT_TEAMS must contain opponents only"):
             ConfigManager(temp_data_folder)
 
 

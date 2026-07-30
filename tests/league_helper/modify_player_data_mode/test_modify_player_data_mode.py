@@ -126,10 +126,10 @@ class TestMarkPlayerAsDrafted:
     @patch('league_helper.modify_player_data_mode.ModifyPlayerDataModeManager.Constants')
     @patch('league_helper.modify_player_data_mode.ModifyPlayerDataModeManager.show_list_selection')
     @patch('league_helper.modify_player_data_mode.ModifyPlayerDataModeManager.PlayerSearch')
-    def test_mark_player_as_drafted_handles_user_cancel_from_team_selection(
+    def test_mark_player_as_drafted_selects_the_user_team_by_index(
         self, mock_search_class, mock_show_list, mock_constants, mock_player_manager, sample_players
     ):
-        """Test that mark as drafted handles user cancel from team selection gracefully."""
+        """Test that selecting the user's team row by index sets drafted_by=FANTASY_TEAM_NAME."""
         mock_constants.FANTASY_TEAM_NAME = "Sea Sharp"
         mode_manager = ModifyPlayerDataModeManager(mock_player_manager)
         available_player = sample_players[0]
@@ -144,6 +144,37 @@ class TestMarkPlayerAsDrafted:
         mode_manager._mark_player_as_drafted()
 
         assert available_player.drafted_by == "Sea Sharp"
+
+    @patch('league_helper.modify_player_data_mode.ModifyPlayerDataModeManager.Constants')
+    @patch('league_helper.modify_player_data_mode.ModifyPlayerDataModeManager.show_list_selection')
+    @patch('league_helper.modify_player_data_mode.ModifyPlayerDataModeManager.PlayerSearch')
+    def test_mark_player_as_drafted_cancels_on_the_sentinel_index(
+        self, mock_search_class, mock_show_list, mock_constants, mock_player_manager, sample_players
+    ):
+        """Test that the Cancel entry (len(options) + 1) aborts without mutating or saving."""
+        mock_constants.FANTASY_TEAM_NAME = "Sea Sharp"
+        mode_manager = ModifyPlayerDataModeManager(mock_player_manager)
+        available_player = sample_players[0]
+
+        mock_searcher = Mock()
+        mock_searcher.interactive_search.return_value = available_player
+        mock_search_class.return_value = mock_searcher
+
+        # Derive the Cancel sentinel from the menu actually presented, so the test
+        # stays correct no matter how many teams the config/data union produces.
+        captured_options = []
+
+        def _pick_cancel(_title, options, _cancel_label):
+            captured_options.extend(options)
+            return len(options) + 1
+
+        mock_show_list.side_effect = _pick_cancel
+
+        mode_manager._mark_player_as_drafted()
+
+        assert captured_options, "TEAM SELECTION menu should not be empty"
+        assert available_player.drafted_by == ""
+        mock_player_manager.update_players_file.assert_not_called()
 
     @patch('builtins.print')
     @patch('league_helper.modify_player_data_mode.ModifyPlayerDataModeManager.PlayerSearch')
