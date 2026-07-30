@@ -133,7 +133,9 @@ class ModifyPlayerDataModeManager:
 
         Interactive workflow:
         1. Search for an available player (free agents only)
-        2. Select the team that drafted the player
+        2. Select the team that drafted the player - the menu offers the configured
+           OPPONENT_TEAMS roster, the user's own team, and any drafted_by name
+           already present in the player data
         3. Set player's drafted_by field to team name
         4. Save changes to player JSON files
 
@@ -155,18 +157,16 @@ class ModifyPlayerDataModeManager:
             self.logger.info("User exited Mark Player as Drafted mode")
             return
 
-        team_names = set()
+        # Data-present drafted_by names are union'd in on top of the configured
+        # roster so a team seeded out-of-band (DraftedRosterManager, from
+        # drafted_data.csv) never becomes unselectable when it is absent from config.
+        team_names = set(self.player_manager.config.opponent_teams)
         for player in self.player_manager.players:
             if player.drafted_by and player.drafted_by != "":
                 team_names.add(player.drafted_by)
 
         team_names.add(Constants.FANTASY_TEAM_NAME)
         team_names = sorted(list(team_names))
-
-        if not team_names:
-            print("Error: No teams found")
-            self.logger.error("No teams found in player data")
-            return
 
         print(f"\nSelect the team that drafted {selected_player.name}:")
         team_choice = show_list_selection(

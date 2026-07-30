@@ -58,6 +58,10 @@ class TestMarkPlayerAsDrafted:
         manager = Mock()
         manager.players = sample_players
         manager.update_players_file = Mock()
+        # Deliberately overlaps the sample_players drafted_by names on one entry
+        # ("Annihilators") and diverges on the rest, so the menu union is exercised:
+        # config-only, data-only, and both-sources names all appear exactly once.
+        manager.config.opponent_teams = ["Annihilators", "Pidgin", "Striking Shibas"]
         return manager
 
     @patch('league_helper.modify_player_data_mode.ModifyPlayerDataModeManager.Constants')
@@ -98,7 +102,8 @@ class TestMarkPlayerAsDrafted:
         mock_searcher.interactive_search.return_value = available_player
         mock_search_class.return_value = mock_searcher
 
-        mock_show_list.return_value = 2
+        # Sorted union is: 1 Annihilators, 2 Pidgin, 3 Sea Sharp, 4 Striking Shibas, 5 The Eskimo Brothers
+        mock_show_list.return_value = 3
 
         mode_manager._mark_player_as_drafted()
 
@@ -133,7 +138,8 @@ class TestMarkPlayerAsDrafted:
         mock_searcher.interactive_search.return_value = available_player
         mock_search_class.return_value = mock_searcher
 
-        mock_show_list.return_value = 2
+        # Sorted union is: 1 Annihilators, 2 Pidgin, 3 Sea Sharp, 4 Striking Shibas, 5 The Eskimo Brothers
+        mock_show_list.return_value = 3
 
         mode_manager._mark_player_as_drafted()
 
@@ -213,5 +219,87 @@ class TestMarkPlayerAsDrafted:
         assert player.locked == 1
 
         assert mock_player_manager.update_players_file.call_count == 3
+
+
+class TestMarkPlayerAsDraftedTeamMenuSources:
+    """Test suite for where the TEAM SELECTION menu's team list comes from (T80)."""
+
+    CONFIGURED_OPPONENTS = [
+        "Fishoutawater",
+        "Chase-ing points",
+        "Annihilators",
+        "The Injury Report",
+        "Striking Shibas",
+        "Bo Him-ian Rhapsody",
+        "Saquon Deez",
+        "The Eskimo Brothers",
+        "Pidgin",
+    ]
+
+    @pytest.fixture
+    def undrafted_players(self):
+        """Create sample players with NO drafted_by value - the start-of-draft state."""
+        return [
+            FantasyPlayer(id=1, name="Patrick Mahomes", team="KC", position="QB", bye_week=7, drafted_by="", locked=0, score=95.0, fantasy_points=350.0),
+            FantasyPlayer(id=2, name="Tyreek Hill", team="MIA", position="WR", bye_week=8, drafted_by="", locked=0, score=85.0, fantasy_points=280.0),
+        ]
+
+    @pytest.fixture
+    def undrafted_player_manager(self, undrafted_players):
+        """Create mock PlayerManager whose whole pool is undrafted."""
+        manager = Mock()
+        manager.players = undrafted_players
+        manager.update_players_file = Mock()
+        manager.config.opponent_teams = list(self.CONFIGURED_OPPONENTS)
+        return manager
+
+    @patch('league_helper.modify_player_data_mode.ModifyPlayerDataModeManager.Constants')
+    @patch('league_helper.modify_player_data_mode.ModifyPlayerDataModeManager.show_list_selection')
+    @patch('league_helper.modify_player_data_mode.ModifyPlayerDataModeManager.PlayerSearch')
+    def test_team_menu_lists_full_league_when_no_player_is_drafted(
+        self, mock_search_class, mock_show_list, mock_constants, undrafted_player_manager, undrafted_players
+    ):
+        """Test that a fully-undrafted pool still offers every configured opponent plus the user's team."""
+        mock_constants.FANTASY_TEAM_NAME = "Sea Sharp"
+        mode_manager = ModifyPlayerDataModeManager(undrafted_player_manager)
+
+        mock_searcher = Mock()
+        mock_searcher.interactive_search.return_value = undrafted_players[0]
+        mock_search_class.return_value = mock_searcher
+
+        # Index 1 is valid for a menu of any non-empty length, so this test does not
+        # depend on the menu's length and never reaches the unvalidated index path.
+        mock_show_list.return_value = 1
+
+        mode_manager._mark_player_as_drafted()
+
+        offered_teams = mock_show_list.call_args[0][1]
+        assert offered_teams == sorted(self.CONFIGURED_OPPONENTS + ["Sea Sharp"])
+
+    @patch('league_helper.modify_player_data_mode.ModifyPlayerDataModeManager.Constants')
+    @patch('league_helper.modify_player_data_mode.ModifyPlayerDataModeManager.show_list_selection')
+    @patch('league_helper.modify_player_data_mode.ModifyPlayerDataModeManager.PlayerSearch')
+    def test_team_menu_unions_configured_opponents_with_data_present_names(
+        self, mock_search_class, mock_show_list, mock_constants, undrafted_player_manager, undrafted_players
+    ):
+        """Test that a data-only team name survives and an overlapping name is not duplicated."""
+        # "Saint Nix" is data-only (never configured); "Annihilators" is in BOTH sources.
+        undrafted_players[0].drafted_by = "Saint Nix"
+        undrafted_players[1].drafted_by = "Annihilators"
+        mock_constants.FANTASY_TEAM_NAME = "Sea Sharp"
+        mode_manager = ModifyPlayerDataModeManager(undrafted_player_manager)
+
+        mock_searcher = Mock()
+        mock_searcher.interactive_search.return_value = undrafted_players[0]
+        mock_search_class.return_value = mock_searcher
+
+        mock_show_list.return_value = 1
+
+        mode_manager._mark_player_as_drafted()
+
+        offered_teams = mock_show_list.call_args[0][1]
+        assert offered_teams == sorted(self.CONFIGURED_OPPONENTS + ["Sea Sharp", "Saint Nix"])
+        assert offered_teams.count("Annihilators") == 1
+        assert len(offered_teams) == len(set(offered_teams))
 
 
