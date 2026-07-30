@@ -79,6 +79,10 @@ def mock_config():
     config.trade_enable_three_for_two = True
     config.trade_enable_two_for_three = True
     config.trade_max_combinations = 50000
+    # Empty reproduces today's post-init state exactly: neither roster key returned by
+    # mock_player_manager.get_players_by_team() ("Sea Sharp", "Team Alpha") was ever in
+    # the old Constants.VALID_TEAMS, so opponent_simulated_teams was already [] here.
+    config.opponent_teams = []
     return config
 
 
@@ -1008,6 +1012,43 @@ class TestBackwardCompatibility:
 
         assert result.score == 75.0
         assert mock_player_manager.score_player.called
+
+
+class TestInitTeamDataOpponentFilter:
+    """Test that init_team_data builds opponent teams from the configured roster (T80)"""
+
+    def test_configured_team_becomes_an_opponent(self, temp_data_folder, mock_player_manager, mock_config):
+        """Test that a roster team named in config.opponent_teams becomes a simulated opponent"""
+        mock_config.opponent_teams = ["Team Alpha"]
+
+        with patch('league_helper.constants.FANTASY_TEAM_NAME', 'Sea Sharp'):
+            manager = TradeSimulatorModeManager(temp_data_folder, mock_player_manager, mock_config)
+
+        opponent_names = [team.name for team in manager.opponent_simulated_teams]
+        assert opponent_names == ["Team Alpha"]
+
+    def test_own_team_is_never_a_simulated_opponent(self, temp_data_folder, mock_player_manager, mock_config):
+        """Test that the user's own team stays out of opponent_simulated_teams"""
+        # "Sea Sharp" is a roster key returned by get_players_by_team() but is not an
+        # opponent; OPPONENT_TEAMS is opponents-only, so it must not be selected here.
+        mock_config.opponent_teams = ["Team Alpha", "Team Beta"]
+
+        with patch('league_helper.constants.FANTASY_TEAM_NAME', 'Sea Sharp'):
+            manager = TradeSimulatorModeManager(temp_data_folder, mock_player_manager, mock_config)
+
+        opponent_names = [team.name for team in manager.opponent_simulated_teams]
+        assert "Sea Sharp" not in opponent_names
+        assert manager.my_team.name == "Sea Sharp"
+
+    def test_unconfigured_roster_team_is_filtered_out(self, temp_data_folder, mock_player_manager, mock_config):
+        """Test that a roster team absent from config.opponent_teams is not simulated"""
+        mock_config.opponent_teams = []
+
+        with patch('league_helper.constants.FANTASY_TEAM_NAME', 'Sea Sharp'):
+            manager = TradeSimulatorModeManager(temp_data_folder, mock_player_manager, mock_config)
+
+        assert manager.opponent_simulated_teams == []
+        assert "Team Alpha" in manager.team_rosters
 
 
 if __name__ == "__main__":

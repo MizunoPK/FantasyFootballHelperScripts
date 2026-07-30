@@ -69,6 +69,7 @@ class ConfigKeys:
     FLEX_ELIGIBLE_POSITIONS = "FLEX_ELIGIBLE_POSITIONS"
     NFL_TEAM_PENALTY = "NFL_TEAM_PENALTY"
     NFL_TEAM_PENALTY_WEIGHT = "NFL_TEAM_PENALTY_WEIGHT"
+    OPPONENT_TEAMS = "OPPONENT_TEAMS"
 
     TRADE_SIMULATOR = "TRADE_SIMULATOR"
 
@@ -216,6 +217,8 @@ class ConfigManager:
 
         self.nfl_team_penalty: List[str] = []
         self.nfl_team_penalty_weight: float = 1.0
+
+        self.opponent_teams: List[str] = []
 
         self.trade_waivers_two_for_two: bool = False
         self.trade_waivers_three_for_three: bool = False
@@ -997,6 +1000,9 @@ class ConfigManager:
         self.nfl_team_penalty_weight = self.parameters.get(
             self.keys.NFL_TEAM_PENALTY_WEIGHT, 1.0
         )
+        self.opponent_teams = self.parameters.get(
+            self.keys.OPPONENT_TEAMS, []
+        )
 
         trade_sim_section = self.parameters.get(self.keys.TRADE_SIMULATOR, {}) or {}
 
@@ -1062,6 +1068,27 @@ class ConfigManager:
             raise ValueError(
                 f"NFL_TEAM_PENALTY_WEIGHT must be between 0.0 and 1.0 (inclusive), "
                 f"got {self.nfl_team_penalty_weight}"
+            )
+
+        if not isinstance(self.opponent_teams, list):
+            raise ValueError(
+                f"OPPONENT_TEAMS must be a list, got {type(self.opponent_teams).__name__}"
+            )
+
+        invalid_opponent_teams = [
+            team for team in self.opponent_teams
+            if not isinstance(team, str) or not team.strip()
+        ]
+        if invalid_opponent_teams:
+            raise ValueError(
+                f"OPPONENT_TEAMS entries must be non-empty strings, "
+                f"got invalid entries: {invalid_opponent_teams!r}"
+            )
+
+        if Constants.FANTASY_TEAM_NAME in self.opponent_teams:
+            raise ValueError(
+                f"OPPONENT_TEAMS must contain opponents only, but includes your own team "
+                f"'{Constants.FANTASY_TEAM_NAME}' (FANTASY_TEAM_NAME). Remove it from the list."
             )
 
         self.max_search_results = self.parameters.get(self.keys.MAX_SEARCH_RESULTS, 15)

@@ -159,7 +159,7 @@ class TradeSimulatorModeManager:
         self.trade_snapshots = []
 
         for team_name, team_list in self.team_rosters.items():
-            if team_name in Constants.VALID_TEAMS:
+            if team_name in self.config.opponent_teams:
                 self.opponent_simulated_teams.append(TradeSimTeam(team_name, team_list, self.player_manager))
 
     

@@ -119,6 +119,17 @@
         "EXCELLENT": 1.05
       },
       "WEIGHT": 4.0
-    }
+    },
+    "OPPONENT_TEAMS": [
+      "Fishoutawater",
+      "Chase-ing points",
+      "Annihilators",
+      "The Injury Report",
+      "Striking Shibas",
+      "Bo Him-ian Rhapsody",
+      "Saquon Deez",
+      "The Eskimo Brothers",
+      "Pidgin"
+    ]
   }
 }
