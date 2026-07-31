@@ -4,7 +4,9 @@ Tests for ModifyPlayerDataModeManager.
 Author: Kai Mizuno
 """
 
+import re
 import pytest
+from io import StringIO
 from pathlib import Path
 from unittest.mock import Mock, patch, MagicMock, call
 from league_helper.modify_player_data_mode.ModifyPlayerDataModeManager import ModifyPlayerDataModeManager
@@ -332,5 +334,191 @@ class TestMarkPlayerAsDraftedTeamMenuSources:
         assert offered_teams == sorted(self.CONFIGURED_OPPONENTS + ["Sea Sharp", "Saint Nix"])
         assert offered_teams.count("Annihilators") == 1
         assert len(offered_teams) == len(set(offered_teams))
+
+
+class TestStartInteractiveModeLoop:
+    """Test suite for start_interactive_mode()'s loop control flow (T81)."""
+
+    @pytest.fixture
+    def mock_player_manager(self):
+        """Create a mock PlayerManager sufficient to enter the mode loop."""
+        manager = Mock()
+        manager.players = []
+        manager.update_players_file = Mock()
+        manager.config.opponent_teams = ["Annihilators"]
+        return manager
+
+    @patch('builtins.print')
+    @patch('league_helper.modify_player_data_mode.ModifyPlayerDataModeManager.show_list_selection')
+    def test_recoverable_error_reprompts_instead_of_exiting_the_mode(
+        self, mock_show_list, mock_print, mock_player_manager
+    ):
+        """Test that an exception inside the loop re-prompts rather than ejecting the user"""
+        mode_manager = ModifyPlayerDataModeManager(mock_player_manager)
+        mode_manager.logger = Mock()
+        mode_manager._mark_player_as_drafted = Mock(side_effect=RuntimeError("boom"))
+
+        mock_show_list.side_effect = [1, 4]
+
+        mode_manager.start_interactive_mode(mock_player_manager)
+
+        # Two menu renders: the failing attempt, then the re-prompt the fix introduces.
+        # Pre-fix this was 1 - the broad handler broke out of the whole mode.
+        assert mock_show_list.call_count == 2
+        mode_manager._mark_player_as_drafted.assert_called_once()
+        printed = " ".join(str(c) for c in mock_print.call_args_list)
+        assert "Error in Modify Player Data mode: boom" in printed
+        mode_manager.logger.error.assert_called_once_with(
+            "Error in Modify Player Data mode: boom"
+        )
+
+    @patch('builtins.print')
+    @patch('league_helper.modify_player_data_mode.ModifyPlayerDataModeManager.show_list_selection')
+    def test_repeated_recoverable_errors_keep_reprompting(
+        self, mock_show_list, mock_print, mock_player_manager
+    ):
+        """Test that consecutive errors each re-prompt rather than compounding into an exit"""
+        mode_manager = ModifyPlayerDataModeManager(mock_player_manager)
+        mode_manager.logger = Mock()
+        mode_manager._mark_player_as_drafted = Mock(side_effect=RuntimeError("boom"))
+
+        mock_show_list.side_effect = [1, 1, 4]
+
+        mode_manager.start_interactive_mode(mock_player_manager)
+
+        assert mock_show_list.call_count == 3
+        assert mode_manager._mark_player_as_drafted.call_count == 2
+        assert mode_manager.logger.error.call_count == 2
+
+    @patch('builtins.print')
+    @patch('league_helper.modify_player_data_mode.ModifyPlayerDataModeManager.show_list_selection')
+    def test_keyboard_interrupt_still_exits_the_mode(
+        self, mock_show_list, mock_print, mock_player_manager
+    ):
+        """Test that Ctrl+C still breaks out of the mode (unchanged by the continue fix)"""
+        mode_manager = ModifyPlayerDataModeManager(mock_player_manager)
+        mode_manager.logger = Mock()
+
+        mock_show_list.side_effect = KeyboardInterrupt()
+
+        mode_manager.start_interactive_mode(mock_player_manager)
+
+        assert mock_show_list.call_count == 1
+        printed = " ".join(str(c) for c in mock_print.call_args_list)
+        assert "Returning to Main Menu..." in printed
+
+    @patch('builtins.print')
+    @patch('league_helper.modify_player_data_mode.ModifyPlayerDataModeManager.show_list_selection')
+    def test_return_to_main_menu_option_exits_the_mode(
+        self, mock_show_list, mock_print, mock_player_manager
+    ):
+        """Test that the user's own exit option still leaves the mode on the first pass"""
+        mode_manager = ModifyPlayerDataModeManager(mock_player_manager)
+        mode_manager.logger = Mock()
+
+        mock_show_list.side_effect = [4]
+
+        mode_manager.start_interactive_mode(mock_player_manager)
+
+        assert mock_show_list.call_count == 1
+        printed = " ".join(str(c) for c in mock_print.call_args_list)
+        assert "Returning to Main Menu..." in printed
+
+
+class TestTeamSelectionRejectsOutOfRangeWithoutWriting:
+    """Test that an out-of-range TEAM SELECTION index never reaches update_players_file (T81).
+
+    These cases deliberately do NOT patch show_list_selection - they patch builtins.input
+    so the REAL helper loop runs. The suite's other caller-side tests patch the helper
+    wholesale, so they never exercise its validation and are not coverage of this fix.
+    """
+
+    @pytest.fixture
+    def available_player(self):
+        """Create a single undrafted player for the mark-as-drafted path."""
+        return FantasyPlayer(id=1, name="Patrick Mahomes", team="KC", position="QB",
+                             bye_week=7, drafted_by="", locked=0, score=95.0,
+                             fantasy_points=350.0)
+
+    @pytest.fixture
+    def mock_player_manager(self, available_player):
+        """Create a mock PlayerManager - update_players_file is a Mock, so no file is written."""
+        manager = Mock()
+        manager.players = [available_player]
+        manager.update_players_file = Mock()
+        manager.config.opponent_teams = ["Annihilators", "Pidgin", "Striking Shibas"]
+        manager.config.max_search_results = 10
+        return manager
+
+    @staticmethod
+    def _answer_then_cancel(queued):
+        """Answer with the queued values, then the Cancel sentinel.
+
+        The sentinel is read out of the prompt the helper actually rendered
+        ("Enter your choice (1-N): "), so no menu length is ever hard-coded and
+        the union of configured + data-present team names is never re-implemented.
+        """
+        pending = list(queued)
+
+        def _answer(prompt):
+            if pending:
+                return pending.pop(0)
+            match = re.search(r"\(1-(\d+)\)", prompt)
+            assert match, f"unexpected prompt: {prompt!r}"
+            return match.group(1)
+
+        return _answer
+
+    def _run(self, mock_player_manager, available_player, queued):
+        """Drive _mark_player_as_drafted with the real helper and the queued inputs."""
+        with patch('league_helper.modify_player_data_mode.ModifyPlayerDataModeManager.Constants') as mock_constants, \
+             patch('league_helper.modify_player_data_mode.ModifyPlayerDataModeManager.PlayerSearch') as mock_search_class, \
+             patch('builtins.input', side_effect=self._answer_then_cancel(queued)), \
+             patch('sys.stdout', new_callable=StringIO) as mock_stdout:
+            mock_constants.FANTASY_TEAM_NAME = "Sea Sharp"
+            mock_searcher = Mock()
+            mock_searcher.interactive_search.return_value = available_player
+            mock_search_class.return_value = mock_searcher
+
+            ModifyPlayerDataModeManager(mock_player_manager)._mark_player_as_drafted()
+
+            return mock_stdout.getvalue()
+
+    def test_zero_at_team_selection_persists_nothing(self, mock_player_manager, available_player):
+        """Test that entering 0 at TEAM SELECTION writes nothing (pre-fix it wrote the last team)"""
+        output = self._run(mock_player_manager, available_player, ['0'])
+
+        assert available_player.drafted_by == ""
+        mock_player_manager.update_players_file.assert_not_called()
+        assert "Invalid choice. Please try again." in output
+        assert "as drafted by" not in output
+
+    def test_high_out_of_range_at_team_selection_persists_nothing(self, mock_player_manager, available_player):
+        """Test that a too-high index writes nothing and raises nothing (pre-fix it raised IndexError)"""
+        output = self._run(mock_player_manager, available_player, ['99'])
+
+        assert available_player.drafted_by == ""
+        mock_player_manager.update_players_file.assert_not_called()
+        assert "Invalid choice. Please try again." in output
+        assert "as drafted by" not in output
+
+    def test_cancel_sentinel_still_cancels_without_writing(self, mock_player_manager, available_player):
+        """Test that the Cancel sentinel still cancels cleanly with no retry message"""
+        output = self._run(mock_player_manager, available_player, [])
+
+        assert available_player.drafted_by == ""
+        mock_player_manager.update_players_file.assert_not_called()
+        assert "Cancelled." in output
+        assert "Invalid choice. Please try again." not in output
+
+    def test_valid_team_index_still_persists(self, mock_player_manager, available_player):
+        """Test the positive control - a valid index still marks and saves exactly once"""
+        output = self._run(mock_player_manager, available_player, ['1'])
+
+        # Sorted union of config + FANTASY_TEAM_NAME: Annihilators, Pidgin, Sea Sharp, Striking Shibas
+        assert available_player.drafted_by == "Annihilators"
+        mock_player_manager.update_players_file.assert_called_once()
+        assert "as drafted by Annihilators" in output
+        assert "Invalid choice. Please try again." not in output
 
 

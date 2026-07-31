@@ -81,8 +81,9 @@ class ModifyPlayerDataModeManager:
         3. Lock Player - Toggle player's locked status (prevents trading)
         4. Return to Main Menu - Exit the mode
 
-        The mode runs in a loop until the user exits or an exception occurs.
-        Handles KeyboardInterrupt (Ctrl+C) and general exceptions gracefully.
+        The mode runs in a loop until the user exits (option 4) or interrupts
+        with Ctrl+C. A general exception is reported, logged, and the menu is
+        re-prompted rather than exiting the mode.
 
         Args:
             player_manager (PlayerManager): Updated PlayerManager instance with current player data
@@ -125,7 +126,7 @@ class ModifyPlayerDataModeManager:
             except Exception as e:
                 print(f"Error in Modify Player Data mode: {e}")
                 self.logger.error(f"Error in Modify Player Data mode: {e}")
-                break
+                continue
 
     def _mark_player_as_drafted(self):
         """
