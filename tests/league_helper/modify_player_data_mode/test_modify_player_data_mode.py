@@ -350,6 +350,39 @@ class TestStartInteractiveModeLoop:
 
     @patch('builtins.print')
     @patch('league_helper.modify_player_data_mode.ModifyPlayerDataModeManager.show_list_selection')
+    def test_eof_terminates_the_loop_rather_than_reprompting_forever(
+        self, mock_show_list, mock_print, mock_player_manager
+    ):
+        """Test that EOF on stdin breaks the mode loop instead of looping unboundedly.
+
+        This is a TERMINATION test, and it is deliberately built so the mock CANNOT
+        supply the exit. `side_effect` is an unbounded generator raising EOFError on
+        every call, so if the loop ever treats EOF as recoverable and `continue`s, this
+        test hangs rather than passing -- which is exactly the regression it guards.
+
+        The sibling recoverable-error test above cannot catch that: its finite
+        side_effect list means termination always comes from the mock running out, so
+        it would stay green against an unbounded loop.
+        """
+        mode_manager = ModifyPlayerDataModeManager(mock_player_manager)
+        mode_manager.logger = Mock()
+
+        def _always_eof(*args, **kwargs):
+            raise EOFError("EOF when reading a line")
+
+        mock_show_list.side_effect = _always_eof
+
+        mode_manager.start_interactive_mode(mock_player_manager)
+
+        # Exactly one call: EOF is terminal, so there is no second prompt.
+        assert mock_show_list.call_count == 1
+        printed = " ".join(str(c) for c in mock_print.call_args_list)
+        assert "Input stream closed" in printed
+        # The broad recoverable-error path must NOT have handled it.
+        assert "Error in Modify Player Data mode" not in printed
+
+    @patch('builtins.print')
+    @patch('league_helper.modify_player_data_mode.ModifyPlayerDataModeManager.show_list_selection')
     def test_recoverable_error_reprompts_instead_of_exiting_the_mode(
         self, mock_show_list, mock_print, mock_player_manager
     ):
@@ -377,7 +410,14 @@ class TestStartInteractiveModeLoop:
     def test_repeated_recoverable_errors_keep_reprompting(
         self, mock_show_list, mock_print, mock_player_manager
     ):
-        """Test that consecutive errors each re-prompt rather than compounding into an exit"""
+        """Test that consecutive errors each re-prompt rather than compounding into an exit
+
+        NOT termination coverage. The `side_effect` list is FINITE, so the exit always
+        comes from the mock running out, never from the code under test -- this test
+        stays green against a loop that can never terminate. Termination is pinned
+        separately by `test_eof_terminates_the_loop_rather_than_reprompting_forever`,
+        which uses an unbounded side_effect so only a `break` can end the loop.
+        """
         mode_manager = ModifyPlayerDataModeManager(mock_player_manager)
         mode_manager.logger = Mock()
         mode_manager._mark_player_as_drafted = Mock(side_effect=RuntimeError("boom"))
