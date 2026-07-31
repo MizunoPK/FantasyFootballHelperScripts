@@ -81,8 +81,11 @@ class ModifyPlayerDataModeManager:
         3. Lock Player - Toggle player's locked status (prevents trading)
         4. Return to Main Menu - Exit the mode
 
-        The mode runs in a loop until the user exits or an exception occurs.
-        Handles KeyboardInterrupt (Ctrl+C) and general exceptions gracefully.
+        The mode runs in a loop until the user exits (option 4), interrupts
+        with Ctrl+C, or stdin is exhausted/closed (EOF). A general exception is
+        reported, logged, and the menu is re-prompted rather than exiting the
+        mode; EOF is terminal instead, because re-prompting a closed stream can
+        never succeed.
 
         Args:
             player_manager (PlayerManager): Updated PlayerManager instance with current player data
@@ -122,10 +125,21 @@ class ModifyPlayerDataModeManager:
                 print("\nReturning to Main Menu...")
                 self.logger.info("User interrupted Modify Player Data mode")
                 break
+            except EOFError:
+                # Terminal, so it MUST break -- never `continue`. stdin is exhausted or
+                # closed, so re-prompting cannot succeed: the next read raises EOFError
+                # again and the broad handler below would catch it forever. This clause
+                # must stay ABOVE that handler, since EOFError is an Exception subclass.
+                # Reachable in any piped session (the user test plan and the
+                # draft-sim-test harness both drive this code over a pipe), where no
+                # KeyboardInterrupt is ever raised and there is no other escape.
+                print("\nInput stream closed. Returning to Main Menu...")
+                self.logger.info("EOF on stdin in Modify Player Data mode")
+                break
             except Exception as e:
                 print(f"Error in Modify Player Data mode: {e}")
                 self.logger.error(f"Error in Modify Player Data mode: {e}")
-                break
+                continue
 
     def _mark_player_as_drafted(self):
         """

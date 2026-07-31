@@ -10,7 +10,7 @@ Key responsibilities:
 - Handling user input with validation and retry logic
 - Supporting custom quit option labels
 - Input sanitization (stripping whitespace)
-- Error handling for invalid inputs (non-integers)
+- Error handling for invalid inputs (non-integers and out-of-range numbers)
 - Returning user selection as integer (1-based indexing)
 
 Author: Kai Mizuno
@@ -35,6 +35,8 @@ def show_list_selection(title : str, options : List[str], quit_str : str) -> int
         int: User's choice as 1-based index (1 to len(options)+1)
             - Values 1 to len(options) represent menu options
             - Value len(options)+1 represents quit selection
+            - Any other input (non-integer or out of range) is rejected with
+              "Invalid choice. Please try again." and the prompt is re-read
 
     Example:
         >>> choice = show_list_selection("Main Menu", ["Option A", "Option B"], "Exit")
@@ -64,6 +66,8 @@ def show_list_selection(title : str, options : List[str], quit_str : str) -> int
     while (True):
         try:
             choice = int(input(f"Enter your choice (1-{max_choice}): ").strip())
-            return choice
+            if 1 <= choice <= max_choice:
+                return choice
+            print("Invalid choice. Please try again.")
         except ValueError:
             print("Invalid choice. Please try again.")
