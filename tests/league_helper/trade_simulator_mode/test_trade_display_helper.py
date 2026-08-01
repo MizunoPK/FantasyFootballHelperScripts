@@ -232,6 +232,50 @@ class TestDisplayCombinedRoster:
         assert "LOWERCASE TEAM" in captured.out
         assert "lowercase team" not in captured.out
 
+    def test_display_combined_roster_separator_column_is_consistent(self, capsys):
+        """The '|' separator lands at the same column on every row, including the widest.
+
+        Regression for the T82 review CONCERN: the left column is padded to a
+        fixed width and Python's ':<N' pads but never truncates, so a row wider
+        than the pad pushes the separator right and breaks alignment with the
+        header rule. The widest realistic row is a long-named, scored,
+        non-ACTIVE player - that combination is what this pins.
+        """
+        widest = FantasyPlayer(
+            id=1,
+            name="Marvin Harrison Jr.",
+            team="ARI",
+            position="WR",
+            bye_week=8,
+            drafted_by="Sea Sharp",
+            injury_status="QUESTIONABLE",
+            fantasy_points=217.9,
+        )
+        widest.score = 159.2
+        narrow = FantasyPlayer(
+            id=2,
+            name="AJ",
+            team="KC",
+            position="WR",
+            bye_week=10,
+            drafted_by="Sea Sharp",
+            fantasy_points=12.0,
+        )
+        narrow.score = 8.0
+
+        TradeDisplayHelper.display_combined_roster([widest, narrow], [], "Opponent")
+
+        captured = capsys.readouterr()
+        separator_columns = {
+            line.index(" | ")
+            for line in captured.out.split("\n")
+            if " | " in line
+        }
+
+        assert len(separator_columns) == 1, (
+            f"'|' separator is not column-aligned across rows: {separator_columns}"
+        )
+
 
 class TestDisplayTradeResult:
     """Test display_trade_result method"""

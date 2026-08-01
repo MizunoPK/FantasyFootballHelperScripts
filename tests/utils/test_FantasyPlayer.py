@@ -190,6 +190,58 @@ class TestFantasyPlayerStrPointsFigure:
         assert "0.0 pts" in player_str
         assert "(Score:" not in player_str
 
+    def test_str_scored_injured_player_places_score_before_injury_status(self):
+        """R2/R3: the (Score:) secondary sits after the pts token and before the injury status.
+
+        Pins the FULL rendered line rather than substrings, so a future
+        re-ordering of the two segments cannot ship green. The double space
+        before the injury segment is the current, approved format (the
+        ` {status}` join always emits a space, and `status` carries its own
+        leading space when non-empty).
+        """
+        player = FantasyPlayer(
+            id=1004,
+            name="Injured Scored",
+            team="KC",
+            position="WR",
+            bye_week=10,
+            drafted_by="Sea Sharp",
+            score=88.5,
+            fantasy_points=201.4,
+            injury_status="QUESTIONABLE"
+        )
+
+        assert str(player) == (
+            "Injured Scored (KC WR) - 201.4 pts (Score: 88.5)  (QUESTIONABLE) "
+            "[Bye=10] [ROSTERED]"
+        )
+
+    def test_str_default_injury_status_renders_unknown_segment_after_score(self):
+        """R2/R3: the default injury_status is UNKNOWN, not ACTIVE, so it renders a segment.
+
+        Constructing a FantasyPlayer without an explicit `injury_status` leaves
+        the field at its "UNKNOWN" default (utils/FantasyPlayer.py), which is
+        NOT the suppressed-ACTIVE case — so the ` (UNKNOWN)` segment renders and
+        the (Score:) secondary must still precede it. This is the relationship
+        the sibling TestFantasyPlayerLockedIndicator methods rely on implicitly
+        by passing no injury_status.
+        """
+        player = FantasyPlayer(
+            id=1005,
+            name="Default Status",
+            team="KC",
+            position="WR",
+            bye_week=7,
+            score=65.0,
+            fantasy_points=180.0
+        )
+
+        assert player.injury_status == "UNKNOWN"
+        assert str(player) == (
+            "Default Status (KC WR) - 180.0 pts (Score: 65.0)  (UNKNOWN) "
+            "[Bye=7] [AVAILABLE]"
+        )
+
 
 class TestFantasyPlayerInit:
     """Test suite for FantasyPlayer initialization."""
