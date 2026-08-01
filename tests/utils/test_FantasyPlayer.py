@@ -116,11 +116,79 @@ class TestFantasyPlayerLockedIndicator:
 
         assert "Patrick Mahomes" in player_str
         assert "(KC QB)" in player_str
-        assert "92.3 pts" in player_str
+        assert "310.5 pts" in player_str
+        assert "(Score: 92.3)" in player_str
         assert "[Bye=10]" in player_str
         assert "[ROSTERED]" in player_str
         assert "[LOCKED]" in player_str
         assert player_str.index("[ROSTERED]") < player_str.index("[LOCKED]")
+
+
+class TestFantasyPlayerStrPointsFigure:
+    """Regression suite for the __str__ points figure (T82).
+
+    __str__ used to headline the transient in-session `score`, so any player
+    nothing had scored this session rendered `0.0 pts` — a session-dependent
+    figure. It now headlines the durable, load-derived `fantasy_points`, with
+    `score` demoted to a `(Score: N.N)` secondary shown only when it is > 0.
+    """
+
+    def test_str_never_scored_player_shows_season_total_without_score_segment(self):
+        """R7: a never-scored player headlines its season total and shows no (Score:) segment."""
+        player = FantasyPlayer.from_json({
+            "id": "1001",
+            "name": "Never Scored",
+            "team": "ATL",
+            "position": "RB",
+            "bye_week": 5,
+            "injury_status": "ACTIVE",
+            "projected_points": [18.0] * 17
+        })
+
+        player_str = str(player)
+
+        assert player.score == 0.0
+        assert player.fantasy_points == 306.0
+        assert "306.0 pts" in player_str
+        assert "(Score:" not in player_str
+
+    def test_str_scored_player_shows_season_total_then_score_secondary(self):
+        """R8: a scored player shows the season total headline, then the (Score:) secondary."""
+        player = FantasyPlayer(
+            id=1002,
+            name="Scored Player",
+            team="WSH",
+            position="QB",
+            bye_week=12,
+            drafted_by="Sea Sharp",
+            score=225.0,
+            fantasy_points=288.4,
+            injury_status="ACTIVE"
+        )
+
+        player_str = str(player)
+
+        assert "288.4 pts" in player_str
+        assert "(Score: 225.0)" in player_str
+        assert player_str.index("288.4 pts") < player_str.index("(Score: 225.0)")
+
+    def test_str_all_zero_projection_player_shows_zero_without_score_segment(self):
+        """R9: an all-zero projection legitimately renders 0.0 pts — expected, not the defect."""
+        player = FantasyPlayer.from_json({
+            "id": "1003",
+            "name": "Zero Projection",
+            "team": "NYJ",
+            "position": "TE",
+            "bye_week": 9,
+            "injury_status": "ACTIVE",
+            "projected_points": [0.0] * 17
+        })
+
+        player_str = str(player)
+
+        assert player.fantasy_points == 0.0
+        assert "0.0 pts" in player_str
+        assert "(Score:" not in player_str
 
 
 class TestFantasyPlayerInit:
