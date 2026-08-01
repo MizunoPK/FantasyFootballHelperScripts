@@ -72,9 +72,9 @@ class TradeDisplayHelper:
 
         Output format: Side-by-side table with MY TEAM on left, THEIR TEAM on right
         """
-        print("\n" + "=" * 160)
+        print("\n" + "=" * 204)
         print("COMBINED ROSTER FOR TRADE")
-        print("=" * 160)
+        print("=" * 204)
 
         position_order = ["QB", "RB", "WR", "TE", "K", "DST"]
 
@@ -97,8 +97,8 @@ class TradeDisplayHelper:
         my_team_header = "MY TEAM"
         their_team_header = their_team_name.upper()
 
-        print(f"\n{my_team_header:<78} | {their_team_header}")
-        print("-" * 78 + "-+-" + "-" * 78)
+        print(f"\n{my_team_header:<100} | {their_team_header}")
+        print("-" * 100 + "-+-" + "-" * 100)
 
         their_roster_start = 1
         for position in position_order:
@@ -134,9 +134,9 @@ class TradeDisplayHelper:
                 elif i == 0:
                     right_side = "  (No players)"
 
-                print(f"{left_side:<78} | {right_side}")
+                print(f"{left_side:<100} | {right_side}")
 
-        print("\n" + "=" * 160)
+        print("\n" + "=" * 204)
 
         return their_roster_start, my_display_order, their_display_order
 

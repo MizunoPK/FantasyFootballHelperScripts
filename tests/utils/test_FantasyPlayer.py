@@ -116,11 +116,131 @@ class TestFantasyPlayerLockedIndicator:
 
         assert "Patrick Mahomes" in player_str
         assert "(KC QB)" in player_str
-        assert "92.3 pts" in player_str
+        assert "310.5 pts" in player_str
+        assert "(Score: 92.3)" in player_str
         assert "[Bye=10]" in player_str
         assert "[ROSTERED]" in player_str
         assert "[LOCKED]" in player_str
         assert player_str.index("[ROSTERED]") < player_str.index("[LOCKED]")
+
+
+class TestFantasyPlayerStrPointsFigure:
+    """Regression suite for the __str__ points figure (T82).
+
+    __str__ used to headline the transient in-session `score`, so any player
+    nothing had scored this session rendered `0.0 pts` — a session-dependent
+    figure. It now headlines the durable, load-derived `fantasy_points`, with
+    `score` demoted to a `(Score: N.N)` secondary shown only when it is > 0.
+    """
+
+    def test_str_never_scored_player_shows_season_total_without_score_segment(self):
+        """R7: a never-scored player headlines its season total and shows no (Score:) segment."""
+        player = FantasyPlayer.from_json({
+            "id": "1001",
+            "name": "Never Scored",
+            "team": "ATL",
+            "position": "RB",
+            "bye_week": 5,
+            "injury_status": "ACTIVE",
+            "projected_points": [18.0] * 17
+        })
+
+        player_str = str(player)
+
+        assert player.score == 0.0
+        assert player.fantasy_points == 306.0
+        assert "306.0 pts" in player_str
+        assert "(Score:" not in player_str
+
+    def test_str_scored_player_shows_season_total_then_score_secondary(self):
+        """R8: a scored player shows the season total headline, then the (Score:) secondary."""
+        player = FantasyPlayer(
+            id=1002,
+            name="Scored Player",
+            team="WSH",
+            position="QB",
+            bye_week=12,
+            drafted_by="Sea Sharp",
+            score=225.0,
+            fantasy_points=288.4,
+            injury_status="ACTIVE"
+        )
+
+        player_str = str(player)
+
+        assert "288.4 pts" in player_str
+        assert "(Score: 225.0)" in player_str
+        assert player_str.index("288.4 pts") < player_str.index("(Score: 225.0)")
+
+    def test_str_all_zero_projection_player_shows_zero_without_score_segment(self):
+        """R9: an all-zero projection legitimately renders 0.0 pts — expected, not the defect."""
+        player = FantasyPlayer.from_json({
+            "id": "1003",
+            "name": "Zero Projection",
+            "team": "NYJ",
+            "position": "TE",
+            "bye_week": 9,
+            "injury_status": "ACTIVE",
+            "projected_points": [0.0] * 17
+        })
+
+        player_str = str(player)
+
+        assert player.fantasy_points == 0.0
+        assert "0.0 pts" in player_str
+        assert "(Score:" not in player_str
+
+    def test_str_scored_injured_player_places_score_before_injury_status(self):
+        """R2/R3: the (Score:) secondary sits after the pts token and before the injury status.
+
+        Pins the FULL rendered line rather than substrings, so a future
+        re-ordering of the two segments cannot ship green. The double space
+        before the injury segment is the current, approved format (the
+        ` {status}` join always emits a space, and `status` carries its own
+        leading space when non-empty).
+        """
+        player = FantasyPlayer(
+            id=1004,
+            name="Injured Scored",
+            team="KC",
+            position="WR",
+            bye_week=10,
+            drafted_by="Sea Sharp",
+            score=88.5,
+            fantasy_points=201.4,
+            injury_status="QUESTIONABLE"
+        )
+
+        assert str(player) == (
+            "Injured Scored (KC WR) - 201.4 pts (Score: 88.5)  (QUESTIONABLE) "
+            "[Bye=10] [ROSTERED]"
+        )
+
+    def test_str_default_injury_status_renders_unknown_segment_after_score(self):
+        """R2/R3: the default injury_status is UNKNOWN, not ACTIVE, so it renders a segment.
+
+        Constructing a FantasyPlayer without an explicit `injury_status` leaves
+        the field at its "UNKNOWN" default (utils/FantasyPlayer.py), which is
+        NOT the suppressed-ACTIVE case — so the ` (UNKNOWN)` segment renders and
+        the (Score:) secondary must still precede it. This is the relationship
+        the sibling TestFantasyPlayerLockedIndicator methods rely on implicitly
+        by passing no injury_status.
+        """
+        player = FantasyPlayer(
+            id=1005,
+            name="Default Status",
+            team="KC",
+            position="WR",
+            bye_week=7,
+            score=65.0,
+            fantasy_points=180.0
+        )
+
+        assert player.injury_status == "UNKNOWN"
+        assert str(player) == (
+            "Default Status (KC WR) - 180.0 pts (Score: 65.0)  (UNKNOWN) "
+            "[Bye=7] [AVAILABLE]"
+        )
 
 
 class TestFantasyPlayerInit:

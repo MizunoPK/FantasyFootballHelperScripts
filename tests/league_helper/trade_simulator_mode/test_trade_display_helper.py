@@ -232,6 +232,79 @@ class TestDisplayCombinedRoster:
         assert "LOWERCASE TEAM" in captured.out
         assert "lowercase team" not in captured.out
 
+    def test_display_combined_roster_separator_column_is_consistent(self, capsys):
+        """The '|' separator lands at the same column on every row, including the widest.
+
+        Regression for the T82 review CONCERN: the left column is padded to a
+        fixed width and Python's ':<N' pads but never truncates, so a row wider
+        than the pad pushes the separator right and breaks alignment with the
+        header rule. The widest realistic row is a long-named, scored,
+        non-ACTIVE player - that combination is what this pins.
+
+        All four column-geometry constants are pinned relative to one another,
+        so reverting any ONE of them in isolation fails this test: the row pad
+        and the header pad (via the shared ' | ' column), the '-+-' dashed rule
+        (via its pivot column), and the three '=' rules (via the deliberate
+        body + 1 width relationship the pre-existing off-by-one preserves).
+        """
+        widest = FantasyPlayer(
+            id=1,
+            name="Marvin Harrison Jr.",
+            team="ARI",
+            position="WR",
+            bye_week=8,
+            drafted_by="Sea Sharp",
+            injury_status="QUESTIONABLE",
+            fantasy_points=217.9,
+        )
+        widest.score = 159.2
+        narrow = FantasyPlayer(
+            id=2,
+            name="AJ",
+            team="KC",
+            position="WR",
+            bye_week=10,
+            drafted_by="Sea Sharp",
+            fantasy_points=12.0,
+        )
+        narrow.score = 8.0
+
+        TradeDisplayHelper.display_combined_roster([widest, narrow], [], "Opponent")
+
+        captured = capsys.readouterr()
+        lines = captured.out.split("\n")
+        separator_columns = {
+            line.index(" | ")
+            for line in lines
+            if " | " in line
+        }
+
+        assert len(separator_columns) == 1, (
+            f"'|' separator is not column-aligned across rows: {separator_columns}"
+        )
+        separator_column = separator_columns.pop()
+
+        # The dashed header rule pivots on '-+-'; that pivot must land on the
+        # same column the ' | ' row separator does, or the header underline no
+        # longer lines up with the column it underlines.
+        dash_rules = [line for line in lines if line and set(line) <= {"-", "+"}]
+        assert len(dash_rules) == 1, f"expected one dashed header rule, got {dash_rules}"
+        dash_rule = dash_rules[0]
+        assert dash_rule.index("-+-") == separator_column, (
+            f"dashed header rule pivots at column {dash_rule.index('-+-')} but rows "
+            f"separate at column {separator_column}"
+        )
+
+        # The three full-width '=' rules bracket the table and must span it. The
+        # widths deliberately preserve a pre-existing off-by-one: the rendered
+        # body is pad + len(' | ') + pad, and the '=' rule is that plus one.
+        equals_rules = [line for line in lines if line and set(line) == {"="}]
+        assert len(equals_rules) == 3, f"expected three '=' rules, got {len(equals_rules)}"
+        assert {len(line) for line in equals_rules} == {len(dash_rule) + 1}, (
+            f"'=' rules are {sorted({len(line) for line in equals_rules})} wide but the "
+            f"table body is {len(dash_rule)} wide (expected body + 1)"
+        )
+
 
 class TestDisplayTradeResult:
     """Test display_trade_result method"""

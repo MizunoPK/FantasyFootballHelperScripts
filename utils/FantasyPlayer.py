@@ -487,7 +487,15 @@ class FantasyPlayer:
         return total
     
     def __str__(self) -> str:
-        """String representation of the player for display."""
+        """String representation of the player for display.
+
+        The headline points figure is fantasy_points (the season-total
+        projection). The in-session score is appended as a "(Score: N.N)"
+        secondary only when it is greater than zero.
+
+        Returns:
+            The single-line display string for this player.
+        """
         status = f" ({self.injury_status})" if self.injury_status != 'ACTIVE' else ""
 
         if self.is_drafted_by_opponent():
@@ -499,7 +507,15 @@ class FantasyPlayer:
 
         locked_indicator = " [LOCKED]" if self.is_locked() else ""
 
-        return f"{self.name} ({self.team} {self.position}) - {self.score:.1f} pts {status} [Bye={self.bye_week}] [{drafted}]{locked_indicator}"
+        # fantasy_points is derived at load for every player, while score is a
+        # scratch field set only if something scored this player in the current
+        # session - so headlining score made the same player show a different
+        # number depending on where the user had navigated. The secondary is
+        # guarded on > 0 so it appears only where it carries information,
+        # mirroring ScoredPlayer.__str__'s projected_points > 0 guard.
+        score_indicator = f" (Score: {self.score:.1f})" if self.score > 0 else ""
+
+        return f"{self.name} ({self.team} {self.position}) - {self.fantasy_points:.1f} pts{score_indicator} {status} [Bye={self.bye_week}] [{drafted}]{locked_indicator}"
     
     def __repr__(self) -> str:
         """Developer representation of the player."""
