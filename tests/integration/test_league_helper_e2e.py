@@ -150,10 +150,22 @@ class TestLeagueHelperE2E:
         Driving `2` enters Starter Helper, which renders its recommendation list and stops
         at the bare `input()` behind `Press Enter to Continue...`
         (StarterHelperModeManager.py:311) -- a prompt OUTSIDE the shared menu helper and
-        outside every try. This is the automated guard for the six propagation-only prompt
-        sites (that one plus TradeSimulatorModeManager.py:132,528,580,604,631), which are
-        otherwise covered only by the Phase-6 user test plan and not by
-        `python tests/run_all_tests.py`.
+        outside every try.
+
+        This case covers TWO properties, and only the second is a regression guard:
+
+        1. *Reachability + clean exit* -- Starter Helper is reached, EOF there exits `1`
+           with the notice and no traceback.
+        2. *Propagation guard for StarterHelperModeManager.py:311 specifically* -- the
+           `MAIN MENU` occurrence count pins WHERE the EOF surfaced. If a future broad
+           `except Exception` around that `input()` swallowed EOF and returned to the
+           menu, exit/notice/no-traceback would all still hold (EOF merely defers to the
+           main-menu prompt), but the main menu would re-render, so the count rises from
+           1 to >1. Verified by revert probe: 1 clean vs 3 mutated.
+
+        Property 2 covers ONLY this one prompt site. The other five propagation-only sites
+        (TradeSimulatorModeManager.py:132,528,580,604,631) are NOT exercised here and
+        remain covered only by the Phase-6 user test plan.
 
         Args:
             tmp_path (Path): Pytest-provided temporary directory, cleaned up after test.
@@ -175,3 +187,11 @@ class TestLeagueHelperE2E:
         assert "STARTER HELPER" in stdout.upper(), f"Never reached Starter Helper. stdout: {stdout[-2000:]}"
         assert "No input available on stdin — exiting." in stdout, f"Notice missing. stdout: {stdout[-2000:]}"
         assert "Traceback (most recent call last):" not in stderr, f"Python traceback found in stderr: {stderr}"
+        # Discriminating assertion: pins WHERE the EOF surfaced, not merely that Starter
+        # Helper was reached. A broad handler swallowing EOF at :311 -- whether it prints
+        # a return-to-menu line or silently passes -- re-renders the main menu, so the
+        # count rises above 1.
+        assert stdout.upper().count("MAIN MENU") == 1, \
+            f"Main menu re-rendered — EOF did not terminate at StarterHelperModeManager.py:311. stdout: {stdout[-2000:]}"
+        assert "Returning to Main Menu" not in stdout, \
+            f"EOF was swallowed at the prompt and the session fell back to the menu. stdout: {stdout[-2000:]}"
