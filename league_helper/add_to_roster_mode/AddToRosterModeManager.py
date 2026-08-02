@@ -166,6 +166,15 @@ class AddToRosterModeManager:
 
             except ValueError:
                 print("Invalid input. Please enter a number.")
+            except EOFError:
+                # Must stay ABOVE the broad handler below, since EOFError is an
+                # Exception subclass. Without this clause a dead stdin is reported as a
+                # generic "Error: EOF when reading a line" and masked as a user-chosen
+                # return to the Main Menu -- which then re-prompts the same dead stream.
+                # Re-raise instead: LeagueHelperManager.main() owns the notice and the
+                # exit status. The broad handler below is otherwise unchanged and still
+                # handles genuine unexpected errors.
+                raise
             except Exception as e:
                 print(f"Error: {e}")
                 print("Returning to Main Menu...")

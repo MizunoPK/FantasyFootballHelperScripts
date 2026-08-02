@@ -353,12 +353,19 @@ class TestStartInteractiveModeLoop:
     def test_eof_terminates_the_loop_rather_than_reprompting_forever(
         self, mock_show_list, mock_print, mock_player_manager
     ):
-        """Test that EOF on stdin breaks the mode loop instead of looping unboundedly.
+        """Test that EOF on stdin ends the mode loop instead of looping unboundedly.
 
         This is a TERMINATION test, and it is deliberately built so the mock CANNOT
         supply the exit. `side_effect` is an unbounded generator raising EOFError on
         every call, so if the loop ever treats EOF as recoverable and `continue`s, this
         test hangs rather than passing -- which is exactly the regression it guards.
+
+        T83 changed the clause's disposition from `break` to `raise`: returning to the
+        Main Menu was never a recovery, because that menu immediately re-prompts the
+        same dead stream. EOF now ends the whole session, and
+        LeagueHelperManager.main() emits the single-line notice and exits non-zero, so
+        the old mode-scoped "Input stream closed. Returning to Main Menu..." line is
+        gone and asserted absent below.
 
         The sibling recoverable-error test above cannot catch that: its finite
         side_effect list means termination always comes from the mock running out, so
@@ -372,14 +379,18 @@ class TestStartInteractiveModeLoop:
 
         mock_show_list.side_effect = _always_eof
 
-        mode_manager.start_interactive_mode(mock_player_manager)
+        with pytest.raises(EOFError):
+            mode_manager.start_interactive_mode(mock_player_manager)
 
         # Exactly one call: EOF is terminal, so there is no second prompt.
         assert mock_show_list.call_count == 1
         printed = " ".join(str(c) for c in mock_print.call_args_list)
-        assert "Input stream closed" in printed
+        # T83 removed the mode-scoped return-to-menu claim; the session ends instead.
+        assert "Input stream closed" not in printed
         # The broad recoverable-error path must NOT have handled it.
         assert "Error in Modify Player Data mode" not in printed
+        # The mode-scoped breadcrumb survives, ahead of main()'s notice.
+        mode_manager.logger.info.assert_any_call("EOF on stdin in Modify Player Data mode")
 
     @patch('builtins.print')
     @patch('league_helper.modify_player_data_mode.ModifyPlayerDataModeManager.show_list_selection')
@@ -416,7 +427,8 @@ class TestStartInteractiveModeLoop:
         comes from the mock running out, never from the code under test -- this test
         stays green against a loop that can never terminate. Termination is pinned
         separately by `test_eof_terminates_the_loop_rather_than_reprompting_forever`,
-        which uses an unbounded side_effect so only a `break` can end the loop.
+        which uses an unbounded side_effect so only the code under test -- since T83,
+        a `raise` out of the EOF clause -- can end the loop.
         """
         mode_manager = ModifyPlayerDataModeManager(mock_player_manager)
         mode_manager.logger = Mock()

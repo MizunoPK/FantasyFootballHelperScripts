@@ -11,7 +11,7 @@ Author: Kai Mizuno
 import pytest
 from pathlib import Path
 from unittest.mock import Mock, MagicMock, patch, call
-from league_helper.LeagueHelperManager import LeagueHelperManager
+from league_helper.LeagueHelperManager import LeagueHelperManager, main
 
 
 class TestLeagueHelperManagerInit:
@@ -391,5 +391,83 @@ class TestEdgeCases:
             manager.save_calculated_points_manager.execute.assert_called_once()
 
             assert player_instance.reload_player_data.call_count == 6
+
+
+class TestMainEofAndInterruptHandling:
+    """Test main()'s EOF / Ctrl+C handler -- the single owner of the exit status (T83).
+
+    LoggingManager writes console output to stdout via StreamHandler(sys.stdout)
+    (utils/LoggingManager.py:82) and prefixes every line with
+    "{timestamp} - {logger} - {LEVEL} - {func}:{line} - ", so every notice assertion
+    below SUBSTRING-matches. Equality-matching the bare notice text would fail
+    against correct code.
+    """
+
+    @patch('sys.argv', ['run_league_helper.py'])
+    @patch('league_helper.LeagueHelperManager.LeagueHelperManager')
+    def test_main_exits_1_with_a_single_notice_on_eof(self, mock_manager_cls, capsys):
+        """Test EOF out of the interactive loop -> one-line notice, exit 1, no traceback (R1)."""
+        mock_manager_cls.return_value.start_interactive_mode.side_effect = EOFError(
+            "EOF when reading a line"
+        )
+
+        with pytest.raises(SystemExit) as exc:
+            main()
+
+        assert exc.value.code == 1
+        assert "No input available on stdin — exiting." in capsys.readouterr().out
+
+    @patch('sys.argv', ['run_league_helper.py'])
+    @patch('league_helper.LeagueHelperManager.LeagueHelperManager')
+    def test_main_exits_130_on_keyboard_interrupt_in_the_loop(self, mock_manager_cls, capsys):
+        """Test Ctrl+C at the main menu -> one-line notice and exit 130 (R3, D2)."""
+        mock_manager_cls.return_value.start_interactive_mode.side_effect = KeyboardInterrupt()
+
+        with pytest.raises(SystemExit) as exc:
+            main()
+
+        assert exc.value.code == 130
+        assert "Interrupted — exiting." in capsys.readouterr().out
+
+    @patch('sys.argv', ['run_league_helper.py'])
+    @patch('league_helper.LeagueHelperManager.LeagueHelperManager')
+    def test_main_exits_130_on_keyboard_interrupt_during_construction(self, mock_manager_cls, capsys):
+        """Test Ctrl+C raised from the CONSTRUCTOR is still caught (R3a).
+
+        This is the case that pins the try's EXTENT. The constructor loads the player
+        pool, the season schedule, and team data -- several seconds of work -- so a
+        Ctrl+C landing there is a realistic timing. A try scoped to
+        start_interactive_mode() alone passes the sibling loop case above and FAILS
+        this one, dumping a traceback instead.
+        """
+        mock_manager_cls.side_effect = KeyboardInterrupt()
+
+        with pytest.raises(SystemExit) as exc:
+            main()
+
+        assert exc.value.code == 130
+        assert "Interrupted — exiting." in capsys.readouterr().out
+        # Proof the catch came from construction, not the loop: the loop never ran.
+        mock_manager_cls.return_value.start_interactive_mode.assert_not_called()
+
+    @patch('sys.argv', ['run_league_helper.py'])
+    @patch('league_helper.LeagueHelperManager.LeagueHelperManager')
+    def test_main_returns_normally_when_the_session_quits(self, mock_manager_cls, capsys):
+        """Test the normal Quit path is unchanged -- no SystemExit, no notice (R5)."""
+        mock_manager_cls.return_value.start_interactive_mode.return_value = None
+
+        assert main() is None
+
+        out = capsys.readouterr().out
+        assert "No input available on stdin — exiting." not in out
+        assert "Interrupted — exiting." not in out
+
+    def test_main_documents_both_new_exit_statuses(self):
+        """Test main()'s docstring records the two SystemExit statuses (R11)."""
+        doc = main.__doc__
+
+        assert "Raises:" in doc
+        assert "SystemExit" in doc
+        assert "130" in doc
 
 

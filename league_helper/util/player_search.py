@@ -170,6 +170,15 @@ class PlayerSearch:
                     print("Invalid input. Please enter a number.")
                     continue
 
+            except EOFError:
+                # Must stay ABOVE the broad handler below, since EOFError is an
+                # Exception subclass. Without this clause a dead stdin is reported as a
+                # generic "Error during search: ..." and masked as a user-chosen exit
+                # from the search (return None) -- the caller then prompts again on the
+                # same dead stream. Re-raise instead: LeagueHelperManager.main() owns
+                # the notice and the exit status. The broad handler below is otherwise
+                # unchanged and still handles genuine search errors.
+                raise
             except Exception as e:
                 print(f"Error during search: {e}")
                 print("Returning to previous menu...")

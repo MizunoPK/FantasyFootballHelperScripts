@@ -904,6 +904,63 @@ class TestEdgeCases:
                     with pytest.raises(KeyboardInterrupt):
                         add_to_roster_manager.start_interactive_mode(mock_player_manager, mock_team_data_manager)
 
+    @patch('builtins.print')
+    @patch('builtins.input')
+    def test_interactive_mode_reraises_eof_instead_of_masking_it_as_a_cancel(
+            self, mock_input, mock_print, add_to_roster_manager,
+            mock_player_manager, mock_team_data_manager):
+        """Test EOF escapes past the broad handler rather than posing as a user cancel (T83 R2/R4).
+
+        Before T83 the broad `except Exception` caught EOFError and printed
+        "Error: EOF when reading a line" + "Returning to Main Menu..." -- a dead
+        stdin reported as a deliberate return, after which the Main Menu immediately
+        re-prompted the same dead stream. The guard clause routes EOF past that
+        handler so LeagueHelperManager.main() can own the notice and the exit status.
+
+        side_effect is an unbounded callable, never a finite list: a finite list ends
+        on StopIteration and would stay green against a broken guard.
+        """
+        def _always_eof(*args, **kwargs):
+            raise EOFError("EOF when reading a line")
+
+        mock_input.side_effect = _always_eof
+        mock_player_manager.get_roster_len.return_value = 0
+
+        with patch.object(add_to_roster_manager, '_display_roster_by_draft_rounds'):
+            with patch.object(add_to_roster_manager, '_get_current_round', return_value=1):
+                with patch.object(add_to_roster_manager, 'get_recommendations',
+                                 return_value=[Mock(spec=ScoredPlayer)]):
+                    with pytest.raises(EOFError):
+                        add_to_roster_manager.start_interactive_mode(mock_player_manager, mock_team_data_manager)
+
+        printed = " ".join(str(c) for c in mock_print.call_args_list)
+        assert "Error: EOF when reading a line" not in printed
+        assert "Returning to Main Menu..." not in printed
+
+    @patch('builtins.print')
+    @patch('builtins.input', side_effect=RuntimeError("boom"))
+    def test_interactive_mode_still_reports_genuine_errors(
+            self, mock_input, mock_print, add_to_roster_manager,
+            mock_player_manager, mock_team_data_manager):
+        """Test the broad handler is NARROWED by T83's guard, not removed (R2).
+
+        A RuntimeError is not an EOFError, so it must still reach the broad
+        `except Exception`, still print both user-facing lines, and still return
+        normally. Without this case a guard edit that deleted the handler's prints
+        would ship green -- the broad handler has no other coverage in this file.
+        """
+        mock_player_manager.get_roster_len.return_value = 0
+
+        with patch.object(add_to_roster_manager, '_display_roster_by_draft_rounds'):
+            with patch.object(add_to_roster_manager, '_get_current_round', return_value=1):
+                with patch.object(add_to_roster_manager, 'get_recommendations',
+                                 return_value=[Mock(spec=ScoredPlayer)]):
+                    add_to_roster_manager.start_interactive_mode(mock_player_manager, mock_team_data_manager)
+
+        printed = " ".join(str(c) for c in mock_print.call_args_list)
+        assert "Error: boom" in printed
+        assert "Returning to Main Menu..." in printed
+
     def test_match_players_to_rounds_with_duplicate_positions(self, add_to_roster_manager,
                                                               mock_player_manager, sample_players):
         """Test matching when roster has many players of same position"""

@@ -81,14 +81,20 @@ class ModifyPlayerDataModeManager:
         3. Lock Player - Toggle player's locked status (prevents trading)
         4. Return to Main Menu - Exit the mode
 
-        The mode runs in a loop until the user exits (option 4), interrupts
-        with Ctrl+C, or stdin is exhausted/closed (EOF). A general exception is
-        reported, logged, and the menu is re-prompted rather than exiting the
-        mode; EOF is terminal instead, because re-prompting a closed stream can
-        never succeed.
+        The mode runs in a loop until the user exits (option 4) or interrupts
+        with Ctrl+C. A general exception is reported, logged, and the menu is
+        re-prompted rather than exiting the mode; EOF is terminal instead and is
+        re-raised, because re-prompting a closed stream can never succeed and the
+        Main Menu would only re-prompt the same dead stream. EOF therefore ends the
+        whole session, not just this mode.
 
         Args:
             player_manager (PlayerManager): Updated PlayerManager instance with current player data
+
+        Raises:
+            EOFError: If stdin is exhausted or closed. Re-raised so
+                LeagueHelperManager.main() can emit the single-line notice and exit
+                non-zero.
         """
         self.set_managers(player_manager)
         self.logger.info("Entering Modify Player Data interactive mode")
@@ -126,16 +132,19 @@ class ModifyPlayerDataModeManager:
                 self.logger.info("User interrupted Modify Player Data mode")
                 break
             except EOFError:
-                # Terminal, so it MUST break -- never `continue`. stdin is exhausted or
-                # closed, so re-prompting cannot succeed: the next read raises EOFError
-                # again and the broad handler below would catch it forever. This clause
-                # must stay ABOVE that handler, since EOFError is an Exception subclass.
+                # Terminal, so it MUST re-raise -- never `continue`, and no longer
+                # `break`. stdin is exhausted or closed, so re-prompting cannot succeed:
+                # the next read raises EOFError again and the broad handler below would
+                # catch it forever. This clause must stay ABOVE that handler, since
+                # EOFError is an Exception subclass. It re-raises rather than returning
+                # to the Main Menu because that menu's very next act is another prompt
+                # on the same dead stream -- T83 measured the traceback simply moving
+                # there. LeagueHelperManager.main() owns the notice and the exit status.
                 # Reachable in any piped session (the user test plan and the
                 # draft-sim-test harness both drive this code over a pipe), where no
                 # KeyboardInterrupt is ever raised and there is no other escape.
-                print("\nInput stream closed. Returning to Main Menu...")
                 self.logger.info("EOF on stdin in Modify Player Data mode")
-                break
+                raise
             except Exception as e:
                 print(f"Error in Modify Player Data mode: {e}")
                 self.logger.error(f"Error in Modify Player Data mode: {e}")
