@@ -142,3 +142,36 @@ class TestLeagueHelperE2E:
             f"Stale return-to-menu line survived. stdout: {stdout[-2000:]}"
         assert "No input available on stdin — exiting." in stdout, f"Notice missing. stdout: {stdout[-2000:]}"
         assert "Traceback (most recent call last):" not in stderr, f"Python traceback found in stderr: {stderr}"
+
+    def test_eof_at_a_bare_input_outside_the_menu_helper_also_exits_cleanly(self, tmp_path: Path) -> None:
+        """
+        Verify the fix is not show_list_selection-scoped (T83 R1, propagation-only site).
+
+        Driving `2` enters Starter Helper, which renders its recommendation list and stops
+        at the bare `input()` behind `Press Enter to Continue...`
+        (StarterHelperModeManager.py:311) -- a prompt OUTSIDE the shared menu helper and
+        outside every try. This is the automated guard for the six propagation-only prompt
+        sites (that one plus TradeSimulatorModeManager.py:132,528,580,604,631), which are
+        otherwise covered only by the Phase-6 user test plan and not by
+        `python tests/run_all_tests.py`.
+
+        Args:
+            tmp_path (Path): Pytest-provided temporary directory, cleaned up after test.
+        """
+        env = _assemble_data_dir(tmp_path)
+
+        result = subprocess.run(
+            [sys.executable, str(REPO_ROOT / "run_league_helper.py")],
+            input=b"2\n",
+            capture_output=True,
+            timeout=60,
+            env=env,
+        )
+
+        stdout = result.stdout.decode()
+        stderr = result.stderr.decode()
+
+        assert result.returncode == 1, f"Expected exit code 1, got {result.returncode}. stderr: {stderr}"
+        assert "STARTER HELPER" in stdout.upper(), f"Never reached Starter Helper. stdout: {stdout[-2000:]}"
+        assert "No input available on stdin — exiting." in stdout, f"Notice missing. stdout: {stdout[-2000:]}"
+        assert "Traceback (most recent call last):" not in stderr, f"Python traceback found in stderr: {stderr}"

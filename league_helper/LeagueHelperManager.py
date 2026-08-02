@@ -250,7 +250,16 @@ def main():
         # cancels to the main menu instead, and is unchanged). 130 is POSIX
         # 128 + SIGINT -- the status a shell already reports today, so the only
         # observable delta is that the traceback is gone.
-        logger.info("Interrupted — exiting.")
+        # error, not info: the notice's visibility must not depend on
+        # constants.LOGGING_LEVEL (raising it to WARNING would silence an info line and
+        # falsify R3 with no failing test). It also matches the counted peer shape in the
+        # entry-point scripts, where the level tracks the EXIT DISPOSITION rather than the
+        # exception type -- a KeyboardInterrupt that exits 0 logs at info/warning
+        # (run_win_rate_simulation.py:244,497; run_accuracy_simulation.py:482) while a
+        # NON-ZERO exit logs at error (run_win_rate_simulation.py:248;
+        # run_accuracy_simulation.py:485). This exits 130, so it is symmetric with the
+        # EOF notice above.
+        logger.error("Interrupted — exiting.")
         sys.exit(130)
 
 

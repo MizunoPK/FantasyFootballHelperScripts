@@ -11,7 +11,9 @@ Author: Kai Mizuno
 import pytest
 from pathlib import Path
 from unittest.mock import Mock, MagicMock, patch, call
+from league_helper import constants
 from league_helper.LeagueHelperManager import LeagueHelperManager, main
+from utils.LoggingManager import setup_logger
 
 
 class TestLeagueHelperManagerInit:
@@ -461,6 +463,45 @@ class TestMainEofAndInterruptHandling:
         out = capsys.readouterr().out
         assert "No input available on stdin — exiting." not in out
         assert "Interrupted — exiting." not in out
+
+    @pytest.mark.parametrize("side_effect,expected_code,notice", [
+        (EOFError("EOF when reading a line"), 1, "No input available on stdin — exiting."),
+        (KeyboardInterrupt(), 130, "Interrupted — exiting."),
+    ])
+    @patch('sys.argv', ['run_league_helper.py'])
+    @patch('league_helper.LeagueHelperManager.LeagueHelperManager')
+    def test_both_notices_survive_a_raised_logging_level(
+        self, mock_manager_cls, capsys, side_effect, expected_code, notice
+    ):
+        """Test neither notice is visibility-coupled to constants.LOGGING_LEVEL (T83 Polish).
+
+        main() configures the logger from constants.LOGGING_LEVEL ('INFO' today), so a
+        notice emitted below WARNING would silently disappear if that constant were ever
+        raised -- and R1/R3 ("prints exactly one line carrying ...") would become false
+        with no failing test. This pins the PROPERTY (the notice survives a WARNING-level
+        run) rather than the exact level, so it does not re-litigate D4's level choice.
+        """
+        mock_manager_cls.return_value.start_interactive_mode.side_effect = side_effect
+
+        original_level = constants.LOGGING_LEVEL
+        try:
+            with patch.object(constants, 'LOGGING_LEVEL', 'WARNING'):
+                with pytest.raises(SystemExit) as exc:
+                    main()
+
+            assert exc.value.code == expected_code
+            # LoggingManager prefixes the line and writes it to stdout -- substring match only.
+            assert notice in capsys.readouterr().out
+        finally:
+            # setup_logger mutates the process-wide 'league_helper' logger; restore it so a
+            # later test in the same session is not left running at WARNING.
+            setup_logger(
+                constants.LOG_NAME,
+                original_level,
+                log_to_file=False,
+                log_file_path=None,
+                log_format=constants.LOGGING_FORMAT,
+            )
 
     def test_main_documents_both_new_exit_statuses(self):
         """Test main()'s docstring records the two SystemExit statuses (R11)."""
