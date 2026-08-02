@@ -198,7 +198,7 @@
       "lat": -23.5475,
       "lon": -46.63611,
       "tz": "America/Sao_Paulo",
-      "name": "São Paulo"
+      "name": "S\u00e3o Paulo"
     },
     "Munich,Germany": {
       "lat": 48.13743,
@@ -223,6 +223,12 @@
       "lon": 13.41053,
       "tz": "Europe/Berlin",
       "name": "Berlin"
+    },
+    "Melbourne,Australia": {
+      "lat": -37.814,
+      "lon": 144.96332,
+      "tz": "Australia/Melbourne",
+      "name": "Melbourne"
     }
   }
 }

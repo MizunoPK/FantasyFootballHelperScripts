@@ -1,0 +1,17 @@
+week,home_team,away_team,temperature,gust,precipitation,home_team_score,away_team_score,indoor,neutral_site,country,city,state,date
+1,SEA,NE,67,9,0.0,,,False,False,USA,Seattle,WA,2026-09-10T00:20Z
+1,LAR,SF,52,21,0.0,,,False,True,Australia,Melbourne,,2026-09-11T00:35Z
+1,CIN,TB,73,6,0.0,,,False,False,USA,Cincinnati,OH,2026-09-13T17:00Z
+1,DET,NO,,,,,,True,False,USA,Detroit,MI,2026-09-13T17:00Z
+1,TEN,NYJ,76,6,0.0,,,False,False,USA,Nashville,TN,2026-09-13T17:00Z
+1,IND,BAL,,,,,,True,False,USA,Indianapolis,IN,2026-09-13T17:00Z
+1,PIT,ATL,76,14,0.0,,,False,False,USA,Pittsburgh,PA,2026-09-13T17:00Z
+1,CAR,CHI,78,11,0.0,,,False,False,USA,Charlotte,NC,2026-09-13T17:00Z
+1,JAX,CLE,86,21,0.0,,,False,False,USA,Jacksonville,FL,2026-09-13T17:00Z
+1,HOU,BUF,,,,,,True,False,USA,Houston,TX,2026-09-13T17:00Z
+1,LV,MIA,,,,,,True,False,USA,Las Vegas,NV,2026-09-13T20:25Z
+1,MIN,GB,,,,,,True,False,USA,Minneapolis,MN,2026-09-13T20:25Z
+1,PHI,WSH,88,16,0.0,,,False,False,USA,Philadelphia,PA,2026-09-13T20:25Z
+1,LAC,ARI,83,10,0.0,,,False,False,USA,Inglewood,CA,2026-09-13T20:25Z
+1,NYG,DAL,78,24,0.0,,,False,False,USA,East Rutherford,NJ,2026-09-14T00:20Z
+1,KC,DEN,88,6,0.0,,,False,False,USA,Kansas City,MO,2026-09-15T00:15Z
