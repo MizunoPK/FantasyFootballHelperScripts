@@ -18,6 +18,7 @@ Author: Kai Mizuno
 
 from pathlib import Path
 import os
+import sys
 import argparse
 from league_helper import constants
 from league_helper.util.ConfigManager import ConfigManager
@@ -200,6 +201,11 @@ def main():
                           rotation and max 50 files (default: OFF)
         --week N: Override current NFL week for this session (in-memory only; does not
                  modify league_config.json on disk)
+
+    Raises:
+        SystemExit: Code 1 when stdin is exhausted or closed (EOF / Ctrl+D), and code
+            130 (POSIX 128 + SIGINT) on KeyboardInterrupt (Ctrl+C). The normal Quit
+            path (menu option 6) returns normally, so the process exits 0.
     """
     parser = argparse.ArgumentParser(description="Fantasy Football League Helper")
     parser.add_argument(
@@ -228,8 +234,33 @@ def main():
     base_path = Path(__file__).parent.parent
     data_path = Path(os.environ["LEAGUE_DATA_DIR"]) if os.environ.get("LEAGUE_DATA_DIR") else base_path / "data"
 
-    leagueHelper = LeagueHelperManager(data_path, week_override=args.week)
-    leagueHelper.start_interactive_mode()
+    try:
+        leagueHelper = LeagueHelperManager(data_path, week_override=args.week)
+        leagueHelper.start_interactive_mode()
+    except EOFError:
+        # Terminal by construction: stdin is exhausted or closed, and every prompt in
+        # the app reads that same stream, so no menu is a recovery. This is the single
+        # place that decides the exit status -- the mode-level clauses only re-raise.
+        # Non-zero deliberately: an aborted piped session must stay distinguishable
+        # from the normal Quit path (menu option 6, exit 0).
+        logger.error("No input available on stdin — exiting.")
+        sys.exit(1)
+    except KeyboardInterrupt:
+        # Ctrl+C anywhere the app is not already handling it (Modify Player Data
+        # cancels to the main menu instead, and is unchanged). 130 is POSIX
+        # 128 + SIGINT -- the status a shell already reports today, so the only
+        # observable delta is that the traceback is gone.
+        # error, not info: the notice's visibility must not depend on
+        # constants.LOGGING_LEVEL (raising it to WARNING would silence an info line and
+        # falsify R3 with no failing test). It also matches the counted peer shape in the
+        # entry-point scripts, where the level tracks the EXIT DISPOSITION rather than the
+        # exception type -- a KeyboardInterrupt that exits 0 logs at info/warning
+        # (run_win_rate_simulation.py:244,497; run_accuracy_simulation.py:482) while a
+        # NON-ZERO exit logs at error (run_win_rate_simulation.py:248;
+        # run_accuracy_simulation.py:485). This exits 130, so it is symmetric with the
+        # EOF notice above.
+        logger.error("Interrupted — exiting.")
+        sys.exit(130)
 
 
 if __name__ == "__main__":

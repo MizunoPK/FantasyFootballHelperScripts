@@ -19,6 +19,28 @@ FIXTURE_PLAYER_DATA = REPO_ROOT / "tests" / "fixtures" / "player_data"
 FIXTURE_LEAGUE_CONFIG = REPO_ROOT / "tests" / "fixtures" / "league" / "league_config.json"
 
 
+def _assemble_data_dir(tmp_path: Path) -> dict:
+    """
+    Assemble a temp LEAGUE_DATA_DIR from the committed offline fixtures.
+
+    Args:
+        tmp_path (Path): Pytest-provided temporary directory, cleaned up after test.
+
+    Returns:
+        dict: A copy of os.environ with LEAGUE_DATA_DIR pointed at the temp tree, so
+            every write the app performs lands there and the tracked data/ is untouched.
+    """
+    data_dir = tmp_path / "data"
+    data_dir.mkdir()
+
+    shutil.copy(FIXTURE_LEAGUE_CONFIG, data_dir / "league_config.json")
+    shutil.copytree(FIXTURE_PLAYER_DATA, data_dir / "player_data")
+
+    env = os.environ.copy()
+    env["LEAGUE_DATA_DIR"] = str(data_dir)
+    return env
+
+
 @pytest.mark.offline
 class TestLeagueHelperE2E:
     """
@@ -36,14 +58,7 @@ class TestLeagueHelperE2E:
         Args:
             tmp_path (Path): Pytest-provided temporary directory, cleaned up after test.
         """
-        data_dir = tmp_path / "data"
-        data_dir.mkdir()
-
-        shutil.copy(FIXTURE_LEAGUE_CONFIG, data_dir / "league_config.json")
-        shutil.copytree(FIXTURE_PLAYER_DATA, data_dir / "player_data")
-
-        env = os.environ.copy()
-        env["LEAGUE_DATA_DIR"] = str(data_dir)
+        env = _assemble_data_dir(tmp_path)
 
         result = subprocess.run(
             [sys.executable, str(REPO_ROOT / "run_league_helper.py")],
@@ -60,3 +75,123 @@ class TestLeagueHelperE2E:
         assert "Traceback (most recent call last):" not in stderr, f"Python traceback found in stderr: {stderr}"
         assert "Config:" in stdout, f"Expected startup banner 'Config:' in stdout. stdout: {stdout}"
         assert "ADD TO ROSTER" in stdout, f"Expected 'ADD TO ROSTER' mode header in stdout. stdout: {stdout}"
+
+    def test_eof_at_main_menu_exits_cleanly_without_a_traceback(self, tmp_path: Path) -> None:
+        """
+        Verify a closed stdin ends the session with one notice line and no traceback (T83 R1).
+
+        This is the T83 reproduction made permanent: stdin is closed immediately, so
+        EOF lands at the MAIN MENU prompt.
+
+        NOTE ON WHAT DISCRIMINATES: an unfixed build ALSO exits 1 here (by unhandled
+        EOFError), so the exit code cannot tell a fixed build from a broken one. The
+        discriminating assertions are the notice PRESENCE and the traceback ABSENCE.
+        The returncode assertion guards against the wrong status instead (e.g. a fix
+        that treated EOF as Quit and exited 0).
+
+        Args:
+            tmp_path (Path): Pytest-provided temporary directory, cleaned up after test.
+        """
+        env = _assemble_data_dir(tmp_path)
+
+        result = subprocess.run(
+            [sys.executable, str(REPO_ROOT / "run_league_helper.py")],
+            input=b"",
+            capture_output=True,
+            timeout=60,
+            env=env,
+        )
+
+        stdout = result.stdout.decode()
+        stderr = result.stderr.decode()
+
+        assert result.returncode == 1, f"Expected exit code 1, got {result.returncode}. stderr: {stderr}"
+        # LoggingManager prefixes the line and writes it to stdout -- substring match only.
+        assert "No input available on stdin — exiting." in stdout, f"Notice missing. stdout: {stdout[-2000:]}"
+        assert "Traceback (most recent call last):" not in stderr, f"Python traceback found in stderr: {stderr}"
+
+    def test_eof_in_modify_player_data_does_not_claim_a_return_to_the_menu(self, tmp_path: Path) -> None:
+        """
+        Verify EOF inside Modify Player Data ends the session instead of announcing a return (T83 R2a).
+
+        Driving `4` enters Modify Player Data, whose submenu prompt then meets the
+        exhausted pipe. Before T83 this printed "Input stream closed. Returning to
+        Main Menu..." and went back to the Main Menu, which immediately re-prompted
+        the same dead stream and died there with a traceback. The stale line is now
+        gone and the session ends at the single notice.
+
+        Args:
+            tmp_path (Path): Pytest-provided temporary directory, cleaned up after test.
+        """
+        env = _assemble_data_dir(tmp_path)
+
+        result = subprocess.run(
+            [sys.executable, str(REPO_ROOT / "run_league_helper.py")],
+            input=b"4\n",
+            capture_output=True,
+            timeout=60,
+            env=env,
+        )
+
+        stdout = result.stdout.decode()
+        stderr = result.stderr.decode()
+
+        assert result.returncode == 1, f"Expected exit code 1, got {result.returncode}. stderr: {stderr}"
+        assert "MODIFY PLAYER DATA" in stdout.upper(), f"Never reached Modify Player Data. stdout: {stdout[-2000:]}"
+        assert "Input stream closed. Returning to Main Menu" not in stdout, \
+            f"Stale return-to-menu line survived. stdout: {stdout[-2000:]}"
+        assert "No input available on stdin — exiting." in stdout, f"Notice missing. stdout: {stdout[-2000:]}"
+        assert "Traceback (most recent call last):" not in stderr, f"Python traceback found in stderr: {stderr}"
+
+    def test_eof_at_a_bare_input_outside_the_menu_helper_also_exits_cleanly(self, tmp_path: Path) -> None:
+        """
+        Verify the fix is not show_list_selection-scoped (T83 R1, propagation-only site).
+
+        Driving `2` enters Starter Helper, which renders its recommendation list and stops
+        at the bare `input()` behind `Press Enter to Continue...`
+        (StarterHelperModeManager.py:311) -- a prompt OUTSIDE the shared menu helper and
+        outside every try.
+
+        This case covers TWO properties, and only the second is a regression guard:
+
+        1. *Reachability + clean exit* -- Starter Helper is reached, EOF there exits `1`
+           with the notice and no traceback.
+        2. *Propagation guard for StarterHelperModeManager.py:311 specifically* -- the
+           `MAIN MENU` occurrence count pins WHERE the EOF surfaced. If a future broad
+           `except Exception` around that `input()` swallowed EOF and returned to the
+           menu, exit/notice/no-traceback would all still hold (EOF merely defers to the
+           main-menu prompt), but the main menu would re-render, so the count rises from
+           1 to >1. Verified by revert probe: 1 clean vs 3 mutated.
+
+        Property 2 covers ONLY this one prompt site. The other five propagation-only sites
+        (TradeSimulatorModeManager.py:132,528,580,604,631) are NOT exercised here and
+        remain covered only by the Phase-6 user test plan.
+
+        Args:
+            tmp_path (Path): Pytest-provided temporary directory, cleaned up after test.
+        """
+        env = _assemble_data_dir(tmp_path)
+
+        result = subprocess.run(
+            [sys.executable, str(REPO_ROOT / "run_league_helper.py")],
+            input=b"2\n",
+            capture_output=True,
+            timeout=60,
+            env=env,
+        )
+
+        stdout = result.stdout.decode()
+        stderr = result.stderr.decode()
+
+        assert result.returncode == 1, f"Expected exit code 1, got {result.returncode}. stderr: {stderr}"
+        assert "STARTER HELPER" in stdout.upper(), f"Never reached Starter Helper. stdout: {stdout[-2000:]}"
+        assert "No input available on stdin — exiting." in stdout, f"Notice missing. stdout: {stdout[-2000:]}"
+        assert "Traceback (most recent call last):" not in stderr, f"Python traceback found in stderr: {stderr}"
+        # Discriminating assertion: pins WHERE the EOF surfaced, not merely that Starter
+        # Helper was reached. A broad handler swallowing EOF at :311 -- whether it prints
+        # a return-to-menu line or silently passes -- re-renders the main menu, so the
+        # count rises above 1.
+        assert stdout.upper().count("MAIN MENU") == 1, \
+            f"Main menu re-rendered — EOF did not terminate at StarterHelperModeManager.py:311. stdout: {stdout[-2000:]}"
+        assert "Returning to Main Menu" not in stdout, \
+            f"EOF was swallowed at the prompt and the session fell back to the menu. stdout: {stdout[-2000:]}"

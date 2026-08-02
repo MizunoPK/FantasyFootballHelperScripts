@@ -250,6 +250,37 @@ class TestShowListSelectionRangeValidation:
         assert 'Invalid choice. Please try again.' not in output
 
 
+class TestShowListSelectionEofPropagation:
+    """Test that EOF propagates out of show_list_selection untouched (T83)."""
+
+    @patch('builtins.input')
+    @patch('sys.stdout', new_callable=StringIO)
+    def test_eof_propagates_instead_of_being_treated_as_an_invalid_choice(self, mock_stdout, mock_input):
+        """Test that EOFError escapes show_list_selection rather than re-prompting.
+
+        show_list_selection catches only ValueError, so an exhausted or closed stdin
+        must propagate to LeagueHelperManager.main(), which owns the single-line
+        notice and the exit status (T83 D1). user_input.py is deliberately unmodified
+        by T83 (R6); this test pins the propagation the fix depends on.
+
+        This is a TERMINATION test: side_effect is an unbounded callable raising
+        EOFError on every call, so a helper that swallowed EOF and re-prompted would
+        make this test hang rather than pass. A finite side_effect list would end on
+        StopIteration and stay green against exactly that defect.
+        """
+        def _always_eof(*args, **kwargs):
+            raise EOFError("EOF when reading a line")
+
+        mock_input.side_effect = _always_eof
+
+        with pytest.raises(EOFError):
+            show_list_selection('Test Menu', ['Option 1', 'Option 2'], 'Quit')
+
+        # Exactly one read: EOF is not recoverable, so there is no second prompt.
+        assert mock_input.call_count == 1
+        assert 'Invalid choice. Please try again.' not in mock_stdout.getvalue()
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v", "--tb=short"])
 

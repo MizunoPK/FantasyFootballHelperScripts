@@ -7,6 +7,7 @@ Author: Kai Mizuno
 import json
 import pytest
 from pathlib import Path
+from unittest.mock import patch
 from utils.FantasyPlayer import FantasyPlayer
 from league_helper.util.player_search import PlayerSearch
 from league_helper.util.ConfigManager import ConfigManager
@@ -548,3 +549,72 @@ class TestMaxSearchResultsConfigValidation:
 
         with pytest.raises(ValueError, match="MAX_SEARCH_RESULTS must be a positive integer"):
             ConfigManager(tmp_path)
+
+
+class TestInteractiveSearchEofPropagation:
+    """Test that EOF re-raises out of interactive_search rather than posing as an exit (T83)."""
+
+    @pytest.fixture
+    def sample_players(self):
+        """Create a minimal player pool sufficient to produce one search match."""
+        return [
+            FantasyPlayer(id=1, name="Patrick Mahomes", team="KC", position="QB", bye_week=7,
+                          drafted_by="", locked=0, score=95.0, fantasy_points=350.0),
+        ]
+
+    @pytest.fixture
+    def player_search(self, sample_players):
+        """Create PlayerSearch instance."""
+        return PlayerSearch(sample_players)
+
+    @patch('builtins.print')
+    @patch('builtins.input')
+    def test_eof_at_the_result_choice_prompt_reraises_instead_of_returning_none(
+            self, mock_input, mock_print, player_search):
+        """Test EOF at the result-choice prompt escapes past the broad handler (T83 R2/R4).
+
+        Before T83 the broad `except Exception` turned EOFError into
+        "Error during search: ..." + "Returning to previous menu..." + return None,
+        which the caller read as a deliberate exit from search and then followed with
+        another prompt on the same dead stream.
+
+        The first mocked read supplies a real search term (consumed by the
+        search-term prompt, which sits OUTSIDE every try); every read after it raises
+        EOFError unboundedly, so the EOF lands at the result-choice prompt inside the
+        outer try -- the site the guard actually protects.
+        """
+        reads = iter(["Mahomes"])
+
+        def _term_then_always_eof(*args, **kwargs):
+            try:
+                return next(reads)
+            except StopIteration:
+                raise EOFError("EOF when reading a line")
+
+        mock_input.side_effect = _term_then_always_eof
+
+        with pytest.raises(EOFError):
+            player_search.interactive_search()
+
+        printed = " ".join(str(c) for c in mock_print.call_args_list)
+        assert "Error during search:" not in printed
+        assert "Returning to previous menu..." not in printed
+
+    @patch('builtins.print')
+    @patch('builtins.input', return_value="Mahomes")
+    def test_genuine_search_errors_are_still_reported(self, mock_input, mock_print, player_search):
+        """Test the broad handler is NARROWED by T83's guard, not removed (R2).
+
+        A RuntimeError is not an EOFError, so it must still reach the broad
+        `except Exception`, still print both user-facing lines, and still return None.
+        Without this case a guard edit that deleted the handler's prints would ship
+        green -- the broad handler has no other coverage in this file.
+        """
+        with patch.object(player_search, 'search_players_by_name',
+                          side_effect=RuntimeError("boom")):
+            result = player_search.interactive_search()
+
+        assert result is None
+        printed = " ".join(str(c) for c in mock_print.call_args_list)
+        assert "Error during search: boom" in printed
+        assert "Returning to previous menu..." in printed
