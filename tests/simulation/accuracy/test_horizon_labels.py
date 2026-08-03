@@ -13,7 +13,6 @@ Author: Kai Mizuno
 
 # Standard library
 import inspect
-import sys
 
 # Local
 from simulation.accuracy import horizon_labels

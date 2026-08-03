@@ -729,8 +729,21 @@ class TestHorizonLabelDelegationGuard:
 
         source = inspect.getsource(AccuracySimulationManager.__init__)
 
-        assert 'horizons' not in source, (
-            "AccuracySimulationManager.__init__ re-inlined a horizon-count literal"
+        assert 'candidate_values_label(' in source, (
+            "AccuracySimulationManager.__init__ must call candidate_values_label(); "
+            "re-inlining the banner text reintroduces the hand-synced duplication"
+        )
+        assert 'configs_per_param_label(' in source, (
+            "AccuracySimulationManager.__init__ must call configs_per_param_label(); "
+            "re-inlining the banner text reintroduces the hand-synced duplication"
+        )
+        assert 'Candidate values per parameter per horizon:' not in source, (
+            "AccuracySimulationManager.__init__ re-inlined the literal banner label "
+            "text instead of delegating to candidate_values_label()"
+        )
+        assert 'Configs per horizon-specific parameter:' not in source, (
+            "AccuracySimulationManager.__init__ re-inlined the literal banner label "
+            "text instead of delegating to configs_per_param_label()"
         )
 
     def test_parallel_runner_evaluation_log_delegates_to_horizon_count(self):
@@ -772,9 +785,15 @@ class TestHorizonCountAgreement:
     def _scan(text):
         import re
 
+        # Up to two intervening words are allowed between the number and
+        # "horizons". Without this, the story's own rewording to
+        # "all 4 weekly horizons" would sit OUTSIDE the scan -- a net loss of
+        # reach, since the pre-story "all 5 horizons" WAS caught. Verified: a
+        # planted "all 5 weekly horizons" is detected with this pattern and
+        # missed without it.
         return [
             int(match.group(1))
-            for match in re.finditer(r'(\d+)\s+horizons?', text)
+            for match in re.finditer(r'(\d+)\s+(?:\w+\s+){0,2}horizons?', text)
         ]
 
     @staticmethod

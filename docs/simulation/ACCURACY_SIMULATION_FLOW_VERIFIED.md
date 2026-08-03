@@ -1466,7 +1466,7 @@ if player.get('actual', 0) >= 3.0:  # Only meaningful performances
 
 ### 4. Parallel Runner Claimed 5 Horizons (Should be 4) — ✅ RESOLVED (T77, 2026-08-03)
 
-**Location**: `ParallelAccuracyRunner.py:33`, `:294-295`, `:326`, and the live log line at `:341`
+**Location** (as of `33febdf7`, the commit that resolved this): the three docstrings in `ParallelAccuracyRunner.py` — `:34`, `:288`, `:321` — and the live log line at `:336`. *Line numbers in this file are anchored to a commit for exactly the reason this entry records: an unanchored `file:line` citation into a moving file is stale by construction. Prefer the surrounding text when locating these sites.*
 
 This issue described the accuracy parallel runner claiming **five** horizons while `WEEK_RANGES` has held exactly four (`week_1_5`, `week_6_9`, `week_10_13`, `week_14_17`). The live site was the evaluation log at `:341` — `Starting parallel evaluation: {len(configs)} configs × 5 horizons = {len(configs) * 5} total evaluations` — repeated by three docstrings at `:33`, `:294-295`, and `:326`. The `× 5` was log text only: the product was formatted straight into the message and assigned to nothing, so no scheduling, sizing, or downstream statistic read it. An operator nonetheless saw `× 4 horizons` from the CLI banner and the manager's startup log and `× 5 horizons` from the parallel runner in the same run's output.
 
