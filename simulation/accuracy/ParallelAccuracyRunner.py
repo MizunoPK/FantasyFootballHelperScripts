@@ -17,6 +17,7 @@ from typing import Dict, List, Any, Tuple
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
 
 from simulation.accuracy.AccuracyCalculator import AccuracyCalculator, AccuracyResult
+from simulation.accuracy.horizon_labels import HORIZON_COUNT, WEEK_RANGES
 from utils.LoggingManager import get_logger
 from league_helper.util.ConfigManager import ConfigManager
 from league_helper.util.PlayerManager import PlayerManager
@@ -30,7 +31,7 @@ def _evaluate_config_tournament_process(
     available_seasons: List[Path]
 ) -> Tuple[Dict[str, Any], Dict[str, AccuracyResult]]:
     """
-    Module-level function to evaluate single config across all 5 horizons.
+    Module-level function to evaluate single config across all 4 weekly horizons.
 
     Must be module-level for ProcessPoolExecutor pickling.
 
@@ -45,13 +46,6 @@ def _evaluate_config_tournament_process(
         {'week_1_5': result_1_5, 'week_6_9': result_6_9, 'week_10_13': result_10_13, 'week_14_17': result_14_17}
     """
     calculator = AccuracyCalculator()
-
-    WEEK_RANGES = {
-        'week_1_5': (1, 5),
-        'week_6_9': (6, 9),
-        'week_10_13': (10, 13),
-        'week_14_17': (14, 17)
-    }
 
     results = {}
 
@@ -291,8 +285,9 @@ class ParallelAccuracyRunner:
     """
     Manages parallel evaluation of accuracy configs using ProcessPoolExecutor.
 
-    Evaluates multiple configs in parallel across all 5 horizons to speed up
-    tournament optimization. Each config gets 5 MAE calculations (one per horizon).
+    Evaluates multiple configs in parallel across all 4 weekly horizons to speed
+    up tournament optimization. Each config gets 4 MAE calculations (one per
+    horizon).
     """
 
     def __init__(
@@ -323,7 +318,7 @@ class ParallelAccuracyRunner:
         progress_callback = None
     ) -> List[Tuple[Dict[str, Any], Dict[str, AccuracyResult]]]:
         """
-        Evaluate multiple configs in parallel across all 5 horizons.
+        Evaluate multiple configs in parallel across all 4 weekly horizons.
 
         Args:
             configs: List of config dicts to evaluate
@@ -338,7 +333,7 @@ class ParallelAccuracyRunner:
         executor_class = ProcessPoolExecutor if self.use_processes else ThreadPoolExecutor
         executor_name = "ProcessPoolExecutor" if self.use_processes else "ThreadPoolExecutor"
 
-        self.logger.info(f"Starting parallel evaluation: {len(configs)} configs × 5 horizons = {len(configs) * 5} total evaluations")
+        self.logger.info(f"Starting parallel evaluation: {len(configs)} configs × {HORIZON_COUNT} horizons = {len(configs) * HORIZON_COUNT} total evaluations")
         self.logger.info(f"Using {executor_name} with {self.max_workers} workers")
 
         results = []

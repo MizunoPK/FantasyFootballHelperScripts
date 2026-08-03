@@ -37,6 +37,11 @@ from typing import Dict, Optional
 
 from simulation.accuracy.AccuracySimulationManager import AccuracySimulationManager
 from simulation.accuracy.AccuracyResultsManager import propagate_to_configs
+from simulation.accuracy.horizon_labels import (
+    HORIZON_COUNT,
+    candidate_values_label,
+    configs_per_param_label,
+)
 from simulation.shared.ConfigGenerator import DEFAULT_ACCURACY_SEED
 from utils.LoggingManager import setup_logger, get_logger
 
@@ -433,7 +438,7 @@ def main() -> None:
         sys.exit(1)
 
     candidate_values = args.test_values + 1
-    configs_per_param = candidate_values * 4
+    configs_per_param = candidate_values * HORIZON_COUNT
     print("\n" + "=" * 60)
     print("ACCURACY SIMULATION - TOURNAMENT OPTIMIZATION")
     print("=" * 60)
@@ -442,11 +447,8 @@ def main() -> None:
     print(f"Data folder: {data_path}")
     print(f"Test values per param: {args.test_values}")
     print(f"Num params to test: {args.num_params}")
-    print(f"Candidate values per parameter per horizon: {candidate_values:,}")
-    print(
-        f"Configs per horizon-specific parameter: {candidate_values:,} × 4 horizons "
-        f"= {configs_per_param:,}"
-    )
+    print(candidate_values_label(candidate_values))
+    print(configs_per_param_label(candidate_values, configs_per_param))
     print("=" * 60 + "\n")
 
     try:
