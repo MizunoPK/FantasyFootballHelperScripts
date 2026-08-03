@@ -21,6 +21,7 @@ class TestNewCLIFlags:
             [sys.executable, "run_win_rate_simulation.py", "--help"],
             capture_output=True,
             text=True,
+            timeout=60,
         )
         assert result.returncode == 0, f"--help failed: {result.stderr}"
         for flag in ["--sims", "--workers", "--endless", "--data", "--log-level", "--enable-log-file"]:
@@ -70,6 +71,7 @@ class TestRemovedCLIFlags:
             [sys.executable, "run_win_rate_simulation.py", "single"],
             capture_output=True,
             text=True,
+            timeout=60,
         )
         assert result.returncode != 0
         assert "unrecognized arguments" in result.stderr or "invalid choice" in result.stderr

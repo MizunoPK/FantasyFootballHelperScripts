@@ -85,7 +85,8 @@ class TestRunner:
                 cmd,
                 capture_output=True,
                 text=True,
-                cwd=str(self.project_root)
+                cwd=str(self.project_root),
+                timeout=300
             )
 
             output = result.stdout + result.stderr
@@ -192,16 +193,20 @@ class TestRunner:
             print("=" * 80)
             return True
         else:
+            failed_files = [(path, passed, total) for path, success, passed, total, _ in all_results if not success]
+
             if total_tests > 0:
-                pass_rate = total_passed/total_tests*100
-                print(f"FAILURE: {total_passed}/{total_tests} TESTS PASSED ({pass_rate:.1f}%)")
+                failed = total_tests - total_passed
+                if failed > 0:
+                    print(f"FAILURE: {failed} of {total_tests} TESTS DID NOT PASS ({total_passed} passed)")
+                else:
+                    print(f"FAILURE: {len(failed_files)} TEST FILE(S) FAILED TO RUN ({total_passed} tests passed)")
             else:
                 print(f"FAILURE: NO TESTS DISCOVERED (0/0)")
             print()
             print("STRICT REQUIREMENT: 100% of tests must pass")
             print()
 
-            failed_files = [(path, passed, total) for path, success, passed, total, _ in all_results if not success]
             if failed_files:
                 print("Failed test files:")
                 for path, passed, total in failed_files:
@@ -241,7 +246,8 @@ class TestRunner:
                 cmd,
                 capture_output=True,
                 text=True,
-                cwd=str(self.project_root)
+                cwd=str(self.project_root),
+                timeout=900
             )
 
             output = result.stdout + result.stderr

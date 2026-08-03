@@ -87,6 +87,7 @@ class TestWinRateSimulationE2E:
             capture_output=True,
             text=True,
             cwd=str(Path(__file__).parent.parent.parent),
+            timeout=120,
         )
 
         assert result.returncode == 0, f"Non-zero exit code: {result.stderr}"
