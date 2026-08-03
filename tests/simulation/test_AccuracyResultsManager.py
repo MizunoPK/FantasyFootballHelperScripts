@@ -21,6 +21,7 @@ from simulation.accuracy.AccuracyResultsManager import (
     propagate_to_configs,
 )
 from simulation.accuracy.AccuracyCalculator import AccuracyResult
+from simulation.shared.config_constants import BASE_CONFIG_PARAMS, WEEK_SPECIFIC_PARAMS
 from utils.error_handler import FileOperationError
 
 
@@ -452,6 +453,59 @@ class TestAccuracyResultsManager:
         """Test getting best config when none exists."""
         best = results_manager.get_best_config('week_1_5')
         assert best is None
+
+    def test_save_optimal_configs_filters_week_owned_keys_from_league_config(self, temp_dir):
+        """T90 AC2: a new optimal folder is born clean even from an INFLATED baseline."""
+        # Arrange - a --baseline folder whose league_config carries week-owned keys.
+        baseline = temp_dir / "inflated_baseline"
+        baseline.mkdir()
+        inflated = {
+            'config_name': 'Inflated Baseline',
+            'description': 'Reproduces the pre-T90 20-key shape',
+            'parameters': {
+                'CURRENT_NFL_WEEK': 15,
+                'ADP_SCORING': {'WEIGHT': 1.5},
+                'PLAYER_RATING_SCORING': {'WEIGHT': 1.8},
+                'TEAM_QUALITY_SCORING': {'WEIGHT': 2.77},
+                'PERFORMANCE_SCORING': {'WEIGHT': 3.55},
+                'MATCHUP_SCORING': {'WEIGHT': 1.62},
+                'SCHEDULE_SCORING': {'WEIGHT': 0.9},
+                'TEMPERATURE_SCORING': {'WEIGHT': 0.81},
+                'WIND_SCORING': {'WEIGHT': 1.23},
+                'NOT_A_REAL_PARAM': 1,
+            }
+        }
+        with open(baseline / "league_config.json", 'w') as f:
+            json.dump(inflated, f)
+        manager = AccuracyResultsManager(temp_dir / "inflated_output", baseline)
+
+        # Act
+        optimal_path = manager.save_optimal_configs()
+
+        # Assert
+        with open(optimal_path / "league_config.json") as f:
+            written = set(json.load(f)['parameters'].keys())
+        assert written & set(WEEK_SPECIFIC_PARAMS) == set(), \
+            f"week-owned keys leaked into the optimal base config: {sorted(written & set(WEEK_SPECIFIC_PARAMS))}"
+        assert written <= set(BASE_CONFIG_PARAMS), \
+            f"non-base keys leaked into the optimal base config: {sorted(written - set(BASE_CONFIG_PARAMS))}"
+
+    def test_save_optimal_configs_missing_baseline_league_config_warns_and_skips(self, temp_dir):
+        """T90 AC2 second arm: a missing baseline league_config still warns and writes nothing."""
+        # Arrange
+        baseline = temp_dir / "no_league_baseline"
+        baseline.mkdir()
+        manager = AccuracyResultsManager(temp_dir / "no_league_output", baseline)
+        manager.logger = Mock()
+
+        # Act
+        optimal_path = manager.save_optimal_configs()
+
+        # Assert
+        assert not (optimal_path / "league_config.json").exists()
+        assert any('No league_config.json found in baseline' in str(c)
+                   for c in manager.logger.warning.call_args_list), \
+            "the existing missing-baseline warning must still be logged"
 
     def test_save_optimal_configs(self, results_manager):
         """Test saving optimal configs to folder."""
@@ -1379,19 +1433,23 @@ class TestPropagateToConfigs:
         assert (target / 'league_config.json').exists()
 
     def test_league_config_preserves_user_maintained_keys(self, tmp_path):
-        """league_config.json: 5 PRESERVE_KEYS retained from existing target file."""
+        """league_config.json: 6 PRESERVE_KEYS retained from existing target file."""
         import logging
         optimal = tmp_path / "optimal"
         optimal.mkdir()
         target = tmp_path / "target"
         target.mkdir()
         preserve_keys = ['CURRENT_NFL_WEEK', 'NFL_SEASON', 'MAX_POSITIONS',
-                         'FLEX_ELIGIBLE_POSITIONS', 'INJURY_PENALTIES']
+                         'FLEX_ELIGIBLE_POSITIONS', 'INJURY_PENALTIES',
+                         'OPPONENT_TEAMS']
         optimal_params = {k: 'OPTIMAL_VALUE' for k in preserve_keys}
-        optimal_params['SCORING_WEIGHT'] = 0.9
+        # ADP_SCORING is a BASE_CONFIG_PARAMS member that is NOT preserved, so it
+        # survives the T90 filter and must come from the source (was: SCORING_WEIGHT,
+        # a synthetic non-base key the filter now correctly drops).
+        optimal_params['ADP_SCORING'] = 0.9
         (optimal / 'league_config.json').write_text(json.dumps({'parameters': optimal_params}))
         original_params = {k: f'ORIGINAL_{k}' for k in preserve_keys}
-        original_params['SCORING_WEIGHT'] = 0.5
+        original_params['ADP_SCORING'] = 0.5
         (target / 'league_config.json').write_text(json.dumps({'parameters': original_params}))
         logger = logging.getLogger('test')
         propagate_to_configs(optimal, target, logger)
@@ -1400,17 +1458,20 @@ class TestPropagateToConfigs:
         for key in preserve_keys:
             assert result['parameters'][key] == f'ORIGINAL_{key}', \
                 f"Expected {key} preserved from original config"
-        assert result['parameters']['SCORING_WEIGHT'] == 0.9, \
-            "Non-preserved key should come from optimal config"
+        assert result['parameters']['ADP_SCORING'] == 0.9, \
+            "Non-preserved base-owned key should come from optimal config"
 
     def test_league_config_copied_as_is_if_no_target(self, tmp_path):
-        """league_config.json copied as-is when no existing target file (no preservation)."""
+        """league_config.json lands unchanged when no existing target file (no preservation)."""
         import logging
         optimal = tmp_path / "optimal"
         optimal.mkdir()
         target = tmp_path / "target"
         target.mkdir()
-        optimal_config = {'parameters': {'CURRENT_NFL_WEEK': 5, 'SCORING_WEIGHT': 0.9}}
+        # Both keys are BASE_CONFIG_PARAMS members, so the T90 filter is a no-op
+        # here and the no-target arm's "no preserve-overlay" property still reads
+        # as an exact-equality assertion (was: SCORING_WEIGHT, a synthetic non-base key).
+        optimal_config = {'parameters': {'CURRENT_NFL_WEEK': 5, 'ADP_SCORING': 0.9}}
         (optimal / 'league_config.json').write_text(json.dumps(optimal_config))
         logger = logging.getLogger('test')
         propagate_to_configs(optimal, target, logger)
@@ -1454,7 +1515,7 @@ class TestPropagateToConfigs:
         optimal.mkdir()
         target = tmp_path / "target"
         src_with_metrics = {
-            'parameters': {'X': 1},
+            'parameters': {'ADP_SCORING': 1},
             'performance_metrics': {'mae': 1.23, 'ranking_metrics': {'pairwise_accuracy': 0.7}}
         }
         (optimal / 'league_config.json').write_text(json.dumps(src_with_metrics))
@@ -1466,7 +1527,7 @@ class TestPropagateToConfigs:
                 written = json.load(f)
             assert 'performance_metrics' not in written, \
                 f"{fname} must have performance_metrics stripped"
-            assert written['parameters'] == {'X': 1}, \
+            assert written['parameters'] == {'ADP_SCORING': 1}, \
                 f"{fname} parameters must be preserved"
 
     def test_malformed_source_leaves_configs_byte_identical(self, tmp_path):
@@ -1559,8 +1620,11 @@ class TestPropagateToConfigs:
         optimal = tmp_path / "optimal"
         optimal.mkdir()
         target = tmp_path / "target"
-        src = {'parameters': {'X': 1}, 'performance_metrics': {'mae': 1.23}}
-        expected = {'parameters': {'X': 1}}
+        # ADP_SCORING is a BASE_CONFIG_PARAMS member, so the T90 filter is a no-op
+        # and the byte-identity property holds for league_config.json too (was: 'X',
+        # a synthetic non-base key the filter now correctly drops).
+        src = {'parameters': {'ADP_SCORING': 1}, 'performance_metrics': {'mae': 1.23}}
+        expected = {'parameters': {'ADP_SCORING': 1}}
         for cf in config_files:
             (optimal / cf).write_text(json.dumps(src))
         logger = logging.getLogger('test')
@@ -1570,6 +1634,81 @@ class TestPropagateToConfigs:
             assert written == json.dumps(expected, indent=2), \
                 f"{cf} must be byte-identical to json.dump(indent=2) with metrics stripped"
         assert not list(target.glob('*.tmp')), "no .tmp residue after a successful promote"
+
+    def test_inflated_source_cannot_reinflate_league_config(self, tmp_path):
+        """T90 AC3: week-owned keys in the promote SOURCE never reach the base config.
+
+        Drives an actual promote from a source shaped like the real on-disk inflated
+        accuracy_optimal_* folder, in BOTH arms (existing target / no target). This is
+        the promote-PATH guard T86's committed-data guard cannot provide.
+        Targets are under tmp_path only - never data/configs/.
+        """
+        import logging
+        # Arrange - the 20-key inflated shape, in miniature.
+        inflated_params = {
+            'CURRENT_NFL_WEEK': 15,
+            'NFL_SEASON': 2023,
+            'ADP_SCORING': {'WEIGHT': 1.5},
+            'PLAYER_RATING_SCORING': {'WEIGHT': 1.8},
+            'TEAM_QUALITY_SCORING': {'WEIGHT': 2.77},
+            'PERFORMANCE_SCORING': {'WEIGHT': 3.55},
+            'MATCHUP_SCORING': {'WEIGHT': 1.62},
+            'SCHEDULE_SCORING': {'WEIGHT': 0.9},
+            'TEMPERATURE_SCORING': {'WEIGHT': 0.81},
+            'WIND_SCORING': {'WEIGHT': 1.23},
+        }
+        optimal = tmp_path / "optimal"
+        optimal.mkdir()
+        (optimal / 'league_config.json').write_text(
+            json.dumps({'config_name': 'Inflated', 'parameters': inflated_params}))
+        logger = logging.getLogger('test')
+
+        existing_target = tmp_path / "target_existing"
+        existing_target.mkdir()
+        (existing_target / 'league_config.json').write_text(
+            json.dumps({'parameters': {'CURRENT_NFL_WEEK': 1, 'OPPONENT_TEAMS': ['KC']}}))
+        absent_target = tmp_path / "target_absent"
+
+        for arm, target in (('existing-target', existing_target), ('no-target', absent_target)):
+            # Act
+            propagate_to_configs(optimal, target, logger)
+
+            # Assert
+            with open(target / 'league_config.json') as f:
+                written = set(json.load(f)['parameters'].keys())
+            assert written & set(WEEK_SPECIFIC_PARAMS) == set(), \
+                f"{arm}: week-owned keys reached the base config: {sorted(written & set(WEEK_SPECIFIC_PARAMS))}"
+            assert written <= set(BASE_CONFIG_PARAMS), \
+                f"{arm}: non-base keys reached the base config: {sorted(written - set(BASE_CONFIG_PARAMS))}"
+
+    def test_opponent_teams_survives_a_promote_from_a_source_lacking_it(self, tmp_path):
+        """T90 AC4 (D2): OPPONENT_TEAMS is preserved from the target when the source omits it.
+
+        The drop direction no subtractive filter can fix - propagate_to_configs
+        atomically REPLACES the target, so a live-only base key is deleted unless
+        it is in PRESERVE_KEYS. Target is under tmp_path only - never data/configs/.
+        """
+        import logging
+        # Arrange
+        optimal = tmp_path / "optimal"
+        optimal.mkdir()
+        target = tmp_path / "target"
+        target.mkdir()
+        (optimal / 'league_config.json').write_text(
+            json.dumps({'parameters': {'CURRENT_NFL_WEEK': 9, 'ADP_SCORING': {'WEIGHT': 1.5}}}))
+        original_teams = ['KC', 'SF', 'BUF']
+        (target / 'league_config.json').write_text(
+            json.dumps({'parameters': {'CURRENT_NFL_WEEK': 1, 'OPPONENT_TEAMS': original_teams}}))
+        logger = logging.getLogger('test')
+
+        # Act
+        propagate_to_configs(optimal, target, logger)
+
+        # Assert
+        with open(target / 'league_config.json') as f:
+            written = json.load(f)['parameters']
+        assert written['OPPONENT_TEAMS'] == original_teams, \
+            "OPPONENT_TEAMS must be preserved from the promote target, not dropped"
 
 
 if __name__ == "__main__":

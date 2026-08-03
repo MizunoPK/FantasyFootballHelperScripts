@@ -16,7 +16,8 @@ from datetime import datetime
 from utils.LoggingManager import get_logger
 from simulation.shared.ConfigPerformance import ConfigPerformance, WEEK_RANGES
 from simulation.shared.config_cleanup import cleanup_old_optimal_folders
-from simulation.shared.config_constants import BASE_CONFIG_PARAMS, WEEK_SPECIFIC_PARAMS
+from simulation.shared.config_constants import WEEK_SPECIFIC_PARAMS
+from simulation.shared.config_filters import extract_base_params
 
 
 class ResultsManager:
@@ -233,24 +234,16 @@ class ResultsManager:
         """
         Extract base (non-week-specific) parameters from a config.
 
+        Delegates to simulation.shared.config_filters.extract_base_params so this
+        win-rate path and the accuracy promote path share one filter body (T90 D3).
+
         Args:
             config_dict (dict): Full configuration dictionary
 
         Returns:
             dict: Config dict with only base parameters
         """
-        params = config_dict.get('parameters', {})
-        base_params = {
-            key: params[key]
-            for key in BASE_CONFIG_PARAMS
-            if key in params
-        }
-
-        return {
-            'config_name': config_dict.get('config_name', 'Optimal Base Config'),
-            'description': 'Base configuration (non-week-specific parameters)',
-            'parameters': base_params
-        }
+        return extract_base_params(config_dict)
 
     def _extract_week_params(self, config_dict: dict) -> dict:
         """

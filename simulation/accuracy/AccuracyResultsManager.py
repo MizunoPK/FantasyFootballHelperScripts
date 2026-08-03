@@ -28,6 +28,7 @@ from utils.LoggingManager import get_logger
 from simulation.shared.atomic_io import atomic_write_json
 from simulation.shared.config_cleanup import cleanup_old_accuracy_optimal_folders
 from simulation.shared.config_constants import WEEK_SPECIFIC_PARAMS
+from simulation.shared.config_filters import extract_base_params
 from simulation.shared.ConfigGenerator import ConfigGenerator
 from simulation.accuracy.accuracy_types import RankingMetrics
 from simulation.accuracy.AccuracyCalculator import AccuracyResult
@@ -416,7 +417,7 @@ class AccuracyResultsManager:
 
         Creates folder structure that can be used as baseline for future runs:
             accuracy_optimal_TIMESTAMP/
-            ├── league_config.json      # Copied from baseline (strategy params)
+            ├── league_config.json      # Baseline base params, filtered to BASE_CONFIG_PARAMS
             ├── week1-5.json            # Weekly optimal (prediction params)
             ├── week6-9.json
             ├── week10-13.json
@@ -454,8 +455,20 @@ class AccuracyResultsManager:
 
         baseline_league_config = self.baseline_config_path / 'league_config.json'
         if baseline_league_config.exists():
-            shutil.copy(baseline_league_config, optimal_folder / 'league_config.json')
-            self.logger.info("Copied league_config.json from baseline")
+            # Ownership filter (T90 D1): the --baseline folder's base config is
+            # written FILTERED to BASE_CONFIG_PARAMS, never copied verbatim, so a
+            # new accuracy_optimal_* folder is born free of week-owned keys. This
+            # matches the WEEK_SPECIFIC_PARAMS filter the week branch below already
+            # applies to the other half of the ownership split.
+            with open(baseline_league_config, 'r') as f:
+                baseline_config = json.load(f)
+
+            base_config_output = extract_base_params(baseline_config)
+
+            with open(optimal_folder / 'league_config.json', 'w') as f:
+                json.dump(base_config_output, f, indent=2)
+
+            self.logger.info("Wrote league_config.json from baseline (base params only)")
         else:
             self.logger.warning(f"No league_config.json found in baseline: {self.baseline_config_path}")
 
@@ -864,8 +877,14 @@ def propagate_to_configs(
     Copy optimal accuracy configs to target folder, preserving user-maintained fields.
 
     Copies all 5 standard config files from optimal_folder to target_folder.
-    For league_config.json: preserves CURRENT_NFL_WEEK, NFL_SEASON, MAX_POSITIONS,
-    FLEX_ELIGIBLE_POSITIONS, INJURY_PENALTIES from the existing target file (if present).
+    For league_config.json the source 'parameters' block is FIRST filtered to
+    BASE_CONFIG_PARAMS (simulation.shared.config_filters.extract_base_params), so
+    week-file-owned keys in any source folder can never ride into the live base
+    config (T90). Only the filtered 'parameters' is taken, so the source's own
+    config_name/description survive. THEN CURRENT_NFL_WEEK, NFL_SEASON,
+    MAX_POSITIONS, FLEX_ELIGIBLE_POSITIONS, INJURY_PENALTIES, OPPONENT_TEAMS are
+    preserved from the existing target file (if present), so live-only
+    user-maintained keys are never dropped by the atomic replace.
     For weekly config files: copies as-is (MATCHUP->SCHEDULE sync already applied
     by save_optimal_configs() at write time). The simulation-only 'performance_metrics'
     block is stripped from all written files before writing.
@@ -896,6 +915,10 @@ def propagate_to_configs(
         'MAX_POSITIONS',
         'FLEX_ELIGIBLE_POSITIONS',
         'INJURY_PENALTIES',
+        # T90 D2: OPPONENT_TEAMS is a BASE_CONFIG_PARAMS member that lives only in
+        # the live file (no source folder carries it), so without preservation every
+        # promote DELETES it. No subtractive filter can fix that direction.
+        'OPPONENT_TEAMS',
     ]
 
     target_folder.mkdir(parents=True, exist_ok=True)
@@ -915,6 +938,19 @@ def propagate_to_configs(
 
         with open(optimal_path, 'r') as f:
             optimal_config = json.load(f)
+
+        if config_file == 'league_config.json':
+            # Ownership filter (T90 D1): week-file-owned keys present in an
+            # arbitrary --promote <folder> source must never ride into the live
+            # base config. Only the filtered 'parameters' block is taken and it is
+            # spread over the source dict, so the source's own config_name /
+            # description survive and the performance_metrics strip below is
+            # unchanged. (save_optimal_configs consumes the SAME helper but writes
+            # its whole return value — the two call sites differ deliberately.)
+            optimal_config = {
+                **optimal_config,
+                'parameters': extract_base_params(optimal_config)['parameters'],
+            }
 
         if config_file == 'league_config.json' and target_path.exists():
             with open(target_path, 'r') as f:
