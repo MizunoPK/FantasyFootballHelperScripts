@@ -18,7 +18,6 @@ Author: Kai Mizuno
 
 import copy
 import json
-import shutil
 from datetime import datetime
 from logging import Logger
 from pathlib import Path
@@ -465,8 +464,11 @@ class AccuracyResultsManager:
 
             base_config_output = extract_base_params(baseline_config)
 
-            with open(optimal_folder / 'league_config.json', 'w') as f:
-                json.dump(base_config_output, f, indent=2)
+            # Atomic: this folder is reusable as a `--promote` source, so a
+            # truncated league_config.json here would be promoted to live as a
+            # corrupt base config. T64 established atomicity for the promote
+            # path; the same reasoning applies to the file that feeds it.
+            atomic_write_json(base_config_output, optimal_folder / 'league_config.json')
 
             self.logger.info("Wrote league_config.json from baseline (base params only)")
         else:
@@ -599,7 +601,18 @@ class AccuracyResultsManager:
 
         baseline_league_config = self.baseline_config_path / 'league_config.json'
         if baseline_league_config.exists():
-            shutil.copy(baseline_league_config, intermediate_folder / 'league_config.json')
+            # Filtered for the same reason as save_optimal_configs above: this
+            # folder's docstring promises it "can serve as baseline for future
+            # runs", so a verbatim copy would let an intermediate folder carry
+            # week-owned keys into a later `--promote`. propagate_to_configs
+            # would reject them, but a folder that is documented as promotable
+            # should not be born inflated in the first place.
+            with open(baseline_league_config, 'r') as f:
+                baseline_config = json.load(f)
+            atomic_write_json(
+                extract_base_params(baseline_config),
+                intermediate_folder / 'league_config.json',
+            )
 
         file_mapping = {
             'week_1_5': 'week1-5.json',
