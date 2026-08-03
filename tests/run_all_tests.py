@@ -348,14 +348,26 @@ def main():
                 print()
                 print("=" * 80)
                 print("FAILURE: THIS TEST RUN DIRTIED PATHS UNDER data/")
+                if success:
+                    # The suite itself passed, so a green SUCCESS line was already
+                    # printed above. Retract it explicitly: this run is a FAILURE,
+                    # and output that still scans as green is the exact hazard the
+                    # runner's reporting is meant to avoid.
+                    print("*** The SUCCESS line printed above is SUPERSEDED. "
+                          "This run FAILED. ***")
                 for dirty_path in newly_dirtied:
                     print(f"  [NEWLY DIRTIED] {dirty_path}")
                 print()
-                print("A test wrote into the repository's data/ tree instead of "
-                      "a sandbox.")
+                print("Something wrote into the repository's data/ tree during "
+                      "this run instead of a sandbox -- most likely a test, "
+                      "though a concurrent process writing to data/ is "
+                      "indistinguishable here.")
                 print("Restore with:  git checkout -- data/")
-                print("Then sandbox the writing test -- see PLAYER_DATA_DIR in "
-                      ".shamt-core/project-specific-files/TESTING_STANDARDS.md")
+                print("Then sandbox the writing test: point the fetcher's data "
+                      "root at a temp dir via the PLAYER_DATA_DIR environment "
+                      "variable, e.g.")
+                print("    monkeypatch.setenv('PLAYER_DATA_DIR', str(tmp_path))")
+                print("See tests/README.md.")
                 print("=" * 80)
                 success = False
 
