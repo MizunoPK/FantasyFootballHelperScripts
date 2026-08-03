@@ -16,6 +16,29 @@ from player_data_fetcher.player_data_exporter import DataExporter
 from player_data_fetcher.player_data_models import ProjectionData, PlayerProjection
 
 
+# FIXTURES
+
+@pytest.fixture(autouse=True)
+def sandbox_fetcher_data_root(tmp_path, monkeypatch):
+    """T91: redirect the fetcher's data ROOT into a per-test sandbox.
+
+    Defence in depth beneath each test's own explicit injection. Every
+    DataExporter constructed in this file without explicit path parameters
+    resolves its defaults under this sandbox rather than the tracked repo
+    data/ tree, so a future test that adds an `await exporter.export_*()` call
+    cannot silently acquire T91's defect.
+
+    The sandbox subdirectory is deliberately NOT named 'data': a root named
+    'data' would make T41's `endswith('data/player_data')` assertions pass
+    vacuously against the sandbox instead of the repo (spec.md:87).
+
+    A test that must observe the UNREDIRECTED production defaults opts out with
+    `monkeypatch.delenv('PLAYER_DATA_DIR', raising=False)` -- see
+    test_exporter_defaults_anchored_to_repo_data_root.
+    """
+    monkeypatch.setenv('PLAYER_DATA_DIR', str(tmp_path / 'fetcher_root'))
+
+
 class TestDataExporterInit:
     """Test DataExporter initialization"""
 
@@ -100,8 +123,15 @@ class TestPositionJSONExport:
     async def test_position_json_files_created(self, tmp_path):
         """Test that position JSON files are created (regression test)"""
         output_dir = tmp_path / "player_data_fetcher" / "data"
+        # T91: export_position_json_files() writes through position_json_output,
+        # NOT output_dir. Sandboxing output_dir alone sent every write straight
+        # into the tracked repo data/player_data/ tree.
+        position_json_output = tmp_path / "player_data_fetcher" / "position_json"
 
-        exporter = DataExporter(output_dir=str(output_dir))
+        exporter = DataExporter(
+            output_dir=str(output_dir),
+            position_json_output=str(position_json_output),
+        )
 
         projection_data = ProjectionData(
             season=2024,
@@ -119,6 +149,9 @@ class TestPositionJSONExport:
 
         assert len(files) > 0, "Position JSON files should be created"
         assert all(f.endswith('.json') for f in files), "All files should be JSON"
+        assert all(f.startswith(str(position_json_output)) for f in files), \
+            "T91: every exported file must land inside the tmp_path sandbox, " \
+            "never the tracked repo data/player_data/ tree"
 
 
 
@@ -152,8 +185,16 @@ class TestDataExporterKAI10:
         assert exporter.my_team_name == 'Sea Sharp'
         assert exporter.load_drafted_data is True
 
-    def test_exporter_defaults_anchored_to_repo_data_root(self, tmp_path):
-        """I-8 (T41): DataExporter path defaults are repo-anchored absolute paths, no longer cwd-relative '../data/...'"""
+    def test_exporter_defaults_anchored_to_repo_data_root(self, tmp_path, monkeypatch):
+        """I-8 (T41): DataExporter path defaults are repo-anchored absolute paths, no longer cwd-relative '../data/...'
+
+        T91: explicitly opts OUT of this file's autouse PLAYER_DATA_DIR redirect so
+        the six assertions below keep their original T41 subject -- the UNREDIRECTED
+        production defaults. Opting out is safe here: this test only reads
+        constructor attributes and writes nothing. Do not remove the delenv, and do
+        not weaken any of the six assertions.
+        """
+        monkeypatch.delenv('PLAYER_DATA_DIR', raising=False)
         exporter = DataExporter(output_dir=str(tmp_path))
         assert Path(exporter.position_json_output).is_absolute()
         assert exporter.position_json_output.endswith('data/player_data')
@@ -178,5 +219,91 @@ class TestDataExporterKAI10:
             drafted_data_path=custom_path,
         )
         assert exporter.drafted_data_path == custom_path
+
+
+class TestDataExporterDataRootSeam:
+    """T91: DataExporter resolves its path defaults at CONSTRUCTION time (spec D2, AC2/AC3/AC4)"""
+
+    def test_defaults_redirect_under_player_data_dir(self, monkeypatch, tmp_path):
+        """T91-5 (AC2): with PLAYER_DATA_DIR set, a no-path-param DataExporter lands under it"""
+        root = tmp_path / 'fetcher_root'
+        monkeypatch.setenv('PLAYER_DATA_DIR', str(root))
+
+        exporter = DataExporter(output_dir=str(tmp_path / 'out'))
+
+        assert exporter.position_json_output == str(root / 'player_data')
+        assert exporter.team_data_folder == str(root / 'team_data')
+        assert exporter.drafted_data_path == str(root / 'drafted_data.csv')
+
+    def test_defaults_are_repo_anchored_when_unset(self, monkeypatch, tmp_path):
+        """T91-6 (AC3): with PLAYER_DATA_DIR unset, the defaults are byte-identical to today's"""
+        monkeypatch.delenv('PLAYER_DATA_DIR', raising=False)
+        repo_data = Path(__file__).parent.parent.parent / 'data'
+
+        exporter = DataExporter(output_dir=str(tmp_path / 'out'))
+
+        assert exporter.position_json_output == str(repo_data / 'player_data')
+        assert exporter.team_data_folder == str(repo_data / 'team_data')
+        assert exporter.drafted_data_path == str(repo_data / 'drafted_data.csv')
+
+    def test_env_set_after_import_still_redirects(self, monkeypatch, tmp_path):
+        """T91-7 (AC4): the module is ALREADY imported when the variable is set.
+
+        This is the regression guard for the naive form the spec forbids. A
+        def-time-baked default (or a _DATA_ROOT monkeypatch) is captured once at
+        import and would ignore this setenv entirely -- passing silently while
+        protecting nothing. Setting the variable here, after import, makes that
+        regression FAIL instead.
+        """
+        import player_data_fetcher.player_data_exporter as exporter_module
+
+        assert exporter_module is not None, "module already imported at collection time"
+        late_root = tmp_path / 'set_after_import'
+        monkeypatch.setenv('PLAYER_DATA_DIR', str(late_root))
+
+        exporter = DataExporter(output_dir=str(tmp_path / 'out'))
+
+        assert exporter.position_json_output == str(late_root / 'player_data')
+
+    def test_explicit_injection_wins_over_the_env_seam(self, monkeypatch, tmp_path):
+        """T91-8: an explicitly passed path beats PLAYER_DATA_DIR (D1 above D2)"""
+        monkeypatch.setenv('PLAYER_DATA_DIR', str(tmp_path / 'fetcher_root'))
+        explicit = str(tmp_path / 'explicit_json')
+
+        exporter = DataExporter(
+            output_dir=str(tmp_path / 'out'),
+            position_json_output=explicit,
+        )
+
+        assert exporter.position_json_output == explicit
+        assert exporter.team_data_folder == str(tmp_path / 'fetcher_root' / 'team_data')
+
+    def test_position_json_export_writes_only_under_the_redirected_root(self, monkeypatch, tmp_path):
+        """T91-9: the ACTUAL WRITE follows the seam, with no explicit injection.
+
+        This is the twelve-latent-constructions case made live: a construction
+        that passes no path parameter, then exports. Without the seam this write
+        lands in the tracked repo data/player_data/ tree -- exactly T91.
+        """
+        root = tmp_path / 'fetcher_root'
+        monkeypatch.setenv('PLAYER_DATA_DIR', str(root))
+        exporter = DataExporter(output_dir=str(tmp_path / 'out'))
+        exporter.set_team_rankings({'KC': {'offense': 1, 'defense': 5}})
+        projection_data = ProjectionData(
+            season=2024,
+            scoring_format='PPR',
+            total_players=1,
+            players=[
+                PlayerProjection(id="1", name="QB Player", position="QB", team="KC", fantasy_points=300.0)
+            ]
+        )
+
+        files = asyncio.run(exporter.export_position_json_files(projection_data))
+
+        assert len(files) > 0
+        assert all(f.startswith(str(root)) for f in files), \
+            "every exported file must land under the PLAYER_DATA_DIR root"
+        assert all(str(tmp_path) in f for f in files), \
+            "no exported file may escape tmp_path into the tracked repo tree"
 
 

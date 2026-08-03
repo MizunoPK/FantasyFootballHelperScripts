@@ -9,7 +9,30 @@ via argparse defaults in run_player_fetcher.py.
 Author: Kai Mizuno
 """
 
+import os
 from pathlib import Path
+
+
+_DATA_ROOT = Path(__file__).parent.parent / 'data'
+
+
+def data_root() -> Path:
+    """The fetcher's data ROOT.
+
+    This is the directory that CONTAINS player_data/, team_data/ and
+    drafted_data.csv -- it is NOT the player_data/ subdirectory itself.
+
+    Redirected by the PLAYER_DATA_DIR environment variable (the player-data
+    parallel of LEAGUE_DATA_DIR, league_helper/LeagueHelperManager.py). When
+    PLAYER_DATA_DIR is unset the repo-anchored default is returned, which is
+    byte-identical to the historical value at every call site.
+
+    Resolved on EVERY call, never at import/def time, so a caller that resolves
+    its own defaults at construction time picks up a redirect set after import.
+    """
+    override = os.environ.get('PLAYER_DATA_DIR')
+    return Path(override) if override else _DATA_ROOT
+
 
 COORDINATES_JSON = Path(__file__).parent.parent / 'data' / 'coordinates.json'
 

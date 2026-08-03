@@ -94,3 +94,55 @@ class TestKAI10ConfigRefactoring:
         assert 'data' in config.COORDINATES_JSON.parts
 
 
+class TestDataRootResolver:
+    """T91: the shared PLAYER_DATA_DIR data-root resolver (spec D2, AC2/AC3/AC4/AC5)"""
+
+    def test_data_root_falls_back_to_repo_data_when_unset(self, monkeypatch):
+        """T91-1: with PLAYER_DATA_DIR unset, data_root() returns the repo-anchored default"""
+        monkeypatch.delenv('PLAYER_DATA_DIR', raising=False)
+
+        root = config.data_root()
+
+        assert root == config._DATA_ROOT
+        assert root.is_absolute()
+        assert root.name == 'data'
+
+    def test_data_root_honors_the_env_override(self, monkeypatch, tmp_path):
+        """T91-2: with PLAYER_DATA_DIR set, data_root() returns that path"""
+        monkeypatch.setenv('PLAYER_DATA_DIR', str(tmp_path / 'fetcher_root'))
+
+        root = config.data_root()
+
+        assert root == tmp_path / 'fetcher_root'
+
+    def test_data_root_resolves_per_call_not_at_import(self, monkeypatch, tmp_path):
+        """T91-3: data_root() re-reads the environment on EVERY call.
+
+        This is the construction-time property (AC4) at the resolver altitude: a
+        value captured once at import time would make the second call stale.
+        """
+        monkeypatch.delenv('PLAYER_DATA_DIR', raising=False)
+        before = config.data_root()
+
+        monkeypatch.setenv('PLAYER_DATA_DIR', str(tmp_path / 'later'))
+        after = config.data_root()
+
+        assert before == config._DATA_ROOT
+        assert after == tmp_path / 'later'
+        assert before != after
+
+    def test_data_root_names_the_root_not_the_player_data_subdir(self, monkeypatch, tmp_path):
+        """T91-4: PLAYER_DATA_DIR names the data ROOT, mirroring LEAGUE_DATA_DIR.
+
+        Pins the spec's Deployment-Risk-3 mitigation: the variable is NOT the
+        player_data/ subdirectory. Reading it as such would scatter a real fetch.
+        """
+        monkeypatch.setenv('PLAYER_DATA_DIR', str(tmp_path))
+
+        root = config.data_root()
+
+        assert root == tmp_path
+        assert (root / 'player_data').name == 'player_data'
+        assert root.name != 'player_data'
+
+

@@ -253,3 +253,60 @@ class TestLogLevelWiring:
             assert settings.log_level == level
 
 
+class TestSettingsDataRootSeam:
+    """T91: Settings' path defaults resolve PER INSTANCE, not at class-definition time"""
+
+    def test_settings_defaults_redirect_under_player_data_dir(self, monkeypatch, tmp_path):
+        """T91-10 (AC2): PLAYER_DATA_DIR redirects every Settings path default"""
+        root = tmp_path / 'fetcher_root'
+        monkeypatch.setenv('PLAYER_DATA_DIR', str(root))
+
+        settings = Settings()
+
+        assert settings.position_json_output == str(root / 'player_data')
+        assert settings.team_data_folder == str(root / 'team_data')
+        assert settings.game_data_csv == str(root / 'game_data.csv')
+        assert settings.drafted_data_path == str(root / 'drafted_data.csv')
+
+    def test_settings_defaults_are_repo_anchored_when_unset(self, monkeypatch):
+        """T91-11 (AC3): unset, Settings' defaults are byte-identical to today's"""
+        from pathlib import Path as _Path
+
+        monkeypatch.delenv('PLAYER_DATA_DIR', raising=False)
+        repo_data = _Path(__file__).parent.parent.parent / 'data'
+
+        settings = Settings()
+
+        assert settings.position_json_output == str(repo_data / 'player_data')
+        assert settings.team_data_folder == str(repo_data / 'team_data')
+        assert settings.game_data_csv == str(repo_data / 'game_data.csv')
+        assert settings.drafted_data_path == str(repo_data / 'drafted_data.csv')
+
+    def test_settings_resolves_per_instance_not_at_class_definition(self, monkeypatch, tmp_path):
+        """T91-12 (AC4): two Settings() built under different PLAYER_DATA_DIR values differ.
+
+        A dataclass field with a class-level `= str(...)` default is evaluated
+        ONCE at class-definition time -- the same silent no-op as a def-time
+        function default. field(default_factory=...) runs per instance, which is
+        what this asserts. A regression to the class-level form fails here.
+        """
+        monkeypatch.setenv('PLAYER_DATA_DIR', str(tmp_path / 'first'))
+        first = Settings()
+
+        monkeypatch.setenv('PLAYER_DATA_DIR', str(tmp_path / 'second'))
+        second = Settings()
+
+        assert first.position_json_output == str(tmp_path / 'first' / 'player_data')
+        assert second.position_json_output == str(tmp_path / 'second' / 'player_data')
+        assert first.position_json_output != second.position_json_output
+
+    def test_settings_explicit_paths_still_win(self, monkeypatch, tmp_path):
+        """T91-13: an explicitly constructed Settings path beats the seam"""
+        monkeypatch.setenv('PLAYER_DATA_DIR', str(tmp_path / 'fetcher_root'))
+        explicit = str(tmp_path / 'explicit' / 'player_data')
+
+        settings = Settings(position_json_output=explicit)
+
+        assert settings.position_json_output == explicit
+
+

@@ -17,10 +17,8 @@ import asyncio
 import tempfile
 from pathlib import Path
 
+from player_data_fetcher.config import data_root
 from player_data_fetcher.player_data_fetcher_main import main
-
-
-_DATA_ROOT = Path(__file__).parent / 'data'
 
 
 def parse_args(argv=None):
@@ -85,26 +83,26 @@ def parse_args(argv=None):
     parser.add_argument(
         '--drafted-data-path',
         type=str,
-        default=str(_DATA_ROOT / 'drafted_data.csv'),
+        default=str(data_root() / 'drafted_data.csv'),
         help='Path to drafted data CSV (default: <repo>/data/drafted_data.csv)'
     )
 
     parser.add_argument(
         '--position-json-output',
         type=str,
-        default=str(_DATA_ROOT / 'player_data'),
+        default=str(data_root() / 'player_data'),
         help='Output directory for position JSON files (default: <repo>/data/player_data)'
     )
     parser.add_argument(
         '--team-data-folder',
         type=str,
-        default=str(_DATA_ROOT / 'team_data'),
+        default=str(data_root() / 'team_data'),
         help='Output directory for team data files (default: <repo>/data/team_data)'
     )
     parser.add_argument(
         '--game-data-csv',
         type=str,
-        default=str(_DATA_ROOT / 'game_data.csv'),
+        default=str(data_root() / 'game_data.csv'),
         help='Output path for game data CSV (default: <repo>/data/game_data.csv)'
     )
 

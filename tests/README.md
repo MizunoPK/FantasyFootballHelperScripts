@@ -163,6 +163,45 @@ The `conftest.py` file sets up the Python path for test imports. It adds:
 
 This allows tests to import modules the same way the application does.
 
+### Never write into the repository's `data/` tree
+
+`data/` holds the **tracked, live** season dataset (~800 players). A test that writes
+into it destroys real committed data, and the damage is silent — the suite can pass
+and exit `0` while the dataset is being overwritten.
+
+**The rule:** any test that causes a write must redirect the data root to a temp dir.
+
+Two environment seams exist for this:
+
+| Variable | Redirects | Consumed by |
+|---|---|---|
+| `PLAYER_DATA_DIR` | the fetcher's data **root** — the directory *containing* `player_data/`, `team_data/`, `game_data.csv`, `drafted_data.csv` | `player_data_fetcher/config.py:data_root()` |
+| `LEAGUE_DATA_DIR` | the League Helper's data tree | `league_helper/LeagueHelperManager.py` |
+
+```python
+def test_something_that_writes(tmp_path, monkeypatch):
+    monkeypatch.setenv('PLAYER_DATA_DIR', str(tmp_path))
+    ...
+```
+
+Both are resolved **at construction time**, so setting them after the module is
+imported still works. When unset, the production repo-anchored defaults apply
+unchanged.
+
+Note `PLAYER_DATA_DIR` names the data *root*, not the `player_data/` subdirectory —
+setting it to `tmp_path` gives you `tmp_path/player_data/`, `tmp_path/team_data/`,
+and so on.
+
+**Injection beats redirection where a parameter exists.** Most components
+(`ConfigManager`, `PlayerManager`, `TeamDataManager`, `ScheduleFetcher`, …) take a
+required data-folder argument — pass `tmp_path` directly rather than reaching for an
+env var. The seams above exist for the paths that carry defaults.
+
+**The runner enforces this.** `tests/run_all_tests.py` snapshots `git status
+--porcelain -- data/` before and after the run and fails if the run *newly* dirtied
+anything there. It is a baseline diff, so pre-existing local `data/` edits do not
+false-red it, and it degrades to a notice when git is unavailable.
+
 ### Pytest Settings
 
 Pytest is configured to:
