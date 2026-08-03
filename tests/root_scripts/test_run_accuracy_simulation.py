@@ -32,7 +32,8 @@ class TestAccuracySimulationCLIFlags:
         result = subprocess.run(
             [sys.executable, str(project_root / "run_accuracy_simulation.py"), "--help"],
             capture_output=True,
-            text=True
+            text=True,
+            timeout=60
         )
 
         assert result.returncode == 0
@@ -87,7 +88,8 @@ class TestAccuracySimulationCLIFlags:
         result = subprocess.run(
             [sys.executable, str(project_root / "run_accuracy_simulation.py"), "--help"],
             capture_output=True,
-            text=True
+            text=True,
+            timeout=60
         )
 
         assert result.returncode == 0
@@ -182,7 +184,8 @@ class TestAccuracySimulationDEBUGLogQuality:
             ['grep', '-rE', 'logger\\.(debug|info|warning|error)',
              str(project_root / 'simulation' / 'accuracy')],
             capture_output=True,
-            text=True
+            text=True,
+            timeout=60
         )
 
         logger_calls = result.stdout.count('logger.')
@@ -408,7 +411,8 @@ class TestPromoteCLIFlag:
         result = subprocess.run(
             [sys.executable, str(project_root / "run_accuracy_simulation.py"), "--help"],
             capture_output=True,
-            text=True
+            text=True,
+            timeout=60
         )
         assert result.returncode == 0
         assert "--promote" in result.stdout
@@ -420,7 +424,8 @@ class TestPromoteCLIFlag:
             [sys.executable, str(project_root / "run_accuracy_simulation.py"),
              "--promote", str(missing)],
             capture_output=True,
-            text=True
+            text=True,
+            timeout=60
         )
         assert result.returncode == 1
         combined_output = result.stdout + result.stderr
@@ -495,7 +500,7 @@ class TestF03CliAndSummaryEnhancements:
         """Test: --params argparse flag exists"""
         result = subprocess.run(
             [sys.executable, str(project_root / "run_accuracy_simulation.py"), "--help"],
-            capture_output=True, text=True
+            capture_output=True, text=True, timeout=60
         )
         assert result.returncode == 0
         assert "--params" in result.stdout
@@ -516,7 +521,7 @@ class TestF03CliAndSummaryEnhancements:
         """Test: --compare argparse flag exists"""
         result = subprocess.run(
             [sys.executable, str(project_root / "run_accuracy_simulation.py"), "--help"],
-            capture_output=True, text=True
+            capture_output=True, text=True, timeout=60
         )
         assert result.returncode == 0
         assert "--compare" in result.stdout
@@ -610,7 +615,7 @@ class TestF03SubprocessTests:
         result = subprocess.run(
             [sys.executable, str(project_root / "run_accuracy_simulation.py"),
              "--params", "BOGUS_PARAM_XYZ"],
-            capture_output=True, text=True
+            capture_output=True, text=True, timeout=60
         )
         assert result.returncode != 0
         assert "Unknown" in result.stderr or "Unknown" in result.stdout
@@ -620,7 +625,7 @@ class TestF03SubprocessTests:
         result = subprocess.run(
             [sys.executable, str(project_root / "run_accuracy_simulation.py"),
              "--compare", "/nonexistent_folder_a_xyz", "/nonexistent_folder_b_xyz"],
-            capture_output=True, text=True
+            capture_output=True, text=True, timeout=60
         )
         assert result.returncode != 0
 
