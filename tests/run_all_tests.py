@@ -198,7 +198,7 @@ class TestRunner:
             if total_tests > 0:
                 failed = total_tests - total_passed
                 if failed > 0:
-                    print(f"FAILURE: {failed} of {total_tests} TESTS FAILED ({total_passed} passed)")
+                    print(f"FAILURE: {failed} of {total_tests} TESTS DID NOT PASS ({total_passed} passed)")
                 else:
                     print(f"FAILURE: {len(failed_files)} TEST FILE(S) FAILED TO RUN ({total_passed} tests passed)")
             else:
