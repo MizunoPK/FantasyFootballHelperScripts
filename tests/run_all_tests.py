@@ -274,6 +274,30 @@ class TestRunner:
             return False
 
 
+def _data_status_paths(project_root: Path):
+    """Return the set of paths `git status --porcelain -- data/` reports.
+
+    Returns None when git is unavailable, errors, or the runner is not inside a
+    git work tree. The caller then prints a notice and SKIPS the check -- an
+    infrastructure absence must never turn into a red suite (T91 AC10).
+    """
+    try:
+        result = subprocess.run(
+            ["git", "status", "--porcelain", "--", "data/"],
+            capture_output=True,
+            text=True,
+            cwd=str(project_root),
+            timeout=60
+        )
+    except (OSError, subprocess.SubprocessError):
+        return None
+
+    if result.returncode != 0:
+        return None
+
+    return {line[3:] for line in result.stdout.splitlines() if len(line) > 3}
+
+
 def main():
     """Main entry point"""
     parser = argparse.ArgumentParser(
@@ -299,10 +323,41 @@ def main():
 
     runner = TestRunner(verbose=args.verbose, detailed=args.detailed)
 
+    # T91: baseline the data/ tree before the run so a test that writes into the
+    # tracked data tree cannot pass silently. Baseline DIFF, not a clean-tree
+    # assertion -- a developer with legitimate in-flight data/ edits must not get
+    # a false red.
+    before_paths = _data_status_paths(runner.project_root)
+    if before_paths is None:
+        print("NOTICE: git unavailable or not a git work tree "
+              "- skipping the data/ cleanliness check")
+
     if args.single:
         success = runner.run_all_tests_single_command()
     else:
         success = runner.run_all_tests()
+
+    if before_paths is not None:
+        after_paths = _data_status_paths(runner.project_root)
+        if after_paths is None:
+            print("NOTICE: git status unavailable after the run "
+                  "- skipping the data/ cleanliness check")
+        else:
+            newly_dirtied = sorted(after_paths - before_paths)
+            if newly_dirtied:
+                print()
+                print("=" * 80)
+                print("FAILURE: THIS TEST RUN DIRTIED PATHS UNDER data/")
+                for dirty_path in newly_dirtied:
+                    print(f"  [NEWLY DIRTIED] {dirty_path}")
+                print()
+                print("A test wrote into the repository's data/ tree instead of "
+                      "a sandbox.")
+                print("Restore with:  git checkout -- data/")
+                print("Then sandbox the writing test -- see PLAYER_DATA_DIR in "
+                      ".shamt-core/project-specific-files/TESTING_STANDARDS.md")
+                print("=" * 80)
+                success = False
 
     sys.exit(0 if success else 1)
 

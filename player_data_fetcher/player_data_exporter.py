@@ -15,6 +15,7 @@ import json
 
 import aiofiles
 
+from player_data_fetcher.config import data_root
 from player_data_fetcher.player_data_models import ProjectionData, ESPNPlayerData
 
 from utils.FantasyPlayer import FantasyPlayer
@@ -22,9 +23,6 @@ from utils.TeamData import save_team_weekly_data
 from utils.data_file_manager import DataFileManager
 from utils.LoggingManager import get_logger
 from utils.DraftedRosterManager import DraftedRosterManager
-
-
-_DATA_ROOT = Path(__file__).parent.parent / 'data'
 
 
 class DataExporter:
@@ -35,19 +33,33 @@ class DataExporter:
         self,
         output_dir: str,
         current_nfl_week: int = 17,
-        position_json_output: str = str(_DATA_ROOT / 'player_data'),
-        team_data_folder: str = str(_DATA_ROOT / 'team_data'),
+        position_json_output: Optional[str] = None,
+        team_data_folder: Optional[str] = None,
         load_drafted_data: bool = True,
-        drafted_data_path: str = str(_DATA_ROOT / 'drafted_data.csv'),
+        drafted_data_path: Optional[str] = None,
         my_team_name: str = 'Sea Sharp'
     ):
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(exist_ok=True, parents=True)
         self.current_nfl_week = current_nfl_week
-        self.position_json_output = position_json_output
-        self.team_data_folder = team_data_folder
+        # T91: resolve the path defaults HERE, at construction time -- not in the
+        # signature. A def-time default is baked into __defaults__ once at import,
+        # so a later PLAYER_DATA_DIR (or a _DATA_ROOT monkeypatch) would be a
+        # silent no-op. See spec.md D2 / AC4.
+        _root = data_root()
+        self.position_json_output = (
+            position_json_output if position_json_output is not None
+            else str(_root / 'player_data')
+        )
+        self.team_data_folder = (
+            team_data_folder if team_data_folder is not None
+            else str(_root / 'team_data')
+        )
         self.load_drafted_data = load_drafted_data
-        self.drafted_data_path = drafted_data_path
+        self.drafted_data_path = (
+            drafted_data_path if drafted_data_path is not None
+            else str(_root / 'drafted_data.csv')
+        )
         self.my_team_name = my_team_name
         self.logger = get_logger()
 

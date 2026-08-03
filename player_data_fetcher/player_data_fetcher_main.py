@@ -20,7 +20,7 @@ import json
 import logging
 import shutil
 import sys
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, List
 
@@ -33,10 +33,8 @@ from player_data_fetcher.player_data_models import ScoringFormat, ProjectionData
 from player_data_fetcher.espn_client import ESPNClient
 from player_data_fetcher.player_data_exporter import DataExporter
 
-from player_data_fetcher.config import LOG_NAME, LOGGING_FORMAT
+from player_data_fetcher.config import LOG_NAME, LOGGING_FORMAT, data_root
 
-
-_DATA_ROOT = Path(__file__).parent.parent / 'data'
 
 MIN_EXPECTED_PLAYER_COUNT = 100
 POSITION_CODES = ('qb', 'rb', 'wr', 'te', 'k', 'dst')
@@ -61,14 +59,22 @@ class Settings:
     rate_limit_delay: float = 0.2
     espn_player_limit: int = 2000
 
-    position_json_output: str = str(_DATA_ROOT / 'player_data')
-    team_data_folder: str = str(_DATA_ROOT / 'team_data')
-    game_data_csv: str = str(_DATA_ROOT / 'game_data.csv')
+    position_json_output: str = field(
+        default_factory=lambda: str(data_root() / 'player_data')
+    )
+    team_data_folder: str = field(
+        default_factory=lambda: str(data_root() / 'team_data')
+    )
+    game_data_csv: str = field(
+        default_factory=lambda: str(data_root() / 'game_data.csv')
+    )
     enable_historical_save: bool = False
     enable_game_data: bool = True
 
     load_drafted_data: bool = True
-    drafted_data_path: str = str(_DATA_ROOT / 'drafted_data.csv')
+    drafted_data_path: str = field(
+        default_factory=lambda: str(data_root() / 'drafted_data.csv')
+    )
     my_team_name: str = 'Sea Sharp'
 
     progress_frequency: int = 10

@@ -235,3 +235,58 @@ class TestE2EAndLogLevel:
             parse_args(['--log-level', 'VERBOSE'])
 
 
+class TestParseArgsDataRootSeam:
+    """T91: the CLI's four path defaults resolve per parse_args() call (spec D2, AC2/AC3/AC4)"""
+
+    def test_path_defaults_redirect_under_player_data_dir(self, monkeypatch, tmp_path):
+        """T91-14 (AC2): PLAYER_DATA_DIR redirects all four argparse path defaults"""
+        root = tmp_path / 'fetcher_root'
+        monkeypatch.setenv('PLAYER_DATA_DIR', str(root))
+
+        args = parse_args([])
+
+        assert args.position_json_output == str(root / 'player_data')
+        assert args.team_data_folder == str(root / 'team_data')
+        assert args.game_data_csv == str(root / 'game_data.csv')
+        assert args.drafted_data_path == str(root / 'drafted_data.csv')
+
+    def test_path_defaults_are_repo_anchored_when_unset(self, monkeypatch):
+        """T91-15 (AC3): unset, the CLI defaults are byte-identical to today's"""
+        monkeypatch.delenv('PLAYER_DATA_DIR', raising=False)
+        repo_data = Path(__file__).parent.parent.parent / 'data'
+
+        args = parse_args([])
+
+        assert args.position_json_output == str(repo_data / 'player_data')
+        assert args.team_data_folder == str(repo_data / 'team_data')
+        assert args.game_data_csv == str(repo_data / 'game_data.csv')
+        assert args.drafted_data_path == str(repo_data / 'drafted_data.csv')
+
+    def test_path_defaults_resolve_per_call(self, monkeypatch, tmp_path):
+        """T91-16 (AC4): two parse_args([]) calls under different roots differ.
+
+        add_argument(default=...) evaluates at call time inside parse_args(), so a
+        plain data_root() call is correct here and needs no None sentinel. This
+        test pins that per-call behavior against a regression to a module-level
+        constant.
+        """
+        monkeypatch.setenv('PLAYER_DATA_DIR', str(tmp_path / 'first'))
+        first = parse_args([])
+
+        monkeypatch.setenv('PLAYER_DATA_DIR', str(tmp_path / 'second'))
+        second = parse_args([])
+
+        assert first.position_json_output == str(tmp_path / 'first' / 'player_data')
+        assert second.position_json_output == str(tmp_path / 'second' / 'player_data')
+        assert first.position_json_output != second.position_json_output
+
+    def test_explicit_cli_flag_still_wins(self, monkeypatch, tmp_path):
+        """T91-17: an explicit CLI flag beats the seam"""
+        monkeypatch.setenv('PLAYER_DATA_DIR', str(tmp_path / 'fetcher_root'))
+        explicit = str(tmp_path / 'explicit' / 'player_data')
+
+        args = parse_args(['--position-json-output', explicit])
+
+        assert args.position_json_output == explicit
+
+
