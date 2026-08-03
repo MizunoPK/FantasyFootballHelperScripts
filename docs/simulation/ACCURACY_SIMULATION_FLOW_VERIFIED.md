@@ -1464,22 +1464,19 @@ if player.get('actual', 0) >= 3.0:  # Only meaningful performances
 
 ---
 
-### 4. Comment Mentions 5 Horizons (Should be 4)
+### 4. Parallel Runner Claimed 5 Horizons (Should be 4) — ✅ RESOLVED (T77, 2026-08-03)
 
-**Location**: `ParallelAccuracyRunner.py:5-6`
+**Location** (as of `33febdf7`, the commit that resolved this): the three docstrings in `ParallelAccuracyRunner.py` — `:34`, `:288`, `:321` — and the live log line at `:336`. *Line numbers in this file are anchored to a commit for exactly the reason this entry records: an unanchored `file:line` citation into a moving file is stale by construction. Prefer the surrounding text when locating these sites.*
 
-```python
-"""
-This module provides parallel evaluation of configs across multiple horizons
-to speed up tournament optimization. Each config is evaluated across all 5
-horizons (ROS, week 1-5, 6-9, 10-13, 14-17) to calculate MAE.
-```
+This issue described the accuracy parallel runner claiming **five** horizons while `WEEK_RANGES` has held exactly four (`week_1_5`, `week_6_9`, `week_10_13`, `week_14_17`). The live site was the evaluation log at `:341` — `Starting parallel evaluation: {len(configs)} configs × 5 horizons = {len(configs) * 5} total evaluations` — repeated by three docstrings at `:33`, `:294-295`, and `:326`. The `× 5` was log text only: the product was formatted straight into the message and assigned to nothing, so no scheduling, sizing, or downstream statistic read it. An operator nonetheless saw `× 4 horizons` from the CLI banner and the manager's startup log and `× 5 horizons` from the parallel runner in the same run's output.
 
-**Bug**: Comment says "5 horizons (ROS, week 1-5, 6-9, 10-13, 14-17)" but ROS is NOT part of accuracy simulation (only win-rate simulation).
+The count was **correct on arrival and drifted**. At `f6af886c` the worker really evaluated ROS plus the four weekly horizons; the ROS call was removed at `c3a6c86b` ("Fix accuracy simulation: remove orphaned ROS worker call") and the label sites were left behind.
 
-**Should be**: "4 horizons (week 1-5, 6-9, 10-13, 14-17)"
+**Entry correction (T77):** this entry previously pointed at the module docstring at the top of the same file and quoted its pre-`f5a54d7e` ROS wording. That site was corrected separately by the epic/KAI-8 logging refactor at `f5a54d7e` and has read "all 4 weekly horizons (week 1-5, 6-9, 10-13, 14-17)" ever since — so the entry documented the defect at a location that no longer exhibited it while never naming the four sites that still did. The Location line above is the corrected record.
 
-**Impact**: Misleading documentation only
+T77 gave the count one derived definition — `HORIZON_COUNT = len(WEEK_RANGES)` in the new `simulation/accuracy/horizon_labels.py` — deleted the function-local `WEEK_RANGES` copy the worker carried, routed the log line and both banner consumers through it, and corrected the three docstrings.
+
+**Verified after the fix:** `grep -rn "5 horizons" simulation/ run_accuracy_simulation.py` returns no hits, and a guard test scans the accuracy engine's sources asserting every `N horizons` literal equals `HORIZON_COUNT`, so a consumer can no longer silently disagree with `WEEK_RANGES`.
 
 ---
 

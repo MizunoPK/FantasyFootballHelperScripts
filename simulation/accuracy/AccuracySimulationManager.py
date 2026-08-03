@@ -42,6 +42,11 @@ from simulation.accuracy.AccuracyResultsManager import (
     format_metric_pct,
     format_metric_corr,
 )
+from simulation.accuracy.horizon_labels import (
+    HORIZON_COUNT,
+    candidate_values_label,
+    configs_per_param_label,
+)
 
 PAIRWISE_ACCURACY_WARN_THRESHOLD = 0.65
 TOP_10_ACCURACY_WARN_THRESHOLD = 0.70
@@ -129,12 +134,11 @@ class AccuracySimulationManager:
         )
 
         candidate_values = num_test_values + 1
-        configs_per_param = candidate_values * 4
+        configs_per_param = candidate_values * HORIZON_COUNT
         self.logger.info(
             f"AccuracySimulationManager initialized: "
-            f"Candidate values per parameter per horizon: {candidate_values:,}; "
-            f"Configs per horizon-specific parameter: {candidate_values:,} × 4 horizons "
-            f"= {configs_per_param:,}"
+            f"{candidate_values_label(candidate_values)}; "
+            f"{configs_per_param_label(candidate_values, configs_per_param)}"
         )
 
     def _sweep_orphaned_temp_dirs(self) -> None:

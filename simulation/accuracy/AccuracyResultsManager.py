@@ -32,13 +32,12 @@ from simulation.shared.ConfigGenerator import ConfigGenerator
 from simulation.accuracy.accuracy_types import RankingMetrics
 from simulation.accuracy.AccuracyCalculator import AccuracyResult
 
-
-WEEK_RANGES = {
-    'week_1_5': (1, 5),
-    'week_6_9': (6, 9),
-    'week_10_13': (10, 13),
-    'week_14_17': (14, 17),
-}
+# Re-exported, not redefined: the single definition lives in
+# simulation/accuracy/horizon_labels.py (T77 D1/D2). Kept importable from here
+# so the three existing importers - AccuracySimulationManager,
+# tests/simulation/test_AccuracyResultsManager.py and
+# tests/integration/test_accuracy_simulation_integration.py - are untouched.
+from simulation.accuracy.horizon_labels import WEEK_RANGES  # noqa: F401
 
 
 def format_metric_pct(value: Optional[float]) -> str:

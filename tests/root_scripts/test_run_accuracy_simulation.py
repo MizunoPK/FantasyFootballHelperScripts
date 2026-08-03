@@ -653,3 +653,281 @@ Coverage: >90% of requirements (58 tests across 5 requirements)
 """
 
 
+class TestHorizonLabelDelegationGuard:
+    """
+    T77/D4: the accuracy engine's horizon count has exactly one definition
+    (simulation/accuracy/horizon_labels.HORIZON_COUNT), so a single implementation
+    cannot be compared against itself. Same reasoning as
+    TestPreloadCopiesShareOneImplementation (T73) - the pin asserts instead that each
+    consumer DELEGATES and that none re-inlines its own count literal.
+    """
+
+    def test_cli_banner_delegates_to_the_shared_label_builders(self):
+        import inspect
+        import run_accuracy_simulation
+
+        source = inspect.getsource(run_accuracy_simulation.main)
+
+        assert 'candidate_values_label(' in source, (
+            "run_accuracy_simulation.main no longer delegates to candidate_values_label"
+        )
+        assert 'configs_per_param_label(' in source, (
+            "run_accuracy_simulation.main no longer delegates to configs_per_param_label"
+        )
+
+    def test_cli_banner_reinlines_no_horizon_count_literal(self):
+        """The CLI banner DELEGATES to the shared builders rather than re-inlining.
+
+        Asserts delegation positively (the T73
+        TestPreloadCopiesShareOneImplementation shape), not the absence of the word
+        "horizons" from main(): argparse help text in main() legitimately reads
+        "across all 4 horizons", so an absence check false-fails on documentation
+        that is not a re-inlined label.
+        """
+        import inspect
+        import run_accuracy_simulation
+
+        source = inspect.getsource(run_accuracy_simulation.main)
+
+        assert 'candidate_values_label(' in source, (
+            "run_accuracy_simulation.main must call candidate_values_label(); "
+            "re-inlining the banner text reintroduces the hand-synced duplication "
+            "this story removed"
+        )
+        assert 'configs_per_param_label(' in source, (
+            "run_accuracy_simulation.main must call configs_per_param_label(); "
+            "re-inlining the banner text reintroduces the hand-synced duplication "
+            "this story removed"
+        )
+        assert 'Candidate values per parameter per horizon:' not in source, (
+            "run_accuracy_simulation.main re-inlined the literal banner label text "
+            "instead of delegating to candidate_values_label()"
+        )
+        assert 'Configs per horizon-specific parameter:' not in source, (
+            "run_accuracy_simulation.main re-inlined the literal banner label text "
+            "instead of delegating to configs_per_param_label()"
+        )
+
+    def test_manager_startup_log_delegates_to_the_shared_label_builders(self):
+        import inspect
+        from simulation.accuracy.AccuracySimulationManager import AccuracySimulationManager
+
+        source = inspect.getsource(AccuracySimulationManager.__init__)
+
+        assert 'candidate_values_label(' in source, (
+            "AccuracySimulationManager.__init__ no longer delegates to "
+            "candidate_values_label"
+        )
+        assert 'configs_per_param_label(' in source, (
+            "AccuracySimulationManager.__init__ no longer delegates to "
+            "configs_per_param_label"
+        )
+
+    def test_manager_startup_log_reinlines_no_horizon_count_literal(self):
+        import inspect
+        from simulation.accuracy.AccuracySimulationManager import AccuracySimulationManager
+
+        source = inspect.getsource(AccuracySimulationManager.__init__)
+
+        assert 'candidate_values_label(' in source, (
+            "AccuracySimulationManager.__init__ must call candidate_values_label(); "
+            "re-inlining the banner text reintroduces the hand-synced duplication"
+        )
+        assert 'configs_per_param_label(' in source, (
+            "AccuracySimulationManager.__init__ must call configs_per_param_label(); "
+            "re-inlining the banner text reintroduces the hand-synced duplication"
+        )
+        assert 'Candidate values per parameter per horizon:' not in source, (
+            "AccuracySimulationManager.__init__ re-inlined the literal banner label "
+            "text instead of delegating to candidate_values_label()"
+        )
+        assert 'Configs per horizon-specific parameter:' not in source, (
+            "AccuracySimulationManager.__init__ re-inlined the literal banner label "
+            "text instead of delegating to configs_per_param_label()"
+        )
+
+    def test_parallel_runner_evaluation_log_delegates_to_horizon_count(self):
+        import inspect
+        from simulation.accuracy.ParallelAccuracyRunner import ParallelAccuracyRunner
+
+        source = inspect.getsource(ParallelAccuracyRunner.evaluate_configs_parallel)
+
+        assert 'HORIZON_COUNT' in source, (
+            "ParallelAccuracyRunner.evaluate_configs_parallel no longer delegates to "
+            "HORIZON_COUNT"
+        )
+        assert '× 5' not in source, (
+            "ParallelAccuracyRunner.evaluate_configs_parallel re-inlined the drifted "
+            "count"
+        )
+
+    def test_parallel_runner_no_longer_carries_its_own_week_ranges_copy(self):
+        """T77 AC3: the function-local duplicate is the root of the drift."""
+        import inspect
+        from simulation.accuracy import ParallelAccuracyRunner as par_module
+
+        source = inspect.getsource(par_module)
+
+        assert 'WEEK_RANGES = ' not in source, (
+            "ParallelAccuracyRunner re-introduced a local WEEK_RANGES copy"
+        )
+
+
+class TestHorizonCountAgreement:
+    """
+    T77 AC7: no site in the accuracy engine may state a horizon count that
+    disagrees with HORIZON_COUNT. Engine-wide, not consumer-enumerated, so it also
+    covers AccuracySimulationManager's two deliberately-unrefactored sites (D3) and
+    any future one.
+    """
+
+    @staticmethod
+    def _scan(text):
+        import re
+
+        # Up to two intervening words are allowed between the number and
+        # "horizons". Without this, the story's own rewording to
+        # "all 4 weekly horizons" would sit OUTSIDE the scan -- a net loss of
+        # reach, since the pre-story "all 5 horizons" WAS caught. Verified: a
+        # planted "all 5 weekly horizons" is detected with this pattern and
+        # missed without it.
+        return [
+            int(match.group(1))
+            for match in re.finditer(r'(\d+)\s+(?:\w+\s+){0,2}horizons?', text)
+        ]
+
+    @staticmethod
+    def _engine_sources():
+        from pathlib import Path
+
+        project_root = Path(__file__).parent.parent.parent
+        paths = sorted((project_root / 'simulation' / 'accuracy').glob('*.py'))
+        paths.append(project_root / 'run_accuracy_simulation.py')
+        return paths
+
+    def test_no_engine_site_disagrees_with_horizon_count(self):
+        from simulation.accuracy.horizon_labels import HORIZON_COUNT
+
+        disagreeing = []
+        for path in self._engine_sources():
+            lines = path.read_text(encoding='utf-8').splitlines()
+            for line_number, line in enumerate(lines, 1):
+                for number in self._scan(line):
+                    if number != HORIZON_COUNT:
+                        disagreeing.append((path.name, line_number, number))
+
+        assert disagreeing == [], (
+            f"these sites state a horizon count that disagrees with "
+            f"HORIZON_COUNT={HORIZON_COUNT}: {disagreeing}"
+        )
+
+    def test_the_scan_actually_reaches_every_consumer_file(self):
+        """A scan finding nothing because it read nothing would pass vacuously."""
+        names = {path.name for path in self._engine_sources()}
+
+        assert {
+            'AccuracySimulationManager.py',
+            'ParallelAccuracyRunner.py',
+            'horizon_labels.py',
+            'run_accuracy_simulation.py',
+        } <= names, f"the count-agreement scan misses a consumer file: {sorted(names)}"
+
+    def test_count_agreement_scan_detects_a_planted_disagreement(self):
+        """The guard must be discriminating, not merely present."""
+        from simulation.accuracy.horizon_labels import HORIZON_COUNT
+
+        planted = 'evaluated across all 5 horizons for every config'
+
+        assert [
+            number for number in self._scan(planted) if number != HORIZON_COUNT
+        ] == [5], "the count-agreement scan would not catch a re-drifted site"
+
+
+class TestBannerOutputUnchanged:
+    """
+    T77 AC6: the two banner consumers' operator-visible text is byte-identical to
+    what they shipped before the de-duplication. Every expected string is pinned as a
+    LITERAL - rebuilding it from the builders under test would make the assertion
+    circular and pass through any label change.
+    """
+
+    def test_cli_banner_line_one_is_byte_identical(self):
+        from simulation.accuracy.horizon_labels import candidate_values_label
+
+        assert candidate_values_label(6) == (
+            'Candidate values per parameter per horizon: 6'
+        )
+
+    def test_cli_banner_line_two_is_byte_identical(self):
+        from simulation.accuracy.horizon_labels import configs_per_param_label
+
+        assert configs_per_param_label(6, 24) == (
+            'Configs per horizon-specific parameter: 6 × 4 horizons = 24'
+        )
+
+    def test_manager_startup_line_is_byte_identical(self):
+        from simulation.accuracy.horizon_labels import (
+            candidate_values_label,
+            configs_per_param_label,
+        )
+
+        rendered = (
+            f"AccuracySimulationManager initialized: "
+            f"{candidate_values_label(6)}; "
+            f"{configs_per_param_label(6, 24)}"
+        )
+
+        assert rendered == (
+            'AccuracySimulationManager initialized: Candidate values per parameter '
+            'per horizon: 6; Configs per horizon-specific parameter: 6 × 4 '
+            'horizons = 24'
+        )
+
+
+class TestParallelRunnerEvaluationLogLine:
+    """
+    T77 AC4: the one operator-visible line this story deliberately CHANGES (5 -> 4).
+    Captured by attaching a handler directly to the runner's logger: this project's
+    get_logger() returns the 'default' logger with propagate=False, so pytest's caplog
+    fixture would capture nothing and the assertion would pass vacuously.
+    """
+
+    def test_logs_the_horizon_count_derived_total(self, tmp_path):
+        import logging
+        from unittest.mock import patch
+
+        from simulation.accuracy.ParallelAccuracyRunner import ParallelAccuracyRunner
+
+        runner = ParallelAccuracyRunner(
+            data_folder=tmp_path,
+            available_seasons=['2024'],
+            max_workers=2,
+            use_processes=False,
+        )
+
+        records = []
+
+        class _Capture(logging.Handler):
+            def emit(self, record):
+                records.append(record.getMessage())
+
+        handler = _Capture(level=logging.INFO)
+        runner.logger.addHandler(handler)
+        try:
+            with patch(
+                'simulation.accuracy.ParallelAccuracyRunner.'
+                '_evaluate_config_tournament_process',
+                side_effect=lambda config, *args: (config, {}),
+            ):
+                runner.evaluate_configs_parallel(
+                    [{'id': index} for index in range(3)]
+                )
+        finally:
+            runner.logger.removeHandler(handler)
+
+        assert (
+            'Starting parallel evaluation: 3 configs × 4 horizons = 12 '
+            'total evaluations'
+        ) in records, f"evaluation log line changed or drifted: {records}"
+
+
