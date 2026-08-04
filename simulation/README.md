@@ -512,9 +512,13 @@ PARAM_DEFINITIONS = {
 }
 ```
 
-2. Add value generation in `generate_all_parameter_value_sets()`
-3. Update `create_config_dict()` to apply the parameter
-4. Update `SIMULATION_TODO.md` documentation
+2. Add to `ConfigGenerator.PARAM_TO_SECTION_MAP` so `is_base_param()` classifies the
+   parameter as base-config or week-specific
+3. Update `SIMULATION_TODO.md` documentation
+
+No further code change is needed: `ConfigGenerator.generate_horizon_test_values()` reads
+`PARAM_DEFINITIONS` directly, so the horizon-based tournament picks up a new parameter
+with no per-parameter value-generation or config-assembly code.
 
 ### Modifying Opponent Strategies
 
