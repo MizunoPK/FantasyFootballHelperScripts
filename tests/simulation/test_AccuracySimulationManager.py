@@ -17,7 +17,11 @@ from unittest.mock import Mock, patch, MagicMock
 
 project_root = Path(__file__).parent.parent.parent
 
-from simulation.accuracy.AccuracySimulationManager import AccuracySimulationManager
+from simulation.accuracy.AccuracyResultsManager import WEEK_RANGES
+from simulation.accuracy.AccuracySimulationManager import (
+    AccuracySimulationManager,
+    MAX_ASCENT_PASSES,
+)
 
 
 TEST_PARAMETER_ORDER = [
@@ -954,3 +958,102 @@ if __name__ == "__main__":
     pytest.main([__file__, "-v"])
 
 
+
+
+class TestT69ConvergenceLoop:
+    """T69/D1: per-horizon convergent ascent, ported from SweepTournament's `while moved:`.
+
+    These drive run_both's pass loop with _run_ascent_pass stubbed, so they exercise the
+    freezing/termination logic without running a real optimization.
+    """
+
+    def _manager(self, tmp_path):
+        """A manager with the heavy collaborators stubbed out."""
+        mgr = AccuracySimulationManager.__new__(AccuracySimulationManager)
+        mgr.logger = Mock()
+        mgr.output_dir = tmp_path
+        mgr.parameter_order = ['P1']
+        mgr.results_manager = Mock()
+        mgr.results_manager.save_optimal_configs.return_value = tmp_path / "accuracy_optimal_x"
+        mgr.config_generator = Mock()
+        mgr.config_generator.num_test_values = 2
+        mgr._sweep_orphaned_temp_dirs = Mock()
+        mgr._setup_signal_handlers = Mock()
+        mgr._restore_signal_handlers = Mock()
+        mgr._warn_low_accuracy_promoted = Mock()
+        mgr._detect_resume_state = Mock(return_value=(False, 0, None))
+        return mgr
+
+    def test_all_horizons_converge_when_a_pass_adopts_nothing(self, tmp_path):
+        """T69/AC2: a pass that adopts nothing freezes every remaining horizon and stops."""
+        mgr = self._manager(tmp_path)
+        mgr._run_ascent_pass = Mock(return_value=set())     # nothing ever adopts
+
+        with patch('simulation.accuracy.AccuracySimulationManager.cleanup_accuracy_intermediate_folders', return_value=0):
+            mgr.run_both()
+
+        # One pass suffices: nothing adopted, so all four freeze immediately.
+        assert mgr._run_ascent_pass.call_count == 1
+
+    def test_frozen_horizons_are_passed_to_the_next_pass(self, tmp_path):
+        """T69/AC2: a horizon that adopted nothing is frozen and handed to later passes.
+
+        week_1_5 adopts on pass 1 only; the other three freeze after pass 1. Pass 2 must
+        therefore receive those three as frozen.
+        """
+        mgr = self._manager(tmp_path)
+        calls = []
+
+        def fake_pass(pass_idx, frozen, should_resume, resume_idx):
+            calls.append(set(frozen))
+            return {'week_1_5'} if pass_idx == 0 else set()
+
+        mgr._run_ascent_pass = Mock(side_effect=fake_pass)
+        with patch('simulation.accuracy.AccuracySimulationManager.cleanup_accuracy_intermediate_folders', return_value=0):
+            mgr.run_both()
+
+        assert calls[0] == set(), "pass 1 must start with nothing frozen"
+        assert calls[1] == {'week_6_9', 'week_10_13', 'week_14_17'}, (
+            "pass 2 must receive the three horizons that adopted nothing in pass 1"
+        )
+        assert mgr._run_ascent_pass.call_count == 2
+
+    def test_bound_hit_stops_the_run_and_is_not_called_convergence(self, tmp_path):
+        """T69/AC3: a never-converging horizon stops at the bound, reported distinctly.
+
+        A bound hit means the run did NOT settle. Reporting it as convergence would hide
+        exactly the non-convergence the bound exists to surface.
+        """
+        mgr = self._manager(tmp_path)
+        mgr._run_ascent_pass = Mock(return_value=set(WEEK_RANGES.keys()))   # always adopts
+
+        with patch('simulation.accuracy.AccuracySimulationManager.cleanup_accuracy_intermediate_folders', return_value=0):
+            mgr.run_both()
+
+        assert mgr._run_ascent_pass.call_count == MAX_ASCENT_PASSES
+
+        warned = " ".join(str(c) for c in mgr.logger.warning.call_args_list)
+        assert "BOUND" in warned.upper(), "a bound hit must be warned about"
+
+        infos = " ".join(str(c) for c in mgr.logger.info.call_args_list)
+        assert "BOUND-HIT" in infos, "the completion line must say BOUND-HIT"
+        assert "CONVERGED after" not in infos, (
+            "a bound-hit run must NOT be reported as converged"
+        )
+
+    def test_warn_low_accuracy_promoted_fires_exactly_once_per_run(self, tmp_path):
+        """T69/AC7: T59's warning hook fires once per RUN, not once per pass.
+
+        It is the only thing that makes the two low-accuracy thresholds reachable, and
+        firing it per pass would turn it into noise.
+        """
+        mgr = self._manager(tmp_path)
+        seq = [{'week_1_5'}, {'week_1_5'}, set()]
+        mgr._run_ascent_pass = Mock(side_effect=lambda pi, fz, sr, ri: seq[min(pi, len(seq) - 1)])
+
+        with patch('simulation.accuracy.AccuracySimulationManager.cleanup_accuracy_intermediate_folders', return_value=0):
+            mgr.run_both()
+
+        assert mgr._run_ascent_pass.call_count > 1, "this test is only meaningful multi-pass"
+        assert mgr._warn_low_accuracy_promoted.call_count == 1
+        assert mgr.results_manager.save_optimal_configs.call_count == 1

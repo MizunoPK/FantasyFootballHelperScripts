@@ -48,6 +48,17 @@ from simulation.accuracy.horizon_labels import (
     configs_per_param_label,
 )
 
+# T69/D1: safety bound on the ascent loop. This is a DELIBERATE DIVERGENCE from the port
+# source: SweepTournament has no cap ("convergence is the sole stopping rule -- no
+# wall-time, no pass cap"). T69 adds one because this story exists to replace a runner that
+# never exited, and an uncapped loop would reproduce that defect under a new name.
+#
+# It is a safety net, NOT the stopping rule. Hitting it is reported distinctly and is never
+# described as convergence -- a run that stopped because it ran out of passes has not
+# settled, and conflating the two would hide the non-convergence the bound exists to
+# surface. Coordinate ascent over a finite candidate grid normally settles in a few passes.
+MAX_ASCENT_PASSES = 10
+
 PAIRWISE_ACCURACY_WARN_THRESHOLD = 0.65
 TOP_10_ACCURACY_WARN_THRESHOLD = 0.70
 
@@ -381,96 +392,51 @@ class AccuracySimulationManager:
                 self.config_generator.baseline_configs = ConfigGenerator.load_baseline_from_folder(baseline_to_use)
                 self.logger.info(f"Loaded {len(self.config_generator.baseline_configs)} horizon configs from {baseline_to_use.name}")
 
-            for param_idx, param_name in enumerate(self.parameter_order):
-                if should_resume and param_idx < resume_param_idx:
-                    continue
+            # T69/D1: the CONVERGENCE LOOP. Repeat full ascent passes until every horizon
+            # has frozen (a pass in which it adopted nothing) or the bound is hit. Each of
+            # the 4 horizons is an INDEPENDENT tournament -- one freezing does not stop the
+            # others -- mirroring SweepTournament's per-config independence.
+            frozen_horizons = set()
+            all_horizons = set(WEEK_RANGES.keys())
+            pass_idx = 0
+            bound_hit = False
 
-                test_values_dict = self.config_generator.generate_horizon_test_values(param_name)
-
-                for horizon, test_values in test_values_dict.items():
-                    if len(test_values) == 0:
-                        raise ValueError(f"No test values generated for parameter {param_name}, horizon {horizon}")
-
-                total_configs = sum(len(vals) for vals in test_values_dict.values())
-                total_evaluations = total_configs * 4
-
-                self.logger.info(f"Optimizing parameter {param_idx + 1}/{len(self.parameter_order)}: {param_name}")
-                self.logger.info(f"  Evaluating {total_configs} configs × 4 horizons = {total_evaluations} total evaluations")
-
-                self.progress_tracker = ProgressTracker(
-                    total=total_configs,
-                    description="Configs (each tests 4 horizons)"
+            while True:
+                self.logger.info(
+                    f"--- Ascent pass {pass_idx + 1} | "
+                    f"active horizons: {sorted(all_horizons - frozen_horizons)} ---"
+                )
+                adopted = self._run_ascent_pass(
+                    pass_idx, frozen_horizons, should_resume, resume_param_idx
                 )
 
-                configs_to_evaluate = []
-                config_metadata = []
-
-                for horizon, test_values in test_values_dict.items():
-                    for test_idx, test_value in enumerate(test_values):
-                        config_dict = self.config_generator.get_config_for_horizon(horizon, param_name, test_idx)
-
-                        config_dict['_eval_metadata'] = {
-                            'param_name': param_name,
-                            'param_value': test_value,
-                            'horizon': horizon,
-                            'test_idx': test_idx
-                        }
-
-                        configs_to_evaluate.append(config_dict)
-                        config_metadata.append((horizon, test_idx))
-
-                if self.parallel_runner is None:
-                    from simulation.accuracy.ParallelAccuracyRunner import ParallelAccuracyRunner
-                    self.parallel_runner = ParallelAccuracyRunner(
-                        self.data_folder,
-                        self.available_seasons,
-                        max_workers=self.max_workers,
-                        use_processes=self.use_processes
+                newly_frozen = (all_horizons - frozen_horizons) - adopted
+                for horizon in sorted(newly_frozen):
+                    self.logger.info(
+                        f"Horizon {horizon} CONVERGED after pass {pass_idx + 1} "
+                        f"(a full pass adopted no parameter)"
                     )
+                frozen_horizons |= newly_frozen
+                pass_idx += 1
 
-                def progress_update(completed):
-                    self.progress_tracker.update()
+                if frozen_horizons == all_horizons:
+                    self.logger.info(
+                        f"All {len(all_horizons)} horizons converged after {pass_idx} pass(es)"
+                    )
+                    break
 
-                evaluation_results = self.parallel_runner.evaluate_configs_parallel(
-                    configs_to_evaluate,
-                    progress_callback=progress_update
-                )
-
-                self.progress_tracker.finish()
-
-                for (config_dict, results_dict), (horizon, test_idx) in zip(evaluation_results, config_metadata):
-                    for result_horizon, result in results_dict.items():
-                        is_new_best = self.results_manager.add_result(
-                            result_horizon,
-                            config_dict,
-                            result,
-                            param_name=param_name,
-                            test_idx=test_idx,
-                            base_horizon=horizon
-                        )
-
-                        if is_new_best:
-                            self.logger.info(f"    New best for {result_horizon}: MAE={result.mae:.4f} (test_{test_idx})")
-
-                self.results_manager.save_intermediate_results(
-                    param_idx,
-                    param_name
-                )
-
-                horizon_map = {
-                    'week_1_5': '1-5',
-                    'week_6_9': '6-9',
-                    'week_10_13': '10-13',
-                    'week_14_17': '14-17'
-                }
-                for week_key, horizon_key in horizon_map.items():
-                    best_perf = self.results_manager.best_configs.get(week_key)
-                    if best_perf is not None:
-                        self.config_generator.update_baseline_for_horizon(horizon_key, best_perf.config_dict)
-                    else:
-                        self.logger.warning(f"No best config found for {week_key} after parameter {param_name}")
-
-                self._log_parameter_summary(param_name)
+                if pass_idx >= MAX_ASCENT_PASSES:
+                    bound_hit = True
+                    # T69/AC3: a BOUND HIT is not convergence. Say so distinctly -- a run
+                    # that stopped because it ran out of passes has NOT settled, and calling
+                    # it converged would hide exactly the non-convergence the bound exists
+                    # to surface.
+                    self.logger.warning(
+                        f"MAX PASS BOUND REACHED ({MAX_ASCENT_PASSES} passes) with "
+                        f"{sorted(all_horizons - frozen_horizons)} still adopting. These "
+                        f"horizons did NOT converge; results are the best found so far."
+                    )
+                    break
 
             optimal_path = self.results_manager.save_optimal_configs()
 
@@ -480,15 +446,142 @@ class AccuracySimulationManager:
             if deleted_count > 0:
                 self.logger.info(f"Cleaned up {deleted_count} intermediate folders")
 
+            outcome = (
+                f"BOUND-HIT after {pass_idx} passes (not converged)" if bound_hit
+                else f"CONVERGED after {pass_idx} pass(es)"
+            )
             self.logger.info(
-                f"Tournament optimization complete: Optimized {total_params} parameters "
-                f"across 4 week ranges. Results saved to: {optimal_path}"
+                f"Tournament optimization complete: {outcome}. Optimized {total_params} "
+                f"parameters across 4 week ranges. Results saved to: {optimal_path}"
             )
 
             return optimal_path
 
         finally:
             self._restore_signal_handlers()
+
+
+    def _run_ascent_pass(self, pass_idx: int, frozen_horizons: set,
+                         should_resume: bool, resume_param_idx: int) -> set:
+        """Run ONE full coordinate-ascent pass over parameter_order.
+
+        T69/D1: ported from SweepTournament's `while moved:` shape. A pass walks every
+        parameter, evaluates its candidates, and records adoptions. The caller freezes any
+        horizon that adopted nothing in the pass.
+
+        Args:
+            pass_idx (int): 0-based pass number. The resume skip applies only to pass 0.
+            frozen_horizons (set): Horizons already converged; skipped for both config
+                generation and result recording so a frozen horizon's best cannot move.
+            should_resume (bool): From _detect_resume_state.
+            resume_param_idx (int): Parameter index to resume at, pass 0 only.
+
+        Returns:
+            set: Horizons that adopted at least one candidate during this pass.
+        """
+        adopted_this_pass = set()
+
+        for param_idx, param_name in enumerate(self.parameter_order):
+            # The resume skip applies to the FIRST pass only -- a later pass must walk
+            # every parameter from the top.
+            if pass_idx == 0 and should_resume and param_idx < resume_param_idx:
+                continue
+
+            test_values_dict = self.config_generator.generate_horizon_test_values(param_name)
+
+            for horizon, test_values in test_values_dict.items():
+                if len(test_values) == 0:
+                    raise ValueError(f"No test values generated for parameter {param_name}, horizon {horizon}")
+
+            total_configs = sum(len(vals) for vals in test_values_dict.values())
+            total_evaluations = total_configs * 4
+
+            self.logger.info(f"Optimizing parameter {param_idx + 1}/{len(self.parameter_order)}: {param_name}")
+            self.logger.info(f"  Evaluating {total_configs} configs × 4 horizons = {total_evaluations} total evaluations")
+
+            self.progress_tracker = ProgressTracker(
+                total=total_configs,
+                description="Configs (each tests 4 horizons)"
+            )
+
+            configs_to_evaluate = []
+            config_metadata = []
+
+            for horizon, test_values in test_values_dict.items():
+                if horizon in frozen_horizons:
+                    continue   # T69/D1: converged -- generate no further candidates
+                for test_idx, test_value in enumerate(test_values):
+                    config_dict = self.config_generator.get_config_for_horizon(horizon, param_name, test_idx)
+
+                    config_dict['_eval_metadata'] = {
+                        'param_name': param_name,
+                        'param_value': test_value,
+                        'horizon': horizon,
+                        'test_idx': test_idx
+                    }
+
+                    configs_to_evaluate.append(config_dict)
+                    config_metadata.append((horizon, test_idx))
+
+            if self.parallel_runner is None:
+                from simulation.accuracy.ParallelAccuracyRunner import ParallelAccuracyRunner
+                self.parallel_runner = ParallelAccuracyRunner(
+                    self.data_folder,
+                    self.available_seasons,
+                    max_workers=self.max_workers,
+                    use_processes=self.use_processes
+                )
+
+            def progress_update(completed):
+                self.progress_tracker.update()
+
+            evaluation_results = self.parallel_runner.evaluate_configs_parallel(
+                configs_to_evaluate,
+                progress_callback=progress_update
+            )
+
+            self.progress_tracker.finish()
+
+            for (config_dict, results_dict), (horizon, test_idx) in zip(evaluation_results, config_metadata):
+                for result_horizon, result in results_dict.items():
+                    if result_horizon in frozen_horizons:
+                        continue   # T69/D1: frozen -- its best is final for this run
+                    is_new_best = self.results_manager.add_result(
+                        result_horizon,
+                        config_dict,
+                        result,
+                        param_name=param_name,
+                        test_idx=test_idx,
+                        base_horizon=horizon
+                    )
+
+                    if is_new_best:
+                        adopted_this_pass.add(result_horizon)
+                        self.logger.info(f"    New best for {result_horizon}: MAE={result.mae:.4f} (test_{test_idx})")
+
+            self.results_manager.save_intermediate_results(
+                param_idx,
+                param_name
+            )
+
+            horizon_map = {
+                'week_1_5': '1-5',
+                'week_6_9': '6-9',
+                'week_10_13': '10-13',
+                'week_14_17': '14-17'
+            }
+            for week_key, horizon_key in horizon_map.items():
+                if week_key in frozen_horizons:
+                    continue   # T69/D1: frozen -- baseline is final
+                best_perf = self.results_manager.best_configs.get(week_key)
+                if best_perf is not None:
+                    self.config_generator.update_baseline_for_horizon(horizon_key, best_perf.config_dict)
+                else:
+                    self.logger.warning(f"No best config found for {week_key} after parameter {param_name}")
+
+            self._log_parameter_summary(param_name)
+
+        return adopted_this_pass
 
     def _warn_low_accuracy_promoted(self) -> None:
         """Warn once per horizon when the promoted config scores below the accuracy bar.
