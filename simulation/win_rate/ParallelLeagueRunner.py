@@ -190,9 +190,6 @@ class ParallelLeagueRunner:
         self.last_requested_count = 0
         self.last_completed_count = 0
         self.last_dropped_count = 0
-        # Drop-rate threshold (KDD-2): default 0.0 so any drop already logs at ERROR; when the
-        # observed drop rate exceeds this, the ERROR message uses elevated phrasing.
-        self.drop_rate_threshold = 0.0
 
         executor_type = "ProcessPoolExecutor" if use_processes else "ThreadPoolExecutor"
         self.logger.debug(f"ParallelLeagueRunner initialized with {max_workers} workers ({executor_type})")
@@ -433,11 +430,6 @@ class ParallelLeagueRunner:
                 f"{self.last_dropped_count}/{num_simulations} leagues dropped "
                 f"({len(results)}/{num_simulations} completed, rate={drop_rate:.1%})"
             )
-            # KDD-2: prepend the elevated label only when an operator has configured a
-            # non-zero drop_rate_threshold AND this drop rate exceeds it. At the default
-            # threshold (0.0) every drop still logs at ERROR, with the neutral phrasing.
-            if self.drop_rate_threshold > 0.0 and drop_rate > self.drop_rate_threshold:
-                msg = f"HIGH DROP RATE: {msg}"
             self.logger.error(msg)
 
         self.logger.debug(
@@ -551,11 +543,6 @@ class ParallelLeagueRunner:
                 f"{self.last_dropped_count}/{num_simulations} leagues dropped "
                 f"({len(results)}/{num_simulations} completed, rate={drop_rate:.1%})"
             )
-            # KDD-2: prepend the elevated label only when an operator has configured a
-            # non-zero drop_rate_threshold AND this drop rate exceeds it. At the default
-            # threshold (0.0) every drop still logs at ERROR, with the neutral phrasing.
-            if self.drop_rate_threshold > 0.0 and drop_rate > self.drop_rate_threshold:
-                msg = f"HIGH DROP RATE: {msg}"
             self.logger.error(msg)
 
         self.logger.debug(
