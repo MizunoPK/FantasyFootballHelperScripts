@@ -2,11 +2,10 @@
 Comprehensive Unit Tests for ConfigGenerator
 
 Tests all functionality of the ConfigGenerator class including:
-- Initialization and configuration loading
-- Parameter value generation
-- Combination generation (cartesian product)
-- Config dictionary creation
-- Iterative optimization support
+- Initialization and configuration loading (5-file horizon folder structure)
+- DRAFT_ORDER_FILE parameter definition
+- The horizon-based interface: generate_horizon_test_values, get_config_for_horizon,
+  update_baseline_for_horizon
 - Edge cases and error handling
 
 Author: Kai Mizuno
@@ -19,7 +18,6 @@ import tempfile
 import shutil
 import copy
 from pathlib import Path
-from unittest.mock import patch, Mock
 
 from simulation.shared.ConfigGenerator import ConfigGenerator
 
@@ -275,21 +273,21 @@ class TestConfigGeneratorInitialization:
         gen = ConfigGenerator(temp_baseline_config)
 
         assert gen.num_test_values == 5
-        assert gen.baseline_config is not None
-        assert 'parameters' in gen.baseline_config
+        assert gen.baseline_configs['1-5'] is not None
+        assert 'parameters' in gen.baseline_configs['1-5']
 
     def test_initialization_custom_num_test_values(self, temp_baseline_config):
         """Test initialization with custom num_test_values"""
         gen = ConfigGenerator(temp_baseline_config, num_test_values=3)
 
         assert gen.num_test_values == 3
-        assert gen.baseline_config is not None
+        assert gen.baseline_configs['1-5'] is not None
 
-    def test_load_baseline_config_success(self, temp_baseline_config):
+    def test_baseline_configs_populated_from_folder(self, temp_baseline_config):
         """Test successful loading of baseline configuration"""
         gen = ConfigGenerator(temp_baseline_config)
 
-        config = gen.baseline_config
+        config = gen.baseline_configs['1-5']
         assert config['config_name'] == 'Test week1-5.json'
         assert config['parameters']['NORMALIZATION_MAX_SCALE'] == 100.0
         assert config['parameters']['SAME_POS_BYE_WEIGHT'] == 1.0
@@ -309,324 +307,6 @@ class TestConfigGeneratorInitialization:
             min_val, max_val, precision = definition
             assert isinstance(precision, int), f"{param_name} precision should be int"
             assert precision >= 0, f"{param_name} precision should be >= 0"
-
-class TestParameterValueGeneration:
-    """Test parameter value generation methods"""
-
-    @pytest.fixture
-    def generator(self, tmp_path):
-        """Create a ConfigGenerator instance for testing"""
-        config = {"config_name": "test_config", "parameters": {}}
-        config_folder = create_test_config_folder(config, tmp_path)
-        return ConfigGenerator(config_folder, num_test_values=2)
-
-    def test_generate_parameter_values_correct_count(self, generator):
-        """Test that correct number of values are generated"""
-        values = generator.generate_parameter_values(
-            'TEST_PARAM', 100, 60, 140, 0
-        )
-
-        assert len(values) == 3
-
-    def test_generate_parameter_values_includes_optimal(self, generator):
-        """Test that optimal value is included as first value"""
-        optimal = 100
-        values = generator.generate_parameter_values(
-            'TEST_PARAM', optimal, 60, 140, 0
-        )
-
-        assert values[0] == optimal
-
-    def test_generate_parameter_values_respects_bounds(self, generator):
-        """Test that generated values respect min/max bounds"""
-        values = generator.generate_parameter_values(
-            'TEST_PARAM', 100, 60, 140, 0
-        )
-
-        for val in values:
-            assert 60 <= val <= 140
-
-    def test_generate_parameter_values_random_variation(self, generator):
-        """Test that random values vary from optimal"""
-        optimal = 100
-        values = generator.generate_parameter_values(
-            'TEST_PARAM', optimal, 60, 140, 0
-        )
-
-        non_optimal_values = [v for v in values[1:] if v != optimal]
-        assert len(non_optimal_values) >= 1
-
-    def test_generate_parameter_values_precision_0_returns_integers(self, generator):
-        """Test that precision=0 generates integer values"""
-        values = generator.generate_parameter_values(
-            'TEST_PARAM', 100, 60, 140, 0
-        )
-
-        for val in values:
-            assert isinstance(val, int), f"Expected int, got {type(val)}: {val}"
-
-    def test_generate_parameter_values_precision_1(self, generator):
-        """Test that precision=1 generates 0.1 step values"""
-        values = generator.generate_parameter_values(
-            'TEST_PARAM', 0.3, 0.0, 0.5, 1
-        )
-
-        assert len(values) == 3
-        assert values[0] == 0.3
-        for val in values:
-            assert round(val, 1) == val
-
-    def test_generate_parameter_values_precision_2(self, generator):
-        """Test that precision=2 generates 0.01 step values"""
-        values = generator.generate_parameter_values(
-            'TEST_PARAM', 1.50, 1.00, 2.00, 2
-        )
-
-        assert values[0] == 1.50
-        for val in values:
-            assert round(val, 2) == val
-
-    def test_generate_parameter_values_full_enumeration(self, generator):
-        """Test that when num_test_values >= possible values, all values returned"""
-        config = {"config_name": "test_config", "parameters": {}}
-        import tempfile
-        from tests.simulation.test_config_generator import create_test_config_folder
-        with tempfile.TemporaryDirectory() as tmp:
-            from pathlib import Path
-            config_folder = create_test_config_folder(config, Path(tmp))
-            gen = ConfigGenerator(config_folder, num_test_values=10)
-            values = gen.generate_parameter_values('TEST_PARAM', 0.3, 0.0, 0.5, 1)
-
-        assert len(values) == 6
-        assert values[0] == 0.3
-        assert set(values) == {0.0, 0.1, 0.2, 0.3, 0.4, 0.5}
-
-    def test_generate_discrete_range_precision_0(self, generator):
-        """Test _generate_discrete_range with precision=0 (integers)"""
-        values = generator._generate_discrete_range(100, 105, 0)
-
-        assert values == [100, 101, 102, 103, 104, 105]
-        for v in values:
-            assert isinstance(v, int)
-
-    def test_generate_discrete_range_precision_1(self, generator):
-        """Test _generate_discrete_range with precision=1 (0.1 steps)"""
-        values = generator._generate_discrete_range(0.0, 0.5, 1)
-
-        assert values == [0.0, 0.1, 0.2, 0.3, 0.4, 0.5]
-        for v in values:
-            assert round(v, 1) == v
-
-    def test_generate_discrete_range_precision_2(self, generator):
-        """Test _generate_discrete_range with precision=2 (0.01 steps)"""
-        values = generator._generate_discrete_range(0.10, 0.15, 2)
-
-        assert values == [0.10, 0.11, 0.12, 0.13, 0.14, 0.15]
-        for v in values:
-            assert round(v, 2) == v
-
-    def test_generate_discrete_range_negative_values(self, generator):
-        """Test _generate_discrete_range handles negative values"""
-        values = generator._generate_discrete_range(-10.0, 0.0, 1)
-
-        assert len(values) == 101
-        assert values[0] == -10.0
-        assert values[-1] == 0.0
-
-    def test_generate_discrete_range_integer_negative(self, generator):
-        """Test _generate_discrete_range with precision=0 for negative integers"""
-        values = generator._generate_discrete_range(-5, 0, 0)
-
-        assert len(values) == 6
-        assert values == [-5, -4, -3, -2, -1, 0]
-
-    def test_generate_all_parameter_value_sets_returns_all_params(self, generator):
-        """Test that value sets are generated with valid structure"""
-        value_sets = generator.generate_all_parameter_value_sets()
-
-        assert isinstance(value_sets, dict)
-        assert len(value_sets) > 0
-
-        for param_name, values in value_sets.items():
-            assert isinstance(values, list), f"{param_name} should be a list"
-            assert len(values) > 0, f"{param_name} should have values"
-            for val in values:
-                assert isinstance(val, (int, float)), f"{param_name} values should be numeric"
-
-    def test_generate_all_parameter_value_sets_correct_value_count(self, generator):
-        """Test that each value set has correct number of values"""
-        value_sets = generator.generate_all_parameter_value_sets()
-
-        expected_count = generator.num_test_values + 1
-        for param_name, values in value_sets.items():
-            assert len(values) == expected_count, f"{param_name} has {len(values)} values, expected {expected_count}"
-
-
-class TestCombinationGeneration:
-    """Test combination generation using cartesian product"""
-
-    @pytest.fixture
-    def generator(self, tmp_path):
-        """Create a ConfigGenerator with minimal test values"""
-        config = {"config_name": "test_config", "parameters": {}}
-        config_folder = create_test_config_folder(config, tmp_path)
-        return ConfigGenerator(config_folder, num_test_values=1)
-
-    def test_generate_all_combinations_structure(self, generator):
-        """Test that combinations have correct structure"""
-        value_sets = generator.generate_all_parameter_value_sets()
-
-        assert isinstance(value_sets, dict)
-        assert len(value_sets) > 0
-
-        expected_count = generator.num_test_values + 1
-        for param_name, values in value_sets.items():
-            assert len(values) == expected_count, f"{param_name} has {len(values)} values, expected {expected_count}"
-
-    def test_generate_all_combinations_each_has_all_params(self, generator):
-        """Test that each combination contains all generated value set params"""
-        value_sets = generator.generate_all_parameter_value_sets()
-
-        test_combo = {param: values[0] for param, values in value_sets.items()}
-
-        for param_name in value_sets:
-            assert param_name in test_combo, f"Missing {param_name} in test combination"
-
-        assert isinstance(test_combo, dict)
-        assert len(test_combo) > 0
-
-
-class TestConfigDictCreation:
-    """Test creation of complete configuration dictionaries"""
-
-    @pytest.fixture
-    def generator_and_combo(self, tmp_path):
-        """Create a generator and a sample combination"""
-        config = {"config_name": "test_config", "parameters": {}}
-        config_folder = create_test_config_folder(config, tmp_path)
-        gen = ConfigGenerator(config_folder)
-
-        combination = {
-            'NORMALIZATION_MAX_SCALE': 110.0,
-            'SAME_POS_BYE_WEIGHT': 1.5,
-            'DIFF_POS_BYE_WEIGHT': 1.2,
-            'PRIMARY_BONUS': 55.0,
-            'SECONDARY_BONUS': 45.0,
-            'DRAFT_ORDER_FILE': 1,
-            'ADP_SCORING_WEIGHT': 1.5,
-            'PLAYER_RATING_SCORING_WEIGHT': 1.3,
-            'TEAM_QUALITY_SCORING_WEIGHT': 1.2,
-            'TEAM_QUALITY_MIN_WEEKS': 5,
-            'PERFORMANCE_SCORING_WEIGHT': 1.1,
-            'PERFORMANCE_MIN_WEEKS': 5,
-            'MATCHUP_SCORING_WEIGHT': 1.4,
-            'MATCHUP_MIN_WEEKS': 5,
-            'ADP_SCORING_STEPS': 40.0,
-            'PERFORMANCE_SCORING_STEPS': 0.12,
-            'MATCHUP_IMPACT_SCALE': 175.0,
-            'TEMPERATURE_IMPACT_SCALE': 50.0,
-            'TEMPERATURE_SCORING_WEIGHT': 1.0,
-            'WIND_IMPACT_SCALE': 60.0,
-            'WIND_SCORING_WEIGHT': 1.0,
-            'LOCATION_HOME': 2.0,
-            'LOCATION_AWAY': -2.0,
-            'LOCATION_INTERNATIONAL': -5.0,
-        }
-
-        return gen, combination
-
-    def test_create_config_dict_updates_scalar_params(self, generator_and_combo):
-        """Test that scalar parameters are updated correctly"""
-        gen, combination = generator_and_combo
-        config = gen.create_config_dict(combination)
-
-        params = config['parameters']
-        assert params['NORMALIZATION_MAX_SCALE'] == 110.0
-        assert params['SAME_POS_BYE_WEIGHT'] == 1.5
-        assert params['DIFF_POS_BYE_WEIGHT'] == 1.2
-        assert params['DRAFT_ORDER_BONUSES']['PRIMARY'] == 55.0
-        assert params['DRAFT_ORDER_BONUSES']['SECONDARY'] == 45.0
-        assert params['MATCHUP_SCORING']['IMPACT_SCALE'] == 175.0
-
-    def test_create_config_dict_updates_multipliers(self, generator_and_combo):
-        """Test that weights are updated in all sections"""
-        gen, combination = generator_and_combo
-        config = gen.create_config_dict(combination)
-
-        params = config['parameters']
-
-        assert params['ADP_SCORING']['WEIGHT'] == 1.5
-        assert params['PLAYER_RATING_SCORING']['WEIGHT'] == 1.3
-        assert params['TEAM_QUALITY_SCORING']['WEIGHT'] == 1.2
-        assert params['PERFORMANCE_SCORING']['WEIGHT'] == 1.1
-        assert params['MATCHUP_SCORING']['WEIGHT'] == 1.4
-
-    def test_create_config_dict_immutability(self, generator_and_combo):
-        """Test that creating configs doesn't mutate baseline"""
-        gen, combination = generator_and_combo
-        original_baseline = gen.baseline_config['parameters']['NORMALIZATION_MAX_SCALE']
-
-        config = gen.create_config_dict(combination)
-
-        assert gen.baseline_config['parameters']['NORMALIZATION_MAX_SCALE'] == original_baseline
-
-
-class TestIterativeOptimizationSupport:
-    """Test methods that support iterative optimization"""
-
-    @pytest.fixture
-    def generator(self, tmp_path):
-        """Create a generator for iterative optimization tests"""
-        config = {"config_name": "test_config", "parameters": {}}
-        config_folder = create_test_config_folder(config, tmp_path)
-        return ConfigGenerator(config_folder, num_test_values=2)
-
-    def test_generate_single_parameter_configs_correct_count(self, generator):
-        """Test that correct number of configs are generated"""
-        base_config = generator.baseline_config
-        configs = generator.generate_single_parameter_configs('NORMALIZATION_MAX_SCALE', base_config)
-
-        assert len(configs) == 3
-
-    def test_generate_single_parameter_configs_varies_target_param(self, generator):
-        """Test that target parameter varies across configs"""
-        base_config = generator.baseline_config
-        configs = generator.generate_single_parameter_configs('NORMALIZATION_MAX_SCALE', base_config)
-
-        values = [c['parameters']['NORMALIZATION_MAX_SCALE'] for c in configs]
-
-        assert len(set(values)) > 1
-
-    def test_extract_combination_from_config(self, generator):
-        """Test extraction of combination dict from config"""
-        config = generator.baseline_config
-        combination = generator._extract_combination_from_config(config)
-
-        assert isinstance(combination, dict)
-        assert len(combination) > 0
-
-        for param_name, value in combination.items():
-            assert isinstance(value, (int, float)), f"{param_name} should be numeric"
-
-        core_params = [
-            'NORMALIZATION_MAX_SCALE',
-            'SAME_POS_BYE_WEIGHT',
-            'DIFF_POS_BYE_WEIGHT',
-            'PRIMARY_BONUS',
-            'SECONDARY_BONUS',
-        ]
-        for param in core_params:
-            assert param in combination, f"Core param {param} should be in combination"
-
-    def test_generate_single_parameter_configs_for_multiplier(self, generator):
-        """Test generating configs for a weight parameter"""
-        base_config = generator.baseline_config
-        configs = generator.generate_single_parameter_configs('ADP_SCORING_WEIGHT', base_config)
-
-        assert len(configs) == 3
-
-        values = [c['parameters']['ADP_SCORING']['WEIGHT'] for c in configs]
-        assert len(set(values)) > 1
 
 
 class TestEdgeCases:
@@ -675,17 +355,6 @@ class TestEdgeCases:
 class TestDraftOrderFile:
     """Test DRAFT_ORDER_FILE parameter functionality"""
 
-    @pytest.fixture
-    def baseline_config_with_draft_order(self):
-        """Create baseline config with DRAFT_ORDER_FILE"""
-        return {
-            "config_name": "test_baseline",
-            "parameters": {
-                "DRAFT_ORDER_FILE": 1,
-                "DRAFT_ORDER": [{"FLEX": "P", "QB": "S"}] * 15,
-            }
-        }
-
     def test_draft_order_file_in_param_definitions(self):
         """Test DRAFT_ORDER_FILE is in PARAM_DEFINITIONS with correct range and precision"""
         assert 'DRAFT_ORDER_FILE' in ConfigGenerator.PARAM_DEFINITIONS
@@ -698,68 +367,6 @@ class TestDraftOrderFile:
         """Test DRAFT_ORDER_FILE is NOT in PARAMETER_ORDER (handled by separate script)"""
         assert 'DRAFT_ORDER_FILE' not in TEST_PARAMETER_ORDER
         assert 'DRAFT_ORDER_FILE' in ConfigGenerator.PARAM_DEFINITIONS
-
-    def test_generate_parameter_values_for_draft_order(self, baseline_config_with_draft_order, tmp_path):
-        """Test discrete integer value generation for DRAFT_ORDER_FILE (precision=0)"""
-        config_folder = create_test_config_folder(baseline_config_with_draft_order, tmp_path)
-        generator = ConfigGenerator(config_folder, num_test_values=5)
-        values = generator.generate_parameter_values('DRAFT_ORDER_FILE', 1, 1, 30, 0)
-
-        assert len(values) == 6
-        assert values[0] == 1
-        for v in values:
-            assert isinstance(v, int)
-            assert 1 <= v <= 30
-        assert len(set(values)) == 6
-
-    def test_extract_combination_includes_draft_order_file(self, baseline_config_with_draft_order, tmp_path):
-        """Test _extract_combination_from_config includes DRAFT_ORDER_FILE"""
-        config_folder = create_test_config_folder(baseline_config_with_draft_order, tmp_path)
-        generator = ConfigGenerator(config_folder)
-        combination = generator._extract_combination_from_config(generator.baseline_config)
-
-        assert 'DRAFT_ORDER_FILE' in combination
-        assert combination['DRAFT_ORDER_FILE'] == 1
-
-    def test_generate_single_parameter_configs_draft_order_file(self, baseline_config_with_draft_order, tmp_path):
-        """Test generating configs for DRAFT_ORDER_FILE parameter"""
-        config_folder = create_test_config_folder(baseline_config_with_draft_order, tmp_path)
-        generator = ConfigGenerator(config_folder, num_test_values=3)
-
-        mock_draft_order = [{"FLEX": "P", "QB": "S"}] * 15
-        with patch.object(generator, '_load_draft_order_from_file', return_value=mock_draft_order):
-            configs = generator.generate_single_parameter_configs(
-                'DRAFT_ORDER_FILE',
-                generator.baseline_config
-            )
-
-        assert len(configs) == 4
-
-        for config in configs:
-            assert 'DRAFT_ORDER_FILE' in config['parameters']
-            assert 'DRAFT_ORDER' in config['parameters']
-            assert isinstance(config['parameters']['DRAFT_ORDER'], list)
-
-    def test_create_config_dict_loads_draft_order(self, baseline_config_with_draft_order, tmp_path):
-        """Test create_config_dict loads DRAFT_ORDER from file"""
-        config_folder = create_test_config_folder(baseline_config_with_draft_order, tmp_path)
-        generator = ConfigGenerator(config_folder)
-        combination = generator._extract_combination_from_config(generator.baseline_config)
-
-        combination['DRAFT_ORDER_FILE'] = 1
-        config = generator.create_config_dict(combination)
-
-        assert config['parameters']['DRAFT_ORDER_FILE'] == 1
-        assert isinstance(config['parameters']['DRAFT_ORDER'], list)
-        assert len(config['parameters']['DRAFT_ORDER']) == 15
-
-    def test_load_draft_order_from_file_not_found(self, baseline_config_with_draft_order, tmp_path):
-        """Test _load_draft_order_from_file raises error for invalid file number"""
-        config_folder = create_test_config_folder(baseline_config_with_draft_order, tmp_path)
-        generator = ConfigGenerator(config_folder)
-        with pytest.raises(FileNotFoundError):
-            generator._load_draft_order_from_file(999)
-
 
 
 class TestHorizonBasedInterface:
