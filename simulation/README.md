@@ -251,7 +251,8 @@ authoritative list; the summaries below are a convenience.
 --sims N               Simulations per season per strategy (default: 10)
 --workers N            Max parallel worker threads (default: 8)
 --data PATH            Simulation data root (default: simulation/sim_data)
---strategy FILENAME    Restrict the run to one draft_order_possibilities/*.json
+--strategy FILENAME    Restrict the run to one strategy, by EXACT BASENAME (e.g. 1_zero_rb.json).
+                       Not a path or glob -- the runner matches the bare filename.
 --endless              Run continuously until KeyboardInterrupt
 --seed N               Seed the run
 --naive-opponents      Use the legacy naive opponent field instead of the self-play default

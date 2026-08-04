@@ -85,8 +85,8 @@ run_win_rate_simulation.py (Entry Point — flags only, no positional mode)
     ParallelLeagueRunner (Thread Pool, sized by --workers)
         ↓
     Multiple SimulatedLeague instances (parallel)
-        ├─ DraftHelperTeam (system under test)
-        └─ SimulatedOpponent (AI competitors, --naive-opponents field)
+        ├─ DraftHelperTeam x10 by DEFAULT (self-play; one is the measured team)
+        └─ SimulatedOpponent x9 ONLY under --naive-opponents (then 1 DraftHelperTeam)
             ↓
         Snake Draft (15 rounds, 150 picks)
             ↓
@@ -139,7 +139,9 @@ simulation/
 one entry point. (It once carried `single` / `full` / `iterative` subcommands; those were removed when the
 CLI was rewritten.)
 
-**Authoritative description:** `.shamt-core/project-specific-files/ARCHITECTURE.md` §"Component 2:
+**Authoritative surface:** `python run_win_rate_simulation.py --help` — always present and generated
+from the parser itself, so it cannot drift. (If this checkout has the Shamt install, which is
+git-ignored and absent from a fresh clone, `.shamt-core/project-specific-files/ARCHITECTURE.md` §"Component 2:
 Win-Rate Simulation Engine" is the maintained description of this CLI — its flags, defaults, and
 semantics. This section is a **pointer**, deliberately not a second copy: two descriptions of one CLI is
 the condition that produced the drift this section replaces. Run `python run_win_rate_simulation.py --help`
@@ -217,7 +219,7 @@ feature, not a missing one. The arithmetic it implied is why it was impractical:
 
 ## Core Components
 
-### 3. ParallelLeagueRunner
+### 1. ParallelLeagueRunner
 
 **File**: `simulation/win_rate/ParallelLeagueRunner.py`
 
@@ -269,7 +271,7 @@ with ProcessPoolExecutor(max_workers=8) as executor:
 
 ---
 
-### 4. SimulatedLeague
+### 2. SimulatedLeague
 
 **File**: `simulation/win_rate/SimulatedLeague.py`
 
@@ -284,8 +286,13 @@ with ProcessPoolExecutor(max_workers=8) as executor:
 
 ```python
 class SimulatedLeague:
-    # Team strategy distribution (from lines 77-83)
-    TEAM_STRATEGIES = {
+    # The DEFAULT composition: self-play, 10 identical DraftHelperTeams.
+    SELF_PLAY_TEAM_STRATEGIES = {
+        'draft_helper': 10
+    }
+
+    # Legacy naive-opponent composition -- selected only by --naive-opponents.
+    NAIVE_TEAM_STRATEGIES = {
         'draft_helper': 1,                            # 1 DraftHelper team
         'adp_aggressive': 2,                          # 2 ADP-focused teams
         'projected_points_aggressive': 2,             # 2 projection-focused teams
@@ -294,7 +301,9 @@ class SimulatedLeague:
     }
 ```
 
-**Total**: 10 teams (1 DraftHelper + 9 AI opponents)
+**Total**: 10 teams either way — by default 10 DraftHelperTeams sharing the reference
+config (so the measured team's baseline win rate sits near ~0.50); under
+`--naive-opponents`, 1 DraftHelperTeam + 9 SimulatedOpponents (the prior ~0.84 regime).
 
 **Snake Draft Implementation**:
 
@@ -325,9 +334,24 @@ def run_draft(self):
 - **In-memory PlayerManager instances**: Each team has independent instance (no disk copies)
 - **Pre-loaded week data**: All 17 weeks loaded at initialization to avoid repeated I/O
 
+**Season Simulation (the per-week loop)**:
+
+After the draft, each league plays a 17-week season. For every week, each team sets
+its lineup, actual points are scored, and matchups are resolved pairwise.
+
+**The tie rule is asymmetric and deliberate: a tie counts as a LOSS for both teams,
+not a half-win each.** So a team's win rate is strictly `wins / games`, and the
+league's total wins across a season is *less than* the number of matchups whenever
+any week ties. `Week.py` (`simulate_week`) is the authority for this rule.
+
+This matters when interpreting a measured win rate: under the default self-play
+composition every team runs the same config, so ties are more likely than in a mixed
+field, and the tie rule is what keeps the self-play baseline slightly *below* 0.50
+rather than exactly at it.
+
 ---
 
-### 5. SimulatedOpponent
+### 3. SimulatedOpponent
 
 **File**: `simulation/win_rate/SimulatedOpponent.py`
 
@@ -516,7 +540,9 @@ The Win Rate Simulation is a sophisticated system for optimizing fantasy footbal
 **Key Distinction**: This system optimizes **DRAFT STRATEGY** (how to pick players). Separate `run_accuracy_simulation.py` optimizes **PREDICTION ACCURACY** (how to score players).
 
 **For more information**:
-- See `.shamt-core/project-specific-files/ARCHITECTURE.md` for complete system architecture (§"Component 2: Win-Rate Simulation Engine" is the authoritative win-rate CLI description)
+- Run `python run_win_rate_simulation.py --help` for the authoritative, always-current flag surface
+- The real modules: `win_rate/DraftStrategyOrchestrator.py`, `win_rate/SweepTournament.py`, `win_rate/CombinationEvaluator.py`, `win_rate/config_promoter.py`, `win_rate/paired_comparison.py`
+- If this checkout has the Shamt install (git-ignored; absent from a fresh clone): `.shamt-core/project-specific-files/ARCHITECTURE.md` §"Component 2: Win-Rate Simulation Engine"
 - See `README.md` for usage instructions
 - See `simulation/README.md` for simulation-specific details
 - See `run_accuracy_simulation.py` for prediction optimization

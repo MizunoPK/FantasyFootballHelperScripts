@@ -238,7 +238,8 @@ simulation/simulation_configs/accuracy_optimal_{timestamp}/
 
 ## See Also
 
-- **`.shamt-core/project-specific-files/ARCHITECTURE.md`** - Complete system architecture; §"Component 2: Win-Rate Simulation Engine" is the authoritative win-rate CLI description
+- **`python run_win_rate_simulation.py --help`** - the authoritative, always-current win-rate flag surface (generated from the parser, so it cannot drift)
+- **`.shamt-core/project-specific-files/ARCHITECTURE.md`** - complete system architecture, §"Component 2". Note this path is **git-ignored** and absent from a fresh clone; it exists only where the Shamt install is present
 - **[README.md](../../README.md)** - Project overview and installation
 
 ---
