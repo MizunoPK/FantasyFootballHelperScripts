@@ -117,40 +117,6 @@ class ConfigGenerator:
         'LOCATION_INTERNATIONAL': (-25.0, 5.0, 1),
     }
 
-    THRESHOLD_FIXED_PARAMS = {
-        "ADP_SCORING": {
-            "BASE_POSITION": 0,
-            "DIRECTION": "DECREASING"
-        },
-        "PLAYER_RATING_SCORING": {
-            "BASE_POSITION": 0,
-            "DIRECTION": "INCREASING"
-        },
-        "TEAM_QUALITY_SCORING": {
-            "BASE_POSITION": 0,
-            "DIRECTION": "DECREASING"
-        },
-        "PERFORMANCE_SCORING": {
-            "BASE_POSITION": 0.0,
-            "DIRECTION": "BI_EXCELLENT_HI"
-        },
-        "MATCHUP_SCORING": {
-            "BASE_POSITION": 0,
-            "DIRECTION": "INCREASING"
-        },
-        "TEMPERATURE_SCORING": {
-            "BASE_POSITION": 0,
-            "DIRECTION": "DECREASING",
-            "STEPS": 10,
-            "IDEAL_TEMPERATURE": 60
-        },
-        "WIND_SCORING": {
-            "BASE_POSITION": 0,
-            "DIRECTION": "DECREASING",
-            "STEPS": 8
-        }
-    }
-
     SCORING_SECTIONS = [
         'ADP_SCORING',
         'PLAYER_RATING_SCORING',

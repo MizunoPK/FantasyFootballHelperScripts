@@ -777,7 +777,7 @@ def _sync_schedule_params(self, config: dict) -> dict:
 
 ### 5. ConfigGenerator
 
-**File**: `simulation/shared/ConfigGenerator.py` (1200+ lines)
+**File**: `simulation/shared/ConfigGenerator.py` (534 lines as of T75, `05c3e9b1` — was 1,314 before T75 deleted the 15 production-unreachable members)
 
 **Responsibilities**:
 - Define parameter search space (16 parameters for accuracy, 24 for win-rate)
@@ -793,7 +793,7 @@ def load_baseline_from_folder(folder_path) -> Dict[str, dict]:
     """
     Load 4 independent baseline configs from folder.
 
-    Source: ConfigGenerator.py:280-350
+    Source: ConfigGenerator.load_baseline_from_folder() (called from __init__)
 
     Returns:
     {
@@ -1133,7 +1133,7 @@ python run_accuracy_simulation.py --test-values 5 --max-workers 8 --use-processe
    ├─ If found: Use latest as baseline
    └─ Else: Fall back to optimal_* from win-rate simulation
 
-3. Load 4 Baseline Configs (ConfigGenerator.py:280-350)
+3. Load 4 Baseline Configs (ConfigGenerator.load_baseline_from_folder(), called from __init__)
    ├─ Load league_config.json (shared base)
    ├─ Merge with week1-5.json → baseline['1-5']
    ├─ Merge with week6-9.json → baseline['6-9']

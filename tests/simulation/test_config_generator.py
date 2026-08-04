@@ -283,7 +283,7 @@ class TestConfigGeneratorInitialization:
         assert gen.num_test_values == 3
         assert gen.baseline_configs['1-5'] is not None
 
-    def test_load_baseline_config_success(self, temp_baseline_config):
+    def test_baseline_configs_populated_from_folder(self, temp_baseline_config):
         """Test successful loading of baseline configuration"""
         gen = ConfigGenerator(temp_baseline_config)
 

@@ -504,21 +504,35 @@ python simulation/run_simulation.py single --baseline path/to/your/config.json
 
 To add a new parameter to optimize:
 
-1. Add to `ConfigGenerator.PARAM_DEFINITIONS`:
+1. Add to `ConfigGenerator.PARAM_DEFINITIONS`. The tuple is
+   **`(min_val, max_val, precision)`** — e.g. `'NORMALIZATION_MAX_SCALE': (50, 200, 0)`:
 ```python
 PARAM_DEFINITIONS = {
     ...
-    'MY_NEW_PARAM': (range_val, min_val, max_val)
+    'MY_NEW_PARAM': (min_val, max_val, precision)
 }
 ```
 
-2. Add to `ConfigGenerator.PARAM_TO_SECTION_MAP` so `is_base_param()` classifies the
-   parameter as base-config or week-specific
-3. Update `SIMULATION_TODO.md` documentation
+2. Add to `ConfigGenerator.PARAM_TO_SECTION_MAP` so `is_base_param()` can classify the
+   parameter as base-config or week-specific. Unmapped parameters are logged as
+   `Unknown parameter` and treated as non-base.
 
-No further code change is needed: `ConfigGenerator.generate_horizon_test_values()` reads
-`PARAM_DEFINITIONS` directly, so the horizon-based tournament picks up a new parameter
-with no per-parameter value-generation or config-assembly code.
+3. Add to `run_accuracy_simulation.py`'s `PARAMETER_ORDER`. **This is required** — the
+   tournament iterates that list, so a parameter absent from it is never optimized, and
+   `--params` rejects it as an unknown value.
+
+4. If the parameter's config structure is not already handled, extend
+   `ConfigGenerator._extract_param_value()` **and** `_apply_param_value()`. Both dispatch
+   on the parameter's name shape (`*_WEIGHT`, `*_STEPS`, `*_MIN_WEEKS`, `*_IMPACT_SCALE`,
+   `PRIMARY_BONUS`, `SECONDARY_BONUS`, `LOCATION_*`) and **raise
+   `ValueError("Unknown param structure")` for anything else** — so a parameter with a new
+   shape fails at runtime until both methods know it. A parameter reusing an existing
+   suffix needs no change here.
+
+5. Update `SIMULATION_TODO.md` documentation.
+
+Value generation itself needs no per-parameter code: `generate_horizon_test_values()`
+reads `PARAM_DEFINITIONS` directly.
 
 ### Modifying Opponent Strategies
 
