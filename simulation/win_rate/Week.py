@@ -93,6 +93,19 @@ class Week:
 
         Note:
             Teams with higher points win. Ties count as losses for both teams.
+
+            T74: this asymmetry is what makes a DEGENERATE WEEK strictly conservative for a
+            measured win rate. If every player scores 0.0 in a week, every matchup is 0-0,
+            every team is charged a loss, and the measured team's wins can only fall --
+            never rise -- while `SimulatedLeague.run_season` still appends all 17 weeks and
+            `CombinationEvaluator` computes `total_games = total_wins + total_losses`, so
+            the denominator is unchanged. Measured in isolation: 17/34 -> 16/34.
+
+            Do NOT extend that reasoning to a missing week FOLDER. That additionally slides
+            the construction snapshot in `SimulatedLeague._initialize_teams`
+            (`available_weeks[-1]`) and re-rolls the draft, whose effect is larger and of
+            seed-dependent sign. See `load_week_player_data`'s docstring for the full T74
+            finding.
         """
         self.logger.debug(f"Simulating Week {self.week_number} with {len(self.matchups)} matchups")
 
