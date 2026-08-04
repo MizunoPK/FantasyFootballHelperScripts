@@ -19,6 +19,7 @@ from simulation.accuracy.AccuracyResultsManager import (
     RankingMetrics,
     WEEK_RANGES,
     propagate_to_configs,
+    _min_season_wins,
 )
 from simulation.accuracy.AccuracyCalculator import AccuracyResult
 from simulation.shared.config_constants import BASE_CONFIG_PARAMS, WEEK_SPECIFIC_PARAMS
@@ -1715,3 +1716,125 @@ if __name__ == "__main__":
     pytest.main([__file__, "-v"])
 
 
+
+
+SEASONS = ['2021', '2022', '2023', '2024', '2025']
+
+
+def _gate_perf(mean_pairwise, per_season=None):
+    """Build a performance carrying only what the T69 consistency gate reads.
+
+    mean_pairwise is what overall_metrics reports (the pre-T69 comparison); per_season is
+    the T69 vector. Everything else is filler -- the gate touches neither MAE nor players.
+    """
+    return AccuracyConfigPerformance(
+        config_dict={},
+        mae=1.0,
+        player_count=10,
+        total_error=10.0,
+        overall_metrics=RankingMetrics(
+            pairwise_accuracy=mean_pairwise,
+            top_5_accuracy=None,
+            top_10_accuracy=None,
+            top_20_accuracy=None,
+            spearman_correlation=None,
+        ),
+        per_season_pairwise=per_season,
+    )
+
+
+class TestT69ConsistencyAdoptionGate:
+    """T69/D2: adoption requires a supermajority of per-season wins AND a better mean.
+
+    The gate guards against a difference driven by one or two idiosyncratic seasons. It is
+    NOT a noise gate -- accuracy evaluation is deterministic, so re-evaluating a config
+    yields an identical number.
+    """
+
+    def test_consistency_gate_adopts_genuine_improvement(self):
+        """T69/AC4b: a candidate better on EVERY season is adopted.
+
+        NOT OPTIONAL. Without this, every other test here is satisfied by a gate that
+        always returns False -- an inert optimizer that terminates reporting convergence
+        having optimized nothing, which is this story's primary silent-failure mode.
+        """
+        cand = _gate_perf(0.60, dict(zip(SEASONS, [.61, .62, .60, .63, .59])))
+        inc = _gate_perf(0.55, dict(zip(SEASONS, [.55, .56, .54, .57, .53])))
+        assert cand.is_better_than(inc) is True
+
+    def test_consistency_gate_rejects_single_season_fluke(self):
+        """T69/AC4a: a better MEAN carried by one season is not enough (wins 1 of 5)."""
+        fluke = _gate_perf(0.60, dict(zip(SEASONS, [.50, .50, .50, .50, 1.00])))
+        base = _gate_perf(0.55, dict(zip(SEASONS, [.55, .55, .55, .55, .55])))
+        assert fluke.is_better_than(base) is False
+
+    def test_consistency_gate_adopts_at_exactly_the_threshold(self):
+        """T69/AC4a boundary: 4 of 5 wins is exactly ceil(0.8 * 5) -- adoptable."""
+        base = _gate_perf(0.55, dict(zip(SEASONS, [.55, .55, .55, .55, .55])))
+        edge = _gate_perf(0.60, dict(zip(SEASONS, [.61, .62, .63, .64, .40])))
+        assert edge.is_better_than(base) is True
+
+    def test_consistency_gate_rejects_one_win_below_threshold(self):
+        """T69/AC4a boundary: 3 of 5 wins is below ceil(0.8 * 5) = 4 -- rejected."""
+        base = _gate_perf(0.55, dict(zip(SEASONS, [.55, .55, .55, .55, .55])))
+        below = _gate_perf(0.60, dict(zip(SEASONS, [.61, .62, .63, .40, .40])))
+        assert below.is_better_than(base) is False
+
+    def test_consistency_gate_rejects_when_mean_regresses(self):
+        """T69/AC4a: winning every season does not override a worse mean."""
+        base = _gate_perf(0.55, dict(zip(SEASONS, [.55, .55, .55, .55, .55])))
+        lower_mean = _gate_perf(0.50, dict(zip(SEASONS, [.56, .56, .56, .56, .56])))
+        assert lower_mean.is_better_than(base) is False
+
+    def test_threshold_derives_from_actual_season_count(self):
+        """T69/AC4c: the threshold is computed, never a literal tuned for 5 seasons.
+
+        A hardcoded value would be UNSATISFIABLE on a smaller corpus -- nothing would ever
+        adopt and the optimizer would go silently inert. Seasons are discovered at runtime
+        from --data, so the count is not fixed.
+        """
+        assert [_min_season_wins(n) for n in range(1, 11)] == [1, 2, 3, 4, 4, 5, 6, 7, 8, 8]
+
+    def test_threshold_is_always_satisfiable(self):
+        """T69/AC4c: ceil(0.8 * n) <= n for every n, so no corpus size blocks adoption."""
+        for n in range(1, 51):
+            assert _min_season_wins(n) <= n
+
+    def test_gate_degrades_without_per_season_map(self):
+        """T69/AC6: no per-season data -> the pre-T69 mean comparison, both directions."""
+        assert _gate_perf(0.60, {}).is_better_than(_gate_perf(0.55, {})) is True
+        assert _gate_perf(0.50, {}).is_better_than(_gate_perf(0.55, {})) is False
+
+    def test_gate_degrades_with_one_shared_season(self):
+        """T69/AC6: one shared season cannot evidence consistency -> mean comparison.
+
+        The maps are non-empty but overlap in only '2021', so the gate must not engage.
+        """
+        a = _gate_perf(0.60, {'2021': 0.40, '2022': 0.90})
+        b = _gate_perf(0.55, {'2021': 0.99, '2023': 0.10})
+        assert a.is_better_than(b) is True
+
+    def test_t63_none_guards_still_fire_first(self):
+        """T69/AC5: T63's None handling precedes the gate and is unchanged."""
+        assert _gate_perf(None, dict(zip(SEASONS, [.9] * 5))).is_better_than(
+            _gate_perf(0.5, dict(zip(SEASONS, [.1] * 5)))) is False
+        assert _gate_perf(0.5, dict(zip(SEASONS, [.1] * 5))).is_better_than(
+            _gate_perf(None, dict(zip(SEASONS, [.9] * 5)))) is True
+
+    def test_per_season_map_survives_dict_roundtrip(self):
+        """T69/AC6: to_dict -> from_dict preserves the vector."""
+        original = dict(zip(SEASONS, [.61, .62, .60, .63, .59]))
+        perf = _gate_perf(0.61, original)
+        restored = AccuracyConfigPerformance.from_dict(perf.to_dict())
+        assert restored.per_season_pairwise == original
+
+    def test_reconstruction_without_the_key_does_not_raise(self):
+        """T69/AC6: a pre-T69 artifact has no such key -- reconstruct to {} , not KeyError."""
+        d = _gate_perf(0.61, dict(zip(SEASONS, [.6] * 5))).to_dict()
+        d.pop('per_season_pairwise', None)
+        restored = AccuracyConfigPerformance.from_dict(d)
+        assert restored.per_season_pairwise == {}
+
+    def test_empty_map_is_not_serialized(self):
+        """T69/A4: an empty vector adds no key, so pre-T69 golden files are unchanged."""
+        assert 'per_season_pairwise' not in _gate_perf(0.61, {}).to_dict()
