@@ -452,6 +452,22 @@ class TestSweepTournament:
         t.run([("s1", [{"s": "1"}])], _baseline(), resume=True)
         assert store.get_config_convergence("s1")["status"] == "converged"
 
+    def test_observed_starvation_does_not_leak_across_configs(self, tmp_path):
+        # T71/D1 scoping: `config_observed_starved` is reset per config, so one config's
+        # sub-floor evaluations must not starve a sibling. s1 evaluates below the floor (17)
+        # and must be "starved"; s2 evaluates above it (34) and must still be "converged".
+        # This is the cross-config half of the over-marking risk -- a reset placed outside the
+        # loop would pass every single-config test and fail only here.
+        store = _store(tmp_path)
+
+        def wg(draft_order, param_values):
+            return (9, 17) if draft_order == [{"s": "1"}] else (20, 34)
+
+        t = SweepTournament(_wg_evaluator(wg), store, games_per_evaluation=34)
+        t.run([("s1", [{"s": "1"}]), ("s2", [{"s": "2"}])], _baseline())
+        assert store.get_config_convergence("s1")["status"] == "starved"
+        assert store.get_config_convergence("s2")["status"] == "converged"
+
     def test_in_progress_checkpoint_tracks_running_best_mid_ascent(self, tmp_path):
         # PR #18: an improvement found mid coordinate-ascent must be persisted immediately as an
         # in_progress checkpoint, so an interrupt before convergence resumes from the latest best

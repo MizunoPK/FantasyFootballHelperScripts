@@ -413,9 +413,9 @@ class SweepTournament:
             # T71/D1: either cause starves. `starved_run` (T61, predicted) is unchanged; the
             # observed cause is admitted only when D2's gate says the prediction strictly
             # cleared the floor, so this is purely additive to T61's behavior.
-            config_starved = starved_run or (observed_check_active and config_observed_starved)
+            either_cause_starved = starved_run or (observed_check_active and config_observed_starved)
             self._store.mark_config_progress(
-                strategy_id, "starved" if config_starved else "converged", current, best_rate
+                strategy_id, "starved" if either_cause_starved else "converged", current, best_rate
             )
             results[strategy_id] = {"param_values": dict(current), "win_rate": best_rate}
             if starved_run:
@@ -425,17 +425,25 @@ class SweepTournament:
                     f"could be adopted, so the params are unchanged from this config's starting "
                     f"point; recorded as 'starved' (not 'converged') so a later resume re-tunes it"
                 )
-            elif config_starved:
-                # T71/D3: observed-only starvation — the prediction cleared the floor but this
-                # config's actual post-drop game count did not. Distinct message from T61's, so
+            elif either_cause_starved:
+                # T71/D3: observed-only starvation — the prediction cleared the floor but at least
+                # one of this config's actual evaluations did not. Distinct message from T61's, so
                 # the log names the cause rather than conflating two different failures.
+                #
+                # Deliberately does NOT claim "not tuned" or "no parameter could be adopted".
+                # Those hold for T61's predicted path (a sub-floor PREDICTION means EVERY
+                # evaluation is sub-floor, so nothing can ever adopt), but NOT here: the
+                # accumulator is set by ANY single sub-floor evaluation, so adequate earlier
+                # evaluations may already have adopted parameters before a later shortfall. This
+                # config may therefore be PARTIALLY tuned, and the message says exactly that.
                 logger.warning(
-                    f"Config {strategy_id} NOT tuned (starved) | observed games fell below "
-                    f"min_games={self._min_games} on at least one evaluation, despite the "
-                    f"predicted games per evaluation ({self._games_per_evaluation}) clearing it "
-                    f"— a mid-evaluation league drop reduced the actual count. No parameter "
-                    f"could be adopted; recorded as 'starved' (not 'converged') so a later "
-                    f"resume re-tunes it"
+                    f"Config {strategy_id} PARTIALLY tuned (starved) | at least one evaluation "
+                    f"returned fewer than min_games={self._min_games} games, despite the predicted "
+                    f"games per evaluation ({self._games_per_evaluation}) clearing it — a "
+                    f"mid-evaluation league drop reduced the actual count. Adoptions on the "
+                    f"sub-floor evaluations were held, so this config's ascent is incomplete and "
+                    f"its params may be partially tuned; recorded as 'starved' (not 'converged') "
+                    f"so a later resume re-tunes it from baseline"
                 )
             else:
                 logger.info(
