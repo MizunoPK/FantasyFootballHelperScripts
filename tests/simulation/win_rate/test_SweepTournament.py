@@ -417,6 +417,57 @@ class TestSweepTournament:
         t.run([("s1", [{"s": "1"}])], _baseline())
         assert store.get_config_convergence("s1")["status"] == "starved"
 
+    def test_observed_shortfall_below_floor_is_starved(self, tmp_path):
+        # T71/R1: the PREDICTION clears the floor (34 > 30) but a mid-evaluation league drop
+        # leaves the OBSERVED count below it (17 < 30). Pre-T71 this landed in "converged" --
+        # the silent-convergence T61 exists to prevent, re-entering through the drop path.
+        store = _store(tmp_path)
+        ev = _wg_evaluator(lambda do, pv: (9, 17))      # 17 observed < 30 floor
+        t = SweepTournament(ev, store, games_per_evaluation=34)
+        t.run([("s1", [{"s": "1"}])], _baseline())
+        assert store.get_config_convergence("s1")["status"] == "starved"
+        assert not store.is_all_converged(["s1"])
+
+    def test_adequate_observed_games_still_converge(self, tmp_path):
+        # T71/R4 over-marking guard: prediction and observation both clear the floor, so the new
+        # observed check must stay inert and the config must still reach "converged". Over-marking
+        # is the more damaging direction -- it would poison every later resume.
+        store = _store(tmp_path)
+        ev = _wg_evaluator(lambda do, pv: (20, 34))     # 34 observed >= 30 floor
+        t = SweepTournament(ev, store, games_per_evaluation=34)
+        t.run([("s1", [{"s": "1"}])], _baseline())
+        assert store.get_config_convergence("s1")["status"] == "converged"
+
+    def test_in_progress_resume_does_not_starve_on_missing_baseline_eval(self, tmp_path):
+        # T71/R3: the in-progress resume branch runs NO baseline evaluate(). Absence of an
+        # evaluation is not evidence of starvation, so the accumulator must stay False and the
+        # config must reach "converged". Uses ADEQUATE-games trials deliberately: a below-floor
+        # mock would legitimately starve here and would not test what this case claims to test.
+        # The checkpointed params must be a real baseline dict -- the resume branch loads them
+        # into `current`, and the ascent loop then indexes every DRAFT_SWEEP_PARAMS key into it.
+        store = _store(tmp_path)
+        ev = _wg_evaluator(lambda do, pv: (20, 34))
+        store.mark_config_progress("s1", "in_progress", _baseline(), 0.55)
+        t = SweepTournament(ev, store, games_per_evaluation=34)
+        t.run([("s1", [{"s": "1"}])], _baseline(), resume=True)
+        assert store.get_config_convergence("s1")["status"] == "converged"
+
+    def test_observed_starvation_does_not_leak_across_configs(self, tmp_path):
+        # T71/D1 scoping: `config_observed_starved` is reset per config, so one config's
+        # sub-floor evaluations must not starve a sibling. s1 evaluates below the floor (17)
+        # and must be "starved"; s2 evaluates above it (34) and must still be "converged".
+        # This is the cross-config half of the over-marking risk -- a reset placed outside the
+        # loop would pass every single-config test and fail only here.
+        store = _store(tmp_path)
+
+        def wg(draft_order, param_values):
+            return (9, 17) if draft_order == [{"s": "1"}] else (20, 34)
+
+        t = SweepTournament(_wg_evaluator(wg), store, games_per_evaluation=34)
+        t.run([("s1", [{"s": "1"}]), ("s2", [{"s": "2"}])], _baseline())
+        assert store.get_config_convergence("s1")["status"] == "starved"
+        assert store.get_config_convergence("s2")["status"] == "converged"
+
     def test_in_progress_checkpoint_tracks_running_best_mid_ascent(self, tmp_path):
         # PR #18: an improvement found mid coordinate-ascent must be persisted immediately as an
         # in_progress checkpoint, so an interrupt before convergence resumes from the latest best

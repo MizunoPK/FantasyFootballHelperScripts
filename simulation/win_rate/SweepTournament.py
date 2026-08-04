@@ -292,8 +292,25 @@ class SweepTournament:
             self._games_per_evaluation is not None
             and self._games_per_evaluation < self._min_games
         )
+        # T71/D2: the OBSERVED-starvation check is active only when the prediction is known and
+        # STRICTLY cleared the floor. Rationale, in order of force:
+        #   1. At/below the floor, `starved_run` above already owns the disposition.
+        #   2. Strict `>` mirrors T61's strict `<`, so both checks treat the exact
+        #      `predicted == floor` boundary the same way (adequate, not starved).
+        #   3. A drop-induced divergence requires `observed < min_games < games_per_evaluation`,
+        #      so it can only exist when the prediction strictly cleared the floor.
+        # None (unknown) keeps today's behavior exactly, matching T61's contract.
+        observed_check_active = (
+            self._games_per_evaluation is not None
+            and self._games_per_evaluation > self._min_games
+        )
 
         for strategy_id, draft_order in strategies:
+            # T71/D1: per-config observed-starvation accumulator. Reset to False here, BEFORE the
+            # skip/resume/seed/baseline branch, so it can never leak across configs. It is set
+            # ONLY by an actual sub-floor evaluate() below — never by the absence of one, which
+            # is what keeps the in-progress resume branch from starving on a missing eval (R3).
+            config_observed_starved = False
             # D3: when resuming, consult the per-config convergence to skip / seed.
             conv = self._store.get_config_convergence(strategy_id) if resume else None
             if conv is not None and conv.get("status") == "converged":
@@ -324,6 +341,8 @@ class SweepTournament:
                 # coordinate-ascent below — it is NOT skipped and the grid is unchanged.
                 current = dict(carry_over_seeds[strategy_id])
                 wins, games, win_rate = self._evaluator.evaluate(draft_order, current)
+                if games < self._min_games:      # T71/D1: observed shortfall (drop-induced)
+                    config_observed_starved = True
                 # T68/D1: carry-over anchor is symmetric self-play -> the self_play bucket.
                 self._store.update(strategy_id, current, win_rate, wins, games, incumbent_param_values=None)
                 best_rate = self._accumulated_rate(strategy_id, current)
@@ -332,6 +351,8 @@ class SweepTournament:
                 # best_rate (T31/F7) is the baseline combo's ACCUMULATED rate from the store.
                 current = dict(baseline_params)
                 wins, games, win_rate = self._evaluator.evaluate(draft_order, current)
+                if games < self._min_games:      # T71/D1: observed shortfall (drop-induced)
+                    config_observed_starved = True
                 # T68/D1: baseline anchor is symmetric self-play -> the self_play bucket.
                 self._store.update(strategy_id, current, win_rate, wins, games, incumbent_param_values=None)
                 best_rate = self._accumulated_rate(strategy_id, current)
@@ -351,6 +372,8 @@ class SweepTournament:
                         trial = dict(current)
                         trial[param] = value
                         wins, games, win_rate = self._evaluator.evaluate(draft_order, trial, incumbent_param_values=current)
+                        if games < self._min_games:      # T71/D1: observed shortfall (drop-induced)
+                            config_observed_starved = True
                         # T68/D1: the trial was measured against `current` -> the matching reference bucket.
                         self._store.update(strategy_id, trial, win_rate, wins, games, incumbent_param_values=current)
                         # T58/D2: decide adoption on the trial's FRESH head-to-head evidence
@@ -387,8 +410,12 @@ class SweepTournament:
             # rather than resuming from its earlier mid-ascent point. That is deliberate: a
             # starved pass can adopt nothing, so its partial ascent is not trustworthy
             # evidence, and re-tuning from baseline is the conservative direction.
+            # T71/D1: either cause starves. `starved_run` (T61, predicted) is unchanged; the
+            # observed cause is admitted only when D2's gate says the prediction strictly
+            # cleared the floor, so this is purely additive to T61's behavior.
+            either_cause_starved = starved_run or (observed_check_active and config_observed_starved)
             self._store.mark_config_progress(
-                strategy_id, "starved" if starved_run else "converged", current, best_rate
+                strategy_id, "starved" if either_cause_starved else "converged", current, best_rate
             )
             results[strategy_id] = {"param_values": dict(current), "win_rate": best_rate}
             if starved_run:
@@ -397,6 +424,26 @@ class SweepTournament:
                     f"{self._games_per_evaluation} < min_games={self._min_games} — no parameter "
                     f"could be adopted, so the params are unchanged from this config's starting "
                     f"point; recorded as 'starved' (not 'converged') so a later resume re-tunes it"
+                )
+            elif either_cause_starved:
+                # T71/D3: observed-only starvation — the prediction cleared the floor but at least
+                # one of this config's actual evaluations did not. Distinct message from T61's, so
+                # the log names the cause rather than conflating two different failures.
+                #
+                # Deliberately does NOT claim "not tuned" or "no parameter could be adopted".
+                # Those hold for T61's predicted path (a sub-floor PREDICTION means EVERY
+                # evaluation is sub-floor, so nothing can ever adopt), but NOT here: the
+                # accumulator is set by ANY single sub-floor evaluation, so adequate earlier
+                # evaluations may already have adopted parameters before a later shortfall. This
+                # config may therefore be PARTIALLY tuned, and the message says exactly that.
+                logger.warning(
+                    f"Config {strategy_id} PARTIALLY tuned (starved) | at least one evaluation "
+                    f"returned fewer than min_games={self._min_games} games, despite the predicted "
+                    f"games per evaluation ({self._games_per_evaluation}) clearing it — a "
+                    f"mid-evaluation league drop reduced the actual count. Adoptions on the "
+                    f"sub-floor evaluations were held, so this config's ascent is incomplete and "
+                    f"its params may be partially tuned; recorded as 'starved' (not 'converged') "
+                    f"so a later resume re-tunes it from baseline"
                 )
             else:
                 logger.info(
