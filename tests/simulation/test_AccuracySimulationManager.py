@@ -318,7 +318,7 @@ class TestAccuracySimulationManagerResumeState:
 
     def test_detect_resume_no_folders(self, manager_with_output):
         """Test resume detection with no intermediate folders."""
-        should_resume, start_idx, path = manager_with_output._detect_resume_state('weekly')
+        should_resume, start_idx, path, _pass_idx, _frozen = manager_with_output._detect_resume_state('weekly')
 
         assert should_resume is False
         assert start_idx == 0
@@ -330,7 +330,7 @@ class TestAccuracySimulationManagerResumeState:
         intermediate.mkdir()
         (intermediate / "week1-5.json").write_text('{"config_name": "test", "parameters": {}, "performance_metrics": {"mae": 10.5}}')
 
-        should_resume, start_idx, path = manager_with_output._detect_resume_state('weekly')
+        should_resume, start_idx, path, _pass_idx, _frozen = manager_with_output._detect_resume_state('weekly')
 
         assert should_resume is True
         assert start_idx == 3
@@ -342,7 +342,7 @@ class TestAccuracySimulationManagerResumeState:
         intermediate.mkdir()
         (intermediate / "week1-5.json").write_text('{"config_name": "test", "parameters": {}, "performance_metrics": {"mae": 10.5}}')
 
-        should_resume, start_idx, path = manager_with_output._detect_resume_state('weekly')
+        should_resume, start_idx, path, _pass_idx, _frozen = manager_with_output._detect_resume_state('weekly')
 
         assert should_resume is True
         assert start_idx == 2
@@ -352,7 +352,7 @@ class TestAccuracySimulationManagerResumeState:
         intermediate = manager_with_output.output_dir / "accuracy_intermediate_01_TEAM_QUALITY_SCORING_WEIGHT"
         intermediate.mkdir()
 
-        should_resume, start_idx, path = manager_with_output._detect_resume_state('weekly')
+        should_resume, start_idx, path, _pass_idx, _frozen = manager_with_output._detect_resume_state('weekly')
 
         assert should_resume is False
         assert start_idx == 0
@@ -366,7 +366,7 @@ class TestAccuracySimulationManagerResumeState:
         intermediate.mkdir()
         (intermediate / "week1-5_best.json").write_text('{"mae": 10.5}')
 
-        should_resume, start_idx, path = manager_with_output._detect_resume_state('weekly')
+        should_resume, start_idx, path, _pass_idx, _frozen = manager_with_output._detect_resume_state('weekly')
 
         assert should_resume is False
         assert start_idx == 0
@@ -377,7 +377,7 @@ class TestAccuracySimulationManagerResumeState:
         intermediate.mkdir()
         (intermediate / "week1-5.json").write_text('{"config_name": "test", "parameters": {}, "performance_metrics": {"mae": 10.5}}')
 
-        should_resume, start_idx, path = manager_with_output._detect_resume_state('ros')
+        should_resume, start_idx, path, _pass_idx, _frozen = manager_with_output._detect_resume_state('ros')
 
         assert should_resume is True
         assert start_idx == 4
@@ -388,7 +388,7 @@ class TestAccuracySimulationManagerResumeState:
         invalid.mkdir()
         (invalid / "week1-5.json").write_text('{"config_name": "test", "parameters": {}, "performance_metrics": {"mae": 10.5}}')
 
-        should_resume, start_idx, path = manager_with_output._detect_resume_state('weekly')
+        should_resume, start_idx, path, _pass_idx, _frozen = manager_with_output._detect_resume_state('weekly')
 
         assert should_resume is False
         assert start_idx == 0
@@ -399,7 +399,7 @@ class TestAccuracySimulationManagerResumeState:
         unknown.mkdir()
         (unknown / "week1-5_best.json").write_text('{"mae": 10.5}')
 
-        should_resume, start_idx, path = manager_with_output._detect_resume_state('weekly')
+        should_resume, start_idx, path, _pass_idx, _frozen = manager_with_output._detect_resume_state('weekly')
 
         assert should_resume is False
         assert start_idx == 0
@@ -981,7 +981,7 @@ class TestT69ConvergenceLoop:
         mgr._setup_signal_handlers = Mock()
         mgr._restore_signal_handlers = Mock()
         mgr._warn_low_accuracy_promoted = Mock()
-        mgr._detect_resume_state = Mock(return_value=(False, 0, None))
+        mgr._detect_resume_state = Mock(return_value=(False, 0, None, 0, set()))
         return mgr
 
     def test_all_horizons_converge_when_a_pass_adopts_nothing(self, tmp_path):
@@ -1057,3 +1057,82 @@ class TestT69ConvergenceLoop:
         assert mgr._run_ascent_pass.call_count > 1, "this test is only meaningful multi-pass"
         assert mgr._warn_low_accuracy_promoted.call_count == 1
         assert mgr.results_manager.save_optimal_configs.call_count == 1
+
+
+class TestT69PassAwareResume:
+    """T69/D5: resume carries the pass index and frozen-horizon set, not just a param index."""
+
+    def test_ascent_state_roundtrips_through_the_intermediate_folder(self, tmp_path):
+        """The state is written into the folder it describes and read back."""
+        mgr = AccuracySimulationManager.__new__(AccuracySimulationManager)
+        mgr.logger = Mock()
+        folder = tmp_path / "accuracy_intermediate_03_P1"
+        folder.mkdir(parents=True)
+        (folder / '_ascent_state.json').write_text(json.dumps({
+            'pass_idx': 2,
+            'frozen_horizons': ['week_1_5', 'week_6_9'],
+        }))
+
+        pass_idx, frozen = mgr._read_ascent_state(folder)
+        assert pass_idx == 2
+        assert frozen == {'week_1_5', 'week_6_9'}
+
+    def test_legacy_folder_without_ascent_state_does_not_raise(self, tmp_path):
+        """T69/AC8: a pre-T69 intermediate folder resumes as pass 0, nothing frozen.
+
+        Losing the pass detail is far better than raising on it or discarding the run's
+        completed work.
+        """
+        mgr = AccuracySimulationManager.__new__(AccuracySimulationManager)
+        mgr.logger = Mock()
+        folder = tmp_path / "accuracy_intermediate_01_P1"
+        folder.mkdir(parents=True)
+
+        assert mgr._read_ascent_state(folder) == (0, set())
+
+    def test_corrupt_ascent_state_degrades_rather_than_raising(self, tmp_path):
+        """A truncated/invalid state file must not take the whole resume down."""
+        mgr = AccuracySimulationManager.__new__(AccuracySimulationManager)
+        mgr.logger = Mock()
+        folder = tmp_path / "accuracy_intermediate_02_P1"
+        folder.mkdir(parents=True)
+        (folder / '_ascent_state.json').write_text("{not valid json")
+
+        assert mgr._read_ascent_state(folder) == (0, set())
+        assert mgr.logger.warning.called, "a corrupt state file should be surfaced, not silent"
+
+    def test_resume_seeds_the_loop_with_recorded_pass_and_frozen_set(self, tmp_path):
+        """T69/AC8: run_both starts at the recorded pass with frozen horizons intact.
+
+        Without this the run would restart at pass 1 and re-optimize horizons that had
+        already converged.
+        """
+        mgr = AccuracySimulationManager.__new__(AccuracySimulationManager)
+        mgr.logger = Mock()
+        mgr.output_dir = tmp_path
+        mgr.parameter_order = ['P1']
+        mgr.results_manager = Mock()
+        mgr.results_manager.save_optimal_configs.return_value = tmp_path / "opt"
+        mgr.config_generator = Mock()
+        mgr.config_generator.num_test_values = 2
+        mgr.config_generator.baseline_configs = {}
+        mgr._sweep_orphaned_temp_dirs = Mock()
+        mgr._setup_signal_handlers = Mock()
+        mgr._restore_signal_handlers = Mock()
+        mgr._warn_low_accuracy_promoted = Mock()
+        mgr._detect_resume_state = Mock(
+            return_value=(True, 0, None, 2, {'week_1_5', 'week_6_9'})
+        )
+
+        seen = []
+
+        def fake_pass(pass_idx, frozen, should_resume, resume_idx):
+            seen.append((pass_idx, set(frozen)))
+            return set()
+
+        mgr._run_ascent_pass = Mock(side_effect=fake_pass)
+        with patch('simulation.accuracy.AccuracySimulationManager.cleanup_accuracy_intermediate_folders', return_value=0):
+            mgr.run_both()
+
+        assert seen[0][0] == 2, "must resume at the recorded pass, not restart at 0"
+        assert seen[0][1] == {'week_1_5', 'week_6_9'}, "frozen horizons must survive the resume"

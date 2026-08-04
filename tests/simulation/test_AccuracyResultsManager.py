@@ -654,8 +654,13 @@ class TestAccuracyResultsManager:
         assert (intermediate_path / "week10-13.json").exists()
         assert (intermediate_path / "week14-17.json").exists()
         assert (intermediate_path / "metadata.json").exists()
+        # T69/D5: the folder now also carries _ascent_state.json (pass index + frozen
+        # horizons), so the resume record is a single self-describing artifact rather than
+        # state kept somewhere else. Asserted by NAME as well as count, so a future stray
+        # file cannot satisfy the count while the real one is missing.
+        assert (intermediate_path / "_ascent_state.json").exists()
         all_files = list(intermediate_path.glob("*.json"))
-        assert len(all_files) == 6
+        assert len(all_files) == 7, sorted(f.name for f in all_files)
 
     def test_load_intermediate_results(self, results_manager, temp_dir):
         """Test that loading fully reconstructs best_configs for optimized horizons

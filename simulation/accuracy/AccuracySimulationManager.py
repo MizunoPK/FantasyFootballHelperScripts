@@ -28,6 +28,7 @@ import shutil
 import signal
 import tempfile
 import time
+import json
 from pathlib import Path
 from typing import List, Optional, Tuple
 
@@ -236,7 +237,35 @@ class AccuracySimulationManager:
         if self._original_sigterm_handler:
             signal.signal(signal.SIGTERM, self._original_sigterm_handler)
 
-    def _detect_resume_state(self, mode: str = 'weekly') -> Tuple[bool, int, Optional[Path]]:
+
+    def _read_ascent_state(self, folder: Path) -> Tuple[int, set]:
+        """Read T69/D5 ascent state from an intermediate folder.
+
+        Args:
+            folder (Path): The intermediate folder selected for resume.
+
+        Returns:
+            Tuple[int, set]: (pass_idx, frozen_horizons). Returns (0, set()) when the file
+                is absent or unreadable -- a folder written before T69 has no ascent state,
+                and losing the pass/frozen detail is far better than discarding the run's
+                completed work or raising on it.
+        """
+        state_file = folder / '_ascent_state.json'
+        if not state_file.exists():
+            self.logger.debug(f"No ascent state in {folder.name}; resuming as pass 0, nothing frozen")
+            return (0, set())
+        try:
+            with open(state_file, 'r') as f:
+                data = json.load(f)
+            return (int(data.get('pass_idx', 0)), set(data.get('frozen_horizons', [])))
+        except (json.JSONDecodeError, OSError, TypeError, ValueError) as e:
+            self.logger.warning(
+                f"Could not read ascent state from {state_file.name} ({e}); "
+                f"resuming as pass 0 with nothing frozen"
+            )
+            return (0, set())
+
+    def _detect_resume_state(self, mode: str = 'weekly') -> Tuple[bool, int, Optional[Path], int, set]:
         """
         Detect if optimization should resume from a previous run.
 
@@ -247,10 +276,15 @@ class AccuracySimulationManager:
             mode: 'weekly' or 'ros' - affects folder name pattern matching
 
         Returns:
-            Tuple[bool, int, Optional[Path]]: A tuple containing:
+            Tuple[bool, int, Optional[Path], int, set]: A tuple containing:
                 - should_resume (bool): True if resuming, False if starting fresh
                 - start_idx (int): Parameter index to start from (0 if starting fresh)
                 - last_config_path (Optional[Path]): Path to last intermediate folder if resuming
+                - pass_idx (int): T69/D5 -- ascent pass to resume at (0 if fresh or legacy)
+                - frozen_horizons (set): T69/D5 -- horizons already converged (empty if fresh
+                  or legacy). A pre-T69 intermediate folder carries no ascent state; that is
+                  treated as "pass 0, nothing frozen" rather than raising, so an interrupted
+                  run from before this story still resumes instead of being discarded.
 
         Logic:
             - No intermediate folders → (False, 0, None) - start from beginning
@@ -268,7 +302,7 @@ class AccuracySimulationManager:
         if not intermediate_folders:
             self.logger.debug("No intermediate folders found")
             self.logger.debug("_detect_resume_state exit: should_resume=False, start_idx=0, last_config=None")
-            return (False, 0, None)
+            return (False, 0, None, 0, set())
 
         valid_folders = []
         param_order = self.parameter_order
@@ -317,7 +351,7 @@ class AccuracySimulationManager:
         if not valid_folders:
             self.logger.debug("No valid intermediate folders found after validation")
             self.logger.debug("_detect_resume_state exit: should_resume=False, start_idx=0, last_config=None")
-            return (False, 0, None)
+            return (False, 0, None, 0, set())
 
         valid_folders.sort(key=lambda x: x[0])
         highest_idx, highest_param, highest_path = valid_folders[-1]
@@ -325,14 +359,15 @@ class AccuracySimulationManager:
         if highest_idx >= len(param_order) - 1:
             self.logger.debug(f"All parameters complete (idx {highest_idx} >= {len(param_order) - 1})")
             self.logger.debug("_detect_resume_state exit: should_resume=False, start_idx=0, last_config=None (all complete)")
-            return (False, 0, None)
+            return (False, 0, None, 0, set())
 
         self.logger.debug(
             f"Found {len(valid_folders)} valid intermediate folders, "
             f"highest: {highest_param} (idx {highest_idx})"
         )
         self.logger.debug(f"_detect_resume_state exit: should_resume=True, start_idx={highest_idx + 1}, last_config={highest_path}")
-        return (True, highest_idx + 1, highest_path)
+        pass_idx, frozen_horizons = self._read_ascent_state(highest_path)
+        return (True, highest_idx + 1, highest_path, pass_idx, frozen_horizons)
 
     def run_both(self) -> Path:
         """
@@ -359,7 +394,8 @@ class AccuracySimulationManager:
         self._setup_signal_handlers()
 
         try:
-            should_resume, resume_param_idx, last_config_path = self._detect_resume_state()
+            (should_resume, resume_param_idx, last_config_path,
+             resume_pass_idx, resume_frozen) = self._detect_resume_state()
 
             baseline_to_use = None
             if should_resume and last_config_path:
@@ -396,10 +432,18 @@ class AccuracySimulationManager:
             # has frozen (a pass in which it adopted nothing) or the bound is hit. Each of
             # the 4 horizons is an INDEPENDENT tournament -- one freezing does not stop the
             # others -- mirroring SweepTournament's per-config independence.
-            frozen_horizons = set()
+            # T69/D5: resume mid-ascent. A pre-T69 folder yields (0, set()), i.e. today's
+            # behaviour, so an interrupted run from before this story still resumes.
             all_horizons = set(WEEK_RANGES.keys())
-            pass_idx = 0
+            frozen_horizons = set(resume_frozen) & all_horizons
+            pass_idx = resume_pass_idx if should_resume else 0
             bound_hit = False
+
+            if should_resume and (pass_idx or frozen_horizons):
+                self.logger.info(
+                    f"Resuming mid-ascent at pass {pass_idx + 1} "
+                    f"with frozen horizons: {sorted(frozen_horizons) or 'none'}"
+                )
 
             while True:
                 self.logger.info(
@@ -561,7 +605,9 @@ class AccuracySimulationManager:
 
             self.results_manager.save_intermediate_results(
                 param_idx,
-                param_name
+                param_name,
+                pass_idx=pass_idx,
+                frozen_horizons=frozen_horizons
             )
 
             horizon_map = {

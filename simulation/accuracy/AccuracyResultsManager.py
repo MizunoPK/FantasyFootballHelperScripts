@@ -625,7 +625,9 @@ class AccuracyResultsManager:
         self,
         param_idx: int,
         param_name: str,
-        week_range_prefix: str = ''
+        week_range_prefix: str = '',
+        pass_idx: int = 0,
+        frozen_horizons: Optional[set] = None
     ) -> Path:
         """
         Save intermediate results during iterative optimization.
@@ -787,6 +789,20 @@ class AccuracyResultsManager:
 
         self.logger.info(f"Saved metadata to {metadata_path.name}")
         self.logger.info(f"Saved intermediate results to: {intermediate_folder}")
+        # T69/D5: record the ascent state INSIDE the folder it describes, so the resume
+        # record stays a single artifact -- same glob, same cleanup, no parallel state file
+        # elsewhere. Absent in a pre-T69 folder, which _detect_resume_state treats as
+        # "pass 0, nothing frozen" rather than raising.
+        atomic_write_json(
+            {
+                'pass_idx': pass_idx,
+                'frozen_horizons': sorted(frozen_horizons or set()),
+                'param_idx': param_idx,
+                'param_name': param_name,
+            },
+            intermediate_folder / '_ascent_state.json'
+        )
+
         return intermediate_folder
 
     def load_intermediate_results(self, folder_path: Path) -> bool:
