@@ -1,7 +1,7 @@
 # Win Rate Simulation - Functional Flow Documentation (CORRECTED)
 
 > **IMPORTANT**: This document describes the **Win Rate Simulation ONLY**.
-> For Accuracy Simulation (prediction optimization), see ACCURACY_SIMULATION_FLOW.md
+> For Accuracy Simulation (prediction optimization), see ACCURACY_SIMULATION_FLOW_VERIFIED.md
 > These are **separate simulation systems** with different purposes and parameters.
 
 ---
@@ -10,12 +10,11 @@
 
 **This Document Covers:**
 - Win Rate Simulation (`run_win_rate_simulation.py`)
-- Draft strategy parameter optimization (7 parameters)
+- Draft strategy parameter optimization (the six `DRAFT_SWEEP_PARAMS`)
 - Maximizing league win percentage
 
 **This Document Does NOT Cover:**
 - Accuracy Simulation (`run_accuracy_simulation.py`) - separate system for prediction optimization
-- Draft Order Simulation (`run_draft_order_simulation.py`) - testing draft strategies across seasons
 
 ---
 
@@ -23,14 +22,11 @@
 
 1. [Overview](#overview)
 2. [Architecture](#architecture)
-3. [Entry Point and Execution Modes](#entry-point-and-execution-modes)
+3. [Entry Point and Flag Surface](#entry-point-and-flag-surface)
 4. [Core Components](#core-components)
 5. [Data Flow](#data-flow)
 6. [Configuration System](#configuration-system)
-7. [Parallel Execution](#parallel-execution)
-8. [Results Management](#results-management)
-9. [Complete Execution Flow](#complete-execution-flow)
-10. [Performance Characteristics](#performance-characteristics)
+7. [Performance Characteristics](#performance-characteristics)
 
 ---
 
@@ -40,7 +36,7 @@ The Win Rate Simulation optimizes **draft strategy parameters** by simulating co
 
 ### Purpose
 
-- **Optimize 7 draft strategy parameters** to maximize league win rate
+- **Optimize the six swept draft strategy parameters** (`DRAFT_SWEEP_PARAMS`) to maximize league win rate
 - **Test DraftHelper recommendations** against realistic AI opponents
 - **Validate parameter changes** before applying to production configs
 - **Discover optimal settings** that work across different seasons
@@ -51,17 +47,23 @@ The Win Rate Simulation optimizes **draft strategy parameters** by simulating co
 - **Total Points**: Fantasy points scored across all weeks
 - **Multi-Season Validation**: Performance across 2021, 2022, 2024+ seasons
 
-### Parameters Optimized (7 Total)
+### Parameters Swept
 
-**Win Rate Simulation optimizes DRAFT STRATEGY parameters only:**
+**The win-rate sweep tunes DRAFT STRATEGY parameters only** — the members of
+`simulation.win_rate.param_value_generation.DRAFT_SWEEP_PARAMS`, in declaration order:
 
-1. **DRAFT_NORMALIZATION_MAX_SCALE** [100-200] - Draft scoring normalization scale
-2. **SAME_POS_BYE_WEIGHT** [0.0-0.5] - Penalty for drafting same-position players with same bye
-3. **DIFF_POS_BYE_WEIGHT** [0.0-0.3] - Penalty for drafting different-position players with same bye
-4. **PRIMARY_BONUS** [25-150] - Bonus points for drafting primary positions at optimal time
-5. **SECONDARY_BONUS** [25-150] - Bonus points for drafting secondary positions
-6. **ADP_SCORING_WEIGHT** [0.5-7.0] - Weight given to Average Draft Position
-7. **PLAYER_RATING_SCORING_WEIGHT** [0.5-4.0] - Weight given to expert rankings
+1. **SAME_POS_BYE_WEIGHT** - Penalty for drafting same-position players with same bye
+2. **DIFF_POS_BYE_WEIGHT** - Penalty for drafting different-position players with same bye
+3. **PRIMARY_BONUS** - Bonus points for drafting primary positions at optimal time
+4. **SECONDARY_BONUS** - Bonus points for drafting secondary positions
+5. **ADP_SCORING_WEIGHT** - Weight given to Average Draft Position
+6. **PLAYER_RATING_SCORING_WEIGHT** - Weight given to expert rankings
+
+Each parameter's range and precision come from `simulation.shared.ConfigGenerator.PARAM_DEFINITIONS`.
+
+**Note**: `DRAFT_NORMALIZATION_MAX_SCALE` is still a live base-config parameter
+(`simulation.shared.config_constants.BASE_CONFIG_PARAMS`) but is **no longer swept** — it was dropped from
+`DRAFT_SWEEP_PARAMS` by T33.
 
 **Note**: Prediction accuracy parameters (TEAM_QUALITY, MATCHUP, WEATHER, etc.) are optimized separately by `run_accuracy_simulation.py`.
 
@@ -72,20 +74,19 @@ The Win Rate Simulation optimizes **draft strategy parameters** by simulating co
 ### High-Level Components
 
 ```
-run_win_rate_simulation.py (Entry Point)
+run_win_rate_simulation.py (Entry Point — flags only, no positional mode)
     ↓
-SimulationManager (Orchestration Layer)
-    ├─ ConfigGenerator (Parameter Space - 7 params)
-    ├─ ParallelLeagueRunner (Parallel Execution)
-    └─ ResultsManager (Result Aggregation)
+    ├─ (no workflow flag) → DraftStrategyOrchestrator   rank every draft strategy
+    ├─ --sweep            → SweepTournament             coordinate ascent over DRAFT_SWEEP_PARAMS
+    └─ --promote          → config_promoter → paired_comparison
         ↓
-    For each configuration variation:
+    For each configuration evaluated:
         ↓
-    ParallelLeagueRunner (Thread/Process Pool)
+    ParallelLeagueRunner (Thread Pool, sized by --workers)
         ↓
     Multiple SimulatedLeague instances (parallel)
-        ├─ DraftHelperTeam (1x - system under test)
-        └─ SimulatedOpponent (9x - AI competitors)
+        ├─ DraftHelperTeam x10 by DEFAULT (self-play; one is the measured team)
+        └─ SimulatedOpponent x9 ONLY under --naive-opponents (then 1 DraftHelperTeam)
             ↓
         Snake Draft (15 rounds, 150 picks)
             ↓
@@ -95,226 +96,130 @@ SimulationManager (Orchestration Layer)
                 ↓
         Return: wins, losses, points_scored, points_against
             ↓
-    ResultsManager aggregates all results
+    Results persist to win_rate_meta_data.json / win_rate_sweep_results.json
         ↓
-    Identify best configuration
-        ↓
-    Save optimal config folder
+    --promote --confirm writes data/configs/league_config.json
 ```
 
 ### Module Organization
 
 ```
 simulation/
-├─ win_rate/                      # Win rate optimization
-│   ├─ SimulationManager.py       # Main orchestrator
-│   ├─ SimulatedLeague.py         # League simulation logic
-│   ├─ DraftHelperTeam.py         # Draft Helper system team
-│   ├─ SimulatedOpponent.py       # AI opponent teams
-│   ├─ Week.py                    # Weekly matchup simulation
-│   └─ ParallelLeagueRunner.py    # Parallel execution engine
-├─ shared/                        # Shared utilities
-│   ├─ ConfigGenerator.py         # Parameter combination generator
-│   ├─ ResultsManager.py          # Result tracking and ranking
-│   └─ SeasonDataLoader.py        # Historical data loading
-└─ sim_data/                      # Historical season data
-    ├─ 2021/
-    ├─ 2022/
-    └─ 2024/
+├─ win_rate/                          # Win rate optimization
+│   ├─ DraftStrategyOrchestrator.py   # Enumerates draft strategies, runs the ranking pass
+│   ├─ WinRateMetaDataManager.py      # Best-win-rate-per-strategy persistence
+│   ├─ strategy_loader.py             # Loads draft_order_possibilities/*.json
+│   ├─ SweepTournament.py             # Coordinate-ascent parameter sweep
+│   ├─ CombinationEvaluator.py        # Evaluates one parameter combination
+│   ├─ SweepResultsManager.py         # win_rate_sweep_results.json persistence
+│   ├─ sweep_summary.py               # Sweep reporting
+│   ├─ param_value_generation.py      # DRAFT_SWEEP_PARAMS + candidate value generation
+│   ├─ config_promoter.py             # Promotion decision (LCB shortlist + re-measure)
+│   ├─ paired_comparison.py           # Head-to-head A/B comparison
+│   ├─ config_overrides.py            # Applies a trial config over the base config
+│   ├─ SimDataLoader.py               # Historical season data loading and validation
+│   ├─ SimulatedLeague.py             # League simulation logic
+│   ├─ DraftHelperTeam.py             # Draft Helper system team
+│   ├─ SimulatedOpponent.py           # AI opponent teams
+│   ├─ Week.py                        # Weekly matchup simulation
+│   └─ ParallelLeagueRunner.py        # Parallel execution engine
+├─ shared/                            # Shared utilities
+│   ├─ ConfigGenerator.py             # Parameter combination generator (accuracy simulation)
+│   ├─ ResultsManager.py              # Result tracking and ranking
+│   ├─ ConfigPerformance.py           # Per-config performance record
+│   └─ config_constants.py            # BASE_CONFIG_PARAMS / WEEK_SPECIFIC_PARAMS
+└─ sim_data/                          # Historical season data + draft_order_possibilities/
 ```
 
 ---
 
-## Entry Point and Execution Modes
+## Entry Point and Flag Surface
 
-### Command Line Interface
+`run_win_rate_simulation.py` takes **no positional argument**. Every workflow is selected by flags on the
+one entry point. (It once carried `single` / `full` / `iterative` subcommands; those were removed when the
+CLI was rewritten.)
+
+**Authoritative surface:** `python run_win_rate_simulation.py --help` — always present and generated
+from the parser itself, so it cannot drift. (If this checkout has the Shamt install, which is
+git-ignored and absent from a fresh clone, `.shamt-core/project-specific-files/ARCHITECTURE.md` §"Component 2:
+Win-Rate Simulation Engine" is the maintained description of this CLI — its flags, defaults, and
+semantics. This section is a **pointer**, deliberately not a second copy: two descriptions of one CLI is
+the condition that produced the drift this section replaces. Run `python run_win_rate_simulation.py --help`
+for the authoritative flag list.
+
+**Real modules behind the flags** (all under `simulation/win_rate/`): `DraftStrategyOrchestrator`,
+`SweepTournament`, `config_promoter`, `paired_comparison`, `WinRateMetaDataManager`.
+
+### The three workflows
+
+**1. Strategy ranking — the default (no workflow flag).**
 
 ```bash
-python run_win_rate_simulation.py [mode] [options]
+python run_win_rate_simulation.py --sims 10 --workers 8
 ```
 
-### Three Execution Modes
+Enumerates the draft strategies that `simulation.win_rate.strategy_loader` globs from
+`simulation/sim_data/draft_order_possibilities/*.json`, runs each through `DraftStrategyOrchestrator`, and
+prints the ranked strategy/win-rate table via `run_win_rate_simulation._print_summary`. Best-per-strategy
+results persist through `WinRateMetaDataManager`. Optional: `--strategy`, `--endless`, `--seed`,
+`--naive-opponents`.
 
-#### 1. Single Mode (Validation)
+**2. Parameter sweep (`--sweep`).**
 
-**Purpose**: Test a single configuration for validation
-
-**Usage**:
 ```bash
-python run_win_rate_simulation.py single --sims 100
+python run_win_rate_simulation.py --sweep --num-values 5
 ```
 
-**Behavior**:
-- Tests only the baseline configuration
-- Runs specified number of simulations
-- Outputs win rate, points scored, and statistics
-- Fast execution for quick validation
+`run_win_rate_simulation._run_sweep_mode` drives `SweepTournament`: **coordinate ascent** over the six
+parameters in `simulation.win_rate.param_value_generation.DRAFT_SWEEP_PARAMS`. Each trial config is
+evaluated **measured-vs-incumbent** — the measured team drafts the trial config while the rest of the
+field drafts the running best — so a win rate is a marginal "does this beat the best so far?" signal, not
+an absolute. Results persist through `SweepResultsManager`. Optional: `--fresh`, `--seed`, `--data`.
 
-**Use Cases**:
-- Verifying baseline config behavior
-- Smoke testing after config changes
-- Quick performance checks
+**3. Paired comparison / promote (`--promote`).**
 
-#### 2. Full Mode (Grid Search)
-
-**Purpose**: Exhaustive search of parameter space
-
-**Usage**:
 ```bash
-python run_win_rate_simulation.py full --test-values 3 --sims 100
+python run_win_rate_simulation.py --promote
+python run_win_rate_simulation.py --promote --confirm
+python run_win_rate_simulation.py --promote --promote-shortlist 3 --promote-sims 20
+python run_win_rate_simulation.py --sweep --promote
 ```
 
-**Behavior**:
-- Tests ALL combinations of parameter values
+Bare `--promote` previews and writes nothing; adding `--confirm` writes `data/configs/league_config.json`.
+`simulation.win_rate.config_promoter.compute_promotion` LCB-shortlists candidates and re-measures them
+head-to-head against the live config via
+`simulation.win_rate.paired_comparison.run_paired_ab_comparison`, and **may refuse to write**.
+
+**Guard:** `--promote` cannot be combined with `--endless`. `run_win_rate_simulation.main` checks this
+explicitly, logs "`--promote` cannot be combined with `--endless`: an endless sweep never terminates to
+promote", and exits with status **`2`**.
+
+### There is no "single mode"
+
+The removed `single` mode has no flag analog — nothing on this CLI evaluates one named configuration and
+reports its statistics. The nearest runnable equivalent is a bounded default run:
+
+```bash
+python run_win_rate_simulation.py --sims 1 --workers 1 --data simulation/sim_data
+```
+
+That ranks every strategy at one simulation each rather than evaluating a single named config; treat it as
+a smoke test, not as a measurement.
+
+### Why there is no grid-search mode
+
+An exhaustive cartesian grid search was **abandoned** in favour of coordinate ascent — it is a removed
+feature, not a missing one. The arithmetic it implied is why it was impractical:
+
 - The configuration count is the product of every varied parameter's candidate-value count, so it grows multiplicatively with the number of parameters varied
-- **EXTREMELY SLOW** - impractical for all 7 parameters
-- Typically used for testing 2-3 parameters in isolation
 
 **Formula**: the product of each varied parameter's `test_values + 1` candidate values — a full cartesian product over the parameters varied simultaneously
-
-> **⚠️ Stale (T65, 2026-07-22):** `run_win_rate_simulation.py` exposes no positional mode argument, so the invocation above is not runnable as documented; the implemented sweep is coordinate descent (`SweepTournament.py`), not a cartesian grid search.
-
-**Use Cases**:
-- Exploring interactions between 2-3 specific parameters
-- Finding global optimum (when limited parameter set)
-- Research and analysis
-
-#### 3. Iterative Mode (Coordinate Descent - DEFAULT)
-
-**Purpose**: Efficient local optimization
-
-**Usage**:
-```bash
-python run_win_rate_simulation.py iterative --sims 100 --workers 8
-```
-
-**Behavior**:
-- Optimizes ONE parameter at a time
-- Tests `test_values + 1` configurations per parameter (default: 6)
-- Uses best value from previous parameter as baseline for next
-- For 7 parameters × 6 values = **42 total configurations**
-- **MUCH FASTER** than full mode
-- Finds local optimum (not guaranteed global)
-
-**Algorithm**:
-1. Start with baseline configuration
-2. For each of 7 parameters:
-   - Generate test values around current value
-   - Run simulations for each test value
-   - Select best performing value
-   - Update baseline with best value
-3. Next parameter uses updated baseline
-4. After all 7 parameters optimized, save optimal config
-
-**Use Cases**:
-- Production optimization runs
-- Continuous improvement cycles
-- Parameter tuning for new seasons
-
-### Common Options
-
-| Option | Default | Description |
-|--------|---------|-------------|
-| `--sims` | 5 | Number of simulations per configuration |
-| `--workers` | 8 | Number of parallel workers |
-| `--test-values` | 5 | Number of test values per parameter |
-| `--baseline-folder` | Auto-detect | Path to baseline config folder |
-| `--use-processes` | False | Use ProcessPoolExecutor instead of threads |
 
 ---
 
 ## Core Components
 
-### 1. SimulationManager
-
-**File**: `simulation/win_rate/SimulationManager.py`
-
-**Responsibilities**:
-- Orchestrate entire optimization process
-- Load baseline configuration from folder (5 files: league_config.json + 4 week configs)
-- Coordinate ConfigGenerator, ParallelLeagueRunner, ResultsManager
-- Implement iterative optimization loop
-- Save intermediate and final results
-
-**Key Methods**:
-
-```python
-def run_iterative_optimization(self):
-    """Coordinate descent optimization of 7 parameters"""
-    # Load baseline config folder
-    # For each of 7 parameters:
-    #   - Generate test values (default: 6)
-    #   - Run parallel simulations across all historical seasons
-    #   - Select best value
-    #   - Update baseline
-    # Save optimal config folder
-```
-
-**Multi-Season Validation**:
-- Runs simulations across ALL available historical seasons (2021, 2022, 2024+)
-- Aggregates results across seasons for robust validation
-- Win rate calculated as: Total Wins / Total Games (across all seasons)
-
----
-
-### 2. ConfigGenerator
-
-**File**: `simulation/shared/ConfigGenerator.py`
-
-**Responsibilities**:
-- Define parameter search space (7 parameters for win rate)
-- Generate parameter value combinations
-- Validate parameter ranges
-- Create configuration dictionaries
-
-**Parameter Definitions (7 for Win Rate)**:
-
-```python
-# From run_win_rate_simulation.py lines 54-66
-PARAMETER_ORDER = [
-    'DRAFT_NORMALIZATION_MAX_SCALE',    # Range: [100, 200]
-    'SAME_POS_BYE_WEIGHT',              # Range: [0.0, 0.5]
-    'DIFF_POS_BYE_WEIGHT',              # Range: [0.0, 0.3]
-    'PRIMARY_BONUS',                     # Range: [25, 150]
-    'SECONDARY_BONUS',                   # Range: [25, 150]
-    'ADP_SCORING_WEIGHT',                # Range: [0.5, 7.0]
-    'PLAYER_RATING_SCORING_WEIGHT',      # Range: [0.5, 4.0]
-]
-```
-
-**Test Value Generation**:
-
-```python
-def generate_test_values(param_name, baseline_value, num_values=5):
-    """Generate 6 test values (baseline + 5 variations)"""
-    param_def = PARAMETER_DEFINITIONS[param_name]
-    min_val, max_val, precision = param_def
-    step = calculate_step(min_val, max_val, num_values)
-
-    # Generate: baseline ± (step × i) for i in 1..num_values
-    test_values = [baseline_value]  # Include baseline
-
-    for i in range(1, num_values + 1):
-        # Add higher value
-        if baseline_value + (step * i) <= max_val:
-            test_values.append(baseline_value + (step * i))
-
-        # Add lower value
-        if baseline_value - (step * i) >= min_val:
-            test_values.append(baseline_value - (step * i))
-
-    return test_values[:num_values + 1]  # Return max num_values + 1
-```
-
-**Example**:
-- Parameter: `ADP_SCORING_WEIGHT`
-- Baseline: `3.0`
-- Range: `[0.5, 7.0]`
-- Test values (num_values=5): `[1.5, 2.0, 2.5, 3.0, 3.5, 4.0]` (6 values)
-
----
-
-### 3. ParallelLeagueRunner
+### 1. ParallelLeagueRunner
 
 **File**: `simulation/win_rate/ParallelLeagueRunner.py`
 
@@ -366,7 +271,7 @@ with ProcessPoolExecutor(max_workers=8) as executor:
 
 ---
 
-### 4. SimulatedLeague
+### 2. SimulatedLeague
 
 **File**: `simulation/win_rate/SimulatedLeague.py`
 
@@ -381,8 +286,13 @@ with ProcessPoolExecutor(max_workers=8) as executor:
 
 ```python
 class SimulatedLeague:
-    # Team strategy distribution (from lines 77-83)
-    TEAM_STRATEGIES = {
+    # The DEFAULT composition: self-play, 10 identical DraftHelperTeams.
+    SELF_PLAY_TEAM_STRATEGIES = {
+        'draft_helper': 10
+    }
+
+    # Legacy naive-opponent composition -- selected only by --naive-opponents.
+    NAIVE_TEAM_STRATEGIES = {
         'draft_helper': 1,                            # 1 DraftHelper team
         'adp_aggressive': 2,                          # 2 ADP-focused teams
         'projected_points_aggressive': 2,             # 2 projection-focused teams
@@ -391,7 +301,9 @@ class SimulatedLeague:
     }
 ```
 
-**Total**: 10 teams (1 DraftHelper + 9 AI opponents)
+**Total**: 10 teams either way — by default 10 DraftHelperTeams sharing the reference
+config (so the measured team's baseline win rate sits near ~0.50); under
+`--naive-opponents`, 1 DraftHelperTeam + 9 SimulatedOpponents (the prior ~0.84 regime).
 
 **Snake Draft Implementation**:
 
@@ -422,9 +334,24 @@ def run_draft(self):
 - **In-memory PlayerManager instances**: Each team has independent instance (no disk copies)
 - **Pre-loaded week data**: All 17 weeks loaded at initialization to avoid repeated I/O
 
+**Season Simulation (the per-week loop)**:
+
+After the draft, each league plays a 17-week season. For every week, each team sets
+its lineup, actual points are scored, and matchups are resolved pairwise.
+
+**The tie rule is asymmetric and deliberate: a tie counts as a LOSS for both teams,
+not a half-win each.** So a team's win rate is strictly `wins / games`, and the
+league's total wins across a season is *less than* the number of matchups whenever
+any week ties. `Week.py` (`simulate_week`) is the authority for this rule.
+
+This matters when interpreting a measured win rate: under the default self-play
+composition every team runs the same config, so ties are more likely than in a mixed
+field, and the tie rule is what keeps the self-play baseline slightly *below* 0.50
+rather than exactly at it.
+
 ---
 
-### 5. SimulatedOpponent
+### 3. SimulatedOpponent
 
 **File**: `simulation/win_rate/SimulatedOpponent.py`
 
@@ -518,199 +445,6 @@ simulation/sim_data/
 
 ---
 
-## Complete Execution Flow
-
-### Iterative Mode (Step-by-Step)
-
-**Command**:
-```bash
-python run_win_rate_simulation.py iterative --sims 100 --workers 8 --test-values 5
-```
-
-**Execution Steps**:
-
-```
-1. Parse Command Line Arguments
-   ├─ mode = "iterative"
-   ├─ sims = 100
-   ├─ workers = 8
-   └─ test_values = 5
-
-2. Find Baseline Config Folder
-   ├─ Check simulation/simulation_configs/ for optimal_* folders
-   └─ Load 5 config files (league_config.json + 4 week files)
-
-3. Initialize SimulationManager
-   ├─ ConfigGenerator(baseline_config, test_values=5)
-   ├─ ParallelLeagueRunner(workers=8, executor="thread")
-   └─ ResultsManager()
-
-4. Start Iterative Optimization Loop
-   ├─ Load 7 parameter definitions from PARAMETER_ORDER
-   └─ For each parameter (7 iterations):
-
-      ┌─────────────────────────────────────────────┐
-      │ Parameter Iteration (e.g., ADP_SCORING_WEIGHT) │
-      └─────────────────────────────────────────────┘
-
-      4.1. Generate Test Values
-           ├─ Baseline: 3.0
-           ├─ Test values: [1.5, 2.0, 2.5, 3.0, 3.5, 4.0]
-           └─ Total: 6 configurations
-
-      4.2. For Each Test Value (6 configs):
-
-           ┌──────────────────────────────────────┐
-           │ Configuration Testing (e.g., 3.5)   │
-           └──────────────────────────────────────┘
-
-           4.2.1. Create Config Dictionary
-                  ├─ Copy baseline config
-                  └─ Set ADP_SCORING_WEIGHT = 3.5
-
-           4.2.2. Submit to ParallelLeagueRunner
-                  ├─ Run 100 simulations PER SEASON
-                  ├─ Across ALL historical seasons (2021, 2022, 2024)
-                  └─ Use 8 worker threads
-
-           ┌────────────────────────────────────────────┐
-           │ For EACH Season (2021, 2022, 2024, ...)   │
-           └────────────────────────────────────────────┘
-
-               ┌────────────────────────────────────────────┐
-               │ Worker Thread (8 parallel, 100 jobs/season)│
-               └────────────────────────────────────────────┘
-
-               4.2.3. Create SimulatedLeague Instance
-                      ├─ Season: 2021 (or 2022, 2024, etc.)
-                      ├─ Sim number: 1-100
-                      └─ Config: {ADP_SCORING_WEIGHT: 3.5}
-
-               4.2.4. Initialize Teams (10 total)
-                      ├─ DraftHelperTeam (1x)
-                      │   ├─ PlayerManager (projected)
-                      │   ├─ PlayerManager (actual)
-                      │   ├─ AddToRosterModeManager
-                      │   └─ StarterHelperModeManager
-                      │
-                      └─ SimulatedOpponent (9x)
-                          ├─ 2x adp_aggressive
-                          ├─ 2x projected_points_aggressive
-                          ├─ 2x adp_with_draft_order
-                          └─ 3x projected_points_with_draft_order
-
-               4.2.5. Load Season Data
-                      ├─ 6 position JSON files per week (17 weeks)
-                      ├─ team_data/*.csv (32 NFL teams)
-                      └─ season_schedule.csv (bye weeks)
-
-               4.2.6. Run Snake Draft (15 rounds)
-                      ├─ Round 1: Pick 1 → 10
-                      ├─ Round 2: Pick 10 → 1 (snake)
-                      ├─ ...
-                      └─ Round 15: Pick 10 → 1
-
-                      For each pick:
-                          ├─ Team selects best available player
-                          │   ├─ DraftHelper: Get #1 recommendation
-                          │   └─ Opponent: Score by strategy weights
-                          │
-                          ├─ Add player to roster
-                          └─ Mark player as drafted (all teams)
-
-               4.2.7. Run 17-Week Season
-
-                      ┌────────────────────────────────┐
-                      │ Week Loop (Week 1 through 17) │
-                      └────────────────────────────────┘
-
-                      For each week (1-17):
-
-                          4.2.7.1. All Teams Optimize Lineups
-                                   ├─ DraftHelper: StarterHelperModeManager
-                                   └─ Opponents: Lineup optimization
-
-                          4.2.7.2. Load Actual Player Data
-                                   └─ 6 position JSON files (actual_points arrays)
-
-                          4.2.7.3. Calculate Actual Points
-                                   For each team:
-                                       ├─ Sum starter points from actual data
-                                       └─ Store in team_points[team.name]
-
-                          4.2.7.4. Resolve Matchups
-                                   For each matchup:
-                                       ├─ Compare team1_points vs team2_points
-                                       ├─ Award win to higher score (tie = both lose)
-                                       └─ Track: won, points_scored, points_against
-
-               4.2.8. Return Simulation Result
-                      ├─ wins, losses, points_scored
-                      └─ Cleanup temporary files
-
-           4.2.9. Aggregate Results Across ALL Seasons
-                  ├─ Total wins = sum(wins from all seasons)
-                  ├─ Total losses = sum(losses from all seasons)
-                  ├─ Win rate = total_wins / (total_wins + total_losses)
-                  └─ Store in ConfigPerformance object
-
-      4.3. ResultsManager Analyzes All 6 Configs
-           ├─ Rank by win rate (primary)
-           ├─ Tie-break by total points (secondary)
-           └─ Select best configuration
-
-      4.4. Update Baseline Config
-           ├─ baseline_config[ADP_SCORING_WEIGHT] = 3.5 (best value)
-           └─ Save intermediate config folder
-
-      ┌────────────────────────────────────────────┐
-      │ End Parameter Iteration (repeat for 7)    │
-      └────────────────────────────────────────────┘
-
-5. After All 7 Parameters Optimized
-   ├─ Final baseline_config contains all optimal values
-   └─ Generate results
-
-6. Save Optimal Config Folder
-   ├─ Create: optimal_iterative_{timestamp}/
-   ├─ Save: league_config.json (updated base params)
-   ├─ Save: week1-5.json, week6-9.json, week10-13.json, week14-17.json
-   └─ Save: metadata with performance metrics
-
-7. Cleanup
-   ├─ Delete intermediate folders
-   └─ Update data/configs folder (optional)
-```
-
-### Timing Breakdown
-
-**For 100 simulations × 42 configs × 3 seasons (iterative mode)**:
-
-```
-Single Simulation (one season):
-├─ Draft (150 picks): ~0.05s
-├─ Season (17 weeks): ~0.10s
-└─ Total: ~0.15s
-
-100 Simulations × 3 Seasons (parallel, 8 workers):
-├─ Single-threaded: 100 × 3 × 0.15s = 45s
-├─ 8 workers: 45s / 5.5 ≈ 8.2s (accounting for overhead)
-└─ Actual: ~10s per config
-
-42 Configurations:
-├─ 42 × 10s = 420s
-└─ ~7 minutes
-
-Total Execution Time (iterative):
-├─ Computation: ~7 min
-├─ I/O + overhead: ~1 min
-└─ Total: ~8 minutes
-```
-
-**Note**: This is significantly faster than the 11.2 minutes stated in the original document (which was based on incorrect 168 config count).
-
----
-
 ## Performance Characteristics
 
 ### Scalability
@@ -730,13 +464,21 @@ Total Execution Time (iterative):
 
 **Optimal**: 8 workers for most systems.
 
-### Configuration Counts by Mode
+### Configuration Counts
 
-| Mode | Formula | Default Count | Notes |
+Coordinate ascent (`simulation/win_rate/SweepTournament.py`) is **not** a fixed-configuration-count
+algorithm. It visits one parameter at a time from
+`simulation.win_rate.param_value_generation.DRAFT_SWEEP_PARAMS`, and the number of configurations it
+evaluates depends on `--num-values`, on how many passes converge, and on which trials the
+measured-vs-incumbent comparison rejects. Any fixed "N configs" figure for this engine is wrong by
+construction.
+
+**Historical note** — the count formula for the exhaustive grid-search mode that was removed when the CLI
+was rewritten (wording retained verbatim from T65's correction):
+
+| Mode (removed) | Formula | Default Count | Notes |
 |------|---------|---------------|-------|
-| Single | 1 | 1 | Baseline only |
 | Full | product of each varied parameter's (test_values + 1) values | grows multiplicatively | Impractical |
-| Iterative | params × (test_values+1) | 7 × 6 = 42 | **Recommended** |
 
 ---
 
@@ -744,11 +486,11 @@ Total Execution Time (iterative):
 
 ### Key Takeaways
 
-1. **Win Rate Simulation optimizes 7 DRAFT STRATEGY parameters** (not prediction parameters)
+1. **Win Rate Simulation optimizes DRAFT STRATEGY parameters** (not prediction parameters) — the sweep tunes the six members of `simulation.win_rate.param_value_generation.DRAFT_SWEEP_PARAMS`
 
-2. **Three execution modes**: Single (testing), Full (exhaustive), Iterative (practical)
+2. **One entry point, no positional modes**: workflows are selected by flags — no flag (strategy ranking), `--sweep` (parameter sweep), `--promote` (paired comparison)
 
-3. **Iterative mode is default**: 7 parameters × 6 test values = 42 configs (~8 minutes)
+3. **The sweep is coordinate ascent**, so it has no fixed configuration count; the number of configurations evaluated depends on `--num-values`, on how many passes converge, and on which trials the incumbent comparison rejects
 
 4. **Multi-season validation**: Tests across all available historical seasons (2021, 2022, 2024+)
 
@@ -761,16 +503,32 @@ Total Execution Time (iterative):
 ### Typical Use Cases
 
 **Development Workflow**:
-1. Modify draft strategy parameters in league_config.json
-2. Run single mode for quick validation (100 sims, ~10s)
-3. If promising, run iterative mode for optimization (42 configs, ~8 min)
-4. Review results in optimal_iterative_*/ folder
-5. Apply optimal config to production
+
+1. Modify draft strategy parameters in `data/configs/league_config.json`
+2. Run a bounded smoke test:
+
+```bash
+python run_win_rate_simulation.py --sims 1 --workers 1 --data simulation/sim_data
+```
+
+3. If promising, run the sweep:
+
+```bash
+python run_win_rate_simulation.py --sweep --num-values 5
+```
+
+4. Review the sweep store `win_rate_sweep_results.json` under the `--data` folder (written by `SweepResultsManager`)
+5. Promote the winner:
+
+```bash
+python run_win_rate_simulation.py --promote --confirm
+```
 
 **Continuous Improvement**:
-1. Run iterative mode weekly using current optimal as baseline
-2. Track win rate trends over time
-3. Adjust parameter ranges based on findings
+
+1. Re-run the sweep periodically; each pass measures trial configs against the current incumbent
+2. Track win rate trends over time via `win_rate_meta_data.json` (`WinRateMetaDataManager`)
+3. Adjust candidate ranges in `simulation.win_rate.param_value_generation` based on findings
 4. Archive results for historical comparison
 
 ---
@@ -782,7 +540,9 @@ The Win Rate Simulation is a sophisticated system for optimizing fantasy footbal
 **Key Distinction**: This system optimizes **DRAFT STRATEGY** (how to pick players). Separate `run_accuracy_simulation.py` optimizes **PREDICTION ACCURACY** (how to score players).
 
 **For more information**:
-- See `ARCHITECTURE.md` for complete system architecture
+- Run `python run_win_rate_simulation.py --help` for the authoritative, always-current flag surface
+- The real modules: `win_rate/DraftStrategyOrchestrator.py`, `win_rate/SweepTournament.py`, `win_rate/CombinationEvaluator.py`, `win_rate/config_promoter.py`, `win_rate/paired_comparison.py`
+- If this checkout has the Shamt install (git-ignored; absent from a fresh clone): `.shamt-core/project-specific-files/ARCHITECTURE.md` §"Component 2: Win-Rate Simulation Engine"
 - See `README.md` for usage instructions
 - See `simulation/README.md` for simulation-specific details
 - See `run_accuracy_simulation.py` for prediction optimization

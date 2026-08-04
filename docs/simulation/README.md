@@ -10,12 +10,12 @@ This directory contains comprehensive technical documentation for the Fantasy Fo
 **Focus**: Draft strategy parameter optimization
 
 - **Purpose**: Maximize league win rate by optimizing draft decisions
-- **Parameters**: 7 draft strategy parameters
+- **Parameters**: the six swept draft strategy parameters (`DRAFT_SWEEP_PARAMS`)
 - **Method**: Simulates complete 10-team leagues with snake draft + 17-week season
 - **Metric**: Win percentage against AI opponents
 - **Execution**: Multi-season validation (2021, 2022, 2024+)
-- **Modes**: Single, Full, Iterative (default)
-- **Typical Runtime**: ~8 minutes (iterative mode, 42 configs)
+- **Workflows**: strategy ranking (no flag), parameter sweep (`--sweep`), promote (`--promote`) — selected by flags; the runner accepts no positional mode
+- **Typical Runtime**: depends on `--sims`, `--workers`, and `--num-values`
 
 **Key Components**:
 - SimulatedLeague - Complete league simulation
@@ -24,7 +24,7 @@ This directory contains comprehensive technical documentation for the Fantasy Fo
 - Week - Matchup resolution and scoring
 - ParallelLeagueRunner - Parallel execution
 
-### 2. [Accuracy Simulation Flow](ACCURACY_SIMULATION_FLOW.md)
+### 2. [Accuracy Simulation Flow](ACCURACY_SIMULATION_FLOW_VERIFIED.md)
 **Focus**: Prediction accuracy parameter optimization
 
 - **Purpose**: Maximize ranking accuracy (pairwise accuracy primary, MAE fallback)
@@ -49,11 +49,11 @@ This directory contains comprehensive technical documentation for the Fantasy Fo
 | Aspect | Win Rate Simulation | Accuracy Simulation |
 |--------|---------------------|---------------------|
 | **Entry Point** | `run_win_rate_simulation.py` | `run_accuracy_simulation.py` |
-| **Parameters** | 7 (draft strategy) | 16 (prediction accuracy) |
+| **Parameters** | 6 swept (draft strategy) | 16 (prediction accuracy) |
 | **Metric** | Win Rate (higher better) | Pairwise Accuracy (higher) / MAE (lower) |
-| **Optimization** | Iterative (1 param at a time) | Tournament (all horizons) |
-| **Configs Tested** | 42 (default) | 384 per iteration (default) |
-| **Execution Time** | ~8 minutes | ~6-7 min/iteration (infinite loop) |
+| **Optimization** | Coordinate ascent (1 param at a time) | Tournament (all horizons) |
+| **Configs Tested** | no fixed count (coordinate ascent) | 384 per iteration (default) |
+| **Execution Time** | depends on `--sims` / `--workers` / `--num-values` | ~6-7 min/iteration (infinite loop) |
 | **Parallelization** | ThreadPoolExecutor | ProcessPoolExecutor |
 | **Randomness** | Yes (draft + matchups) | No (deterministic MAE) |
 | **Output** | 5 files (base + 4 week) | 5 files (base + 4 week) |
@@ -62,16 +62,20 @@ This directory contains comprehensive technical documentation for the Fantasy Fo
 
 ## Parameters Optimized
 
-### Win Rate Simulation (7 Parameters)
+### Win Rate Simulation (six swept parameters)
 **Location**: `league_config.json` (base config)
+**Source of truth**: `simulation.win_rate.param_value_generation.DRAFT_SWEEP_PARAMS`
 
-1. DRAFT_NORMALIZATION_MAX_SCALE
-2. SAME_POS_BYE_WEIGHT
-3. DIFF_POS_BYE_WEIGHT
-4. PRIMARY_BONUS
-5. SECONDARY_BONUS
-6. ADP_SCORING_WEIGHT
-7. PLAYER_RATING_SCORING_WEIGHT
+1. SAME_POS_BYE_WEIGHT
+2. DIFF_POS_BYE_WEIGHT
+3. PRIMARY_BONUS
+4. SECONDARY_BONUS
+5. ADP_SCORING_WEIGHT
+6. PLAYER_RATING_SCORING_WEIGHT
+
+`DRAFT_NORMALIZATION_MAX_SCALE` remains a live base-config parameter
+(`simulation.shared.config_constants.BASE_CONFIG_PARAMS`) but is no longer swept — dropped from
+`DRAFT_SWEEP_PARAMS` by T33.
 
 ### Accuracy Simulation (16 Parameters)
 **Location**: `week*.json` (week-specific configs)
@@ -100,7 +104,7 @@ This directory contains comprehensive technical documentation for the Fantasy Fo
 ### Initial Setup
 ```bash
 # Run both simulations to establish optimal baselines
-python run_win_rate_simulation.py iterative --sims 100
+python run_win_rate_simulation.py --sweep --num-values 5 --sims 100
 python run_accuracy_simulation.py --test-values 5
 ```
 
@@ -113,11 +117,11 @@ python run_accuracy_simulation.py --test-values 5
 
 ### Before Draft Season
 ```bash
-# Validate draft strategy for new season
-python run_win_rate_simulation.py single --sims 100
+# Validate draft strategy for new season (strategy ranking, the default workflow)
+python run_win_rate_simulation.py --sims 100 --workers 8
 
 # If needed, optimize for new ADP data
-python run_win_rate_simulation.py iterative --sims 50
+python run_win_rate_simulation.py --sweep --num-values 5 --sims 50
 ```
 
 ### Continuous Improvement
@@ -126,8 +130,8 @@ python run_win_rate_simulation.py iterative --sims 50
 # Each iteration ~6-7 minutes, let run until MAE stops decreasing
 python run_accuracy_simulation.py --test-values 3
 
-# Quarterly win rate optimization
-python run_win_rate_simulation.py iterative --sims 100
+# Quarterly win rate parameter sweep
+python run_win_rate_simulation.py --sweep --num-values 5 --sims 100
 ```
 
 ---
@@ -159,15 +163,17 @@ simulation/sim_data/
 
 ## Output Structure
 
-### Win Rate Optimal Config
+### Win Rate Outputs
+
+The win-rate runner writes into its `--data` folder (default `simulation/sim_data/`):
+
 ```
-simulation/simulation_configs/optimal_iterative_{timestamp}/
-├─ league_config.json    # Updated draft strategy params
-├─ week1-5.json
-├─ week6-9.json
-├─ week10-13.json
-└─ week14-17.json
+simulation/sim_data/
+├─ win_rate_meta_data.json       # Best win rate per draft strategy (WinRateMetaDataManager)
+└─ win_rate_sweep_results.json   # Sweep store keyed by parameter combination (SweepResultsManager)
 ```
+
+`--promote --confirm` writes the promoted values into `data/configs/league_config.json`.
 
 ### Accuracy Optimal Config
 ```
@@ -186,8 +192,7 @@ simulation/simulation_configs/accuracy_optimal_{timestamp}/
 ### Win Rate Simulation
 - Use `--sims 100` for production runs (more stable results)
 - Use `--sims 20-50` for quick testing
-- ThreadPoolExecutor is default (sufficient for most cases)
-- Use `--use-processes` only if CPU-bound
+- `ParallelLeagueRunner` uses a thread pool sized by `--workers` (8 is a good default); there is no process-pool flag on this runner
 
 ### Accuracy Simulation
 - Always use `--use-processes` (default, significantly faster)
@@ -233,9 +238,9 @@ simulation/simulation_configs/accuracy_optimal_{timestamp}/
 
 ## See Also
 
-- **[ARCHITECTURE.md](../../ARCHITECTURE.md)** - Complete system architecture
+- **`python run_win_rate_simulation.py --help`** - the authoritative, always-current win-rate flag surface (generated from the parser, so it cannot drift)
+- **`.shamt-core/project-specific-files/ARCHITECTURE.md`** - complete system architecture, §"Component 2". Note this path is **git-ignored** and absent from a fresh clone; it exists only where the Shamt install is present
 - **[README.md](../../README.md)** - Project overview and installation
-- **[CORRECTIONS_NEEDED.md](CORRECTIONS_NEEDED.md)** - Verification history for Win Rate docs
 
 ---
 

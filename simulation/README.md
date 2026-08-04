@@ -206,70 +206,98 @@ simulation/sim_data/2025/weeks/
 ### Win Rate Simulation
 
 ```bash
-# Single config test (fast)
-python run_win_rate_simulation.py single --sims 5
+# Bounded smoke test (fast) — ranks every draft strategy at one simulation each
+python run_win_rate_simulation.py --sims 1 --workers 1 --data simulation/sim_data
 
-# Iterative optimization (recommended)
-python run_win_rate_simulation.py iterative --sims 100 --workers 8
+# Strategy ranking (production settings)
+python run_win_rate_simulation.py --sims 100 --workers 8
+
+# Parameter sweep — coordinate ascent over the six DRAFT_SWEEP_PARAMS
+python run_win_rate_simulation.py --sweep --num-values 5
 ```
 
 ### Accuracy Simulation
 
 ```bash
-# ROS mode - optimizes draft_config.json
-python run_accuracy_simulation.py ros --test-values 5
+# Tournament optimization across the weekly horizons (the default and only workflow;
+# runs in an infinite loop, stop with Ctrl+C)
+python run_accuracy_simulation.py --test-values 5
 
-# Weekly mode - optimizes week1-5.json, week6-9.json, etc.
-python run_accuracy_simulation.py weekly --test-values 5
+# Restrict the tournament to named parameters
+python run_accuracy_simulation.py --test-values 5 --params MATCHUP_SCORING_WEIGHT
 
-# Both modes (default)
-python run_accuracy_simulation.py both --test-values 5
+# Fewer parameters per round, for a faster loop
+python run_accuracy_simulation.py --test-values 5 --num-params 1
 ```
 
 ### Quick Tests
 
 ```bash
-# Win rate: single config test (~3 seconds)
-python run_win_rate_simulation.py single --sims 5
+# Win rate: bounded smoke test (seconds)
+python run_win_rate_simulation.py --sims 1 --workers 1 --data simulation/sim_data
 
 # Accuracy: quick test with minimal values (~1 minute)
-python run_accuracy_simulation.py ros --test-values 2 --num-params 1
+python run_accuracy_simulation.py --test-values 2 --num-params 1
 ```
 
 ## Command-Line Options
 
-### Common Options (all modes)
+Both runners take **flags only** — neither accepts a positional argument. `--help` on either script is the
+authoritative list; the summaries below are a convenience.
 
-```bash
---baseline PATH      # Path to baseline config (default: simulation/optimal_configs/optimal_2025-10-02_15-29-14.json.json)
---output PATH        # Output directory (default: simulation/results)
---workers N          # Number of parallel threads (default: 4)
---data PATH          # Data folder (default: simulation/sim_data)
+### `run_win_rate_simulation.py`
+
+```
+--sims N               Simulations per season per strategy (default: 10)
+--workers N            Max parallel worker threads (default: 8)
+--data PATH            Simulation data root (default: simulation/sim_data)
+--strategy FILENAME    Restrict the run to one strategy, by EXACT BASENAME (e.g. 1_zero_rb.json).
+                       Not a path or glob -- the runner matches the bare filename.
+--endless              Run continuously until KeyboardInterrupt
+--seed N               Seed the run
+--naive-opponents      Use the legacy naive opponent field instead of the self-play default
+--sweep                Coordinate-ascent parameter sweep over DRAFT_SWEEP_PARAMS
+--num-values N         Candidate values per parameter in the sweep
+--fresh                Ignore the existing sweep store and start over
+--promote              Preview a promotion (writes nothing without --confirm)
+--confirm              With --promote, write data/configs/league_config.json
+--promote-shortlist N  Candidates to re-measure head-to-head
+--promote-sims N       Simulations per paired comparison
+--log-level LEVEL      DEBUG | INFO | WARNING | ERROR
+--enable-log-file      Also write the run log to a file
 ```
 
-### Mode-Specific Options
+`--promote` is incompatible with `--endless`: `run_win_rate_simulation.main` logs an error and exits `2`.
+There is no `--output`, no `--test-values`, and no `--use-processes` on this runner.
 
-**Single mode:**
-- `--sims N`: Number of simulations (default: 5)
+### `run_accuracy_simulation.py`
 
-**Subset mode:**
-- `--configs N`: Number of configs to test (default: 10)
-- `--sims N`: Simulations per config (default: 10)
-
-**Full mode:**
-- `--sims N`: Simulations per config (default: 100)
+```
+--test-values N        Test values per parameter (default: 10)
+--num-params N         Parameters tested at once (default: 1)
+--params NAMES         Restrict the tournament to named parameters
+--baseline PATH        Baseline config folder (default: most recent optimal config)
+--output PATH          Output directory (default: simulation/simulation_configs)
+--data PATH            sim_data folder (default: simulation/sim_data)
+--max-workers N        Parallel workers (default: 8)
+--use-processes        ProcessPoolExecutor (default)
+--no-use-processes     ThreadPoolExecutor instead (slower, for debugging)
+--seed N               Candidate-config seed (default: 42)
+--log-level LEVEL      debug | info | warning | error
+--enable-log-file      Also write the run log to a file
+```
 
 ### Examples
 
 ```bash
-# Quick test with custom baseline
-python simulation/run_simulation.py single --baseline my_config.json --sims 3
+# Bounded smoke test
+python run_win_rate_simulation.py --sims 1 --workers 1 --data simulation/sim_data
 
-# Subset test with more parallelism
-python simulation/run_simulation.py subset --configs 20 --sims 50 --workers 12
+# Strategy ranking with more parallelism
+python run_win_rate_simulation.py --sims 50 --workers 12
 
-# Full optimization with custom output
-python simulation/run_simulation.py full --sims 100 --workers 8 --output results/run_2025_01
+# Sweep, then promote the winner in one invocation
+python run_win_rate_simulation.py --sweep --num-values 5 --promote
 ```
 
 ## How It Works
@@ -376,17 +404,13 @@ Complete results for all tested configurations:
 
 ## Testing
 
-Run the test suites to validate components:
+Run the project's automated suite from the project root (100% pass required). The simulation unit tests
+live under `tests/simulation/` — e.g. `test_config_generator.py`, `test_ParallelLeagueRunner.py`,
+`test_ConfigPerformance.py`.
 
 ```bash
-# Test ConfigGenerator
-python simulation/test_config_generator.py
-
-# Test performance tracking
-python simulation/test_performance_tracking.py
-
-# Test parallel execution
-python simulation/test_parallel_runner.py
+# Full suite — the canonical gate
+python tests/run_all_tests.py
 
 # Run win-rate simulation (all 51 strategies, 1 sim each)
 python run_win_rate_simulation.py --sims 1 --workers 1 --data simulation/sim_data
@@ -476,14 +500,17 @@ ls simulation/sim_data/2025/weeks/week_01/
 
 ### "Baseline config not found"
 
-Check the baseline path:
+`run_accuracy_simulation.py` resolves its baseline to the most recent config folder under
+`simulation/simulation_configs/`. List what is available:
+
 ```bash
-ls simulation/optimal_configs/optimal_2025-10-02_15-29-14.json.json
+ls simulation/simulation_configs/
 ```
 
-Or specify a custom baseline:
+Or point at a specific folder:
+
 ```bash
-python simulation/run_simulation.py single --baseline path/to/your/config.json
+python run_accuracy_simulation.py --baseline path/to/your/config_folder
 ```
 
 ### Slow Performance
