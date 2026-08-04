@@ -30,7 +30,16 @@ from simulation.shared.config_cleanup import cleanup_old_accuracy_optimal_folder
 from simulation.shared.config_constants import WEEK_SPECIFIC_PARAMS
 from simulation.shared.config_filters import extract_base_params
 
+from simulation.shared.ConfigGenerator import ConfigGenerator
+from simulation.accuracy.accuracy_types import RankingMetrics
+from simulation.accuracy.AccuracyCalculator import AccuracyResult
 
+# Re-exported, not redefined: the single definition lives in
+# simulation/accuracy/horizon_labels.py (T77 D1/D2). Kept importable from here
+# so the three existing importers - AccuracySimulationManager,
+# tests/simulation/test_AccuracyResultsManager.py and
+# tests/integration/test_accuracy_simulation_integration.py - are untouched.
+from simulation.accuracy.horizon_labels import WEEK_RANGES  # noqa: F401
 # T69/D2: the per-season consistency gate's supermajority fraction. The THRESHOLD is derived
 # from the season count at comparison time -- never hardcoded -- because seasons are
 # discovered at runtime by scanning the --data folder (AccuracySimulationManager._discover_
@@ -56,16 +65,6 @@ def _min_season_wins(n_seasons: int) -> int:
         int: Minimum season wins required for adoption.
     """
     return math.ceil(ADOPTION_SEASON_WIN_FRACTION * n_seasons)
-from simulation.shared.ConfigGenerator import ConfigGenerator
-from simulation.accuracy.accuracy_types import RankingMetrics
-from simulation.accuracy.AccuracyCalculator import AccuracyResult
-
-# Re-exported, not redefined: the single definition lives in
-# simulation/accuracy/horizon_labels.py (T77 D1/D2). Kept importable from here
-# so the three existing importers - AccuracySimulationManager,
-# tests/simulation/test_AccuracyResultsManager.py and
-# tests/integration/test_accuracy_simulation_integration.py - are untouched.
-from simulation.accuracy.horizon_labels import WEEK_RANGES  # noqa: F401
 
 
 def format_metric_pct(value: Optional[float]) -> str:

@@ -357,9 +357,22 @@ class AccuracySimulationManager:
         highest_idx, highest_param, highest_path = valid_folders[-1]
 
         if highest_idx >= len(param_order) - 1:
-            self.logger.debug(f"All parameters complete (idx {highest_idx} >= {len(param_order) - 1})")
-            self.logger.debug("_detect_resume_state exit: should_resume=False, start_idx=0, last_config=None (all complete)")
-            return (False, 0, None, 0, set())
+            # T69/D5: completing every parameter finishes a PASS, not necessarily the RUN.
+            # Pre-T69 there was only ever one pass, so this correctly meant "done". Now, if
+            # the recorded ascent state still has unfrozen horizons, the next thing to do is
+            # start the NEXT pass at parameter 0 -- refusing to resume here would discard a
+            # completed pass and restart the whole ascent.
+            pass_idx, frozen_horizons = self._read_ascent_state(highest_path)
+            all_horizons = set(WEEK_RANGES.keys())
+            if frozen_horizons >= all_horizons:
+                self.logger.debug("All parameters complete and all horizons frozen -- run is done")
+                return (False, 0, None, 0, set())
+            self.logger.info(
+                f"Pass {pass_idx + 1} completed all {len(param_order)} parameters; "
+                f"resuming at pass {pass_idx + 2} from parameter 1 "
+                f"(frozen: {sorted(frozen_horizons) or 'none'})"
+            )
+            return (True, 0, highest_path, pass_idx + 1, frozen_horizons)
 
         self.logger.debug(
             f"Found {len(valid_folders)} valid intermediate folders, "
@@ -446,12 +459,20 @@ class AccuracySimulationManager:
                 )
 
             while True:
+                if frozen_horizons >= all_horizons:
+                    # T69/D5: a resume can arrive already fully frozen. Running a pass here
+                    # would do no work yet still write intermediate folders, so check BEFORE
+                    # dispatching rather than only after.
+                    self.logger.info("All horizons already converged on entry; nothing to run")
+                    break
+
                 self.logger.info(
                     f"--- Ascent pass {pass_idx + 1} | "
                     f"active horizons: {sorted(all_horizons - frozen_horizons)} ---"
                 )
                 adopted = self._run_ascent_pass(
-                    pass_idx, frozen_horizons, should_resume, resume_param_idx
+                    pass_idx, frozen_horizons, should_resume, resume_param_idx,
+                    resume_pass_idx
                 )
 
                 newly_frozen = (all_horizons - frozen_horizons) - adopted
@@ -506,7 +527,8 @@ class AccuracySimulationManager:
 
 
     def _run_ascent_pass(self, pass_idx: int, frozen_horizons: set,
-                         should_resume: bool, resume_param_idx: int) -> set:
+                         should_resume: bool, resume_param_idx: int,
+                         resume_pass_idx: int = 0) -> set:
         """Run ONE full coordinate-ascent pass over parameter_order.
 
         T69/D1: ported from SweepTournament's `while moved:` shape. A pass walks every
@@ -526,9 +548,11 @@ class AccuracySimulationManager:
         adopted_this_pass = set()
 
         for param_idx, param_name in enumerate(self.parameter_order):
-            # The resume skip applies to the FIRST pass only -- a later pass must walk
+            # T69/D5: the resume skip applies to the pass being RESUMED INTO -- not
+            # unconditionally to pass 0. A run interrupted mid-pass-2 resumes at pass 2 and
+            # must skip the parameters that pass already completed; every LATER pass walks
             # every parameter from the top.
-            if pass_idx == 0 and should_resume and param_idx < resume_param_idx:
+            if should_resume and pass_idx == resume_pass_idx and param_idx < resume_param_idx:
                 continue
 
             test_values_dict = self.config_generator.generate_horizon_test_values(param_name)
@@ -537,8 +561,17 @@ class AccuracySimulationManager:
                 if len(test_values) == 0:
                     raise ValueError(f"No test values generated for parameter {param_name}, horizon {horizon}")
 
-            total_configs = sum(len(vals) for vals in test_values_dict.values())
-            total_evaluations = total_configs * 4
+            # T69/D1: count only the horizons this pass will actually evaluate. Counting all
+            # of them would inflate the ProgressTracker total and the log line, so a
+            # partially-frozen pass could never reach 100% -- reporting a bar that cannot
+            # complete as if work were missing.
+            active_horizons = [h for h in test_values_dict if h not in frozen_horizons]
+            total_configs = sum(len(test_values_dict[h]) for h in active_horizons)
+            total_evaluations = total_configs * len(WEEK_RANGES)
+
+            if total_configs == 0:
+                # Every horizon frozen: nothing to evaluate for this parameter.
+                continue
 
             self.logger.info(f"Optimizing parameter {param_idx + 1}/{len(self.parameter_order)}: {param_name}")
             self.logger.info(f"  Evaluating {total_configs} configs × 4 horizons = {total_evaluations} total evaluations")
