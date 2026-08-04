@@ -490,7 +490,14 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    while True:
-        main()
+    # T69/D4: the run is CONVERGENT and terminating. This previously wrapped main() in an
+    # unconditional infinite loop, which re-invoked the whole program forever -- multi-pass
+    # optimization was emergent from that re-invocation rather than designed, the CLI could
+    # never be scripted or asserted on, and it had no meaningful exit code. The pass loop
+    # now lives inside the ascent driver, which stops when every horizon has converged (or
+    # hit its bound). main() exits 0 on success and 1 on failure.
+    #
+    # There is deliberately no --endless opt-back-in.
+    main()
 
 
