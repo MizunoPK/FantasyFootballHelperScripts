@@ -76,8 +76,10 @@ def load_week_player_data(
             actuals, which yields all-zero actual_points and charges every team a loss.
 
             T74 RESOLVED the direction that T73 recorded as UNMEASURED. The fallback's own
-            effect is strictly DOWNWARD: an all-tie week converts a would-be win to a loss
-            and never the reverse (Week.py `team1_won = points1 > points2`), while the
+            effect is NEVER UPWARD (non-increasing, not strictly decreasing): an all-tie
+            week can convert a would-be win into a loss and never the reverse (Week.py
+            `team1_won = points1 > points2`), but if the measured team would have lost that
+            week anyway its win count is UNCHANGED. So the rate weakly decreases, while the
             denominator is fixed (`run_season` always appends 17 weeks;
             CombinationEvaluator computes `total_games = total_wins + total_losses`).
             Isolated and measured, it moved 17/34 -> 16/34 (0.500 -> 0.471) — exactly the
@@ -269,10 +271,18 @@ class SimulatedLeague:
         # `set_player_data` later refreshes only projected_points/actual_points, so every
         # other FantasyPlayer field -- notably `player_rating`, which the draft scorer reads
         # -- stays frozen at whatever this folder held. If the season is ever truncated,
-        # `available_weeks[-1]` silently slides to an earlier week and EVERY TEAM DRAFTS A
-        # DIFFERENT ROSTER, with no warning. Measured effect: -6 to +6 wins out of 34, sign
-        # depending on the seed. T73's `_validate_season_data` gate closes the known hole by
-        # requiring week_01..week_18; this comment records why that gate is load-bearing.
+        # `available_weeks[-1]` slides to an earlier week and EVERY TEAM DRAFTS A DIFFERENT
+        # ROSTER. Measured effect: -6 to +6 wins out of 34, sign depending on the seed.
+        #
+        # How loudly that fails depends on the path. On the DEFAULT path it is not silent:
+        # `_preload_all_weeks` walks weeks 1..17 and `load_week_player_data` raises
+        # FileNotFoundError on the missing week_N+1, and T73's `_validate_season_data` gate
+        # refuses the season earlier still. The slide is silent only when the preload is
+        # BYPASSED -- `__init__` short-circuits `_preload_all_weeks` when non-empty
+        # `preloaded_week_data` is supplied -- which is exactly how T74's experiment
+        # separated this channel from the zeroed-actuals one. So this is a latent hazard
+        # behind two gates, not a live silent corruption; the comment records why both
+        # gates are load-bearing.
         week_folder = available_weeks[-1]
         self.logger.debug(f"Using {week_folder.name} JSON files for team setup (has complete actual_points data)")
 
