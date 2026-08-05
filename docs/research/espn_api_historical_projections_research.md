@@ -4,6 +4,8 @@
 
 **Key Finding: ESPN's Fantasy API DOES provide projection data for all weeks (1-17), including past weeks that have already been played.**
 
+**Qualified (2026-08, delivery ticket D8):** the rows are returned, but they are not always *populated* — for 2023 `scoringPeriodId=1`, 1,037 of the 1,128 `statSourceId=1` rows carry `appliedTotal == 0.0`, and ESPN's archive has demonstrably degraded since this research was written, so any re-fetch must capture-and-diff before overwriting; see [`../simulation/SIM_DATA_COVERAGE_DIAGNOSIS_D8.md`](../simulation/SIM_DATA_COVERAGE_DIAGNOSIS_D8.md).
+
 The projections are stored differently than documented in the current codebase:
 - **Projections**: `statSourceId=1` + `appliedTotal`
 - **Actual Results**: `statSourceId=0` + `appliedTotal`
