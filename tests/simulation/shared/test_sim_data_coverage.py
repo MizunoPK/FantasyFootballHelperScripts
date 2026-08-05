@@ -267,6 +267,21 @@ class TestCheckCoverageDegradation:
         assert logger.warning.call_count == 1
         assert POSITION_JSON_FILES['QB'] in logger.warning.call_args.args[0]
 
+    def test_non_utf8_file_warns_and_returns_true(self, season_dir):
+        # Arrange - a single non-UTF-8 byte raises UnicodeDecodeError, a
+        # ValueError sibling of json.JSONDecodeError rather than a subclass.
+        snapshot = _write_season(season_dir, {})
+        path = snapshot / POSITION_JSON_FILES['QB']
+        path.write_bytes(b'\xff' + json.dumps({'qb_data': []}).encode())
+
+        # Act
+        result, logger = self._run(season_dir)
+
+        # Assert
+        assert result is True
+        assert logger.warning.call_count == 1
+        assert POSITION_JSON_FILES['QB'] in logger.warning.call_args.args[0]
+
     def test_missing_wrapper_key_warns_and_returns_true(self, season_dir):
         # Arrange
         snapshot = _write_season(season_dir, {})
@@ -338,6 +353,13 @@ class TestRealCorpusSeparation:
                 rates[(season.name, week)] = covered / eligible
 
         # Assert
+        # Assert against the CORRIDOR, not the observed extremes. The defect
+        # (2023 wk1, 16.0%) and the next-lowest healthy week (2021 wk16, 81.0%)
+        # are separated by ~5.06x, so 0.50 sits well inside the gap: every
+        # implementation regression this test exists to catch (an ADP-ranked
+        # population, a bye-convention flip, a wrong week span) moves one side
+        # across it, while ordinary corpus drift cannot. The exact 16.0% / 81.0%
+        # figures are recorded in coverage_baseline.md, D8.3's calibration input.
         defective = rates.pop(('2023', 1))
-        assert defective < 0.16 + 1e-9
-        assert min(rates.values()) > 0.80
+        assert defective < 0.50
+        assert min(rates.values()) > 0.50

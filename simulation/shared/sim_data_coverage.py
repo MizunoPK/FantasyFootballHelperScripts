@@ -92,8 +92,11 @@ def _load_snapshot_records(snapshot_dir: Path) -> List[dict]:
 
     Raises:
         OSError: If a position JSON file is missing or unreadable.
-        json.JSONDecodeError: If a position JSON file does not parse. The
-            offending path is prefixed onto the message.
+        ValueError: If a position JSON file does not parse or does not decode
+            as UTF-8. json.JSONDecodeError (itself a ValueError) is preserved
+            for a parse failure; any other decode ValueError — notably
+            UnicodeDecodeError — is re-raised as a plain ValueError. The
+            offending path is prefixed onto the message in both cases.
         KeyError: If a position JSON file is not a dict carrying its own
             "<stem>" key. The offending path is named in the message.
         TypeError: If a position JSON file's "<stem>" value is not a list.
@@ -107,6 +110,11 @@ def _load_snapshot_records(snapshot_dir: Path) -> List[dict]:
                 data = json.load(f)
         except json.JSONDecodeError as e:
             raise json.JSONDecodeError(f"{json_path}: {e.msg}", e.doc, e.pos) from e
+        except ValueError as e:
+            # Strictly wider than the arm above: a file that is not valid UTF-8
+            # raises UnicodeDecodeError, a sibling ValueError subclass that
+            # json.JSONDecodeError does not cover.
+            raise ValueError(f"{json_path}: {e}") from e
 
         expected_key = json_path.stem
         if not isinstance(data, dict) or expected_key not in data:
@@ -264,16 +272,23 @@ def check_coverage(output_dir: Path) -> bool:
             f"check_coverage: coverage not computed for {snapshot_dir}: {e}"
         )
         return True
-    except json.JSONDecodeError as e:
+    except ValueError as e:
+        # ValueError, not json.JSONDecodeError: the latter is one ValueError
+        # subclass among several json.load can raise. UnicodeDecodeError is the
+        # reachable sibling — a position file that is not valid UTF-8 — and it
+        # must not escape, or the caller's exit code changes.
         logger.warning(
-            f"check_coverage: coverage not computed, invalid JSON under "
-            f"{snapshot_dir}: {e}"
+            f"check_coverage: coverage not computed, unreadable or invalid JSON "
+            f"under {snapshot_dir}: {e}"
         )
         return True
     except (KeyError, IndexError, TypeError) as e:
+        # KeyError.__str__ repr()s its single argument, so unwrap it to format
+        # the same way as the IndexError/TypeError arms it shares this handler with.
+        detail = e.args[0] if isinstance(e, KeyError) and e.args else e
         logger.warning(
             f"check_coverage: coverage not computed, malformed record or file "
-            f"under {snapshot_dir}: {e}"
+            f"under {snapshot_dir}: {detail}"
         )
         return True
 

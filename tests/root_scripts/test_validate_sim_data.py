@@ -216,6 +216,45 @@ class TestValidateSimData:
             result = main()
         assert result == 0
 
+    def test_exit_code_and_verdict_survive_a_coverage_decode_error(self, tmp_path):
+        # Arrange - a non-UTF-8 position file surfaces as UnicodeDecodeError,
+        # which check_coverage must absorb rather than let escape past main().
+        self._build_valid_tree(tmp_path)
+        mock_logger = MagicMock()
+        decode_error = UnicodeDecodeError('utf-8', b'\xff', 0, 1, 'invalid start byte')
+
+        # Act
+        with patch('simulation.shared.sim_data_coverage.compute_season_coverage',
+                   side_effect=decode_error), \
+             patch('validate_sim_data.get_logger', return_value=mock_logger), \
+             patch('sys.argv', ['validate_sim_data.py', '--year', '2025',
+                                '--output-dir', str(tmp_path)]):
+            result = main()
+
+        # Assert - identical exit code AND the verdict line still printed
+        assert result == 0
+        info_messages = [c.args[0] for c in mock_logger.info.call_args_list]
+        assert "All validation checks passed." in info_messages
+
+    def test_an_unhandled_coverage_exception_is_not_swallowed_at_the_call_site(self, tmp_path):
+        # Arrange - pins the deliberate design: the exception-tightness fix lives
+        # in check_coverage's own arms, NOT in a bare-Exception guard at the call
+        # site (CODING_STANDARDS discourages bare Exception). If a future change
+        # adds such a guard, this test fails and the decision gets re-made openly.
+        self._build_valid_tree(tmp_path)
+
+        # Act / Assert
+        with patch('validate_sim_data.check_coverage', side_effect=RuntimeError('boom')), \
+             patch('validate_sim_data.get_logger', return_value=MagicMock()), \
+             patch('sys.argv', ['validate_sim_data.py', '--year', '2025',
+                                '--output-dir', str(tmp_path)]):
+            try:
+                main()
+            except RuntimeError:
+                pass
+            else:
+                raise AssertionError("expected the RuntimeError to propagate past main()")
+
     def test_enable_log_file_passes_log_to_file_true(self, tmp_path):
         self._build_valid_tree(tmp_path)
         with patch('validate_sim_data.setup_logger') as mock_setup, \
