@@ -250,9 +250,8 @@ def main() -> int:
     csv_passed = check_csv_files(output_dir)
     weeks_passed = check_week_folders(output_dir)
     spot_passed = check_all_json_spots(output_dir)
-    all_passed = csv_passed and weeks_passed and spot_passed
-
-    check_coverage(output_dir)
+    coverage_passed = check_coverage(output_dir)
+    all_passed = csv_passed and weeks_passed and spot_passed and coverage_passed
 
     if all_passed:
         logger.info("All validation checks passed.")

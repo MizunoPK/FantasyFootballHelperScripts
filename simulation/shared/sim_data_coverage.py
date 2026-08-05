@@ -47,6 +47,26 @@ COVERAGE_POPULATION_SIZE = 200
 
 BYE_CONVENTION = "byes excluded"
 
+# Both floors below are BYE-EXCLUDED percentages (BYE_CONVENTION), and every log
+# line that quotes one says so. Read against the bye-INCLUDED band (81.9-85.6%)
+# instead, each floor looks ~5.9 points stricter than it is (D8 TD3 part 1).
+
+# Sited inside the measured separation: across the 85 committed season-weeks the
+# defect (2023 week 01) is 16.0% and the next-lowest observation (2021 week 16)
+# is 81.0%, so any floor in the open interval (16.0%, 81.0%) separates the defect
+# from every healthy week. 50.0% sits 34.0 points above the defect and 31.0
+# points below the worst healthy week — an inequality with margin on both sides.
+PER_WEEK_COVERAGE_FLOOR_PCT = 50.0
+
+# A diffuse-degradation BACKSTOP, deliberately not this defect's detector: 2023's
+# season figure is 87.1% against a healthy band of 90.7-91.0%, a 3.6-point
+# corridor too narrow to site a floor inside (2021 is a healthy season at 90.9%
+# whose eight lowest weeks average 86.9%, below 2023's figure). 75.0% is derived
+# from a bound instead — a season every week of which sat at the worst healthy
+# week ever observed (81.0%) scores exactly 81.0%, so no such season reaches
+# 75.0%. 2023 passes this floor and fails on the per-week floor above.
+PER_SEASON_COVERAGE_FLOOR_PCT = 75.0
+
 
 @dataclass
 class SeasonCoverage:
@@ -242,25 +262,80 @@ def _format_coverage(label: str, covered: int, eligible: int) -> str:
     )
 
 
+def weeks_below_floor(coverage: SeasonCoverage) -> List[int]:
+    """Return the weeks whose coverage is below the per-week floor.
+
+    The comparison is on raw counts (covered * 100.0 < floor * eligible) rather
+    than on the rounded percentage _format_coverage prints, so the verdict and
+    the logged figure can never disagree and no division is performed. Strictly
+    below fails; exactly at the floor passes.
+
+    A week whose eligible count is zero is skipped: a zero denominator is not a
+    measurement, and comparing it against a floor would read a missing
+    population as a total coverage failure.
+
+    Args:
+        coverage: One season's measured coverage, byes excluded.
+
+    Returns:
+        The offending week numbers in ascending week order; empty when every
+        measured week is at or above PER_WEEK_COVERAGE_FLOOR_PCT.
+    """
+    offending: List[int] = []
+    for week in sorted(coverage.per_week):
+        covered, eligible = coverage.per_week[week]
+        if eligible == 0:
+            continue
+        if covered * 100.0 < PER_WEEK_COVERAGE_FLOOR_PCT * eligible:
+            offending.append(week)
+    return offending
+
+
+def season_below_floor(coverage: SeasonCoverage) -> bool:
+    """Report whether the season aggregate is below the per-season floor.
+
+    Same raw-count comparison and same strictly-below convention as
+    weeks_below_floor. A zero season denominator returns False for the same
+    reason that function skips a zero-denominator week.
+
+    Args:
+        coverage: One season's measured coverage, byes excluded.
+
+    Returns:
+        True when the season aggregate is strictly below
+        PER_SEASON_COVERAGE_FLOOR_PCT, else False.
+    """
+    covered, eligible = coverage.season
+    if eligible == 0:
+        return False
+    return covered * 100.0 < PER_SEASON_COVERAGE_FLOOR_PCT * eligible
+
+
 def check_coverage(output_dir: Path) -> bool:
-    """Report projection coverage for a compiled season. Never fails.
+    """Report projection coverage for a compiled season, and enforce its floors.
 
     Conforms to the (output_dir: Path) -> bool check-function shape the other
-    validate_sim_data.py checks use, but returns True unconditionally: this is
-    the reporting-only stage of D8's staged rollout, so the validator's exit
-    code and pass/fail verdict are identical with and without this call. The
-    enforcing comparison and its threshold constants are added to this same
-    module by a later unit.
+    validate_sim_data.py checks use. The full per-week and per-season report is
+    logged at INFO on every call exactly as before; the check then returns False
+    when — and only when — a successfully computed measurement carrying a
+    non-zero denominator falls below PER_WEEK_COVERAGE_FLOOR_PCT (per week) or
+    PER_SEASON_COVERAGE_FLOOR_PCT (per season). Both floors are bye-EXCLUDED,
+    and every violation is logged at ERROR naming the offending season-week, its
+    figure, the floor it failed and the population size.
 
-    Missing, unreadable, or malformed coverage inputs are logged at WARNING and
-    the check still returns True, so no input state can change the caller's exit
-    code.
+    Two input states deliberately never fail. Missing, unreadable, or malformed
+    coverage inputs are logged at WARNING and return True — an unreadable tree is
+    the structural checks' verdict to give, not this one's. A season whose
+    denominator is zero is logged at WARNING and returns True for the same
+    reason: a zero denominator is not a measurement, and reading it as 0.0%
+    coverage would report a missing corpus as a catastrophic coverage failure.
 
     Args:
         output_dir: Path to the sim_data/{year}/ output directory.
 
     Returns:
-        True, always.
+        True when coverage is at or above both floors, or could not be measured.
+        False when a measured season falls below either floor.
     """
     logger = get_logger()
     snapshot_dir = _season_snapshot_dir(output_dir)
@@ -302,4 +377,32 @@ def check_coverage(output_dir: Path) -> bool:
         logger.info(_format_coverage(f"week {week:02d}", covered, eligible))
     logger.info(_format_coverage("season", *coverage.season))
 
-    return True
+    season_covered, season_eligible = coverage.season
+    if season_eligible == 0:
+        logger.warning(
+            f"check_coverage: coverage not measured under {snapshot_dir}: no "
+            f"eligible player-weeks (population {coverage.population_size})"
+        )
+        return True
+
+    offending_weeks = weeks_below_floor(coverage)
+    for week in offending_weeks:
+        covered, eligible = coverage.per_week[week]
+        logger.error(
+            f"check_coverage: week {week:02d} {covered}/{eligible} "
+            f"({100.0 * covered / eligible:.1f}%) [{BYE_CONVENTION}] is below "
+            f"the {PER_WEEK_COVERAGE_FLOOR_PCT:.1f}% per-week floor "
+            f"[{BYE_CONVENTION}]; population {coverage.population_size}"
+        )
+
+    season_low = season_below_floor(coverage)
+    if season_low:
+        logger.error(
+            f"check_coverage: season {season_covered}/{season_eligible} "
+            f"({100.0 * season_covered / season_eligible:.1f}%) "
+            f"[{BYE_CONVENTION}] is below the "
+            f"{PER_SEASON_COVERAGE_FLOOR_PCT:.1f}% per-season floor "
+            f"[{BYE_CONVENTION}]; population {coverage.population_size}"
+        )
+
+    return not offending_weeks and not season_low

@@ -207,14 +207,22 @@ class TestValidateSimData:
         assert mock_coverage.call_count == 1
         assert mock_coverage.call_args.args[0] == tmp_path
 
-    def test_coverage_check_result_never_changes_the_exit_code(self, tmp_path):
+    def test_coverage_check_result_now_decides_the_exit_code(self, tmp_path):
+        # Arrange - the inverted form of D8.2's idle guard, rewritten in place
+        # rather than deleted so the cutover shows up in the diff as a reversed
+        # assertion instead of a vanished guard. Before D8.3 this asserted 0.
         self._build_valid_tree(tmp_path)
+
+        # Act
         with patch('validate_sim_data.check_coverage', return_value=False), \
              patch('validate_sim_data.get_logger', return_value=MagicMock()), \
              patch('sys.argv', ['validate_sim_data.py', '--year', '2025',
                                 '--output-dir', str(tmp_path)]):
             result = main()
-        assert result == 0
+
+        # Assert - a structurally valid tree still exits 1 on a coverage failure,
+        # which is only possible if the result is an operand of all_passed.
+        assert result == 1
 
     def test_exit_code_and_verdict_survive_a_coverage_decode_error(self, tmp_path):
         # Arrange - a non-UTF-8 position file surfaces as UnicodeDecodeError,
