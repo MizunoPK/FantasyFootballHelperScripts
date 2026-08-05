@@ -4,19 +4,22 @@
 `simulation/sim_data/`, `simulation/simulation_configs/` or `data/configs/`, and performs no fetch
 and no simulation run. It records a diagnosis; it repairs nothing.
 
-**Ticket:** D8 (`sim-data-projection-coverage-gaps`), authored by unit **D8.1**. Every figure below is
-**transcribed** from that ticket's validated intake record and design digest — there was no fresh
-measurement, no re-derivation, and above all **no re-fetch** performed for this document. That is
-deliberate: §"The ESPN archive is not a verified-stable source" explains why a casual re-fetch is the
-one action this record exists to prevent.
+**Ticket:** D8 (`sim-data-projection-coverage-gaps`), authored by unit **D8.1**. **No re-fetch was
+performed for this document** — that is the load-bearing provenance claim, and it is deliberate:
+§"The ESPN archive is not a verified-stable source" explains why a casual re-fetch is the one action
+this record exists to prevent. Figures are otherwise **transcribed** from ticket D8's intake record
+(`ticket.md`) and design digest (`context.md`), **except where the D8.1 review required a correction**:
+those figures were **re-derived from the committed tree** at `/du6-polish` and are marked in the
+closing note. Ticket D8's `ticket.md` and `context.md` had their validation footers stripped following
+those corrections and are, as of this document's writing, **pending re-validation**.
 
 **Provenance tiers — the figures here do not all carry the same confidence.** Everything derived from
 the committed tree or from git — the coverage table, the contamination table, the `adc0f749` compile
-counts, the ADP table and the `4f274f97` provenance quote — was **re-derived** at ticket validation and
-again at this unit's review. The **live ESPN probe figures** (1,128 rows, 1,037 zeroed, 91 non-zero,
-max 15.4) come from a one-off network call during `/dt3-design` and were **not** independently
-re-verified; they are marked as such where they appear. No conclusion in this document depends on them
-alone — the `adc0f749` compile corroborates the same conclusion from git.
+counts, the ADP table and the `4f274f97` provenance quote — was **re-derived**, at ticket validation
+and again during this unit's review-and-polish cycle. The **live ESPN probe figures** (1,128 rows,
+1,037 zeroed, 91 non-zero, max 15.4) come from a one-off network call during `/dt3-design` and were
+**not** independently re-verified; they are marked as such where they appear. No conclusion in this
+document depends on them alone — the `adc0f749` compile corroborates the same conclusion from git.
 
 ---
 
@@ -160,12 +163,14 @@ This record makes that re-tune a **decision** rather than a **discovery**.
 
 ## The ESPN archive is not a verified-stable source — capture and diff before overwriting
 
-**No degradation has been observed, and this section previously claimed one in error.** Every
-measurement available in this repository points at **stability**: the December-2025 `adc0f749` compile
-carried **85** non-zero week-1 projections for 2023, the **currently committed** tree carries the same
-**85**, and the 2026-08 live probe returned **91** non-zero rows of 1,128 — if anything marginally
-*better*, not worse. That is the identical evidence §"Irrecoverability" reads as stability, and it is
-read the same way here.
+**No degradation has been observed, and this section previously claimed one in error.** The one
+like-for-like measurement available in this repository points at **stability**: the December-2025
+`adc0f749` compile carried **85** non-zero week-1 projections for 2023 over its 798 compiled players,
+and the **currently committed** tree carries the same **85** over the same 798 — an exact match across
+eight months. That is the identical evidence §"Irrecoverability" reads as stability, and it is read
+the same way here. (The 2026-08 live probe is deliberately **not** chained into that comparison: it
+counts **raw API rows** before the compiler's filter, a different population from the 798 compiled
+players, so it is not commensurable with either count and establishes no trend in either direction.)
 
 **The precaution below therefore stands on ordinary prudence, not on an observed decline.** Two
 grounds, both independent of any degradation claim: a re-fetch is not *guaranteed* to reproduce the
@@ -222,8 +227,10 @@ cells sum to its season's population. Counted at `e581a366`; the 2025 placeholde
 commit `4f274f97`.
 
 **The by-record vs by-name distinction affects this table only.** Every coverage figure elsewhere in
-this document is identical under both populations (2021 week 1 is 196/200 either way; season coverage
-85.5% either way), because the duplicate-name records are low-production players that never enter a
+this document is identical under both populations (2021 week 1 is 196/200 either way; and 2021's
+season-wide coverage over that same top-200-by-season-actual-production population — week slots 1–17
+carrying a non-zero projection — is **2,908 / 3,400 = 85.5%**, identical by record and by name),
+because the duplicate-name records are low-production players that never enter a
 top-200-by-production cut. Seasons 2022–2025 contain **no** duplicate-name groups at all.
 
 | season | ADP <170 | ==170 | >170 | max ADP |
@@ -279,5 +286,11 @@ fixed" and "cannot be fixed".
 re-opened for the D8.1 review corrections below and pending re-validation). Corrected 2026-08-05 at
 `/du6-polish` from the D8.1 review: the false "the archive degrades" claim was removed at every site,
 the 2021 ADP `<170` cell corrected 693 → 695 by-record, and the ADP/contamination populations plus the
-provenance tiers were stated. Document-only — no fetch, no simulation run, no code or test change,
+provenance tiers were stated. Corrected again 2026-08-05 at `/du6-polish` pass 2 from the D8.1
+re-review: the cross-population 85-vs-91 stability comparison was removed (the commensurable 85-vs-85
+pair carries the conclusion alone), this header block's provenance claim was rewritten to state that
+some figures were re-derived at Polish and that `ticket.md` / `context.md` are pending re-validation,
+and the 85.5% season-coverage clause was qualified with its population (2021, top-200 by season actual
+production, week slots 1–17, 2,908 / 3,400). Document-only — no fetch, no simulation run, no code or
+test change,
 no `sim_data`, config or promotion write. Authored by unit D8.1.*
