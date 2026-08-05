@@ -7,8 +7,16 @@ and no simulation run. It records a diagnosis; it repairs nothing.
 **Ticket:** D8 (`sim-data-projection-coverage-gaps`), authored by unit **D8.1**. Every figure below is
 **transcribed** from that ticket's validated intake record and design digest — there was no fresh
 measurement, no re-derivation, and above all **no re-fetch** performed for this document. That is
-deliberate: §"The ESPN archive degrades" explains why a casual re-fetch is the one action this record
-exists to prevent.
+deliberate: §"The ESPN archive is not a verified-stable source" explains why a casual re-fetch is the
+one action this record exists to prevent.
+
+**Provenance tiers — the figures here do not all carry the same confidence.** Everything derived from
+the committed tree or from git — the coverage table, the contamination table, the `adc0f749` compile
+counts, the ADP table and the `4f274f97` provenance quote — was **re-derived** at ticket validation and
+again at this unit's review. The **live ESPN probe figures** (1,128 rows, 1,037 zeroed, 91 non-zero,
+max 15.4) come from a one-off network call during `/dt3-design` and were **not** independently
+re-verified; they are marked as such where they appear. No conclusion in this document depends on them
+alone — the `adc0f749` compile corroborates the same conclusion from git.
 
 ---
 
@@ -46,6 +54,9 @@ denominator of 200.
 for 2023 `scoringPeriodId=1` — **1,128** of them — but **1,037 carry `appliedTotal == 0.0`**; only
 **91** are greater than zero, and the maximum is **15.4**. Probing `scoringPeriodId=1` against
 `scoringPeriodId=0` returns **byte-identical** results, so the parameter is not the cause either.
+(These four probe figures are the **not-independently-re-verified** tier — a one-off network call; see
+the provenance note in the header. The committed-tree evidence in §"Irrecoverability" reaches the same
+conclusion without them.)
 
 **The compiler is correct, and that is what locates the loss upstream.**
 `historical_data_compiler/player_data_fetcher.py:440-442` drops zero-valued projections by design:
@@ -67,8 +78,9 @@ side in usable form — which is why nothing in this repository can be changed t
 `adc0f749:simulation/sim_data/2023/weeks/week_17/players_projected.csv` already carried exactly
 **85** week-1 projections against **430** for week 2. Those two are **whole-file counts over all 798
 players in that compile** — not the top-200 population used above — and are directly comparable to
-each other. The gap is therefore **stable across two fetches eight months apart**, not an artifact of
-one bad request.
+each other. The **currently committed** tree carries exactly the same counts over the same 798 players
+(**85** week 1, **430** week 2). The gap is therefore **stable across two fetches eight months apart**,
+not an artifact of one bad request.
 
 **And there is no local fallback.** No cached raw ESPN payload exists in the working tree or anywhere
 in git history, so there is nothing to re-parse.
@@ -79,9 +91,11 @@ grounds:
 
 1. **Futile for 2023.** The `adc0f749` counts above show the gap predates the current fetch; a
    re-fetch reproduces it.
-2. **Net-negative risk for the other four seasons.** ESPN's archive demonstrably degrades — see
-   §"The ESPN archive degrades" — so a blind recompile can replace a currently-good season with a
-   worse snapshot recoverable only from git.
+2. **Unverified-snapshot risk for the other four seasons.** A re-fetch is not *guaranteed* to
+   reproduce the committed snapshot — see §"The ESPN archive is not a verified-stable source" — so a
+   blind recompile can overwrite a currently-good season with a snapshot nobody has diffed,
+   recoverable only from git. (Note this is a **precaution**, not an observed decline: no degradation
+   has been measured — see that section.)
 
 This is the reasoning behind D8's defining constraint: **D8 changes no byte of
 `simulation/sim_data/`.**
@@ -91,8 +105,17 @@ This is the reasoning behind D8's defining constraint: **D8 changes no byte of
 ## Contamination arithmetic — why the zeros were scored, not skipped
 
 The `week_1_5` horizon **includes week 1** (`simulation/accuracy/horizon_labels.py:27`,
-`'week_1_5': (1, 5)`). Counting qualifying observations (`actual >= 3`) against the projection the
+`'week_1_5': (1, 5)`). Counting qualifying observations (`actual >= 3` — the harness's own filter at
+`simulation/accuracy/AccuracyCalculator.py:394`, not an analyst's cut) against the projection the
 harness actually reads:
+
+**Population and span.** Each cell's population is **every player in that season's compiled snapshot**
+— not a top-N cut — reduced to the observations meeting the `actual >= 3` rule; that reduced count is
+the `qualifying` column. **`whole horizon` means weeks 1–5 across all five seasons — 25 season-weeks**,
+of which the table lists the five most interesting. *"The projection the harness actually reads"* means
+the harness's own folder convention: the projection comes from the `week_N` folder and the actual from
+`week_{N+1}` (`simulation/accuracy/ParallelAccuracyRunner.py:182-205`). These counts were reproduced
+under both that convention and the flat `week_18` arrays, and the two agree exactly for weeks 1–5.
 
 | season-week | qualifying | zero-projection |
 |---|--:|--:|
@@ -135,18 +158,28 @@ This record makes that re-tune a **decision** rather than a **discovery**.
 
 ---
 
-## The ESPN archive degrades — capture and diff before overwriting
+## The ESPN archive is not a verified-stable source — capture and diff before overwriting
 
-2023 week 1 was **partially fetchable in December 2025** (85 projections in the `adc0f749` compile)
-and today returns **1,037 of 1,128 rows zeroed**. The archive is not a stable source that can be
-re-read at will; it gets worse.
+**No degradation has been observed, and this section previously claimed one in error.** Every
+measurement available in this repository points at **stability**: the December-2025 `adc0f749` compile
+carried **85** non-zero week-1 projections for 2023, the **currently committed** tree carries the same
+**85**, and the 2026-08 live probe returned **91** non-zero rows of 1,128 — if anything marginally
+*better*, not worse. That is the identical evidence §"Irrecoverability" reads as stability, and it is
+read the same way here.
+
+**The precaution below therefore stands on ordinary prudence, not on an observed decline.** Two
+grounds, both independent of any degradation claim: a re-fetch is not *guaranteed* to reproduce the
+committed snapshot — ESPN restates projection values over time, per
+[`../research/espn_api_historical_projections_research.md`](../research/espn_api_historical_projections_research.md)
+§9 — and `simulation/sim_data/` is the **tracked ground-truth corpus** every simulation reads, so an
+overwrite is recoverable only from git, and only if someone notices in time to look.
 
 **Therefore: any future recompile or re-fetch must capture-and-diff before overwriting.** Fetch to a
 side location, diff against the committed `simulation/sim_data/` tree, and only then decide whether
-to overwrite. Skipping that step can silently replace a currently-good season with a worse snapshot,
-recoverable only from git — and only if someone notices in time to look.
+to overwrite.
 
-This is the single finding in this document with a real, immediate operational cost if it is lost.
+This remains the finding in this document with a real, immediate operational cost if it is lost —
+what changed is its justification, not the instruction.
 
 ---
 
@@ -178,9 +211,24 @@ diagnosis is not.**
 `ownership.averageDraftPosition` **verbatim** — nothing normalises it. Seasons 2021–2024 sit on
 ESPN's compressed ≤170 rank-like scale, where `170.0` is the undrafted cap. 2025 does not:
 
+**Population, stated because the row totals only reconcile under it.** Every **record** carrying an
+`average_draft_position` value in that season's `week_18` snapshot
+(`simulation/sim_data/{season}/weeks/week_18/*_data.json`, all positions) — deliberately **not** a
+top-N-by-ADP cut, which would be circular here. Counted **by record, not by unique name**: 2021
+contains two genuine duplicate-name pairs (Josh Johnson and Ryan Griffin — in each case two distinct
+players sharing a name), so a name-deduplicated count of its `<170` cell gives 693 against the correct
+**695**. Season populations are 866 / 790 / 797 / 774 / 770 records for 2021–2025, and each row's three
+cells sum to its season's population. Counted at `e581a366`; the 2025 placeholder's provenance is
+commit `4f274f97`.
+
+**The by-record vs by-name distinction affects this table only.** Every coverage figure elsewhere in
+this document is identical under both populations (2021 week 1 is 196/200 either way; season coverage
+85.5% either way), because the duplicate-name records are low-production players that never enter a
+top-200-by-production cut. Seasons 2022–2025 contain **no** duplicate-name groups at all.
+
 | season | ADP <170 | ==170 | >170 | max ADP |
 |---|--:|--:|--:|--:|
-| 2021 | 693 | 105 | 66 | 170.6 |
+| 2021 | 695 | 105 | 66 | 170.6 |
 | 2022 | 718 | 60 | 12 | 170.2 |
 | 2023 | 582 | 68 | 147 | 170.6 |
 | 2024 | 715 | 51 | 8 | 170.1 |
@@ -227,6 +275,9 @@ fixed" and "cannot be fixed".
 
 ---
 
-*Transcribed from delivery ticket D8's validated `ticket.md` and `context.md` (both `Validated`-footed
-2026-08-05). Document-only — no fetch, no simulation run, no code or test change, no `sim_data`,
-config or promotion write. Authored by unit D8.1.*
+*Transcribed from delivery ticket D8's `ticket.md` and `context.md` (validated 2026-08-05; both
+re-opened for the D8.1 review corrections below and pending re-validation). Corrected 2026-08-05 at
+`/du6-polish` from the D8.1 review: the false "the archive degrades" claim was removed at every site,
+the 2021 ADP `<170` cell corrected 693 → 695 by-record, and the ADP/contamination populations plus the
+provenance tiers were stated. Document-only — no fetch, no simulation run, no code or test change,
+no `sim_data`, config or promotion write. Authored by unit D8.1.*
