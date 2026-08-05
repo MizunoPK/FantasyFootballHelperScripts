@@ -24,9 +24,14 @@ from historical_data_compiler.constants import (
 )
 from simulation.shared.sim_data_coverage import (
     BYE_CONVENTION,
+    PER_SEASON_COVERAGE_FLOOR_PCT,
+    PER_WEEK_COVERAGE_FLOOR_PCT,
     check_coverage,
     compute_season_coverage,
+    season_below_floor,
+    SeasonCoverage,
     select_coverage_population,
+    weeks_below_floor,
 )
 
 
@@ -59,6 +64,18 @@ def _write_season(season_dir, records_by_position):
         payload = {key: records_by_position.get(position, [])}
         (snapshot / filename).write_text(json.dumps(payload))
     return snapshot
+
+
+def _coverage(per_week, population_size=200):
+    """Build a synthetic SeasonCoverage from a {week: (covered, eligible)} map."""
+    return SeasonCoverage(
+        per_week=dict(per_week),
+        season=(
+            sum(covered for covered, _ in per_week.values()),
+            sum(eligible for _, eligible in per_week.values()),
+        ),
+        population_size=population_size,
+    )
 
 
 @pytest.fixture
@@ -363,3 +380,191 @@ class TestRealCorpusSeparation:
         defective = rates.pop(('2023', 1))
         assert defective < 0.50
         assert min(rates.values()) > 0.50
+
+
+class TestWeeksBelowFloor:
+    """The per-week floor predicate: raw counts, strictly below, byes excluded."""
+
+    def test_a_week_below_the_floor_is_returned(self):
+        # Arrange - 40% against a 50.0% floor
+        coverage = _coverage({1: (40, 100)})
+
+        # Act / Assert
+        assert weeks_below_floor(coverage) == [1]
+
+    def test_a_week_exactly_at_the_floor_passes(self):
+        # Arrange - exactly 50.0%; the raw-count comparison must not round it down
+        coverage = _coverage({1: (50, 100)})
+
+        # Act / Assert
+        assert weeks_below_floor(coverage) == []
+
+    def test_a_week_above_the_floor_passes(self):
+        # Arrange
+        coverage = _coverage({1: (51, 100)})
+
+        # Act / Assert
+        assert weeks_below_floor(coverage) == []
+
+    def test_offending_weeks_are_returned_in_week_order(self):
+        # Arrange - inserted out of order on purpose
+        coverage = _coverage({3: (1, 100), 1: (2, 100), 2: (99, 100)})
+
+        # Act / Assert
+        assert weeks_below_floor(coverage) == [1, 3]
+
+    def test_a_zero_denominator_week_is_skipped(self):
+        # Arrange - 0/0 is not a measurement and must never read as 0.0%
+        coverage = _coverage({1: (0, 0), 2: (99, 100)})
+
+        # Act / Assert
+        assert weeks_below_floor(coverage) == []
+
+
+class TestSeasonBelowFloor:
+    """The per-season backstop predicate, on the same comparison rules."""
+
+    def test_a_season_below_the_floor_is_reported(self):
+        # Arrange - 74% against a 75.0% floor
+        coverage = _coverage({1: (74, 100)})
+
+        # Act / Assert
+        assert season_below_floor(coverage) is True
+
+    def test_a_season_exactly_at_the_floor_passes(self):
+        # Arrange - exactly 75.0%
+        coverage = _coverage({1: (75, 100)})
+
+        # Act / Assert
+        assert season_below_floor(coverage) is False
+
+    def test_a_season_above_the_floor_passes(self):
+        # Arrange
+        coverage = _coverage({1: (76, 100)})
+
+        # Act / Assert
+        assert season_below_floor(coverage) is False
+
+    def test_a_zero_denominator_season_is_not_below_the_floor(self):
+        # Arrange - an empty population, not a 0% covered one
+        coverage = _coverage({1: (0, 0)}, population_size=0)
+
+        # Act / Assert
+        assert season_below_floor(coverage) is False
+
+
+class TestCheckCoverageEnforcement:
+    """check_coverage now returns False on a measured floor violation."""
+
+    def _run(self, season_dir):
+        logger = MagicMock()
+        with patch('simulation.shared.sim_data_coverage.get_logger',
+                   return_value=logger):
+            result = check_coverage(season_dir)
+        return result, logger
+
+    def test_a_week_below_the_per_week_floor_fails_and_names_the_week(self, season_dir):
+        # Arrange - three players, two of them zeroed in week 1 (1/3 = 33.3%).
+        # The population is 3, well under COVERAGE_POPULATION_SIZE, so this also
+        # pins that a partial-but-non-zero population is enforced normally.
+        zeroed = _flat(10.0)
+        zeroed[0] = 0.0
+        _write_season(season_dir, {'QB': [
+            _record('ok', 'QB', _flat(10.0), _flat(10.0)),
+            _record('zero_a', 'QB', zeroed, _flat(10.0)),
+            _record('zero_b', 'QB', zeroed, _flat(10.0)),
+        ]})
+
+        # Act
+        result, logger = self._run(season_dir)
+
+        # Assert
+        assert result is False
+        errors = [c.args[0] for c in logger.error.call_args_list]
+        assert len(errors) == 1
+        assert "week 01" in errors[0]
+        assert "1/3" in errors[0]
+        assert f"{PER_WEEK_COVERAGE_FLOOR_PCT:.1f}% per-week floor" in errors[0]
+        assert errors[0].count(BYE_CONVENTION) == 2
+        assert "population 3" in errors[0]
+
+    def test_a_diffuse_season_fails_the_backstop_with_no_week_below(self, season_dir):
+        # Arrange - every week sits at 60% (above the per-week floor) while the
+        # season aggregate is 60% (below the per-season floor): the diffuse
+        # degradation the per-week floor structurally cannot see.
+        _write_season(season_dir, {'RB': (
+            [_record(f"ok{i}", 'RB', _flat(10.0), _flat(10.0)) for i in range(3)]
+            + [_record(f"zero{i}", 'RB', _flat(0.0), _flat(9.0)) for i in range(2)]
+        )})
+
+        # Act
+        result, logger = self._run(season_dir)
+
+        # Assert
+        assert result is False
+        errors = [c.args[0] for c in logger.error.call_args_list]
+        assert len(errors) == 1
+        assert f"{PER_SEASON_COVERAGE_FLOOR_PCT:.1f}% per-season floor" in errors[0]
+        assert "per-week floor" not in errors[0]
+
+    def test_a_healthy_season_logs_no_error_and_returns_true(self, season_dir):
+        # Arrange
+        _write_season(season_dir, {'TE': [
+            _record('te', 'TE', _flat(4.0), _flat(4.0)),
+        ]})
+
+        # Act
+        result, logger = self._run(season_dir)
+
+        # Assert
+        assert result is True
+        assert logger.error.call_count == 0
+
+    def test_an_empty_population_warns_and_returns_true(self, season_dir):
+        # Arrange - every position file parses and holds an empty list, so the
+        # season denominator is 0. That is a missing corpus, not 0% coverage.
+        _write_season(season_dir, {})
+
+        # Act
+        result, logger = self._run(season_dir)
+
+        # Assert
+        assert result is True
+        assert logger.error.call_count == 0
+        assert logger.warning.call_count == 1
+        assert "no eligible player-weeks" in logger.warning.call_args.args[0]
+
+
+class TestRealCorpusEnforcement:
+    """The committed corpus, asserted against the floors rather than a figure."""
+
+    def _seasons(self):
+        from pathlib import Path
+        sim_data = Path(__file__).resolve().parents[3] / "simulation" / "sim_data"
+        return sorted(p for p in sim_data.iterdir() if p.name.isdigit())
+
+    def test_only_2023_week_1_is_below_the_per_week_floor(self):
+        # Arrange
+        seasons = self._seasons()
+
+        # Act
+        offending = {
+            season.name: weeks_below_floor(compute_season_coverage(season))
+            for season in seasons
+        }
+
+        # Assert - the defect fires, and nothing else does. A floor that failed a
+        # second committed season would be mis-calibrated, not stricter.
+        assert offending.pop('2023') == [1]
+        assert all(weeks == [] for weeks in offending.values())
+
+    def test_no_committed_season_is_below_the_per_season_floor(self):
+        # Arrange
+        seasons = self._seasons()
+
+        # Act / Assert - the backstop deliberately does not fire on 2023 either;
+        # 2023 exits 1 solely by the per-week floor above.
+        assert all(
+            season_below_floor(compute_season_coverage(season)) is False
+            for season in seasons
+        )
