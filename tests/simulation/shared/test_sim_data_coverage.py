@@ -3,7 +3,8 @@ Unit Tests for the Shared Sim Data Projection Coverage Computation
 
 Covers simulation/shared/sim_data_coverage - the single owner (D8 TD4) of the
 scale-free, production-ranked, bye-excluded projection coverage measurement that
-validate_sim_data.py reports and a later unit enforces.
+validate_sim_data.py reports and enforces against the floors in the same module
+(D8.3).
 
 Author: Kai Mizuno
 """
@@ -413,8 +414,21 @@ class TestWeeksBelowFloor:
         # Act / Assert
         assert weeks_below_floor(coverage) == [1, 3]
 
-    def test_a_zero_denominator_week_is_skipped(self):
-        # Arrange - 0/0 is not a measurement and must never read as 0.0%
+    def test_a_zero_denominator_week_is_not_reported_as_a_breach(self):
+        # Arrange - 0/0 is not a measurement and must never read as 0.0%.
+        #
+        # This asserts the OUTCOME, not the `if eligible == 0: continue` guard,
+        # and the distinction is deliberate. The raw-count comparison already
+        # yields this outcome without the guard: `covered <= eligible` holds by
+        # construction (compute_season_coverage increments covered only after
+        # eligible), so eligible == 0 implies covered == 0 and the comparison
+        # reads 0 * 100.0 < 50.0 * 0, i.e. 0.0 < 0.0, which is False. No
+        # in-domain input can therefore distinguish the guard's presence - the
+        # only input that does is a NEGATIVE covered count, which no producer
+        # can emit and which is outside a count's domain. The guard is kept
+        # because it states the intent explicitly and is the correct shape for a
+        # future divided implementation (covered / eligible), under which
+        # eligible == 0 becomes a ZeroDivisionError rather than a benign False.
         coverage = _coverage({1: (0, 0), 2: (99, 100)})
 
         # Act / Assert
@@ -446,7 +460,13 @@ class TestSeasonBelowFloor:
         assert season_below_floor(coverage) is False
 
     def test_a_zero_denominator_season_is_not_below_the_floor(self):
-        # Arrange - an empty population, not a 0% covered one
+        # Arrange - an empty population, not a 0% covered one.
+        #
+        # Same shape as the per-week twin above: this asserts the OUTCOME, not
+        # the `if eligible == 0: return False` guard, which the raw-count
+        # comparison already produces on its own for every in-domain input. See
+        # test_a_zero_denominator_week_is_not_reported_as_a_breach for the full
+        # derivation and for why the guard is nonetheless kept.
         coverage = _coverage({1: (0, 0)}, population_size=0)
 
         # Act / Assert
