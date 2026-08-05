@@ -18,6 +18,7 @@ Author: Kai Mizuno
 
 import copy
 import json
+import math
 from datetime import datetime
 from logging import Logger
 from pathlib import Path
@@ -28,6 +29,7 @@ from simulation.shared.atomic_io import atomic_write_json
 from simulation.shared.config_cleanup import cleanup_old_accuracy_optimal_folders
 from simulation.shared.config_constants import WEEK_SPECIFIC_PARAMS
 from simulation.shared.config_filters import extract_base_params
+
 from simulation.shared.ConfigGenerator import ConfigGenerator
 from simulation.accuracy.accuracy_types import RankingMetrics
 from simulation.accuracy.AccuracyCalculator import AccuracyResult
@@ -38,6 +40,31 @@ from simulation.accuracy.AccuracyCalculator import AccuracyResult
 # tests/simulation/test_AccuracyResultsManager.py and
 # tests/integration/test_accuracy_simulation_integration.py - are untouched.
 from simulation.accuracy.horizon_labels import WEEK_RANGES  # noqa: F401
+# T69/D2: the per-season consistency gate's supermajority fraction. The THRESHOLD is derived
+# from the season count at comparison time -- never hardcoded -- because seasons are
+# discovered at runtime by scanning the --data folder (AccuracySimulationManager._discover_
+# seasons), so N varies by corpus.
+ADOPTION_SEASON_WIN_FRACTION = 0.8
+
+
+def _min_season_wins(n_seasons: int) -> int:
+    """Seasons a candidate must win to be adoptable, derived from the ACTUAL season count.
+
+    NEVER replace this with a literal count. A hardcoded threshold tuned for the default
+    5-season corpus would be UNSATISFIABLE on a smaller one -- nothing would ever be
+    adopted, every horizon would freeze on the first pass, and the run would report
+    convergence having optimized nothing. That failure is invisible from outside: it
+    terminates cleanly and looks like success.
+
+    ceil(0.8 * n) <= n for all n >= 1, so the threshold is always satisfiable.
+
+    Args:
+        n_seasons (int): Number of seasons shared by the two configs being compared.
+
+    Returns:
+        int: Minimum season wins required for adoption.
+    """
+    return math.ceil(ADOPTION_SEASON_WIN_FRACTION * n_seasons)
 
 
 def format_metric_pct(value: Optional[float]) -> str:
@@ -96,7 +123,8 @@ class AccuracyConfigPerformance:
         overall_metrics: Optional[RankingMetrics] = None,
         by_position: Optional[Dict[str, RankingMetrics]] = None,
         weeks_evaluated: int = 0,
-        weeks_requested: int = 0
+        weeks_requested: int = 0,
+        per_season_pairwise: Optional[Dict[str, float]] = None
     ) -> None:
         self.config_dict = copy.deepcopy(config_dict)
         self.mae = mae
@@ -111,6 +139,10 @@ class AccuracyConfigPerformance:
         self.by_position = by_position or {}
         self.weeks_evaluated = weeks_evaluated
         self.weeks_requested = weeks_requested
+        # T69/D3: per-season pairwise accuracies backing the consistency gate in
+        # is_better_than. Empty for a config reconstructed from a pre-T69 artifact, which
+        # is why the gate degrades rather than assuming presence.
+        self.per_season_pairwise = per_season_pairwise or {}
 
     def _extract_param_value(self, config: dict, param_name: Optional[str]) -> Optional[Any]:
         """
@@ -183,6 +215,23 @@ class AccuracyConfigPerformance:
         if other.overall_metrics.pairwise_accuracy is None:
             return True
 
+        # T69/D2: per-season consistency gate. Guards against a difference driven by one or
+        # two idiosyncratic seasons -- NOT against sampling noise. Accuracy evaluation is
+        # DETERMINISTIC (no random draws), so re-evaluating a config yields an identical
+        # number; the win-rate side's z-test solves a different problem and this must not be
+        # "aligned" with it.
+        shared = sorted(set(self.per_season_pairwise) & set(other.per_season_pairwise))
+        if len(shared) >= 2:
+            wins = sum(
+                self.per_season_pairwise[s] > other.per_season_pairwise[s]
+                for s in shared
+            )
+            if wins < _min_season_wins(len(shared)):
+                return False
+        # Fewer than 2 shared seasons -> degrade to the pre-T69 mean comparison (a config
+        # reconstructed from an older artifact carries no per-season map, and one season
+        # cannot evidence consistency). Reaching here also means the consistency check
+        # PASSED, so the original mean comparison still decides.
         return self.overall_metrics.pairwise_accuracy > other.overall_metrics.pairwise_accuracy
 
     def to_dict(self) -> dict:
@@ -202,6 +251,9 @@ class AccuracyConfigPerformance:
             result['top_10_accuracy'] = self.overall_metrics.top_10_accuracy
             result['top_20_accuracy'] = self.overall_metrics.top_20_accuracy
             result['spearman_correlation'] = self.overall_metrics.spearman_correlation
+
+        if self.per_season_pairwise:
+            result['per_season_pairwise'] = dict(self.per_season_pairwise)
 
         if self.by_position:
             result['by_position'] = {
@@ -257,7 +309,10 @@ class AccuracyConfigPerformance:
             config_value=data.get('config_value'),
             timestamp=data.get('timestamp'),
             overall_metrics=overall_metrics,
-            by_position=by_position
+            by_position=by_position,
+            # T69/D3: .get() not [] -- an artifact written before T69 has no such key, and
+            # AC6 requires those to still compare (the gate degrades to the mean).
+            per_season_pairwise=data.get('per_season_pairwise', {})
         )
 
     def __repr__(self) -> str:
@@ -339,7 +394,8 @@ class AccuracyResultsManager:
             overall_metrics=accuracy_result.overall_metrics,
             by_position=accuracy_result.by_position,
             weeks_evaluated=accuracy_result.weeks_evaluated,
-            weeks_requested=accuracy_result.weeks_requested
+            weeks_requested=accuracy_result.weeks_requested,
+            per_season_pairwise=accuracy_result.per_season_pairwise
         )
 
         self.all_results.append(perf)
@@ -568,7 +624,9 @@ class AccuracyResultsManager:
         self,
         param_idx: int,
         param_name: str,
-        week_range_prefix: str = ''
+        week_range_prefix: str = '',
+        pass_idx: int = 0,
+        frozen_horizons: Optional[set] = None
     ) -> Path:
         """
         Save intermediate results during iterative optimization.
@@ -730,6 +788,20 @@ class AccuracyResultsManager:
 
         self.logger.info(f"Saved metadata to {metadata_path.name}")
         self.logger.info(f"Saved intermediate results to: {intermediate_folder}")
+        # T69/D5: record the ascent state INSIDE the folder it describes, so the resume
+        # record stays a single artifact -- same glob, same cleanup, no parallel state file
+        # elsewhere. Absent in a pre-T69 folder, which _detect_resume_state treats as
+        # "pass 0, nothing frozen" rather than raising.
+        atomic_write_json(
+            {
+                'pass_idx': pass_idx,
+                'frozen_horizons': sorted(frozen_horizons or set()),
+                'param_idx': param_idx,
+                'param_name': param_name,
+            },
+            intermediate_folder / '_ascent_state.json'
+        )
+
         return intermediate_folder
 
     def load_intermediate_results(self, folder_path: Path) -> bool:
@@ -845,7 +917,9 @@ class AccuracyResultsManager:
                 by_position=by_position,
                 test_idx=test_idx,
                 weeks_evaluated=weeks_evaluated,
-                weeks_requested=weeks_requested
+                weeks_requested=weeks_requested,
+                # T69/D3: .get() -- absent in a pre-T69 artifact; the gate degrades.
+                per_season_pairwise=metrics.get('per_season_pairwise', {})
             )
             loaded_count += 1
             self.logger.debug(

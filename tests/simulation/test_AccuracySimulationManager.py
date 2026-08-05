@@ -17,7 +17,11 @@ from unittest.mock import Mock, patch, MagicMock
 
 project_root = Path(__file__).parent.parent.parent
 
-from simulation.accuracy.AccuracySimulationManager import AccuracySimulationManager
+from simulation.accuracy.AccuracyResultsManager import WEEK_RANGES
+from simulation.accuracy.AccuracySimulationManager import (
+    AccuracySimulationManager,
+    MAX_ASCENT_PASSES,
+)
 
 
 TEST_PARAMETER_ORDER = [
@@ -314,7 +318,7 @@ class TestAccuracySimulationManagerResumeState:
 
     def test_detect_resume_no_folders(self, manager_with_output):
         """Test resume detection with no intermediate folders."""
-        should_resume, start_idx, path = manager_with_output._detect_resume_state('weekly')
+        should_resume, start_idx, path, _pass_idx, _frozen = manager_with_output._detect_resume_state('weekly')
 
         assert should_resume is False
         assert start_idx == 0
@@ -326,7 +330,7 @@ class TestAccuracySimulationManagerResumeState:
         intermediate.mkdir()
         (intermediate / "week1-5.json").write_text('{"config_name": "test", "parameters": {}, "performance_metrics": {"mae": 10.5}}')
 
-        should_resume, start_idx, path = manager_with_output._detect_resume_state('weekly')
+        should_resume, start_idx, path, _pass_idx, _frozen = manager_with_output._detect_resume_state('weekly')
 
         assert should_resume is True
         assert start_idx == 3
@@ -338,7 +342,7 @@ class TestAccuracySimulationManagerResumeState:
         intermediate.mkdir()
         (intermediate / "week1-5.json").write_text('{"config_name": "test", "parameters": {}, "performance_metrics": {"mae": 10.5}}')
 
-        should_resume, start_idx, path = manager_with_output._detect_resume_state('weekly')
+        should_resume, start_idx, path, _pass_idx, _frozen = manager_with_output._detect_resume_state('weekly')
 
         assert should_resume is True
         assert start_idx == 2
@@ -348,7 +352,7 @@ class TestAccuracySimulationManagerResumeState:
         intermediate = manager_with_output.output_dir / "accuracy_intermediate_01_TEAM_QUALITY_SCORING_WEIGHT"
         intermediate.mkdir()
 
-        should_resume, start_idx, path = manager_with_output._detect_resume_state('weekly')
+        should_resume, start_idx, path, _pass_idx, _frozen = manager_with_output._detect_resume_state('weekly')
 
         assert should_resume is False
         assert start_idx == 0
@@ -362,7 +366,7 @@ class TestAccuracySimulationManagerResumeState:
         intermediate.mkdir()
         (intermediate / "week1-5_best.json").write_text('{"mae": 10.5}')
 
-        should_resume, start_idx, path = manager_with_output._detect_resume_state('weekly')
+        should_resume, start_idx, path, _pass_idx, _frozen = manager_with_output._detect_resume_state('weekly')
 
         assert should_resume is False
         assert start_idx == 0
@@ -373,7 +377,7 @@ class TestAccuracySimulationManagerResumeState:
         intermediate.mkdir()
         (intermediate / "week1-5.json").write_text('{"config_name": "test", "parameters": {}, "performance_metrics": {"mae": 10.5}}')
 
-        should_resume, start_idx, path = manager_with_output._detect_resume_state('ros')
+        should_resume, start_idx, path, _pass_idx, _frozen = manager_with_output._detect_resume_state('ros')
 
         assert should_resume is True
         assert start_idx == 4
@@ -384,7 +388,7 @@ class TestAccuracySimulationManagerResumeState:
         invalid.mkdir()
         (invalid / "week1-5.json").write_text('{"config_name": "test", "parameters": {}, "performance_metrics": {"mae": 10.5}}')
 
-        should_resume, start_idx, path = manager_with_output._detect_resume_state('weekly')
+        should_resume, start_idx, path, _pass_idx, _frozen = manager_with_output._detect_resume_state('weekly')
 
         assert should_resume is False
         assert start_idx == 0
@@ -395,7 +399,7 @@ class TestAccuracySimulationManagerResumeState:
         unknown.mkdir()
         (unknown / "week1-5_best.json").write_text('{"mae": 10.5}')
 
-        should_resume, start_idx, path = manager_with_output._detect_resume_state('weekly')
+        should_resume, start_idx, path, _pass_idx, _frozen = manager_with_output._detect_resume_state('weekly')
 
         assert should_resume is False
         assert start_idx == 0
@@ -954,3 +958,272 @@ if __name__ == "__main__":
     pytest.main([__file__, "-v"])
 
 
+
+
+class TestT69ConvergenceLoop:
+    """T69/D1: per-horizon convergent ascent, ported from SweepTournament's `while moved:`.
+
+    These drive run_both's pass loop with _run_ascent_pass stubbed, so they exercise the
+    freezing/termination logic without running a real optimization.
+    """
+
+    def _manager(self, tmp_path):
+        """A manager with the heavy collaborators stubbed out."""
+        mgr = AccuracySimulationManager.__new__(AccuracySimulationManager)
+        mgr.logger = Mock()
+        mgr.output_dir = tmp_path
+        mgr.parameter_order = ['P1']
+        mgr.results_manager = Mock()
+        mgr.results_manager.save_optimal_configs.return_value = tmp_path / "accuracy_optimal_x"
+        mgr.config_generator = Mock()
+        mgr.config_generator.num_test_values = 2
+        mgr._sweep_orphaned_temp_dirs = Mock()
+        mgr._setup_signal_handlers = Mock()
+        mgr._restore_signal_handlers = Mock()
+        mgr._warn_low_accuracy_promoted = Mock()
+        mgr._detect_resume_state = Mock(return_value=(False, 0, None, 0, set()))
+        return mgr
+
+    def test_all_horizons_converge_when_a_pass_adopts_nothing(self, tmp_path):
+        """T69/AC2: a pass that adopts nothing freezes every remaining horizon and stops."""
+        mgr = self._manager(tmp_path)
+        mgr._run_ascent_pass = Mock(return_value=set())     # nothing ever adopts
+
+        with patch('simulation.accuracy.AccuracySimulationManager.cleanup_accuracy_intermediate_folders', return_value=0):
+            mgr.run_both()
+
+        # One pass suffices: nothing adopted, so all four freeze immediately.
+        assert mgr._run_ascent_pass.call_count == 1
+
+    def test_frozen_horizons_are_passed_to_the_next_pass(self, tmp_path):
+        """T69/AC2: a horizon that adopted nothing is frozen and handed to later passes.
+
+        week_1_5 adopts on pass 1 only; the other three freeze after pass 1. Pass 2 must
+        therefore receive those three as frozen.
+        """
+        mgr = self._manager(tmp_path)
+        calls = []
+
+        def fake_pass(pass_idx, frozen, should_resume, resume_idx, resume_pass_idx=0):
+            calls.append(set(frozen))
+            return {'week_1_5'} if pass_idx == 0 else set()
+
+        mgr._run_ascent_pass = Mock(side_effect=fake_pass)
+        with patch('simulation.accuracy.AccuracySimulationManager.cleanup_accuracy_intermediate_folders', return_value=0):
+            mgr.run_both()
+
+        assert calls[0] == set(), "pass 1 must start with nothing frozen"
+        assert calls[1] == {'week_6_9', 'week_10_13', 'week_14_17'}, (
+            "pass 2 must receive the three horizons that adopted nothing in pass 1"
+        )
+        assert mgr._run_ascent_pass.call_count == 2
+
+    def test_bound_hit_stops_the_run_and_is_not_called_convergence(self, tmp_path):
+        """T69/AC3: a never-converging horizon stops at the bound, reported distinctly.
+
+        A bound hit means the run did NOT settle. Reporting it as convergence would hide
+        exactly the non-convergence the bound exists to surface.
+        """
+        mgr = self._manager(tmp_path)
+        mgr._run_ascent_pass = Mock(return_value=set(WEEK_RANGES.keys()))   # always adopts
+
+        with patch('simulation.accuracy.AccuracySimulationManager.cleanup_accuracy_intermediate_folders', return_value=0):
+            mgr.run_both()
+
+        assert mgr._run_ascent_pass.call_count == MAX_ASCENT_PASSES
+
+        warned = " ".join(str(c) for c in mgr.logger.warning.call_args_list)
+        assert "BOUND" in warned.upper(), "a bound hit must be warned about"
+
+        infos = " ".join(str(c) for c in mgr.logger.info.call_args_list)
+        assert "BOUND-HIT" in infos, "the completion line must say BOUND-HIT"
+        assert "CONVERGED after" not in infos, (
+            "a bound-hit run must NOT be reported as converged"
+        )
+
+    def test_warn_low_accuracy_promoted_fires_exactly_once_per_run(self, tmp_path):
+        """T69/AC7: T59's warning hook fires once per RUN, not once per pass.
+
+        It is the only thing that makes the two low-accuracy thresholds reachable, and
+        firing it per pass would turn it into noise.
+        """
+        mgr = self._manager(tmp_path)
+        seq = [{'week_1_5'}, {'week_1_5'}, set()]
+        mgr._run_ascent_pass = Mock(side_effect=lambda pi, fz, sr, ri, rpi=0: seq[min(pi, len(seq) - 1)])
+
+        with patch('simulation.accuracy.AccuracySimulationManager.cleanup_accuracy_intermediate_folders', return_value=0):
+            mgr.run_both()
+
+        assert mgr._run_ascent_pass.call_count > 1, "this test is only meaningful multi-pass"
+        assert mgr._warn_low_accuracy_promoted.call_count == 1
+        assert mgr.results_manager.save_optimal_configs.call_count == 1
+
+
+class TestT69PassAwareResume:
+    """T69/D5: resume carries the pass index and frozen-horizon set, not just a param index."""
+
+    def test_ascent_state_roundtrips_through_the_intermediate_folder(self, tmp_path):
+        """The state is written into the folder it describes and read back."""
+        mgr = AccuracySimulationManager.__new__(AccuracySimulationManager)
+        mgr.logger = Mock()
+        folder = tmp_path / "accuracy_intermediate_03_P1"
+        folder.mkdir(parents=True)
+        (folder / '_ascent_state.json').write_text(json.dumps({
+            'pass_idx': 2,
+            'frozen_horizons': ['week_1_5', 'week_6_9'],
+        }))
+
+        pass_idx, frozen = mgr._read_ascent_state(folder)
+        assert pass_idx == 2
+        assert frozen == {'week_1_5', 'week_6_9'}
+
+    def test_legacy_folder_without_ascent_state_does_not_raise(self, tmp_path):
+        """T69/AC8: a pre-T69 intermediate folder resumes as pass 0, nothing frozen.
+
+        Losing the pass detail is far better than raising on it or discarding the run's
+        completed work.
+        """
+        mgr = AccuracySimulationManager.__new__(AccuracySimulationManager)
+        mgr.logger = Mock()
+        folder = tmp_path / "accuracy_intermediate_01_P1"
+        folder.mkdir(parents=True)
+
+        assert mgr._read_ascent_state(folder) == (0, set())
+
+    def test_corrupt_ascent_state_degrades_rather_than_raising(self, tmp_path):
+        """A truncated/invalid state file must not take the whole resume down."""
+        mgr = AccuracySimulationManager.__new__(AccuracySimulationManager)
+        mgr.logger = Mock()
+        folder = tmp_path / "accuracy_intermediate_02_P1"
+        folder.mkdir(parents=True)
+        (folder / '_ascent_state.json').write_text("{not valid json")
+
+        assert mgr._read_ascent_state(folder) == (0, set())
+        assert mgr.logger.warning.called, "a corrupt state file should be surfaced, not silent"
+
+    def test_resume_seeds_the_loop_with_recorded_pass_and_frozen_set(self, tmp_path):
+        """T69/AC8: run_both starts at the recorded pass with frozen horizons intact.
+
+        Without this the run would restart at pass 1 and re-optimize horizons that had
+        already converged.
+        """
+        mgr = AccuracySimulationManager.__new__(AccuracySimulationManager)
+        mgr.logger = Mock()
+        mgr.output_dir = tmp_path
+        mgr.parameter_order = ['P1']
+        mgr.results_manager = Mock()
+        mgr.results_manager.save_optimal_configs.return_value = tmp_path / "opt"
+        mgr.config_generator = Mock()
+        mgr.config_generator.num_test_values = 2
+        mgr.config_generator.baseline_configs = {}
+        mgr._sweep_orphaned_temp_dirs = Mock()
+        mgr._setup_signal_handlers = Mock()
+        mgr._restore_signal_handlers = Mock()
+        mgr._warn_low_accuracy_promoted = Mock()
+        mgr._detect_resume_state = Mock(
+            return_value=(True, 0, None, 2, {'week_1_5', 'week_6_9'})
+        )
+
+        seen = []
+
+        def fake_pass(pass_idx, frozen, should_resume, resume_idx, resume_pass_idx=0):
+            seen.append((pass_idx, set(frozen)))
+            return set()
+
+        mgr._run_ascent_pass = Mock(side_effect=fake_pass)
+        with patch('simulation.accuracy.AccuracySimulationManager.cleanup_accuracy_intermediate_folders', return_value=0):
+            mgr.run_both()
+
+        assert seen[0][0] == 2, "must resume at the recorded pass, not restart at 0"
+        assert seen[0][1] == {'week_1_5', 'week_6_9'}, "frozen horizons must survive the resume"
+
+
+class TestT69ResumeAcrossPasses:
+    """Polish: gaps found at review in how resume interacts with MULTIPLE passes.
+
+    Pre-T69 there was only ever one pass, so "every parameter has an intermediate folder"
+    correctly meant "the run is finished". That inference is wrong once passes exist.
+    """
+
+    def _mgr(self, tmp_path):
+        mgr = AccuracySimulationManager.__new__(AccuracySimulationManager)
+        mgr.logger = Mock()
+        mgr.output_dir = tmp_path
+        mgr.parameter_order = ['P1', 'P2']
+        mgr.results_manager = Mock()
+        mgr.results_manager.save_optimal_configs.return_value = tmp_path / "opt"
+        mgr.config_generator = Mock()
+        mgr.config_generator.num_test_values = 2
+        mgr.config_generator.baseline_configs = {}
+        mgr._sweep_orphaned_temp_dirs = Mock()
+        mgr._setup_signal_handlers = Mock()
+        mgr._restore_signal_handlers = Mock()
+        mgr._warn_low_accuracy_promoted = Mock()
+        return mgr
+
+    def test_completed_pass_resumes_into_the_next_pass(self, tmp_path):
+        """A pass that finished every parameter must resume at the NEXT pass, not refuse.
+
+        Refusing here would discard a completed pass and restart the whole ascent.
+        """
+        mgr = self._mgr(tmp_path)
+        mgr._detect_resume_state = Mock(return_value=(True, 0, None, 3, {'week_1_5'}))
+        seen = []
+
+        def fake_pass(pass_idx, frozen, should_resume, resume_idx, resume_pass_idx=0):
+            seen.append(pass_idx)
+            return set()
+
+        mgr._run_ascent_pass = Mock(side_effect=fake_pass)
+        with patch('simulation.accuracy.AccuracySimulationManager.cleanup_accuracy_intermediate_folders', return_value=0):
+            mgr.run_both()
+
+        assert seen and seen[0] == 3, "must continue at the recorded pass, not restart at 0"
+
+    def test_fully_frozen_resume_runs_no_pass_at_all(self, tmp_path):
+        """An already-converged resume must not run a no-op pass.
+
+        Running one would do no work yet still write intermediate folders.
+        """
+        mgr = self._mgr(tmp_path)
+        mgr._detect_resume_state = Mock(
+            return_value=(True, 0, None, 2, set(WEEK_RANGES.keys()))
+        )
+        mgr._run_ascent_pass = Mock(return_value=set())
+
+        with patch('simulation.accuracy.AccuracySimulationManager.cleanup_accuracy_intermediate_folders', return_value=0):
+            mgr.run_both()
+
+        assert mgr._run_ascent_pass.call_count == 0, "nothing left to optimize -- run no pass"
+        assert mgr._warn_low_accuracy_promoted.call_count == 1, "the run still finalizes"
+
+    def test_resume_skip_applies_only_to_the_resumed_pass(self, tmp_path):
+        """The skip belongs to the pass being resumed INTO; later passes walk from the top.
+
+        Guarding on `pass_idx == 0` instead would re-run already-completed parameters of a
+        mid-pass-2 resume, and would wrongly skip them in every later pass.
+        """
+        mgr = self._mgr(tmp_path)
+        mgr.parameter_order = ['P1', 'P2', 'P3']
+        mgr.config_generator.generate_horizon_test_values = Mock(
+            return_value={h: [1, 2] for h in WEEK_RANGES}
+        )
+        # must be a real dict -- the pass body assigns config_dict['_eval_metadata']
+        mgr.config_generator.get_config_for_horizon = Mock(side_effect=lambda *a, **k: {})
+        mgr.config_generator.update_baseline_for_horizon = Mock()
+        mgr.parallel_runner = Mock()
+        mgr.parallel_runner.evaluate_configs_parallel = Mock(return_value=[])
+        mgr.progress_tracker = Mock()
+        mgr._log_parameter_summary = Mock()
+
+        with patch('simulation.accuracy.AccuracySimulationManager.ProgressTracker'):
+            # resuming INTO pass 2 at param 2: P1 skipped
+            mgr._run_ascent_pass(2, set(), should_resume=True, resume_param_idx=2, resume_pass_idx=2)
+            first = mgr.config_generator.generate_horizon_test_values.call_args_list[:]
+            assert [c.args[0] for c in first] == ['P3'], f"expected only P3, got {[c.args[0] for c in first]}"
+
+            mgr.config_generator.generate_horizon_test_values.reset_mock()
+            # a LATER pass must walk every parameter
+            mgr._run_ascent_pass(3, set(), should_resume=True, resume_param_idx=2, resume_pass_idx=2)
+            later = [c.args[0] for c in mgr.config_generator.generate_horizon_test_values.call_args_list]
+            assert later == ['P1', 'P2', 'P3'], f"later pass must not skip: got {later}"

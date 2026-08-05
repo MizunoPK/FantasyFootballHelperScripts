@@ -37,6 +37,9 @@ class AccuracyResult:
         by_position (Optional[Dict[str, RankingMetrics]]): Ranking metrics per position
         weeks_evaluated (int): Weeks actually scored for this result (observability; default 0)
         weeks_requested (int): Weeks the horizon range asked for (observability; default 0)
+        per_season_pairwise (Dict[str, float]): Per-season pairwise accuracy keyed by season
+            name (T69). Empty when ranking metrics were not computed. The mean of these is
+            what overall_metrics.pairwise_accuracy reports; this keeps the vector.
     """
 
     def __init__(
@@ -48,7 +51,8 @@ class AccuracyResult:
         overall_metrics=None,
         by_position: Optional[dict] = None,
         weeks_evaluated: int = 0,
-        weeks_requested: int = 0
+        weeks_requested: int = 0,
+        per_season_pairwise: Optional[Dict[str, float]] = None
     ) -> None:
         self.mae = mae
         self.player_count = player_count
@@ -58,6 +62,10 @@ class AccuracyResult:
         self.by_position = by_position or {}
         self.weeks_evaluated = weeks_evaluated
         self.weeks_requested = weeks_requested
+        # T69/D3: per-season pairwise accuracies, keyed by season name. Captured where the
+        # mean is taken so the paired consistency gate has the vector the mean discards.
+        # Defaults to {} (never None) so consumers can iterate without a guard.
+        self.per_season_pairwise = per_season_pairwise or {}
 
     def __repr__(self) -> str:
         return f"AccuracyResult(mae={self.mae:.4f}, players={self.player_count})"
@@ -249,6 +257,8 @@ class AccuracyCalculator:
             )
 
         overall_metrics = None
+
+        per_season_pairwise: Dict[str, float] = {}   # T69/D3: populated below when ranking metrics exist
         by_position = {}
 
         has_ranking_metrics = any(
@@ -307,6 +317,14 @@ class AccuracyCalculator:
                                 z = np.arctanh(np.clip(metrics.spearman_correlation, -1 + 1e-6, 1 - 1e-6))
                                 position_data[pos]['spearman_z'].append(z)
 
+            # T69/D3: keep the per-season vector the mean below discards. season_results is
+            # already in scope -- nothing is re-derived and no extra evaluation is run.
+            per_season_pairwise = {
+                season_name: r.overall_metrics.pairwise_accuracy
+                for season_name, r in season_results
+                if r.overall_metrics is not None and r.overall_metrics.pairwise_accuracy is not None
+            }
+
             if pairwise_values or top_5_values or top_10_values or top_20_values or spearman_z_values:
                 overall_spearman = None
                 if spearman_z_values:
@@ -342,6 +360,7 @@ class AccuracyCalculator:
             total_error=total_error,
             overall_metrics=overall_metrics,
             by_position=by_position,
+            per_season_pairwise=per_season_pairwise,
             weeks_evaluated=total_weeks_evaluated,
             weeks_requested=total_weeks_requested
         )

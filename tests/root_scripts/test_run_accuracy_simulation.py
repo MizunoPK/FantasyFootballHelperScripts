@@ -931,3 +931,72 @@ class TestParallelRunnerEvaluationLogLine:
         ) in records, f"evaluation log line changed or drifted: {records}"
 
 
+
+
+class TestT69TerminatingRunner:
+    """T69/AC1 + AC13: the runner terminates and has a meaningful exit code.
+
+    Before T69, `run_accuracy_simulation.py` ended in an unconditional infinite loop, so an
+    end-to-end test of this script was IMPOSSIBLE -- the process never exited. Every other
+    subprocess assertion in this file therefore probes `--help` only. This is the first test
+    that runs the actual optimizer end to end.
+    """
+
+    def test_scoped_run_terminates_with_exit_code_zero(self, tmp_path):
+        """A scoped optimization run finishes on its own and exits 0.
+
+        Scoped to one parameter and two test values to keep the runtime near a minute.
+        --output is a scratch directory; simulation/sim_data/ is READ but never written
+        (it is tracked season data).
+
+        A TimeoutExpired here is a FAILURE, not a slow machine: it means the endless
+        behaviour survived, which is the whole defect this story removes.
+        """
+        try:
+            result = subprocess.run(
+                [
+                    sys.executable, str(project_root / "run_accuracy_simulation.py"),
+                    "--output", str(tmp_path),
+                    "--params", "NORMALIZATION_MAX_SCALE",
+                    "--test-values", "2",
+                    "--max-workers", "4",
+                    "--log-level", "warning",
+                ],
+                capture_output=True,
+                text=True,
+                timeout=900,
+                cwd=str(project_root),
+            )
+        except subprocess.TimeoutExpired:
+            pytest.fail(
+                "run_accuracy_simulation.py did not terminate within 900s. The T69 "
+                "convergent runner is supposed to exit on its own; a timeout means the "
+                "endless behaviour survived."
+            )
+
+        assert result.returncode == 0, (
+            f"expected exit 0, got {result.returncode}\n"
+            f"stdout tail:\n{result.stdout[-2000:]}\n"
+            f"stderr tail:\n{result.stderr[-2000:]}"
+        )
+
+    def test_scoped_run_writes_exactly_one_optimal_folder(self, tmp_path):
+        """T69/AC9: one converged run writes one accuracy_optimal_* folder, not one per pass."""
+        result = subprocess.run(
+            [
+                sys.executable, str(project_root / "run_accuracy_simulation.py"),
+                "--output", str(tmp_path),
+                "--params", "NORMALIZATION_MAX_SCALE",
+                "--test-values", "2",
+                "--max-workers", "4",
+                "--log-level", "warning",
+            ],
+            capture_output=True,
+            text=True,
+            timeout=900,
+            cwd=str(project_root),
+        )
+        assert result.returncode == 0, result.stderr[-2000:]
+
+        optimal = sorted(tmp_path.glob("accuracy_optimal_*"))
+        assert len(optimal) == 1, f"expected exactly 1 optimal folder, found {len(optimal)}: {optimal}"
