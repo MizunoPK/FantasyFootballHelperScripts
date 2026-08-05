@@ -196,6 +196,26 @@ class TestValidateSimData:
         assert mock_logger.error.call_count == 1
         assert "is not a directory" in mock_logger.error.call_args_list[0].args[0]
 
+    def test_coverage_check_is_called_with_the_output_dir(self, tmp_path):
+        self._build_valid_tree(tmp_path)
+        with patch('validate_sim_data.check_coverage', return_value=True) as mock_coverage, \
+             patch('validate_sim_data.get_logger', return_value=MagicMock()), \
+             patch('sys.argv', ['validate_sim_data.py', '--year', '2025',
+                                '--output-dir', str(tmp_path)]):
+            result = main()
+        assert result == 0
+        assert mock_coverage.call_count == 1
+        assert mock_coverage.call_args.args[0] == tmp_path
+
+    def test_coverage_check_result_never_changes_the_exit_code(self, tmp_path):
+        self._build_valid_tree(tmp_path)
+        with patch('validate_sim_data.check_coverage', return_value=False), \
+             patch('validate_sim_data.get_logger', return_value=MagicMock()), \
+             patch('sys.argv', ['validate_sim_data.py', '--year', '2025',
+                                '--output-dir', str(tmp_path)]):
+            result = main()
+        assert result == 0
+
     def test_enable_log_file_passes_log_to_file_true(self, tmp_path):
         self._build_valid_tree(tmp_path)
         with patch('validate_sim_data.setup_logger') as mock_setup, \

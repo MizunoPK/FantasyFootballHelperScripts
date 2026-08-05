@@ -32,6 +32,7 @@ from historical_data_compiler.constants import (
     EXPECTED_NFL_TEAMS,
     POSITION_JSON_FILES,
 )
+from simulation.shared.sim_data_coverage import check_coverage
 
 
 def check_csv_files(output_dir: Path) -> bool:
@@ -250,6 +251,8 @@ def main() -> int:
     weeks_passed = check_week_folders(output_dir)
     spot_passed = check_all_json_spots(output_dir)
     all_passed = csv_passed and weeks_passed and spot_passed
+
+    check_coverage(output_dir)
 
     if all_passed:
         logger.info("All validation checks passed.")
