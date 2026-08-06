@@ -644,7 +644,8 @@ class AccuracySimulationManager:
                         result,
                         param_name=param_name,
                         test_idx=test_idx,
-                        base_horizon=horizon
+                        base_horizon=horizon,
+                        pass_idx=pass_idx
                     )
 
                     if is_new_best:
