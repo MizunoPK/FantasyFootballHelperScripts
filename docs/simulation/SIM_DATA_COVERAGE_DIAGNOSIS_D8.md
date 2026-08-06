@@ -11,7 +11,14 @@ this record exists to prevent. Figures are otherwise **transcribed** from ticket
 (`ticket.md`) and design digest (`context.md`), **except where the D8.1 review required a correction**:
 those figures were **re-derived from the committed tree** at `/du6-polish` and are marked in the
 closing note. Ticket D8's `ticket.md` and `context.md` had their validation footers stripped following
-those corrections and are, as of this document's writing, **pending re-validation**.
+those corrections and were **subsequently re-validated**: both carry `Validated 2026-08-05` footers
+(`ticket.md` its fourth validation, `context.md` its second).
+
+**Note for a reader outside the Shamt work tree.** `ticket.md` and `context.md` live under
+`.shamt-core/tickets/D8-sim-data-projection-coverage-gaps/`, which is **git-ignored** and is archived
+when the ticket finalizes — they are **not resolvable from this repository**. They are named here for
+provenance only. This document is D8's sole durable, git-tracked record, and every claim below stands
+on its own here.
 
 **Provenance tiers — the figures here do not all carry the same confidence.** Everything derived from
 the committed tree or from git — the coverage table, the contamination table, the `adc0f749` compile
@@ -283,13 +290,16 @@ fixed" and "cannot be fixed".
 ---
 
 *Transcribed from delivery ticket D8's `ticket.md` and `context.md` (validated 2026-08-05; both
-re-opened for the D8.1 review corrections below and pending re-validation). Corrected 2026-08-05 at
+re-opened for the D8.1 review corrections below, then re-validated — both carry `Validated 2026-08-05`
+footers). Corrected 2026-08-05 at
 `/du6-polish` from the D8.1 review: the false "the archive degrades" claim was removed at every site,
 the 2021 ADP `<170` cell corrected 693 → 695 by-record, and the ADP/contamination populations plus the
 provenance tiers were stated. Corrected again 2026-08-05 at `/du6-polish` pass 2 from the D8.1
 re-review: the cross-population 85-vs-91 stability comparison was removed (the commensurable 85-vs-85
 pair carries the conclusion alone), this header block's provenance claim was rewritten to state that
-some figures were re-derived at Polish and that `ticket.md` / `context.md` are pending re-validation,
+some figures were re-derived at Polish and that `ticket.md` / `context.md` were then pending
+re-validation (that pending state has since resolved — both were re-validated on 2026-08-05, and the
+header block was updated accordingly at `/dt8-polish` on 2026-08-06),
 and the 85.5% season-coverage clause was qualified with its population (2021, top-200 by season actual
 production, week slots 1–17, 2,908 / 3,400). Document-only — no fetch, no simulation run, no code or
 test change,

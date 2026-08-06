@@ -10,7 +10,15 @@ zeroed at the source, which is exactly the 2023 week-1 condition delivery ticket
 D8 exists to expose. This module is the single owner of that measurement (D8
 TD4): validate_sim_data.py consumes it through check_coverage, and the accuracy
 harness consumes the same per-week figures through excluded_weeks_by_season, so
-the two can never disagree about which season-weeks are under-covered.
+the two cannot disagree about the set this module computes. Note the exact
+scope of that guarantee: both consumers measure the weeks/week_18/ snapshot,
+whereas the harness evaluates each week's own weeks/week_NN/ folder, so
+"the measured set matches the corpus actually evaluated" is an EMPIRICAL
+result, not a structural one. It was verified at D8 /dt7: the week_18-derived
+and week_NN-derived projection counts are identical across all 85 committed
+season-weeks (zero disagreements), and the ~34-point margin between the floor
+and the worst healthy observation means a disagreement would have to be large
+to flip any verdict.
 
 Coverage is computed over a scale-free, production-ranked population — the top
 COVERAGE_POPULATION_SIZE players by season actual production, the identical rule
@@ -415,9 +423,11 @@ def excluded_weeks_by_season(
 
     The harness-facing half of this module's single ownership (D8 TD4): the
     exclusion set is weeks_below_floor(compute_season_coverage(...)) verbatim,
-    so the validator and the harness are structurally incapable of disagreeing
-    about which season-weeks are under-covered. The floor itself is never named
-    outside this module.
+    so the validator and the harness cannot disagree about the computed set.
+    That both measure the week_18 snapshot while the harness evaluates the
+    per-week week_NN folders is verified empirically, not guaranteed
+    structurally — see the module docstring (identical across all 85 committed
+    season-weeks, D8 /dt7). The floor itself is never named outside this module.
 
     Every exclusion is announced once, here, in the parent process before any
     worker starts (D8.4 HD1/HD4) — the worker emits no per-skip line, which for
