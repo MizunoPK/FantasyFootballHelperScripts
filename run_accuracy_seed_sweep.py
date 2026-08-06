@@ -36,9 +36,28 @@ from typing import Dict, List, Optional
 
 from simulation.accuracy.AccuracyResultsManager import DUMP_PROMOTED_FILENAME
 
-DEFAULT_BASELINE = 'data/configs'
-DEFAULT_DATA = 'simulation/sim_data'
-SCRATCH_ROOT = Path('_internal/data/accuracy_seed_sweep_D2')
+# Anchored at the repo root via __file__ (not ambient CWD), matching the
+# established in-repo convention for a subprocess-invoking runner:
+# run_pre_commit_validation.py:30 (`Path(__file__).parent`) and this same
+# ticket's sibling tests/simulation/test_accuracy_determinism.py:112
+# (`cwd=REPO_ROOT`). An unanchored CWD-relative harness would fail loudly if
+# invoked from elsewhere -- except SCRATCH_ROOT, which would instead fail
+# silently by writing its scratch tree into whatever directory launched it.
+REPO_ROOT = Path(__file__).resolve().parent
+
+# DEFAULT_BASELINE deliberately diverges from run_accuracy_simulation.py's own
+# default (`''`, meaning "resolve most-recent accuracy_optimal_*") -- this
+# harness's whole measurement depends on a PINNED baseline (TD3/TD4 of
+# spec.md), not the most-recent-run default. This is a required divergence,
+# not a duplication to reconcile.
+DEFAULT_BASELINE = str(REPO_ROOT / 'data/configs')
+# DEFAULT_DATA duplicates run_accuracy_simulation.py:65's own DEFAULT_DATA as
+# a literal rather than importing it -- importing that module at load time
+# would pull in AccuracySimulationManager's full engine import chain for a
+# lightweight sweep harness. run_accuracy_simulation.py:65 is the source of
+# truth; keep this literal in sync with it.
+DEFAULT_DATA = str(REPO_ROOT / 'simulation/sim_data')
+SCRATCH_ROOT = REPO_ROOT / '_internal/data/accuracy_seed_sweep_D2'
 RAW_SAMPLE_FILENAME = 'seed_sweep_results.json'
 
 
@@ -46,6 +65,12 @@ def parse_seeds(raw: str) -> List[int]:
     """Parse a comma-separated --seeds value into a list of ints, in order,
     duplicates preserved (a duplicate seed simply re-uses / re-completes the
     same scratch subdirectory on its second occurrence).
+
+    NOTE: duplicates are preserved deliberately, so raw_sample['seeds'] (and
+    len(raw_sample['results'])) is the INVOCATION list, not a distinct-sample
+    count -- `--seeds 42,42` produces two identical entries. A downstream
+    N-counting consumer must dedupe 'seeds' itself if it wants a distinct
+    sample count.
 
     Raises:
         argparse.ArgumentTypeError: if raw is empty after stripping, or any
@@ -102,6 +127,12 @@ def find_completed_run(seed_output: Path) -> Optional[Path]:
     return None
 
 
+# A generous ceiling -- observed ascents run ~40-67 min (docs/simulation/
+# ACCURACY_SIM_NOISE_FLOOR_D2.md), so this exists only to turn an indefinite
+# hang into a diagnosable failure, not to bound normal runtime.
+SUBPROCESS_TIMEOUT_SECONDS = 6 * 60 * 60
+
+
 def run_seed(seed: int, baseline: Path, seed_output: Path, data: Path) -> Path:
     """Invoke run_accuracy_simulation.py as a subprocess for one seed.
 
@@ -109,20 +140,28 @@ def run_seed(seed: int, baseline: Path, seed_output: Path, data: Path) -> Path:
     accuracy_optimal_* folder path on success.
 
     Raises:
-        SystemExit: on a non-zero subprocess exit code, or on a zero exit
-            code that nonetheless produced no completed folder (a harness-
-            side integrity check, not expected in normal operation).
+        SystemExit: on a non-zero subprocess exit code, on a subprocess that
+            exceeds SUBPROCESS_TIMEOUT_SECONDS, or on a zero exit code that
+            nonetheless produced no completed folder (a harness-side
+            integrity check, not expected in normal operation).
     """
     cmd = [
         sys.executable,
-        'run_accuracy_simulation.py',
+        str(REPO_ROOT / 'run_accuracy_simulation.py'),
         '--seed', str(seed),
         '--baseline', str(baseline),
         '--output', str(seed_output),
         '--data', str(data),
     ]
     print(f"seed {seed}: invoking: {' '.join(cmd)}")
-    result = subprocess.run(cmd)
+    try:
+        result = subprocess.run(cmd, timeout=SUBPROCESS_TIMEOUT_SECONDS)
+    except subprocess.TimeoutExpired:
+        raise SystemExit(
+            f"seed {seed}: run_accuracy_simulation.py exceeded the "
+            f"{SUBPROCESS_TIMEOUT_SECONDS}s timeout -- halting sweep "
+            f"(not continuing to remaining seeds)"
+        )
     if result.returncode != 0:
         raise SystemExit(
             f"seed {seed}: run_accuracy_simulation.py exited {result.returncode} -- "
@@ -171,31 +210,124 @@ def collect_seed_result(seed: int, optimal_folder: Path) -> Dict:
     value. On the seed-42 smoke run they differ -- week_1_5 promoted
     0.6101310 vs max candidate 0.6102297. Taking the max would silently
     report a config that was never promoted.
+
+    Raises:
+        SystemExit: on either integrity violation below, matching run_seed's
+            own "subprocess said success but the artifact is not there"
+            fail-fast posture (du5-review CONCERN 1) rather than silently
+            recording a null:
+            (a) a promoted per-horizon config file is missing even though
+                find_completed_run declared this folder complete;
+            (b) a promoted per-horizon config file EXISTS but carries no
+                performance_metrics.ranking_metrics -- the shape
+                AccuracyResultsManager.save_optimal_configs's "No results"
+                branch (:702-731) writes when a horizon was never optimized
+                (baseline parameters + performance_metrics.mae=None, no
+                ranking_metrics key at all). This is the reachable,
+                non-corruption path: `.get('pairwise_accuracy')` on that
+                shape would otherwise return None with no missing-file
+                signal, indistinguishable from a genuine measurement.
     """
     per_horizon_promoted_pairwise_accuracy = {}
     for filename, horizon in CONFIG_FILE_TO_HORIZON.items():
         config_path = optimal_folder / filename
         if not config_path.exists():
-            per_horizon_promoted_pairwise_accuracy[horizon] = None
-            continue
+            raise SystemExit(
+                f"seed {seed}: {optimal_folder} was detected as complete but is "
+                f"missing {filename} -- refusing to record a null promoted accuracy "
+                f"for {horizon}"
+            )
         with open(config_path, 'r', encoding='utf-8') as f:
             config = json.load(f)
         ranking_metrics = (
             (config.get('performance_metrics') or {}).get('ranking_metrics') or {}
         )
-        per_horizon_promoted_pairwise_accuracy[horizon] = ranking_metrics.get(
-            'pairwise_accuracy'
-        )
+        if 'pairwise_accuracy' not in ranking_metrics:
+            raise SystemExit(
+                f"seed {seed}: {config_path} carries no "
+                f"performance_metrics.ranking_metrics.pairwise_accuracy -- this "
+                f"horizon was not optimized (save_optimal_configs' no-results branch "
+                f"writes baseline params with no ranking_metrics); refusing to record "
+                f"it as a measurement"
+            )
+        per_horizon_promoted_pairwise_accuracy[horizon] = ranking_metrics['pairwise_accuracy']
 
+    candidate_results_path = optimal_folder / DUMP_PROMOTED_FILENAME
     return {
         'seed': seed,
         'output_folder': str(optimal_folder),
         'per_horizon_promoted_pairwise_accuracy': per_horizon_promoted_pairwise_accuracy,
-        'candidate_results_path': str(optimal_folder / DUMP_PROMOTED_FILENAME),
+        'candidate_results_path': str(candidate_results_path),
+        'candidate_summary': summarize_candidates(candidate_results_path),
+    }
+
+
+def summarize_candidates(candidate_results_path: Path) -> Dict:
+    """Compute the between-candidate spread (per horizon), exact-tie rate and
+    per-season-gate-rejection rate from a completed seed's
+    candidate_results.json (D2.2's per-candidate dump).
+
+    Committed here rather than left as an ad-hoc query reconstructed from
+    prose each time (du5-review SUGGESTION "commit the tie/spread/gate
+    analysis") -- the follow-up five-seed ticket inherits these exact
+    predicates instead of re-deriving them from the verdict document's prose
+    across five seeds, where any drift in how the population is keyed would
+    silently produce a different number.
+
+    Predicates (independently re-derived during du5-review; reproduce the
+    document's published seed-42 figures exactly -- 7744 total, 7740
+    comparable, 515 exact ties, 16 gate rejections):
+      - "comparable" candidate: incumbent_pairwise is not None (i.e. not the
+        first-ever candidate evaluated for its horizon).
+      - exact tie: comparable AND pairwise_accuracy == incumbent_pairwise.
+      - gate rejection: comparable AND pairwise_accuracy > incumbent_pairwise
+        AND not adopted (a higher-mean challenger the per-season consistency
+        gate rejected).
+      - between-candidate spread, per horizon: min/max/spread of
+        pairwise_accuracy over EVERY candidate evaluated for that horizon
+        (not only the comparable subset) -- CODING_STANDARDS.md
+        "Measurement and Comparison Conventions" min/max/spread convention.
+        `horizon` (the range being optimized) is the grouping key, not
+        `base_horizon` (the tournament-mode provenance of the candidate
+        config) -- the two differ on every record.
+    """
+    with open(candidate_results_path, 'r', encoding='utf-8') as f:
+        records = json.load(f)
+
+    total = len(records)
+    comparable = [r for r in records if r.get('incumbent_pairwise') is not None]
+    exact_ties = sum(
+        1 for r in comparable if r['pairwise_accuracy'] == r['incumbent_pairwise']
+    )
+    gate_rejections = sum(
+        1 for r in comparable
+        if r['pairwise_accuracy'] > r['incumbent_pairwise'] and not r.get('adopted')
+    )
+
+    per_horizon_spread: Dict[str, Dict] = {}
+    for horizon in sorted({r['horizon'] for r in records}):
+        values = [r['pairwise_accuracy'] for r in records if r['horizon'] == horizon]
+        per_horizon_spread[horizon] = {
+            'n': len(values),
+            'min': min(values),
+            'max': max(values),
+            'spread': max(values) - min(values),
+        }
+
+    return {
+        'total_candidates': total,
+        'comparable_candidates': len(comparable),
+        'exact_ties': exact_ties,
+        'gate_rejections': gate_rejections,
+        'per_horizon_spread': per_horizon_spread,
     }
 
 
 def main() -> int:
+    """Returns 1 on a --seeds parse error; raises SystemExit (propagated,
+    not returned) from run_seed / collect_seed_result on a failed or
+    integrity-violating seed, after emitting a partial raw-sample JSON.
+    """
     parser = argparse.ArgumentParser(
         description=(
             'Sweep run_accuracy_simulation.py across N seeds against a pinned baseline, '
@@ -231,29 +363,63 @@ def main() -> int:
     baseline = Path(args.baseline)
     data = Path(args.data)
 
+    raw_sample_path = SCRATCH_ROOT / RAW_SAMPLE_FILENAME
     seed_results = []
     for seed in seeds:
         seed_output = SCRATCH_ROOT / f"seed_{seed}"
-        completed = find_completed_run(seed_output)
-        if completed is not None:
-            print(f"seed {seed}: already complete at {completed} -- skipping")
-        else:
-            completed = run_seed(seed, baseline, seed_output, data)
-        seed_results.append(collect_seed_result(seed, completed))
+        try:
+            completed = find_completed_run(seed_output)
+            if completed is not None:
+                print(f"seed {seed}: already complete at {completed} -- skipping")
+            else:
+                completed = run_seed(seed, baseline, seed_output, data)
+            seed_results.append(collect_seed_result(seed, completed))
+        except SystemExit as e:
+            # Halt: still emit the raw-sample JSON with whatever prior seeds
+            # completed, so a sweep that dies partway through does not
+            # silently discard the seeds that DID finish (spec.md:176,
+            # :343-344 -- "after all seeds attempted (or halted early)").
+            # The halt marker makes a partial file impossible to mistake for
+            # a complete one (du5-review CONCERN 2).
+            _write_raw_sample(
+                raw_sample_path, seeds, baseline, data, seed_results,
+                halt_info={'halted_after_seed': seed, 'halt_reason': str(e)},
+            )
+            print(
+                f"\nWrote PARTIAL raw-sample JSON ({len(seed_results)} of "
+                f"{len(seeds)} seeds; halted at seed {seed}) to {raw_sample_path}",
+                file=sys.stderr,
+            )
+            raise
 
+    _write_raw_sample(raw_sample_path, seeds, baseline, data, seed_results)
+    print(f"\nWrote raw-sample JSON to {raw_sample_path}")
+    return 0
+
+
+def _write_raw_sample(
+    raw_sample_path: Path,
+    seeds: List[int],
+    baseline: Path,
+    data: Path,
+    seed_results: List[Dict],
+    halt_info: Optional[Dict] = None,
+) -> None:
+    """Write the raw-sample JSON. When halt_info is given (a halted sweep),
+    the emitted file carries 'halted_after_seed' / 'halt_reason' so a reader
+    can never mistake a partial file for a complete one.
+    """
     SCRATCH_ROOT.mkdir(parents=True, exist_ok=True)
-    raw_sample_path = SCRATCH_ROOT / RAW_SAMPLE_FILENAME
     raw_sample = {
         'seeds': seeds,
         'baseline': str(baseline),
         'data': str(data),
         'results': seed_results,
     }
+    if halt_info is not None:
+        raw_sample.update(halt_info)
     with open(raw_sample_path, 'w', encoding='utf-8') as f:
         json.dump(raw_sample, f, indent=2)
-
-    print(f"\nWrote raw-sample JSON to {raw_sample_path}")
-    return 0
 
 
 if __name__ == '__main__':

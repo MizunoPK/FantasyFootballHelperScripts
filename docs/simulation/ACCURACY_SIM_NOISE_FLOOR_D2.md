@@ -38,7 +38,8 @@ resolvable from this repository; it is named here for provenance only, per the s
 
 | Field | Value |
 |---|---|
-| Commit | `2d87b789c17757315914293c46c7a274708cef39` |
+| Harness commit | `85e54686d72914bf3402bff0cbb59ed4fb52ee47` (this unit's build commit; the commit `run_accuracy_seed_sweep.py` is introduced in — the invocation below can be run starting here) |
+| Engine base commit | `2d87b789c17757315914293c46c7a274708cef39` (`main` at the time of the run — the `simulation/accuracy/` state, including D2.1 `2abf4dbe` and D2.2, the ascent evaluated against) |
 | Baseline | `data/configs/` (pinned, `TD3`/`TD4` of `spec.md`) |
 | `sim_data` coverage arm | default (every season-week evaluated) — `--exclude-low-coverage-weeks` is available (D8.4 merged as `7f836965`, an ancestor of this base) but was deliberately not passed: the flag is opt-in (`action='store_true', default=False`), and running both arms would double a ~67 min measurement on a unit the user narrowed to one seed. The excluded-weeks arm was available and deliberately not run; the follow-up ticket inherits the arm choice as an open degree of freedom. |
 | Seeds run | `42` (1 of the eventual 5; `--seeds 42`) |
@@ -52,12 +53,23 @@ The run reached CONVERGED after 3 passes over 7,744 evaluated configs, in ~67 mi
 (the plan's ~40 min estimate, sourced from D11's per-ascent figure, proved low for this run — this
 is the observed figure, not the estimate).
 
+**Note (du5-review Finding 4, escalated to BLOCKING):** the Commit row previously recorded only the
+engine base `2d87b789`, at which `run_accuracy_seed_sweep.py` does not exist
+(`git cat-file -e 2d87b789:run_accuracy_seed_sweep.py` fails) — the recorded invocation could not be
+run at the recorded commit. Split above into the harness commit the measurement was actually made at
+(`85e54686`) and the engine base it ran against. **This unit's own `/du6-polish` pass lands further
+commits on top of `85e54686`** (fixing the CONCERNs this review raised) **without re-running the
+measurement** — the figures throughout this document, and the `85e54686` reproducibility anchor
+above, describe the harness as it existed at `85e54686`, not the branch's later HEAD. A reader
+reproducing this exact run should check out `85e54686` specifically, not the branch tip.
+
 ---
 
 ## Between-candidate spread (within the single seed-42 run)
 
-**Population: every candidate `run_accuracy_seed_sweep.py --seeds 42` evaluated for that horizon,
-in this one run** (from `candidate_results.json`, D2.2's artifact). **Convention:** min/max/spread
+**Population: every candidate the seed-42 run of `run_accuracy_simulation.py` (invoked via
+`run_accuracy_seed_sweep.py --seeds 42`) evaluated for that horizon, in this one run** (from
+`candidate_results.json`, D2.2's artifact). **Convention:** min/max/spread
 of `pairwise_accuracy` (`CODING_STANDARDS.md` §"Measurement and Comparison Conventions"). **This is
 NOT a seed-to-seed population** — it says nothing about what a different seed's search would find.
 
@@ -67,6 +79,10 @@ NOT a seed-to-seed population** — it says nothing about what a different seed'
 | `week_6_9` | 1408 | 0.6058 | 0.6327 | 0.0269 |
 | `week_10_13` | 2112 | 0.5975 | 0.6250 | 0.0274 |
 | `week_14_17` | 2112 | 0.6112 | 0.6383 | 0.0271 |
+
+*min, max and spread are each rounded independently from full precision; the displayed min and max
+will not always subtract exactly to the displayed spread (e.g. `week_10_13`: `0.6250 − 0.5975 =
+0.0275` displayed, vs the true `0.027443642185208228` rounding to `0.0274`).*
 
 **The promoted config's value per horizon — a single data point, never a spread:**
 
@@ -79,9 +95,8 @@ NOT a seed-to-seed population** — it says nothing about what a different seed'
 
 Note the promoted value is **not** always the maximum candidate value: promotion applies a
 per-season consistency gate (`is_better_than`) before adopting a higher-mean challenger, so it is
-not a pure argmax — e.g. `week_1_5` promoted `0.610131089536813` vs the max candidate
-`0.6102` shown above (the two differ at higher precision than the table's 4-decimal rounding
-shows).
+not a pure argmax — e.g. `week_1_5` promoted `0.6101` vs max candidate `0.6102` at the tables'
+rounding (full precision: `0.610131089536813` vs `0.6102297496625587`).
 
 ---
 
@@ -91,12 +106,12 @@ shows).
 (i.e. not the first-ever candidate for its horizon) — from the seed-42 run's
 `candidate_results.json`.** Total candidates: 7744. Comparable candidates: 7740.
 
-- **Exact-tie rate** (`pairwise_accuracy == incumbent_pairwise`): 515 of
+- **Exact-tie rate** (`pairwise_accuracy == incumbent_pairwise`): 515 of 7,740
   comparable candidates (6.7%). Each exact tie is decided by worker arrival
   order (`ParallelAccuracyRunner`'s `as_completed`, non-deterministic), not by the objective —
   `context.md` §Notes source 2.
 - **Per-season-gate rejection rate** (`pairwise_accuracy > incumbent_pairwise ∧ ¬adopted`):
-  16 of comparable candidates (0.2%). Each such rejection is
+  16 of 7,740 comparable candidates (0.2%). Each such rejection is
   a case where the per-season consistency gate (`is_better_than`, `AccuracyResultsManager.py`)
   rejected a higher-mean challenger — the selection rule is not a pure argmax of the mean.
 
@@ -109,6 +124,18 @@ The rule inherited from the win-rate precedent
 not repo-resolvable): *the harness cannot distinguish its own candidates on a horizon whose
 seed-to-seed spread is ≥ the between-candidate spread on that horizon* — the same condition that
 disqualified the win-rate sweep (0.031 ≥ 0.023).
+
+**Convention/compatibility statement (`TD8`, `CODING_STANDARDS.md` §"Measurement and Comparison
+Conventions" — added at `/du6-polish`, du5-review CONCERN 5):** the precedent's `0.031` and `0.023`
+are **standard deviations of win rate**, across their respective win-rate populations (`_internal/`
+source, line 11 and line 14) — not min/max ranges. The between-candidate figures in the table above
+are **min/max ranges of `pairwise_accuracy`**, a different metric under a different convention. The
+follow-up ticket must compute its seed-to-seed dispersion and re-compute the between-candidate
+dispersion **under one convention, per horizon, over the same corpus** (`TD8`) before applying this
+rule — the two numbers quoted from the win-rate investigation are the rule's *provenance* (the shape
+of the condition being carried forward), not a comparator for the table above. Presenting a stdev
+against a min/max range under the shared word "spread" would silently violate the population-match
+requirement `TD8` exists to enforce.
 
 **This rule is stated here but NOT applied.** There is no seed-to-seed spread from one sample to
 compare against the between-candidate spread above. The follow-up ticket applies this rule

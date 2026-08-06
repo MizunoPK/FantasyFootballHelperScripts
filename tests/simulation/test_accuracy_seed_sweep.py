@@ -41,7 +41,9 @@ real ... accuracy engine").
 Author: Kai Mizuno
 """
 
+import argparse
 import json
+import subprocess
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
@@ -137,11 +139,22 @@ class TestParseSeeds:
         assert sweep.parse_seeds(" 42 , 1 ") == [42, 1]
 
     def test_empty_raises(self):
-        with pytest.raises(Exception):
+        """Asserts the SPECIFIC exception type parse_seeds documents/raises,
+        not a bare Exception -- du5-review SUGGESTION + Copilot finding
+        (test_accuracy_seed_sweep.py:141). A bare pytest.raises(Exception)
+        cannot fail for any exception at all: main() (line ~227) catches
+        exactly argparse.ArgumentTypeError to print 'error: ...' and return
+        1, so a regression to a bare ValueError would leave this test green
+        while main() crashed with an uncaught traceback instead of exiting 1
+        cleanly.
+        """
+        with pytest.raises(argparse.ArgumentTypeError):
             sweep.parse_seeds("")
 
     def test_non_integer_raises(self):
-        with pytest.raises(Exception):
+        """Same discrimination fix as test_empty_raises above -- Copilot
+        finding also named line 143 (this test)."""
+        with pytest.raises(argparse.ArgumentTypeError):
             sweep.parse_seeds("42,abc")
 
 
@@ -202,6 +215,45 @@ class TestRunSeed:
         assert '--data' in cmd and cmd[cmd.index('--data') + 1] == 'simulation/sim_data'
         assert '--promote' not in cmd
         assert '--compare' not in cmd
+
+    def test_invokes_repo_root_anchored_script_path(self, tmp_path):
+        """CONCERN 3 / Copilot finding (run_accuracy_seed_sweep.py:123): the
+        simulation script is invoked by an ABSOLUTE path derived from
+        __file__ (REPO_ROOT), not the bare relative
+        'run_accuracy_simulation.py' -- which only worked when the process
+        CWD happened to be the repo root. Matches the in-repo convention at
+        run_pre_commit_validation.py:30 (Path(__file__).parent) and this same
+        ticket's sibling tests/simulation/test_accuracy_determinism.py:112
+        (cwd=REPO_ROOT).
+        """
+        mock_run = _mock_subprocess_run_creating_folder()
+        seed_output = tmp_path / "seed_42"
+        with patch.object(sweep.subprocess, 'run', mock_run):
+            sweep.run_seed(42, Path('data/configs'), seed_output, Path('simulation/sim_data'))
+
+        cmd = mock_run.call_args[0][0]
+        assert cmd[1] == str(sweep.REPO_ROOT / 'run_accuracy_simulation.py')
+        assert Path(cmd[1]).is_absolute()
+
+    def test_passes_subprocess_timeout(self, tmp_path):
+        """NITPICK: subprocess.run must be called with a timeout so a hung
+        ascent fails loudly and diagnosably instead of hanging the sweep
+        indefinitely."""
+        mock_run = _mock_subprocess_run_creating_folder()
+        seed_output = tmp_path / "seed_42"
+        with patch.object(sweep.subprocess, 'run', mock_run):
+            sweep.run_seed(42, Path('data/configs'), seed_output, Path('simulation/sim_data'))
+
+        assert mock_run.call_args.kwargs.get('timeout') == sweep.SUBPROCESS_TIMEOUT_SECONDS
+
+    def test_timeout_expired_raises_system_exit_naming_seed(self, tmp_path):
+        seed_output = tmp_path / "seed_42"
+        mock_run = MagicMock(
+            side_effect=subprocess.TimeoutExpired(cmd='run_accuracy_simulation.py', timeout=1)
+        )
+        with patch.object(sweep.subprocess, 'run', mock_run):
+            with pytest.raises(SystemExit, match='seed 42'):
+                sweep.run_seed(42, Path('data/configs'), seed_output, Path('simulation/sim_data'))
 
     def test_returns_completed_folder_on_success(self, tmp_path):
         mock_run = _mock_subprocess_run_creating_folder("2026-08-06_00-00-00")
@@ -266,6 +318,53 @@ class TestCollectSeedResult:
         per_horizon = entry['per_horizon_promoted_pairwise_accuracy']
         assert set(per_horizon.keys()) == {'week_1_5', 'week_6_9', 'week_10_13', 'week_14_17'}
         assert all(v == 0.6 for v in per_horizon.values())
+        assert entry['candidate_summary']['total_candidates'] == 1
+
+    def test_missing_config_file_fails_fast(self, tmp_path):
+        """CONCERN 1 path (a): a promoted per-horizon config file is missing
+        even though the folder was detected as complete -- must raise
+        SystemExit naming the seed/horizon/folder rather than silently
+        recording a null. Prior behaviour (before du5-review CONCERN 1)
+        recorded None here with no missing-file signal.
+        """
+        seed_output = tmp_path / "seed_42"
+        folder = seed_output / "accuracy_optimal_2026-08-06_00-00-00"
+        folder.mkdir(parents=True)
+        _write_promoted_configs(folder)
+        _write_candidate_results(folder)
+        (folder / 'week6-9.json').unlink()
+
+        with pytest.raises(SystemExit, match='week6-9.json'):
+            sweep.collect_seed_result(42, folder)
+
+    def test_no_results_shape_fails_fast(self, tmp_path):
+        """CONCERN 1 path (b) -- the reachable, non-corruption one: a
+        promoted config file EXISTS but carries the
+        AccuracyResultsManager.save_optimal_configs 'No results' branch
+        shape (performance_metrics.mae=None, no ranking_metrics key at all,
+        AccuracyResultsManager.py:702-731). Must raise SystemExit rather than
+        `.get('pairwise_accuracy')` silently returning None with no
+        missing-file signal -- this is the path Copilot's line-180 finding
+        named and du5-review's CONCERN 1 escalated as the more dangerous of
+        the two, since the folder is genuinely 'complete' by
+        find_completed_run's predicate.
+        """
+        seed_output = tmp_path / "seed_42"
+        folder = seed_output / "accuracy_optimal_2026-08-06_00-00-00"
+        folder.mkdir(parents=True)
+        _write_promoted_configs(folder)
+        _write_candidate_results(folder)
+        no_results_config = {
+            'config_name': 'Accuracy Optimal week6-9',
+            'description': 'test fixture: no-results shape',
+            'parameters': {},
+            'performance_metrics': {'mae': None, 'note': 'no results for this horizon'},
+        }
+        with open(folder / 'week6-9.json', 'w', encoding='utf-8') as f:
+            json.dump(no_results_config, f)
+
+        with pytest.raises(SystemExit, match='ranking_metrics'):
+            sweep.collect_seed_result(42, folder)
 
     def test_reports_promoted_value_not_argmax_of_candidates(self, tmp_path):
         """Pins the load-bearing not-argmax property: promotion is not a pure
@@ -375,6 +474,15 @@ class TestMainSweep:
     def test_nonzero_exit_halts_before_next_seed(self, tmp_path, monkeypatch, capsys):
         """Coverage item 4 (second half): seed 42's subprocess fails ->
         seed 1's subprocess is never invoked.
+
+        Also covers coverage item 5's "or the sweep has halted" half
+        (du5-review CONCERN 2 / gap-hunt finding): the halt must still emit
+        the raw-sample JSON -- with a halt marker so it can never be
+        mistaken for a complete file -- carrying zero results, since seed 42
+        (the only seed attempted) never completed. Before this test asserted
+        only the call log, the suite stayed green while spec.md's stated
+        "emitted even when the sweep halts" behaviour was unimplemented; this
+        is the fix for that discrimination gap.
         """
         monkeypatch.setattr(sweep, 'SCRATCH_ROOT', tmp_path)
 
@@ -395,6 +503,65 @@ class TestMainSweep:
 
         assert len(call_log) == 1
         assert call_log[0][call_log[0].index('--seed') + 1] == '42'
+
+        raw_sample_path = tmp_path / sweep.RAW_SAMPLE_FILENAME
+        assert raw_sample_path.exists()
+        with open(raw_sample_path, 'r', encoding='utf-8') as f:
+            raw_sample = json.load(f)
+        assert raw_sample['results'] == []
+        assert raw_sample['halted_after_seed'] == 42
+        assert 'halt_reason' in raw_sample and raw_sample['halt_reason']
+
+        stderr = capsys.readouterr().err
+        assert 'PARTIAL' in stderr
+        assert 'seed 42' in stderr
+
+    def test_halt_after_one_completed_seed_preserves_it_in_partial_json(self, tmp_path, monkeypatch):
+        """A sweep that completes seed 42 and then fails on seed 1 must not
+        discard seed 42's already-collected result from the partial JSON --
+        only the summary is at risk on a halt, not prior seeds' ascent work
+        (per-seed scratch folders always survive; this pins the JSON side).
+        """
+        monkeypatch.setattr(sweep, 'SCRATCH_ROOT', tmp_path)
+
+        def _side_effect(cmd, *args, **kwargs):
+            seed = cmd[cmd.index('--seed') + 1]
+            result = MagicMock()
+            if seed == '42':
+                output_idx = cmd.index('--output') + 1
+                _make_completed_folder(Path(cmd[output_idx]), "2026-08-06_00-00-00")
+                result.returncode = 0
+            else:
+                result.returncode = 1
+            return result
+
+        mock_run = MagicMock(side_effect=_side_effect)
+        monkeypatch.setattr(sweep.sys, 'argv', ['run_accuracy_seed_sweep.py', '--seeds', '42,1'])
+
+        with patch.object(sweep.subprocess, 'run', mock_run):
+            with pytest.raises(SystemExit):
+                sweep.main()
+
+        raw_sample_path = tmp_path / sweep.RAW_SAMPLE_FILENAME
+        with open(raw_sample_path, 'r', encoding='utf-8') as f:
+            raw_sample = json.load(f)
+        assert raw_sample['halted_after_seed'] == 1
+        assert len(raw_sample['results']) == 1
+        assert raw_sample['results'][0]['seed'] == 42
+
+    def test_seeds_parse_error_exits_1_with_message(self, capsys):
+        """main()'s error path (SUGGESTION: the currently-unused capsys
+        parameter's real home) -- a --seeds parse failure returns 1 and
+        prints 'error: ...' to stderr, rather than propagating an uncaught
+        exception."""
+        with patch.object(
+            sweep.sys, 'argv', ['run_accuracy_seed_sweep.py', '--seeds', 'abc'],
+        ):
+            exit_code = sweep.main()
+
+        assert exit_code == 1
+        stderr = capsys.readouterr().err
+        assert 'error:' in stderr
 
     def test_raw_sample_json_shape(self, tmp_path, monkeypatch):
         """Coverage item 5: the raw-sample JSON has the expected top-level
@@ -422,3 +589,74 @@ class TestMainSweep:
             assert set(r['per_horizon_promoted_pairwise_accuracy'].keys()) == {
                 'week_1_5', 'week_6_9', 'week_10_13', 'week_14_17',
             }
+
+
+class TestSummarizeCandidates:
+    """summarize_candidates: the committed tie/spread/gate analysis
+    (du5-review SUGGESTION "commit the tie/spread/gate analysis" -- folds
+    the ad-hoc query the follow-up ticket would otherwise have to
+    reconstruct from the verdict document's prose into code).
+
+    Fixture pins the four predicates against a hand-built, mixed-horizon
+    candidate set so each is exercised independently.
+    """
+
+    @staticmethod
+    def _write_candidates(path: Path, records):
+        with open(path, 'w', encoding='utf-8') as f:
+            json.dump(records, f)
+
+    def test_predicates_on_hand_built_fixture(self, tmp_path):
+        path = tmp_path / 'candidate_results.json'
+        records = [
+            # week_1_5: first-ever candidate (incumbent_pairwise None) -- not comparable.
+            {'horizon': 'week_1_5', 'base_horizon': 'week_1_5', 'pairwise_accuracy': 0.60,
+             'incumbent_pairwise': None, 'adopted': True},
+            # week_1_5: exact tie (comparable).
+            {'horizon': 'week_1_5', 'base_horizon': 'week_1_5', 'pairwise_accuracy': 0.60,
+             'incumbent_pairwise': 0.60, 'adopted': False},
+            # week_1_5: gate rejection -- higher mean but not adopted (comparable).
+            {'horizon': 'week_1_5', 'base_horizon': 'week_6_9', 'pairwise_accuracy': 0.65,
+             'incumbent_pairwise': 0.60, 'adopted': False},
+            # week_6_9: ordinary improvement, adopted (comparable, not a tie, not a rejection).
+            {'horizon': 'week_6_9', 'base_horizon': 'week_1_5', 'pairwise_accuracy': 0.70,
+             'incumbent_pairwise': 0.55, 'adopted': True},
+        ]
+        self._write_candidates(path, records)
+
+        summary = sweep.summarize_candidates(path)
+
+        assert summary['total_candidates'] == 4
+        assert summary['comparable_candidates'] == 3
+        assert summary['exact_ties'] == 1
+        assert summary['gate_rejections'] == 1
+
+        week_1_5 = summary['per_horizon_spread']['week_1_5']
+        assert week_1_5['n'] == 3
+        assert week_1_5['min'] == 0.60
+        assert week_1_5['max'] == 0.65
+        assert week_1_5['spread'] == pytest.approx(0.05)
+
+        week_6_9 = summary['per_horizon_spread']['week_6_9']
+        assert week_6_9['n'] == 1
+        assert week_6_9['min'] == week_6_9['max'] == 0.70
+        assert week_6_9['spread'] == 0.0
+
+    def test_groups_by_horizon_not_base_horizon(self, tmp_path):
+        """horizon (the range being optimized) is the grouping key, not
+        base_horizon (the tournament-mode provenance of the candidate
+        config) -- the two differ on real records and grouping by the wrong
+        one would silently collapse or split populations."""
+        path = tmp_path / 'candidate_results.json'
+        records = [
+            {'horizon': 'week_1_5', 'base_horizon': 'week_14_17', 'pairwise_accuracy': 0.5,
+             'incumbent_pairwise': None, 'adopted': True},
+            {'horizon': 'week_1_5', 'base_horizon': 'week_10_13', 'pairwise_accuracy': 0.5,
+             'incumbent_pairwise': None, 'adopted': True},
+        ]
+        self._write_candidates(path, records)
+
+        summary = sweep.summarize_candidates(path)
+
+        assert set(summary['per_horizon_spread'].keys()) == {'week_1_5'}
+        assert summary['per_horizon_spread']['week_1_5']['n'] == 2
