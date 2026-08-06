@@ -1227,3 +1227,127 @@ class TestT69ResumeAcrossPasses:
             mgr._run_ascent_pass(3, set(), should_resume=True, resume_param_idx=2, resume_pass_idx=2)
             later = [c.args[0] for c in mgr.config_generator.generate_horizon_test_values.call_args_list]
             assert later == ['P1', 'P2', 'P3'], f"later pass must not skip: got {later}"
+
+
+class TestD84ExcludeLowCoverageWeeksPrePass:
+    """D8.4: the exclusion decision is a parent-side pre-pass, gated on the flag."""
+
+    @pytest.fixture
+    def baseline_config(self, tmp_path):
+        """A minimal baseline config file."""
+        config = {
+            'config_name': 'test_config',
+            'description': 'Test config',
+            'parameters': {'NORMALIZATION_MAX_SCALE': 150},
+        }
+        config_path = tmp_path / "baseline.json"
+        with open(config_path, 'w') as f:
+            json.dump(config, f)
+        return config_path
+
+    @pytest.fixture
+    def data_folder(self, tmp_path):
+        """A mock sim_data folder carrying one discoverable season."""
+        data_folder = tmp_path / "sim_data"
+        weeks_folder = data_folder / "2024" / "weeks"
+        for week in range(1, 18):
+            week_folder = weeks_folder / f"week_{week:02d}"
+            week_folder.mkdir(parents=True)
+            (week_folder / "players.csv").write_text("id,name\n1,Player1\n")
+        return data_folder
+
+    def _build(self, baseline_config, data_folder, tmp_path, **kwargs):
+        with patch('simulation.accuracy.AccuracySimulationManager.ConfigGenerator'), \
+             patch('simulation.accuracy.AccuracySimulationManager.AccuracyCalculator'), \
+             patch('simulation.accuracy.AccuracySimulationManager.AccuracyResultsManager'), \
+             patch('simulation.accuracy.AccuracySimulationManager.excluded_weeks_by_season') as mock_excluded:
+            mock_excluded.return_value = {'2023': frozenset({1})}
+            manager = AccuracySimulationManager(
+                baseline_config_path=baseline_config,
+                output_dir=tmp_path / "output",
+                data_folder=data_folder,
+                parameter_order=TEST_PARAMETER_ORDER,
+                **kwargs
+            )
+        return manager, mock_excluded
+
+    def test_the_pre_pass_does_not_run_by_default(
+        self, baseline_config, data_folder, tmp_path
+    ):
+        # Act - no flag argument at all
+        manager, mock_excluded = self._build(baseline_config, data_folder, tmp_path)
+
+        # Assert - nothing computed, nothing logged, empty mapping.
+        mock_excluded.assert_not_called()
+        assert manager.excluded_season_weeks == {}
+
+    def test_the_flag_off_explicitly_also_computes_nothing(
+        self, baseline_config, data_folder, tmp_path
+    ):
+        # Act
+        manager, mock_excluded = self._build(
+            baseline_config, data_folder, tmp_path, exclude_low_coverage_weeks=False
+        )
+
+        # Assert
+        mock_excluded.assert_not_called()
+        assert manager.excluded_season_weeks == {}
+
+    def test_the_flag_on_calls_the_shared_owner_once_with_the_discovered_seasons(
+        self, baseline_config, data_folder, tmp_path
+    ):
+        # Act
+        manager, mock_excluded = self._build(
+            baseline_config, data_folder, tmp_path, exclude_low_coverage_weeks=True
+        )
+
+        # Assert - once per run, in the parent, over exactly the discovered
+        # seasons (D8.4 HD1).
+        mock_excluded.assert_called_once_with(manager.available_seasons)
+        assert manager.excluded_season_weeks == {'2023': frozenset({1})}
+
+    def test_the_pre_pass_mapping_is_the_one_handed_to_the_runner(
+        self, baseline_config, data_folder, tmp_path
+    ):
+        """D8.4: the parent-side pre-pass result must REACH the workers.
+
+        Asserting only `manager.excluded_season_weeks` (the three tests above)
+        leaves the single link this unit exists to create untested: replacing
+        the `excluded_season_weeks=self.excluded_season_weeks` argument at the
+        `ParallelAccuracyRunner(...)` call site with a literal `{}` keeps every
+        other test green while the pre-pass logs exclusions the workers never
+        apply -- a silent, favourable-looking narrowing of nothing. This test
+        drives the construction and asserts on the value actually passed.
+        """
+        # Arrange - flag on, so the pre-pass produces a non-empty mapping.
+        manager, _ = self._build(
+            baseline_config, data_folder, tmp_path, exclude_low_coverage_weeks=True
+        )
+        manager.parameter_order = ['P1']
+        manager.config_generator.generate_horizon_test_values = Mock(
+            return_value={h: [1] for h in WEEK_RANGES}
+        )
+        # must be a real dict -- the pass body assigns config_dict['_eval_metadata']
+        manager.config_generator.get_config_for_horizon = Mock(side_effect=lambda *a, **k: {})
+        manager.config_generator.update_baseline_for_horizon = Mock()
+        manager.parallel_runner = None      # force the construction under test
+        manager._log_parameter_summary = Mock()
+
+        # Act - the runner is imported inside the method, so patch it at its home.
+        with patch('simulation.accuracy.ParallelAccuracyRunner.ParallelAccuracyRunner') as mock_runner_cls, \
+             patch('simulation.accuracy.AccuracySimulationManager.ProgressTracker'):
+            mock_runner_cls.return_value.evaluate_configs_parallel.return_value = []
+            manager._run_ascent_pass(
+                0, set(), should_resume=False, resume_param_idx=0, resume_pass_idx=0
+            )
+
+        # Assert - the runner was handed the pre-pass's own mapping, by identity
+        # and by value.
+        mock_runner_cls.assert_called_once()
+        passed = mock_runner_cls.call_args.kwargs['excluded_season_weeks']
+        assert passed is manager.excluded_season_weeks, (
+            "the runner must receive the pre-pass mapping itself, not a substitute"
+        )
+        assert passed == {'2023': frozenset({1})}, (
+            f"the workers must see the excluded season-weeks, got {passed}"
+        )

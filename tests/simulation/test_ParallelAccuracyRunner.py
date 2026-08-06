@@ -136,26 +136,10 @@ class TestEvaluateConfigTournamentProcess:
         data_path.mkdir()
         create_mock_historical_season_f05(data_path, "2024")
 
-        fixtures_baseline = project_root / "tests" / "fixtures" / "accuracy_test_baseline"
-        with open(fixtures_baseline / "league_config.json") as f:
-            league_config = json.load(f)
-        with open(fixtures_baseline / "week1-5.json") as f:
-            week_config = json.load(f)
-
-        config_dict = {
-            "config_name": "test_f05_unit",
-            "description": "F05 unit test config",
-            "parameters": {
-                **league_config.get("parameters", {}),
-                **week_config.get("parameters", {}),
-            },
-            "_eval_metadata": {
-                "param_name": "NORMALIZATION_MAX_SCALE",
-                "param_value": 150,
-                "horizon": "week_1_5",
-                "test_idx": 0
-            }
-        }
+        # One copy of the fixture knowledge: the module-level helper below builds
+        # the same dict this test used to construct inline. The assertions below
+        # are on the returned tuple's shape, never on the label fields.
+        config_dict = build_f05_config_dict()
 
         season_path = data_path / "2024"
         available_seasons = [season_path]
@@ -298,6 +282,111 @@ class TestLoadSeasonDataOffsetContract:
 
         assert projected_folder is None
         assert actual_folder is None
+
+
+def build_f05_config_dict():
+    """Build the F05 evaluation config from the committed accuracy baseline fixture.
+
+    Returns:
+        The config dict _evaluate_config_tournament_process expects, including
+        its _eval_metadata block.
+    """
+    fixtures_baseline = project_root / "tests" / "fixtures" / "accuracy_test_baseline"
+    # encoding is explicit: these are COMMITTED fixture files, so a non-UTF-8
+    # platform default would make the read platform-dependent (Copilot, PR #85).
+    with open(fixtures_baseline / "league_config.json", encoding='utf-8') as f:
+        league_config = json.load(f)
+    with open(fixtures_baseline / "week1-5.json", encoding='utf-8') as f:
+        week_config = json.load(f)
+
+    return {
+        "config_name": "test_excluded_season_weeks",
+        "description": "D8.4 exclusion unit test config",
+        "parameters": {
+            **league_config.get("parameters", {}),
+            **week_config.get("parameters", {}),
+        },
+        "_eval_metadata": {
+            "param_name": "NORMALIZATION_MAX_SCALE",
+            "param_value": 150,
+            "horizon": "week_1_5",
+            "test_idx": 0
+        }
+    }
+
+
+class TestExcludedSeasonWeeks:
+    """D8.4: the exclusion mapping's effect on the worker's evaluation corpus."""
+
+    def _evaluate(self, tmp_path, *args):
+        """Evaluate one mock season, optionally with an exclusion mapping."""
+        data_path = tmp_path / "sim_data"
+        data_path.mkdir(parents=True, exist_ok=True)
+        create_mock_historical_season_f05(data_path, "2024")
+
+        _config, results = _evaluate_config_tournament_process(
+            build_f05_config_dict(), data_path, [data_path / "2024"], *args
+        )
+        return results
+
+    @pytest.fixture
+    def baseline(self, tmp_path):
+        """The unchanged corpus: no mapping argument at all (the default)."""
+        return self._evaluate(tmp_path / "baseline")
+
+    def test_the_default_evaluates_every_season_week(self, baseline):
+        # Assert - the measured mock-season shape, which the deltas below are
+        # differences against.
+        assert baseline['week_1_5'].weeks_evaluated == 5
+        assert baseline['week_1_5'].weeks_requested == 5
+        assert baseline['week_1_5'].player_count == 20
+
+    def test_an_excluded_week_leaves_only_the_horizon_containing_it(
+        self, tmp_path, baseline
+    ):
+        # Arrange / Act
+        excluded = self._evaluate(tmp_path / "excluded", {'2024': frozenset({1})})
+
+        # Assert - weeks_evaluated falls by exactly one; weeks_requested does
+        # not move, which is what makes the exclusion visible in the EXISTING
+        # per-horizon accounting line with no new report surface.
+        assert excluded['week_1_5'].weeks_evaluated == 4
+        assert excluded['week_1_5'].weeks_requested == 5
+        assert excluded['week_1_5'].player_count < baseline['week_1_5'].player_count
+
+    def test_the_other_horizons_are_untouched(self, tmp_path, baseline):
+        # Arrange / Act - week 1 lies outside week_6_9 / week_10_13 / week_14_17,
+        # so horizon composition is free and no horizon-aware code exists.
+        excluded = self._evaluate(tmp_path / "excluded", {'2024': frozenset({1})})
+
+        # Assert
+        for horizon in ('week_6_9', 'week_10_13', 'week_14_17'):
+            assert excluded[horizon].weeks_evaluated == baseline[horizon].weeks_evaluated
+            assert excluded[horizon].weeks_requested == baseline[horizon].weeks_requested
+            assert excluded[horizon].player_count == baseline[horizon].player_count
+            assert excluded[horizon].mae == baseline[horizon].mae
+
+    def test_a_mapping_naming_a_different_season_excludes_nothing(
+        self, tmp_path, baseline
+    ):
+        # Arrange / Act - the key must be the season DIRECTORY name; "2021" is
+        # not this corpus's season.
+        other = self._evaluate(tmp_path / "other", {'2021': frozenset({1})})
+
+        # Assert
+        for horizon in ('week_1_5', 'week_6_9', 'week_10_13', 'week_14_17'):
+            assert other[horizon].weeks_evaluated == baseline[horizon].weeks_evaluated
+            assert other[horizon].player_count == baseline[horizon].player_count
+            assert other[horizon].mae == baseline[horizon].mae
+
+    def test_an_empty_mapping_is_the_unchanged_corpus(self, tmp_path, baseline):
+        # Arrange / Act - the flag-off state the manager actually passes.
+        empty = self._evaluate(tmp_path / "empty", {})
+
+        # Assert
+        assert empty['week_1_5'].weeks_evaluated == baseline['week_1_5'].weeks_evaluated
+        assert empty['week_1_5'].player_count == baseline['week_1_5'].player_count
+        assert empty['week_1_5'].mae == baseline['week_1_5'].mae
 
 
 if __name__ == "__main__":

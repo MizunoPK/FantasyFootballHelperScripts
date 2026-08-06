@@ -8,9 +8,9 @@ Structural validation (files present, week folders present, one JSON parses)
 cannot see a season-week whose files are all present but whose projections are
 zeroed at the source, which is exactly the 2023 week-1 condition delivery ticket
 D8 exists to expose. This module is the single owner of that measurement (D8
-TD4): validate_sim_data.py consumes it today, and the accuracy harness consumes
-the same per-week figures later, so the two can never disagree about which
-season-weeks are under-covered.
+TD4): validate_sim_data.py consumes it through check_coverage, and the accuracy
+harness consumes the same per-week figures through excluded_weeks_by_season, so
+the two can never disagree about which season-weeks are under-covered.
 
 Coverage is computed over a scale-free, production-ranked population — the top
 COVERAGE_POPULATION_SIZE players by season actual production, the identical rule
@@ -31,7 +31,7 @@ Author: Kai Mizuno
 import json
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, FrozenSet, Iterable, List, Optional, Tuple
 
 # Local
 from historical_data_compiler.constants import (
@@ -126,7 +126,7 @@ def _load_snapshot_records(snapshot_dir: Path) -> List[dict]:
     for json_filename in POSITION_JSON_FILES.values():
         json_path = snapshot_dir / json_filename
         try:
-            with json_path.open('r') as f:
+            with json_path.open('r', encoding='utf-8') as f:
                 data = json.load(f)
         except json.JSONDecodeError as e:
             raise json.JSONDecodeError(f"{json_path}: {e.msg}", e.doc, e.pos) from e
@@ -342,7 +342,7 @@ def check_coverage(output_dir: Path) -> bool:
 
     try:
         coverage = compute_season_coverage(output_dir)
-    except (IOError, OSError) as e:
+    except OSError as e:
         logger.warning(
             f"check_coverage: coverage not computed for {snapshot_dir}: {e}"
         )
@@ -406,3 +406,106 @@ def check_coverage(output_dir: Path) -> bool:
         )
 
     return not offending_weeks and not season_low
+
+
+def excluded_weeks_by_season(
+    season_dirs: Iterable[Path]
+) -> Dict[str, FrozenSet[int]]:
+    """Decide which season-weeks the accuracy harness must not evaluate.
+
+    The harness-facing half of this module's single ownership (D8 TD4): the
+    exclusion set is weeks_below_floor(compute_season_coverage(...)) verbatim,
+    so the validator and the harness are structurally incapable of disagreeing
+    about which season-weeks are under-covered. The floor itself is never named
+    outside this module.
+
+    Every exclusion is announced once, here, in the parent process before any
+    worker starts (D8.4 HD1/HD4) — the worker emits no per-skip line, which for
+    a bounded run would fire thousands of times across eight processes and bury
+    the signal. The closing count is logged even when it is zero, because "the
+    flag was on and nothing qualified" is a distinct outcome silence cannot
+    express. When one or more seasons failed to measure, that count is named on
+    the same line: a bare "0 season-week(s) excluded" would otherwise read as a
+    clean corpus when a season was in fact never measured at all.
+
+    A season whose coverage cannot be computed is logged once at WARNING and
+    excludes NOTHING (D8.4 HD5, fail-open): an unreadable tree is not evidence
+    that a week is under-covered, and for a change whose direction is a corpus
+    narrowing the conservative failure is to narrow less. The exception arms
+    match check_coverage's.
+
+    Args:
+        season_dirs: The sim_data/{year}/ directories to measure.
+
+    Returns:
+        season directory name -> the frozenset of that season's week numbers
+        below PER_WEEK_COVERAGE_FLOOR_PCT. A season with nothing to exclude is
+        omitted entirely. Keyed by directory name, and valued by a frozenset of
+        ints, so the mapping is picklable across the worker process boundary.
+    """
+    logger = get_logger()
+    excluded: Dict[str, FrozenSet[int]] = {}
+    excluded_count = 0
+    unmeasured_count = 0
+
+    for season_dir in season_dirs:
+        snapshot_dir = _season_snapshot_dir(season_dir)
+
+        try:
+            coverage = compute_season_coverage(season_dir)
+        except OSError as e:
+            logger.warning(
+                f"excluded_weeks_by_season: coverage not computed for "
+                f"{snapshot_dir}: {e}; excluding nothing for {season_dir.name}"
+            )
+            unmeasured_count += 1
+            continue
+        except ValueError as e:
+            # ValueError, not json.JSONDecodeError: the latter is one ValueError
+            # subclass among several json.load can raise. UnicodeDecodeError is
+            # the reachable sibling.
+            logger.warning(
+                f"excluded_weeks_by_season: coverage not computed, unreadable or "
+                f"invalid JSON under {snapshot_dir}: {e}; excluding nothing for "
+                f"{season_dir.name}"
+            )
+            unmeasured_count += 1
+            continue
+        except (KeyError, IndexError, TypeError) as e:
+            # KeyError.__str__ repr()s its single argument, so unwrap it to
+            # format the same way as the arms it shares this handler with.
+            detail = e.args[0] if isinstance(e, KeyError) and e.args else e
+            logger.warning(
+                f"excluded_weeks_by_season: coverage not computed, malformed "
+                f"record or file under {snapshot_dir}: {detail}; excluding "
+                f"nothing for {season_dir.name}"
+            )
+            unmeasured_count += 1
+            continue
+
+        offending_weeks = weeks_below_floor(coverage)
+        if not offending_weeks:
+            continue
+
+        for week in offending_weeks:
+            covered, eligible = coverage.per_week[week]
+            logger.warning(
+                f"excluded_weeks_by_season: excluding {season_dir.name} week "
+                f"{week:02d} from accuracy evaluation: {covered}/{eligible} "
+                f"({100.0 * covered / eligible:.1f}%) [{BYE_CONVENTION}] is "
+                f"below the {PER_WEEK_COVERAGE_FLOOR_PCT:.1f}% per-week floor "
+                f"[{BYE_CONVENTION}]; population {coverage.population_size}"
+            )
+
+        excluded[season_dir.name] = frozenset(offending_weeks)
+        excluded_count += len(offending_weeks)
+
+    # The count alone cannot express the third outcome: a season that failed to
+    # measure excluded nothing, so "0 season-week(s) excluded" read alone would
+    # claim a clean corpus. Name the unmeasurable seasons when there are any.
+    summary = f"Accuracy evaluation corpus: {excluded_count} season-week(s) excluded"
+    if unmeasured_count:
+        summary += f"; {unmeasured_count} season(s) not measured"
+    logger.info(summary)
+
+    return excluded
