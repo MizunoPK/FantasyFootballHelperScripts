@@ -483,6 +483,16 @@ class TestMainSweep:
         only the call log, the suite stayed green while spec.md's stated
         "emitted even when the sweep halts" behaviour was unimplemented; this
         is the fix for that discrimination gap.
+
+        Re-review (2026-08-06) strengthening: also pins the propagated
+        SystemExit's STATUS (not just its type) -- a bare `pytest.raises(
+        SystemExit)` is satisfied by SystemExit(0), so `raise SystemExit(0)`
+        in main()'s halt-catch would have kept this test green while a
+        halted multi-hour sweep exited successfully (du5-review re-review
+        SUGGESTION 1). Also asserts the partial file is written to the
+        DISTINCT RAW_SAMPLE_PARTIAL_FILENAME path, not RAW_SAMPLE_FILENAME
+        (CONCERN 1's fix: a halt must never truncate a prior complete run's
+        summary file).
         """
         monkeypatch.setattr(sweep, 'SCRATCH_ROOT', tmp_path)
 
@@ -498,14 +508,18 @@ class TestMainSweep:
         monkeypatch.setattr(sweep.sys, 'argv', ['run_accuracy_seed_sweep.py', '--seeds', '42,1'])
 
         with patch.object(sweep.subprocess, 'run', mock_run):
-            with pytest.raises(SystemExit):
+            with pytest.raises(SystemExit) as excinfo:
                 sweep.main()
+
+        assert excinfo.value.code not in (0, None)
+        assert 'seed 42' in str(excinfo.value)
 
         assert len(call_log) == 1
         assert call_log[0][call_log[0].index('--seed') + 1] == '42'
 
-        raw_sample_path = tmp_path / sweep.RAW_SAMPLE_FILENAME
+        raw_sample_path = tmp_path / sweep.RAW_SAMPLE_PARTIAL_FILENAME
         assert raw_sample_path.exists()
+        assert not (tmp_path / sweep.RAW_SAMPLE_FILENAME).exists()
         with open(raw_sample_path, 'r', encoding='utf-8') as f:
             raw_sample = json.load(f)
         assert raw_sample['results'] == []
@@ -521,6 +535,12 @@ class TestMainSweep:
         discard seed 42's already-collected result from the partial JSON --
         only the summary is at risk on a halt, not prior seeds' ascent work
         (per-seed scratch folders always survive; this pins the JSON side).
+
+        Re-review (2026-08-06) strengthening: also pins the propagated
+        SystemExit's STATUS, not just its type (du5-review re-review
+        SUGGESTION 1 -- see the sibling halt test above for the full
+        rationale), and asserts the partial file lands at the distinct
+        RAW_SAMPLE_PARTIAL_FILENAME path (CONCERN 1's fix).
         """
         monkeypatch.setattr(sweep, 'SCRATCH_ROOT', tmp_path)
 
@@ -539,15 +559,65 @@ class TestMainSweep:
         monkeypatch.setattr(sweep.sys, 'argv', ['run_accuracy_seed_sweep.py', '--seeds', '42,1'])
 
         with patch.object(sweep.subprocess, 'run', mock_run):
-            with pytest.raises(SystemExit):
+            with pytest.raises(SystemExit) as excinfo:
                 sweep.main()
 
-        raw_sample_path = tmp_path / sweep.RAW_SAMPLE_FILENAME
+        assert excinfo.value.code not in (0, None)
+        assert 'seed 1' in str(excinfo.value)
+
+        raw_sample_path = tmp_path / sweep.RAW_SAMPLE_PARTIAL_FILENAME
+        assert not (tmp_path / sweep.RAW_SAMPLE_FILENAME).exists()
         with open(raw_sample_path, 'r', encoding='utf-8') as f:
             raw_sample = json.load(f)
         assert raw_sample['halted_after_seed'] == 1
         assert len(raw_sample['results']) == 1
         assert raw_sample['results'][0]['seed'] == 42
+
+    def test_halt_does_not_clobber_prior_complete_raw_sample_json(self, tmp_path, monkeypatch):
+        """du5-review re-review CONCERN 1, 2026-08-06: a halt must never
+        truncate a prior COMPLETE seed_sweep_results.json -- that file is the
+        sole, git-ignored, no-VCS-history machine-readable record behind
+        every published figure in docs/simulation/ACCURACY_SIM_NOISE_FLOOR_D2.md.
+        Before this fix, the halt path wrote to the SAME fixed path as a
+        success (unconditional 'w' mode), so re-sweeping a different seed
+        that failed partway would silently destroy a completed sweep's
+        summary. Pins that the halt writes to RAW_SAMPLE_PARTIAL_FILENAME
+        and leaves a pre-existing RAW_SAMPLE_FILENAME byte-for-byte intact.
+        """
+        monkeypatch.setattr(sweep, 'SCRATCH_ROOT', tmp_path)
+
+        prior_complete = {
+            'seeds': [42],
+            'baseline': 'data/configs',
+            'data': 'simulation/sim_data',
+            'results': [{'seed': 42, 'per_horizon_promoted_pairwise_accuracy': {}}],
+        }
+        complete_path = tmp_path / sweep.RAW_SAMPLE_FILENAME
+        tmp_path.mkdir(parents=True, exist_ok=True)
+        with open(complete_path, 'w', encoding='utf-8') as f:
+            json.dump(prior_complete, f)
+
+        def _side_effect(cmd, *args, **kwargs):
+            result = MagicMock()
+            result.returncode = 1
+            return result
+
+        mock_run = MagicMock(side_effect=_side_effect)
+        monkeypatch.setattr(sweep.sys, 'argv', ['run_accuracy_seed_sweep.py', '--seeds', '1'])
+
+        with patch.object(sweep.subprocess, 'run', mock_run):
+            with pytest.raises(SystemExit):
+                sweep.main()
+
+        with open(complete_path, 'r', encoding='utf-8') as f:
+            after_halt = json.load(f)
+        assert after_halt == prior_complete
+
+        partial_path = tmp_path / sweep.RAW_SAMPLE_PARTIAL_FILENAME
+        assert partial_path.exists()
+        with open(partial_path, 'r', encoding='utf-8') as f:
+            partial = json.load(f)
+        assert partial['halted_after_seed'] == 1
 
     def test_seeds_parse_error_exits_1_with_message(self, capsys):
         """main()'s error path (SUGGESTION: the currently-unused capsys

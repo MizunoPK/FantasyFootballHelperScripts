@@ -59,6 +59,17 @@ DEFAULT_BASELINE = str(REPO_ROOT / 'data/configs')
 DEFAULT_DATA = str(REPO_ROOT / 'simulation/sim_data')
 SCRATCH_ROOT = REPO_ROOT / '_internal/data/accuracy_seed_sweep_D2'
 RAW_SAMPLE_FILENAME = 'seed_sweep_results.json'
+# Deliberately a DISTINCT name from RAW_SAMPLE_FILENAME (du5-review CONCERN 2,
+# 2026-08-06 re-review): a halted sweep must never truncate a prior
+# successful sweep's summary. seed_sweep_results.json is the sole,
+# git-ignored, no-VCS-history machine-readable record behind every published
+# figure in docs/simulation/ACCURACY_SIM_NOISE_FLOOR_D2.md -- writing a halt
+# to the SAME path in 'w' mode would silently destroy it the next time a
+# different seed is swept and fails partway. A separate filename means a
+# partial file can never overwrite a complete one, at the cost of the
+# operator having to notice+merge the two after a halt -- an explicit,
+# visible step rather than a silent loss.
+RAW_SAMPLE_PARTIAL_FILENAME = 'seed_sweep_results.partial.json'
 
 
 def parse_seeds(raw: str) -> List[int]:
@@ -219,14 +230,27 @@ def collect_seed_result(seed: int, optimal_folder: Path) -> Dict:
             (a) a promoted per-horizon config file is missing even though
                 find_completed_run declared this folder complete;
             (b) a promoted per-horizon config file EXISTS but carries no
-                performance_metrics.ranking_metrics -- the shape
-                AccuracyResultsManager.save_optimal_configs's "No results"
-                branch (:702-731) writes when a horizon was never optimized
-                (baseline parameters + performance_metrics.mae=None, no
-                ranking_metrics key at all). This is the reachable,
-                non-corruption path: `.get('pairwise_accuracy')` on that
-                shape would otherwise return None with no missing-file
-                signal, indistinguishable from a genuine measurement.
+                performance_metrics.ranking_metrics -- the shape written by
+                EITHER of two reachable AccuracyResultsManager.
+                save_optimal_configs branches (widened 2026-08-06 re-review
+                NITPICK: the prior docstring named only the first):
+                - the "No results" branch (:702-731), when a horizon was
+                  never optimized (baseline parameters +
+                  performance_metrics.mae=None, no ranking_metrics key at
+                  all); or
+                - the `if perf.overall_metrics:` branch (:681), when a
+                  horizon DID produce results but overall_metrics itself is
+                  falsy -- writes performance_metrics carrying mae but no
+                  ranking_metrics key, a different branch producing the same
+                  shape.
+                (:702-731's own inner else -- "Baseline file NOT found" --
+                is a THIRD reachable producer, but of clause (a) above, not
+                (b): it logs a warning and writes no file at all, so it never
+                reaches this function's ranking_metrics check.)
+                This is the reachable, non-corruption path: `.get(
+                'pairwise_accuracy')` on either (b) shape would otherwise
+                return None with no missing-file signal, indistinguishable
+                from a genuine measurement.
     """
     per_horizon_promoted_pairwise_accuracy = {}
     for filename, horizon in CONFIG_FILE_TO_HORIZON.items():
@@ -364,6 +388,7 @@ def main() -> int:
     data = Path(args.data)
 
     raw_sample_path = SCRATCH_ROOT / RAW_SAMPLE_FILENAME
+    partial_raw_sample_path = SCRATCH_ROOT / RAW_SAMPLE_PARTIAL_FILENAME
     seed_results = []
     for seed in seeds:
         seed_output = SCRATCH_ROOT / f"seed_{seed}"
@@ -380,14 +405,19 @@ def main() -> int:
             # silently discard the seeds that DID finish (spec.md:176,
             # :343-344 -- "after all seeds attempted (or halted early)").
             # The halt marker makes a partial file impossible to mistake for
-            # a complete one (du5-review CONCERN 2).
+            # a complete one (du5-review CONCERN 2). Written to a DISTINCT
+            # path (RAW_SAMPLE_PARTIAL_FILENAME, not RAW_SAMPLE_FILENAME) so a
+            # halted invocation can never truncate a prior complete sweep's
+            # summary (du5-review re-review CONCERN 1, 2026-08-06).
             _write_raw_sample(
-                raw_sample_path, seeds, baseline, data, seed_results,
+                partial_raw_sample_path, seeds, baseline, data, seed_results,
                 halt_info={'halted_after_seed': seed, 'halt_reason': str(e)},
             )
             print(
                 f"\nWrote PARTIAL raw-sample JSON ({len(seed_results)} of "
-                f"{len(seeds)} seeds; halted at seed {seed}) to {raw_sample_path}",
+                f"{len(seeds)} seeds; halted at seed {seed}) to "
+                f"{partial_raw_sample_path} (NOT {raw_sample_path} -- the "
+                "complete-run file, if any, is left untouched)",
                 file=sys.stderr,
             )
             raise
@@ -405,11 +435,21 @@ def _write_raw_sample(
     seed_results: List[Dict],
     halt_info: Optional[Dict] = None,
 ) -> None:
-    """Write the raw-sample JSON. When halt_info is given (a halted sweep),
-    the emitted file carries 'halted_after_seed' / 'halt_reason' so a reader
-    can never mistake a partial file for a complete one.
+    """Write the raw-sample JSON to raw_sample_path. When halt_info is given
+    (a halted sweep), the emitted file carries 'halted_after_seed' /
+    'halt_reason' so a reader can never mistake a partial file for a
+    complete one.
+
+    Creates raw_sample_path's own PARENT directory, not the module-global
+    SCRATCH_ROOT (du5-review re-review SUGGESTION 3, 2026-08-06): the two
+    happen to agree at both call sites today (both derive raw_sample_path
+    from SCRATCH_ROOT), but deriving mkdir from the parameter rather than the
+    global means this helper's behaviour is fully determined by its argument
+    -- a future caller (or a test patching the path but not the global) gets
+    a directory that actually matches where the file is written, not a stray
+    SCRATCH_ROOT side effect plus a FileNotFoundError from open().
     """
-    SCRATCH_ROOT.mkdir(parents=True, exist_ok=True)
+    raw_sample_path.parent.mkdir(parents=True, exist_ok=True)
     raw_sample = {
         'seeds': seeds,
         'baseline': str(baseline),

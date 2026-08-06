@@ -38,14 +38,16 @@ resolvable from this repository; it is named here for provenance only, per the s
 
 | Field | Value |
 |---|---|
-| Harness commit | `85e54686d72914bf3402bff0cbb59ed4fb52ee47` (this unit's build commit; the commit `run_accuracy_seed_sweep.py` is introduced in — the invocation below can be run starting here) |
+| Harness source | **PR #88** (`https://github.com/MizunoPK/FantasyFootballHelperScripts/pull/88`) plus the file paths below — see "Anchoring on PR #88, not a commit" underneath this table for why a specific SHA is deliberately NOT the anchor. |
+| Harness files | `run_accuracy_seed_sweep.py`, `tests/simulation/test_accuracy_seed_sweep.py`, this document (`docs/simulation/ACCURACY_SIM_NOISE_FLOOR_D2.md`) — the three files PR #88's diff touches. |
 | Engine base commit | `2d87b789c17757315914293c46c7a274708cef39` (`main` at the time of the run — the `simulation/accuracy/` state, including D2.1 `2abf4dbe` and D2.2, the ascent evaluated against) |
 | Baseline | `data/configs/` (pinned, `TD3`/`TD4` of `spec.md`) |
 | `sim_data` coverage arm | default (every season-week evaluated) — `--exclude-low-coverage-weeks` is available (D8.4 merged as `7f836965`, an ancestor of this base) but was deliberately not passed: the flag is opt-in (`action='store_true', default=False`), and running both arms would double a ~67 min measurement on a unit the user narrowed to one seed. The excluded-weeks arm was available and deliberately not run; the follow-up ticket inherits the arm choice as an open degree of freedom. |
 | Seeds run | `42` (1 of the eventual 5; `--seeds 42`) |
-| Invocation | `python run_accuracy_seed_sweep.py --seeds 42` |
+| Invocation | `python run_accuracy_seed_sweep.py --seeds 42` *(run from the repository root — every path the harness uses is `REPO_ROOT`-anchored via `Path(__file__).resolve().parent`, so `SCRATCH_ROOT` in particular would otherwise fail silently by writing its scratch tree into whatever directory launched it)* |
 | Worker / process flags | default (`--max-workers 8`, `--use-processes`) — not overridden |
 | Output folder | `_internal/data/accuracy_seed_sweep_D2/seed_42/accuracy_optimal_2026-08-06_12-48-23` |
+| When run | Pre-merge, on branch `unit/D2.3` at commit `85e54686` (harness introduced) through `7b234095` (this Polish pass's fixes). The post-merge equivalent state is PR #88's squash-merge commit on `main` — `unit/D2.3` is deleted by `/du7-finalize` on merge, so neither `85e54686` nor `7b234095` remains reachable from any ref afterward; the squash commit is what carries the equivalent code into `main`'s history. |
 
 `N = 1` yields no dispersion at all — this table exists so the run can be repeated (after any
 engine or `sim_data` change) rather than because five points would ever have been in reach here.
@@ -53,15 +55,35 @@ The run reached CONVERGED after 3 passes over 7,744 evaluated configs, in ~67 mi
 (the plan's ~40 min estimate, sourced from D11's per-ascent figure, proved low for this run — this
 is the observed figure, not the estimate).
 
-**Note (du5-review Finding 4, escalated to BLOCKING):** the Commit row previously recorded only the
-engine base `2d87b789`, at which `run_accuracy_seed_sweep.py` does not exist
-(`git cat-file -e 2d87b789:run_accuracy_seed_sweep.py` fails) — the recorded invocation could not be
-run at the recorded commit. Split above into the harness commit the measurement was actually made at
-(`85e54686`) and the engine base it ran against. **This unit's own `/du6-polish` pass lands further
-commits on top of `85e54686`** (fixing the CONCERNs this review raised) **without re-running the
-measurement** — the figures throughout this document, and the `85e54686` reproducibility anchor
-above, describe the harness as it existed at `85e54686`, not the branch's later HEAD. A reader
-reproducing this exact run should check out `85e54686` specifically, not the branch tip.
+**Anchoring on PR #88, not a commit (2026-08-06 re-review BLOCKING, resolved).** An earlier version
+of this table named `85e54686` — a commit on `unit/D2.3` — as the commit a reader should check out
+to reproduce this run. That is a defect that reintroduces itself with any pre-merge branch commit:
+this repo squash-merges its unit PRs (confirmed on PR #86 → `2abf4dbe` and PR #87 → `2d87b789`, both
+single-parent squash commits), and `/du7-finalize` explicitly deletes the unit branch on merge — so
+the moment PR #88 merges, `85e54686` (and this Polish pass's `7b234095`) become unreachable from any
+ref in a fresh clone. Naming a branch commit as the reproducibility anchor ships a document that is
+wrong the instant it lands. **PR #88 plus the file paths above are the durable references instead**:
+the PR page carries the exact diff and survives the branch's deletion, and the file paths survive the
+squash intact (a squash merge preserves file content and history under those paths on `main`). The
+polish commits between `85e54686` and `7b234095` changed only path anchoring (`REPO_ROOT`), fail-fast
+guarding, the partial-JSON filename, and analysis helpers — never the ascent, the objective, the
+selection rule, or any published figure in this document; the figures throughout were measured once,
+at `85e54686`, and are not affected by anything landed afterward.
+
+**Skip-if-complete: a re-invocation that says "already complete" has NOT reproduced this run
+(2026-08-06 re-review CONCERN, closing the cascade the adversarial pass surfaced).** `main()` calls
+`find_completed_run(seed_output)` before invoking a fresh ascent, and on a hit prints `seed 42:
+already complete at … -- skipping` and exits 0 in seconds, re-emitting a summary of the **existing**
+`_internal/data/accuracy_seed_sweep_D2/seed_42/accuracy_optimal_2026-08-06_12-48-23/` artifact
+instead of running anything. On a machine that already holds that scratch tree (this repo's, or any
+clone of it), running `python run_accuracy_seed_sweep.py --seeds 42` again will print `already
+complete ... skipping` and exit 0 — that is a **stored result being re-read, not the measurement
+being reproduced**, and the exit code cannot tell the two apart. This is deliberate, resumable
+behaviour (`context.md` Key Design Decision D1), not a bug — but a reader relying on this section to
+verify the figures above must know it. **To genuinely re-measure rather than re-read, move or delete
+`_internal/data/accuracy_seed_sweep_D2/seed_42/` first.** A fresh clone has no `_internal/` scratch
+tree at all and will always re-run for real; the silent-reuse case is specific to a machine (such as
+this repository's own working copy) that already produced the artifact.
 
 ---
 
@@ -96,7 +118,11 @@ will not always subtract exactly to the displayed spread (e.g. `week_10_13`: `0.
 Note the promoted value is **not** always the maximum candidate value: promotion applies a
 per-season consistency gate (`is_better_than`) before adopting a higher-mean challenger, so it is
 not a pure argmax — e.g. `week_1_5` promoted `0.6101` vs max candidate `0.6102` at the tables'
-rounding (full precision: `0.610131089536813` vs `0.6102297496625587`).
+rounding (full precision: `0.610131089536813` vs `0.6102297496625587`). The same is true of
+`week_14_17` — promoted `0.6383062679824812` vs max candidate `0.63834970666598` — but there the
+difference is invisible at this table's 4-decimal rounding (both display as `0.6383`), which is
+the exact misreading this note exists to prevent. Only `week_10_13` promoted its actual maximum
+candidate value (`0.6249918381927317` == `0.6249918381927317`).
 
 ---
 
