@@ -811,15 +811,35 @@ class TestResetCandidateDumpWiring:
 
     def test_fresh_non_resumed_ascent_resets_the_scratch(self, tmp_path):
         """should_resume=False (any branch) -- reset_candidate_dump() is called exactly once,
-        before the first candidate of the new ascent would be evaluated."""
+        before the first candidate of the new ascent would be evaluated.
+
+        Polish D2.2 re-review finding: the prior version of this test asserted only
+        `assert_called_once()`, which observes NO ordering -- moving reset_candidate_dump()
+        from before the convergence loop to just before save_optimal_configs() (which would
+        wipe the run's OWN records immediately before promotion) still passed. Both mocks are
+        now attached to a shared parent so call order is observable directly.
+
+        MUTATION CHECK (performed once, then reverted): with the reset call moved to just
+        before `self.results_manager.save_optimal_configs()` in `run_both`, the ordering
+        assertion below FAILED (`['ascent', 'reset']` != `['reset', 'ascent']`); reverted and
+        re-confirmed PASSING.
+        """
         mgr = self._manager(tmp_path)
         mgr._detect_resume_state = Mock(return_value=(False, 0, None, 0, set()))
+
+        parent = Mock()
+        parent.attach_mock(mgr.results_manager.reset_candidate_dump, 'reset')
+        parent.attach_mock(mgr._run_ascent_pass, 'ascent')
 
         with patch('simulation.accuracy.AccuracySimulationManager.cleanup_accuracy_intermediate_folders',
                    return_value=0):
             mgr.run_both()
 
         mgr.results_manager.reset_candidate_dump.assert_called_once()
+        ascent_calls = [c for c in parent.mock_calls if c[0] in ('reset', 'ascent')]
+        assert [c[0] for c in ascent_calls] == ['reset', 'ascent'], (
+            f"expected reset_candidate_dump() before _run_ascent_pass(), got {ascent_calls}"
+        )
 
     def test_resumed_ascent_does_not_touch_the_scratch(self, tmp_path):
         """should_resume=True -- reset_candidate_dump() must NOT be called, or a genuinely

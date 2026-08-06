@@ -948,9 +948,10 @@ class TestCandidateResultsDump:
     AccuracySimulationManager.run_both() is exercised by
     tests/integration/test_accuracy_simulation_integration.py's existing resume coverage,
     not duplicated here); test_append_candidate_record_survives_os_error and
-    test_promote_candidate_dump_survives_write_failure cover finding 2 (instrumentation
-    failures never abort the run); test_add_result_appends_record_for_first_candidate above
-    covers finding 4 (base_horizon in the field set).
+    test_promote_candidate_dump_survives_atomic_write_failure cover finding 2 (instrumentation
+    failures never abort the run); test_add_result_appends_record_for_first_candidate and
+    test_add_result_base_horizon_disambiguates_tournament_collision cover finding 4/3
+    (base_horizon in the field set, and its distinctness).
     """
 
     @pytest.fixture
@@ -1006,7 +1007,17 @@ class TestCandidateResultsDump:
 
     def test_add_result_appends_record_for_first_candidate(self, results_manager):
         """First add_result call for a horizon appends exactly one record; adopted=True,
-        incumbent_pairwise=None (no prior best)."""
+        incumbent_pairwise=None (no prior best).
+
+        `base_horizon='week_14_17'` is deliberately DIFFERENT from `week_range_key='week_1_5'`
+        (Polish D2.2 re-review finding: passing the two equal let the mutation
+        'base_horizon': week_range_key pass the whole suite undetected, since a fixed
+        base_horizon='week_1_5' is indistinguishable from horizon='week_1_5'). MUTATION
+        CHECK (performed once, then reverted): with `_append_candidate_record`'s dict literal
+        changed from `'base_horizon': base_horizon` to `'base_horizon': week_range_key`, this
+        test's `assert record['base_horizon'] == 'week_14_17'` FAILED (got 'week_1_5');
+        reverted and re-confirmed PASSING.
+        """
         config = {'parameters': {'PARAM1': 5}}
         result = AccuracyResult(
             mae=5.0, player_count=100, total_error=500.0,
@@ -1016,7 +1027,7 @@ class TestCandidateResultsDump:
 
         results_manager.add_result(
             'week_1_5', config, result,
-            param_name='PARAM1', test_idx=0, base_horizon='week_1_5', pass_idx=0
+            param_name='PARAM1', test_idx=0, base_horizon='week_14_17', pass_idx=0
         )
 
         records = self._read_scratch_lines(results_manager.output_dir)
@@ -1030,12 +1041,40 @@ class TestCandidateResultsDump:
         assert record['pass_idx'] == 0
         assert record['param_name'] == 'PARAM1'
         assert record['test_idx'] == 0
-        assert record['base_horizon'] == 'week_1_5'
+        assert record['base_horizon'] == 'week_14_17'
         assert record['config_value'] == 5
         assert record['pairwise_accuracy'] == 0.60
         assert record['per_season_pairwise'] == {'2023': 0.60, '2024': 0.60}
         assert record['adopted'] is True
         assert record['incumbent_pairwise'] is None
+
+    def test_add_result_base_horizon_disambiguates_tournament_collision(self, results_manager):
+        """Tournament mode evaluates a fixed (horizon, pass_idx, param_name, test_idx) tuple
+        against all four base horizons, producing four distinct candidate records that share
+        every field except base_horizon -- this test pins the disambiguation claim itself
+        (Polish D2.2 re-review finding, base_horizon distinctness).
+
+        MUTATION CHECK (performed once, then reverted): with the dict literal changed to
+        `'base_horizon': week_range_key`, `len({r['base_horizon'] for r in records}) == 4`
+        FAILED (all four base_horizon values collapsed to 'week_1_5', the shared horizon);
+        reverted and re-confirmed PASSING.
+        """
+        config = {'parameters': {'PARAM1': 5}}
+        result = AccuracyResult(
+            mae=5.0, player_count=100, total_error=500.0,
+            overall_metrics=self._metrics(0.60),
+        )
+
+        for base_horizon in ('week_1_5', 'week_6_9', 'week_10_13', 'week_14_17'):
+            results_manager.add_result(
+                'week_1_5', config, result,
+                param_name='PARAM1', test_idx=0, base_horizon=base_horizon, pass_idx=0
+            )
+
+        records = self._read_scratch_lines(results_manager.output_dir)
+        assert len(records) == 4
+        assert all(r['horizon'] == 'week_1_5' for r in records)
+        assert len({r['base_horizon'] for r in records}) == 4
 
     def test_add_result_appends_record_for_subsequent_candidate(self, results_manager):
         """Second add_result call for the same horizon records the pre-adoption
@@ -1083,7 +1122,7 @@ class TestCandidateResultsDump:
         )
 
         optimal_path = manager_b.save_optimal_configs()
-        with open(optimal_path / DUMP_PROMOTED_FILENAME) as f:
+        with open(optimal_path / DUMP_PROMOTED_FILENAME, encoding='utf-8') as f:
             promoted = json.load(f)
 
         assert len(promoted) == 2
@@ -1105,7 +1144,7 @@ class TestCandidateResultsDump:
         promoted_path = optimal_path / DUMP_PROMOTED_FILENAME
 
         assert promoted_path.exists()
-        with open(promoted_path) as f:
+        with open(promoted_path, encoding='utf-8') as f:
             promoted = json.load(f)
         assert len(promoted) == 1
         assert not scratch_path.exists()
@@ -1127,7 +1166,7 @@ class TestCandidateResultsDump:
         )
 
         intermediate_folder = results_manager.save_intermediate_results(0, 'PARAM1', pass_idx=0)
-        with open(intermediate_folder / 'metadata.json') as f:
+        with open(intermediate_folder / 'metadata.json', encoding='utf-8') as f:
             metadata = json.load(f)
 
         assert set(metadata.keys()) == {
@@ -1167,7 +1206,7 @@ class TestCandidateResultsDump:
 
         Attaches a handler directly to results_manager.logger rather than using
         pytest's caplog: utils/LoggingManager.py's setup_logger() sets
-        `logger.propagate = False` on every logger it configures (:70), so a
+        `logger.propagate = False` on every logger it configures (:73), so a
         record emitted here never reaches the root logger caplog's default
         handler listens on -- caplog would silently observe zero records
         regardless of whether the warning fired, which is exactly the kind of
@@ -1192,7 +1231,7 @@ class TestCandidateResultsDump:
         finally:
             results_manager.logger.removeHandler(handler)
 
-        with open(optimal_path / DUMP_PROMOTED_FILENAME) as f:
+        with open(optimal_path / DUMP_PROMOTED_FILENAME, encoding='utf-8') as f:
             promoted = json.load(f)
 
         assert promoted == [valid_record]
@@ -1225,7 +1264,7 @@ class TestCandidateResultsDump:
             f.write(json.dumps(record3) + "\n")
 
         optimal_path = results_manager.save_optimal_configs()
-        with open(optimal_path / DUMP_PROMOTED_FILENAME) as f:
+        with open(optimal_path / DUMP_PROMOTED_FILENAME, encoding='utf-8') as f:
             promoted = json.load(f)
 
         assert promoted == [record1, record3]

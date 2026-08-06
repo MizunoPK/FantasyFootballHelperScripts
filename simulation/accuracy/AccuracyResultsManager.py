@@ -369,6 +369,13 @@ class AccuracyResultsManager:
 
         self.all_results: List[AccuracyConfigPerformance] = []
 
+        # D2.2 Polish finding 7: latches after the first per-candidate scratch-append
+        # failure so a persistent fault (disk full, read-only mount) logs one WARNING
+        # per run rather than once per evaluated candidate (up to the spec's own
+        # ~7,040-candidate upper bound). See _append_candidate_record.
+        self._candidate_dump_write_failed = False
+        self._candidate_dump_write_failures = 0
+
         self.logger.info(f"AccuracyResultsManager initialized: {output_dir}")
 
     def add_result(
@@ -487,7 +494,14 @@ class AccuracyResultsManager:
         swallowed rather than propagated, so a failure to write this scratch
         record can never abort the multi-hour sweep it is merely observing
         (Polish D2.2 finding 2, following the house pattern stated at
-        simulation/shared/config_cleanup.py:81-84).
+        simulation/shared/config_cleanup.py:81-84). A persistent fault is by
+        construction repeated on every subsequent call, so the WARNING is
+        latched: only the FIRST failure this run logs at WARNING, every
+        subsequent failure logs at DEBUG, and the total dropped-record count is
+        surfaced once more as a single summary WARNING when this run's dump is
+        promoted (Polish D2.2 finding 7 -- unlatched, a persistent failure would
+        log up to the spec's own ~7,040-candidate upper bound of identical
+        lines per run).
 
         Args:
             record: The ten-field candidate record (JSON-serializable dict).
@@ -497,10 +511,16 @@ class AccuracyResultsManager:
             with open(scratch_path, 'a', encoding='utf-8') as f:
                 f.write(json.dumps(record) + "\n")
         except OSError as e:
-            self.logger.warning(
+            self._candidate_dump_write_failures += 1
+            message = (
                 f"Failed to append candidate-dump record to {scratch_path.name}: {e} "
                 "-- continuing without this record (instrumentation only, not the run)"
             )
+            if self._candidate_dump_write_failed:
+                self.logger.debug(message)
+            else:
+                self._candidate_dump_write_failed = True
+                self.logger.warning(message)
 
     def reset_candidate_dump(self) -> None:
         """Delete the scratch candidate dump so a fresh (non-resumed) ascent never
@@ -741,12 +761,16 @@ class AccuracyResultsManager:
         this accuracy_optimal_* folder, never an accuracy_intermediate_* one, so
         cleanup never targets it either way (Trap 1, closed by construction).
 
-        Non-essential instrumentation, never the measurement: a write failure here
-        (disk full, read-only mount, permissions) is logged at WARNING and swallowed
-        rather than propagated, so a promotion failure can never make save_optimal_configs()
-        raise for a run whose real deliverable -- the five optimal config files, already
-        written and logged above -- landed correctly (Polish D2.2 finding 2, following
-        the house pattern at simulation/shared/config_cleanup.py:81-84).
+        Non-essential instrumentation, never the measurement: a failure anywhere in this
+        method's body -- the scratch read, the promoted-artifact write, or the final
+        scratch unlink -- (disk full, read-only mount, permissions, a corrupted-beyond-
+        per-line-recovery scratch file) is logged at WARNING and swallowed rather than
+        propagated, so a promotion failure can never make save_optimal_configs() raise
+        for a run whose real deliverable -- the five optimal config files, already
+        written and logged above -- landed correctly (Polish D2.2 findings 2 and 6,
+        following the house pattern at simulation/shared/config_cleanup.py:81-84). The
+        guard is method-wide, not write-only, precisely so this claim is exactly true
+        rather than true only of the write.
 
         Args:
             optimal_folder: The just-created accuracy_optimal_* folder.
@@ -759,21 +783,29 @@ class AccuracyResultsManager:
             )
             return
 
-        records = []
-        dropped = 0
-        with open(scratch_path, 'r', encoding='utf-8') as f:
-            for line_num, raw_line in enumerate(f, start=1):
-                line = raw_line.strip()
-                if not line:
-                    continue
-                try:
-                    records.append(json.loads(line))
-                except json.JSONDecodeError:
-                    dropped += 1
-                    self.logger.warning(
-                        f"Dropping unparseable candidate-dump line {line_num} in "
-                        f"{scratch_path.name} (likely a torn write from a killed process)"
-                    )
+        try:
+            records = []
+            dropped = 0
+            with open(scratch_path, 'r', encoding='utf-8') as f:
+                for line_num, raw_line in enumerate(f, start=1):
+                    line = raw_line.strip()
+                    if not line:
+                        continue
+                    try:
+                        records.append(json.loads(line))
+                    except json.JSONDecodeError:
+                        dropped += 1
+                        self.logger.warning(
+                            f"Dropping unparseable candidate-dump line {line_num} in "
+                            f"{scratch_path.name} (likely a torn write from a killed process)"
+                        )
+        except OSError as e:
+            self.logger.warning(
+                f"Failed to read candidate-dump scratch file {scratch_path.name}: {e} "
+                "-- the run's real deliverable (optimal config files) is unaffected; "
+                "the per-candidate distribution for this run is unavailable"
+            )
+            return
 
         promoted_path = optimal_folder / DUMP_PROMOTED_FILENAME
         try:
@@ -785,12 +817,30 @@ class AccuracyResultsManager:
                 "the per-candidate distribution for this run is unavailable"
             )
             return
-        scratch_path.unlink(missing_ok=True)
+
+        try:
+            scratch_path.unlink(missing_ok=True)
+        except OSError as e:
+            self.logger.warning(
+                f"Failed to remove promoted scratch file {scratch_path.name}: {e} "
+                "-- the promoted candidate dump was written successfully; the stale "
+                "scratch file will be re-read (and its records re-promoted) next run"
+            )
 
         self.logger.info(
             f"Promoted {len(records)} candidate record(s) to {promoted_path.name}"
             + (f" ({dropped} torn line(s) dropped)" if dropped else "")
         )
+
+        # D2.2 Polish finding 7: the per-candidate append WARNING is latched to one
+        # per run (_append_candidate_record); this is the promised single summary,
+        # naming the total count so a persistent write failure is still visible.
+        if self._candidate_dump_write_failures:
+            self.logger.warning(
+                f"{self._candidate_dump_write_failures} candidate record(s) were not "
+                f"recorded this run due to scratch-append failures -- "
+                "see the first-failure WARNING above for the cause"
+            )
 
     def save_intermediate_results(
         self,

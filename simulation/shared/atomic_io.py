@@ -30,9 +30,7 @@ def atomic_write_json(data: Any, path: Path, error_message: Optional[str] = None
     OSError/PermissionError the orphaned .tmp is removed before re-raising.
 
     Args:
-        data: JSON-serializable payload to write (dict or list; every call site
-            today passes a dict except AccuracyResultsManager._promote_candidate_dump,
-            which passes a list of per-candidate records).
+        data: JSON-serializable payload to write (e.g. a dict or a list).
         path: Destination file path.
         error_message: Caller-specific prefix for the raised FileOperationError
             (the underlying exception is appended as ": {e}"). Falls back to a
