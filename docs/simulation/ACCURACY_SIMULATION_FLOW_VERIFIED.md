@@ -1074,7 +1074,8 @@ accuracy_optimal_{timestamp}/
 ├─ week1-5.json                # Optimal for weeks 1-5
 ├─ week6-9.json                # Optimal for weeks 6-9
 ├─ week10-13.json              # Optimal for weeks 10-13
-└─ week14-17.json              # Optimal for weeks 14-17
+├─ week14-17.json              # Optimal for weeks 14-17
+└─ candidate_results.json      # per-candidate dump (D2.2) — write-only, promoted from the run scratch
 ```
 
 **Week File Structure**:
@@ -1311,7 +1312,8 @@ python run_accuracy_simulation.py --test-values 5 --max-workers 8 --use-processe
     ├─ week1-5.json          (optimal for weeks 1-5)
     ├─ week6-9.json          (optimal for weeks 6-9)
     ├─ week10-13.json        (optimal for weeks 10-13)
-    └─ week14-17.json        (optimal for weeks 14-17)
+    ├─ week14-17.json        (optimal for weeks 14-17)
+    └─ candidate_results.json (per-candidate dump, D2.2 — write-only, promoted from the run scratch)
 
 11. Cleanup (lines 864-866)
     ├─ Delete all accuracy_intermediate_* folders

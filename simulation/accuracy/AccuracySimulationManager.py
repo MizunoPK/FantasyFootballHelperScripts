@@ -424,6 +424,15 @@ class AccuracySimulationManager:
             (should_resume, resume_param_idx, last_config_path,
              resume_pass_idx, resume_frozen) = self._detect_resume_state()
 
+            if not should_resume:
+                # D2.2 Polish finding 1: _detect_resume_state has three should_resume=False
+                # branches that can fire with a scratch candidate-dump file still on disk (no
+                # intermediate folders found; a parameter-order mismatch; all parameters complete
+                # and all horizons frozen). None of them reset the scratch, so a fresh ascent
+                # would otherwise silently merge an abandoned run's records into its own promoted
+                # candidate_results.json. Reset before evaluating the first candidate.
+                self.results_manager.reset_candidate_dump()
+
             baseline_to_use = None
             if should_resume and last_config_path:
                 baseline_to_use = last_config_path
@@ -644,7 +653,8 @@ class AccuracySimulationManager:
                         result,
                         param_name=param_name,
                         test_idx=test_idx,
-                        base_horizon=horizon
+                        base_horizon=horizon,
+                        pass_idx=pass_idx
                     )
 
                     if is_new_best:

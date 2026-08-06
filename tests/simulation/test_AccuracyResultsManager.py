@@ -7,12 +7,14 @@ Author: Kai Mizuno
 """
 
 import json
+import logging
 import pytest
 from pathlib import Path
 from unittest.mock import Mock, patch
 import tempfile
 import shutil
 
+import simulation.accuracy.AccuracyResultsManager as AccuracyResultsManagerModule
 from simulation.accuracy.AccuracyResultsManager import (
     AccuracyResultsManager,
     AccuracyConfigPerformance,
@@ -20,9 +22,12 @@ from simulation.accuracy.AccuracyResultsManager import (
     WEEK_RANGES,
     propagate_to_configs,
     _min_season_wins,
+    DUMP_SCRATCH_FILENAME,
+    DUMP_PROMOTED_FILENAME,
 )
 from simulation.accuracy.AccuracyCalculator import AccuracyResult
 from simulation.shared.config_constants import BASE_CONFIG_PARAMS, WEEK_SPECIFIC_PARAMS
+from simulation.shared.config_cleanup import cleanup_accuracy_intermediate_folders
 from utils.error_handler import FileOperationError
 
 
@@ -914,6 +919,517 @@ class TestAccuracyResultsManager:
 
         ros_config['parameters']['NORMALIZATION_MAX_SCALE'] = 200
         assert week_config['parameters']['NORMALIZATION_MAX_SCALE'] == 150
+
+
+class TestCandidateResultsDump:
+    """Tests for the per-candidate results dump (D2.2, TD2/TD2a/D1/D2).
+
+    Ten-field cross-ticket interface (context.md "Interfaces and Boundaries") consumed by
+    D11 and D16 -- horizon, pass_idx, param_name, test_idx, base_horizon, config_value,
+    pairwise_accuracy, per_season_pairwise, adopted, incumbent_pairwise. `base_horizon` was
+    added at /du6-polish (Polish D2.2 finding 4), widening the interface from nine fields.
+    Both the scratch and promoted filenames are FIXED constants (DUMP_SCRATCH_FILENAME /
+    DUMP_PROMOTED_FILENAME) -- every test below asserts against those constants directly,
+    never a runtime-discovered or globbed path (spec.md Requirements, "test-time anchor").
+
+    MUTATION CHECKS (CODING_STANDARDS.md "Test Discrimination", performed once at
+    implementation time, then reverted -- see this plan's Step 7 verification):
+    (1) _append_candidate_record's open mode was temporarily changed from 'a' to 'w',
+    confirming test_scratch_survives_across_two_manager_instances FAILS against a
+    truncate-on-append regression, then reverted and re-confirmed PASSING. (2) The
+    self._promote_candidate_dump(optimal_folder) call inside save_optimal_configs()
+    was temporarily removed, confirming test_save_optimal_configs_promotes_dump_and_
+    removes_scratch FAILS against a no-promotion regression, then reverted and
+    re-confirmed PASSING. Neither test is a tautology.
+
+    POLISH ADDITIONS (2026-08-06, /du6-polish, findings 1/2/4): test_reset_candidate_dump_*
+    cover finding 1 (stale scratch reset on a fresh, non-resumed ascent) via
+    AccuracyResultsManager.reset_candidate_dump() directly (the caller-side wiring in
+    AccuracySimulationManager.run_both() is exercised by
+    tests/integration/test_accuracy_simulation_integration.py's existing resume coverage,
+    not duplicated here); test_append_candidate_record_survives_os_error and
+    test_promote_candidate_dump_survives_atomic_write_failure cover finding 2 (instrumentation
+    failures never abort the run); test_add_result_appends_record_for_first_candidate and
+    test_add_result_base_horizon_disambiguates_tournament_collision cover finding 4/3
+    (base_horizon in the field set, and its distinctness).
+    """
+
+    @pytest.fixture
+    def temp_dir(self):
+        """Create temporary directory for tests."""
+        temp = tempfile.mkdtemp(prefix="accuracy_test_")
+        yield Path(temp)
+        shutil.rmtree(temp, ignore_errors=True)
+
+    @pytest.fixture
+    def mock_baseline(self, temp_dir):
+        """Create mock baseline config folder with required files."""
+        baseline = temp_dir / "baseline"
+        baseline.mkdir()
+        league_config = {
+            'config_name': 'Test Baseline',
+            'description': 'Test baseline config',
+            'parameters': {'PARAM1': 'value1'}
+        }
+        with open(baseline / "league_config.json", 'w') as f:
+            json.dump(league_config, f)
+        for filename in ['week1-5.json', 'week6-9.json', 'week10-13.json', 'week14-17.json']:
+            week_config = {
+                'config_name': f'Test {filename}',
+                'description': 'Test config',
+                'parameters': {'WEEK_PARAM': 1}
+            }
+            with open(baseline / filename, 'w') as f:
+                json.dump(week_config, f)
+        return baseline
+
+    @pytest.fixture
+    def results_manager(self, temp_dir, mock_baseline):
+        """Create AccuracyResultsManager instance."""
+        output_dir = temp_dir / "output"
+        return AccuracyResultsManager(output_dir, mock_baseline)
+
+    def _metrics(self, pairwise):
+        return RankingMetrics(
+            pairwise_accuracy=pairwise,
+            top_5_accuracy=0.80,
+            top_10_accuracy=0.75,
+            top_20_accuracy=0.70,
+            spearman_correlation=0.82
+        )
+
+    def _read_scratch_lines(self, output_dir):
+        scratch_path = output_dir / DUMP_SCRATCH_FILENAME
+        with open(scratch_path, 'r', encoding='utf-8') as f:
+            return [json.loads(line) for line in f if line.strip()]
+
+    # --- Coverage item 1: all ten fields, first + subsequent candidate ---
+
+    def test_add_result_appends_record_for_first_candidate(self, results_manager):
+        """First add_result call for a horizon appends exactly one record; adopted=True,
+        incumbent_pairwise=None (no prior best).
+
+        `base_horizon='week_14_17'` is deliberately DIFFERENT from `week_range_key='week_1_5'`
+        (Polish D2.2 re-review finding: passing the two equal let the mutation
+        'base_horizon': week_range_key pass the whole suite undetected, since a fixed
+        base_horizon='week_1_5' is indistinguishable from horizon='week_1_5'). MUTATION
+        CHECK (performed once, then reverted): with `_append_candidate_record`'s dict literal
+        changed from `'base_horizon': base_horizon` to `'base_horizon': week_range_key`, this
+        test's `assert record['base_horizon'] == 'week_14_17'` FAILED (got 'week_1_5');
+        reverted and re-confirmed PASSING.
+        """
+        config = {'parameters': {'PARAM1': 5}}
+        result = AccuracyResult(
+            mae=5.0, player_count=100, total_error=500.0,
+            overall_metrics=self._metrics(0.60),
+            per_season_pairwise={'2023': 0.60, '2024': 0.60}
+        )
+
+        results_manager.add_result(
+            'week_1_5', config, result,
+            param_name='PARAM1', test_idx=0, base_horizon='week_14_17', pass_idx=0
+        )
+
+        records = self._read_scratch_lines(results_manager.output_dir)
+        assert len(records) == 1
+        record = records[0]
+        assert set(record.keys()) == {
+            'horizon', 'pass_idx', 'param_name', 'test_idx', 'base_horizon', 'config_value',
+            'pairwise_accuracy', 'per_season_pairwise', 'adopted', 'incumbent_pairwise',
+        }
+        assert record['horizon'] == 'week_1_5'
+        assert record['pass_idx'] == 0
+        assert record['param_name'] == 'PARAM1'
+        assert record['test_idx'] == 0
+        assert record['base_horizon'] == 'week_14_17'
+        assert record['config_value'] == 5
+        assert record['pairwise_accuracy'] == 0.60
+        assert record['per_season_pairwise'] == {'2023': 0.60, '2024': 0.60}
+        assert record['adopted'] is True
+        assert record['incumbent_pairwise'] is None
+
+    def test_add_result_base_horizon_disambiguates_tournament_collision(self, results_manager):
+        """Tournament mode evaluates a fixed (horizon, pass_idx, param_name, test_idx) tuple
+        against all four base horizons, producing four distinct candidate records that share
+        every field except base_horizon -- this test pins the disambiguation claim itself
+        (Polish D2.2 re-review finding, base_horizon distinctness).
+
+        MUTATION CHECK (performed once, then reverted): with the dict literal changed to
+        `'base_horizon': week_range_key`, `len({r['base_horizon'] for r in records}) == 4`
+        FAILED (all four base_horizon values collapsed to 'week_1_5', the shared horizon);
+        reverted and re-confirmed PASSING.
+        """
+        config = {'parameters': {'PARAM1': 5}}
+        result = AccuracyResult(
+            mae=5.0, player_count=100, total_error=500.0,
+            overall_metrics=self._metrics(0.60),
+        )
+
+        for base_horizon in ('week_1_5', 'week_6_9', 'week_10_13', 'week_14_17'):
+            results_manager.add_result(
+                'week_1_5', config, result,
+                param_name='PARAM1', test_idx=0, base_horizon=base_horizon, pass_idx=0
+            )
+
+        records = self._read_scratch_lines(results_manager.output_dir)
+        assert len(records) == 4
+        assert all(r['horizon'] == 'week_1_5' for r in records)
+        assert len({r['base_horizon'] for r in records}) == 4
+
+    def test_add_result_appends_record_for_subsequent_candidate(self, results_manager):
+        """Second add_result call for the same horizon records the pre-adoption
+        incumbent's pairwise_accuracy, not the just-adopted challenger's."""
+        config1 = {'parameters': {'PARAM1': 1}}
+        result1 = AccuracyResult(
+            mae=5.0, player_count=100, total_error=500.0,
+            overall_metrics=self._metrics(0.60),
+        )
+        config2 = {'parameters': {'PARAM1': 2}}
+        result2 = AccuracyResult(
+            mae=4.0, player_count=100, total_error=400.0,
+            overall_metrics=self._metrics(0.55),
+        )
+
+        results_manager.add_result('week_1_5', config1, result1, param_name='PARAM1', test_idx=0, pass_idx=0)
+        results_manager.add_result('week_1_5', config2, result2, param_name='PARAM1', test_idx=1, pass_idx=0)
+
+        records = self._read_scratch_lines(results_manager.output_dir)
+        assert len(records) == 2
+        second = records[1]
+        assert second['adopted'] is False
+        assert second['incumbent_pairwise'] == 0.60
+
+    # --- Coverage item 2: resume-completeness across two manager instances ---
+
+    def test_scratch_survives_across_two_manager_instances(self, temp_dir, mock_baseline):
+        """A second AccuracyResultsManager constructed against the SAME output_dir
+        (simulating a resumed process) appends to -- not truncates -- the first
+        instance's scratch file; the promoted dump carries records from both."""
+        output_dir = temp_dir / "output"
+
+        manager_a = AccuracyResultsManager(output_dir, mock_baseline)
+        manager_a.add_result(
+            'week_1_5', {'parameters': {}}, AccuracyResult(
+                mae=5.0, player_count=100, total_error=500.0, overall_metrics=self._metrics(0.60)
+            ), param_name='PARAM1', test_idx=0, pass_idx=0
+        )
+
+        manager_b = AccuracyResultsManager(output_dir, mock_baseline)
+        manager_b.add_result(
+            'week_1_5', {'parameters': {}}, AccuracyResult(
+                mae=4.0, player_count=100, total_error=400.0, overall_metrics=self._metrics(0.65)
+            ), param_name='PARAM1', test_idx=1, pass_idx=1
+        )
+
+        optimal_path = manager_b.save_optimal_configs()
+        with open(optimal_path / DUMP_PROMOTED_FILENAME, encoding='utf-8') as f:
+            promoted = json.load(f)
+
+        assert len(promoted) == 2
+        assert {r['pass_idx'] for r in promoted} == {0, 1}
+
+    # --- Coverage item 3: promotion + scratch removal (success-survival), plus the
+    #     zero-candidate absence case ---
+
+    def test_save_optimal_configs_promotes_dump_and_removes_scratch(self, results_manager):
+        results_manager.add_result(
+            'week_1_5', {'parameters': {}}, AccuracyResult(
+                mae=5.0, player_count=100, total_error=500.0, overall_metrics=self._metrics(0.60)
+            ), param_name='PARAM1', test_idx=0, pass_idx=0
+        )
+        scratch_path = results_manager.output_dir / DUMP_SCRATCH_FILENAME
+        assert scratch_path.exists()
+
+        optimal_path = results_manager.save_optimal_configs()
+        promoted_path = optimal_path / DUMP_PROMOTED_FILENAME
+
+        assert promoted_path.exists()
+        with open(promoted_path, encoding='utf-8') as f:
+            promoted = json.load(f)
+        assert len(promoted) == 1
+        assert not scratch_path.exists()
+
+    def test_save_optimal_configs_skips_promotion_when_no_candidates_evaluated(self, results_manager):
+        """A run that evaluates zero candidates (add_result never called) does not
+        fabricate a promoted dump file -- absence, not an empty array with false
+        precision."""
+        optimal_path = results_manager.save_optimal_configs()
+        assert not (optimal_path / DUMP_PROMOTED_FILENAME).exists()
+
+    # --- Coverage item 4: metadata.json schema unchanged ---
+
+    def test_save_intermediate_results_metadata_schema_unchanged(self, results_manager):
+        results_manager.add_result(
+            'week_1_5', {'parameters': {}}, AccuracyResult(
+                mae=5.0, player_count=100, total_error=500.0, overall_metrics=self._metrics(0.60)
+            ), param_name='PARAM1', test_idx=0, pass_idx=0
+        )
+
+        intermediate_folder = results_manager.save_intermediate_results(0, 'PARAM1', pass_idx=0)
+        with open(intermediate_folder / 'metadata.json', encoding='utf-8') as f:
+            metadata = json.load(f)
+
+        assert set(metadata.keys()) == {
+            'param_idx', 'param_name', 'horizons_evaluated', 'best_mae_per_horizon', 'timestamp',
+        }
+
+    # --- Coverage item 5: Trap 1 regression -- cleanup does not remove the promoted dump ---
+
+    def test_cleanup_accuracy_intermediate_folders_does_not_remove_promoted_dump(self, results_manager):
+        results_manager.add_result(
+            'week_1_5', {'parameters': {}}, AccuracyResult(
+                mae=5.0, player_count=100, total_error=500.0, overall_metrics=self._metrics(0.60)
+            ), param_name='PARAM1', test_idx=0, pass_idx=0
+        )
+        results_manager.save_intermediate_results(0, 'PARAM1', pass_idx=0)
+        optimal_path = results_manager.save_optimal_configs()
+        promoted_path = optimal_path / DUMP_PROMOTED_FILENAME
+        assert promoted_path.exists()
+
+        intermediate_folders_before = [
+            p for p in results_manager.output_dir.iterdir()
+            if p.is_dir() and p.name.startswith('accuracy_intermediate_')
+        ]
+        assert len(intermediate_folders_before) == 1  # positive control: cleanup has a real target
+
+        deleted_count = cleanup_accuracy_intermediate_folders(results_manager.output_dir)
+
+        assert deleted_count == 1
+        assert not intermediate_folders_before[0].exists()  # positive control confirms the filter fired
+        assert promoted_path.exists()  # the regression assertion: Trap 1 stays closed
+
+    # --- Coverage item 6: torn-line tolerance, D2 -- terminal and non-terminal position ---
+
+    def test_promote_drops_terminal_torn_line(self, results_manager):
+        """A torn line as the LAST line (single-process kill) is dropped, logged, and
+        does not crash promotion; the well-formed record before it is preserved.
+
+        Attaches a handler directly to results_manager.logger rather than using
+        pytest's caplog: utils/LoggingManager.py's setup_logger() sets
+        `logger.propagate = False` on every logger it configures (:73), so a
+        record emitted here never reaches the root logger caplog's default
+        handler listens on -- caplog would silently observe zero records
+        regardless of whether the warning fired, which is exactly the kind of
+        vacuous check CODING_STANDARDS.md "Test Discrimination" bars.
+        """
+        scratch_path = results_manager.output_dir / DUMP_SCRATCH_FILENAME
+        valid_record = {
+            'horizon': 'week_1_5', 'pass_idx': 0, 'param_name': 'PARAM1', 'test_idx': 0,
+            'config_value': 1, 'pairwise_accuracy': 0.60, 'per_season_pairwise': {},
+            'adopted': True, 'incumbent_pairwise': None,
+        }
+        with open(scratch_path, 'w', encoding='utf-8') as f:
+            f.write(json.dumps(valid_record) + "\n")
+            f.write('{"horizon": "week_6_9", "pass_idx": 0')  # torn -- no closing, no newline
+
+        captured = []
+        handler = logging.Handler()
+        handler.emit = captured.append
+        results_manager.logger.addHandler(handler)
+        try:
+            optimal_path = results_manager.save_optimal_configs()
+        finally:
+            results_manager.logger.removeHandler(handler)
+
+        with open(optimal_path / DUMP_PROMOTED_FILENAME, encoding='utf-8') as f:
+            promoted = json.load(f)
+
+        assert promoted == [valid_record]
+        assert any(
+            'Dropping unparseable candidate-dump line' in r.getMessage() for r in captured
+        )
+
+    def test_promote_drops_nonterminal_torn_line(self, results_manager):
+        """A torn line concatenated with a resumed process's next write is NOT the
+        last line; promotion drops exactly that one corrupted line and keeps every
+        well-formed record around it."""
+        scratch_path = results_manager.output_dir / DUMP_SCRATCH_FILENAME
+        record1 = {
+            'horizon': 'week_1_5', 'pass_idx': 0, 'param_name': 'PARAM1', 'test_idx': 0,
+            'config_value': 1, 'pairwise_accuracy': 0.60, 'per_season_pairwise': {},
+            'adopted': True, 'incumbent_pairwise': None,
+        }
+        record3 = {
+            'horizon': 'week_14_17', 'pass_idx': 1, 'param_name': 'PARAM1', 'test_idx': 1,
+            'config_value': 2, 'pairwise_accuracy': 0.61, 'per_season_pairwise': {},
+            'adopted': True, 'incumbent_pairwise': None,
+        }
+        with open(scratch_path, 'w', encoding='utf-8') as f:
+            f.write(json.dumps(record1) + "\n")
+            # Process A dies mid-write of this line -- no closing brace, no newline.
+            f.write('{"horizon": "week_6_9", "pass_idx": 0, "param_name": "PARAM1"')
+            # Process B's resumed first append lands directly on A's unterminated line.
+            f.write(json.dumps({'horizon': 'week_10_13', 'pass_idx': 1}) + "\n")
+            # Process B's SECOND append -- proves the corrupted line above is not last.
+            f.write(json.dumps(record3) + "\n")
+
+        optimal_path = results_manager.save_optimal_configs()
+        with open(optimal_path / DUMP_PROMOTED_FILENAME, encoding='utf-8') as f:
+            promoted = json.load(f)
+
+        assert promoted == [record1, record3]
+
+    # --- Coverage item 7: adopted/incumbent_pairwise pin is_better_than's real semantics ---
+
+    def test_adopted_pins_per_season_consistency_gate_not_bare_mean(self, results_manager):
+        """A challenger with a HIGHER mean pairwise_accuracy than the incumbent is
+        still adopted=False when the per-season consistency gate rejects it --
+        proving the dump records is_better_than's real decision, not a bare mean
+        comparison. A future change to that gate's shape breaks this test rather
+        than silently reinterpreting every already-written record for D11/D16."""
+        incumbent_per_season = {'2020': 0.60, '2021': 0.60, '2022': 0.60, '2023': 0.60, '2024': 0.60}
+        incumbent_result = AccuracyResult(
+            mae=5.0, player_count=100, total_error=500.0,
+            overall_metrics=self._metrics(0.60),
+            per_season_pairwise=incumbent_per_season,
+        )
+        results_manager.add_result(
+            'week_1_5', {'parameters': {}}, incumbent_result,
+            param_name='PARAM1', test_idx=0, pass_idx=0
+        )
+
+        # Higher mean (0.61 > 0.60) but wins only 3 of 5 shared seasons -- below
+        # _min_season_wins(5) == ceil(0.8*5) == 4, so is_better_than rejects it.
+        assert _min_season_wins(5) == 4
+        challenger_per_season = {'2020': 0.65, '2021': 0.65, '2022': 0.65, '2023': 0.55, '2024': 0.55}
+        challenger_result = AccuracyResult(
+            mae=4.0, player_count=100, total_error=400.0,
+            overall_metrics=self._metrics(0.61),
+            per_season_pairwise=challenger_per_season,
+        )
+        results_manager.add_result(
+            'week_1_5', {'parameters': {}}, challenger_result,
+            param_name='PARAM1', test_idx=1, pass_idx=0
+        )
+
+        records = self._read_scratch_lines(results_manager.output_dir)
+        assert records[1]['adopted'] is False
+        assert records[1]['incumbent_pairwise'] == 0.60
+        assert records[1]['pairwise_accuracy'] == 0.61  # the challenger's OWN mean, still higher
+
+    # --- Polish D2.2 finding 1: reset_candidate_dump() ---
+
+    def test_reset_candidate_dump_deletes_an_existing_scratch_file(self, results_manager):
+        """reset_candidate_dump() removes a stale scratch file left by an abandoned run,
+        so a fresh (non-resumed) ascent's promoted dump cannot inherit its records."""
+        results_manager.add_result(
+            'week_1_5', {'parameters': {}}, AccuracyResult(
+                mae=5.0, player_count=100, total_error=500.0, overall_metrics=self._metrics(0.60)
+            ), param_name='PARAM1', test_idx=0, pass_idx=0
+        )
+        scratch_path = results_manager.output_dir / DUMP_SCRATCH_FILENAME
+        assert scratch_path.exists()
+
+        results_manager.reset_candidate_dump()
+
+        assert not scratch_path.exists()
+
+    def test_reset_candidate_dump_is_idempotent_with_no_scratch_file(self, results_manager):
+        """Calling reset_candidate_dump() with nothing on disk (the common case -- a
+        genuinely fresh output_dir) must not raise."""
+        scratch_path = results_manager.output_dir / DUMP_SCRATCH_FILENAME
+        assert not scratch_path.exists()
+
+        results_manager.reset_candidate_dump()  # must not raise
+
+        assert not scratch_path.exists()
+
+    def test_reset_candidate_dump_leaves_a_fresh_ascent_free_of_abandoned_records(self, results_manager):
+        """End-to-end: a record written by an 'abandoned run', then reset, then a fresh
+        ascent's own record and promotion -- the promoted dump carries only the fresh
+        ascent's record, never the abandoned one."""
+        results_manager.add_result(
+            'week_1_5', {'parameters': {}}, AccuracyResult(
+                mae=5.0, player_count=100, total_error=500.0, overall_metrics=self._metrics(0.60)
+            ), param_name='ABANDONED', test_idx=0, pass_idx=0
+        )
+
+        results_manager.reset_candidate_dump()
+
+        results_manager.add_result(
+            'week_1_5', {'parameters': {}}, AccuracyResult(
+                mae=4.0, player_count=100, total_error=400.0, overall_metrics=self._metrics(0.62)
+            ), param_name='FRESH', test_idx=0, pass_idx=0
+        )
+        optimal_path = results_manager.save_optimal_configs()
+        with open(optimal_path / DUMP_PROMOTED_FILENAME, encoding='utf-8') as f:
+            promoted = json.load(f)
+
+        assert len(promoted) == 1
+        assert promoted[0]['param_name'] == 'FRESH'
+
+    # --- Polish D2.2 finding 2: instrumentation failures never abort the run ---
+
+    def test_append_candidate_record_survives_os_error(self, results_manager):
+        """An OSError writing the scratch record is logged and swallowed -- add_result()
+        must still report the correct adoption result, proving the instrumentation
+        failure did not propagate into the measured run.
+
+        Attaches a handler directly (see test_promote_drops_terminal_torn_line's
+        docstring) rather than pytest's caplog, which never observes records from
+        this project's propagate=False loggers.
+        """
+        captured = []
+        handler = logging.Handler()
+        handler.emit = captured.append
+        results_manager.logger.addHandler(handler)
+        try:
+            with patch('builtins.open', side_effect=OSError("No space left on device")):
+                is_new_best = results_manager.add_result(
+                    'week_1_5', {'parameters': {}}, AccuracyResult(
+                        mae=5.0, player_count=100, total_error=500.0,
+                        overall_metrics=self._metrics(0.60)
+                    ), param_name='PARAM1', test_idx=0, pass_idx=0
+                )
+        finally:
+            results_manager.logger.removeHandler(handler)
+
+        assert is_new_best is True  # the real measurement succeeded despite the write failure
+        assert any(
+            'Failed to append candidate-dump record' in r.getMessage() for r in captured
+        )
+
+    def test_promote_candidate_dump_survives_atomic_write_failure(self, results_manager):
+        """A FileOperationError from atomic_write_json during PROMOTION (only -- the
+        earlier league_config.json/week*.json writes must still succeed normally) is
+        logged and swallowed: save_optimal_configs() must still return the
+        optimal_folder path (the run's real deliverable) rather than raising for the
+        sake of the diagnostic dump."""
+        results_manager.add_result(
+            'week_1_5', {'parameters': {}}, AccuracyResult(
+                mae=5.0, player_count=100, total_error=500.0, overall_metrics=self._metrics(0.60)
+            ), param_name='PARAM1', test_idx=0, pass_idx=0
+        )
+
+        real_atomic_write_json = AccuracyResultsManagerModule.atomic_write_json
+
+        def fail_only_for_promoted_dump(data, path, error_message=None):
+            if Path(path).name == DUMP_PROMOTED_FILENAME:
+                raise FileOperationError("disk full")
+            return real_atomic_write_json(data, path, error_message)
+
+        captured = []
+        handler = logging.Handler()
+        handler.emit = captured.append
+        results_manager.logger.addHandler(handler)
+        try:
+            with patch(
+                'simulation.accuracy.AccuracyResultsManager.atomic_write_json',
+                side_effect=fail_only_for_promoted_dump,
+            ):
+                optimal_path = results_manager.save_optimal_configs()
+        finally:
+            results_manager.logger.removeHandler(handler)
+
+        assert optimal_path is not None
+        assert (optimal_path / "week1-5.json").exists()  # the real deliverable landed
+        assert not (optimal_path / DUMP_PROMOTED_FILENAME).exists()  # promotion did not land
+        assert any(
+            'Failed to promote candidate dump' in r.getMessage() for r in captured
+        )
+        # The scratch is NOT deleted on a failed promotion -- it stays available for
+        # inspection / a later retry rather than being lost alongside the failed write.
+        assert (results_manager.output_dir / DUMP_SCRATCH_FILENAME).exists()
 
 
 class TestScheduleSync:
