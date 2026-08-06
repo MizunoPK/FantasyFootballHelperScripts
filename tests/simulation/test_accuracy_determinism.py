@@ -265,6 +265,15 @@ class TestAccuracyEvaluationDeterminism:
         committed corpus (simulation/sim_data + data/configs) via the real
         production evaluation entry point (_evaluate_config_tournament_process)
         returns byte-identical pairwise_accuracy on every WEEK_RANGES horizon."""
+        assert DATA_FOLDER.is_dir(), (
+            f"committed sim_data corpus not present at {DATA_FOLDER} -- this guard "
+            "asserts rather than skips (unlike the pytest.skip convention at "
+            "tests/simulation/shared/test_sim_data_coverage.py:98 and "
+            "tests/simulation/test_ParallelAccuracyRunner.py:214) because this unit's "
+            "entire purpose (D2 ticket.md Success Criterion 1 / TD4) is a determinism "
+            "guard that must not pass vacuously by being skipped; restore the "
+            "committed corpus rather than skip this test"
+        )
         manager = AccuracySimulationManager(
             baseline_config_path=BASELINE_CONFIGS,
             output_dir=tmp_path / "out",
@@ -282,8 +291,14 @@ class TestAccuracyEvaluationDeterminism:
         )
 
         for week_key in WEEK_RANGES:
-            first_pairwise = first_results[week_key].overall_metrics.pairwise_accuracy
-            second_pairwise = second_results[week_key].overall_metrics.pairwise_accuracy
+            first_metrics = first_results[week_key].overall_metrics
+            second_metrics = second_results[week_key].overall_metrics
+            assert first_metrics is not None and second_metrics is not None, (
+                f"{week_key}: overall_metrics unexpectedly None "
+                f"(first={first_metrics!r}, second={second_metrics!r})"
+            )
+            first_pairwise = first_metrics.pairwise_accuracy
+            second_pairwise = second_metrics.pairwise_accuracy
             assert first_pairwise is not None and second_pairwise is not None, (
                 f"{week_key}: pairwise_accuracy unexpectedly None "
                 f"(first={first_pairwise!r}, second={second_pairwise!r})"
