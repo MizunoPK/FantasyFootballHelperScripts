@@ -267,10 +267,10 @@ class TestAccuracyEvaluationDeterminism:
         returns byte-identical pairwise_accuracy on every WEEK_RANGES horizon."""
         assert DATA_FOLDER.is_dir(), (
             f"committed sim_data corpus not present at {DATA_FOLDER} -- this guard "
-            "asserts rather than skips (unlike the pytest.skip convention at "
-            "tests/simulation/shared/test_sim_data_coverage.py:98 and "
-            "tests/simulation/test_ParallelAccuracyRunner.py:214) because this unit's "
-            "entire purpose (D2 ticket.md Success Criterion 1 / TD4) is a determinism "
+            "asserts rather than skips (unlike "
+            "test_sim_data_coverage.py's season-discovery fixture, which "
+            "pytest.skips on missing/empty corpus) because this unit's entire "
+            "purpose (D2 ticket.md Success Criterion 1 / TD4) is a determinism "
             "guard that must not pass vacuously by being skipped; restore the "
             "committed corpus rather than skip this test"
         )
