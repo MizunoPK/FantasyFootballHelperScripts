@@ -30,12 +30,13 @@ import tempfile
 import time
 import json
 from pathlib import Path
-from typing import List, Optional, Tuple
+from typing import Dict, FrozenSet, List, Optional, Tuple
 
 from utils.LoggingManager import get_logger
 from simulation.shared.ConfigGenerator import ConfigGenerator, DEFAULT_ACCURACY_SEED
 from simulation.shared.ProgressTracker import ProgressTracker
 from simulation.shared.config_cleanup import cleanup_accuracy_intermediate_folders
+from simulation.shared.sim_data_coverage import excluded_weeks_by_season
 from simulation.accuracy.AccuracyCalculator import AccuracyCalculator
 from simulation.accuracy.AccuracyResultsManager import (
     AccuracyResultsManager,
@@ -93,7 +94,8 @@ class AccuracySimulationManager:
         num_parameters_to_test: int = 1,
         max_workers: int = 8,
         use_processes: bool = True,
-        seed: int = DEFAULT_ACCURACY_SEED
+        seed: int = DEFAULT_ACCURACY_SEED,
+        exclude_low_coverage_weeks: bool = False
     ) -> None:
         """
         Initialize AccuracySimulationManager.
@@ -109,6 +111,10 @@ class AccuracySimulationManager:
             use_processes (bool): Use ProcessPoolExecutor (True) or ThreadPoolExecutor (False)
             seed (int): Seed threaded into ConfigGenerator's private candidate-value RNG
                 (default: DEFAULT_ACCURACY_SEED) so config selection is reproducible run-to-run.
+            exclude_low_coverage_weeks (bool): When True, drop from the evaluation
+                corpus every season-week the shared coverage owner reports below the
+                per-week floor (D8.4). Default False — nothing is computed, nothing is
+                logged, and the evaluation corpus is exactly today's.
         """
         self.logger = get_logger()
         self.logger.info("Initializing AccuracySimulationManager")
@@ -143,6 +149,14 @@ class AccuracySimulationManager:
         self.logger.info(
             f"Discovered {len(self.available_seasons)} historical seasons: "
             f"{[s.name for s in self.available_seasons]}"
+        )
+
+        # D8.4: the exclusion DECISION is a parent-side pre-pass, computed once
+        # per run before any worker starts (HD1). With the flag off nothing is
+        # computed and nothing is logged, so a default run is byte-identical.
+        self.excluded_season_weeks: Dict[str, FrozenSet[int]] = (
+            excluded_weeks_by_season(self.available_seasons)
+            if exclude_low_coverage_weeks else {}
         )
 
         candidate_values = num_test_values + 1
@@ -606,7 +620,8 @@ class AccuracySimulationManager:
                     self.data_folder,
                     self.available_seasons,
                     max_workers=self.max_workers,
-                    use_processes=self.use_processes
+                    use_processes=self.use_processes,
+                    excluded_season_weeks=self.excluded_season_weeks
                 )
 
             def progress_update(completed):

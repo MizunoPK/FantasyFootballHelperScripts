@@ -29,6 +29,7 @@ from simulation.shared.sim_data_coverage import (
     PER_WEEK_COVERAGE_FLOOR_PCT,
     check_coverage,
     compute_season_coverage,
+    excluded_weeks_by_season,
     season_below_floor,
     SeasonCoverage,
     select_coverage_population,
@@ -77,6 +78,29 @@ def _coverage(per_week, population_size=200):
         ),
         population_size=population_size,
     )
+
+
+def _committed_seasons():
+    """Resolve the committed sim_data corpus, skipping if it is not present.
+
+    The corpus-backed tests below assert facts about the real committed
+    seasons, so they are meaningful only in a checkout that carries them. A
+    missing corpus is an environment without the data, not a failure of the
+    code under test, so it SKIPS rather than raising FileNotFoundError out of
+    iterdir().
+
+    Returns:
+        The sorted list of numeric season directories under simulation/sim_data.
+    """
+    from pathlib import Path
+    sim_data = Path(__file__).resolve().parents[3] / "simulation" / "sim_data"
+    if not sim_data.is_dir():
+        pytest.skip(f"committed sim_data corpus not present at {sim_data}")
+
+    seasons = sorted(p for p in sim_data.iterdir() if p.name.isdigit())
+    if not seasons:
+        pytest.skip(f"committed sim_data corpus carries no seasons at {sim_data}")
+    return seasons
 
 
 @pytest.fixture
@@ -359,16 +383,21 @@ class TestRealCorpusSeparation:
 
     def test_2023_week_1_is_below_every_other_season_week(self):
         # Arrange
-        from pathlib import Path
-        sim_data = Path(__file__).resolve().parents[3] / "simulation" / "sim_data"
-        seasons = sorted(p for p in sim_data.iterdir() if p.name.isdigit())
+        seasons = _committed_seasons()
 
-        # Act
+        # Act - a week with no eligible player-weeks has no coverage RATE at
+        # all (0/0 is undefined, not 0%), so it is excluded from the corridor
+        # rather than divided by. compute_season_coverage already reports such
+        # a week separately; asserting a rate for it would be inventing one.
         rates = {}
         for season in seasons:
             coverage = compute_season_coverage(season)
             for week, (covered, eligible) in coverage.per_week.items():
+                if eligible == 0:
+                    continue
                 rates[(season.name, week)] = covered / eligible
+
+        assert rates, "no measurable season-week in the committed corpus"
 
         # Assert
         # Assert against the CORRIDOR, not the observed extremes. The defect
@@ -559,9 +588,7 @@ class TestRealCorpusEnforcement:
     """The committed corpus, asserted against the floors rather than a figure."""
 
     def _seasons(self):
-        from pathlib import Path
-        sim_data = Path(__file__).resolve().parents[3] / "simulation" / "sim_data"
-        return sorted(p for p in sim_data.iterdir() if p.name.isdigit())
+        return _committed_seasons()
 
     def test_only_2023_week_1_is_below_the_per_week_floor(self):
         # Arrange
@@ -588,3 +615,114 @@ class TestRealCorpusEnforcement:
             season_below_floor(compute_season_coverage(season)) is False
             for season in seasons
         )
+
+
+class TestExcludedWeeksBySeason:
+    """The harness-facing exclusion mapping (D8.4): floor-driven, loud, fail-open."""
+
+    def _run(self, season_dirs):
+        logger = MagicMock()
+        with patch('simulation.shared.sim_data_coverage.get_logger',
+                   return_value=logger):
+            mapping = excluded_weeks_by_season(season_dirs)
+        return mapping, logger
+
+    def _defective(self, season_dir):
+        """Write a season whose week 1 alone is below the floor."""
+        projected = _flat(10.0)
+        projected[0] = 0.0
+        _write_season(season_dir, {'QB': [
+            _record('qb', 'QB', projected, _flat(10.0)),
+        ]})
+
+    def _healthy(self, season_dir):
+        """Write a season every week of which is fully covered."""
+        _write_season(season_dir, {'QB': [
+            _record('qb', 'QB', _flat(10.0), _flat(10.0)),
+        ]})
+
+    def test_a_sub_floor_week_is_returned_keyed_by_directory_name(self, season_dir):
+        # Arrange
+        self._defective(season_dir)
+
+        # Act
+        mapping, _logger = self._run([season_dir])
+
+        # Assert - the key is the season DIRECTORY name, which is what the
+        # worker holds (season_path.name), and the value is picklable.
+        assert mapping == {'2023': frozenset({1})}
+
+    def test_a_healthy_season_is_omitted_from_the_mapping(self, season_dir):
+        # Arrange
+        self._healthy(season_dir)
+
+        # Act
+        mapping, logger = self._run([season_dir])
+
+        # Assert
+        assert mapping == {}
+        assert logger.warning.call_count == 0
+
+    def test_each_exclusion_is_logged_once_naming_both_bye_conventions(self, season_dir):
+        # Arrange
+        self._defective(season_dir)
+
+        # Act
+        _mapping, logger = self._run([season_dir])
+
+        # Assert - season, week, raw figure, percentage, the floor, and the bye
+        # convention on BOTH figures.
+        assert logger.warning.call_count == 1
+        message = logger.warning.call_args.args[0]
+        assert '2023' in message
+        assert 'week 01' in message
+        assert '0/1' in message
+        assert '(0.0%)' in message
+        assert f"{PER_WEEK_COVERAGE_FLOOR_PCT:.1f}%" in message
+        assert message.count(BYE_CONVENTION) == 2
+
+    def test_the_summary_count_is_logged_even_when_it_is_zero(self, season_dir):
+        # Arrange - "the flag was on and nothing qualified" is a distinct
+        # outcome silence cannot express.
+        self._healthy(season_dir)
+
+        # Act
+        _mapping, logger = self._run([season_dir])
+
+        # Assert
+        info_messages = [c.args[0] for c in logger.info.call_args_list]
+        assert info_messages == [
+            'Accuracy evaluation corpus: 0 season-week(s) excluded'
+        ]
+
+    def test_an_unmeasurable_season_warns_and_excludes_nothing(self, season_dir):
+        # Arrange - fail-open: an unreadable tree is not evidence that a week is
+        # under-covered, and the conservative direction for a narrowing is to
+        # narrow less.
+        snapshot = _write_season(season_dir, {})
+        (snapshot / POSITION_JSON_FILES['QB']).write_text("{not valid json")
+
+        # Act
+        mapping, logger = self._run([season_dir])
+
+        # Assert
+        assert mapping == {}
+        assert logger.warning.call_count == 1
+        assert POSITION_JSON_FILES['QB'] in logger.warning.call_args.args[0]
+
+    def test_seasons_are_measured_independently(self, tmp_path):
+        # Arrange
+        defective = tmp_path / "2023"
+        healthy = tmp_path / "2024"
+        self._defective(defective)
+        self._healthy(healthy)
+
+        # Act
+        mapping, logger = self._run([defective, healthy])
+
+        # Assert
+        assert mapping == {'2023': frozenset({1})}
+        info_messages = [c.args[0] for c in logger.info.call_args_list]
+        assert info_messages == [
+            'Accuracy evaluation corpus: 1 season-week(s) excluded'
+        ]

@@ -1000,3 +1000,54 @@ class TestT69TerminatingRunner:
 
         optimal = sorted(tmp_path.glob("accuracy_optimal_*"))
         assert len(optimal) == 1, f"expected exactly 1 optimal folder, found {len(optimal)}: {optimal}"
+
+
+class TestD84ExcludeLowCoverageWeeksFlag:
+    """D8.4: the opt-in flag exists, is off by default, and reaches the manager."""
+
+    def _baseline_folder(self, tmp_path):
+        import json
+        folder = tmp_path / "optimal"
+        folder.mkdir()
+        for name in ['league_config.json', 'week1-5.json', 'week6-9.json',
+                     'week10-13.json', 'week14-17.json']:
+            (folder / name).write_text(json.dumps({'parameters': {}}))
+        return folder
+
+    def _manager_kwargs(self, tmp_path, extra_argv):
+        folder = self._baseline_folder(tmp_path)
+        argv = ['run_accuracy_simulation.py', '--baseline', str(folder),
+                '--output', str(tmp_path / "out")] + extra_argv
+        with patch('run_accuracy_simulation.AccuracySimulationManager') as mock_cls, \
+             patch('sys.argv', argv):
+            mock_instance = MagicMock()
+            mock_instance.run_both.return_value = folder
+            mock_instance.results_manager.get_summary.return_value = "Summary"
+            mock_cls.return_value = mock_instance
+            import run_accuracy_simulation
+            try:
+                run_accuracy_simulation.main()
+            except SystemExit:
+                pass
+            return mock_cls.call_args.kwargs
+
+    def test_the_flag_is_listed_in_help(self):
+        result = subprocess.run(
+            [sys.executable, str(project_root / "run_accuracy_simulation.py"), "--help"],
+            capture_output=True,
+            text=True,
+            timeout=60
+        )
+
+        assert result.returncode == 0
+        assert "--exclude-low-coverage-weeks" in result.stdout
+
+    def test_the_default_reaches_the_manager_as_false(self, tmp_path):
+        kwargs = self._manager_kwargs(tmp_path, [])
+
+        assert kwargs['exclude_low_coverage_weeks'] is False
+
+    def test_the_flag_reaches_the_manager_as_true(self, tmp_path):
+        kwargs = self._manager_kwargs(tmp_path, ['--exclude-low-coverage-weeks'])
+
+        assert kwargs['exclude_low_coverage_weeks'] is True

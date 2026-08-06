@@ -12,7 +12,7 @@ import json
 import shutil
 import tempfile
 from pathlib import Path
-from typing import Dict, List, Any, Tuple
+from typing import Dict, FrozenSet, List, Any, Optional, Tuple
 
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
 
@@ -28,7 +28,8 @@ from league_helper.util.SeasonScheduleManager import SeasonScheduleManager
 def _evaluate_config_tournament_process(
     config_dict: Dict[str, Any],
     data_folder: Path,
-    available_seasons: List[Path]
+    available_seasons: List[Path],
+    excluded_season_weeks: Optional[Dict[str, FrozenSet[int]]] = None
 ) -> Tuple[Dict[str, Any], Dict[str, AccuracyResult]]:
     """
     Module-level function to evaluate single config across all 4 weekly horizons.
@@ -39,6 +40,9 @@ def _evaluate_config_tournament_process(
         config_dict: Configuration to evaluate
         data_folder: Path to simulation data folder (sim_data/)
         available_seasons: List of season folder Paths to use
+        excluded_season_weeks: Optional season-directory-name -> frozenset of
+            week numbers the harness must not evaluate (D8.4). None or an empty
+            mapping evaluates every season-week, exactly as before.
 
     Returns:
         Tuple of (config_dict, results_dict) where results_dict maps horizon to AccuracyResult.
@@ -57,7 +61,7 @@ def _evaluate_config_tournament_process(
     for week_key, week_range in WEEK_RANGES.items():
         results[week_key] = _evaluate_config_weekly_worker(
             calculator, config_dict, data_folder, available_seasons, week_range, week_key,
-            param_name, param_value, config_horizon
+            param_name, param_value, config_horizon, excluded_season_weeks
         )
 
     logger = calculator.logger
@@ -80,7 +84,8 @@ def _evaluate_config_weekly_worker(
     horizon: str,
     param_name: str,
     param_value: Any,
-    config_horizon: str
+    config_horizon: str,
+    excluded_season_weeks: Optional[Dict[str, FrozenSet[int]]] = None
 ) -> AccuracyResult:
     """Evaluate one config over a single weekly horizon across every available season.
 
@@ -96,17 +101,24 @@ def _evaluate_config_weekly_worker(
 
     Runs inside the ProcessPoolExecutor worker process that evaluates a single config.
     Season paths come from available_seasons; the data_folder parameter is currently
-    unused.
+    unused. excluded_season_weeks, when supplied, names the season-weeks the shared
+    coverage owner rejected (D8.4); the decision was made and announced once in the
+    parent process, so this worker skips silently and emits no per-skip line.
     """
     start_week, end_week = week_range
     season_results = []
+    excluded_by_season = excluded_season_weeks or {}
 
     for season_path in available_seasons:
         week_projections = {}
         week_actuals = {}
         player_data_by_week = {}
+        excluded_weeks = excluded_by_season.get(season_path.name, frozenset())
 
         for week_num in range(start_week, end_week + 1):
+            if week_num in excluded_weeks:
+                continue
+
             projected_path, actual_path = _load_season_data(season_path, week_num)
             if not projected_path or not actual_path:
                 continue
@@ -295,7 +307,8 @@ class ParallelAccuracyRunner:
         data_folder: Path,
         available_seasons: List[str],
         max_workers: int = 8,
-        use_processes: bool = True
+        use_processes: bool = True,
+        excluded_season_weeks: Optional[Dict[str, FrozenSet[int]]] = None
     ):
         """
         Initialize parallel runner.
@@ -305,11 +318,15 @@ class ParallelAccuracyRunner:
             available_seasons: List of season folders to use
             max_workers: Number of parallel workers (default: 8)
             use_processes: Use ProcessPoolExecutor (True) or ThreadPoolExecutor (False)
+            excluded_season_weeks: Optional season-directory-name -> frozenset of
+                week numbers to drop from the evaluation corpus (D8.4). None or an
+                empty mapping evaluates every season-week, exactly as before.
         """
         self.data_folder = data_folder
         self.available_seasons = available_seasons
         self.max_workers = max_workers
         self.use_processes = use_processes
+        self.excluded_season_weeks = excluded_season_weeks or {}
         self.logger = get_logger()
 
     def evaluate_configs_parallel(
@@ -345,7 +362,8 @@ class ParallelAccuracyRunner:
                     _evaluate_config_tournament_process,
                     config,
                     self.data_folder,
-                    self.available_seasons
+                    self.available_seasons,
+                    self.excluded_season_weeks
                 ): config
                 for config in configs
             }

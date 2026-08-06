@@ -358,6 +358,16 @@ def main() -> None:
              "(stdout only, no sim run). Example: --compare folder_a/ folder_b/"
     )
 
+    parser.add_argument(
+        '--exclude-low-coverage-weeks',
+        action='store_true',
+        default=False,
+        help='Exclude from the evaluation corpus any season-week whose projection '
+             'coverage is below the shared per-week floor. Every exclusion is '
+             'logged. Off by default — a plain run evaluates every season-week, '
+             'as before.'
+    )
+
     args = parser.parse_args()
 
     setup_logger(LOG_NAME, args.log_level.upper(), args.enable_log_file, None, LOGGING_FORMAT)
@@ -461,7 +471,8 @@ def main() -> None:
             num_parameters_to_test=args.num_params,
             max_workers=args.max_workers,
             use_processes=args.use_processes,
-            seed=args.seed
+            seed=args.seed,
+            exclude_low_coverage_weeks=args.exclude_low_coverage_weeks
         )
     except Exception as e:
         logger.error(f"Failed to initialize AccuracySimulationManager: {e}")

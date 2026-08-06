@@ -12,6 +12,8 @@ import shutil
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 
+import pytest
+
 from historical_data_compiler.constants import (
     SEASON_SCHEDULE_FILE,
     GAME_DATA_FILE,
@@ -256,12 +258,8 @@ class TestValidateSimData:
              patch('validate_sim_data.get_logger', return_value=MagicMock()), \
              patch('sys.argv', ['validate_sim_data.py', '--year', '2025',
                                 '--output-dir', str(tmp_path)]):
-            try:
+            with pytest.raises(RuntimeError, match='boom'):
                 main()
-            except RuntimeError:
-                pass
-            else:
-                raise AssertionError("expected the RuntimeError to propagate past main()")
 
     def test_enable_log_file_passes_log_to_file_true(self, tmp_path):
         self._build_valid_tree(tmp_path)
