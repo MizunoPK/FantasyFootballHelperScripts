@@ -1,8 +1,8 @@
 """
-Determinism regression tests for the accuracy simulation's candidate-config
-generation (T51).
+Determinism regression tests for the accuracy simulation: candidate-config
+generation (T51) AND per-config evaluation (D2 / TD4).
 
-Covers spec D1-D4:
+Covers spec D1-D4 (generation):
 - Default (no explicit seed) generation is identical across repeated in-process
   calls and across differing PYTHONHASHSEED values.
 - --seed reproducibility: the same explicit seed reproduces the candidate array;
@@ -11,6 +11,12 @@ Covers spec D1-D4:
   the process-global `random` module is NOT consumed on the generation path.
 - The seed is threaded CLI -> AccuracySimulationManager -> ConfigGenerator, and
   the accuracy runner exposes a --seed CLI flag.
+
+Also covers D2 ticket.md Success Criterion 1 / context.md TD4 (evaluation):
+- Evaluating one fixed config twice via the real production evaluation entry
+  point returns byte-identical pairwise_accuracy on every horizon, establishing
+  the fixed-config noise floor at exactly 0. See
+  TestAccuracyEvaluationDeterminism below for detail.
 
 Author: Kai Mizuno
 Date: 2026
@@ -238,8 +244,9 @@ class TestAccuracyEvaluationDeterminism:
 
     Complements `TestAccuracyGenerationDeterminism` above, which covers candidate
     GENERATION; this class covers EVALUATION (D2 ticket.md Success Criterion 1 /
-    context.md TD4) -- converting the two in-code claims (this module's own
-    AccuracySimulationManager docstring; the T69/D2-tagged comment in
+    context.md TD4) -- converting the two in-code claims (the
+    AccuracySimulationManager docstring in
+    simulation/accuracy/AccuracySimulationManager.py; the T69/D2-tagged comment in
     AccuracyResultsManager.is_better_than) plus D11's one-off empirical observation
     into a committed, always-checked guard. Establishes that the fixed-config noise
     floor every D2.2/D2.3 dispersion figure is measured against is exactly 0.
@@ -274,9 +281,13 @@ class TestAccuracyEvaluationDeterminism:
             config_dict, DATA_FOLDER, manager.available_seasons
         )
 
-        for horizon_key in WEEK_RANGES:
-            first_pairwise = first_results[horizon_key].overall_metrics.pairwise_accuracy
-            second_pairwise = second_results[horizon_key].overall_metrics.pairwise_accuracy
+        for week_key in WEEK_RANGES:
+            first_pairwise = first_results[week_key].overall_metrics.pairwise_accuracy
+            second_pairwise = second_results[week_key].overall_metrics.pairwise_accuracy
+            assert first_pairwise is not None and second_pairwise is not None, (
+                f"{week_key}: pairwise_accuracy unexpectedly None "
+                f"(first={first_pairwise!r}, second={second_pairwise!r})"
+            )
             assert first_pairwise == second_pairwise, (
-                f"{horizon_key}: {first_pairwise!r} != {second_pairwise!r}"
+                f"{week_key}: {first_pairwise!r} != {second_pairwise!r}"
             )
