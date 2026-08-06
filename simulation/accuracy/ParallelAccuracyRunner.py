@@ -305,7 +305,7 @@ class ParallelAccuracyRunner:
     def __init__(
         self,
         data_folder: Path,
-        available_seasons: List[str],
+        available_seasons: List[Path],
         max_workers: int = 8,
         use_processes: bool = True,
         excluded_season_weeks: Optional[Dict[str, FrozenSet[int]]] = None
@@ -315,7 +315,7 @@ class ParallelAccuracyRunner:
 
         Args:
             data_folder: Path to simulation data folder
-            available_seasons: List of season folders to use
+            available_seasons: List of season folder Paths to use
             max_workers: Number of parallel workers (default: 8)
             use_processes: Use ProcessPoolExecutor (True) or ThreadPoolExecutor (False)
             excluded_season_weeks: Optional season-directory-name -> frozenset of

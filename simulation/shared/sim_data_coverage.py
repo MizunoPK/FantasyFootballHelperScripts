@@ -424,7 +424,9 @@ def excluded_weeks_by_season(
     a bounded run would fire thousands of times across eight processes and bury
     the signal. The closing count is logged even when it is zero, because "the
     flag was on and nothing qualified" is a distinct outcome silence cannot
-    express.
+    express. When one or more seasons failed to measure, that count is named on
+    the same line: a bare "0 season-week(s) excluded" would otherwise read as a
+    clean corpus when a season was in fact never measured at all.
 
     A season whose coverage cannot be computed is logged once at WARNING and
     excludes NOTHING (D8.4 HD5, fail-open): an unreadable tree is not evidence
@@ -444,6 +446,7 @@ def excluded_weeks_by_season(
     logger = get_logger()
     excluded: Dict[str, FrozenSet[int]] = {}
     excluded_count = 0
+    unmeasured_count = 0
 
     for season_dir in season_dirs:
         snapshot_dir = _season_snapshot_dir(season_dir)
@@ -455,6 +458,7 @@ def excluded_weeks_by_season(
                 f"excluded_weeks_by_season: coverage not computed for "
                 f"{snapshot_dir}: {e}; excluding nothing for {season_dir.name}"
             )
+            unmeasured_count += 1
             continue
         except ValueError as e:
             # ValueError, not json.JSONDecodeError: the latter is one ValueError
@@ -465,6 +469,7 @@ def excluded_weeks_by_season(
                 f"invalid JSON under {snapshot_dir}: {e}; excluding nothing for "
                 f"{season_dir.name}"
             )
+            unmeasured_count += 1
             continue
         except (KeyError, IndexError, TypeError) as e:
             # KeyError.__str__ repr()s its single argument, so unwrap it to
@@ -475,6 +480,7 @@ def excluded_weeks_by_season(
                 f"record or file under {snapshot_dir}: {detail}; excluding "
                 f"nothing for {season_dir.name}"
             )
+            unmeasured_count += 1
             continue
 
         offending_weeks = weeks_below_floor(coverage)
@@ -494,8 +500,12 @@ def excluded_weeks_by_season(
         excluded[season_dir.name] = frozenset(offending_weeks)
         excluded_count += len(offending_weeks)
 
-    logger.info(
-        f"Accuracy evaluation corpus: {excluded_count} season-week(s) excluded"
-    )
+    # The count alone cannot express the third outcome: a season that failed to
+    # measure excluded nothing, so "0 season-week(s) excluded" read alone would
+    # claim a clean corpus. Name the unmeasurable seasons when there are any.
+    summary = f"Accuracy evaluation corpus: {excluded_count} season-week(s) excluded"
+    if unmeasured_count:
+        summary += f"; {unmeasured_count} season(s) not measured"
+    logger.info(summary)
 
     return excluded

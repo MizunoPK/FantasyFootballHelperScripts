@@ -900,7 +900,7 @@ class TestParallelRunnerEvaluationLogLine:
 
         runner = ParallelAccuracyRunner(
             data_folder=tmp_path,
-            available_seasons=['2024'],
+            available_seasons=[tmp_path / '2024'],
             max_workers=2,
             use_processes=False,
         )

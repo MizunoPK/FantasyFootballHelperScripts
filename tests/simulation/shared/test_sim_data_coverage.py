@@ -710,6 +710,68 @@ class TestExcludedWeeksBySeason:
         assert logger.warning.call_count == 1
         assert POSITION_JSON_FILES['QB'] in logger.warning.call_args.args[0]
 
+    def test_a_season_with_no_snapshot_folder_warns_and_excludes_nothing(self, season_dir):
+        # Arrange - the OSError arm of HD5's three, and the reachable one in
+        # production: a real season whose weeks/week_18/ snapshot is absent or
+        # only partially compiled. The season directory exists; the snapshot
+        # folder does not, so the loader's first open() raises FileNotFoundError.
+        snapshot = season_dir / WEEKS_FOLDER / f"week_{VALIDATION_WEEKS:02d}"
+        assert not snapshot.exists()
+
+        # Act
+        mapping, logger = self._run([season_dir])
+
+        # Assert - fail open: nothing excluded, one WARNING naming the season.
+        assert mapping == {}
+        assert logger.warning.call_count == 1
+        message = logger.warning.call_args.args[0]
+        assert str(snapshot) in message
+        assert 'excluding nothing for 2023' in message
+
+    def test_a_record_missing_a_required_key_warns_and_excludes_nothing(self, season_dir):
+        # Arrange - the KeyError arm: the position JSON parses and carries its
+        # own key, but a record omits projected_points, which
+        # compute_season_coverage subscripts per week.
+        snapshot = _write_season(season_dir, {})
+        malformed = _record('qb', 'QB', _flat(10.0), _flat(10.0))
+        del malformed['projected_points']
+        filename = POSITION_JSON_FILES['QB']
+        (snapshot / filename).write_text(
+            json.dumps({filename.rsplit('.', 1)[0]: [malformed]})
+        )
+
+        # Act
+        mapping, logger = self._run([season_dir])
+
+        # Assert - fail open, one WARNING, and the KeyError detail is UNWRAPPED
+        # (a bare projected_points, not KeyError's repr()-quoted "'projected_points'"),
+        # which is what makes it format like the arms sharing this handler.
+        assert mapping == {}
+        assert logger.warning.call_count == 1
+        message = logger.warning.call_args.args[0]
+        assert str(snapshot) in message
+        assert ': projected_points; excluding nothing for 2023' in message
+
+    def test_the_summary_names_unmeasurable_seasons_alongside_the_count(self, tmp_path):
+        # Arrange - one healthy season and one that cannot be measured. The
+        # count alone would read "0 season-week(s) excluded", i.e. a clean
+        # corpus, which is false: a season was never measured at all.
+        healthy = tmp_path / "2024"
+        unmeasurable = tmp_path / "2023"
+        self._healthy(healthy)
+        unmeasurable.mkdir(parents=True)
+
+        # Act
+        mapping, logger = self._run([healthy, unmeasurable])
+
+        # Assert
+        assert mapping == {}
+        info_messages = [c.args[0] for c in logger.info.call_args_list]
+        assert info_messages == [
+            'Accuracy evaluation corpus: 0 season-week(s) excluded; '
+            '1 season(s) not measured'
+        ]
+
     def test_seasons_are_measured_independently(self, tmp_path):
         # Arrange
         defective = tmp_path / "2023"

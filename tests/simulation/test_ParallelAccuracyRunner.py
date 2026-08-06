@@ -136,26 +136,10 @@ class TestEvaluateConfigTournamentProcess:
         data_path.mkdir()
         create_mock_historical_season_f05(data_path, "2024")
 
-        fixtures_baseline = project_root / "tests" / "fixtures" / "accuracy_test_baseline"
-        with open(fixtures_baseline / "league_config.json") as f:
-            league_config = json.load(f)
-        with open(fixtures_baseline / "week1-5.json") as f:
-            week_config = json.load(f)
-
-        config_dict = {
-            "config_name": "test_f05_unit",
-            "description": "F05 unit test config",
-            "parameters": {
-                **league_config.get("parameters", {}),
-                **week_config.get("parameters", {}),
-            },
-            "_eval_metadata": {
-                "param_name": "NORMALIZATION_MAX_SCALE",
-                "param_value": 150,
-                "horizon": "week_1_5",
-                "test_idx": 0
-            }
-        }
+        # One copy of the fixture knowledge: the module-level helper below builds
+        # the same dict this test used to construct inline. The assertions below
+        # are on the returned tuple's shape, never on the label fields.
+        config_dict = build_f05_config_dict()
 
         season_path = data_path / "2024"
         available_seasons = [season_path]
@@ -308,9 +292,11 @@ def build_f05_config_dict():
         its _eval_metadata block.
     """
     fixtures_baseline = project_root / "tests" / "fixtures" / "accuracy_test_baseline"
-    with open(fixtures_baseline / "league_config.json") as f:
+    # encoding is explicit: these are COMMITTED fixture files, so a non-UTF-8
+    # platform default would make the read platform-dependent (Copilot, PR #85).
+    with open(fixtures_baseline / "league_config.json", encoding='utf-8') as f:
         league_config = json.load(f)
-    with open(fixtures_baseline / "week1-5.json") as f:
+    with open(fixtures_baseline / "week1-5.json", encoding='utf-8') as f:
         week_config = json.load(f)
 
     return {
