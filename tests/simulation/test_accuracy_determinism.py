@@ -1,8 +1,8 @@
 """
-Determinism regression tests for the accuracy simulation's candidate-config
-generation (T51).
+Determinism regression tests for the accuracy simulation: candidate-config
+generation (T51) AND per-config evaluation (D2 / TD4).
 
-Covers spec D1-D4:
+Covers spec D1-D4 (generation):
 - Default (no explicit seed) generation is identical across repeated in-process
   calls and across differing PYTHONHASHSEED values.
 - --seed reproducibility: the same explicit seed reproduces the candidate array;
@@ -11,6 +11,12 @@ Covers spec D1-D4:
   the process-global `random` module is NOT consumed on the generation path.
 - The seed is threaded CLI -> AccuracySimulationManager -> ConfigGenerator, and
   the accuracy runner exposes a --seed CLI flag.
+
+Also covers D2 ticket.md Success Criterion 1 / context.md TD4 (evaluation):
+- Evaluating one fixed config twice via the real production evaluation entry
+  point returns byte-identical pairwise_accuracy on every horizon, establishing
+  the fixed-config noise floor at exactly 0. See
+  TestAccuracyEvaluationDeterminism below for detail.
 
 Author: Kai Mizuno
 Date: 2026
@@ -25,6 +31,8 @@ from pathlib import Path
 
 from simulation.shared.ConfigGenerator import ConfigGenerator, DEFAULT_ACCURACY_SEED
 from simulation.accuracy.AccuracySimulationManager import AccuracySimulationManager
+from simulation.accuracy.ParallelAccuracyRunner import _evaluate_config_tournament_process
+from simulation.accuracy.horizon_labels import WEEK_RANGES
 
 # Repo root: tests/simulation/test_accuracy_determinism.py -> parents[2].
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -229,3 +237,72 @@ class TestAccuracySeedThreading:
         )
         assert proc.returncode == 0, f"--help exited {proc.returncode}\n{proc.stderr}"
         assert "--seed" in proc.stdout
+
+
+class TestAccuracyEvaluationDeterminism:
+    """Per-config evaluation is deterministic: no randomness in `simulation/accuracy/`.
+
+    Complements `TestAccuracyGenerationDeterminism` above, which covers candidate
+    GENERATION; this class covers EVALUATION (D2 ticket.md Success Criterion 1 /
+    context.md TD4) -- converting the two in-code claims (the
+    AccuracySimulationManager docstring in
+    simulation/accuracy/AccuracySimulationManager.py; the T69/D2-tagged comment in
+    AccuracyResultsManager.is_better_than) plus D11's one-off empirical observation
+    into a committed, always-checked guard. Establishes that the fixed-config noise
+    floor every D2.2/D2.3 dispersion figure is measured against is exactly 0.
+
+    MUTATION CHECK (CODING_STANDARDS.md "Test Discrimination", performed once at
+    implementation time, then reverted -- see the plan's Step 2 verification):
+    AccuracyCalculator.calculate_pairwise_accuracy's `accuracy = correct / total`
+    line was temporarily changed to introduce a per-call random jitter, and this
+    test was confirmed to FAIL against the perturbed calculator; the perturbation
+    was then reverted via `git checkout --` and this test re-confirmed to PASS.
+    This test is not a tautology.
+    """
+
+    def test_fixed_config_evaluates_identically_twice(self, tmp_path):
+        """Evaluating one fixed config dict twice, in-process, against the real
+        committed corpus (simulation/sim_data + data/configs) via the real
+        production evaluation entry point (_evaluate_config_tournament_process)
+        returns byte-identical pairwise_accuracy on every WEEK_RANGES horizon."""
+        assert DATA_FOLDER.is_dir(), (
+            f"committed sim_data corpus not present at {DATA_FOLDER} -- this guard "
+            "asserts rather than skips (unlike "
+            "test_sim_data_coverage.py's season-discovery fixture, which "
+            "pytest.skips on missing/empty corpus) because this unit's entire "
+            "purpose (D2 ticket.md Success Criterion 1 / TD4) is a determinism "
+            "guard that must not pass vacuously by being skipped; restore the "
+            "committed corpus rather than skip this test"
+        )
+        manager = AccuracySimulationManager(
+            baseline_config_path=BASELINE_CONFIGS,
+            output_dir=tmp_path / "out",
+            data_folder=DATA_FOLDER,
+            parameter_order=[HORIZON_PARAM],
+            num_test_values=2,
+        )
+        config_dict = manager.config_generator.baseline_configs['1-5']
+
+        _, first_results = _evaluate_config_tournament_process(
+            config_dict, DATA_FOLDER, manager.available_seasons
+        )
+        _, second_results = _evaluate_config_tournament_process(
+            config_dict, DATA_FOLDER, manager.available_seasons
+        )
+
+        for week_key in WEEK_RANGES:
+            first_metrics = first_results[week_key].overall_metrics
+            second_metrics = second_results[week_key].overall_metrics
+            assert first_metrics is not None and second_metrics is not None, (
+                f"{week_key}: overall_metrics unexpectedly None "
+                f"(first={first_metrics!r}, second={second_metrics!r})"
+            )
+            first_pairwise = first_metrics.pairwise_accuracy
+            second_pairwise = second_metrics.pairwise_accuracy
+            assert first_pairwise is not None and second_pairwise is not None, (
+                f"{week_key}: pairwise_accuracy unexpectedly None "
+                f"(first={first_pairwise!r}, second={second_pairwise!r})"
+            )
+            assert first_pairwise == second_pairwise, (
+                f"{week_key}: {first_pairwise!r} != {second_pairwise!r}"
+            )
