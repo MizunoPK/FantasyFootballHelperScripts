@@ -780,6 +780,63 @@ class TestRunBothBaselineSelection:
         mock_cg.load_baseline_from_folder.assert_called_once_with(mtime_latest)
 
 
+class TestResetCandidateDumpWiring:
+    """D2.2 Polish finding 1: run_both() resets the candidate-dump scratch file whenever
+    _detect_resume_state() reports should_resume=False, and leaves it alone when resuming --
+    so an abandoned run's records can never silently merge into a fresh ascent's promoted
+    candidate_results.json. _detect_resume_state has three should_resume=False branches (no
+    intermediate folders; a parameter-order mismatch; all parameters complete and all horizons
+    frozen); this tests the caller-side wiring generically via the mocked return value rather
+    than re-deriving each branch (already covered by TestAccuracySimulationManagerResumeState),
+    since reset_candidate_dump() is called once per should_resume outcome regardless of which
+    branch produced it.
+    """
+
+    def _manager(self, tmp_path):
+        """A manager with the heavy collaborators stubbed out (mirrors TestT69ConvergenceLoop)."""
+        mgr = AccuracySimulationManager.__new__(AccuracySimulationManager)
+        mgr.logger = Mock()
+        mgr.output_dir = tmp_path
+        mgr.parameter_order = ['P1']
+        mgr.results_manager = Mock()
+        mgr.results_manager.save_optimal_configs.return_value = tmp_path / "accuracy_optimal_x"
+        mgr.config_generator = Mock()
+        mgr.config_generator.num_test_values = 2
+        mgr._sweep_orphaned_temp_dirs = Mock()
+        mgr._setup_signal_handlers = Mock()
+        mgr._restore_signal_handlers = Mock()
+        mgr._warn_low_accuracy_promoted = Mock()
+        mgr._run_ascent_pass = Mock(return_value=set())
+        return mgr
+
+    def test_fresh_non_resumed_ascent_resets_the_scratch(self, tmp_path):
+        """should_resume=False (any branch) -- reset_candidate_dump() is called exactly once,
+        before the first candidate of the new ascent would be evaluated."""
+        mgr = self._manager(tmp_path)
+        mgr._detect_resume_state = Mock(return_value=(False, 0, None, 0, set()))
+
+        with patch('simulation.accuracy.AccuracySimulationManager.cleanup_accuracy_intermediate_folders',
+                   return_value=0):
+            mgr.run_both()
+
+        mgr.results_manager.reset_candidate_dump.assert_called_once()
+
+    def test_resumed_ascent_does_not_touch_the_scratch(self, tmp_path):
+        """should_resume=True -- reset_candidate_dump() must NOT be called, or a genuinely
+        resumed process would discard its own predecessor's still-valid records."""
+        mgr = self._manager(tmp_path)
+        last_config_path = tmp_path / "accuracy_intermediate_0_P1"
+        last_config_path.mkdir()
+        mgr._detect_resume_state = Mock(return_value=(True, 1, last_config_path, 0, set()))
+
+        with patch('simulation.accuracy.AccuracySimulationManager.cleanup_accuracy_intermediate_folders',
+                   return_value=0), \
+             patch('simulation.accuracy.AccuracySimulationManager.ConfigGenerator'):
+            mgr.run_both()
+
+        mgr.results_manager.reset_candidate_dump.assert_not_called()
+
+
 def _perf(pairwise, top_10):
     """A best_configs entry stub carrying just the two metrics the warner reads."""
     return Mock(overall_metrics=Mock(pairwise_accuracy=pairwise, top_10_accuracy=top_10))

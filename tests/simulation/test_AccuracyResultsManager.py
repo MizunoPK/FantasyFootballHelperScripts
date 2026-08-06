@@ -14,6 +14,7 @@ from unittest.mock import Mock, patch
 import tempfile
 import shutil
 
+import simulation.accuracy.AccuracyResultsManager as AccuracyResultsManagerModule
 from simulation.accuracy.AccuracyResultsManager import (
     AccuracyResultsManager,
     AccuracyConfigPerformance,
@@ -923,12 +924,13 @@ class TestAccuracyResultsManager:
 class TestCandidateResultsDump:
     """Tests for the per-candidate results dump (D2.2, TD2/TD2a/D1/D2).
 
-    Nine-field cross-ticket interface (context.md "Interfaces and Boundaries") consumed by
-    D11 and D16 -- horizon, pass_idx, param_name, test_idx, config_value, pairwise_accuracy,
-    per_season_pairwise, adopted, incumbent_pairwise. Both the scratch and promoted filenames
-    are FIXED constants (DUMP_SCRATCH_FILENAME / DUMP_PROMOTED_FILENAME) -- every test below
-    asserts against those constants directly, never a runtime-discovered or globbed path
-    (spec.md Requirements, "test-time anchor").
+    Ten-field cross-ticket interface (context.md "Interfaces and Boundaries") consumed by
+    D11 and D16 -- horizon, pass_idx, param_name, test_idx, base_horizon, config_value,
+    pairwise_accuracy, per_season_pairwise, adopted, incumbent_pairwise. `base_horizon` was
+    added at /du6-polish (Polish D2.2 finding 4), widening the interface from nine fields.
+    Both the scratch and promoted filenames are FIXED constants (DUMP_SCRATCH_FILENAME /
+    DUMP_PROMOTED_FILENAME) -- every test below asserts against those constants directly,
+    never a runtime-discovered or globbed path (spec.md Requirements, "test-time anchor").
 
     MUTATION CHECKS (CODING_STANDARDS.md "Test Discrimination", performed once at
     implementation time, then reverted -- see this plan's Step 7 verification):
@@ -939,6 +941,16 @@ class TestCandidateResultsDump:
     was temporarily removed, confirming test_save_optimal_configs_promotes_dump_and_
     removes_scratch FAILS against a no-promotion regression, then reverted and
     re-confirmed PASSING. Neither test is a tautology.
+
+    POLISH ADDITIONS (2026-08-06, /du6-polish, findings 1/2/4): test_reset_candidate_dump_*
+    cover finding 1 (stale scratch reset on a fresh, non-resumed ascent) via
+    AccuracyResultsManager.reset_candidate_dump() directly (the caller-side wiring in
+    AccuracySimulationManager.run_both() is exercised by
+    tests/integration/test_accuracy_simulation_integration.py's existing resume coverage,
+    not duplicated here); test_append_candidate_record_survives_os_error and
+    test_promote_candidate_dump_survives_write_failure cover finding 2 (instrumentation
+    failures never abort the run); test_add_result_appends_record_for_first_candidate above
+    covers finding 4 (base_horizon in the field set).
     """
 
     @pytest.fixture
@@ -987,10 +999,10 @@ class TestCandidateResultsDump:
 
     def _read_scratch_lines(self, output_dir):
         scratch_path = output_dir / DUMP_SCRATCH_FILENAME
-        with open(scratch_path, 'r') as f:
+        with open(scratch_path, 'r', encoding='utf-8') as f:
             return [json.loads(line) for line in f if line.strip()]
 
-    # --- Coverage item 1: all nine fields, first + subsequent candidate ---
+    # --- Coverage item 1: all ten fields, first + subsequent candidate ---
 
     def test_add_result_appends_record_for_first_candidate(self, results_manager):
         """First add_result call for a horizon appends exactly one record; adopted=True,
@@ -1004,20 +1016,21 @@ class TestCandidateResultsDump:
 
         results_manager.add_result(
             'week_1_5', config, result,
-            param_name='PARAM1', test_idx=0, pass_idx=0
+            param_name='PARAM1', test_idx=0, base_horizon='week_1_5', pass_idx=0
         )
 
         records = self._read_scratch_lines(results_manager.output_dir)
         assert len(records) == 1
         record = records[0]
         assert set(record.keys()) == {
-            'horizon', 'pass_idx', 'param_name', 'test_idx', 'config_value',
+            'horizon', 'pass_idx', 'param_name', 'test_idx', 'base_horizon', 'config_value',
             'pairwise_accuracy', 'per_season_pairwise', 'adopted', 'incumbent_pairwise',
         }
         assert record['horizon'] == 'week_1_5'
         assert record['pass_idx'] == 0
         assert record['param_name'] == 'PARAM1'
         assert record['test_idx'] == 0
+        assert record['base_horizon'] == 'week_1_5'
         assert record['config_value'] == 5
         assert record['pairwise_accuracy'] == 0.60
         assert record['per_season_pairwise'] == {'2023': 0.60, '2024': 0.60}
@@ -1166,7 +1179,7 @@ class TestCandidateResultsDump:
             'config_value': 1, 'pairwise_accuracy': 0.60, 'per_season_pairwise': {},
             'adopted': True, 'incumbent_pairwise': None,
         }
-        with open(scratch_path, 'w') as f:
+        with open(scratch_path, 'w', encoding='utf-8') as f:
             f.write(json.dumps(valid_record) + "\n")
             f.write('{"horizon": "week_6_9", "pass_idx": 0')  # torn -- no closing, no newline
 
@@ -1202,7 +1215,7 @@ class TestCandidateResultsDump:
             'config_value': 2, 'pairwise_accuracy': 0.61, 'per_season_pairwise': {},
             'adopted': True, 'incumbent_pairwise': None,
         }
-        with open(scratch_path, 'w') as f:
+        with open(scratch_path, 'w', encoding='utf-8') as f:
             f.write(json.dumps(record1) + "\n")
             # Process A dies mid-write of this line -- no closing brace, no newline.
             f.write('{"horizon": "week_6_9", "pass_idx": 0, "param_name": "PARAM1"')
@@ -1254,6 +1267,130 @@ class TestCandidateResultsDump:
         assert records[1]['adopted'] is False
         assert records[1]['incumbent_pairwise'] == 0.60
         assert records[1]['pairwise_accuracy'] == 0.61  # the challenger's OWN mean, still higher
+
+    # --- Polish D2.2 finding 1: reset_candidate_dump() ---
+
+    def test_reset_candidate_dump_deletes_an_existing_scratch_file(self, results_manager):
+        """reset_candidate_dump() removes a stale scratch file left by an abandoned run,
+        so a fresh (non-resumed) ascent's promoted dump cannot inherit its records."""
+        results_manager.add_result(
+            'week_1_5', {'parameters': {}}, AccuracyResult(
+                mae=5.0, player_count=100, total_error=500.0, overall_metrics=self._metrics(0.60)
+            ), param_name='PARAM1', test_idx=0, pass_idx=0
+        )
+        scratch_path = results_manager.output_dir / DUMP_SCRATCH_FILENAME
+        assert scratch_path.exists()
+
+        results_manager.reset_candidate_dump()
+
+        assert not scratch_path.exists()
+
+    def test_reset_candidate_dump_is_idempotent_with_no_scratch_file(self, results_manager):
+        """Calling reset_candidate_dump() with nothing on disk (the common case -- a
+        genuinely fresh output_dir) must not raise."""
+        scratch_path = results_manager.output_dir / DUMP_SCRATCH_FILENAME
+        assert not scratch_path.exists()
+
+        results_manager.reset_candidate_dump()  # must not raise
+
+        assert not scratch_path.exists()
+
+    def test_reset_candidate_dump_leaves_a_fresh_ascent_free_of_abandoned_records(self, results_manager):
+        """End-to-end: a record written by an 'abandoned run', then reset, then a fresh
+        ascent's own record and promotion -- the promoted dump carries only the fresh
+        ascent's record, never the abandoned one."""
+        results_manager.add_result(
+            'week_1_5', {'parameters': {}}, AccuracyResult(
+                mae=5.0, player_count=100, total_error=500.0, overall_metrics=self._metrics(0.60)
+            ), param_name='ABANDONED', test_idx=0, pass_idx=0
+        )
+
+        results_manager.reset_candidate_dump()
+
+        results_manager.add_result(
+            'week_1_5', {'parameters': {}}, AccuracyResult(
+                mae=4.0, player_count=100, total_error=400.0, overall_metrics=self._metrics(0.62)
+            ), param_name='FRESH', test_idx=0, pass_idx=0
+        )
+        optimal_path = results_manager.save_optimal_configs()
+        with open(optimal_path / DUMP_PROMOTED_FILENAME, encoding='utf-8') as f:
+            promoted = json.load(f)
+
+        assert len(promoted) == 1
+        assert promoted[0]['param_name'] == 'FRESH'
+
+    # --- Polish D2.2 finding 2: instrumentation failures never abort the run ---
+
+    def test_append_candidate_record_survives_os_error(self, results_manager):
+        """An OSError writing the scratch record is logged and swallowed -- add_result()
+        must still report the correct adoption result, proving the instrumentation
+        failure did not propagate into the measured run.
+
+        Attaches a handler directly (see test_promote_drops_terminal_torn_line's
+        docstring) rather than pytest's caplog, which never observes records from
+        this project's propagate=False loggers.
+        """
+        captured = []
+        handler = logging.Handler()
+        handler.emit = captured.append
+        results_manager.logger.addHandler(handler)
+        try:
+            with patch('builtins.open', side_effect=OSError("No space left on device")):
+                is_new_best = results_manager.add_result(
+                    'week_1_5', {'parameters': {}}, AccuracyResult(
+                        mae=5.0, player_count=100, total_error=500.0,
+                        overall_metrics=self._metrics(0.60)
+                    ), param_name='PARAM1', test_idx=0, pass_idx=0
+                )
+        finally:
+            results_manager.logger.removeHandler(handler)
+
+        assert is_new_best is True  # the real measurement succeeded despite the write failure
+        assert any(
+            'Failed to append candidate-dump record' in r.getMessage() for r in captured
+        )
+
+    def test_promote_candidate_dump_survives_atomic_write_failure(self, results_manager):
+        """A FileOperationError from atomic_write_json during PROMOTION (only -- the
+        earlier league_config.json/week*.json writes must still succeed normally) is
+        logged and swallowed: save_optimal_configs() must still return the
+        optimal_folder path (the run's real deliverable) rather than raising for the
+        sake of the diagnostic dump."""
+        results_manager.add_result(
+            'week_1_5', {'parameters': {}}, AccuracyResult(
+                mae=5.0, player_count=100, total_error=500.0, overall_metrics=self._metrics(0.60)
+            ), param_name='PARAM1', test_idx=0, pass_idx=0
+        )
+
+        real_atomic_write_json = AccuracyResultsManagerModule.atomic_write_json
+
+        def fail_only_for_promoted_dump(data, path, error_message=None):
+            if Path(path).name == DUMP_PROMOTED_FILENAME:
+                raise FileOperationError("disk full")
+            return real_atomic_write_json(data, path, error_message)
+
+        captured = []
+        handler = logging.Handler()
+        handler.emit = captured.append
+        results_manager.logger.addHandler(handler)
+        try:
+            with patch(
+                'simulation.accuracy.AccuracyResultsManager.atomic_write_json',
+                side_effect=fail_only_for_promoted_dump,
+            ):
+                optimal_path = results_manager.save_optimal_configs()
+        finally:
+            results_manager.logger.removeHandler(handler)
+
+        assert optimal_path is not None
+        assert (optimal_path / "week1-5.json").exists()  # the real deliverable landed
+        assert not (optimal_path / DUMP_PROMOTED_FILENAME).exists()  # promotion did not land
+        assert any(
+            'Failed to promote candidate dump' in r.getMessage() for r in captured
+        )
+        # The scratch is NOT deleted on a failed promotion -- it stays available for
+        # inspection / a later retry rather than being lost alongside the failed write.
+        assert (results_manager.output_dir / DUMP_SCRATCH_FILENAME).exists()
 
 
 class TestScheduleSync:

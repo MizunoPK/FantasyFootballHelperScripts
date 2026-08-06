@@ -231,12 +231,25 @@ feature-updates/guides_v2/audit/outputs/
 
 
 simulation/sim_data/win_rate_meta_data.json
-.shamt-core
-CLAUDE.md
 data/team_rankings_cache_*.json
 
+# D2.2: per-candidate accuracy results dump scratch file (untracked-by-design; the killed-run
+# case deliberately leaves it in place for inspection, so it must be git-ignored rather than
+# tracked or deleted).
+simulation/simulation_configs/_accuracy_candidate_dump.jsonl
+
 # >>> Shamt (managed) — generated/regenerated content; not tracked in this repo.
-#     Restore .shamt-core/ via import-shamt; regenerate .claude/ via /f4-regen-framework.
-/.shamt-core/
+#     Restore .shamt-core/ via import-shamt; regenerate host wiring via /f4-regen-framework.
+#     This block is OWNED and REWRITTEN by regenerate-framework.sh on every regen —
+#     edits INSIDE the markers are overwritten. Put your own ignore rules OUTSIDE them.
+#     project-specific-files/ is re-included: it is child-owned and re-derives from nothing.
+#     spikes/archive/ is re-included too (the durable split-rationale record); ACTIVE
+#     spikes/ stays ignored — a WIP spike is transient and must not be committed.
+/.shamt-core/*
+!/.shamt-core/project-specific-files/
+!/.shamt-core/spikes/
+/.shamt-core/spikes/*
+!/.shamt-core/spikes/archive/
 /.claude/
+/CLAUDE.md
 # <<< Shamt

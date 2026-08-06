@@ -25,6 +25,7 @@ from pathlib import Path
 from typing import Dict, List, Optional, Any
 
 from utils.LoggingManager import get_logger
+from utils.error_handler import FileOperationError
 from simulation.shared.atomic_io import atomic_write_json
 from simulation.shared.config_cleanup import cleanup_old_accuracy_optimal_folders
 from simulation.shared.config_constants import WEEK_SPECIFIC_PARAMS
@@ -425,11 +426,17 @@ class AccuracyResultsManager:
         # D2.2/D1: unconditional -- every evaluated candidate gets one scratch record,
         # adopted or not, so the promoted artifact carries the full per-candidate
         # distribution (context.md TD2), not only the winners best_configs already tracks.
+        # `base_horizon` is included (widening the cross-ticket interface from nine fields
+        # to ten -- Polish D2.2 finding 4) because a fixed (horizon, pass_idx, param_name,
+        # test_idx) tuple is produced by up to four distinct base horizons in tournament
+        # mode (AccuracySimulationManager._run_ascent_pass), so it is the only field that
+        # uniquely keys a record.
         self._append_candidate_record({
             'horizon': week_range_key,
             'pass_idx': pass_idx,
             'param_name': param_name,
             'test_idx': test_idx,
+            'base_horizon': base_horizon,
             'config_value': perf.config_value,
             'pairwise_accuracy': perf.overall_metrics.pairwise_accuracy if perf.overall_metrics else None,
             'per_season_pairwise': dict(perf.per_season_pairwise),
@@ -469,19 +476,53 @@ class AccuracyResultsManager:
         (DUMP_SCRATCH_FILENAME) so a resumed process's fresh AccuracyResultsManager
         reopens and continues the SAME file (Trap 2, TD2a) -- process-boundary-
         transparent by construction. One write() call for the complete JSON line
-        plus an explicit flush() minimizes the torn-write window to a single
-        syscall (D2); save_optimal_configs()'s promotion step tolerates the rare
-        remaining torn-line case by dropping it, position-independent, rather than
+        minimizes the torn-write window to a single syscall (D2);
+        save_optimal_configs()'s promotion step tolerates the rare remaining
+        torn-line case by dropping it, position-independent, rather than
         preventing it here. Write-only: nothing in the engine reads this file back
         (TD2a's no-resume-role prohibition).
 
+        Non-essential instrumentation, never the measurement: an OSError here
+        (disk full, read-only mount, permissions) is logged at WARNING and
+        swallowed rather than propagated, so a failure to write this scratch
+        record can never abort the multi-hour sweep it is merely observing
+        (Polish D2.2 finding 2, following the house pattern stated at
+        simulation/shared/config_cleanup.py:81-84).
+
         Args:
-            record: The nine-field candidate record (JSON-serializable dict).
+            record: The ten-field candidate record (JSON-serializable dict).
         """
         scratch_path = self.output_dir / DUMP_SCRATCH_FILENAME
-        with open(scratch_path, 'a', encoding='utf-8') as f:
-            f.write(json.dumps(record) + "\n")
-            f.flush()
+        try:
+            with open(scratch_path, 'a', encoding='utf-8') as f:
+                f.write(json.dumps(record) + "\n")
+        except OSError as e:
+            self.logger.warning(
+                f"Failed to append candidate-dump record to {scratch_path.name}: {e} "
+                "-- continuing without this record (instrumentation only, not the run)"
+            )
+
+    def reset_candidate_dump(self) -> None:
+        """Delete the scratch candidate dump so a fresh (non-resumed) ascent never
+        merges an abandoned run's records into its own promoted dump.
+
+        `AccuracySimulationManager._detect_resume_state` has three branches that
+        return `should_resume=False` while a scratch file can still be on disk
+        (no intermediate folders found; a parameter-order mismatch; all
+        parameters complete and all horizons frozen) and none of them reset the
+        scratch -- so the caller invokes this method whenever it decides NOT to
+        resume, before evaluating the first candidate of the new ascent
+        (Polish D2.2 finding 1). Idempotent and safe to call even when no
+        scratch file exists.
+        """
+        scratch_path = self.output_dir / DUMP_SCRATCH_FILENAME
+        try:
+            scratch_path.unlink(missing_ok=True)
+        except OSError as e:
+            self.logger.warning(
+                f"Failed to reset candidate-dump scratch file {scratch_path.name}: {e} "
+                "-- a fresh ascent may merge with a prior abandoned run's records"
+            )
 
     def get_best_config(self, week_range_key: str) -> Optional[AccuracyConfigPerformance]:
         """Get the best configuration for a week range."""
@@ -686,13 +727,26 @@ class AccuracyResultsManager:
         """Promote the scratch candidate dump into optimal_folder (D1), dropping any
         torn line with a logged warning rather than raising (D2).
 
+        An interrupted-then-resumed run loses at most TWO candidate records per resume
+        boundary -- the killed process's partial record and the resuming process's
+        complete first append, which merge into one unparseable line and are dropped
+        together -- never a crash or a corrupted artifact for D11/D16 (Polish D2.2
+        finding 5; the bound is two, not one, per test_promote_drops_nonterminal_torn_line).
+
         Absent scratch file (pre-existing engine, or a run that evaluated zero
-        candidates) is skipped silently -- never fabricates an empty dump. Runs
-        BEFORE cleanup_accuracy_intermediate_folders (AccuracySimulationManager.py,
-        called after save_optimal_configs() returns), so the promoted artifact
-        exists before that cleanup pass runs; it lives in this accuracy_optimal_*
-        folder, never an accuracy_intermediate_* one, so cleanup never targets it
-        either way (Trap 1, closed by construction).
+        candidates) is skipped without promoting (logged at INFO) -- never fabricates
+        an empty dump. Runs BEFORE cleanup_accuracy_intermediate_folders
+        (AccuracySimulationManager.py, called after save_optimal_configs() returns),
+        so the promoted artifact exists before that cleanup pass runs; it lives in
+        this accuracy_optimal_* folder, never an accuracy_intermediate_* one, so
+        cleanup never targets it either way (Trap 1, closed by construction).
+
+        Non-essential instrumentation, never the measurement: a write failure here
+        (disk full, read-only mount, permissions) is logged at WARNING and swallowed
+        rather than propagated, so a promotion failure can never make save_optimal_configs()
+        raise for a run whose real deliverable -- the five optimal config files, already
+        written and logged above -- landed correctly (Polish D2.2 finding 2, following
+        the house pattern at simulation/shared/config_cleanup.py:81-84).
 
         Args:
             optimal_folder: The just-created accuracy_optimal_* folder.
@@ -722,7 +776,15 @@ class AccuracyResultsManager:
                     )
 
         promoted_path = optimal_folder / DUMP_PROMOTED_FILENAME
-        atomic_write_json(records, promoted_path)
+        try:
+            atomic_write_json(records, promoted_path)
+        except (OSError, FileOperationError) as e:
+            self.logger.warning(
+                f"Failed to promote candidate dump to {promoted_path.name}: {e} "
+                "-- the run's real deliverable (optimal config files) is unaffected; "
+                "the per-candidate distribution for this run is unavailable"
+            )
+            return
         scratch_path.unlink(missing_ok=True)
 
         self.logger.info(
