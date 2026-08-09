@@ -153,6 +153,51 @@ class TestPositionJSONExport:
             "T91: every exported file must land inside the tmp_path sandbox, " \
             "never the tracked repo data/player_data/ tree"
 
+    def test_zero_bye_week_points_in_range(self, tmp_path):
+        """A valid bye zeroes the matching slot in both arrays only."""
+        exporter = DataExporter(output_dir=str(tmp_path))
+        projected_points = [float(week) for week in range(1, 18)]
+        actual_points = [float(week + 20) for week in range(1, 18)]
+
+        exporter._zero_bye_week_points(projected_points, actual_points, 6)
+
+        assert projected_points == [1.0, 2.0, 3.0, 4.0, 5.0, 0.0] + [float(week) for week in range(7, 18)]
+        assert actual_points == [21.0, 22.0, 23.0, 24.0, 25.0, 0.0] + [float(week) for week in range(27, 38)]
+
+    @pytest.mark.parametrize("bye_week", [None, 0, -1, 18])
+    def test_zero_bye_week_points_skips_invalid_byes(self, tmp_path, bye_week):
+        """Falsey and out-of-range byes neither mutate nor index either array."""
+        exporter = DataExporter(output_dir=str(tmp_path))
+        projected_points = [1.0] * 17
+        actual_points = [2.0] * 17
+
+        exporter._zero_bye_week_points(projected_points, actual_points, bye_week)
+
+        assert projected_points == [1.0] * 17
+        assert actual_points == [2.0] * 17
+
+    def test_prepare_position_json_data_does_not_apply_bye_helper(self, tmp_path):
+        """Provision leaves the existing production record builder authoritative."""
+        exporter = DataExporter(output_dir=str(tmp_path))
+        player = Mock()
+        player.configure_mock(
+            id=1,
+            name="Test Player",
+            team="KC",
+            position="UNKNOWN",
+            bye_week=6,
+            injury_status="ACTIVE",
+            drafted_by="",
+            locked=False,
+            average_draft_position=None,
+            player_rating=None,
+        )
+
+        with patch.object(exporter, "_zero_bye_week_points", side_effect=AssertionError("helper called")):
+            result = exporter._prepare_position_json_data(player, None, "UNKNOWN")
+
+        assert result["projected_points"] == [0.0] * 17
+        assert result["actual_points"] == [0.0] * 17
 
 
 class TestDataExporterKAI10:
@@ -305,5 +350,4 @@ class TestDataExporterDataRootSeam:
             "every exported file must land under the PLAYER_DATA_DIR root"
         assert all(str(tmp_path) in f for f in files), \
             "no exported file may escape tmp_path into the tracked repo tree"
-
 

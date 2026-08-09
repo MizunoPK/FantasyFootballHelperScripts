@@ -279,6 +279,27 @@ class DataExporter:
 
         return json_data
 
+    def _zero_bye_week_points(
+        self,
+        projected_points: List[float],
+        actual_points: List[float],
+        bye_week: Optional[int],
+    ) -> None:
+        """Zero both weekly point arrays at a valid fantasy bye week.
+
+        Spec: D3 context.md TD1.
+
+        Args:
+            projected_points: The 17-slot projected-points array to update.
+            actual_points: The 17-slot actual-points array to update.
+            bye_week: One-based fantasy bye week, if known.
+        """
+        if bye_week:
+            bye_idx = bye_week - 1
+            if 0 <= bye_idx < 17:
+                actual_points[bye_idx] = 0.0
+                projected_points[bye_idx] = 0.0
+
     def _get_drafted_by(self, player: FantasyPlayer) -> str:
         """
         Get drafted_by value from player (team name or empty string).
