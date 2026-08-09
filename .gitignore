@@ -255,4 +255,12 @@ data/team_rankings_cache_*.json
 !/.shamt-core/spikes/archive/
 /.claude/
 /CLAUDE.md
+/.github/copilot-instructions.md
+/.github/prompts/
+/.github/instructions/
+/.github/agents/
+/AGENTS.md
+/.agents/
+/.codex/
+/.cursor/
 # <<< Shamt
