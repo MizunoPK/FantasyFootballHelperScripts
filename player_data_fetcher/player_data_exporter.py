@@ -230,6 +230,10 @@ class DataExporter:
         """
         Transform player data to position-specific JSON structure.
 
+        Both weekly arrays are zeroed at the player's bye week before
+        serialization (Spec: D3 context.md TD1), so this method -- not the array
+        builders -- owns the bye-week invariant on what reaches disk.
+
         Spec: specs.md Complete Data Structures section, USER_DECISIONS_SUMMARY.md
 
         Args:

@@ -239,38 +239,66 @@ class TestPositionJSONExport:
         assert result["projected_points"][5] == 0.0
         assert result["actual_points"][5] == 0.0
 
+    @pytest.mark.parametrize("bye_week", [1, 6, 17])
     def test_prepare_position_json_data_zeroes_in_range_bye(
-        self, tmp_path, bye_week_player, espn_data_with_weekly_stats
+        self, tmp_path, bye_week_player, espn_data_with_weekly_stats, bye_week
     ):
-        """An in-range bye zeroes both emitted arrays at bye-1 and no other slot."""
-        exporter = DataExporter(output_dir=str(tmp_path))
+        """An in-range bye zeroes both emitted arrays at bye-1 and no other slot.
+
+        Covers both inside boundaries (1 and 17) as well as an interior value, so
+        an off-by-one in the helper's sole numeric bound (0 <= bye_idx < 17) fails
+        here. current_nfl_week is passed explicitly so every actual-points slot is
+        populated and the only zero in either array is the bye slot itself.
+        """
+        exporter = DataExporter(output_dir=str(tmp_path), current_nfl_week=18)
 
         result = exporter._prepare_position_json_data(
-            bye_week_player(6), espn_data_with_weekly_stats, "UNKNOWN"
+            bye_week_player(bye_week), espn_data_with_weekly_stats, "UNKNOWN"
         )
 
         assert result["projected_points"] == [
-            0.0 if week == 6 else float(10 + week) for week in range(1, 18)
+            0.0 if week == bye_week else float(10 + week) for week in range(1, 18)
         ]
         assert result["actual_points"] == [
-            0.0 if week in (6, 17) else float(20 + week) for week in range(1, 18)
+            0.0 if week == bye_week else float(20 + week) for week in range(1, 18)
         ]
 
     @pytest.mark.parametrize("bye_week", [None, 0, -1, 18])
     def test_prepare_position_json_data_leaves_invalid_byes_untouched(
         self, tmp_path, bye_week_player, espn_data_with_weekly_stats, bye_week
     ):
-        """Falsey and out-of-range byes emit the pre-cutover arrays without raising."""
-        exporter = DataExporter(output_dir=str(tmp_path))
+        """Falsey and out-of-range byes emit the pre-cutover arrays without raising.
+
+        current_nfl_week is passed explicitly so no slot is zeroed by the
+        actual-points recency gate, leaving the bye predicate the only thing
+        under test.
+        """
+        exporter = DataExporter(output_dir=str(tmp_path), current_nfl_week=18)
 
         result = exporter._prepare_position_json_data(
             bye_week_player(bye_week), espn_data_with_weekly_stats, "UNKNOWN"
         )
 
         assert result["projected_points"] == [float(10 + week) for week in range(1, 18)]
-        assert result["actual_points"] == [
-            0.0 if week == 17 else float(20 + week) for week in range(1, 18)
-        ]
+        assert result["actual_points"] == [float(20 + week) for week in range(1, 18)]
+
+    def test_prepare_position_json_data_handles_missing_espn_data(
+        self, tmp_path, bye_week_player
+    ):
+        """A player absent from the ESPN stat map still emits the zero-filled arrays.
+
+        _export_single_position_json resolves espn_data by dict .get(), which
+        yields None on a miss, so the cutover runs the helper over both fallback
+        arrays on a live branch.
+        """
+        exporter = DataExporter(output_dir=str(tmp_path))
+
+        result = exporter._prepare_position_json_data(
+            bye_week_player(6), None, "UNKNOWN"
+        )
+
+        assert result["projected_points"] == [0.0] * 17
+        assert result["actual_points"] == [0.0] * 17
 
     def test_prepare_position_json_data_preserves_key_order(
         self, tmp_path, bye_week_player, espn_data_with_weekly_stats
