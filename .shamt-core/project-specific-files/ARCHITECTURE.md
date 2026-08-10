@@ -1,6 +1,7 @@
 ---
-Last Updated: 2026-08-05
+Last Updated: 2026-08-08
 Update History:
+  - 2026-08-08: Mode C refresh after framework import — replaced retired ticket-stage references (`/dt7-review`, `/dt8-polish`) with the current six-stage delivery ownership model: `/dt5-review` performs the cross-unit Documentation Impact & Currency sweep, while `/du5-review` and `/du6-polish` retain per-unit review and application ownership; `/dt6-finalize` is archive-only and therefore is not described as a documentation-polish stage
   - 2026-06-16: Initial creation (project initialization)
   - 2026-06-16: Populated all sections from repository research (slug: populate-shamt-project-docs)
   - 2026-06-21: Win-rate sweep convergence stopping rule (slug: sweep-driver-rewire)
@@ -34,8 +35,8 @@ Update Triggers: |
 How to Update: |
   Open a delivery ticket (or a framework-update proposal if this is a shamt-core change), follow the
   delivery track, and amend the relevant sections of this file. `/du5-review` (per unit) and
-  `/dt7-review` (cross-unit) flag whether a change implies an update; `/du6-polish` / `/dt8-polish`
-  applies it and re-validates. `/update-project-doc` is the direct route for a doc-only edit.
+  `/dt5-review` (cross-unit) flag whether a change implies an update; `/du6-polish` applies
+  per-unit documentation fixes and re-validates. `/update-project-doc` is the direct route for a doc-only edit.
   Run `/validate-artifact .shamt-core/project-specific-files/ARCHITECTURE.md` after substantive edits.
   Keep `Last Updated` current and add an `Update History` entry with the triggering ticket/unit or
   proposal slug.
@@ -43,7 +44,7 @@ How to Update: |
 
 # Project Architecture
 
-**Purpose:** High-level system overview for context during discovery, planning, and code reviews. This project runs the **delivery track** (`flow_track: delivery`), so it is threaded into `/dt3-design`'s ticket-scope research and each unit's `/du1-spec`, into the Documentation Impact Assessment run by `/du5-review` (per unit) and `/dt7-review` (cross-unit), and into the currency review at `/du6-polish` / `/dt8-polish`.
+**Purpose:** High-level system overview for context during discovery, planning, and code reviews. This project runs the **delivery track** (`flow_track: delivery`), so it is threaded into `/dt3-design`'s ticket-scope research and each unit's `/du1-spec`, into the Documentation Impact & Currency assessment run by `/du5-review` (per unit) and `/dt5-review` (cross-unit), and into per-unit documentation-fix application at `/du6-polish`.
 
 ---
 
@@ -375,4 +376,4 @@ This is a local, single-user toolkit with **no authentication, authorization, te
 *Template for project `.shamt-core/project-specific-files/ARCHITECTURE.md` in Shamt. Header metadata block above is required — the framework-update audit reads it.*
 
 ---
-Validated 2026-08-05 — 1 round, 1 adversarial sub-agent confirmed (Mode C refresh for the delivery-track conversion: How to Update + Purpose re-pointed to /dt3+/du1, /du5+/dt7, /du6+/dt8; no architectural content changed, sub-agent clean on the first round)
+Validated 2026-08-08 — 2 rounds, 1 adversarial sub-agent confirmed (sha256:6baa56e52861f81d) (Mode C refresh: current delivery review/polish ownership)

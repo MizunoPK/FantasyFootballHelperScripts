@@ -1,6 +1,7 @@
 ---
-Last Updated: 2026-08-05
+Last Updated: 2026-08-08
 Update History:
+  - 2026-08-08: Mode C refresh after framework import — reconciled the document to the current six-stage delivery-ticket flow, which retired ticket-scope test-plan and test-execution stages. `/du4-test` is now the sole delivery test stage: it always runs the full declared suite to green and writes unit `testing_results.md`; it conditionally authors and executes a thin unit `user_test_plan.md` when the non-author determination says the unit changes user-observable behavior, recording (but never gating on) its disposition. `/dt5-review` and archive-only `/dt6-finalize` consume the units' test evidence and write no ticket-scope `testing_results.md`. Replaced the retired `/dt7-review` / `/dt8-polish` documentation ownership references with `/dt5-review` / `/du6-polish`, and generalized the non-author test-plan determination to every unit-creation site
   - 2026-06-16: Initial creation (project initialization)
   - 2026-06-16: Populated all sections from repository research (slug: populate-shamt-project-docs)
   - 2026-06-29: Note win-rate `--seed N` determinism flag + table-block comparison in the driver entry (slug: deterministic-seeding)
@@ -31,8 +32,8 @@ Update Triggers: |
 How to Update: |
   Open a delivery ticket (or a framework-update proposal if this is a shamt-core change), follow the
   delivery track, and amend the relevant sections of this file. `/du5-review` (per unit) and
-  `/dt7-review` (cross-unit) flag whether a change implies an update; `/du6-polish` / `/dt8-polish`
-  applies it and re-validates. `/update-project-doc` is the direct route for a doc-only edit.
+  `/dt5-review` (cross-unit) flag whether a change implies an update; `/du6-polish` applies
+  per-unit documentation fixes and re-validates. `/update-project-doc` is the direct route for a doc-only edit.
   Run `/validate-artifact .shamt-core/project-specific-files/TESTING_STANDARDS.md` after substantive edits.
   Keep `Last Updated` current and add an `Update History` entry with the triggering ticket/unit or
   proposal slug.
@@ -41,21 +42,20 @@ How to Update: |
 # Project Testing Standards
 
 **Purpose:** The source of truth for how this project is verified. This project runs the **delivery
-track** (`flow_track: delivery`), so it is read by the two test stages — **`/du4-test`** (per unit,
-which runs the declared automated suite and blocks until green) and **`/dt6-execute-tests`**
-(ticket-scope, which runs the suite *and* the ticket-scope user test plan against the assembled
-change) — for the automated-suite declaration, and for the user-driving conventions the
-`user-simulator` reads. This project sets **`user_test_plan_mode: agent-run`** in
-`.shamt-core/shamt-config.json`, so the ticket-scope plan is executed and a verdict recorded; under
-`human-reference` it would instead be a doc a human tester follows. Also threaded into
-`/dt3-design`'s test strategy and into test-plan authoring at `/dt5-write-test-plan` (ticket scope)
-and `/du4-test` (the optional thin unit plan). The user-test-plan **usage mode** is the
-`user_test_plan_mode` config key, not a field here.
+track** (`flow_track: delivery`), whose sole test stage is **`/du4-test`** at unit altitude. That stage
+reads the automated-suite declaration, blocks until the whole suite is green, always writes the unit's
+`testing_results.md`, and conditionally authors and executes a thin unit `user_test_plan.md` from these
+user-driving conventions. This project sets **`user_test_plan_mode: agent-run`** in
+`.shamt-core/shamt-config.json`, so an authored unit plan is executed by `user-simulator` and its
+disposition is recorded; the disposition never gates later stages. Under `human-reference`, the plan
+would instead be a document a human tester follows. The standards are also threaded into
+`/dt3-design`'s test strategy. The user-test-plan **usage mode** is the `user_test_plan_mode` config
+key, not a field here.
 
-**One consequence worth stating up front:** `/dt6-execute-tests` runs **after every unit has already
-merged**, so it is a post-hoc sweep rather than a gate on shipping. The real gates on a unit reaching
-`main` are `/du4-test` (suite green) and `/du5-review` — which is why the automated-suite declaration
-below is load-bearing at the *unit* altitude, not only at the ticket's.
+**Ticket altitude has no test-plan or test-execution stage.** `/dt5-review` and archive-only
+`/dt6-finalize` read every non-withdrawn unit's `testing_results.md`; neither writes a ticket-scope
+`testing_results.md`. The ship gates therefore remain at unit altitude: `/du4-test` supplies the
+green-suite evidence and `/du5-review` gates the unit's merge.
 
 ---
 
@@ -73,7 +73,7 @@ below is load-bearing at the *unit* altitude, not only at the ticket's.
   - Note: `-m "not live_api"` is implied by the project runner; add it yourself when invoking pytest directly so no test reaches the network.
   - **`-k` caution:** pytest `-k` substring tokens must be contiguous substrings of method names; exit code `5` means "matched nothing," not a failure.
 - **Markers (`pytest.ini`):** `live_api` (requires live ESPN access — excluded from the default run) and `offline`. The default suite is **fully offline**.
-- **Whole-suite run + pass/fail interpretation:** the exact invocation the test stages block-until-green on (`/du4-test` per unit, `/dt6-execute-tests` at ticket scope) is `python tests/run_all_tests.py`, run from the project root — the **whole** declared offline suite, never a unit-scoped subset. Read pass/fail from the **exit code** (`sys.exit(0 if success else 1)`): `0` = every test passed (the runner enforces a strict 100% pass rate); `1` = at least one test failed **or no tests were discovered** (`FAILURE: NO TESTS DISCOVERED (0/0)` also exits `1`, so an empty run can never read as green). Confirming output lines **of the default, flagless invocation — the run-source both test stages use**: `SUCCESS: ALL {N} TESTS PASSED (100%)` on green; `FAILURE: {failed} of {total} TESTS DID NOT PASS ({passed} passed)` plus a `Failed test files:` list and per-file `[FAIL]` lines on red. The wording is **"DID NOT PASS", not "FAILED"**, because the runner's `total_count` is `passed + failed + error` (`_parse_test_results`), so the count legitimately includes collection/import **errors** as well as assertion failures. A second red form, `FAILURE: {N} TEST FILE(S) FAILED TO RUN ({passed} tests passed)`, is printed when a file produced **no** test-level counts at all — the timeout/exception path — where a test-level count would misreport `0` failures. **The red line carries no percentage** (since T88) — a near-perfect run can no longer round to `100.0%` on a failing line. **Mode distinction:** the `--single` / `-s` mode is a *different* code path and prints a *different* red line — `FAILURE: {passed}/{total} TESTS PASSED`, with no failure count — so that form must not be expected from the flagless invocation the test stages use; both modes print the same green line. The exit code is the signal the test stages interpret as green.
+- **Whole-suite run + pass/fail interpretation:** the exact invocation `/du4-test` blocks-until-green on for every unit is `python tests/run_all_tests.py`, run from the project root — the **whole** declared offline suite, never a unit-scoped subset. Read pass/fail from the **exit code** (`sys.exit(0 if success else 1)`): `0` = every test passed (the runner enforces a strict 100% pass rate); `1` = at least one test failed **or no tests were discovered** (`FAILURE: NO TESTS DISCOVERED (0/0)` also exits `1`, so an empty run can never read as green). Confirming output lines **of the default, flagless invocation — the run-source `/du4-test` uses**: `SUCCESS: ALL {N} TESTS PASSED (100%)` on green; `FAILURE: {failed} of {total} TESTS DID NOT PASS ({passed} passed)` plus a `Failed test files:` list and per-file `[FAIL]` lines on red. The wording is **"DID NOT PASS", not "FAILED"**, because the runner's `total_count` is `passed + failed + error` (`_parse_test_results`), so the count legitimately includes collection/import **errors** as well as assertion failures. A second red form, `FAILURE: {N} TEST FILE(S) FAILED TO RUN ({passed} tests passed)`, is printed when a file produced **no** test-level counts at all — the timeout/exception path — where a test-level count would misreport `0` failures. **The red line carries no percentage** (since T88) — a near-perfect run can no longer round to `100.0%` on a failing line. **Mode distinction:** the `--single` / `-s` mode is a *different* code path and prints a *different* red line — `FAILURE: {passed}/{total} TESTS PASSED`, with no failure count — so that form must not be expected from the flagless invocation `/du4-test` uses; both modes print the same green line. The exit code is the signal the test stage interprets as green.
 - **CI:** None checked in. The suite is run locally as the pre-commit gate (`run_pre_commit_validation.py`).
 
 ## User-driving conventions (how a human runs the project; plan authored per the User test plan mode)
@@ -83,28 +83,22 @@ Helper and both simulation engines run **fully offline from committed data** (no
 `user-simulator` persona can drive them directly. Always use `.venv/bin/python` from the project root.
 
 - **Usage mode:** this project sets **`user_test_plan_mode: agent-run`** in
-  `.shamt-core/shamt-config.json` (the config key, not a field here), so `/dt6-execute-tests`
-  dispatches the `user-simulator` persona to **execute** the ticket-scope `user_test_plan.md` and
-  record an `agent_test_session_{datetime}.md` verdict. The narrow set of scenarios the agent
-  genuinely cannot simulate is enumerated under "Out of scope for the agent" below and handled out of
-  band by a human, never scoped into the required pass.
-- **User test plan — two levels, and they have different rules.** The delivery track authors user
-  test plans at both altitudes, and conflating them is the likely mistake:
-  - **Ticket-scope (`/dt5-write-test-plan`) — always authored, and it is the verification.** This is
-    whole-change acceptance for the entire ticket. Because this project runs `agent-run`, the plan is
-    written as an executable script for the `user-simulator`, with concrete inputs and observable
-    expected outcomes, and its recorded verdict is read at `/dt6-execute-tests`. There is no
-    per-ticket opt-out: the `optional` path and the `**User Test Plan:** opted-out` marker are honored
-    **only** under `user_test_plan_mode: human-reference`, which this project does not use.
-  - **Unit-scope (`/du4-test`) — optional and deliberately thin.** A unit plan is a *slice-validation*
-    artifact, never a second copy of the ticket-scope acceptance case. It is **required only when the
-    unit changes user-observable behavior** and optional when it does not. Three rules matter:
-    (1) the determination is made by a **non-author** — `/dt4-decompose`, or `/dt8-polish` for a
-    spawned fix unit — and `/du4-test` may **escalate it, never downgrade it**, because the unit's own
-    author is the party most likely to underestimate it; (2) an absent unit plan is **skipped, never
-    pending** — no stage halts on it and nothing downstream gates on its presence; (3) the stage's
-    completion signal is `testing_results.md`, not the plan.
-  - **Depth guidance (both levels):** scale to the surface. Work touching an interactive or
+  `.shamt-core/shamt-config.json` (the config key, not a field here), so `/du4-test` dispatches the
+  `user-simulator` persona to **execute** an authored unit `user_test_plan.md` and records the
+  `agent_test_session_{datetime}.md` verdict in `testing_results.md`. That disposition is evidence,
+  never a downstream gate. The narrow set of scenarios the agent genuinely cannot simulate is
+  enumerated under "Out of scope for the agent" below and handled out of band by a human.
+- **User test plan — unit-only, optional and deliberately thin.** The delivery track has no
+  ticket-scope test plan. A unit plan is a *slice-validation* artifact scoped to that unit's own
+  change. It is **required when the unit changes user-observable behavior** and optional when it does
+  not. Three rules matter: (1) the determination is made by a **non-author** at whichever unit-creation
+  site created the unit — `/dt4-decompose`, the ticket review, a `/du1-spec` or `/du2-plan` split, or a
+  `/du5-review` + `/du6-polish` spawn — and `/du1-spec` or `/du4-test` may **escalate it, never
+  downgrade it**, because the unit's own author is the party most likely to underestimate it; (2) an
+  absent unit plan is **skipped, never pending** — no stage halts on it and nothing downstream gates on
+  its presence or verdict; (3) `/du4-test` always writes `testing_results.md`, whose presence is the
+  stage's completion signal.
+  - **Depth guidance:** scale to the surface. Work touching an interactive or
     user-facing surface (a League Helper mode, a simulation driver's CLI/observable behavior, a
     fetcher's offline flow) gets a full user-driven scenario set; work with little or no user-facing
     surface (a pure internal refactor, a docs-only change) asserts that observable behavior is
@@ -321,7 +315,7 @@ Helper and both simulation engines run **fully offline from committed data** (no
   7. Re-run the **automated suite** (`python tests/run_all_tests.py`) as the backstop after any change.
 
 - **Out of scope for the agent (human-only)** — scenarios the agent cannot simulate, handled out of
-  band by a human and never scoped into a `user_test_plan.md` at either altitude, nor into the required `/du4-test` / `/dt6-execute-tests` pass:
+  band by a human and never scoped into a unit `user_test_plan.md`; the required `/du4-test` automated-suite pass remains fully offline:
   - **Live network fetches / fixture recording:** any run *without* `ESPN_FIXTURE_DIR` (real ESPN /
     Open-Meteo calls) and any `ESPN_RECORD_FIXTURES_DIR` recording run — network- and time-dependent,
     and dependent on the external APIs being up.
@@ -334,4 +328,4 @@ Helper and both simulation engines run **fully offline from committed data** (no
     rendered formatting (vs. that the file is produced) is a human check.
 
 ---
-Validated 2026-08-05 — 2 rounds, 1 adversarial sub-agent confirmed (Mode C refresh for the delivery-track conversion: two-level user-test-plan contract, Purpose re-pointed to /du4-test + /dt6-execute-tests with the post-hoc caveat; round 1 found three hyphenated/noun-form Engineer-flow references the initial sweep missed)
+Validated 2026-08-08 — 1 rounds, 1 adversarial sub-agent confirmed (sha256:7614e5c878052841) (Mode C refresh: unit-only delivery testing model)
