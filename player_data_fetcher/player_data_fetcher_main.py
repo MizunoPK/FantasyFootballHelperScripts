@@ -33,11 +33,10 @@ from player_data_fetcher.player_data_models import ScoringFormat, ProjectionData
 from player_data_fetcher.espn_client import ESPNClient
 from player_data_fetcher.player_data_exporter import DataExporter
 
-from player_data_fetcher.config import LOG_NAME, LOGGING_FORMAT, data_root
+from player_data_fetcher.config import LOG_NAME, LOGGING_FORMAT, POSITION_CODES, data_root
 
 
 MIN_EXPECTED_PLAYER_COUNT = 100
-POSITION_CODES = ('qb', 'rb', 'wr', 'te', 'k', 'dst')
 
 
 @dataclass

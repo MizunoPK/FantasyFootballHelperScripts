@@ -40,6 +40,13 @@ COORDINATES_JSON = Path(__file__).parent.parent / 'data' / 'coordinates.json'
 LOG_NAME = "player_data_fetcher"
 LOGGING_FORMAT = 'standard'
 
+# The six position codes the package writes as data/player_data/{code}_data.json.
+# Homed here rather than in player_data_fetcher_main so an offline consumer can
+# reuse the single definition without importing the fetcher entrypoint's heavy
+# runtime dependencies (pandas, ESPNClient). player_data_fetcher_main re-imports
+# it, so player_data_fetcher_main.POSITION_CODES stays resolvable.
+POSITION_CODES = ('qb', 'rb', 'wr', 'te', 'k', 'dst')
+
 PROGRESS_ETA_WINDOW_SIZE = 50
 
 

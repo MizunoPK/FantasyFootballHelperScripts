@@ -1,6 +1,8 @@
 ---
-Last Updated: 2026-08-05
+Last Updated: 2026-08-10
 Update History:
+  - 2026-08-10: D3.2 repair-live-pool-203-records-in-place — registered the new root utility `repair_bye_week_points.py` in §"Project Structure", beside its emulated peer `validate_sim_data.py`. Raised at `/du5-review` as a Documentation CONCERN: the unit's diff registered the script in `README.md` and `QUICK_START_GUIDE.md` but not here, hitting two of the three project-structure surfaces its declared peer occupies and leaving them inconsistent for this script. Applied at `/du6-polish` under a user-approved amendment to the unit's diff manifest, since this path sits outside it (the handling the `TESTING_STANDARDS.md` D8.2/D8.3/D8.4 entries record). No component boundary changed — the utility makes no network call, so §"Data fetchers / compilers" and the network-boundary statement remain true as written (slug: D3.2-repair-live-pool-203-records-in-place)
+  - 2026-08-08: Mode C refresh after framework import — replaced retired ticket-stage references (`/dt7-review`, `/dt8-polish`) with the current six-stage delivery ownership model: `/dt5-review` performs the cross-unit Documentation Impact & Currency sweep, while `/du5-review` and `/du6-polish` retain per-unit review and application ownership; `/dt6-finalize` is archive-only and therefore is not described as a documentation-polish stage
   - 2026-06-16: Initial creation (project initialization)
   - 2026-06-16: Populated all sections from repository research (slug: populate-shamt-project-docs)
   - 2026-06-21: Win-rate sweep convergence stopping rule (slug: sweep-driver-rewire)
@@ -34,8 +36,8 @@ Update Triggers: |
 How to Update: |
   Open a delivery ticket (or a framework-update proposal if this is a shamt-core change), follow the
   delivery track, and amend the relevant sections of this file. `/du5-review` (per unit) and
-  `/dt7-review` (cross-unit) flag whether a change implies an update; `/du6-polish` / `/dt8-polish`
-  applies it and re-validates. `/update-project-doc` is the direct route for a doc-only edit.
+  `/dt5-review` (cross-unit) flag whether a change implies an update; `/du6-polish` applies
+  per-unit documentation fixes and re-validates. `/update-project-doc` is the direct route for a doc-only edit.
   Run `/validate-artifact .shamt-core/project-specific-files/ARCHITECTURE.md` after substantive edits.
   Keep `Last Updated` current and add an `Update History` entry with the triggering ticket/unit or
   proposal slug.
@@ -43,7 +45,7 @@ How to Update: |
 
 # Project Architecture
 
-**Purpose:** High-level system overview for context during discovery, planning, and code reviews. This project runs the **delivery track** (`flow_track: delivery`), so it is threaded into `/dt3-design`'s ticket-scope research and each unit's `/du1-spec`, into the Documentation Impact Assessment run by `/du5-review` (per unit) and `/dt7-review` (cross-unit), and into the currency review at `/du6-polish` / `/dt8-polish`.
+**Purpose:** High-level system overview for context during discovery, planning, and code reviews. This project runs the **delivery track** (`flow_track: delivery`), so it is threaded into `/dt3-design`'s ticket-scope research and each unit's `/du1-spec`, into the Documentation Impact & Currency assessment run by `/du5-review` (per unit) and `/dt5-review` (cross-unit), and into per-unit documentation-fix application at `/du6-polish`.
 
 ---
 
@@ -92,6 +94,7 @@ FantasyFootballHelperScripts/
 ├── run_accuracy_simulation.py    — pairwise-ranking-accuracy optimization engine (MAE = diagnostic)
 ├── compile_historical_data.py    — build simulation/sim_data/{YEAR}/ from ESPN/Open-Meteo
 ├── validate_sim_data.py          — sanity-check a compiled sim_data/{YEAR}/ tree
+├── repair_bye_week_points.py     — zero stale bye-week points in data/player_data/ (offline, idempotent)
 ├── run_pre_commit_validation.py  — wrapper that runs the full test suite (gate before commit)
 ├── league_helper/                — interactive application + its modes and shared util/
 ├── simulation/                   — win_rate/ + accuracy/ engines, shared/, utils/, data, configs
@@ -375,4 +378,4 @@ This is a local, single-user toolkit with **no authentication, authorization, te
 *Template for project `.shamt-core/project-specific-files/ARCHITECTURE.md` in Shamt. Header metadata block above is required — the framework-update audit reads it.*
 
 ---
-Validated 2026-08-05 — 1 round, 1 adversarial sub-agent confirmed (Mode C refresh for the delivery-track conversion: How to Update + Purpose re-pointed to /dt3+/du1, /du5+/dt7, /du6+/dt8; no architectural content changed, sub-agent clean on the first round)
+Validated 2026-08-08 — 2 rounds, 1 adversarial sub-agent confirmed (sha256:6baa56e52861f81d) (Mode C refresh: current delivery review/polish ownership)

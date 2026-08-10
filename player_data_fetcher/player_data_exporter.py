@@ -25,6 +25,30 @@ from utils.LoggingManager import get_logger
 from utils.DraftedRosterManager import DraftedRosterManager
 
 
+def zero_bye_week_points(
+    projected_points: List[float],
+    actual_points: List[float],
+    bye_week: Optional[int],
+) -> None:
+    """Zero both weekly point arrays at a valid fantasy bye week.
+
+    The single owner of the bye-week invariant (Spec: D3 context.md TD1).
+    Two callers: DataExporter._zero_bye_week_points on the live fetch path,
+    and repair_bye_week_points.py's one-time repair of the tracked pool
+    (Spec: D3.2 UD6).
+
+    Args:
+        projected_points: The 17-slot projected-points array to update.
+        actual_points: The 17-slot actual-points array to update.
+        bye_week: One-based fantasy bye week, if known.
+    """
+    if bye_week:
+        bye_idx = bye_week - 1
+        if 0 <= bye_idx < 17:
+            actual_points[bye_idx] = 0.0
+            projected_points[bye_idx] = 0.0
+
+
 class DataExporter:
     """Handles exporting projection data to position JSON and team CSV formats with async I/O"""
 
@@ -295,18 +319,16 @@ class DataExporter:
     ) -> None:
         """Zero both weekly point arrays at a valid fantasy bye week.
 
-        Spec: D3 context.md TD1.
+        Delegates to the module-level zero_bye_week_points, which owns the
+        invariant (Spec: D3 context.md TD1, D3.2 UD6). Retained so the record
+        builder keeps calling the method rather than the module function.
 
         Args:
             projected_points: The 17-slot projected-points array to update.
             actual_points: The 17-slot actual-points array to update.
             bye_week: One-based fantasy bye week, if known.
         """
-        if bye_week:
-            bye_idx = bye_week - 1
-            if 0 <= bye_idx < 17:
-                actual_points[bye_idx] = 0.0
-                projected_points[bye_idx] = 0.0
+        zero_bye_week_points(projected_points, actual_points, bye_week)
 
     def _get_drafted_by(self, player: FantasyPlayer) -> str:
         """
