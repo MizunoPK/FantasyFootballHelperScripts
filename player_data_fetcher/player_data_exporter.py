@@ -240,6 +240,10 @@ class DataExporter:
         Returns:
             Dictionary with player data in position-specific JSON format
         """
+        projected_points = self._get_projected_points_array(espn_data)
+        actual_points = self._get_actual_points_array(espn_data)
+        self._zero_bye_week_points(projected_points, actual_points, player.bye_week)
+
         json_data = {
             "id": player.id,
             "name": player.name,
@@ -251,8 +255,8 @@ class DataExporter:
             "locked": bool(player.locked),
             "average_draft_position": player.average_draft_position,
             "player_rating": player.player_rating,
-            "projected_points": self._get_projected_points_array(espn_data),
-            "actual_points": self._get_actual_points_array(espn_data)
+            "projected_points": projected_points,
+            "actual_points": actual_points
         }
 
         if position == "QB":
