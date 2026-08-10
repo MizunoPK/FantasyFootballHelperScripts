@@ -271,6 +271,7 @@ FantasyFootballHelperScripts/
 ├── run_schedule_fetcher.py       # Fetch season schedule from ESPN
 ├── run_win_rate_simulation.py    # Win-rate parameter optimization engine
 ├── run_accuracy_simulation.py    # Pairwise-ranking-accuracy optimization engine (MAE = diagnostic)
+├── run_accuracy_seed_sweep.py    # Multi-seed accuracy-engine sweep (noise-floor measurement)
 ├── compile_historical_data.py    # Build simulation/sim_data/{YEAR}/ from ESPN/Open-Meteo
 ├── validate_sim_data.py          # Sanity-check a compiled sim_data/{YEAR}/ tree
 ├── repair_bye_week_points.py     # Zero stale bye-week points in data/player_data/ (one-time, offline)

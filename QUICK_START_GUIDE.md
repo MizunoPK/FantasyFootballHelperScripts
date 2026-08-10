@@ -145,6 +145,7 @@ In the League Helper, select **"Trade Simulator"** mode:
 | `repair_bye_week_points.py` | Zero stale bye-week points in the fetched player pool | One-time, after a bad fetch |
 | `run_win_rate_simulation.py` | Tune scoring params by win rate | Pre-season |
 | `run_accuracy_simulation.py` | Tune scoring params by ranking accuracy | Pre-season |
+| `run_accuracy_seed_sweep.py` | Sweep the accuracy engine across N seeds to measure its noise floor | Rarely — accuracy-engine investigation |
 | `run_pre_commit_validation.py` | Run the full test suite (pre-commit gate) | Before commits |
 
 ### Common Commands
