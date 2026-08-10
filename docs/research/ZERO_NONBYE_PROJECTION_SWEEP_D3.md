@@ -16,12 +16,12 @@ are different snapshots and the distinction is load-bearing — see §6.
 
 The live player pool carries a large population of projected week-slots stored as `0.0` on weeks the
 player's team **is scheduled to play**. The bye-week and schedule explanations are eliminated
-outright (§4). Attributed offline against a tracked real ESPN payload, the zeroes are **not** one
-thing:
+outright (§4). Attributed offline against a tracked real ESPN payload, **zeroes of this kind arise by
+at least three distinct mechanisms**, all three reachable through this exact code path:
 
-- **Genuine ESPN zeroes occur.** ESPN really does return `appliedTotal: 0.0` on a current-season
-  projection row for some weeks.
-- **ESPN omissions occur.** For some weeks there is no `statSourceId == 1` row at all, and the
+- **Genuine ESPN zeroes occur in the payload.** ESPN really does return `appliedTotal: 0.0` on a
+  current-season projection row for some weeks.
+- **ESPN omissions occur in the payload.** For some weeks there is no `statSourceId == 1` row at all, and the
   exporter's `float(projected) if projected else 0.0` stores that absence as `0.0` — indistinguishable
   afterwards from a real zero.
 - **A parse miss occurs, and it is this repository's own defect.** `_get_projected_points_array`
@@ -49,6 +49,10 @@ it is recorded, unexecuted, in §7.
 - A record whose **entire** `projected_points` array is zero is excluded from the affected counts and
   reported as its own population.
 - The remaining slots whose value is `0` are the population.
+- A player's zero set is a **leading block** when its weeks form a contiguous run from week 1, and a
+  **trailing block** when they form a contiguous run to week 17 — in both cases treating the player's
+  own bye week as skipped rather than as breaking the run, and testing leading before trailing.
+  Everything else is **scattered**.
 
 ### 2.2 Baselines
 
@@ -81,7 +85,10 @@ correction of the other.
 
 ### 2.3 Shape of the population (post-repair, live pool only)
 
-- 2,395 of the 12,784 non-bye projected week-slots in the pool are zero — 18.73%.
+- 2,395 of the 10,352 non-bye projected week-slots carried by the 647 records the §2.1 rule admits
+  are zero — **23.14%**. (Counting the 152 all-zero records in the denominator instead gives 2,395 of
+  12,784 — 18.73%; that denominator does not match the numerator's population and is not the
+  document's rate.)
 - The 435 affected players carry between 1 and 15 zero slots each; 150 of them carry exactly one.
 - Per affected player the zero set is **scattered** across the season for 351 players, a leading
   block from week 1 for 61, and a trailing block to week 17 for 23. The population is therefore not
@@ -167,17 +174,30 @@ rather than taken on trust.
 ### 5.2 Mechanism class inventory
 
 Each slot the exporter's rule renders `0.0` was classified by re-deriving the same scan and asking
-what the first match actually was. The population is the fixture's own zero slots.
+what the first match actually was. The population is every zero slot in the fixture's exporter-derived
+array. **Unlike §2.1's live population it applies neither the bye-week exclusion nor the all-zero-record
+exclusion, so its total is not commensurable with §2's 2,395.** Both count columns below are therefore
+`[fixture-scoped]`, and the second reports the same classification restricted to the sub-population
+§2.1's all-zero-record rule would admit.
 
-| Class | What it is | Which mechanism | Count `[fixture-scoped]` |
-|---|---|---|---|
-| **C1** | No `statSourceId == 1` row for that week in **any** season | ESPN omission, stored as `0.0` by the collapse (§3.1) | 959 `[fixture-scoped]` |
-| **C2a** | Current-season row present, `appliedTotal` exactly `0.0` | **Genuine ESPN zero** | 967 `[fixture-scoped]` |
-| **C2b** | Current-season row present, `appliedTotal` absent/`None` | Would be the collapse's other arm | 0 `[fixture-scoped]` |
-| **C3** | A prior-season row matched first; a **non-zero** current-season projection exists and is discarded | **Parse miss — this repo's defect** (§3.2) | 1,466 `[fixture-scoped]` |
-| **C4** | A prior-season row matched first; the current-season row is also zero | Parse miss, no value lost | 2,313 `[fixture-scoped]` |
-| **C5** | A prior-season row matched first; there is no current-season row at all | ESPN omission behind a shadowing row | 5,040 `[fixture-scoped]` |
-| | | **total zero slots classified** | 10,745 `[fixture-scoped]` |
+| Class | What it is | Which mechanism | Count `[fixture-scoped]` | §2.1-comparable `[fixture-scoped]` |
+|---|---|---|---|---|
+| **C1** | No `statSourceId == 1` row for that week in **any** season | ESPN omission, stored as `0.0` by the collapse (§3.1) | 959 `[fixture-scoped]` | 226 `[fixture-scoped]` |
+| **C2a** | Current-season row present, `appliedTotal` exactly `0.0` | **Genuine ESPN zero** | 967 `[fixture-scoped]` | 566 `[fixture-scoped]` |
+| **C2b** | Current-season row present, `appliedTotal` absent/`None` | Would be the collapse's other arm | 0 `[fixture-scoped]` | 0 `[fixture-scoped]` |
+| **C3** | A prior-season row matched first; a **non-zero** current-season projection exists and is discarded | **Parse miss — this repo's defect** (§3.2) | 1,466 `[fixture-scoped]` | 1,233 `[fixture-scoped]` |
+| **C4** | A prior-season row matched first; the current-season row is also zero | Parse miss, no value lost | 2,313 `[fixture-scoped]` | 1,421 `[fixture-scoped]` |
+| **C5** | A prior-season row matched first; there is no current-season row at all | ESPN omission behind a shadowing row | 5,040 `[fixture-scoped]` | 1,060 `[fixture-scoped]` |
+| | | **total zero slots classified** | 10,745 `[fixture-scoped]` | 4,506 `[fixture-scoped]` |
+
+**The two columns differ sharply, and that difference is itself evidence.** 6,239 of the 10,745
+classified slots — 58.1% — belong to the 367 fixture players whose whole exporter-derived array is
+zero, exactly the class §2.1 removes from the live counts `[fixture-scoped]`. Applying that rule drops
+C5 from 5,040 to 1,060 and C1 from 959 to 226, because a player with no current-season projection rows
+at all is precisely the one that generates omission-class slots in every week. **All five occupied
+classes remain occupied in the comparable column, and C3 — the class that loses real data — largely
+survives (1,466 → 1,233), so the inventory claim and the mixed disposition below are unchanged by the
+restriction.** Neither column is a live-pool magnitude; see §6.2.
 
 **All five occupied classes occur.** Genuine ESPN zeroes are one class among several, not the whole
 population. Both design-time candidates are therefore confirmed reachable through this exact code
@@ -233,6 +253,13 @@ the value the fixture's current-season row holds `[fixture-scoped]`. And the sha
 itself **order-dependent**, so a per-slot verdict derived from the fixture would not transfer even
 for a player present in both.
 
+There is a **third, independent** reason the mix does not transfer, and it is definitional rather than
+empirical: §5.2's population is selected by a **different rule** from §2.1's, applying neither the
+bye-week nor the all-zero-record exclusion. 58.1% of its classified slots come from players §2.1
+removes outright `[fixture-scoped]`, and restricting to the comparable sub-population moves the mix
+sharply (§5.2's second column). So even a fixture that *were* the same snapshot as the live pool would
+not yield §2's population from §5.2's rule.
+
 Consequently, and as a hard rule this document obeys:
 
 > **No count, rate or proportion marked `[fixture-scoped]` anywhere in this document is a live-pool
@@ -277,10 +304,13 @@ SEASON = 2025
 payload = json.load(open(sys.argv[1]))
 stats_by_id = {str(e['player']['id']): e['player'].get('stats', []) for e in payload['players']}
 counts = Counter()
+skipped = 0          # live records absent from the probe payload — never silently dropped
+examined = 0         # live zero-valued non-bye slots actually classified; check against 2,395
 for pos in ('qb', 'rb', 'wr', 'te', 'k', 'dst'):
     for rec in json.load(open(f'data/player_data/{pos}_data.json'))[f'{pos}_data']:
         stats = stats_by_id.get(str(rec['id']))
         if stats is None:
+            skipped += 1
             continue
         bye = rec.get('bye_week')
         pp = rec['projected_points']
@@ -290,6 +320,7 @@ for pos in ('qb', 'rb', 'wr', 'te', 'k', 'dst'):
             week = i + 1
             if v != 0 or (bye and week == bye):
                 continue
+            examined += 1
             matches = [s for s in stats
                        if s.get('scoringPeriodId') == week and s.get('statSourceId') == 1]
             current = [s for s in matches
@@ -298,7 +329,10 @@ for pos in ('qb', 'rb', 'wr', 'te', 'k', 'dst'):
             if not matches:
                 counts['C1 no row'] += 1
             elif matches[0].get('seasonId') == SEASON and matches[0].get('statSplitTypeId') == 1:
-                counts['C2a genuine zero'] += 1
+                # Mirrors §9.2: an absent appliedTotal is C2b, NOT a genuine zero.
+                counts['C2b current row, appliedTotal absent'
+                       if matches[0].get('appliedTotal') is None
+                       else 'C2a genuine zero'] += 1
             elif cur_val != 0.0:
                 counts['C3 shadowed, value lost'] += 1
             elif current:
@@ -308,6 +342,8 @@ for pos in ('qb', 'rb', 'wr', 'te', 'k', 'dst'):
 for key, n in counts.most_common():
     print(f'{key:36s} {n:6d}')
 print(f'{"TOTAL":36s} {sum(counts.values()):6d}')
+print(f'{"slots examined":36s} {examined:6d}   (compare against the live 2,395 of §2.2)')
+print(f'{"live records absent from payload":36s} {skipped:6d}')
 PY
 ```
 
@@ -332,7 +368,9 @@ disposition is mixed.
 ## 9. Reproduction
 
 No analysis script is committed. Both snippets below are self-contained, run from the repository
-root, and re-derive every live-pool and fixture figure this document states.
+root, and re-derive every figure in §2.2, §4, §5 and §6. §2.3's aggregates (the per-player
+zero-count distribution, the block classification, the position tally and the rate) are stated from
+the same data but are **not** emitted by these snippets.
 
 ### 9.1 Population, baselines and the schedule cross-check (§2, §4)
 
