@@ -33,9 +33,8 @@ from typing import Any, Optional
 sys.path.insert(0, str(Path(__file__).parent))
 
 from utils.LoggingManager import setup_logger, get_logger
-from player_data_fetcher.config import data_root
+from player_data_fetcher.config import POSITION_CODES, data_root
 from player_data_fetcher.player_data_exporter import zero_bye_week_points
-from player_data_fetcher.player_data_fetcher_main import POSITION_CODES
 
 WEEKS_PER_SEASON = 17
 POINT_ARRAY_KEYS = ('projected_points', 'actual_points')
@@ -63,6 +62,17 @@ def validate_record(record: Any, position: str, index: int) -> bool:
 
     if 'bye_week' not in record:
         logger.error(f"validate_record: {position}_data.json record {index} has no 'bye_week' key")
+        return False
+
+    # A non-integer bye_week reaches arithmetic in zero_bye_week_points and raises,
+    # which would break the module's documented 0/1 exit-code contract. None stays
+    # permitted -- it is TD1's documented skip arm.
+    bye_week = record['bye_week']
+    if bye_week is not None and not isinstance(bye_week, int):
+        logger.error(
+            f"validate_record: {position}_data.json record {index} has non-integer "
+            f"'bye_week' {bye_week!r}"
+        )
         return False
 
     for key in POINT_ARRAY_KEYS:
@@ -118,8 +128,41 @@ def repair_document(document: Any, position: str) -> Optional[int]:
     return changed
 
 
-def repair_file(path: Path, position: str, dry_run: bool) -> Optional[int]:
-    """Read, repair and atomically rewrite one position file.
+def load_and_repair_file(path: Path, position: str) -> Optional[tuple[Any, int]]:
+    """Read one position file and repair it IN MEMORY, writing nothing.
+
+    Reading and repairing are separated from writing so the pool-level operation
+    can validate every file before it mutates any of them (see repair_pool).
+
+    Args:
+        path: Path to the position JSON file.
+        position: Lowercase position code.
+
+    Returns:
+        A (repaired document, records changed) pair, or None if the file is
+        missing or malformed.
+    """
+    logger = get_logger()
+
+    if not path.exists():
+        logger.error(f"load_and_repair_file: missing player data file {path}")
+        return None
+
+    try:
+        document = json.loads(path.read_text(encoding='utf-8'))
+    except json.JSONDecodeError as e:
+        logger.error(f"load_and_repair_file: malformed JSON in {path}: {e}")
+        return None
+
+    changed = repair_document(document, position)
+    if changed is None:
+        return None
+
+    return document, changed
+
+
+def write_repaired_file(path: Path, document: Any) -> bool:
+    """Atomically rewrite one position file from an already-repaired document.
 
     The rewrite is a temporary file plus an os-level replace, so the live file
     is never observed half-written. Serialization matches the exporter that
@@ -128,43 +171,40 @@ def repair_file(path: Path, position: str, dry_run: bool) -> Optional[int]:
 
     Args:
         path: Path to the position JSON file.
-        position: Lowercase position code.
-        dry_run: When True, report the count and write nothing.
+        document: The repaired document to serialize.
 
     Returns:
-        The number of records changed, or None if the file could not be repaired.
+        True on success, False if the write failed (the temporary file is
+        removed before returning, so no stray .tmp is left behind).
     """
     logger = get_logger()
 
-    if not path.exists():
-        logger.error(f"repair_file: missing player data file {path}")
-        return None
-
-    try:
-        document = json.loads(path.read_text(encoding='utf-8'))
-    except json.JSONDecodeError as e:
-        logger.error(f"repair_file: malformed JSON in {path}: {e}")
-        return None
-
-    changed = repair_document(document, position)
-    if changed is None:
-        return None
-
-    if dry_run:
-        logger.info(f"repair_file: [dry-run] {path.name} would change {changed} records")
-        return changed
-
+    # Deliberately NOT simulation.shared.atomic_io.atomic_write_json: it forces
+    # ensure_ascii=True, which would escape non-ASCII player names and break
+    # byte-fidelity with the exporter's writer (player_data_exporter.py).
     payload = json.dumps(document, indent=2, ensure_ascii=False)
     tmp_path = path.with_suffix('.tmp')
-    tmp_path.write_text(payload, encoding='utf-8')
-    tmp_path.replace(path)
+    try:
+        tmp_path.write_text(payload, encoding='utf-8')
+        tmp_path.replace(path)
+    except (OSError, PermissionError) as e:
+        # An orphaned .tmp under data/ turns every later suite run red through
+        # tests/run_all_tests.py's data-cleanliness backstop, so clean it up.
+        tmp_path.unlink(missing_ok=True)
+        logger.error(f"write_repaired_file: could not write {path}: {e}")
+        return False
 
-    logger.info(f"repair_file: {path.name} changed {changed} records")
-    return changed
+    return True
 
 
 def repair_pool(player_data_dir: Path, dry_run: bool) -> Optional[int]:
     """Repair every position file in one player_data directory.
+
+    Two-phase, so the pool-level operation is atomic with respect to malformed
+    input: every file is read and repaired in memory and only then, once all
+    six have passed, is anything written. A missing or malformed file therefore
+    aborts with the pool untouched rather than leaving earlier positions
+    already rewritten.
 
     Args:
         player_data_dir: Directory holding the six position JSON files.
@@ -174,14 +214,34 @@ def repair_pool(player_data_dir: Path, dry_run: bool) -> Optional[int]:
         The total number of records changed, or None if any file aborted the run.
     """
     logger = get_logger()
-    total = 0
 
+    # Phase 1 -- read and repair every file in memory. Nothing is written yet.
+    repaired: list[tuple[Path, Any, int]] = []
+    total = 0
     for position in POSITION_CODES:
-        changed = repair_file(player_data_dir / f"{position}_data.json", position, dry_run)
-        if changed is None:
-            logger.error(f"repair_pool: aborting -- {position}_data.json could not be repaired")
+        path = player_data_dir / f"{position}_data.json"
+        result = load_and_repair_file(path, position)
+        if result is None:
+            logger.error(
+                f"repair_pool: aborting -- {position}_data.json could not be repaired. "
+                f"No file was written."
+            )
             return None
+        document, changed = result
+        repaired.append((path, document, changed))
         total += changed
+
+    if dry_run:
+        for path, _document, changed in repaired:
+            logger.info(f"repair_pool: [dry-run] {path.name} would change {changed} records")
+        return total
+
+    # Phase 2 -- every file validated, so commit the writes.
+    for path, document, changed in repaired:
+        if not write_repaired_file(path, document):
+            logger.error(f"repair_pool: aborting -- {path.name} could not be written")
+            return None
+        logger.info(f"repair_pool: {path.name} changed {changed} records")
 
     return total
 

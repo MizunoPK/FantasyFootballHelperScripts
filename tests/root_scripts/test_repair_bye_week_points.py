@@ -147,7 +147,10 @@ class TestRepairByeWeekPoints:
             real_count = repair_pool(pool / 'player_data', dry_run=False)
         assert dry_count == real_count == 1
 
-    @pytest.mark.parametrize("mutate", ["root_key", "missing_array", "short_array", "missing_bye"])
+    @pytest.mark.parametrize(
+        "mutate",
+        ["root_key", "missing_array", "short_array", "missing_bye", "non_integer_bye"],
+    )
     def test_malformed_input_aborts_loudly_without_writing(self, tmp_path, mutate):
         """A broken assumption is an error that aborts the run, never a silently skipped record."""
         player_data_dir = tmp_path / 'player_data'
@@ -159,6 +162,8 @@ class TestRepairByeWeekPoints:
             del document['rb_data'][0]['actual_points']
         elif mutate == "short_array":
             document['rb_data'][0]['projected_points'] = [0.0] * 16
+        elif mutate == "non_integer_bye":
+            document['rb_data'][0]['bye_week'] = "6"
         else:
             del document['rb_data'][0]['bye_week']
         (player_data_dir / 'rb_data.json').write_text(
@@ -176,10 +181,30 @@ class TestRepairByeWeekPoints:
         assert mock_logger.error.called
 
     def test_missing_file_aborts(self, pool):
-        """A missing position file aborts rather than silently repairing five of six."""
+        """A missing position file aborts rather than silently repairing five of six.
+
+        wr is the third entry of POSITION_CODES, so qb and rb are read before the
+        failure is discovered -- the byte-level assertion is what pins that the
+        two-phase repair wrote neither of them.
+        """
         (pool / 'player_data' / 'wr_data.json').unlink()
+        before = _snapshot(pool / 'player_data')
 
         assert _run_cli(['repair_bye_week_points.py', '--data-root', str(pool)]) == 1
+
+        assert _snapshot(pool / 'player_data') == before
+        assert list((pool / 'player_data').glob('*.tmp')) == []
+
+    def test_write_failure_aborts_and_leaves_no_orphan_tmp(self, pool):
+        """An OSError during the rewrite aborts with exit 1 and removes the temporary file.
+
+        An orphaned data/player_data/*.tmp would dirty the tree and turn every
+        later suite run red through run_all_tests.py's cleanliness backstop.
+        """
+        with patch('pathlib.Path.replace', side_effect=OSError("disk full")):
+            assert _run_cli(['repair_bye_week_points.py', '--data-root', str(pool)]) == 1
+
+        assert list((pool / 'player_data').glob('*.tmp')) == []
 
     def test_missing_player_data_directory_aborts(self, tmp_path):
         """A data root with no player_data/ subdirectory aborts before touching anything."""
