@@ -273,6 +273,7 @@ FantasyFootballHelperScripts/
 ├── run_accuracy_simulation.py    # Pairwise-ranking-accuracy optimization engine (MAE = diagnostic)
 ├── compile_historical_data.py    # Build simulation/sim_data/{YEAR}/ from ESPN/Open-Meteo
 ├── validate_sim_data.py          # Sanity-check a compiled sim_data/{YEAR}/ tree
+├── repair_bye_week_points.py     # Zero stale bye-week points in data/player_data/ (one-time, offline)
 ├── run_pre_commit_validation.py  # Wrapper that runs the full test suite (pre-commit gate)
 ├── league_helper/                # Interactive application, its *_mode/ subpackages, and util/
 ├── simulation/                   # win_rate/ + accuracy/ engines, shared/, utils/, sim_data, configs
