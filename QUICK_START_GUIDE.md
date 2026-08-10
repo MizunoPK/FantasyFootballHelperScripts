@@ -142,6 +142,7 @@ In the League Helper, select **"Trade Simulator"** mode:
 | `run_schedule_fetcher.py` | Fetch the NFL schedule | Pre-season |
 | `compile_historical_data.py` | Compile a historical season for simulation | Pre-season |
 | `validate_sim_data.py` | Sanity-check a compiled sim_data season | Pre-season |
+| `repair_bye_week_points.py` | Zero stale bye-week points in the fetched player pool | One-time, after a bad fetch |
 | `run_win_rate_simulation.py` | Tune scoring params by win rate | Pre-season |
 | `run_accuracy_simulation.py` | Tune scoring params by ranking accuracy | Pre-season |
 | `run_pre_commit_validation.py` | Run the full test suite (pre-commit gate) | Before commits |
