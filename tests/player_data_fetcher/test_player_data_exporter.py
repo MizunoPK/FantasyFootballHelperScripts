@@ -12,7 +12,7 @@ import asyncio
 from unittest.mock import Mock, patch, AsyncMock
 from pathlib import Path
 
-from player_data_fetcher.player_data_exporter import DataExporter
+from player_data_fetcher.player_data_exporter import DataExporter, zero_bye_week_points
 from player_data_fetcher.player_data_models import ProjectionData, PlayerProjection
 
 
@@ -215,6 +215,27 @@ class TestPositionJSONExport:
 
         assert projected_points == [1.0] * 17
         assert actual_points == [2.0] * 17
+
+    def test_zero_bye_week_points_method_delegates_to_module_owner(self, tmp_path):
+        """D3.2 UD6: the retained method is a real pass-through to the single owner.
+
+        Spied with wraps=, not stubbed, so the module-level function still runs:
+        the call assertion proves the delegation edge exists and the array
+        assertions prove the two forms agree rather than both merely existing.
+        """
+        exporter = DataExporter(output_dir=str(tmp_path))
+        projected_points = [float(week) for week in range(1, 18)]
+        actual_points = [float(week + 20) for week in range(1, 18)]
+
+        with patch(
+            "player_data_fetcher.player_data_exporter.zero_bye_week_points",
+            wraps=zero_bye_week_points,
+        ) as owner_spy:
+            exporter._zero_bye_week_points(projected_points, actual_points, 6)
+
+        owner_spy.assert_called_once_with(projected_points, actual_points, 6)
+        assert projected_points == [1.0, 2.0, 3.0, 4.0, 5.0, 0.0] + [float(week) for week in range(7, 18)]
+        assert actual_points == [21.0, 22.0, 23.0, 24.0, 25.0, 0.0] + [float(week) for week in range(27, 38)]
 
     def test_prepare_position_json_data_applies_bye_helper(
         self, tmp_path, bye_week_player, espn_data_with_weekly_stats
