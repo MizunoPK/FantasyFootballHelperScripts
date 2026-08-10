@@ -39,6 +39,46 @@ def sandbox_fetcher_data_root(tmp_path, monkeypatch):
     monkeypatch.setenv('PLAYER_DATA_DIR', str(tmp_path / 'fetcher_root'))
 
 
+@pytest.fixture
+def espn_data_with_weekly_stats():
+    """A 17-week ESPN stat stub with distinct projected and actual weekly totals.
+
+    Projected (statSourceId=1) is 10.0 + week; actual (statSourceId=0) is
+    20.0 + week. Distinct per-week values make a bye-slot zeroing observable
+    at exactly one index instead of hiding inside a uniform array.
+    """
+    raw_stats = []
+    for week in range(1, 18):
+        raw_stats.append({'scoringPeriodId': week, 'statSourceId': 1, 'appliedTotal': 10.0 + week})
+        raw_stats.append({'scoringPeriodId': week, 'statSourceId': 0, 'appliedTotal': 20.0 + week})
+
+    espn_data = Mock()
+    espn_data.configure_mock(raw_stats=raw_stats)
+    return espn_data
+
+
+@pytest.fixture
+def bye_week_player():
+    """Factory for the minimal FantasyPlayer stand-in _prepare_position_json_data reads."""
+    def _make(bye_week):
+        player = Mock()
+        player.configure_mock(
+            id=1,
+            name="Test Player",
+            team="KC",
+            position="UNKNOWN",
+            bye_week=bye_week,
+            injury_status="ACTIVE",
+            drafted_by="",
+            locked=False,
+            average_draft_position=None,
+            player_rating=None,
+        )
+        return player
+
+    return _make
+
+
 class TestDataExporterInit:
     """Test DataExporter initialization"""
 
@@ -176,28 +216,114 @@ class TestPositionJSONExport:
         assert projected_points == [1.0] * 17
         assert actual_points == [2.0] * 17
 
-    def test_prepare_position_json_data_does_not_apply_bye_helper(self, tmp_path):
-        """Provision leaves the existing production record builder authoritative."""
+    def test_prepare_position_json_data_applies_bye_helper(
+        self, tmp_path, bye_week_player, espn_data_with_weekly_stats
+    ):
+        """D3.4 cutover: the record builder invokes the bye helper once, before serializing.
+
+        Inverts D3.1's provision-era idleness guard. The helper is spied with
+        wraps=, not stubbed, so the real predicate still runs on this edge.
+        """
         exporter = DataExporter(output_dir=str(tmp_path))
-        player = Mock()
-        player.configure_mock(
-            id=1,
-            name="Test Player",
-            team="KC",
-            position="UNKNOWN",
-            bye_week=6,
-            injury_status="ACTIVE",
-            drafted_by="",
-            locked=False,
-            average_draft_position=None,
-            player_rating=None,
+
+        with patch.object(
+            exporter, "_zero_bye_week_points", wraps=exporter._zero_bye_week_points
+        ) as zero_spy:
+            result = exporter._prepare_position_json_data(
+                bye_week_player(6), espn_data_with_weekly_stats, "UNKNOWN"
+            )
+
+        zero_spy.assert_called_once_with(
+            result["projected_points"], result["actual_points"], 6
+        )
+        assert result["projected_points"][5] == 0.0
+        assert result["actual_points"][5] == 0.0
+
+    @pytest.mark.parametrize("bye_week", [1, 6, 17])
+    def test_prepare_position_json_data_zeroes_in_range_bye(
+        self, tmp_path, bye_week_player, espn_data_with_weekly_stats, bye_week
+    ):
+        """An in-range bye zeroes both emitted arrays at bye-1 and no other slot.
+
+        Covers both inside boundaries (1 and 17) as well as an interior value, so
+        an off-by-one in the helper's sole numeric bound (0 <= bye_idx < 17) fails
+        here. current_nfl_week is passed explicitly so every actual-points slot is
+        populated and the only zero in either array is the bye slot itself.
+        """
+        exporter = DataExporter(output_dir=str(tmp_path), current_nfl_week=18)
+
+        result = exporter._prepare_position_json_data(
+            bye_week_player(bye_week), espn_data_with_weekly_stats, "UNKNOWN"
         )
 
-        with patch.object(exporter, "_zero_bye_week_points", side_effect=AssertionError("helper called")):
-            result = exporter._prepare_position_json_data(player, None, "UNKNOWN")
+        assert result["projected_points"] == [
+            0.0 if week == bye_week else float(10 + week) for week in range(1, 18)
+        ]
+        assert result["actual_points"] == [
+            0.0 if week == bye_week else float(20 + week) for week in range(1, 18)
+        ]
+
+    @pytest.mark.parametrize("bye_week", [None, 0, -1, 18])
+    def test_prepare_position_json_data_leaves_invalid_byes_untouched(
+        self, tmp_path, bye_week_player, espn_data_with_weekly_stats, bye_week
+    ):
+        """Falsey and out-of-range byes emit the pre-cutover arrays without raising.
+
+        current_nfl_week is passed explicitly so no slot is zeroed by the
+        actual-points recency gate, leaving the bye predicate the only thing
+        under test.
+        """
+        exporter = DataExporter(output_dir=str(tmp_path), current_nfl_week=18)
+
+        result = exporter._prepare_position_json_data(
+            bye_week_player(bye_week), espn_data_with_weekly_stats, "UNKNOWN"
+        )
+
+        assert result["projected_points"] == [float(10 + week) for week in range(1, 18)]
+        assert result["actual_points"] == [float(20 + week) for week in range(1, 18)]
+
+    def test_prepare_position_json_data_handles_missing_espn_data(
+        self, tmp_path, bye_week_player
+    ):
+        """A player absent from the ESPN stat map still emits the zero-filled arrays.
+
+        _export_single_position_json resolves espn_data by dict .get(), which
+        yields None on a miss, so the cutover runs the helper over both fallback
+        arrays on a live branch.
+        """
+        exporter = DataExporter(output_dir=str(tmp_path))
+
+        result = exporter._prepare_position_json_data(
+            bye_week_player(6), None, "UNKNOWN"
+        )
 
         assert result["projected_points"] == [0.0] * 17
         assert result["actual_points"] == [0.0] * 17
+
+    def test_prepare_position_json_data_preserves_key_order(
+        self, tmp_path, bye_week_player, espn_data_with_weekly_stats
+    ):
+        """The cutover changes two values, never the record's key set or order."""
+        exporter = DataExporter(output_dir=str(tmp_path))
+
+        result = exporter._prepare_position_json_data(
+            bye_week_player(6), espn_data_with_weekly_stats, "UNKNOWN"
+        )
+
+        assert list(result.keys()) == [
+            "id",
+            "name",
+            "team",
+            "position",
+            "bye_week",
+            "injury_status",
+            "drafted_by",
+            "locked",
+            "average_draft_position",
+            "player_rating",
+            "projected_points",
+            "actual_points",
+        ]
 
 
 class TestDataExporterKAI10:
