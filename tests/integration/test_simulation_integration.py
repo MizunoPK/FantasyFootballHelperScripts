@@ -17,19 +17,23 @@ import json
 
 project_root = Path(__file__).parent.parent.parent
 
-# D4.3/UD7: the frozen committed fixture config tree the DraftStrategyOrchestrator constructions
-# below score against, so neither reads the live data/configs/league_config.json. Provenance and
-# the closed consumer set are recorded in tests/fixtures/win_rate_e2e/README.md.
-WIN_RATE_E2E_CONFIG = (
-    project_root / "tests" / "fixtures" / "win_rate_e2e" / "configs" / "league_config.json"
-)
-
+import simulation.win_rate.CombinationEvaluator as ce_module
 from simulation.shared.ConfigGenerator import ConfigGenerator
 from simulation.win_rate.DraftStrategyOrchestrator import DraftStrategyOrchestrator
 from simulation.win_rate.WinRateMetaDataManager import WinRateMetaDataManager
 from simulation.win_rate.ParallelLeagueRunner import ParallelLeagueRunner
 from simulation.shared.ResultsManager import ResultsManager
 from simulation.shared.ConfigPerformance import ConfigPerformance
+
+# D4.3/UD7: the frozen committed fixture config tree the DraftStrategyOrchestrator constructions
+# below score against, so neither reads the live data/configs/league_config.json. Provenance and
+# the closed consumer set are recorded in tests/fixtures/win_rate_e2e/README.md.
+# D4.3/du6 item 7: placed here rather than between project_root and the import block, so the
+# imports are not split by a constant that has no ordering dependency on them (conftest.py, not
+# this line, sets up sys.path).
+WIN_RATE_E2E_CONFIG = (
+    project_root / "tests" / "fixtures" / "win_rate_e2e" / "configs" / "league_config.json"
+)
 
 TEST_PARAMETER_ORDER = [
     'NORMALIZATION_MAX_SCALE',
@@ -288,6 +292,37 @@ class TestConfigGeneratorIntegration:
         assert "DIFF_POS_BYE_WEIGHT" in config_dict["parameters"]
 
 
+def _spy_config_root():
+    """D4.3/du6 item 4: record the data root CombinationEvaluator resolves, without mocking it.
+
+    CombinationEvaluator does not retain config_path — it immediately builds
+    ConfigManager(config_path.parent.parent) — so the resolved ROOT is the only observable
+    witness that a construction honoured config_path. This wraps the real ConfigManager
+    rather than replacing it, so the surrounding test still exercises real behaviour.
+
+    Returns (patcher_context, seen_roots).
+    """
+    real_config_manager = ce_module.ConfigManager
+    seen = []
+
+    def _record(data_folder, *args, **kwargs):
+        seen.append(Path(data_folder))
+        return real_config_manager(data_folder, *args, **kwargs)
+
+    return patch.object(ce_module, "ConfigManager", side_effect=_record), seen
+
+
+FIXTURE_CONFIG_ROOT = project_root / "tests" / "fixtures" / "win_rate_e2e"
+
+
+def test_win_rate_e2e_config_constant_points_at_the_committed_fixture():
+    """D4.3/du6 item 4: the constant the two constructions below use is a real, committed file
+    under tests/fixtures/win_rate_e2e/ — not a stale path that would silently fall back."""
+    assert WIN_RATE_E2E_CONFIG.is_file()
+    assert WIN_RATE_E2E_CONFIG.parent.parent == FIXTURE_CONFIG_ROOT
+    assert WIN_RATE_E2E_CONFIG.parent.name == "configs"
+
+
 class TestDraftStrategyOrchestratorIntegration:
     """Integration tests for DraftStrategyOrchestrator"""
 
@@ -300,13 +335,22 @@ class TestDraftStrategyOrchestratorIntegration:
         )
 
         meta_data_manager = WinRateMetaDataManager(tmp_path / "meta.json")
-        orchestrator = DraftStrategyOrchestrator(
-            data_folder=temp_simulation_data,
-            num_simulations=2,
-            max_workers=2,
-            meta_data_manager=meta_data_manager,
-            config_path=WIN_RATE_E2E_CONFIG,
-        )
+        spy, seen_roots = _spy_config_root()
+        with spy:
+            orchestrator = DraftStrategyOrchestrator(
+                data_folder=temp_simulation_data,
+                num_simulations=2,
+                max_workers=2,
+                meta_data_manager=meta_data_manager,
+                config_path=WIN_RATE_E2E_CONFIG,
+            )
+
+        # D4.3/du6 item 4: pin the isolation, not just the redirect's presence in source. The
+        # fixture is a byte-identical snapshot of data/configs/ today, so deleting the
+        # config_path= keyword above would otherwise leave this test green while restoring the
+        # live-config coupling. This fails on exactly that deletion (the default resolves the
+        # data/ root instead).
+        assert seen_roots == [FIXTURE_CONFIG_ROOT]
 
         # The evaluator's _season_cache will be empty because the fixture only creates 6 players
         # but validation requires 150+. The important check is that the orchestrator initialized
@@ -318,6 +362,20 @@ class TestDraftStrategyOrchestratorIntegration:
 
 class TestDraftStrategyOrchestratorRun:
     """Integration tests for DraftStrategyOrchestrator.run()"""
+
+    def test_make_orchestrator_uses_the_frozen_fixture_config(self, tmp_path):
+        """D4.3/du6 item 4: the SECOND construction site (_make_orchestrator) is pinned too.
+
+        Every test in this class routes through that helper, so a deleted config_path= keyword
+        there would silently re-couple all of them to the live store; the fixture's byte-identity
+        with data/configs/ means none of them would fail today. This one does.
+        """
+        spy, seen_roots = _spy_config_root()
+        with spy:
+            self._make_orchestrator(
+                tmp_path, {"1_a.json": {"name": "A", "DRAFT_ORDER": VALID_DRAFT_ORDER}}
+            )
+        assert seen_roots == [FIXTURE_CONFIG_ROOT]
 
     def _make_orchestrator(self, tmp_path, strategy_files):
         """Helper: create orchestrator with given strategy JSON files."""

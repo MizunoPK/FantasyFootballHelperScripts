@@ -74,17 +74,30 @@ class TestWinRateSimulationE2E:
             week_dir = data_folder / "2024" / "weeks" / f"week_{week_num:02d}"
             self._write_week(week_dir, week_counts)
 
+        fixture_config = "tests/fixtures/win_rate_e2e/configs/league_config.json"
+        argv = [
+            sys.executable,
+            "run_win_rate_simulation.py",
+            "--sims", "1",
+            "--strategy", "1_zero_rb.json",
+            "--data", str(data_folder),
+            "--config", fixture_config,
+            "--seed", "42",
+            "--log-level", "WARNING",
+        ]
+
+        # D4.3/du6 item 4: guard the isolation itself. The fixture tree is a byte-identical
+        # snapshot of data/configs/ TODAY, so dropping the --config entry below would leave
+        # this test green while silently restoring the live-config coupling D4.3 exists to
+        # cut — the regression would only surface once the live store drifts, which is
+        # exactly the moment the pin below is hardest to trust. This reads the argv list, not
+        # source text, so it fails on precisely that deletion.
+        assert "--config" in argv, "the --config redirect was removed from the e2e argv"
+        assert argv[argv.index("--config") + 1] == fixture_config
+        assert Path(fixture_config).is_file(), f"fixture config missing: {fixture_config}"
+
         result = subprocess.run(
-            [
-                sys.executable,
-                "run_win_rate_simulation.py",
-                "--sims", "1",
-                "--strategy", "1_zero_rb.json",
-                "--data", str(data_folder),
-                "--config", "tests/fixtures/win_rate_e2e/configs/league_config.json",
-                "--seed", "42",
-                "--log-level", "WARNING",
-            ],
+            argv,
             capture_output=True,
             text=True,
             cwd=str(Path(__file__).parent.parent.parent),
@@ -131,6 +144,11 @@ class TestWinRateSimulationE2E:
         # D4.2's 10/17-vs-8/17 arms were measured over a DIFFERENT population (the live
         # data/configs/ tree as the config root), so they are evidence that DIRECTION moves this
         # number, NOT this fixture's expected values.
+        # Why the re-measurement nonetheless landed on exactly D4.2's 8/17: the fixture tree was
+        # snapshotted BYTE-IDENTICAL from data/configs/ at pin time (see that tree's README.md
+        # §Provenance), so the two populations had different ROOTS but identical CONTENT. The
+        # coincidence is a consequence of the snapshot, not evidence the value was carried over —
+        # and the two will diverge the moment the live store moves, which is the point of D4.3.
         # Re-pin, never re-range, if a future change moves it again.
         assert abs(entry["best_win_rate"] - 8 / 17) < 1e-9
         assert "total_wins" in entry

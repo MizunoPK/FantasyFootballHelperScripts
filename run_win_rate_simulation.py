@@ -37,6 +37,11 @@ from utils.error_handler import ConfigurationError, FileOperationError
 
 LOG_NAME = "win_rate_simulation"
 
+# The live scoring config. Single literal shared by --config's default and the
+# --promote mutual-exclusion guard in main(), so the guard can never drift from
+# the default it compares against.
+DEFAULT_CONFIG_PATH = "data/configs/league_config.json"
+
 
 def _build_parser() -> argparse.ArgumentParser:
     """Build the CLI argument parser for the win-rate simulation runner."""
@@ -62,12 +67,13 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Path to simulation data root folder (default: simulation/sim_data)"
     )
     parser.add_argument(
-        "--config", type=str, default="data/configs/league_config.json", metavar="PATH",
+        "--config", type=str, default=DEFAULT_CONFIG_PATH, metavar="PATH",
         help="Path to the league_config.json used for SCORING (read only). Its "
              "parent.parent is the ConfigManager data root, so the sibling week*.json "
-             "files are merged too. Default: data/configs/league_config.json. NOTE: "
+             f"files are merged too. Default: {DEFAULT_CONFIG_PATH}. NOTE: "
              "--promote always writes the live data/configs/league_config.json and is "
-             "deliberately NOT redirected by this flag."
+             "deliberately NOT redirected by this flag — so --config is REJECTED "
+             "alongside --promote rather than silently skewing which candidate wins."
     )
     parser.add_argument(
         "--log-level", type=str, default="INFO",
@@ -206,6 +212,44 @@ def main() -> None:
             "terminates to promote. Run the sweep, then --promote separately."
         )
         sys.exit(2)
+
+    # D4.3/du6 item 1: --config redirects only the SCORING reads, never the promotion
+    # write. Under --sweep --promote that split is not inert: _run_sweep_mode scores
+    # candidates under the redirected config into the sweep store, and compute_promotion
+    # then shortlists by Wilson LCB over those store rates before re-measuring and writing
+    # the LIVE config. So a non-default --config silently changes WHICH combination gets
+    # promoted into a file it never scored. Refuse the combination rather than document it.
+    if args.promote and config_path != Path(DEFAULT_CONFIG_PATH):
+        logger.error(
+            "--config cannot be combined with --promote: the sweep ranks candidates under "
+            "the supplied config while the promotion re-measures and writes the live "
+            f"{DEFAULT_CONFIG_PATH}. Run the sweep and the promotion separately (omit "
+            "--config to promote against the live store)."
+        )
+        sys.exit(2)
+
+    # D4.3/du6 item 2 (arm 2a): the --config path shape is otherwise unvalidated, and
+    # ConfigManager resolves its data root as config_path.parent.parent, using
+    # <root>/configs/league_config.json only when that file exists and silently falling back
+    # to <root>/league_config.json otherwise (ConfigManager.py:183-190) at DEBUG level. A
+    # missing file is a hard refusal; a non-"configs" parent is only WARNED about, because
+    # the legacy <root>/league_config.json layout is still supported by ConfigManager and
+    # foreclosing it is not this runner's call to make.
+    if not config_path.is_file():
+        logger.error(
+            f"--config path is not a file: {config_path}. Supply the league_config.json "
+            "itself (its parent.parent is used as the ConfigManager data root, so the "
+            "sibling week*.json files are merged from parent.parent/configs/)."
+        )
+        sys.exit(2)
+    if config_path.parent.name != "configs":
+        logger.warning(
+            f"--config {config_path} does not sit in a 'configs/' directory. "
+            f"ConfigManager resolves its data root as {config_path.parent.parent} and will "
+            f"prefer {config_path.parent.parent / 'configs' / 'league_config.json'} if that "
+            f"exists, otherwise the legacy {config_path.parent.parent / 'league_config.json'} "
+            "— either of which may not be the file you supplied."
+        )
 
     if args.sweep:
         _run_sweep_mode(args, data_folder, logger)

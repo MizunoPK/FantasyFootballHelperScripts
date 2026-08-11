@@ -48,6 +48,99 @@ class TestConfigFlagParsing:
         assert args.config == "tests/fixtures/win_rate_e2e/configs/league_config.json"
 
 
+class TestConfigGuards:
+    """D4.3/du6 items 1 and 2: main()'s two --config guards.
+
+    Both are properties of the flag D4.3 introduces, so both are exercised through
+    rws.main() at the real guard site rather than by re-reading the parser.
+    """
+
+    def _args(self, tmp_path, **overrides):
+        args = _sweep_args(tmp_path)
+        args.sweep = False
+        args.confirm = False
+        args.promote_shortlist = 5
+        args.promote_sims = 10
+        for key, value in overrides.items():
+            setattr(args, key, value)
+        return args
+
+    def _run(self, args):
+        """Drive main() with a hand-built Namespace; return (SystemExit or None, logger, orch)."""
+        logger = Mock()
+        with patch(f"{MODULE}._build_parser") as MockParser, \
+             patch(f"{MODULE}.setup_logger"), \
+             patch(f"{MODULE}.get_logger", return_value=logger), \
+             patch(f"{MODULE}._run_sweep_mode"), \
+             patch(f"{MODULE}._run_promote_mode") as mock_promote, \
+             patch(f"{MODULE}.WinRateMetaDataManager"), \
+             patch(f"{MODULE}.DraftStrategyOrchestrator") as MockOrch, \
+             patch(f"{MODULE}._print_summary"):
+            MockParser.return_value.parse_args.return_value = args
+            raised = None
+            try:
+                rws.main()
+            except SystemExit as exc:
+                raised = exc
+        return raised, logger, MockOrch, mock_promote
+
+    def _fixture_config(self, tmp_path, parent_name="configs"):
+        path = tmp_path / "elsewhere" / parent_name / "league_config.json"
+        path.parent.mkdir(parents=True)
+        path.write_text("{}", encoding="utf-8")
+        return path
+
+    def test_promote_with_non_default_config_exits(self, tmp_path):
+        """Item 1: --config would skew WHICH candidate --promote writes, so it is refused."""
+        config = self._fixture_config(tmp_path)
+        raised, logger, _, mock_promote = self._run(
+            self._args(tmp_path, promote=True, config=str(config))
+        )
+        assert raised is not None and raised.code == 2
+        mock_promote.assert_not_called()
+        assert "--config cannot be combined with --promote" in logger.error.call_args[0][0]
+
+    def test_promote_with_default_config_is_allowed(self, tmp_path):
+        """Item 1's guard is scoped to a REDIRECTED config: the live store still promotes."""
+        raised, _, _, mock_promote = self._run(
+            self._args(tmp_path, promote=True, config=rws.DEFAULT_CONFIG_PATH)
+        )
+        assert raised is None
+        mock_promote.assert_called_once()
+
+    def test_default_config_literal_matches_parser_default(self):
+        """The guard and the flag must read ONE literal, or the guard drifts off the default."""
+        assert rws._build_parser().parse_args([]).config == rws.DEFAULT_CONFIG_PATH
+
+    def test_missing_config_file_exits(self, tmp_path):
+        """Item 2 (arm 2a): a path that is not a file is a hard refusal, not a deep traceback."""
+        missing = tmp_path / "nope" / "configs" / "league_config.json"
+        raised, logger, MockOrch, _ = self._run(self._args(tmp_path, config=str(missing)))
+        assert raised is not None and raised.code == 2
+        MockOrch.assert_not_called()
+        assert "--config path is not a file" in logger.error.call_args[0][0]
+
+    def test_non_configs_parent_warns_and_continues(self, tmp_path):
+        """Item 2 arm 2a, NOT 2b: the legacy <root>/league_config.json layout is still
+        supported by ConfigManager (:183-190), so a non-'configs' parent WARNS about the
+        parent.parent resolution rather than foreclosing the layout."""
+        config = self._fixture_config(tmp_path, parent_name="not_configs")
+        raised, logger, MockOrch, _ = self._run(self._args(tmp_path, config=str(config)))
+        assert raised is None
+        MockOrch.assert_called_once()
+        warning = logger.warning.call_args[0][0]
+        assert "does not sit in a 'configs/' directory" in warning
+        assert str(config.parent.parent) in warning
+
+    def test_configs_parent_does_not_warn(self, tmp_path):
+        """The warning must discriminate — the conforming shape stays silent."""
+        config = self._fixture_config(tmp_path)
+        raised, logger, MockOrch, _ = self._run(self._args(tmp_path, config=str(config)))
+        assert raised is None
+        MockOrch.assert_called_once()
+        logger.warning.assert_not_called()
+
+
 class TestSweepDispatch:
     def test_sweep_flag_dispatches_to_sweep_mode(self, tmp_path):
         args = _sweep_args(tmp_path)
@@ -64,8 +157,14 @@ class TestSweepDispatch:
         args = _sweep_args(tmp_path)
         args.sweep = False
         # D4.3/AC2: a sentinel path, so the forwarding assertion below fails if main() ever
-        # passes a hardcoded literal rather than reading args.config.
-        args.config = str(tmp_path / "sentinel_configs" / "league_config.json")
+        # passes a hardcoded literal rather than reading args.config. It must EXIST and sit
+        # in a configs/ directory, because main() now validates the --config path's shape
+        # (D4.3/du6 item 2) before reaching the orchestrator; the file's contents are never
+        # read here, since DraftStrategyOrchestrator is mocked.
+        sentinel = tmp_path / "sentinel" / "configs" / "league_config.json"
+        sentinel.parent.mkdir(parents=True)
+        sentinel.write_text("{}", encoding="utf-8")
+        args.config = str(sentinel)
         with patch(f"{MODULE}._build_parser") as MockParser, \
              patch(f"{MODULE}.setup_logger"), patch(f"{MODULE}.get_logger"), \
              patch(f"{MODULE}._run_sweep_mode") as mock_sweep, \
