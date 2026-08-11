@@ -1,0 +1,104 @@
+{
+  "config_name": "Accuracy Optimal week14-17 (2026-07-24_07-01-27)",
+  "description": "Weeks 14-17 prediction parameters",
+  "parameters": {
+    "NORMALIZATION_MAX_SCALE": 200,
+    "TEAM_QUALITY_SCORING": {
+      "MIN_WEEKS": 10,
+      "THRESHOLDS": {
+        "BASE_POSITION": 0,
+        "DIRECTION": "DECREASING",
+        "STEPS": 6
+      },
+      "MULTIPLIERS": {
+        "VERY_POOR": 0.95,
+        "POOR": 0.975,
+        "GOOD": 1.025,
+        "EXCELLENT": 1.05
+      },
+      "WEIGHT": 2.77
+    },
+    "PERFORMANCE_SCORING": {
+      "MIN_WEEKS": 2,
+      "THRESHOLDS": {
+        "BASE_POSITION": 0.0,
+        "DIRECTION": "BI_EXCELLENT_HI",
+        "STEPS": 0.18
+      },
+      "MULTIPLIERS": {
+        "VERY_POOR": 0.95,
+        "POOR": 0.975,
+        "GOOD": 1.025,
+        "EXCELLENT": 1.05
+      },
+      "WEIGHT": 0.89
+    },
+    "MATCHUP_SCORING": {
+      "MIN_WEEKS": 9,
+      "IMPACT_SCALE": 39,
+      "THRESHOLDS": {
+        "BASE_POSITION": 0,
+        "DIRECTION": "INCREASING",
+        "STEPS": 6
+      },
+      "MULTIPLIERS": {
+        "VERY_POOR": 0.95,
+        "POOR": 0.975,
+        "GOOD": 1.025,
+        "EXCELLENT": 1.05
+      },
+      "WEIGHT": 3.01
+    },
+    "SCHEDULE_SCORING": {
+      "MIN_WEEKS": 5,
+      "IMPACT_SCALE": 127,
+      "THRESHOLDS": {
+        "BASE_POSITION": 16,
+        "DIRECTION": "BI_EXCELLENT_HI",
+        "STEPS": 2
+      },
+      "MULTIPLIERS": {
+        "VERY_POOR": 0.95,
+        "POOR": 0.975,
+        "GOOD": 1.025,
+        "EXCELLENT": 1.05
+      },
+      "WEIGHT": 0.9
+    },
+    "TEMPERATURE_SCORING": {
+      "IDEAL_TEMPERATURE": 60,
+      "IMPACT_SCALE": 32,
+      "THRESHOLDS": {
+        "BASE_POSITION": 0,
+        "DIRECTION": "DECREASING",
+        "STEPS": 10
+      },
+      "MULTIPLIERS": {
+        "VERY_POOR": 0.95,
+        "POOR": 0.975,
+        "GOOD": 1.025,
+        "EXCELLENT": 1.05
+      },
+      "WEIGHT": 0.98
+    },
+    "WIND_SCORING": {
+      "IDEAL_WIND": 5,
+      "IMPACT_SCALE": 32,
+      "THRESHOLDS": {
+        "BASE_POSITION": 0,
+        "DIRECTION": "DECREASING",
+        "STEPS": 8
+      },
+      "MULTIPLIERS": {
+        "VERY_POOR": 0.95,
+        "POOR": 0.975,
+        "GOOD": 1.025,
+        "EXCELLENT": 1.05
+      },
+      "WEIGHT": 1.9
+    },
+    "LOCATION_MODIFIERS": {
+      "HOME": 0.5
+    }
+  }
+}
