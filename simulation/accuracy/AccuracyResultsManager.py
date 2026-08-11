@@ -1192,7 +1192,10 @@ def propagate_to_configs(
     config_name/description survive. THEN CURRENT_NFL_WEEK, NFL_SEASON,
     MAX_POSITIONS, FLEX_ELIGIBLE_POSITIONS, INJURY_PENALTIES, OPPONENT_TEAMS are
     preserved from the existing target file (if present), so live-only
-    user-maintained keys are never dropped by the atomic replace.
+    user-maintained keys are never dropped by the atomic replace. The live
+    ADP_SCORING.THRESHOLDS sub-block is preserved as well (D4.1), so an accuracy
+    promote can no longer overwrite the hand-owned threshold ladder, while the
+    sibling ADP_SCORING.WEIGHT continues to promote from the source.
     For weekly config files: copies as-is (MATCHUP->SCHEDULE sync already applied
     by save_optimal_configs() at write time). The simulation-only 'performance_metrics'
     block is stripped from all written files before writing.
@@ -1227,6 +1230,14 @@ def propagate_to_configs(
         # the live file (no source folder carries it), so without preservation every
         # promote DELETES it. No subtractive filter can fix that direction.
         'OPPONENT_TEAMS',
+    ]
+    # D4.1: nested counterpart of PRESERVE_KEYS. Each entry is a
+    # (section, subkey) path under 'parameters' whose LIVE value survives a
+    # promote. ADP_SCORING.THRESHOLDS is the hand-owned threshold ladder that no
+    # sweep tunes; the sibling ADP_SCORING.WEIGHT is deliberately absent so the
+    # simulate -> promote -> use-live loop stays intact for it.
+    PRESERVE_SUBPATHS = [
+        ('ADP_SCORING', 'THRESHOLDS'),
     ]
 
     target_folder.mkdir(parents=True, exist_ok=True)
@@ -1269,6 +1280,21 @@ def propagate_to_configs(
             for key in PRESERVE_KEYS:
                 if 'parameters' in original_config and key in original_config['parameters']:
                     updated_config['parameters'][key] = original_config['parameters'][key]
+            for section, subkey in PRESERVE_SUBPATHS:
+                live_section = original_config.get('parameters', {}).get(section)
+                payload_section = updated_config['parameters'].get(section)
+                if not isinstance(live_section, dict) or subkey not in live_section:
+                    continue
+                if not isinstance(payload_section, dict):
+                    continue
+                if payload_section.get(subkey) != live_section[subkey]:
+                    logger.warning(
+                        f"propagate_to_configs: preserved live {section}.{subkey} in "
+                        f"{target_path}; suppressed promoted value "
+                        f"{payload_section.get(subkey)}, retained live value "
+                        f"{live_section[subkey]}"
+                    )
+                payload_section[subkey] = live_section[subkey]
         else:
             updated_config = optimal_config
 

@@ -2232,6 +2232,136 @@ class TestPropagateToConfigs:
         assert written['OPPONENT_TEAMS'] == original_teams, \
             "OPPONENT_TEAMS must be preserved from the promote target, not dropped"
 
+    def test_league_config_preserves_live_adp_thresholds_while_weight_promotes(self, tmp_path):
+        """D4.1 AC1/AC2: live ADP_SCORING.THRESHOLDS survives a promote; WEIGHT still promotes.
+
+        Mutation check (CODING_STANDARDS Test Discrimination): empty PRESERVE_SUBPATHS
+        and this test fails - the source's INCREASING ladder lands.
+        Target is under tmp_path only - never data/configs/.
+        """
+        # Arrange
+        optimal = tmp_path / "optimal"
+        optimal.mkdir()
+        target = tmp_path / "target"
+        target.mkdir()
+        source_thresholds = {'BASE_POSITION': 0, 'DIRECTION': 'INCREASING', 'STEPS': 20}
+        live_thresholds = {'BASE_POSITION': 0, 'DIRECTION': 'DECREASING', 'STEPS': 20}
+        (optimal / 'league_config.json').write_text(json.dumps(
+            {'parameters': {'ADP_SCORING': {'THRESHOLDS': source_thresholds, 'WEIGHT': 1.5}}}))
+        (target / 'league_config.json').write_text(json.dumps(
+            {'parameters': {'ADP_SCORING': {'THRESHOLDS': live_thresholds, 'WEIGHT': 2.12}}}))
+
+        # Act
+        propagate_to_configs(optimal, target, Mock())
+
+        # Assert
+        with open(target / 'league_config.json') as f:
+            written = json.load(f)['parameters']
+        assert written['ADP_SCORING']['THRESHOLDS'] == live_thresholds, \
+            "live ADP_SCORING.THRESHOLDS must survive an accuracy promote"
+        assert written['ADP_SCORING']['WEIGHT'] == 1.5, \
+            "ADP_SCORING.WEIGHT must still promote from the source"
+
+    def test_adp_thresholds_not_grafted_when_source_lacks_adp_scoring(self, tmp_path):
+        """D4.1 UD3: graft-onto-existing - a source without ADP_SCORING synthesizes no block."""
+        optimal = tmp_path / "optimal"
+        optimal.mkdir()
+        target = tmp_path / "target"
+        target.mkdir()
+        live_thresholds = {'BASE_POSITION': 0, 'DIRECTION': 'DECREASING', 'STEPS': 20}
+        (optimal / 'league_config.json').write_text(json.dumps(
+            {'parameters': {'CURRENT_NFL_WEEK': 9}}))
+        (target / 'league_config.json').write_text(json.dumps(
+            {'parameters': {'ADP_SCORING': {'THRESHOLDS': live_thresholds, 'WEIGHT': 2.12}}}))
+
+        propagate_to_configs(optimal, target, Mock())
+
+        with open(target / 'league_config.json') as f:
+            written = json.load(f)['parameters']
+        assert 'ADP_SCORING' not in written, \
+            "no ADP_SCORING parent may be synthesized when the source carries none"
+
+    def test_threshold_preserve_warns_only_when_the_promoted_value_differs(self, tmp_path):
+        """D4.1 UD5: one warning when the guard bit; silent when the values are identical."""
+        live_thresholds = {'BASE_POSITION': 0, 'DIRECTION': 'DECREASING', 'STEPS': 20}
+        differing = {'BASE_POSITION': 0, 'DIRECTION': 'INCREASING', 'STEPS': 20}
+
+        def promote(arm, source_thresholds):
+            optimal = tmp_path / f"optimal_{arm}"
+            optimal.mkdir()
+            target = tmp_path / f"target_{arm}"
+            target.mkdir()
+            (optimal / 'league_config.json').write_text(json.dumps(
+                {'parameters': {'ADP_SCORING': {'THRESHOLDS': source_thresholds, 'WEIGHT': 1.5}}}))
+            (target / 'league_config.json').write_text(json.dumps(
+                {'parameters': {'ADP_SCORING': {'THRESHOLDS': live_thresholds, 'WEIGHT': 2.12}}}))
+            mock_logger = Mock()
+            propagate_to_configs(optimal, target, mock_logger)
+            guard_warnings = [str(c) for c in mock_logger.warning.call_args_list
+                              if 'ADP_SCORING.THRESHOLDS' in str(c)]
+            with open(target / 'league_config.json') as f:
+                return guard_warnings, json.load(f)['parameters']
+
+        differ_warnings, differ_params = promote('differ', differing)
+        assert len(differ_warnings) == 1, \
+            f"a suppressed differing promoted value must warn exactly once: {differ_warnings}"
+        assert 'INCREASING' in differ_warnings[0] and 'DECREASING' in differ_warnings[0], \
+            "the warning must name both the suppressed source value and the retained live value"
+        assert differ_params['ADP_SCORING']['THRESHOLDS'] == live_thresholds
+
+        same_warnings, same_params = promote('same', dict(live_thresholds))
+        assert same_warnings == [], \
+            "an identical promoted value must not warn - the guard did not bite"
+        assert same_params['ADP_SCORING']['THRESHOLDS'] == live_thresholds
+        assert same_params['ADP_SCORING']['WEIGHT'] == 1.5
+
+    def test_player_rating_scoring_thresholds_are_not_preserved(self, tmp_path):
+        """D4.1 UD4: guard breadth is ADP-only - PLAYER_RATING_SCORING still promotes verbatim."""
+        optimal = tmp_path / "optimal"
+        optimal.mkdir()
+        target = tmp_path / "target"
+        target.mkdir()
+        source_block = {'THRESHOLDS': {'BASE_POSITION': 0, 'DIRECTION': 'INCREASING', 'STEPS': 20},
+                        'WEIGHT': 1.8}
+        live_block = {'THRESHOLDS': {'BASE_POSITION': 0, 'DIRECTION': 'DECREASING', 'STEPS': 40},
+                      'WEIGHT': 9.9}
+        (optimal / 'league_config.json').write_text(json.dumps(
+            {'parameters': {'PLAYER_RATING_SCORING': source_block}}))
+        (target / 'league_config.json').write_text(json.dumps(
+            {'parameters': {'PLAYER_RATING_SCORING': live_block}}))
+
+        mock_logger = Mock()
+        propagate_to_configs(optimal, target, mock_logger)
+
+        with open(target / 'league_config.json') as f:
+            written = json.load(f)['parameters']
+        assert written['PLAYER_RATING_SCORING'] == source_block, \
+            "PLAYER_RATING_SCORING must promote verbatim - the guard is ADP-only"
+        assert [c for c in mock_logger.warning.call_args_list
+                if 'PLAYER_RATING_SCORING' in str(c)] == []
+
+    def test_source_thresholds_land_when_the_live_block_has_none(self, tmp_path):
+        """D4.1: nothing live to preserve - the source's THRESHOLDS lands and no warning fires."""
+        optimal = tmp_path / "optimal"
+        optimal.mkdir()
+        target = tmp_path / "target"
+        target.mkdir()
+        source_thresholds = {'BASE_POSITION': 0, 'DIRECTION': 'INCREASING', 'STEPS': 20}
+        (optimal / 'league_config.json').write_text(json.dumps(
+            {'parameters': {'ADP_SCORING': {'THRESHOLDS': source_thresholds, 'WEIGHT': 1.5}}}))
+        (target / 'league_config.json').write_text(json.dumps(
+            {'parameters': {'ADP_SCORING': {'WEIGHT': 2.12}}}))
+
+        mock_logger = Mock()
+        propagate_to_configs(optimal, target, mock_logger)
+
+        with open(target / 'league_config.json') as f:
+            written = json.load(f)['parameters']
+        assert written['ADP_SCORING']['THRESHOLDS'] == source_thresholds, \
+            "with no live THRESHOLDS there is nothing to preserve"
+        assert [c for c in mock_logger.warning.call_args_list
+                if 'ADP_SCORING.THRESHOLDS' in str(c)] == []
+
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
