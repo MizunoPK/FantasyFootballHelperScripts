@@ -1,6 +1,7 @@
 ---
-Last Updated: 2026-08-05
+Last Updated: 2026-08-08
 Update History:
+  - 2026-08-08: Mode C refresh after framework import — replaced retired ticket-stage references (`/dt7-review`, `/dt8-polish`) with the current six-stage delivery ownership model and preserved the review-altitude distinction: `/du5-review` runs the full 16-category gate on each unit, `/dt5-review` runs the narrowed cross-unit missed-requirements + cleanup sweep (including Documentation Impact & Currency), and `/du6-polish` applies per-unit fixes
   - 2026-06-16: Initial creation (project initialization)
   - 2026-06-16: Populated all sections from repository research (slug: populate-shamt-project-docs)
   - 2026-06-21: Win-rate sweep convergence and flag updates (slug: sweep-driver-rewire)
@@ -19,8 +20,8 @@ Update Triggers: |
 How to Update: |
   Open a delivery ticket (or a framework-update proposal if this is a shamt-core change), follow the
   delivery track, and amend the relevant sections of this file. `/du5-review` (per unit) and
-  `/dt7-review` (cross-unit) flag whether a change implies an update; `/du6-polish` / `/dt8-polish`
-  applies it and re-validates. `/update-project-doc` is the direct route for a doc-only edit.
+  `/dt5-review` (cross-unit) flag whether a change implies an update; `/du6-polish` applies
+  per-unit documentation fixes and re-validates. `/update-project-doc` is the direct route for a doc-only edit.
   Run `/validate-artifact .shamt-core/project-specific-files/CODING_STANDARDS.md` after substantive edits.
   Keep `Last Updated` current and add an `Update History` entry with the triggering ticket/unit or
   proposal slug.
@@ -28,7 +29,7 @@ How to Update: |
 
 # Project Coding Standards
 
-**Purpose:** Define project conventions for consistent code reviews and new code. This project runs the **delivery track** (`flow_track: delivery`), so it is consulted by `/dt3-design`'s ticket-scope research and each unit's `/du1-spec`, by the Naming / Documentation / Architecture review categories in the 16-category sweep that `/du5-review` (per unit) and `/dt7-review` (cross-unit) run (see `reference/review_categories.md`), and by the `test-executor` persona when writing or interpreting tests.
+**Purpose:** Define project conventions for consistent code reviews and new code. This project runs the **delivery track** (`flow_track: delivery`), so it is consulted by `/dt3-design`'s ticket-scope research and each unit's `/du1-spec`, by the Naming / Documentation / Architecture categories in `/du5-review`'s per-unit 16-category sweep, and by `/dt5-review`'s narrowed cross-unit missed-requirements + cleanup sweep (including Documentation Impact & Currency; see `reference/review_categories.md`). The `test-executor` persona also consults it when writing or interpreting tests.
 
 ---
 
@@ -353,4 +354,4 @@ The full 16-category review framework lives in `reference/review_categories.md`.
 *Template for project `.shamt-core/project-specific-files/CODING_STANDARDS.md` in Shamt. Header metadata block above is required — the framework-update audit reads it.*
 
 ---
-Validated 2026-08-05 — 1 round, 1 adversarial sub-agent confirmed (Mode C refresh for the delivery-track conversion: How to Update + Purpose re-pointed; conventions untouched, test-executor persona and the 16-category reference both re-verified, sub-agent clean on the first round)
+Validated 2026-08-08 — 1 rounds, 1 adversarial sub-agent confirmed (sha256:6770720f381cd545) (Mode C refresh: current delivery review ownership)

@@ -1,6 +1,7 @@
 ---
-Last Updated: 2026-08-05
+Last Updated: 2026-08-09
 Update History:
+  - 2026-08-09: Mode C refresh after framework import — reconciled merge, review, and gating prose to the current six-stage delivery-ticket flow: `/dt5-review` is the narrowed cross-unit missed-requirements + cleanup sweep after every unit ships, `/dt6-finalize` is archive-only, and the retired ticket-scope `/dt6-execute-tests` gate was removed because test evidence is exclusively each unit's green `/du4-test` `testing_results.md`. Replaced retired `/dt7-review` / `/dt8-polish` documentation ownership with `/dt5-review` / `/du6-polish`. Rollout-safety declarations were re-read and left unchanged. Adversarial validation additionally separated the developer pre-commit wrapper (`run_pre_commit_validation.py`) from `/du4-test`'s direct test-executor invocation of the declared run-source
   - 2026-07-15: Initial creation — established from master template after framework import; solo / trunk-based, github-automated merge, no deploy environments (slug: project-doc-master-alignment)
   - 2026-07-18: Post-`#187` import refresh — corrected the Phase-6 gating bullet to the `user_test_plan_mode: agent-run` config vocabulary (was the stale "`optional` mode"), and the Review run-log name to `review_{datetime}.md` (was `review_vN.md`)
   - 2026-07-27: Mode C refresh after framework import — added the template's now-**consumed** `Merge strategy` field (`squash`; `/e9` reads it to pick the `gh pr merge` flag under `pr_provider: github`) and corrected the Purpose's stale "reference-only / does not change merge automation" claim; retired the dangling `testing_plan.md` reference and aligned the Phase-6 gating bullet to the `agent-run` required-on-every-story rule (was "optional per story", contradicting TESTING_STANDARDS); `/e9` finalize described as the local `**Status: Done**` marker (tracker status is user-managed); added the missing falsified-clause Update Trigger; corrected "the optional Shamt Phase 7 (Review)" — every phase in the nine-phase Engineer sequence is mandatory, and what this solo project lacks is a *human* approval gate, not the phase (adversarial-validation finding)
@@ -18,8 +19,8 @@ Update Triggers: |
 How to Update: |
   Open a delivery ticket (or a framework-update proposal if this is a shamt-core change), follow the
   delivery track, and amend the relevant sections of this file. `/du5-review` (per unit) and
-  `/dt7-review` (cross-unit) flag whether a change implies an update; `/du6-polish` / `/dt8-polish`
-  applies it and re-validates. `/update-project-doc` is the direct route for a doc-only edit.
+  `/dt5-review` (cross-unit) flag whether a change implies an update; `/du6-polish` applies
+  per-unit documentation fixes and re-validates. `/update-project-doc` is the direct route for a doc-only edit.
   Run `/validate-artifact .shamt-core/project-specific-files/DEPLOYMENT_STANDARDS.md` after
   substantive edits. Keep `Last Updated` current and add an `Update History` entry with the
   triggering ticket/unit or proposal slug.
@@ -50,14 +51,14 @@ owned by an **external process**.
 
 - **Who approves:** The repository owner (Kai Mizuno) — this is a solo project, so approval is
   self-review. Two reviews run, and they are not redundant: **`/du5-review`** is the 16-category
-  sweep over each unit's own diff and is the **gate on that unit's merge**, while **`/dt7-review`** is
-  the cross-unit sweep over the assembled rollout *after* every unit has shipped. What is absent here
+  sweep over each unit's own diff and is the **gate on that unit's merge**, while **`/dt5-review`** is
+  the narrowed cross-unit missed-requirements + cleanup sweep over the assembled rollout *after* every unit has shipped. What is absent here
   is any *human* approval gate: there is **no required second reviewer** and no CODEOWNERS gate.
   (Reviews under the retired nested layout used `review_v1.md` / `review_{datetime}.md` under
   `epics/`; delivery-track reviews land in each unit's own `feedback/`.)
 - **Who merges:** The author, via **`/du7-finalize`**, behind its freshness guard, mergeable guard
   and an explicit per-unit confirmation. **The merge is at the UNIT altitude** — one unit, one PR,
-  one merge. `/dt9-finalize` is archive-only and merges nothing.
+  one merge. `/dt6-finalize` is archive-only and merges nothing.
 - **Merge automation:** **Framework-automated** (`pr_provider: github`). `/du7` runs
   `gh pr merge --squash --delete-branch` behind those guards. There is no external
   approval/deployment pipeline — the squash-merge into `main` is the terminal ship step, and is
@@ -87,22 +88,20 @@ container/orchestrator, no staging→prod promotion.
 The approvals and checks that must pass before a merge is allowed.
 
 - **Full offline test suite green** — `python tests/run_all_tests.py` (100% pass, runs `-m "not
-  live_api"`), invoked via `run_pre_commit_validation.py` before committing/merging. This is the
-  **single enforced quality gate** (see `CODING_STANDARDS.md` → Lint and Format; there is no
-  linter/formatter and no line-coverage threshold).
+  live_api"`) is the **single enforced quality gate** (see `CODING_STANDARDS.md` → Lint and Format;
+  there is no linter/formatter and no line-coverage threshold). The developer pre-commit convention
+  invokes it through `run_pre_commit_validation.py`; the delivery gate invokes the declared
+  run-source directly through `/du4-test`'s `test-executor`.
 - **Unit test stage green** — `/du4-test`, recorded in the unit's `testing_results.md`: the whole
   declared automated suite run from `TESTING_STANDARDS.md` §"Automated test infrastructure" (the
   run-source). This blocks the unit's own merge; a fabricated green is forbidden.
-- **Ticket-scope test stage green** — `/dt6-execute-tests`, which runs the declared suite **and** the
-  ticket-scope `user_test_plan.md` against the assembled change. Because this project sets
-  `user_test_plan_mode: agent-run`, that plan is executed by the `user-simulator` and its recorded
-  `Session PASS` is a hard green gate. Note this stage runs **after** every unit has merged, so it is
-  a post-hoc sweep, not a gate on shipping — which is precisely why `/du5-review` and `/du4-test`
-  carry the real gate.
+- **No ticket-scope test gate** — the delivery ticket writes no `testing_results.md`. `/dt5-review`
+  and archive-only `/dt6-finalize` consume every non-withdrawn unit's `/du4-test` evidence; the
+  unit's green declared-suite run is the test gate that precedes its merge.
 - **No unresolved review threads** on the unit's PR before `/du7-finalize` merges (self-resolved
   during `/du6-polish`).
 - **No GitHub CI status checks** — `.github/workflows/` is empty; there is **no** remote CI. The gate
-  is entirely the local pre-commit suite above. (If CI is added later, list its required checks here
+  is entirely the local suite above. (If CI is added later, list its required checks here
   and update `Update Triggers`.)
 
 ---
@@ -212,4 +211,4 @@ three units — not three tickets.
 *Template for project `.shamt-core/project-specific-files/DEPLOYMENT_STANDARDS.md` in Shamt. Header metadata block above is required — the framework-update audit reads it.*
 
 ---
-Validated 2026-08-05 — 2 rounds, 1 adversarial sub-agent confirmed (Mode C refresh after framework import: the Rollout safety workaround for the service-deploy-shaped trigger set was discharged — shamt-core #367 landed it, so the paragraph now states the landed rule (Step-6 triggers anchored on this project's `Merge implies deploy:` declaration, plus the seventh disjunctive behavior-preserving-replacement trigger) instead of a local workaround; sub-agent independently counted the trigger set at seven and confirmed the retired `proposals/` pointer resolves nowhere active)
+Validated 2026-08-09 — 2 rounds, 1 adversarial sub-agent confirmed (sha256:736a2054da80fcce) (Mode C refresh: current delivery merge and gating ownership)
