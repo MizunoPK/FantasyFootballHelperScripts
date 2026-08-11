@@ -95,7 +95,7 @@
     "ADP_SCORING": {
       "THRESHOLDS": {
         "BASE_POSITION": 0,
-        "DIRECTION": "INCREASING",
+        "DIRECTION": "DECREASING",
         "STEPS": 20
       },
       "MULTIPLIERS": {
