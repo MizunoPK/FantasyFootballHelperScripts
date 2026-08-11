@@ -17,6 +17,13 @@ import json
 
 project_root = Path(__file__).parent.parent.parent
 
+# D4.3/UD7: the frozen committed fixture config tree the DraftStrategyOrchestrator constructions
+# below score against, so neither reads the live data/configs/league_config.json. Provenance and
+# the closed consumer set are recorded in tests/fixtures/win_rate_e2e/README.md.
+WIN_RATE_E2E_CONFIG = (
+    project_root / "tests" / "fixtures" / "win_rate_e2e" / "configs" / "league_config.json"
+)
+
 from simulation.shared.ConfigGenerator import ConfigGenerator
 from simulation.win_rate.DraftStrategyOrchestrator import DraftStrategyOrchestrator
 from simulation.win_rate.WinRateMetaDataManager import WinRateMetaDataManager
@@ -297,7 +304,8 @@ class TestDraftStrategyOrchestratorIntegration:
             data_folder=temp_simulation_data,
             num_simulations=2,
             max_workers=2,
-            meta_data_manager=meta_data_manager
+            meta_data_manager=meta_data_manager,
+            config_path=WIN_RATE_E2E_CONFIG,
         )
 
         # The evaluator's _season_cache will be empty because the fixture only creates 6 players
@@ -329,6 +337,7 @@ class TestDraftStrategyOrchestratorRun:
             num_simulations=1,
             max_workers=1,
             meta_data_manager=meta_data_manager,
+            config_path=WIN_RATE_E2E_CONFIG,
         )
         return orchestrator, meta_data_manager
 

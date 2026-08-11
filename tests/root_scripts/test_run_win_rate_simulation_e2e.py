@@ -81,6 +81,7 @@ class TestWinRateSimulationE2E:
                 "--sims", "1",
                 "--strategy", "1_zero_rb.json",
                 "--data", str(data_folder),
+                "--config", "tests/fixtures/win_rate_e2e/configs/league_config.json",
                 "--seed", "42",
                 "--log-level", "WARNING",
             ],
@@ -112,18 +113,25 @@ class TestWinRateSimulationE2E:
         # DESIGN. 10/17 was the post-T79 deterministic value at --seed 42 (observed identical on
         # three consecutive runs, 2026-07-28). Re-pin, never re-range, if a future change moves
         # it again. (T79; see the story's simulation_impact.md for the measured strategy deltas.)
-        # D4.2 moved it again, also BY DESIGN, and the pin is 8/17 once more — coincidentally the
-        # pre-T79 value, reached by a different mechanism, not a revert. This test redirects only
-        # --data, so the run reads the LIVE data/configs/league_config.json through
-        # DraftStrategyOrchestrator/CombinationEvaluator's default config_path: it is an INDIRECT
-        # live-config consumer. D4.2 flipped ADP_SCORING.THRESHOLDS.DIRECTION INCREASING ->
-        # DECREASING, making the ADP ladder five-tier. Measured in both arms: 70 of this fixture's
-        # 240 records sit in the 20 < ADP <= 80 band, and exactly those 70 change label — uniformly
-        # EXCELLENT before, now GOOD 47 / NEUTRAL 8 / POOR 14 / VERY_POOR 1 (that last is the K
-        # record at exactly ADP 80.0, a four-tier jump on the closed boundary). So draft ordering,
-        # and hence the simulated win rate, changed. Isolated two-arm on 2026-08-11: an otherwise
-        # identical tree carrying DIRECTION: INCREASING still yields exactly 10/17 while DECREASING
-        # yields 8/17, each identical across repeated runs, so the config flip is the sole cause.
+        # D4.2 moved it again, also BY DESIGN — it flipped ADP_SCORING.THRESHOLDS.DIRECTION
+        # INCREASING -> DECREASING, making the ADP ladder five-tier, which re-ordered drafting on
+        # this fixture and so moved the win rate. At that point this test still redirected only
+        # --data, so the run read the LIVE data/configs/league_config.json through
+        # DraftStrategyOrchestrator/CombinationEvaluator's default config_path: it was an INDIRECT
+        # live-config consumer, and every config change reached it.
+        #
+        # D4.3 CUT that coupling. The run now passes --config at the committed, frozen fixture tree
+        # tests/fixtures/win_rate_e2e/configs/ (provenance and closed consumer set: that tree's
+        # README.md), so only a deliberate edit to THAT tree can move this number again.
+        #
+        # The pin below was RE-MEASURED against the fixture — it is not carried over from D4.2.
+        # Population: this test's own 18-week synthetic tree scored against
+        # tests/fixtures/win_rate_e2e/configs/ as the ConfigManager root. Convention: one pass,
+        # --sims 1, --seed 42, one season, so best_win_rate = wins / (17 weeks x 1 sim x 1 season).
+        # D4.2's 10/17-vs-8/17 arms were measured over a DIFFERENT population (the live
+        # data/configs/ tree as the config root), so they are evidence that DIRECTION moves this
+        # number, NOT this fixture's expected values.
+        # Re-pin, never re-range, if a future change moves it again.
         assert abs(entry["best_win_rate"] - 8 / 17) < 1e-9
         assert "total_wins" in entry
         assert "total_games" in entry

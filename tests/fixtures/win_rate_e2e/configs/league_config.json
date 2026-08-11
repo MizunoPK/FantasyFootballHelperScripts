@@ -1,0 +1,135 @@
+{
+  "config_name": "Baseline League Config",
+  "description": "",
+  "parameters": {
+    "CURRENT_NFL_WEEK": 1,
+    "NFL_SEASON": 2026,
+    "NFL_SCORING_FORMAT": "ppr",
+    "SAME_POS_BYE_WEIGHT": 0.05,
+    "DIFF_POS_BYE_WEIGHT": 0.01,
+    "INJURY_PENALTIES": {
+      "LOW": 0,
+      "MEDIUM": 0,
+      "HIGH": 0
+    },
+    "DRAFT_ORDER_BONUSES": {
+      "PRIMARY": 50,
+      "SECONDARY": 50
+    },
+    "DRAFT_ORDER_FILE": 24,
+    "DRAFT_ORDER": [
+      {
+        "RB": "P",
+        "WR": "S"
+      },
+      {
+        "WR": "P",
+        "RB": "S"
+      },
+      {
+        "RB": "P",
+        "WR": "S"
+      },
+      {
+        "WR": "P",
+        "RB": "S"
+      },
+      {
+        "QB": "P",
+        "FLEX": "S"
+      },
+      {
+        "TE": "P",
+        "FLEX": "S"
+      },
+      {
+        "RB": "P",
+        "WR": "S"
+      },
+      {
+        "WR": "P",
+        "RB": "S"
+      },
+      {
+        "QB": "P",
+        "FLEX": "S"
+      },
+      {
+        "TE": "P",
+        "FLEX": "S"
+      },
+      {
+        "RB": "P",
+        "WR": "S"
+      },
+      {
+        "WR": "P",
+        "RB": "S"
+      },
+      {
+        "K": "P",
+        "FLEX": "S"
+      },
+      {
+        "DST": "P",
+        "FLEX": "S"
+      },
+      {
+        "FLEX": "P"
+      }
+    ],
+    "DRAFT_NORMALIZATION_MAX_SCALE": 163,
+    "MAX_POSITIONS": {
+      "QB": 2,
+      "RB": 4,
+      "WR": 4,
+      "FLEX": 1,
+      "TE": 2,
+      "K": 1,
+      "DST": 1
+    },
+    "FLEX_ELIGIBLE_POSITIONS": [
+      "RB",
+      "WR"
+    ],
+    "ADP_SCORING": {
+      "THRESHOLDS": {
+        "BASE_POSITION": 0,
+        "DIRECTION": "DECREASING",
+        "STEPS": 20
+      },
+      "MULTIPLIERS": {
+        "VERY_POOR": 0.95,
+        "POOR": 0.975,
+        "GOOD": 1.025,
+        "EXCELLENT": 1.05
+      },
+      "WEIGHT": 2.12
+    },
+    "PLAYER_RATING_SCORING": {
+      "THRESHOLDS": {
+        "BASE_POSITION": 0,
+        "DIRECTION": "INCREASING",
+        "STEPS": 20
+      },
+      "MULTIPLIERS": {
+        "VERY_POOR": 0.95,
+        "POOR": 0.975,
+        "GOOD": 1.025,
+        "EXCELLENT": 1.05
+      },
+      "WEIGHT": 4.0
+    },
+    "OPPONENT_TEAMS": [
+      "Fishoutawater",
+      "Chase-ing points",
+      "Annihilators",
+      "The Injury Report",
+      "Striking Shibas",
+      "Bo Him-ian Rhapsody",
+      "Saquon Deez",
+      "The Eskimo Brothers",
+      "Pidgin"
+    ]
+  }
+}

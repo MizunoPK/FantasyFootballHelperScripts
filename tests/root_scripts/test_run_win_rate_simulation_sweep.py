@@ -6,6 +6,7 @@ Author: Kai Mizuno
 
 # Standard library
 from argparse import Namespace
+from pathlib import Path
 from unittest.mock import Mock, patch
 
 # Third-party
@@ -19,11 +20,32 @@ MODULE = "run_win_rate_simulation"
 
 def _sweep_args(tmp_path):
     return Namespace(
-        data=str(tmp_path), sims=10, workers=2, endless=False, strategy=None,
+        data=str(tmp_path), config="data/configs/league_config.json",
+        sims=10, workers=2, endless=False, strategy=None,
         log_level="INFO", enable_log_file=False, sweep=True,
         num_values=5, promote=False, fresh=False, naive_opponents=False,
         seed=None,
     )
+
+
+class TestConfigFlagParsing:
+    """D4.3/AC1: --config exists and defaults to the live store path.
+
+    Asserted through the REAL rws._build_parser(), never through the patched-parser tests
+    below: those feed a hand-built Namespace, so reading a "default" back out of them would
+    merely re-read the literal the test itself just wrote. Only the real parser can fail if
+    the default is ever changed.
+    """
+
+    def test_config_default_is_live_store_path(self):
+        args = rws._build_parser().parse_args([])
+        assert args.config == "data/configs/league_config.json"
+
+    def test_config_flag_overrides_default(self):
+        args = rws._build_parser().parse_args(
+            ["--config", "tests/fixtures/win_rate_e2e/configs/league_config.json"]
+        )
+        assert args.config == "tests/fixtures/win_rate_e2e/configs/league_config.json"
 
 
 class TestSweepDispatch:
@@ -41,6 +63,9 @@ class TestSweepDispatch:
     def test_no_sweep_runs_strategy_only(self, tmp_path):
         args = _sweep_args(tmp_path)
         args.sweep = False
+        # D4.3/AC2: a sentinel path, so the forwarding assertion below fails if main() ever
+        # passes a hardcoded literal rather than reading args.config.
+        args.config = str(tmp_path / "sentinel_configs" / "league_config.json")
         with patch(f"{MODULE}._build_parser") as MockParser, \
              patch(f"{MODULE}.setup_logger"), patch(f"{MODULE}.get_logger"), \
              patch(f"{MODULE}._run_sweep_mode") as mock_sweep, \
@@ -51,10 +76,14 @@ class TestSweepDispatch:
             rws.main()
         mock_sweep.assert_not_called()
         MockOrch.assert_called_once()
+        # D4.3/AC2: main() forwards --config to the strategy-only read site.
+        assert MockOrch.call_args.kwargs["config_path"] == Path(args.config)
 
     def test_run_sweep_mode_builds_and_runs_tournament(self, tmp_path):
         from pathlib import Path
         args = _sweep_args(tmp_path)
+        # D4.3/AC2: sentinel, for the same reason as in test_no_sweep_runs_strategy_only.
+        args.config = str(tmp_path / "sentinel_configs" / "league_config.json")
         triples = [("1_a.json", [{"QB": "P"}], "A")]
         with patch(f"{MODULE}.load_valid_strategies", return_value=(triples, 0)), \
              patch(f"{MODULE}.CombinationEvaluator") as MockEval, \
@@ -80,6 +109,9 @@ class TestSweepDispatch:
         assert run_kwargs["resume"] is False
         assert run_kwargs["carry_over_seeds"] is None
         assert callable(run_kwargs["progress_callback"])  # T16: progress callback wired through
+        # D4.3/AC2: _run_sweep_mode resolves --config from the args namespace it already holds,
+        # a DIFFERENT route from main()'s — so this site needs its own assertion.
+        assert MockEval.call_args.kwargs["config_path"] == Path(args.config)
 
     def test_run_sweep_mode_empty_strategies_exits(self, tmp_path):
         from pathlib import Path

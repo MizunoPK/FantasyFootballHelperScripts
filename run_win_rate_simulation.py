@@ -62,6 +62,14 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Path to simulation data root folder (default: simulation/sim_data)"
     )
     parser.add_argument(
+        "--config", type=str, default="data/configs/league_config.json", metavar="PATH",
+        help="Path to the league_config.json used for SCORING (read only). Its "
+             "parent.parent is the ConfigManager data root, so the sibling week*.json "
+             "files are merged too. Default: data/configs/league_config.json. NOTE: "
+             "--promote always writes the live data/configs/league_config.json and is "
+             "deliberately NOT redirected by this flag."
+    )
+    parser.add_argument(
         "--log-level", type=str, default="INFO",
         choices=["DEBUG", "INFO", "WARNING", "ERROR"],
         help="Logging verbosity (default: INFO)"
@@ -190,6 +198,7 @@ def main() -> None:
     logger = get_logger()
 
     data_folder = Path(args.data)
+    config_path = Path(args.config)
 
     if args.promote and args.endless:
         logger.error(
@@ -225,6 +234,7 @@ def main() -> None:
         num_simulations=args.sims,
         max_workers=args.workers,
         meta_data_manager=meta_data_manager,
+        config_path=config_path,
         strategy_filter=args.strategy,
         naive_opponents=args.naive_opponents,
         seed=args.seed,
@@ -297,7 +307,7 @@ def _run_sweep_mode(args: argparse.Namespace, data_folder: Path, logger) -> None
     base_seed = _resolve_sweep_seed(args, logger)
     evaluator = CombinationEvaluator(
         data_folder=data_folder, num_simulations=args.sims, max_workers=args.workers,
-        naive_opponents=args.naive_opponents, seed=base_seed
+        config_path=Path(args.config), naive_opponents=args.naive_opponents, seed=base_seed
     )
 
     # T61/D1: games-per-evaluation reachability pre-flight, run BEFORE any evaluation and at

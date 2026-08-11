@@ -6,6 +6,7 @@ flow for the FF-2 Feature 3 CLI rewrite.
 """
 import subprocess
 import sys
+from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -215,6 +216,11 @@ class TestMainFlow:
                 num_simulations=3,
                 max_workers=2,
                 meta_data_manager=mock_mdm_cls.return_value,
+                # D4.3: main() now forwards --config to the orchestrator's existing config_path
+                # parameter. No --config is passed in this test's argv, so the value here is the
+                # flag's DEFAULT — which makes this assertion a second witness that the default
+                # is unchanged, independent of the real-parser test in the sweep file.
+                config_path=Path("data/configs/league_config.json"),
                 strategy_filter=None,
                 naive_opponents=False,
                 seed=None,
