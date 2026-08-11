@@ -1193,9 +1193,11 @@ def propagate_to_configs(
     MAX_POSITIONS, FLEX_ELIGIBLE_POSITIONS, INJURY_PENALTIES, OPPONENT_TEAMS are
     preserved from the existing target file (if present), so live-only
     user-maintained keys are never dropped by the atomic replace. The live
-    ADP_SCORING.THRESHOLDS sub-block is preserved as well (D4.1), so an accuracy
-    promote can no longer overwrite the hand-owned threshold ladder, while the
-    sibling ADP_SCORING.WEIGHT continues to promote from the source.
+    ADP_SCORING.THRESHOLDS sub-block is preserved as well (D4.1) whenever the
+    source folder's filtered parameters carries an ADP_SCORING block to graft
+    onto, so an accuracy promote can no longer overwrite the hand-owned threshold
+    ladder, while the sibling ADP_SCORING.WEIGHT continues to promote from the
+    source.
     For weekly config files: copies as-is (MATCHUP->SCHEDULE sync already applied
     by save_optimal_configs() at write time). The simulation-only 'performance_metrics'
     block is stripped from all written files before writing.
@@ -1233,9 +1235,17 @@ def propagate_to_configs(
     ]
     # D4.1: nested counterpart of PRESERVE_KEYS. Each entry is a
     # (section, subkey) path under 'parameters' whose LIVE value survives a
-    # promote. ADP_SCORING.THRESHOLDS is the hand-owned threshold ladder that no
-    # sweep tunes; the sibling ADP_SCORING.WEIGHT is deliberately absent so the
-    # simulate -> promote -> use-live loop stays intact for it.
+    # promote, provided the promoted payload already carries the parent section
+    # (graft-onto-existing; a source lacking the section drops the block
+    # wholesale, exactly as today). ADP_SCORING.THRESHOLDS is the hand-owned
+    # threshold ladder that no sweep tunes; the sibling ADP_SCORING.WEIGHT is
+    # deliberately absent so the simulate -> promote -> use-live loop stays
+    # intact for it.
+    # NOTE (TD6): "no sweep tunes it" is true only while the ADP_SCORING_STEPS
+    # sweep dial writes the sibling ADP_SCORING.STEPS rather than
+    # THRESHOLDS.STEPS (ConfigGenerator._apply_param_value). If that mis-nesting
+    # is ever corrected, revisit this entry — it would begin suppressing a value
+    # the sweep legitimately tunes.
     PRESERVE_SUBPATHS = [
         ('ADP_SCORING', 'THRESHOLDS'),
     ]
@@ -1289,9 +1299,9 @@ def propagate_to_configs(
                     continue
                 if payload_section.get(subkey) != live_section[subkey]:
                     logger.warning(
-                        f"propagate_to_configs: preserved live {section}.{subkey} in "
-                        f"{target_path}; suppressed promoted value "
-                        f"{payload_section.get(subkey)}, retained live value "
+                        f"propagate_to_configs: retaining live {section}.{subkey} "
+                        f"for {target_path}; suppressing promoted value "
+                        f"{payload_section.get(subkey)} in favor of live value "
                         f"{live_section[subkey]}"
                     )
                 payload_section[subkey] = live_section[subkey]
