@@ -129,8 +129,10 @@ class ConfigKeys:
 # Declared input domain of each _get_multiplier consumer, keyed by scoring-type key, as an
 # (lo, hi) pair in which EITHER bound may be None; a factor whose input is wholly unbounded
 # declares None. Read only by ConfigManager._validate_tier_reachability, which lives beside
-# _get_multiplier at the bottom of the class -- the constant sits here rather than next to it
-# because a module-level constant cannot live inside a class body.
+# _get_multiplier at the bottom of the class. It is declared at module scope rather than as a
+# ConfigManager class attribute so the test suite can import it directly
+# (tests/league_helper/util/test_ConfigManager_tier_reachability.py) without constructing a
+# ConfigManager, and so it sits with this module's other guard constants below.
 #
 # A domain is a property of the INPUT'S SEMANTICS -- an NFL defense rank is 1-32 because there
 # are 32 teams -- not a tunable scoring constant, so it is declared in code rather than in
@@ -157,8 +159,11 @@ MULTIPLIER_INPUT_DOMAINS: Dict[str, Optional[Tuple[Optional[float], Optional[flo
     ConfigKeys.PERFORMANCE_SCORING: None,
     # The input is get_temperature_distance = abs(temp - IDEAL_TEMPERATURE), so lo = 0 by
     # construction. hi = 80 is the distance a -20..140 F range reaches against the ideal of 60
-    # that every shipped config carries. Declared against the DEFAULT ideal on purpose: a
-    # hand-edited ideal makes this slightly conservative, never falsely failing.
+    # that every shipped config carries. Declared against the DEFAULT ideal on purpose. Any
+    # other ideal widens the true distance range beyond 80, making this declared domain
+    # NARROWER than reality -- which can only over-report unreachability, so the guard may
+    # falsely REJECT a config whose outermost threshold exceeds 80. It can never falsely
+    # pass. Revisit this bound if IDEAL_TEMPERATURE or STEPS is ever changed.
     ConfigKeys.TEMPERATURE_SCORING: (0, 80),
     # game.wind_gust in mph, non-negative by construction; 60 bounds a plausible gust.
     ConfigKeys.WIND_SCORING: (0, 60),
@@ -1249,7 +1254,47 @@ class ConfigManager:
                                  f"G={calculated[self.keys.GOOD]}, P={calculated[self.keys.POOR]}, "
                                  f"VP={calculated[self.keys.VERY_POOR]}")
 
+        # Materialize the in-code calculated defaults BEFORE validating. This is a
+        # production fix, not a check: without it the TEMPERATURE_SCORING / WIND_SCORING
+        # defaults reach _get_multiplier carrying only BASE_POSITION / DIRECTION / STEPS
+        # and raise KeyError there. It is kept out of _validate_tier_reachability so that
+        # neutralizing the guard cannot silently remove an unrelated fix.
+        for scoring_key, scoring_dict, _accessor in self._multiplier_factors():
+            self._resolve_calculated_thresholds(scoring_key, scoring_dict)
+
         self._validate_tier_reachability()
+
+
+    def _multiplier_factors(self) -> List[Tuple[str, Dict[str, Any],
+                                                Callable[[float], Tuple[float, str]]]]:
+        """Return the eight `_get_multiplier` consumers as (key, ladder, accessor) triples.
+
+        The single enumeration both the materialization pass and the reachability guard
+        iterate, so the two cannot drift apart. Each triple pairs a scoring-type key with
+        its RESOLVED ladder attribute (never `self.parameters`, so the three in-code
+        defaults are covered) and the public accessor that reads it.
+
+        Returns:
+            The eight (scoring_key, scoring_dict, accessor) triples.
+        """
+        return [
+            (self.keys.ADP_SCORING, self.adp_scoring,
+             self.get_adp_multiplier),
+            (self.keys.PLAYER_RATING_SCORING, self.player_rating_scoring,
+             self.get_player_rating_multiplier),
+            (self.keys.TEAM_QUALITY_SCORING, self.team_quality_scoring,
+             self.get_team_quality_multiplier),
+            (self.keys.MATCHUP_SCORING, self.matchup_scoring,
+             self.get_matchup_multiplier),
+            (self.keys.SCHEDULE_SCORING, self.schedule_scoring,
+             self.get_schedule_multiplier),
+            (self.keys.PERFORMANCE_SCORING, self.performance_scoring,
+             self.get_performance_multiplier),
+            (self.keys.TEMPERATURE_SCORING, self.temperature_scoring,
+             self.get_temperature_multiplier),
+            (self.keys.WIND_SCORING, self.wind_scoring,
+             self.get_wind_multiplier),
+        ]
 
 
     def _resolve_calculated_thresholds(self, scoring_key: str,
@@ -1354,39 +1399,44 @@ class ConfigManager:
         resolved attribute and its comparator polarity -- so this check cannot disagree
         with the production call site, and carries no polarity column of its own.
 
+        READ-ONLY: this method mutates no configuration state. Materializing the in-code
+        calculated defaults is `_extract_parameters`' job, run immediately before this
+        call, so neutralizing this guard removes only the check.
+
         Unlike its peer `validate_threshold_params`, which raises on the first failure,
         this accumulates every failing factor before raising: a config with three
         degenerate ladders should report three rather than force three fix-and-rerun
         cycles.
 
         Raises:
-            ValueError: If any factor is missing a key _get_multiplier reads (a THRESHOLDS
-                or MULTIPLIERS tier entry, or WEIGHT) or cannot reach all five
-                tier labels. ValueError rather than the ConfigurationError the project
+            ValueError: If any factor declares no MULTIPLIER_INPUT_DOMAINS entry, is
+                missing a key _get_multiplier reads (a THRESHOLDS or MULTIPLIERS tier
+                entry, or WEIGHT), or cannot reach all five tier labels. ValueError rather than the ConfigurationError the project
                 coding standards would otherwise suggest, because ConfigurationError does
                 not subclass ValueError while ConfigManager raises and documents ValueError
                 for invalid configuration everywhere else -- adopting it for one new check
                 would silently break existing callers catching ValueError. A module-wide
                 migration is the right shape for that change, and it is not this one.
         """
-        factors = [
-            (self.keys.ADP_SCORING, self.adp_scoring,
-             self.get_adp_multiplier),
-            (self.keys.PLAYER_RATING_SCORING, self.player_rating_scoring,
-             self.get_player_rating_multiplier),
-            (self.keys.TEAM_QUALITY_SCORING, self.team_quality_scoring,
-             self.get_team_quality_multiplier),
-            (self.keys.MATCHUP_SCORING, self.matchup_scoring,
-             self.get_matchup_multiplier),
-            (self.keys.SCHEDULE_SCORING, self.schedule_scoring,
-             self.get_schedule_multiplier),
-            (self.keys.PERFORMANCE_SCORING, self.performance_scoring,
-             self.get_performance_multiplier),
-            (self.keys.TEMPERATURE_SCORING, self.temperature_scoring,
-             self.get_temperature_multiplier),
-            (self.keys.WIND_SCORING, self.wind_scoring,
-             self.get_wind_multiplier),
-        ]
+        factors = self._multiplier_factors()
+
+        # Every probed factor must DECLARE a domain. A bare MULTIPLIER_INPUT_DOMAINS
+        # subscript below would raise an unnamed KeyError at config load if the two
+        # enumerations ever drift -- the exact failure class the per-factor checks below
+        # exist to eliminate. A .get() default would be wrong: None is already a legal,
+        # meaningful value (domain-free), so a missing entry must fail rather than
+        # silently degrade a new factor to the domain-free subset of the check.
+        undeclared = [key for key, _dict, _accessor in factors
+                      if key not in MULTIPLIER_INPUT_DOMAINS]
+        if undeclared:
+            error_msg = (
+                f"MULTIPLIER_INPUT_DOMAINS is missing a declared input domain for "
+                f"{', '.join(undeclared)} -- every probed factor must declare one "
+                f"(None for a wholly unbounded input)."
+            )
+            self.logger.error(error_msg)
+            raise ValueError(error_msg)
+
         tier_keys = (self.keys.VERY_POOR, self.keys.POOR,
                      self.keys.GOOD, self.keys.EXCELLENT)
         all_tiers = {self.keys.EXCELLENT, self.keys.GOOD, self.keys.NEUTRAL,
@@ -1394,8 +1444,6 @@ class ConfigManager:
         failures: List[str] = []
 
         for scoring_key, scoring_dict, accessor in factors:
-            self._resolve_calculated_thresholds(scoring_key, scoring_dict)
-
             thresholds = scoring_dict.get(self.keys.THRESHOLDS, {})
             missing = [key for key in tier_keys if key not in thresholds]
             if missing:

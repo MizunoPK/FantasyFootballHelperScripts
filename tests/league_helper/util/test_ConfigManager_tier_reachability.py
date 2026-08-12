@@ -68,6 +68,19 @@ def live_config():
     return ConfigManager(LIVE_CONFIG_ROOT)
 
 
+@pytest.fixture
+def frozen_config(tmp_path, league_params):
+    """ConfigManager over the FROZEN league fixture, for assertions about the CODE.
+
+    TestProbeAgreesWithTheComparator asserts a property of the probe, not of the shipped
+    ladders, so pinning it to the live data/ store would let a config edit silently change
+    what the agreement test exercises (or turn it red for an unrelated reason). D4.3
+    (b3ba1c82) cut exactly this dependency out of the win-rate tests. The live store stays
+    where it is the requirement: TestAllFourHorizonsAreReachable (TD6).
+    """
+    return ConfigManager(_write_legacy_config(tmp_path, league_params))
+
+
 def _write_legacy_config(tmp_path, data):
     """Write `data` as a legacy single-file config; return the data folder."""
     (tmp_path / "league_config.json").write_text(json.dumps(data))
@@ -249,23 +262,51 @@ class TestDegenerateConfigTripsTheGuard:
         # Assert
         assert config.matchup_scoring["MULTIPLIERS"] == multipliers
 
+    def test_a_factor_with_no_declared_domain_is_named_not_raised_as_keyerror(
+        self, tmp_path, league_params, monkeypatch
+    ):
+        """The two enumerations must agree, and drift must fail with a name.
+
+        _multiplier_factors and MULTIPLIER_INPUT_DOMAINS are separate enumerations of the
+        same eight keys, so adding a ninth factor without declaring its domain would
+        otherwise raise a bare KeyError at config load -- an opaque traceback on the
+        League Helper and both engines. Simulated here by removing a declared entry,
+        which is the same divergence from the other side.
+        """
+        # Arrange
+        domains = dict(MULTIPLIER_INPUT_DOMAINS)
+        del domains["MATCHUP_SCORING"]
+        monkeypatch.setattr(
+            "league_helper.util.ConfigManager.MULTIPLIER_INPUT_DOMAINS", domains
+        )
+        data_folder = _write_legacy_config(tmp_path, league_params)
+
+        # Act
+        with pytest.raises(ValueError) as excinfo:
+            ConfigManager(data_folder)
+
+        # Assert
+        message = str(excinfo.value)
+        assert "MULTIPLIER_INPUT_DOMAINS is missing" in message
+        assert "MATCHUP_SCORING" in message
+
 
 class TestProbeAgreesWithTheComparator:
     """The probe reads _get_multiplier correctly — criterion 8 of ticket.md."""
 
-    def test_every_live_factor_reaches_all_five_tiers(self, live_config):
-        """The probe's verdict on the live config, factor by factor."""
+    def test_every_factor_reaches_all_five_tiers(self, frozen_config):
+        """The probe's verdict on the frozen fixture config, factor by factor."""
         # Arrange / Act / Assert
         for key, attribute, accessor_name, _rising in ACCESSOR_POLARITY:
-            scoring_dict = getattr(live_config, attribute)
-            probed = live_config._probe_tier_labels(
+            scoring_dict = getattr(frozen_config, attribute)
+            probed = frozen_config._probe_tier_labels(
                 scoring_dict["THRESHOLDS"],
                 MULTIPLIER_INPUT_DOMAINS[key],
-                getattr(live_config, accessor_name),
+                getattr(frozen_config, accessor_name),
             )
             assert probed == ALL_TIERS, key
 
-    def test_the_probe_never_under_reports_against_a_dense_sweep(self, live_config):
+    def test_the_probe_never_under_reports_against_a_dense_sweep(self, frozen_config):
         """A 2001-sample sweep finds no label the probe missed — the exhaustiveness claim.
 
         The dense sweep is an INDEPENDENT derivation: it calls _get_multiplier directly
@@ -275,18 +316,18 @@ class TestProbeAgreesWithTheComparator:
         """
         # Arrange / Act / Assert
         for key, attribute, accessor_name, rising in ACCESSOR_POLARITY:
-            scoring_dict = getattr(live_config, attribute)
-            probed = live_config._probe_tier_labels(
+            scoring_dict = getattr(frozen_config, attribute)
+            probed = frozen_config._probe_tier_labels(
                 scoring_dict["THRESHOLDS"],
                 MULTIPLIER_INPUT_DOMAINS[key],
-                getattr(live_config, accessor_name),
+                getattr(frozen_config, accessor_name),
             )
             dense = _dense_labels(
-                live_config, scoring_dict, MULTIPLIER_INPUT_DOMAINS[key], rising
+                frozen_config, scoring_dict, MULTIPLIER_INPUT_DOMAINS[key], rising
             )
             assert dense <= probed, f"{key}: probe missed {sorted(dense - probed)}"
 
-    def test_the_rising_branch_tests_very_poor_before_poor(self, live_config):
+    def test_the_rising_branch_tests_very_poor_before_poor(self, frozen_config):
         """The evaluation-order quirk the probe trusts, asserted rather than assumed.
 
         Both VERY_POOR and POOR match `val <= threshold` at val == 10 on this ladder;
@@ -303,13 +344,13 @@ class TestProbeAgreesWithTheComparator:
         }
 
         # Act
-        at_very_poor = live_config._get_multiplier(
+        at_very_poor = frozen_config._get_multiplier(
             ladder, 10, rising_thresholds=True
         )[1]
-        probed = live_config._probe_tier_labels(
+        probed = frozen_config._probe_tier_labels(
             ladder["THRESHOLDS"],
             (0, 100),
-            lambda value: live_config._get_multiplier(
+            lambda value: frozen_config._get_multiplier(
                 ladder, value, rising_thresholds=True
             ),
         )
@@ -366,10 +407,14 @@ class TestDefaultedLaddersAreMaterialized:
 
         The recalculation loop iterates self.parameters and skips an absent scoring type,
         so the calculated-form temperature/wind defaults never had their tier keys
-        computed. Mutation check: _resolve_calculated_thresholds is invoked FROM
-        _validate_tier_reachability, so replacing the guard call with `pass` also removes
-        the materialization. The load then still succeeds -- there is no guard left to
-        raise -- and this test fails on the first tier-key assertion below instead.
+        computed. Mutation check (re-run 2026-08-12, after the materialization pass was
+        hoisted out of the guard): neutralizing the _resolve_calculated_thresholds loop in
+        _extract_parameters makes this test -- and only this test -- fail, 1 failed / 16
+        passed. It fails with the guard's own accumulated ValueError naming TEMPERATURE_
+        SCORING and WIND_SCORING THRESHOLDS as missing all four tier keys, because the
+        read-only guard now runs after the materialization rather than owning it.
+        Neutralizing the guard call itself is a SEPARATE mutation and no longer touches
+        this test: it trips 6 tests, all of them guard tests (mutation A, same date).
         """
         # Arrange
         for key in ("TEMPERATURE_SCORING", "WIND_SCORING"):
