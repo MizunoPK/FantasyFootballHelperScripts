@@ -824,8 +824,10 @@ class TestGetRankDifferenceSentinel:
     def test_no_matchup_available_returns_none(self):
         """When matchup data is unavailable, get_rank_difference returns None (defense-in-depth, AC4/D4).
 
-        Dead path today (sole caller load_players_from_csv has zero callers); this asserts the source
-        sentinel now agrees with the live _apply_matchup_multiplier 0-guard if that path is ever revived.
+        Live path since D6.1: get_rank_difference has a production caller in
+        PlayerManager.refresh_team_context, which assigns its return value to
+        player.matchup_score on every loaded player. This asserts the source sentinel
+        agrees with the live _apply_matchup_multiplier 0-guard.
         """
         tdm = TeamDataManager.__new__(TeamDataManager)
         tdm.is_matchup_available = Mock(return_value=False)

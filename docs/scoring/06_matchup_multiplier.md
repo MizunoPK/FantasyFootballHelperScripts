@@ -132,7 +132,7 @@ def _apply_matchup_multiplier(self, p: FantasyPlayer, player_score: float) -> Tu
 
 ### Matchup Score Assignment
 
-During player loading in `PlayerManager.load_players_from_csv()`:
+During player loading in `PlayerManager.refresh_team_context()`:
 
 ```python
 matchup_score = self.team_data_manager.get_rank_difference(player.team, player.position)
