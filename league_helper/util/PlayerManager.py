@@ -2,18 +2,18 @@
 Player Manager
 
 Manages all player data, scoring calculations, and roster operations.
-This is the core module responsible for loading player data from CSV,
-calculating player scores using the 10-step scoring algorithm, and
-managing draft operations.
+This is the core module responsible for loading player data from the
+position-specific JSON files, calculating player scores using the 14-step
+scoring algorithm, and managing draft operations.
 
 Key responsibilities:
-- Loading and parsing player data from players.csv
-- Computing the 10-step scoring algorithm for player evaluation
+- Loading and parsing player data from data/player_data/*.json
+- Computing the 14-step scoring algorithm for player evaluation
 - Managing the team roster through FantasyTeam
-- Updating the CSV file with roster changes
+- Updating the position JSON files with roster changes
 - Displaying roster information
 
-The 10-step scoring algorithm:
+The 14-step scoring algorithm:
 1. Normalization (based on fantasy_points projection)
 2. ADP Multiplier (market wisdom adjustment)
 3. Player Rating Multiplier (expert consensus)
@@ -26,16 +26,18 @@ The 10-step scoring algorithm:
    - BASE_BYE_PENALTY applied per same-position overlap
    - DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY applied per different-position overlap
 10. Injury Penalty (risk assessment)
+11. Temperature Scoring (game-time temperature)
+12. Wind Scoring (game-time wind)
+13. Location Modifier (home/away/neutral site)
+14. NFL Team Penalty (team-level adjustment)
 
 Author: Kai Mizuno
 """
 
-import csv
 import json
 from pathlib import Path
 from typing import Dict, List, Tuple, Optional, Any
 import statistics
-import warnings
 
 from league_helper.util.TeamDataManager import TeamDataManager
 from league_helper.util.SeasonScheduleManager import SeasonScheduleManager
@@ -54,15 +56,15 @@ class PlayerManager:
     Manages player data, scoring, and roster operations.
 
     This class is responsible for all player-related functionality including
-    loading player data from CSV, calculating scores using the 10-step algorithm,
-    managing the team roster, and persisting changes back to the CSV file.
+    loading player data from the position-specific JSON files, calculating scores
+    using the 14-step algorithm, managing the team roster, and persisting changes
+    back to those JSON files.
 
     Attributes:
         logger: Logger instance for tracking operations
         config (ConfigManager): Configuration manager for scoring parameters
         team_data_manager (TeamDataManager): Manager for team rankings and matchups
         season_schedule_manager (SeasonScheduleManager): Manager for season schedule data
-        file_str (str): Path to players.csv file
         team (FantasyTeam): Current fantasy team roster
         players (List[FantasyPlayer]): All available players
         max_projection (float): Max projection used as the score-normalization denominator — the
@@ -90,13 +92,13 @@ class PlayerManager:
         Initialize the Player Manager.
 
         Args:
-            data_folder (Path): Path to data directory containing players.csv
+            data_folder (Path): Path to data directory containing player_data/
             config (ConfigManager): Configuration manager with scoring parameters
             team_data_manager (TeamDataManager): Manager for team rankings and matchups
             season_schedule_manager (SeasonScheduleManager): Manager for season schedule data
 
         Side Effects:
-            - Loads all players from players.csv
+            - Loads all players from player_data/*.json
             - Initializes team rankings and matchup data for each player
             - Initializes the team roster with drafted players
             - Logs player loading statistics
@@ -120,9 +122,6 @@ class PlayerManager:
             self.game_data_manager
         )
 
-        self.file_str = str(data_folder / 'players.csv')
-        self.logger.debug(f"Players CSV path: {self.file_str}")
-
         self.team: FantasyTeam
         self.players: List[FantasyPlayer] = []
         self.max_projection : int = 0
@@ -133,138 +132,12 @@ class PlayerManager:
         self.load_team()
         self.logger.debug(f"Player Manager initialized with {len(self.players)} players, {len(self.team.roster)} on roster")
 
-
-    def load_players_from_csv(self) -> None:
-        """
-        DEPRECATED: Use load_players_from_json() instead.
-
-        This method loads player data from the old players.csv format.
-        It is maintained for backward compatibility only.
-
-        Deprecated: 2025-12-30
-        Remove in: Next major version
-
-        Legacy documentation:
-        Load players from CSV file using the new FantasyPlayer class.
-        This function supports the projection data format with fantasy_points
-        and can fall back to the legacy format if needed.
-        """
-        warnings.warn(
-            "load_players_from_csv() is deprecated. "
-            "Use load_players_from_json() instead. "
-            "CSV support will be removed in future version.",
-            DeprecationWarning,
-            stacklevel=2
-        )
-
-        players: list[FantasyPlayer] = []
-        self.max_projection = 0.0
-        self.max_weekly_projections = {}
-
-        required_columns = ['id', 'name', 'team', 'position']
-
-
-        try:
-            with open(self.file_str, newline='', encoding='utf-8') as csvfile:
-                reader = csv.DictReader(csvfile)
-
-                if not all(col in reader.fieldnames for col in required_columns):
-                    missing_cols = [col for col in required_columns if col not in reader.fieldnames]
-                    raise ValueError(f"Missing required columns in CSV: {missing_cols}")
-
-                row_count = 0
-                error_count = 0
-
-                for row_num, row in enumerate(reader, start=2):
-                    row_count += 1
-                    try:
-                        player = FantasyPlayer.from_dict(row)
-
-                        if not player.name:
-                            self.logger.warning(f"Warning: Empty player name on row {row_num}, skipping")
-                            error_count += 1
-                            continue
-
-                        if player.position not in self.config.max_positions:
-                            self.logger.warning(f"Warning: Invalid position '{player.position}' for player {player.name} on row {row_num}, skipping")
-                            error_count += 1
-                            continue
-
-                        player.fantasy_points = player.get_rest_of_season_projection(self.config)
-
-                        player.team_offensive_rank = self.team_data_manager.get_team_offensive_rank(player.team)
-
-                        if player.position in Constants.DEFENSE_POSITIONS:
-                            player.team_defensive_rank = self.team_data_manager.get_team_dst_fantasy_rank(player.team)
-                        else:
-                            player.team_defensive_rank = self.team_data_manager.get_team_defensive_rank(player.team)
-
-                        matchup_score = self.team_data_manager.get_rank_difference(player.team, player.position)
-                        player.matchup_score = matchup_score
-
-                        players.append(player)
-
-                        if player.fantasy_points and player.fantasy_points > self.max_projection:
-                            self.max_projection = player.fantasy_points
-
-                    except Exception as e:
-                        error_count += 1
-                        self.logger.error(f"Error parsing row {row_num} for player {row.get('name', 'Unknown')}: {e}")
-                        continue
-
-                if error_count > 0:
-                    self.logger.warning(f"Warning: {error_count} rows had errors and were skipped out of {row_count} total rows")
-
-                self.scoring_calculator.max_projection = self.max_projection
-
-        except FileNotFoundError:
-            self.logger.error(f"Error: File {self.file_str} not found.")
-            return []
-        except PermissionError:
-            self.logger.error(f"Error: Permission denied accessing file {self.file_str}")
-            return []
-        except csv.Error as e:
-            self.logger.error(f"Error: Invalid CSV format in file {self.file_str}: {e}")
-            return []
-        except ValueError as e:
-            self.logger.error(f"Error: {e}")
-            return []
-        except Exception as e:
-            self.logger.error(f"Unexpected error loading CSV file {self.file_str}: {e}")
-            return []
-        
-        for player in players:
-
-            if player.fantasy_points and self.max_projection > 0:
-                player.weighted_projection = self.scoring_calculator.weight_projection(player.fantasy_points)
-            else:
-                player.weighted_projection = 0.0
-
-            if not hasattr(player, 'is_starter'):
-                player.is_starter = False
-
-        for player in players:
-            player.score = self.score_player(player, 
-                                             adp=False,
-                                             player_rating=True,
-                                             team_quality=True,
-                                             performance=True,
-                                             matchup=False,
-                                             schedule=True,
-                                             bye=False,
-                                             injury=True
-                                             ).score
-
-        self.logger.debug(f"Loaded {len(players)} players from {self.file_str}.")
-
-        self.players = players
-
     def load_players_from_json(self) -> bool:
         """
         Load all players from position-specific JSON files.
 
-        Replaces load_players_from_csv() for JSON-based data loading.
-        Loads players from player_data/ directory with 6 position files:
+        The sole player loader. Loads players from the player_data/ directory's
+        6 position files:
         qb_data.json, rb_data.json, wr_data.json, te_data.json, k_data.json, dst_data.json
 
         Returns:
@@ -360,19 +233,21 @@ class PlayerManager:
     def refresh_team_context(self) -> None:
         """Recompute each loaded player's team-context fields from the current TeamDataManager week.
 
-        Mirrors the population the deprecated CSV path performs (load_players_from_csv),
-        assigning all three of that path's team-context fields verbatim from
-        TeamDataManager:
+        Assigns all three of the player's team-context fields from TeamDataManager:
 
         - team_offensive_rank: get_team_offensive_rank(team) — the player's OWN team's
           offensive rank (1-32), or None when the team is absent from the rank dict.
         - team_defensive_rank: get_team_dst_fantasy_rank(team) for a player in
           Constants.DEFENSE_POSITIONS, get_team_defensive_rank(team) otherwise. The two
           sources rank a team up to 21 places apart, so the fork is consequential rather
-          than cosmetic. The non-DST write has no reader today (player_scoring.py's
-          team-quality step reads this field only for DEFENSE_POSITIONS, and nothing
-          serializes it) and is retained deliberately, so the CSV-parity claim above holds
-          without an exception — it is not a dead store to optimize away.
+          than cosmetic for the DST branch. The non-DST branch's write is provably INERT:
+          the field's only reader is _apply_team_quality_multiplier
+          (player_scoring.py:471), which is guarded by
+          p.position in Constants.DEFENSE_POSITIONS (player_scoring.py:470), and nothing
+          serializes the field. It is retained DELIBERATELY so the assignment is TOTAL —
+          this method is the only writer of team_defensive_rank, so dropping the else
+          branch would leave every non-DST player on the dataclass default None
+          (utils/FantasyPlayer.py:112) forever. It is not a dead store to optimize away.
         - matchup_score: get_rank_difference(team, position) — an OPPONENT-defense rank
           (1-32) or None on genuine no-info (bye / team data unavailable).
 

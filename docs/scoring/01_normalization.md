@@ -141,7 +141,7 @@ def _get_normalized_fantasy_points(self, p: FantasyPlayer, use_weekly_projection
 
 ### Max Projection Calculation
 
-During player loading (`PlayerManager.load_players_from_csv()`):
+During player loading (`PlayerManager.load_players_from_json()`):
 
 ```python
 for player in players:
