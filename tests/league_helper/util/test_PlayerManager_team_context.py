@@ -16,6 +16,7 @@ from unittest.mock import Mock
 from league_helper.util.PlayerManager import PlayerManager
 from league_helper.util.TeamDataManager import TeamDataManager
 from league_helper.util.ConfigManager import ConfigManager, ConfigKeys
+from league_helper.util.player_scoring import PlayerScoringCalculator
 from utils.FantasyPlayer import FantasyPlayer
 
 
@@ -212,8 +213,10 @@ class TestTeamQualityTierDistribution:
         config = ConfigManager.__new__(ConfigManager)
         config.logger = Mock()
         config.keys = ConfigKeys()
-        # A seeded ladder, not the live config's, so the assertion stays valid when
-        # data/configs/*.json is retuned. DECREASING: a lower rank is better.
+        # Seeded here rather than read from data/configs/, so the assertion stays valid when
+        # the live config is retuned. The values happen to coincide with today's expanded live
+        # ladder (BASE_POSITION 0 / DECREASING / STEPS 6 -> 6/12/18/24). DECREASING: a lower
+        # rank is better.
         config.team_quality_scoring = {
             ConfigKeys.THRESHOLDS: {
                 ConfigKeys.EXCELLENT: 6, ConfigKeys.GOOD: 12,
@@ -229,14 +232,31 @@ class TestTeamQualityTierDistribution:
         pm = PlayerManager.__new__(PlayerManager)
         pm.team_data_manager = seeded_team_data_manager
         pm.players = [_make_player(t, "RB") for t in ("KC", "BUF", "LAR", "SEA", "GB")]
+        # One DST player, so the CONSUMER side of the Constants.DEFENSE_POSITIONS fork in
+        # PlayerScoringCalculator._apply_team_quality_multiplier is exercised alongside the
+        # PRODUCER side in refresh_team_context.
+        pm.players.append(_make_player("GB", "DST", name="GB DST"))
 
         pm.refresh_team_context()
 
-        labels = {config.get_team_quality_multiplier(p.team_offensive_rank)[1]
-                  for p in pm.players}
+        # Derive each label through the real scoring step 4 rather than calling the config
+        # directly: a mutation swapping the two rank reads inside _apply_team_quality_multiplier
+        # would leave a direct-config assertion green. Only .config is read by that method.
+        calc = PlayerScoringCalculator.__new__(PlayerScoringCalculator)
+        calc.config = config
+
+        def _tier(player):
+            _, reason = calc._apply_team_quality_multiplier(player, 100.0)
+            return reason.split(":")[1].split("(")[0].strip()
+
+        labels = {_tier(p) for p in pm.players}
 
         assert labels == {"EXCELLENT", "GOOD", "NEUTRAL", "POOR", "VERY_POOR"}
         assert labels != {"NEUTRAL"}    # the pre-D6.1 end state, stated explicitly
+        # The DST player's tier must come from dst_fantasy_ranks["GB"] == 1 (EXCELLENT), never
+        # from offensive_ranks["GB"] == 28 (VERY_POOR). The set assertion above cannot catch a
+        # swapped read here -- both labels are already members -- so assert the fork directly.
+        assert _tier(pm.players[-1]) == "EXCELLENT"
 
 
 class TestMatchupScoreOptionalNoneNeutral:
