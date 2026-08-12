@@ -19,7 +19,7 @@ Author: Kai Mizuno
 import json
 import statistics
 from pathlib import Path
-from typing import Any, Dict, List, Tuple
+from typing import Any, Callable, Dict, List, Optional, Set, Tuple
 
 import league_helper.constants as Constants
 from historical_data_compiler.constants import ALL_NFL_TEAMS
@@ -126,6 +126,58 @@ class ConfigKeys:
     MAX_SEARCH_RESULTS = "MAX_SEARCH_RESULTS"
 
 
+# Declared input domain of each _get_multiplier consumer, keyed by scoring-type key, as an
+# (lo, hi) pair in which EITHER bound may be None; a factor whose input is wholly unbounded
+# declares None. Read only by ConfigManager._validate_tier_reachability, which lives beside
+# _get_multiplier at the bottom of the class -- the constant sits here rather than next to it
+# because a module-level constant cannot live inside a class body.
+#
+# A domain is a property of the INPUT'S SEMANTICS -- an NFL defense rank is 1-32 because there
+# are 32 teams -- not a tunable scoring constant, so it is declared in code rather than in
+# league_config.json. Declaring it in JSON would put the guard's own reference inside the blast
+# radius of the --promote write-back, letting a bad config widen the domain until it validated
+# itself. The Polarity of each factor is deliberately NOT encoded here: the probe calls the
+# factor's own public accessor, which already carries it.
+MULTIPLIER_INPUT_DOMAINS: Dict[str, Optional[Tuple[Optional[float], Optional[float]]]] = {
+    # 0 must be in-domain -- tests/utils/test_FantasyPlayer.py pins adp=0.0 -> EXCELLENT.
+    # Unbounded above: an undrafted player's ADP has no ceiling.
+    ConfigKeys.ADP_SCORING: (0, None),
+    # player_rating is a 0-100 scale.
+    ConfigKeys.PLAYER_RATING_SCORING: (0, 100),
+    # A league rank over the 32 NFL teams (team_offensive_rank / team_defensive_rank).
+    ConfigKeys.TEAM_QUALITY_SCORING: (1, 32),
+    # Opponent defense rank, 1-32 -- TeamDataManager.get_rank_difference returns a RANK
+    # despite its name, so a ladder spanning negative values is on an obsolete scale.
+    ConfigKeys.MATCHUP_SCORING: (1, 32),
+    # Mean defense rank of future opponents, so a real in [1, 32] rather than an integer.
+    ConfigKeys.SCHEDULE_SCORING: (1, 32),
+    # DOMAIN-FREE DEGRADATION (recorded per TD3): a fractional actual-vs-projected deviation
+    # has no meaningful bound in either direction. The check still catches every pairing
+    # inversion and every collapsed literal ladder here; it gives up only domain overflow.
+    ConfigKeys.PERFORMANCE_SCORING: None,
+    # The input is get_temperature_distance = abs(temp - IDEAL_TEMPERATURE), so lo = 0 by
+    # construction. hi = 80 is the distance a -20..140 F range reaches against the ideal of 60
+    # that every shipped config carries. Declared against the DEFAULT ideal on purpose: a
+    # hand-edited ideal makes this slightly conservative, never falsely failing.
+    ConfigKeys.TEMPERATURE_SCORING: (0, 80),
+    # game.wind_gust in mph, non-negative by construction; 60 bounds a plausible gust.
+    ConfigKeys.WIND_SCORING: (0, 60),
+}
+
+# Relative epsilon for probing just inside and outside each threshold, with a floor of 1.0 so
+# it neither vanishes into float rounding at a large threshold nor steps across a whole band at
+# a near-zero one -- the live thresholds span more than two orders of magnitude.
+THRESHOLD_PROBE_EPSILON_SCALE = 1e-9
+
+# Finite magnitude standing in for a declared-unbounded domain bound. A declared-unbounded side
+# means any magnitude is in-domain there, so a large finite probe expresses the intent without
+# routing IEEE infinities through _get_multiplier's `multiplier ** WEIGHT`. Measured 2026-08-11
+# over every *.json on disk carrying a parameters block, the largest |outermost threshold| is
+# 100 (tests/fixtures/league/league_config.json, ADP_SCORING), so this clears it by seven
+# orders of magnitude.
+UNBOUNDED_DOMAIN_PROBE = 1e9
+
+
 class ConfigManager:
     """
     Manages all configuration settings from league_config.json.
@@ -172,7 +224,10 @@ class ConfigManager:
 
         Raises:
             FileNotFoundError: If league_config.json is not found
-            ValueError: If configuration structure is invalid or missing required fields
+            ValueError: If configuration structure is invalid or missing required fields,
+                or if any scoring factor's threshold ladder cannot reach all five tier
+                labels over that factor's declared input domain (see
+                _validate_tier_reachability)
         """
         self.keys = ConfigKeys()
         self.config_name: str = ""
@@ -826,7 +881,9 @@ class ConfigManager:
         Raises:
             FileNotFoundError: If league_config.json does not exist
             json.JSONDecodeError: If the JSON is malformed
-            ValueError: If required fields are missing or invalid
+            ValueError: If required fields are missing or invalid, or if any scoring
+                factor's threshold ladder cannot reach all five tier labels over that
+                factor's declared input domain (see _validate_tier_reachability)
         """
         self.logger.debug(f"Loading configuration from: {self.config_path}")
 
@@ -1191,6 +1248,207 @@ class ConfigManager:
                 self.logger.debug(f"{scoring_type} thresholds calculated: E={calculated[self.keys.EXCELLENT]}, "
                                  f"G={calculated[self.keys.GOOD]}, P={calculated[self.keys.POOR]}, "
                                  f"VP={calculated[self.keys.VERY_POOR]}")
+
+        self._validate_tier_reachability()
+
+
+    def _resolve_calculated_thresholds(self, scoring_key: str,
+                                       scoring_dict: Dict[str, Any]) -> None:
+        """Materialize the four tier thresholds on one unresolved calculated ladder.
+
+        The recalculation loop at the end of `_extract_parameters` iterates
+        `self.parameters` and skips any scoring type absent from it, so the
+        SCHEDULE_SCORING / TEMPERATURE_SCORING / WIND_SCORING in-code defaults never have
+        their thresholds computed. The temperature and wind defaults are calculated-form,
+        so without this pass their THRESHOLDS block reaches `_get_multiplier` carrying only
+        BASE_POSITION / DIRECTION / STEPS and raises KeyError there.
+
+        Only absent keys are filled in: an already-resolved ladder and a literal ladder
+        (no BASE_POSITION) are both left untouched, so no author-supplied value is ever
+        overwritten. Derivation goes through `calculate_thresholds`, the same producer the
+        recalculation loop uses, so no second derivation path exists to disagree with it.
+
+        Args:
+            scoring_key: The scoring-type key, passed through for threshold caching.
+            scoring_dict: The resolved ladder attribute for that scoring type.
+        """
+        tier_keys = (self.keys.VERY_POOR, self.keys.POOR,
+                     self.keys.GOOD, self.keys.EXCELLENT)
+
+        thresholds = scoring_dict.get(self.keys.THRESHOLDS)
+        if not isinstance(thresholds, dict):
+            return
+        if self.keys.BASE_POSITION not in thresholds:
+            return
+        if all(key in thresholds for key in tier_keys):
+            return
+
+        calculated = self.calculate_thresholds(
+            thresholds[self.keys.BASE_POSITION],
+            thresholds[self.keys.DIRECTION],
+            thresholds[self.keys.STEPS],
+            scoring_key
+        )
+        for key in tier_keys:
+            thresholds[key] = calculated[key]
+
+        self.logger.debug(
+            f"{scoring_key} thresholds materialized from an unresolved calculated ladder: "
+            f"E={thresholds[self.keys.EXCELLENT]}, G={thresholds[self.keys.GOOD]}, "
+            f"P={thresholds[self.keys.POOR]}, VP={thresholds[self.keys.VERY_POOR]}"
+        )
+
+
+    def _probe_tier_labels(
+        self,
+        thresholds: Dict[str, Any],
+        domain: Optional[Tuple[Optional[float], Optional[float]]],
+        accessor: Callable[[float], Tuple[float, str]]
+    ) -> Set[str]:
+        """Return the set of tier labels one scoring factor can actually produce.
+
+        The tier label is piecewise-constant with breakpoints exactly at the four
+        thresholds, so probing each threshold, its immediate neighbourhood, and each
+        declared domain endpoint is exhaustive rather than a sample.
+
+        Args:
+            thresholds: The factor's resolved THRESHOLDS block, all four tier keys present.
+            domain: (low, high) with either bound optionally None, or None when the
+                factor's input is wholly unbounded.
+            accessor: The factor's own public get_*_multiplier method, which already binds
+                both its resolved attribute and its comparator polarity.
+
+        Returns:
+            The set of tier labels the in-domain probes produced.
+        """
+        low, high = (None, None) if domain is None else domain
+
+        probes = set()
+        for key in (self.keys.VERY_POOR, self.keys.POOR,
+                    self.keys.GOOD, self.keys.EXCELLENT):
+            threshold = float(thresholds[key])
+            epsilon = max(abs(threshold), 1.0) * THRESHOLD_PROBE_EPSILON_SCALE
+            probes.update((threshold, threshold - epsilon, threshold + epsilon))
+
+        # Each bound is added and tested independently, because a domain may be
+        # half-bounded (ADP is (0, None)) and `probe <= None` is a TypeError. An absent
+        # bound contributes a sentinel probe rather than nothing: a declared-unbounded side
+        # means any magnitude is in-domain there, and probing nothing on that side would
+        # report the outer tier unreachable on a perfectly healthy ladder.
+        probes.add(low if low is not None else -UNBOUNDED_DOMAIN_PROBE)
+        probes.add(high if high is not None else UNBOUNDED_DOMAIN_PROBE)
+
+        in_domain = [probe for probe in probes
+                     if (low is None or probe >= low)
+                     and (high is None or probe <= high)]
+
+        return {accessor(probe)[1] for probe in in_domain}
+
+
+    def _validate_tier_reachability(self) -> None:
+        """Fail the config load when a scoring factor cannot reach all five tiers.
+
+        Iterates the eight RESOLVED ladder attributes rather than `self.parameters`, so the
+        three factors that fall back to an in-code default are covered too. Reachability is
+        decided by calling each factor's own public accessor, which already binds its
+        resolved attribute and its comparator polarity -- so this check cannot disagree
+        with the production call site, and carries no polarity column of its own.
+
+        Unlike its peer `validate_threshold_params`, which raises on the first failure,
+        this accumulates every failing factor before raising: a config with three
+        degenerate ladders should report three rather than force three fix-and-rerun
+        cycles.
+
+        Raises:
+            ValueError: If any factor is missing a key _get_multiplier reads (a THRESHOLDS
+                or MULTIPLIERS tier entry, or WEIGHT) or cannot reach all five
+                tier labels. ValueError rather than the ConfigurationError the project
+                coding standards would otherwise suggest, because ConfigurationError does
+                not subclass ValueError while ConfigManager raises and documents ValueError
+                for invalid configuration everywhere else -- adopting it for one new check
+                would silently break existing callers catching ValueError. A module-wide
+                migration is the right shape for that change, and it is not this one.
+        """
+        factors = [
+            (self.keys.ADP_SCORING, self.adp_scoring,
+             self.get_adp_multiplier),
+            (self.keys.PLAYER_RATING_SCORING, self.player_rating_scoring,
+             self.get_player_rating_multiplier),
+            (self.keys.TEAM_QUALITY_SCORING, self.team_quality_scoring,
+             self.get_team_quality_multiplier),
+            (self.keys.MATCHUP_SCORING, self.matchup_scoring,
+             self.get_matchup_multiplier),
+            (self.keys.SCHEDULE_SCORING, self.schedule_scoring,
+             self.get_schedule_multiplier),
+            (self.keys.PERFORMANCE_SCORING, self.performance_scoring,
+             self.get_performance_multiplier),
+            (self.keys.TEMPERATURE_SCORING, self.temperature_scoring,
+             self.get_temperature_multiplier),
+            (self.keys.WIND_SCORING, self.wind_scoring,
+             self.get_wind_multiplier),
+        ]
+        tier_keys = (self.keys.VERY_POOR, self.keys.POOR,
+                     self.keys.GOOD, self.keys.EXCELLENT)
+        all_tiers = {self.keys.EXCELLENT, self.keys.GOOD, self.keys.NEUTRAL,
+                     self.keys.POOR, self.keys.VERY_POOR}
+        failures: List[str] = []
+
+        for scoring_key, scoring_dict, accessor in factors:
+            self._resolve_calculated_thresholds(scoring_key, scoring_dict)
+
+            thresholds = scoring_dict.get(self.keys.THRESHOLDS, {})
+            missing = [key for key in tier_keys if key not in thresholds]
+            if missing:
+                # Probing would raise KeyError inside _get_multiplier, so a missing key is
+                # reported as its own failure class rather than as an unreachable tier.
+                failures.append(
+                    f"{scoring_key}: THRESHOLDS is missing {', '.join(missing)} "
+                    f"(read by {accessor.__name__})"
+                )
+                continue
+
+            # Same failure class, the other two blocks _get_multiplier reads. Probing calls
+            # the accessor for real, so a block missing a MULTIPLIERS entry or WEIGHT raises
+            # a bare KeyError from inside the probe -- naming the offending key here turns
+            # that into the same clean, accumulated ValueError as every other failure.
+            # Only the four TIER keys are required: _get_multiplier never reads
+            # MULTIPLIERS[NEUTRAL] (the neutral band returns a hard-coded 1.0), and no
+            # config on disk declares one, so requiring it would reject healthy configs.
+            multipliers = scoring_dict.get(self.keys.MULTIPLIERS, {})
+            missing_multipliers = [key for key in tier_keys if key not in multipliers]
+            if missing_multipliers:
+                failures.append(
+                    f"{scoring_key}: MULTIPLIERS is missing "
+                    f"{', '.join(missing_multipliers)} (read by {accessor.__name__})"
+                )
+                continue
+
+            if self.keys.WEIGHT not in scoring_dict:
+                failures.append(
+                    f"{scoring_key}: WEIGHT is missing "
+                    f"(read by {accessor.__name__})"
+                )
+                continue
+
+            domain = MULTIPLIER_INPUT_DOMAINS[scoring_key]
+            unreachable = all_tiers - self._probe_tier_labels(
+                thresholds, domain, accessor
+            )
+            if unreachable:
+                failures.append(
+                    f"{scoring_key}: tiers {', '.join(sorted(unreachable))} are "
+                    f"unreachable via {accessor.__name__} over declared input domain "
+                    f"{domain} (VERY_POOR={thresholds[self.keys.VERY_POOR]}, "
+                    f"POOR={thresholds[self.keys.POOR]}, "
+                    f"GOOD={thresholds[self.keys.GOOD]}, "
+                    f"EXCELLENT={thresholds[self.keys.EXCELLENT]})"
+                )
+
+        if failures:
+            error_msg = ("_validate_tier_reachability failed: "
+                         + "; ".join(failures))
+            self.logger.error(error_msg)
+            raise ValueError(error_msg)
 
 
     def _get_multiplier(self, scoring_dict : Dict[str, Any], val, rising_thresholds=True) -> Tuple[float, str]:
