@@ -244,7 +244,7 @@ class TestConfigGeneratorInitialization:
                     },
                     "THRESHOLDS": {
                         "BASE_POSITION": 0,
-                        "DIRECTION": "BI_EXCELLENT_HI",
+                        "DIRECTION": "INCREASING",
                         "STEPS": 7.5
                     }
                 },
@@ -258,9 +258,9 @@ class TestConfigGeneratorInitialization:
                         "VERY_POOR": 0.95
                     },
                     "THRESHOLDS": {
-                        "BASE_POSITION": 16,
+                        "BASE_POSITION": 0,
                         "DIRECTION": "INCREASING",
-                        "STEPS": 8.0
+                        "STEPS": 6.0
                     }
                 }
             }
