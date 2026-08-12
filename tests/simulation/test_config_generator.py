@@ -108,13 +108,13 @@ def create_test_config_folder(base_config: dict, tmp_path: Path) -> Path:
             'IMPACT_SCALE': 150.0,
             'WEIGHT': 1.0,
             'MULTIPLIERS': {'EXCELLENT': 1.2, 'GOOD': 1.1, 'POOR': 0.9, 'VERY_POOR': 0.8},
-            'THRESHOLDS': {'BASE_POSITION': 0, 'DIRECTION': 'BI_EXCELLENT_HI', 'STEPS': 7.5}
+            'THRESHOLDS': {'BASE_POSITION': 0, 'DIRECTION': 'INCREASING', 'STEPS': 7.5}
         }),
         'SCHEDULE_SCORING': params.get('SCHEDULE_SCORING', {
             'IMPACT_SCALE': 80.0,
             'WEIGHT': 1.0,
             'MULTIPLIERS': {'EXCELLENT': 1.05, 'GOOD': 1.025, 'POOR': 0.975, 'VERY_POOR': 0.95},
-            'THRESHOLDS': {'BASE_POSITION': 16, 'DIRECTION': 'INCREASING', 'STEPS': 8.0}
+            'THRESHOLDS': {'BASE_POSITION': 0, 'DIRECTION': 'INCREASING', 'STEPS': 6}
         }),
         'TEMPERATURE_SCORING': params.get('TEMPERATURE_SCORING', {
             'IDEAL_TEMPERATURE': 60,
@@ -244,7 +244,7 @@ class TestConfigGeneratorInitialization:
                     },
                     "THRESHOLDS": {
                         "BASE_POSITION": 0,
-                        "DIRECTION": "BI_EXCELLENT_HI",
+                        "DIRECTION": "INCREASING",
                         "STEPS": 7.5
                     }
                 },
@@ -258,9 +258,9 @@ class TestConfigGeneratorInitialization:
                         "VERY_POOR": 0.95
                     },
                     "THRESHOLDS": {
-                        "BASE_POSITION": 16,
+                        "BASE_POSITION": 0,
                         "DIRECTION": "INCREASING",
-                        "STEPS": 8.0
+                        "STEPS": 6.0
                     }
                 }
             }

@@ -154,10 +154,10 @@ def mock_data_folder(tmp_path):
     "MATCHUP_SCORING": {
       "IMPACT_SCALE": 150.0,
       "THRESHOLDS": {
-        "EXCELLENT": 15,
-        "GOOD": 6,
-        "POOR": -6,
-        "VERY_POOR": -15
+        "EXCELLENT": 24,
+        "GOOD": 18,
+        "POOR": 12,
+        "VERY_POOR": 6
       },
       "MULTIPLIERS": {
         "EXCELLENT": 1.25,
@@ -510,7 +510,7 @@ class TestWeeklyProjections:
         player_manager.max_weekly_projections = {6: 30.0}
         player_manager.scoring_calculator.max_weekly_projection = 30.0
         test_player.consistency = 0.15
-        test_player.matchup_score = 10
+        test_player.matchup_score = 20  # GOOD tier under the 6/12/18/24 ladder -> +15.0
         mock_fantasy_team.roster = []
 
         scored_player = player_manager.score_player(
@@ -716,8 +716,8 @@ class TestMatchupMultiplier:
     """Test Step 6: Matchup multiplier application"""
 
     def test_matchup_excellent(self, player_manager, test_player):
-        """Matchup >= 15 should get EXCELLENT (+37.5 pts with IMPACT_SCALE=150.0)"""
-        test_player.matchup_score = 18
+        """Opponent-defense rank >= 24 should get EXCELLENT (+37.5 pts with IMPACT_SCALE=150.0)"""
+        test_player.matchup_score = 26
         base_score = 100.0
         result, reason = player_manager.scoring_calculator._apply_matchup_multiplier(test_player, base_score)
         assert result == pytest.approx(100.0 + 37.5, abs=0.1)
@@ -725,8 +725,8 @@ class TestMatchupMultiplier:
         assert "pts" in reason
 
     def test_matchup_good(self, player_manager, test_player):
-        """6 <= Matchup < 15 should get GOOD (+15.0 pts with IMPACT_SCALE=150.0)"""
-        test_player.matchup_score = 10
+        """18 <= rank < 24 should get GOOD (+15.0 pts with IMPACT_SCALE=150.0)"""
+        test_player.matchup_score = 20
         base_score = 100.0
         result, reason = player_manager.scoring_calculator._apply_matchup_multiplier(test_player, base_score)
         assert result == pytest.approx(100.0 + 15.0, abs=0.1)
@@ -734,10 +734,10 @@ class TestMatchupMultiplier:
         assert "pts" in reason
 
     def test_matchup_neutral(self, player_manager, test_player):
-        """A non-sentinel value inside the NEUTRAL band (-6 < v < 6, e.g. 3) classifies NEUTRAL:
+        """A non-sentinel value inside the NEUTRAL band (12 < v < 18, e.g. 15) classifies NEUTRAL:
         0.0 bonus with a NEUTRAL reason line. This is the actual NEUTRAL-tier classification, distinct
         from the 0-sentinel guard (test_matchup_zero_sentinel_short_circuits)."""
-        test_player.matchup_score = 3  # non-zero, in the NEUTRAL band -> NEUTRAL tier (not the 0 guard)
+        test_player.matchup_score = 15  # non-zero, in the NEUTRAL band -> NEUTRAL tier (not the 0 guard)
         base_score = 100.0
         result, reason = player_manager.scoring_calculator._apply_matchup_multiplier(test_player, base_score)
         assert result == pytest.approx(100.0, abs=0.1)
@@ -755,8 +755,8 @@ class TestMatchupMultiplier:
         assert reason == ""
 
     def test_matchup_poor(self, player_manager, test_player):
-        """-15 < Matchup <= -6 should get POOR (-15.0 pts with IMPACT_SCALE=150.0)"""
-        test_player.matchup_score = -10
+        """6 < rank <= 12 should get POOR (-15.0 pts with IMPACT_SCALE=150.0)"""
+        test_player.matchup_score = 10
         base_score = 100.0
         result, reason = player_manager.scoring_calculator._apply_matchup_multiplier(test_player, base_score)
         assert result == pytest.approx(100.0 - 15.0, abs=0.1)
@@ -764,8 +764,8 @@ class TestMatchupMultiplier:
         assert "pts" in reason
 
     def test_matchup_very_poor(self, player_manager, test_player):
-        """Matchup <= -15 should get VERY_POOR (-37.5 pts with IMPACT_SCALE=150.0)"""
-        test_player.matchup_score = -20
+        """Rank <= 6 should get VERY_POOR (-37.5 pts with IMPACT_SCALE=150.0)"""
+        test_player.matchup_score = 3
         base_score = 100.0
         result, reason = player_manager.scoring_calculator._apply_matchup_multiplier(test_player, base_score)
         assert result == pytest.approx(100.0 - 37.5, abs=0.1)
@@ -1045,7 +1045,7 @@ class TestFullScoringIntegration:
         test_player.player_rating = 85.0
         test_player.team_offensive_rank = 3
         test_player.consistency = 0.15
-        test_player.matchup_score = 10
+        test_player.matchup_score = 20  # GOOD tier under the 6/12/18/24 ladder -> +15.0
         test_player.position = "RB"
         test_player.bye_week = 7
         test_player.injury_status = "ACTIVE"
@@ -1352,22 +1352,27 @@ class TestAdditionalEdgeCases:
         assert abs(result - 75.0) < 0.01
 
     def test_matchup_score_exact_boundaries(self, player_manager, test_player):
-        """Test matchup score at exact threshold boundaries with additive scoring"""
+        """Test matchup score at the exact 6/12/18/24 threshold boundaries with additive scoring.
+
+        Each expected value is IMPACT_SCALE * multiplier - IMPACT_SCALE with IMPACT_SCALE=150.0 and
+        WEIGHT=1.0: EXCELLENT 1.25 -> +37.5, GOOD 1.10 -> +15.0, POOR 0.90 -> -15.0,
+        VERY_POOR 0.75 -> -37.5, on a base_score of 100.0.
+        """
         base_score = 100.0
 
-        test_player.matchup_score = 15
+        test_player.matchup_score = 24
         result, _ = player_manager.scoring_calculator._apply_matchup_multiplier(test_player, base_score)
         assert abs(result - 137.5) < 0.01
 
-        test_player.matchup_score = 6
+        test_player.matchup_score = 18
         result, _ = player_manager.scoring_calculator._apply_matchup_multiplier(test_player, base_score)
         assert abs(result - 115.0) < 0.01
 
-        test_player.matchup_score = -6
+        test_player.matchup_score = 12
         result, _ = player_manager.scoring_calculator._apply_matchup_multiplier(test_player, base_score)
         assert abs(result - 85.0) < 0.01
 
-        test_player.matchup_score = -15
+        test_player.matchup_score = 6
         result, _ = player_manager.scoring_calculator._apply_matchup_multiplier(test_player, base_score)
         assert abs(result - 62.5) < 0.01
 
