@@ -3,17 +3,17 @@ Player Manager
 
 Manages all player data, scoring calculations, and roster operations.
 This is the core module responsible for loading player data from the
-position-specific JSON files, calculating player scores using the 10-step
+position-specific JSON files, calculating player scores using the 14-step
 scoring algorithm, and managing draft operations.
 
 Key responsibilities:
 - Loading and parsing player data from data/player_data/*.json
-- Computing the 10-step scoring algorithm for player evaluation
+- Computing the 14-step scoring algorithm for player evaluation
 - Managing the team roster through FantasyTeam
 - Updating the position JSON files with roster changes
 - Displaying roster information
 
-The 10-step scoring algorithm:
+The 14-step scoring algorithm:
 1. Normalization (based on fantasy_points projection)
 2. ADP Multiplier (market wisdom adjustment)
 3. Player Rating Multiplier (expert consensus)
@@ -26,6 +26,10 @@ The 10-step scoring algorithm:
    - BASE_BYE_PENALTY applied per same-position overlap
    - DIFFERENT_PLAYER_BYE_OVERLAP_PENALTY applied per different-position overlap
 10. Injury Penalty (risk assessment)
+11. Temperature Scoring (game-time temperature)
+12. Wind Scoring (game-time wind)
+13. Location Modifier (home/away/neutral site)
+14. NFL Team Penalty (team-level adjustment)
 
 Author: Kai Mizuno
 """
@@ -53,7 +57,7 @@ class PlayerManager:
 
     This class is responsible for all player-related functionality including
     loading player data from the position-specific JSON files, calculating scores
-    using the 10-step algorithm, managing the team roster, and persisting changes
+    using the 14-step algorithm, managing the team roster, and persisting changes
     back to those JSON files.
 
     Attributes:
