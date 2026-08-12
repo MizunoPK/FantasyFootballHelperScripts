@@ -151,10 +151,10 @@ def mock_data_folder(tmp_path):
     "MATCHUP_SCORING": {
       "IMPACT_SCALE": 150.0,
       "THRESHOLDS": {
-        "EXCELLENT": 15,
-        "GOOD": 6,
-        "POOR": -6,
-        "VERY_POOR": -15
+        "EXCELLENT": 24,
+        "GOOD": 18,
+        "POOR": 12,
+        "VERY_POOR": 6
       },
       "MULTIPLIERS": {
         "EXCELLENT": 1.25,

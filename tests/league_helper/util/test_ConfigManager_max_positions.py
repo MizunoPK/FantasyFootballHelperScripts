@@ -103,7 +103,7 @@ def valid_config(temp_data_folder):
                 "IMPACT_SCALE": 150.0,
                 "THRESHOLDS": {
                     "BASE_POSITION": 0,
-                    "DIRECTION": "BI_EXCELLENT_HI",
+                    "DIRECTION": "INCREASING",
                     "STEPS": 6.0
                 },
                 "MULTIPLIERS": {"EXCELLENT": 1.05, "GOOD": 1.025, "POOR": 0.975, "VERY_POOR": 0.95},
@@ -210,7 +210,7 @@ class TestMaxPositionsValidation:
                 },
                 "MATCHUP_SCORING": {
                     "IMPACT_SCALE": 150.0,
-                    "THRESHOLDS": {"BASE_POSITION": 0, "DIRECTION": "BI_EXCELLENT_HI", "STEPS": 6.0},
+                    "THRESHOLDS": {"BASE_POSITION": 0, "DIRECTION": "INCREASING", "STEPS": 6.0},
                     "MULTIPLIERS": {"EXCELLENT": 1.05, "GOOD": 1.025, "POOR": 0.975, "VERY_POOR": 0.95},
                     "WEIGHT": 1.0
                 },
@@ -280,7 +280,7 @@ class TestMaxPositionsValidation:
                 },
                 "MATCHUP_SCORING": {
                     "IMPACT_SCALE": 150.0,
-                    "THRESHOLDS": {"BASE_POSITION": 0, "DIRECTION": "BI_EXCELLENT_HI", "STEPS": 6.0},
+                    "THRESHOLDS": {"BASE_POSITION": 0, "DIRECTION": "INCREASING", "STEPS": 6.0},
                     "MULTIPLIERS": {"EXCELLENT": 1.05, "GOOD": 1.025, "POOR": 0.975, "VERY_POOR": 0.95},
                     "WEIGHT": 1.0
                 },
@@ -350,7 +350,7 @@ class TestMaxPositionsValidation:
                 },
                 "MATCHUP_SCORING": {
                     "IMPACT_SCALE": 150.0,
-                    "THRESHOLDS": {"BASE_POSITION": 0, "DIRECTION": "BI_EXCELLENT_HI", "STEPS": 6.0},
+                    "THRESHOLDS": {"BASE_POSITION": 0, "DIRECTION": "INCREASING", "STEPS": 6.0},
                     "MULTIPLIERS": {"EXCELLENT": 1.05, "GOOD": 1.025, "POOR": 0.975, "VERY_POOR": 0.95},
                     "WEIGHT": 1.0
                 },

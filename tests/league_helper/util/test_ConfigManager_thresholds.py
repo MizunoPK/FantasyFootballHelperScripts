@@ -98,10 +98,10 @@ def minimal_hardcoded_config(temp_data_folder):
             "MATCHUP_SCORING": {
                 "IMPACT_SCALE": 150.0,
                 "THRESHOLDS": {
-                    "VERY_POOR": -15,
-                    "POOR": -6,
-                    "GOOD": 6,
-                    "EXCELLENT": 15
+                    "VERY_POOR": 6,
+                    "POOR": 12,
+                    "GOOD": 18,
+                    "EXCELLENT": 24
                 },
                 "MULTIPLIERS": {"EXCELLENT": 1.25, "GOOD": 1.10, "POOR": 0.90, "VERY_POOR": 0.75},
                 "WEIGHT": 1.0
@@ -186,7 +186,7 @@ def parameterized_config(temp_data_folder):
             "MATCHUP_SCORING": {
                 "IMPACT_SCALE": 150.0,
                 "THRESHOLDS": {
-                    "BASE_POSITION": 0,
+                    "BASE_POSITION": 16,
                     "DIRECTION": "BI_EXCELLENT_HI",
                     "STEPS": 7.5
                 },
@@ -196,9 +196,9 @@ def parameterized_config(temp_data_folder):
             "SCHEDULE_SCORING": {
                 "IMPACT_SCALE": 80.0,
                 "THRESHOLDS": {
-                    "BASE_POSITION": 16,
+                    "BASE_POSITION": 0,
                     "DIRECTION": "INCREASING",
-                    "STEPS": 8
+                    "STEPS": 6
                 },
                 "MULTIPLIERS": {"EXCELLENT": 1.05, "GOOD": 1.025, "POOR": 0.975, "VERY_POOR": 0.95},
                 "WEIGHT": 1.0
@@ -417,10 +417,13 @@ class TestBackwardCompatibility:
         """MATCHUP with BI_EXCELLENT_HI should calculate correctly"""
         config = ConfigManager(parameterized_config)
 
-        assert config.matchup_scoring["THRESHOLDS"]["VERY_POOR"] == -15.0
-        assert config.matchup_scoring["THRESHOLDS"]["POOR"] == -7.5
-        assert config.matchup_scoring["THRESHOLDS"]["GOOD"] == 7.5
-        assert config.matchup_scoring["THRESHOLDS"]["EXCELLENT"] == 15.0
+        # BI_EXCELLENT_HI over BASE_POSITION=16, STEPS=7.5: VERY_POOR = 16 - 2*7.5 = 1.0,
+        # POOR = 16 - 7.5 = 8.5, GOOD = 16 + 7.5 = 23.5, EXCELLENT = 16 + 2*7.5 = 31.0 --
+        # every rung inside the 1-32 opponent-defense-rank domain this factor is read over.
+        assert config.matchup_scoring["THRESHOLDS"]["VERY_POOR"] == 1.0
+        assert config.matchup_scoring["THRESHOLDS"]["POOR"] == 8.5
+        assert config.matchup_scoring["THRESHOLDS"]["GOOD"] == 23.5
+        assert config.matchup_scoring["THRESHOLDS"]["EXCELLENT"] == 31.0
 
     def test_get_multiplier_works_with_calculated_thresholds(self, parameterized_config):
         """_get_multiplier() should work with calculated thresholds"""
@@ -437,19 +440,21 @@ class TestBackwardCompatibility:
         config = ConfigManager(parameterized_config)
 
 
-        mult, label = config.get_schedule_multiplier(50.0)
+        # SCHEDULE ladder is VERY_POOR 6 / POOR 12 / GOOD 18 / EXCELLENT 24 (INCREASING, base 0,
+        # steps 6); each input below is an in-domain 1-32 rank chosen inside one tier's band.
+        mult, label = config.get_schedule_multiplier(26.0)
         assert label == "EXCELLENT"
         assert mult == 1.05
 
-        mult, label = config.get_schedule_multiplier(44.0)
+        mult, label = config.get_schedule_multiplier(20.0)
         assert label == "GOOD"
         assert mult == 1.025
 
-        mult, label = config.get_schedule_multiplier(30.0)
+        mult, label = config.get_schedule_multiplier(10.0)
         assert label == "POOR"
         assert mult == 0.975
 
-        mult, label = config.get_schedule_multiplier(20.0)
+        mult, label = config.get_schedule_multiplier(3.0)
         assert label == "VERY_POOR"
         assert mult == 0.95
 
@@ -475,10 +480,10 @@ class TestExtractParametersIntegration:
         assert config.performance_scoring["THRESHOLDS"]["EXCELLENT"] == 0.2
 
         assert "EXCELLENT" in config.matchup_scoring["THRESHOLDS"]
-        assert config.matchup_scoring["THRESHOLDS"]["EXCELLENT"] == 15.0
+        assert config.matchup_scoring["THRESHOLDS"]["EXCELLENT"] == 31.0  # 16 + 2*7.5 (BI_EXCELLENT_HI)
 
         assert "EXCELLENT" in config.schedule_scoring["THRESHOLDS"]
-        assert config.schedule_scoring["THRESHOLDS"]["EXCELLENT"] == 48
+        assert config.schedule_scoring["THRESHOLDS"]["EXCELLENT"] == 24  # 0 + 4*6 (INCREASING)
 
     def test_original_params_preserved(self, parameterized_config):
         """Original BASE_POSITION, DIRECTION, STEPS should be preserved"""

@@ -82,13 +82,13 @@ class TestGameConditionsLeagueHelperIntegration:
                     "WEIGHT": 1.0,
                     "IMPACT_SCALE": 50.0,
                     "MULTIPLIERS": {"EXCELLENT": 1.05, "GOOD": 1.025, "POOR": 0.975, "VERY_POOR": 0.95},
-                    "THRESHOLDS": {"BASE_POSITION": 0, "DIRECTION": "DECREASING", "STEPS": 6.25}
+                    "THRESHOLDS": {"BASE_POSITION": 0, "DIRECTION": "INCREASING", "STEPS": 6.25}
                 },
                 "SCHEDULE_SCORING": {
                     "WEIGHT": 1.0,
                     "IMPACT_SCALE": 50.0,
                     "MULTIPLIERS": {"EXCELLENT": 1.05, "GOOD": 1.025, "POOR": 0.975, "VERY_POOR": 0.95},
-                    "THRESHOLDS": {"BASE_POSITION": 0, "DIRECTION": "DECREASING", "STEPS": 6.25}
+                    "THRESHOLDS": {"BASE_POSITION": 0, "DIRECTION": "INCREASING", "STEPS": 6.25}
                 },
                 "TEMPERATURE_SCORING": {
                     "IDEAL_TEMPERATURE": 60,
@@ -536,13 +536,13 @@ class TestGameConditionsSimulationIntegration:
                     "WEIGHT": 1.0,
                     "IMPACT_SCALE": 50.0,
                     "MULTIPLIERS": {"EXCELLENT": 1.05, "GOOD": 1.025, "POOR": 0.975, "VERY_POOR": 0.95},
-                    "THRESHOLDS": {"BASE_POSITION": 0, "DIRECTION": "DECREASING", "STEPS": 6.25}
+                    "THRESHOLDS": {"BASE_POSITION": 0, "DIRECTION": "INCREASING", "STEPS": 6.25}
                 },
                 "SCHEDULE_SCORING": {
                     "WEIGHT": 1.0,
                     "IMPACT_SCALE": 50.0,
                     "MULTIPLIERS": {"EXCELLENT": 1.05, "GOOD": 1.025, "POOR": 0.975, "VERY_POOR": 0.95},
-                    "THRESHOLDS": {"BASE_POSITION": 0, "DIRECTION": "DECREASING", "STEPS": 6.25}
+                    "THRESHOLDS": {"BASE_POSITION": 0, "DIRECTION": "INCREASING", "STEPS": 6.25}
                 },
                 "TEMPERATURE_SCORING": {
                     "IDEAL_TEMPERATURE": 60,
@@ -666,13 +666,13 @@ class TestConfigManagerGameConditions:
                     "WEIGHT": 1.0,
                     "IMPACT_SCALE": 50.0,
                     "MULTIPLIERS": {"EXCELLENT": 1.05, "GOOD": 1.025, "POOR": 0.975, "VERY_POOR": 0.95},
-                    "THRESHOLDS": {"BASE_POSITION": 0, "DIRECTION": "DECREASING", "STEPS": 6.25}
+                    "THRESHOLDS": {"BASE_POSITION": 0, "DIRECTION": "INCREASING", "STEPS": 6.25}
                 },
                 "SCHEDULE_SCORING": {
                     "WEIGHT": 1.0,
                     "IMPACT_SCALE": 50.0,
                     "MULTIPLIERS": {"EXCELLENT": 1.05, "GOOD": 1.025, "POOR": 0.975, "VERY_POOR": 0.95},
-                    "THRESHOLDS": {"BASE_POSITION": 0, "DIRECTION": "DECREASING", "STEPS": 6.25}
+                    "THRESHOLDS": {"BASE_POSITION": 0, "DIRECTION": "INCREASING", "STEPS": 6.25}
                 },
                 "TEMPERATURE_SCORING": {
                     "IDEAL_TEMPERATURE": 60,

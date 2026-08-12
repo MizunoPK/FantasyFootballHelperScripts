@@ -298,12 +298,12 @@ def create_test_config_folder(tmp_path: Path) -> Path:
         'MATCHUP_SCORING': {
             'MIN_WEEKS': 5, 'IMPACT_SCALE': 150.0, 'WEIGHT': 1.0,
             'MULTIPLIERS': {'EXCELLENT': 1.2, 'GOOD': 1.1, 'POOR': 0.9, 'VERY_POOR': 0.8},
-            'THRESHOLDS': {'BASE_POSITION': 0, 'DIRECTION': 'BI_EXCELLENT_HI', 'STEPS': 7.5}
+            'THRESHOLDS': {'BASE_POSITION': 0, 'DIRECTION': 'INCREASING', 'STEPS': 7.5}
         },
         'SCHEDULE_SCORING': {
             'MIN_WEEKS': 5, 'IMPACT_SCALE': 80.0, 'WEIGHT': 1.0,
             'MULTIPLIERS': {'EXCELLENT': 1.05, 'GOOD': 1.025, 'POOR': 0.975, 'VERY_POOR': 0.95},
-            'THRESHOLDS': {'BASE_POSITION': 16, 'DIRECTION': 'INCREASING', 'STEPS': 8.0}
+            'THRESHOLDS': {'BASE_POSITION': 0, 'DIRECTION': 'INCREASING', 'STEPS': 6}
         },
         'TEMPERATURE_SCORING': {
             'IDEAL_TEMPERATURE': 60, 'IMPACT_SCALE': 50.0, 'WEIGHT': 1.0,
