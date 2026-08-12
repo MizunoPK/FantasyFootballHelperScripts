@@ -275,9 +275,10 @@ class PlayerManager:
 
         Side Effects:
             - Sets self.players to combined list from all position files
-            - Populates each loaded player's matchup_score from the current TeamDataManager
-              week (via refresh_matchup_scores()), so the matchup factor discriminates and
-              survives reloads
+            - Populates each loaded player's team_offensive_rank, team_defensive_rank and
+              matchup_score from the current TeamDataManager week (via
+              refresh_team_context()), so the team-quality and matchup factors discriminate
+              and survive reloads
             - Calculates self.max_projection as the max rest-of-season projection across all
               players (the score-normalization denominator; shares the numerator's
               current_week..17 window — see the NOTE at the assignment)
@@ -339,7 +340,7 @@ class PlayerManager:
         self.players = all_players
         self.logger.debug(f"All position files loaded: {len(self.players)} total players across all positions")
 
-        self.refresh_matchup_scores()
+        self.refresh_team_context()
 
         if self.players:
             # NOTE (T47): fantasy_points stays the full-season sum(projected_points); the
@@ -356,20 +357,52 @@ class PlayerManager:
 
         return True
 
-    def refresh_matchup_scores(self) -> None:
-        """Recompute each loaded player's matchup_score from the current TeamDataManager week.
+    def refresh_team_context(self) -> None:
+        """Recompute each loaded player's team-context fields from the current TeamDataManager week.
 
-        Mirrors the population the deprecated CSV path performs (load_players_from_csv):
-        assigns TeamDataManager.get_rank_difference(team, position) — an opponent-defense
-        rank (1-32) or None on genuine no-info (bye / team data unavailable) — verbatim to
-        each player. Called at load (load_players_from_json) and per-week in the win-rate
-        season loop so the matchup factor reflects the correct week's opponent. Matchup is
-        week-dependent, so it is computed here, never precomputed into the JSON files.
+        Mirrors the population the deprecated CSV path performs (load_players_from_csv),
+        assigning all three of that path's team-context fields verbatim from
+        TeamDataManager:
+
+        - team_offensive_rank: get_team_offensive_rank(team) — the player's OWN team's
+          offensive rank (1-32), or None when the team is absent from the rank dict.
+        - team_defensive_rank: get_team_dst_fantasy_rank(team) for a player in
+          Constants.DEFENSE_POSITIONS, get_team_defensive_rank(team) otherwise. The two
+          sources rank a team up to 21 places apart, so the fork is consequential rather
+          than cosmetic. The non-DST write has no reader today (player_scoring.py's
+          team-quality step reads this field only for DEFENSE_POSITIONS, and nothing
+          serializes it) and is retained deliberately, so the CSV-parity claim above holds
+          without an exception — it is not a dead store to optimize away.
+        - matchup_score: get_rank_difference(team, position) — an OPPONENT-defense rank
+          (1-32) or None on genuine no-info (bye / team data unavailable).
+
+        All three are week-dependent, so they are read live from TeamDataManager at call
+        time — never cached, never precomputed into the JSON files. Called at load
+        (load_players_from_json) and per-week in the win-rate season loop so the
+        team-quality and matchup factors reflect the correct week.
+
+        A team absent from a rank dict yields None on that field (the getters are
+        Optional[int] .get() lookups) and raises nothing; the populate tolerates that
+        per-team and never assumes 32/32 coverage.
 
         Returns:
-            None. Mutates each FantasyPlayer.matchup_score in self.players in place.
+            None. Mutates FantasyPlayer.team_offensive_rank, team_defensive_rank and
+            matchup_score on each player in self.players in place.
         """
         for player in self.players:
+            player.team_offensive_rank = self.team_data_manager.get_team_offensive_rank(
+                player.team
+            )
+
+            if player.position in Constants.DEFENSE_POSITIONS:
+                player.team_defensive_rank = self.team_data_manager.get_team_dst_fantasy_rank(
+                    player.team
+                )
+            else:
+                player.team_defensive_rank = self.team_data_manager.get_team_defensive_rank(
+                    player.team
+                )
+
             player.matchup_score = self.team_data_manager.get_rank_difference(
                 player.team, player.position
             )
