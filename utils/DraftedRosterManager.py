@@ -36,8 +36,8 @@ from difflib import SequenceMatcher
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Set
 
-from utils.LoggingManager import get_logger
-from utils.FantasyPlayer import FantasyPlayer
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.LoggingManager import get_logger
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.FantasyPlayer import FantasyPlayer
 
 
 class DraftedRosterManager:

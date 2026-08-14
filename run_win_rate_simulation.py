@@ -11,29 +11,29 @@ import random
 import sys
 from pathlib import Path
 
-from utils.LoggingManager import setup_logger, get_logger
-from simulation.win_rate.WinRateMetaDataManager import WinRateMetaDataManager
-from simulation.win_rate.DraftStrategyOrchestrator import DraftStrategyOrchestrator
-from simulation.win_rate.strategy_loader import load_valid_strategies
-from simulation.win_rate.CombinationEvaluator import CombinationEvaluator
-from simulation.win_rate.SimulatedLeague import WEEKS_PER_SEASON
-from simulation.win_rate.SweepResultsManager import SweepResultsManager
-from simulation.win_rate.SweepTournament import (
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.LoggingManager import setup_logger, get_logger
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.WinRateMetaDataManager import WinRateMetaDataManager
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.DraftStrategyOrchestrator import DraftStrategyOrchestrator
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.strategy_loader import load_valid_strategies
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.CombinationEvaluator import CombinationEvaluator
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.SimulatedLeague import WEEKS_PER_SEASON
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.SweepResultsManager import SweepResultsManager
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.SweepTournament import (
     SweepTournament,
     DEFAULT_CONFIDENCE,
     DEFAULT_MIN_EFFECT_SIZE,
     DEFAULT_MIN_GAMES,
 )
-from simulation.shared.ProgressTracker import ProgressTracker
-from simulation.win_rate.config_overrides import extract_draft_param_values
-from simulation.win_rate.sweep_summary import rank_combinations, format_summary, write_sweep_report
-from simulation.win_rate.config_promoter import (
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.shared.ProgressTracker import ProgressTracker
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.config_overrides import extract_draft_param_values
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.sweep_summary import rank_combinations, format_summary, write_sweep_report
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.config_promoter import (
     compute_promotion,
     promote_best_combination,
     DEFAULT_PROMOTE_SHORTLIST,
     DEFAULT_PROMOTE_SIMS,
 )
-from utils.error_handler import ConfigurationError, FileOperationError
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.error_handler import ConfigurationError, FileOperationError
 
 LOG_NAME = "win_rate_simulation"
 

@@ -16,7 +16,7 @@ the whole dict, and propagate_to_configs, which consumes only the returned
 Author: Kai Mizuno
 """
 
-from simulation.shared.config_constants import BASE_CONFIG_PARAMS
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.shared.config_constants import BASE_CONFIG_PARAMS
 
 
 def extract_base_params(config_dict: dict) -> dict:

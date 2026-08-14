@@ -11,10 +11,10 @@ Author: Claude Code
 import pytest
 from unittest.mock import Mock, MagicMock
 from typing import List
-from league_helper.trade_simulator_mode.trade_display_helper import TradeDisplayHelper
-from league_helper.trade_simulator_mode.TradeSnapshot import TradeSnapshot
-from league_helper.trade_simulator_mode.TradeSimTeam import TradeSimTeam
-from utils.FantasyPlayer import FantasyPlayer
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.trade_simulator_mode.trade_display_helper import TradeDisplayHelper
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.trade_simulator_mode.TradeSnapshot import TradeSnapshot
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.trade_simulator_mode.TradeSimTeam import TradeSimTeam
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.FantasyPlayer import FantasyPlayer
 
 
 class TestTradeDisplayHelperInitialization:

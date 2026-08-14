@@ -18,8 +18,8 @@ import httpx
 import pandas as pd
 from tenacity import retry, stop_after_attempt, wait_random_exponential, retry_if_exception_type
 
-from utils.csv_utils import write_csv_with_backup
-from utils.LoggingManager import get_logger
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.csv_utils import write_csv_with_backup
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.LoggingManager import get_logger
 
 NFL_TEAMS = frozenset({
     'ARI', 'ATL', 'BAL', 'BUF', 'CAR', 'CHI', 'CIN', 'CLE',

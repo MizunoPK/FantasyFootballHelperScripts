@@ -12,18 +12,18 @@ import pytest
 from unittest.mock import patch, mock_open, MagicMock
 from datetime import datetime
 
-from league_helper.trade_simulator_mode.TradeSimulatorModeManager import TradeSimulatorModeManager
-from league_helper.trade_simulator_mode.TradeSimTeam import TradeSimTeam
-from league_helper.trade_simulator_mode.TradeSnapshot import TradeSnapshot
-from league_helper.trade_simulator_mode.trade_display_helper import TradeDisplayHelper
-from league_helper.trade_simulator_mode.trade_input_parser import TradeInputParser
-from league_helper.trade_simulator_mode.trade_file_writer import TradeFileWriter
-from league_helper.util.PlayerManager import PlayerManager
-from league_helper.util.ConfigManager import ConfigManager
-from league_helper.util.TeamDataManager import TeamDataManager
-from league_helper.util.SeasonScheduleManager import SeasonScheduleManager
-from league_helper.util.ScoredPlayer import ScoredPlayer
-from utils.FantasyPlayer import FantasyPlayer
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.trade_simulator_mode.TradeSimulatorModeManager import TradeSimulatorModeManager
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.trade_simulator_mode.TradeSimTeam import TradeSimTeam
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.trade_simulator_mode.TradeSnapshot import TradeSnapshot
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.trade_simulator_mode.trade_display_helper import TradeDisplayHelper
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.trade_simulator_mode.trade_input_parser import TradeInputParser
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.trade_simulator_mode.trade_file_writer import TradeFileWriter
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.PlayerManager import PlayerManager
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.ConfigManager import ConfigManager
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.TeamDataManager import TeamDataManager
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.SeasonScheduleManager import SeasonScheduleManager
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.ScoredPlayer import ScoredPlayer
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.FantasyPlayer import FantasyPlayer
 
 
 class TestDisplayNumberedRoster:
@@ -670,7 +670,7 @@ class TestWaiverTradeProcessing:
 
     def test_process_manual_trade_waiver_skips_their_validation(self, mock_teams, sample_players, mock_data_folder):
         """Test that is_waivers=True skips waiver team validation."""
-        from league_helper.trade_simulator_mode.trade_analyzer import TradeAnalyzer
+        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.trade_simulator_mode.trade_analyzer import TradeAnalyzer
         from unittest.mock import Mock
 
         config = ConfigManager(mock_data_folder)
@@ -702,7 +702,7 @@ class TestWaiverTradeProcessing:
 
     def test_process_manual_trade_waiver_validates_my_team(self, mock_teams, sample_players, mock_data_folder):
         """Test that user team validation still runs with is_waivers=True."""
-        from league_helper.trade_simulator_mode.trade_analyzer import TradeAnalyzer
+        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.trade_simulator_mode.trade_analyzer import TradeAnalyzer
         from unittest.mock import Mock
 
         config = ConfigManager(mock_data_folder)
@@ -731,7 +731,7 @@ class TestWaiverTradeProcessing:
 
     def test_process_manual_trade_normal_trade_validates_both_teams(self, mock_teams, sample_players, mock_data_folder):
         """Test that normal trades (is_waivers=False) validate both teams."""
-        from league_helper.trade_simulator_mode.trade_analyzer import TradeAnalyzer
+        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.trade_simulator_mode.trade_analyzer import TradeAnalyzer
 
         config = ConfigManager(mock_data_folder)
         season_schedule_mgr = SeasonScheduleManager(mock_data_folder)
@@ -759,7 +759,7 @@ class TestWaiverTradeProcessing:
 
     def test_process_manual_trade_waiver_skips_their_waiver_recommendations(self, mock_teams, sample_players, mock_data_folder):
         """Test that waiver team doesn't get waiver recommendations."""
-        from league_helper.trade_simulator_mode.trade_analyzer import TradeAnalyzer
+        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.trade_simulator_mode.trade_analyzer import TradeAnalyzer
         from unittest.mock import Mock, patch
 
         config = ConfigManager(mock_data_folder)

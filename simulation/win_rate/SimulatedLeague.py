@@ -22,15 +22,15 @@ import json
 from pathlib import Path
 from typing import Callable, List, Dict, Tuple, Optional, Any
 
-from league_helper.util.PlayerManager import PlayerManager
-from league_helper.util.ConfigManager import ConfigManager
-from league_helper.util.TeamDataManager import TeamDataManager
-from league_helper.util.SeasonScheduleManager import SeasonScheduleManager
-from simulation.win_rate.DraftHelperTeam import DraftHelperTeam
-from simulation.win_rate.SimulatedOpponent import SimulatedOpponent
-from simulation.win_rate.Week import Week
-from simulation.utils.scheduler import generate_schedule_for_nfl_season
-from utils.LoggingManager import get_logger
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.PlayerManager import PlayerManager
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.ConfigManager import ConfigManager
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.TeamDataManager import TeamDataManager
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.SeasonScheduleManager import SeasonScheduleManager
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.DraftHelperTeam import DraftHelperTeam
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.SimulatedOpponent import SimulatedOpponent
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.Week import Week
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.utils.scheduler import generate_schedule_for_nfl_season
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.LoggingManager import get_logger
 
 DRAFT_ROUNDS = 15
 

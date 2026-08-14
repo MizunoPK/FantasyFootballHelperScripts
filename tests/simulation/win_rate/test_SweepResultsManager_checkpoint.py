@@ -19,8 +19,8 @@ import json
 import pytest
 
 # Local
-from simulation.win_rate.SweepResultsManager import SweepResultsManager
-from utils.error_handler import ConfigurationError
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.SweepResultsManager import SweepResultsManager
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.error_handler import ConfigurationError
 
 
 def _param_values(**overrides):

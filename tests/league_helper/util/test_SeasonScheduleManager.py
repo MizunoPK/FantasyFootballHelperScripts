@@ -10,7 +10,7 @@ Author: Kai Mizuno
 
 import pytest
 import csv
-from league_helper.util.SeasonScheduleManager import SeasonScheduleManager
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.SeasonScheduleManager import SeasonScheduleManager
 
 
 @pytest.fixture
@@ -300,7 +300,7 @@ class TestModuleImports:
 
     def test_import_season_schedule_manager(self):
         """Test SeasonScheduleManager can be imported"""
-        from league_helper.util.SeasonScheduleManager import SeasonScheduleManager
+        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.SeasonScheduleManager import SeasonScheduleManager
 
         assert SeasonScheduleManager is not None
 

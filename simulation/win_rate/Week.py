@@ -15,9 +15,9 @@ Author: Kai Mizuno
 
 from typing import List, Tuple, Dict, Union
 
-from utils.LoggingManager import get_logger
-from simulation.win_rate.DraftHelperTeam import DraftHelperTeam
-from simulation.win_rate.SimulatedOpponent import SimulatedOpponent
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.LoggingManager import get_logger
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.DraftHelperTeam import DraftHelperTeam
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.SimulatedOpponent import SimulatedOpponent
 
 Team = Union[DraftHelperTeam, SimulatedOpponent]
 

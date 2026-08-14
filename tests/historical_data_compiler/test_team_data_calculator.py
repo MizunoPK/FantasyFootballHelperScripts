@@ -12,13 +12,13 @@ from unittest.mock import Mock, patch
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from historical_data_compiler.team_data_calculator import (
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.historical_data_compiler.team_data_calculator import (
     TeamDataCalculator,
     TEAM_DATA_CSV_COLUMNS,
     calculate_and_write_team_data,
 )
-from historical_data_compiler.player_data_fetcher import PlayerData
-from historical_data_compiler.game_data_fetcher import GameData
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.historical_data_compiler.player_data_fetcher import PlayerData
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.historical_data_compiler.game_data_fetcher import GameData
 
 
 @pytest.fixture

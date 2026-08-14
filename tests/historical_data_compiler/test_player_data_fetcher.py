@@ -13,7 +13,7 @@ from dataclasses import field
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from unittest.mock import AsyncMock, MagicMock, patch
-from historical_data_compiler.player_data_fetcher import PlayerData, PlayerDataFetcher
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.historical_data_compiler.player_data_fetcher import PlayerData, PlayerDataFetcher
 
 
 class TestPlayerDataModel:

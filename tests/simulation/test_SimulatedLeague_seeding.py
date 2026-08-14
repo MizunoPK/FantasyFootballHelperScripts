@@ -23,9 +23,9 @@ from unittest.mock import patch, Mock
 
 import pytest
 
-from league_helper.util.ConfigManager import ConfigManager
-from simulation.win_rate.SimulatedLeague import SimulatedLeague
-from simulation.win_rate.SimulatedOpponent import SimulatedOpponent
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.ConfigManager import ConfigManager
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.SimulatedLeague import SimulatedLeague
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.SimulatedOpponent import SimulatedOpponent
 
 
 # FIXTURES

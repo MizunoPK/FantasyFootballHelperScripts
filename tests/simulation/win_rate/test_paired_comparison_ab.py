@@ -30,8 +30,8 @@ from pathlib import Path
 import pytest
 
 # Local
-import simulation.win_rate.paired_comparison as pac
-from simulation.win_rate.paired_comparison import run_paired_ab_comparison
+import FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.paired_comparison as pac
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.paired_comparison import run_paired_ab_comparison
 
 
 # FIXTURES

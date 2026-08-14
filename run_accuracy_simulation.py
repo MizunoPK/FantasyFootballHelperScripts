@@ -35,15 +35,15 @@ import sys
 from pathlib import Path
 from typing import Dict, Optional
 
-from simulation.accuracy.AccuracySimulationManager import AccuracySimulationManager
-from simulation.accuracy.AccuracyResultsManager import propagate_to_configs
-from simulation.accuracy.horizon_labels import (
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.accuracy.AccuracySimulationManager import AccuracySimulationManager
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.accuracy.AccuracyResultsManager import propagate_to_configs
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.accuracy.horizon_labels import (
     HORIZON_COUNT,
     candidate_values_label,
     configs_per_param_label,
 )
-from simulation.shared.ConfigGenerator import DEFAULT_ACCURACY_SEED
-from utils.LoggingManager import setup_logger, get_logger
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.shared.ConfigGenerator import DEFAULT_ACCURACY_SEED
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.LoggingManager import setup_logger, get_logger
 
 
 def signal_handler(sig, frame):

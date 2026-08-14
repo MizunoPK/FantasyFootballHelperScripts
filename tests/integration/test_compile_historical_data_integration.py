@@ -16,7 +16,7 @@ class TestCompileHistoricalDataMultiYear:
              patch('compile_historical_data.asyncio.run', return_value=None) as mock_run, \
              patch('compile_historical_data.create_output_directories'), \
              patch('pathlib.Path.exists', return_value=False):
-            import compile_historical_data
+            import FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.compile_historical_data as compile_historical_data
             result = compile_historical_data.main()
         assert mock_run.call_count == 1
         assert result == 0
@@ -31,7 +31,7 @@ class TestCompileHistoricalDataMultiYear:
              patch('compile_historical_data.create_output_directories'), \
              patch('pathlib.Path.exists', return_value=False), \
              patch('compile_historical_data.YEARS', [2024, 2023]):
-            import compile_historical_data
+            import FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.compile_historical_data as compile_historical_data
             result = compile_historical_data.main()
         assert mock_run.call_count == 2
         assert result == 0
@@ -46,7 +46,7 @@ class TestCompileHistoricalDataMultiYear:
              patch('compile_historical_data.create_output_directories'), \
              patch('pathlib.Path.exists', return_value=False), \
              patch('compile_historical_data.YEARS', [2024, 2023]):
-            import compile_historical_data
+            import FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.compile_historical_data as compile_historical_data
             result = compile_historical_data.main()
         assert mock_run.call_count == 1
         assert result == 1

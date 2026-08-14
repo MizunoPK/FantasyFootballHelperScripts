@@ -1,6 +1,6 @@
 from unittest.mock import MagicMock
 
-from league_helper.util.PlayerManager import PlayerManager
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.PlayerManager import PlayerManager
 
 
 POSITION_FILES = [

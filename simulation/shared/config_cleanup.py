@@ -14,7 +14,7 @@ import shutil
 from pathlib import Path
 from typing import List
 
-from utils.LoggingManager import get_logger
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.LoggingManager import get_logger
 
 MAX_OPTIMAL_FOLDERS = 5
 

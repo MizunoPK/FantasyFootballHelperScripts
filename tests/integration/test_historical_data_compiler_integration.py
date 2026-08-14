@@ -36,7 +36,7 @@ class TestHistoricalDataCompilerLogging:
         test_args = ['compile_historical_data.py', '--year', '2024', '--enable-log-file']
 
         with patch('sys.argv', test_args):
-            import compile_historical_data
+            import FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.compile_historical_data as compile_historical_data
             args = compile_historical_data.parse_args()
 
             assert args.enable_log_file is True, "Flag should be True when --enable-log-file provided"
@@ -63,7 +63,7 @@ class TestHistoricalDataCompilerLogging:
         test_args = ['compile_historical_data.py', '--year', '2024']
 
         with patch('sys.argv', test_args):
-            import compile_historical_data
+            import FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.compile_historical_data as compile_historical_data
             args = compile_historical_data.parse_args()
 
             assert args.enable_log_file is False, "Flag should default to False when not provided"
@@ -83,7 +83,7 @@ class TestHistoricalDataCompilerLogging:
         test_args = ['compile_historical_data.py', '--help']
 
         with patch('sys.argv', test_args):
-            import compile_historical_data
+            import FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.compile_historical_data as compile_historical_data
 
             try:
                 compile_historical_data.parse_args()

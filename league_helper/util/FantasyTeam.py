@@ -17,11 +17,11 @@ Author: Kai Mizuno
 
 from typing import List, Dict, Optional, Callable
 
-from league_helper.util.ConfigManager import ConfigManager
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.ConfigManager import ConfigManager
 
-import league_helper.constants as Constants
-from utils.LoggingManager import get_logger
-from utils.FantasyPlayer import FantasyPlayer
+import FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.constants as Constants
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.LoggingManager import get_logger
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.FantasyPlayer import FantasyPlayer
 
 
 class FantasyTeam:

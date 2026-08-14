@@ -17,14 +17,14 @@ import pytest
 from unittest.mock import Mock, MagicMock, patch, call
 from typing import List
 
-from league_helper.add_to_roster_mode.AddToRosterModeManager import AddToRosterModeManager
-from league_helper.util.ConfigManager import ConfigManager
-from league_helper.util.PlayerManager import PlayerManager
-from league_helper.util.TeamDataManager import TeamDataManager
-from league_helper.util.ScoredPlayer import ScoredPlayer
-from league_helper.util.FantasyTeam import FantasyTeam
-import league_helper.constants as Constants
-from utils.FantasyPlayer import FantasyPlayer
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.add_to_roster_mode.AddToRosterModeManager import AddToRosterModeManager
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.ConfigManager import ConfigManager
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.PlayerManager import PlayerManager
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.TeamDataManager import TeamDataManager
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.ScoredPlayer import ScoredPlayer
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.FantasyTeam import FantasyTeam
+import FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.constants as Constants
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.FantasyPlayer import FantasyPlayer
 
 
 
@@ -990,8 +990,8 @@ class TestEdgeCases:
 
     def test_draft_helper_uses_ros_normalization(self, mock_player_manager):
         """Test that Draft Helper mode continues using ROS max_projection (backward compatibility)"""
-        from utils.FantasyPlayer import FantasyPlayer
-        from league_helper.util.ScoredPlayer import ScoredPlayer
+        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.FantasyPlayer import FantasyPlayer
+        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.ScoredPlayer import ScoredPlayer
 
         test_player = FantasyPlayer(id=1, name="Test Player", team="KC", position="RB",
                                    fantasy_points=300.0, injury_status="ACTIVE")

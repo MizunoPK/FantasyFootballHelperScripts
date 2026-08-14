@@ -21,10 +21,10 @@ from pathlib import Path
 from typing import Dict, List, Optional
 
 # Local
-from utils.LoggingManager import get_logger
-from utils.error_handler import create_component_error_handler, error_context, ConfigurationError, FileOperationError
-from simulation.shared.atomic_io import atomic_write_json
-from simulation.win_rate.param_value_generation import DRAFT_SWEEP_PARAMS
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.LoggingManager import get_logger
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.error_handler import create_component_error_handler, error_context, ConfigurationError, FileOperationError
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.shared.atomic_io import atomic_write_json
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.param_value_generation import DRAFT_SWEEP_PARAMS
 
 logger = get_logger()
 _error_handler = create_component_error_handler("SweepResultsManager")

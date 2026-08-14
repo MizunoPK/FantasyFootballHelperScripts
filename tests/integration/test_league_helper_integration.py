@@ -20,7 +20,7 @@ from io import StringIO
 
 project_root = Path(__file__).parent.parent.parent
 
-from league_helper.LeagueHelperManager import LeagueHelperManager
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.LeagueHelperManager import LeagueHelperManager
 
 
 @pytest.fixture
@@ -475,10 +475,10 @@ class TestDraftedRosterManagerConsolidation:
         if source_configs.exists():
             shutil.copytree(source_configs, dest_configs)
 
-        from league_helper.util.PlayerManager import PlayerManager
-        from league_helper.util.ConfigManager import ConfigManager
-        from league_helper.util.TeamDataManager import TeamDataManager
-        from league_helper.util.SeasonScheduleManager import SeasonScheduleManager
+        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.PlayerManager import PlayerManager
+        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.ConfigManager import ConfigManager
+        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.TeamDataManager import TeamDataManager
+        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.SeasonScheduleManager import SeasonScheduleManager
 
         config = ConfigManager(data_folder)
         team_data = TeamDataManager(data_folder, config.current_nfl_week)
@@ -561,11 +561,11 @@ class TestDraftedRosterManagerConsolidation:
         if source_configs.exists():
             shutil.copytree(source_configs, dest_configs)
 
-        from league_helper.util.PlayerManager import PlayerManager
-        from league_helper.util.ConfigManager import ConfigManager
-        from league_helper.util.TeamDataManager import TeamDataManager
-        from league_helper.util.SeasonScheduleManager import SeasonScheduleManager
-        from league_helper.trade_simulator_mode.TradeSimulatorModeManager import TradeSimulatorModeManager
+        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.PlayerManager import PlayerManager
+        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.ConfigManager import ConfigManager
+        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.TeamDataManager import TeamDataManager
+        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.SeasonScheduleManager import SeasonScheduleManager
+        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.trade_simulator_mode.TradeSimulatorModeManager import TradeSimulatorModeManager
 
         config = ConfigManager(data_folder)
         team_data = TeamDataManager(data_folder, config.current_nfl_week)

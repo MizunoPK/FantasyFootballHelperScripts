@@ -12,7 +12,7 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-from schedule_data_fetcher.ScheduleFetcher import NFL_TEAMS as VALID_TEAMS
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.schedule_data_fetcher.ScheduleFetcher import NFL_TEAMS as VALID_TEAMS
 
 REPO_ROOT = Path(__file__).parent.parent.parent
 

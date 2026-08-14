@@ -11,11 +11,11 @@ import json
 import pytest
 from pathlib import Path
 from unittest.mock import Mock, MagicMock, patch
-from utils.FantasyPlayer import FantasyPlayer
-from league_helper.trade_simulator_mode.trade_analyzer import TradeAnalyzer
-from league_helper.trade_simulator_mode.TradeSimTeam import TradeSimTeam
-from league_helper.trade_simulator_mode.TradeSnapshot import TradeSnapshot
-from league_helper.util.ConfigManager import ConfigManager
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.FantasyPlayer import FantasyPlayer
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.trade_simulator_mode.trade_analyzer import TradeAnalyzer
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.trade_simulator_mode.TradeSimTeam import TradeSimTeam
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.trade_simulator_mode.TradeSnapshot import TradeSnapshot
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.ConfigManager import ConfigManager
 
 FIXTURE_LEAGUE_CONFIG = Path(__file__).parent.parent.parent / "fixtures" / "league" / "league_config.json"
 
@@ -817,7 +817,7 @@ class TestTradeSimulatorFlagsReadFromConfig:
 
     def test_flags_read_from_config(self):
         """start_trade_suggestor() uses config flags not module-level constants."""
-        from league_helper.trade_simulator_mode.TradeSimulatorModeManager import TradeSimulatorModeManager
+        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.trade_simulator_mode.TradeSimulatorModeManager import TradeSimulatorModeManager
         import inspect
         source = inspect.getsource(TradeSimulatorModeManager.start_trade_suggestor)
         assert "ENABLE_ONE_FOR_ONE" not in source

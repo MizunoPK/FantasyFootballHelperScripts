@@ -15,8 +15,8 @@ Author: Kai Mizuno
 import inspect
 
 # Local
-from simulation.accuracy import horizon_labels
-from simulation.accuracy.horizon_labels import (
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.tests.simulation.accuracy import horizon_labels
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.accuracy.horizon_labels import (
     HORIZON_COUNT,
     WEEK_RANGES,
     candidate_values_label,
@@ -45,7 +45,7 @@ class TestWeekRanges:
     def test_accuracy_results_manager_re_exports_the_same_object(self):
         """T77 AC2: the re-export is an alias, not a second dict."""
         # Act
-        from simulation.accuracy.AccuracyResultsManager import WEEK_RANGES as re_exported
+        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.accuracy.AccuracyResultsManager import WEEK_RANGES as re_exported
 
         # Assert
         assert re_exported is WEEK_RANGES, (

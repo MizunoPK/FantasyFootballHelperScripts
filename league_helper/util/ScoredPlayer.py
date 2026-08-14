@@ -16,7 +16,7 @@ Author: Kai Mizuno
 """
 
 from typing import List
-from utils.FantasyPlayer import FantasyPlayer
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.FantasyPlayer import FantasyPlayer
 
 class ScoredPlayer:
     """

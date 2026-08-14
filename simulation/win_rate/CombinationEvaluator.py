@@ -20,12 +20,12 @@ from pathlib import Path
 from typing import Dict, Optional, Tuple
 
 # Local
-from utils.LoggingManager import get_logger
-from utils.error_handler import FileOperationError
-from league_helper.util.ConfigManager import ConfigManager
-from simulation.win_rate.ParallelLeagueRunner import ParallelLeagueRunner
-from simulation.win_rate.SimDataLoader import SimDataLoader
-from simulation.win_rate.config_overrides import apply_draft_overrides
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.LoggingManager import get_logger
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.error_handler import FileOperationError
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.ConfigManager import ConfigManager
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.ParallelLeagueRunner import ParallelLeagueRunner
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.SimDataLoader import SimDataLoader
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.config_overrides import apply_draft_overrides
 
 
 class CombinationEvaluator:

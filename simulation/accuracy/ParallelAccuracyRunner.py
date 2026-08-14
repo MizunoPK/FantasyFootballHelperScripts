@@ -16,13 +16,13 @@ from typing import Dict, FrozenSet, List, Any, Optional, Tuple
 
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
 
-from simulation.accuracy.AccuracyCalculator import AccuracyCalculator, AccuracyResult
-from simulation.accuracy.horizon_labels import HORIZON_COUNT, WEEK_RANGES
-from utils.LoggingManager import get_logger
-from league_helper.util.ConfigManager import ConfigManager
-from league_helper.util.PlayerManager import PlayerManager
-from league_helper.util.TeamDataManager import TeamDataManager
-from league_helper.util.SeasonScheduleManager import SeasonScheduleManager
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.accuracy.AccuracyCalculator import AccuracyCalculator, AccuracyResult
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.accuracy.horizon_labels import HORIZON_COUNT, WEEK_RANGES
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.LoggingManager import get_logger
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.ConfigManager import ConfigManager
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.PlayerManager import PlayerManager
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.TeamDataManager import TeamDataManager
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.SeasonScheduleManager import SeasonScheduleManager
 
 
 def _evaluate_config_tournament_process(

@@ -10,7 +10,7 @@ import pytest
 from datetime import datetime
 from pydantic import ValidationError
 
-from player_data_fetcher.player_data_models import (
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.player_data_fetcher.player_data_models import (
     ScoringFormat,
     ESPNPlayerData,
     PlayerProjection,

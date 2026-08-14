@@ -39,13 +39,13 @@ class TestHelpersFunctions:
 
     def test_get_fixture_path_returns_correct_path(self):
         """Verify get_fixture_path returns FIXTURES_ROOT / fixture_type / filename."""
-        from tests.fixtures.helpers import get_fixture_path, FIXTURES_ROOT
+        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.tests.fixtures.helpers import get_fixture_path, FIXTURES_ROOT
         result = get_fixture_path("espn_api", "test.json")
         assert result == FIXTURES_ROOT / "espn_api" / "test.json"
 
     def test_load_json_fixture_raises_on_missing_file(self):
         """Verify load_json_fixture raises FileNotFoundError with descriptive message."""
-        from tests.fixtures.helpers import load_json_fixture
+        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.tests.fixtures.helpers import load_json_fixture
         with pytest.raises(FileNotFoundError) as exc_info:
             load_json_fixture("espn_api", "nonexistent_fixture_xyz.json")
         assert "Fixture file not found" in str(exc_info.value)
@@ -53,7 +53,7 @@ class TestHelpersFunctions:
 
     def test_load_json_fixture_returns_dict_for_valid_file(self):
         """Verify load_json_fixture returns parsed dict when fixture file exists."""
-        from tests.fixtures.helpers import load_json_fixture, get_fixture_path
+        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.tests.fixtures.helpers import load_json_fixture, get_fixture_path
         fixture_path = get_fixture_path("espn_api", "_test_temp_fixture.json")
         try:
             fixture_path.write_text(json.dumps({"key": "value", "num": 42}))
@@ -65,7 +65,7 @@ class TestHelpersFunctions:
 
     def test_assert_dataframe_output_raises_on_row_count_violation(self):
         """Verify assert_dataframe_output raises AssertionError when row count < min_rows."""
-        from tests.fixtures.helpers import assert_dataframe_output
+        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.tests.fixtures.helpers import assert_dataframe_output
         df = pd.DataFrame({"col": [1, 2, 3]})
         with pytest.raises(AssertionError) as exc_info:
             assert_dataframe_output(df, min_rows=10, required_columns=[], non_null_columns=[])
@@ -74,7 +74,7 @@ class TestHelpersFunctions:
 
     def test_assert_dataframe_output_raises_on_missing_column(self):
         """Verify assert_dataframe_output raises AssertionError listing present columns."""
-        from tests.fixtures.helpers import assert_dataframe_output
+        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.tests.fixtures.helpers import assert_dataframe_output
         df = pd.DataFrame({"col_a": [1, 2, 3]})
         with pytest.raises(AssertionError) as exc_info:
             assert_dataframe_output(df, min_rows=1, required_columns=["missing_col"], non_null_columns=[])
@@ -83,7 +83,7 @@ class TestHelpersFunctions:
 
     def test_assert_dataframe_output_raises_on_nan_in_non_null_column(self):
         """Verify assert_dataframe_output raises AssertionError reporting NaN count."""
-        from tests.fixtures.helpers import assert_dataframe_output
+        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.tests.fixtures.helpers import assert_dataframe_output
         df = pd.DataFrame({"name": ["Alice", None, "Bob"]})
         with pytest.raises(AssertionError) as exc_info:
             assert_dataframe_output(df, min_rows=1, required_columns=[], non_null_columns=["name"])
@@ -92,7 +92,7 @@ class TestHelpersFunctions:
 
     def test_assert_dataframe_output_passes_for_valid_dataframe(self):
         """Verify assert_dataframe_output does not raise for a fully valid DataFrame."""
-        from tests.fixtures.helpers import assert_dataframe_output
+        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.tests.fixtures.helpers import assert_dataframe_output
         df = pd.DataFrame({"name": ["Alice", "Bob"], "score": [10, 20]})
         assert_dataframe_output(df, min_rows=1, required_columns=["name", "score"], non_null_columns=["name"])
 

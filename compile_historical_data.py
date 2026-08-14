@@ -38,19 +38,19 @@ from typing import Optional
 
 sys.path.insert(0, str(Path(__file__).parent))
 
-from utils.LoggingManager import setup_logger, get_logger
-from historical_data_compiler.constants import (
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.LoggingManager import setup_logger, get_logger
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.historical_data_compiler.constants import (
     MIN_SUPPORTED_YEAR,
     VALIDATION_WEEKS,
     TEAM_DATA_FOLDER,
     WEEKS_FOLDER,
 )
-from historical_data_compiler.http_client import BaseHTTPClient
-from historical_data_compiler.schedule_fetcher import fetch_and_write_schedule
-from historical_data_compiler.game_data_fetcher import fetch_and_write_game_data
-from historical_data_compiler.player_data_fetcher import fetch_player_data
-from historical_data_compiler.team_data_calculator import calculate_and_write_team_data
-from historical_data_compiler.weekly_snapshot_generator import generate_weekly_snapshots
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.historical_data_compiler.http_client import BaseHTTPClient
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.historical_data_compiler.schedule_fetcher import fetch_and_write_schedule
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.historical_data_compiler.game_data_fetcher import fetch_and_write_game_data
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.historical_data_compiler.player_data_fetcher import fetch_player_data
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.historical_data_compiler.team_data_calculator import calculate_and_write_team_data
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.historical_data_compiler.weekly_snapshot_generator import generate_weekly_snapshots
 
 
 YEARS = [2021, 2022, 2023, 2024, 2025]

@@ -19,7 +19,7 @@ import shutil
 import copy
 from pathlib import Path
 
-from simulation.shared.ConfigGenerator import ConfigGenerator
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.shared.ConfigGenerator import ConfigGenerator
 
 TEST_PARAMETER_ORDER = [
     'NORMALIZATION_MAX_SCALE',

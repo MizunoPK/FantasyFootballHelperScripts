@@ -14,8 +14,8 @@ import pytest
 from unittest.mock import Mock, patch, MagicMock, AsyncMock
 import json
 
-from player_data_fetcher.player_data_fetcher_main import NFLProjectionsCollector, Settings
-from player_data_fetcher.player_data_models import PlayerProjection, ScoringFormat, ProjectionData, ESPNPlayerData
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.player_data_fetcher.player_data_fetcher_main import NFLProjectionsCollector, Settings
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.player_data_fetcher.player_data_models import PlayerProjection, ScoringFormat, ProjectionData, ESPNPlayerData
 
 
 

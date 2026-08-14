@@ -18,7 +18,7 @@ from datetime import datetime
 from unittest.mock import patch, MagicMock
 import logging
 
-from utils.LineBasedRotatingHandler import LineBasedRotatingHandler
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.LineBasedRotatingHandler import LineBasedRotatingHandler
 
 
 class TestLineBasedRotatingHandler(unittest.TestCase):

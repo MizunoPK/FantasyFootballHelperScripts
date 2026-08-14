@@ -14,12 +14,12 @@ import sys
 from pathlib import Path
 from unittest.mock import Mock, patch, MagicMock
 
-from utils.LoggingManager import (
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.LoggingManager import (
     LoggingManager,
     setup_logger,
     get_logger
 )
-from utils.LineBasedRotatingHandler import LineBasedRotatingHandler
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.LineBasedRotatingHandler import LineBasedRotatingHandler
 
 
 class TestLoggingManager:

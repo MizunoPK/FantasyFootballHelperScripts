@@ -10,7 +10,7 @@ import pytest
 import json
 from unittest.mock import Mock, patch, MagicMock
 
-from player_data_fetcher.coordinates_manager import CoordinatesManager
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.player_data_fetcher.coordinates_manager import CoordinatesManager
 
 
 class TestCoordinatesManagerInitialization:

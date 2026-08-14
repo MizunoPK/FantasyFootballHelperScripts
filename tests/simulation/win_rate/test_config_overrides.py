@@ -16,8 +16,8 @@ import copy
 import pytest
 
 # Local
-from simulation.win_rate.config_overrides import apply_draft_overrides, DRAFT_PARAM_LOCATIONS
-from utils.error_handler import ConfigurationError
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.config_overrides import apply_draft_overrides, DRAFT_PARAM_LOCATIONS
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.error_handler import ConfigurationError
 
 
 @pytest.fixture
@@ -150,13 +150,13 @@ class TestApplyDraftOverrides:
 
     def test_locations_table_matches_param_definitions(self):
         # Guard: every flat name in the locations table exists in PARAM_DEFINITIONS.
-        from simulation.shared.ConfigGenerator import ConfigGenerator
+        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.shared.ConfigGenerator import ConfigGenerator
         for name in DRAFT_PARAM_LOCATIONS:
             assert name in ConfigGenerator.PARAM_DEFINITIONS
 
     def test_locations_in_sync_with_sweep_params(self):
         # Sync invariant: the write map and the swept set must have identical keys.
-        from simulation.win_rate.param_value_generation import DRAFT_SWEEP_PARAMS
+        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.param_value_generation import DRAFT_SWEEP_PARAMS
         assert set(DRAFT_PARAM_LOCATIONS) == set(DRAFT_SWEEP_PARAMS)
         assert len(DRAFT_PARAM_LOCATIONS) == 6
         assert "DRAFT_NORMALIZATION_MAX_SCALE" not in DRAFT_PARAM_LOCATIONS
@@ -181,7 +181,7 @@ class TestExtractDraftParamValues:
     """Tests for extract_draft_param_values."""
 
     def test_extract_returns_six_current_values(self, base_config):
-        from simulation.win_rate.config_overrides import extract_draft_param_values, DRAFT_PARAM_LOCATIONS
+        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.config_overrides import extract_draft_param_values, DRAFT_PARAM_LOCATIONS
         values = extract_draft_param_values(base_config)
         assert set(values.keys()) == set(DRAFT_PARAM_LOCATIONS.keys())
         assert values["SAME_POS_BYE_WEIGHT"] == 0.07
@@ -192,7 +192,7 @@ class TestExtractDraftParamValues:
 
     def test_extract_then_apply_is_noop_for_params(self, base_config, new_draft_order):
         # Applying the extracted current values back changes only DRAFT_ORDER.
-        from simulation.win_rate.config_overrides import extract_draft_param_values, apply_draft_overrides
+        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.config_overrides import extract_draft_param_values, apply_draft_overrides
         current = extract_draft_param_values(base_config)
         out = apply_draft_overrides(base_config, new_draft_order, current)
         op = out["parameters"]

@@ -29,10 +29,10 @@ import subprocess
 import sys
 from pathlib import Path
 
-from simulation.shared.ConfigGenerator import ConfigGenerator, DEFAULT_ACCURACY_SEED
-from simulation.accuracy.AccuracySimulationManager import AccuracySimulationManager
-from simulation.accuracy.ParallelAccuracyRunner import _evaluate_config_tournament_process
-from simulation.accuracy.horizon_labels import WEEK_RANGES
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.shared.ConfigGenerator import ConfigGenerator, DEFAULT_ACCURACY_SEED
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.accuracy.AccuracySimulationManager import AccuracySimulationManager
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.accuracy.ParallelAccuracyRunner import _evaluate_config_tournament_process
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.accuracy.horizon_labels import WEEK_RANGES
 
 # Repo root: tests/simulation/test_accuracy_determinism.py -> parents[2].
 REPO_ROOT = Path(__file__).resolve().parents[2]

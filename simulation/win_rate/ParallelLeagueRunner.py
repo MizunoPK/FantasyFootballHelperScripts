@@ -24,8 +24,8 @@ import hashlib
 import threading
 import gc
 
-from utils.LoggingManager import get_logger
-from simulation.win_rate.SimulatedLeague import SimulatedLeague
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.LoggingManager import get_logger
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.SimulatedLeague import SimulatedLeague
 
 
 GC_FREQUENCY = 5

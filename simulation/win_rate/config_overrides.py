@@ -21,8 +21,8 @@ import copy
 from typing import Dict, List
 
 # Local
-from simulation.shared.ConfigGenerator import ConfigGenerator
-from utils.error_handler import ConfigurationError
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.shared.ConfigGenerator import ConfigGenerator
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.error_handler import ConfigurationError
 
 
 # Maps each flat sweep-parameter name (matching ConfigGenerator.PARAM_DEFINITIONS)

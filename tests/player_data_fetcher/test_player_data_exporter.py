@@ -12,8 +12,8 @@ import asyncio
 from unittest.mock import Mock, patch, AsyncMock
 from pathlib import Path
 
-from player_data_fetcher.player_data_exporter import DataExporter, zero_bye_week_points
-from player_data_fetcher.player_data_models import ProjectionData, PlayerProjection
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.player_data_fetcher.player_data_exporter import DataExporter, zero_bye_week_points
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.player_data_fetcher.player_data_models import ProjectionData, PlayerProjection
 
 
 # FIXTURES
@@ -447,7 +447,7 @@ class TestDataExporterDataRootSeam:
         protecting nothing. Setting the variable here, after import, makes that
         regression FAIL instead.
         """
-        import player_data_fetcher.player_data_exporter as exporter_module
+        import FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.player_data_fetcher.player_data_exporter as exporter_module
 
         assert exporter_module is not None, "module already imported at collection time"
         late_root = tmp_path / 'set_after_import'

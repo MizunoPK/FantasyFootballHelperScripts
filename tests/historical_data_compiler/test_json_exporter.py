@@ -14,12 +14,12 @@ from unittest.mock import Mock, patch
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from historical_data_compiler.json_exporter import (
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.historical_data_compiler.json_exporter import (
     PlayerDataAdapter,
     JSONSnapshotExporter,
     generate_json_snapshots
 )
-from historical_data_compiler.player_data_fetcher import PlayerData
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.historical_data_compiler.player_data_fetcher import PlayerData
 
 
 class TestPlayerDataAdapter:

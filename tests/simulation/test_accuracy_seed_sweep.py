@@ -49,7 +49,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-import run_accuracy_seed_sweep as sweep
+import FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.run_accuracy_seed_sweep as sweep
 
 
 def _write_promoted_configs(folder: Path, pairwise_accuracy_by_horizon=None):

@@ -18,8 +18,8 @@ from pathlib import Path
 import pytest
 from unittest.mock import patch
 
-from league_helper.util.ConfigManager import ConfigManager
-from simulation.win_rate.SimulatedLeague import SimulatedLeague
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.ConfigManager import ConfigManager
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.SimulatedLeague import SimulatedLeague
 
 
 # FIXTURES

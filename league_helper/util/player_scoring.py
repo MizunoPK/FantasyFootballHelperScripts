@@ -24,17 +24,17 @@ import statistics
 from typing import Tuple, Optional, List, Dict, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from league_helper.util.PlayerManager import PlayerManager
+    from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.PlayerManager import PlayerManager
 
-import league_helper.constants as Constants
-from league_helper.util.ConfigManager import ConfigManager
-from league_helper.util.ScoredPlayer import ScoredPlayer
-from league_helper.util.TeamDataManager import TeamDataManager
-from league_helper.util.SeasonScheduleManager import SeasonScheduleManager
-from league_helper.util.GameDataManager import GameDataManager
-from league_helper.util.upcoming_game_model import UpcomingGame
-from utils.FantasyPlayer import FantasyPlayer
-from utils.LoggingManager import get_logger
+import FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.constants as Constants
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.ConfigManager import ConfigManager
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.ScoredPlayer import ScoredPlayer
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.TeamDataManager import TeamDataManager
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.SeasonScheduleManager import SeasonScheduleManager
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.GameDataManager import GameDataManager
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.upcoming_game_model import UpcomingGame
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.FantasyPlayer import FantasyPlayer
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.LoggingManager import get_logger
 
 
 class PlayerScoringCalculator:

@@ -3,7 +3,7 @@ Integration tests for WinRateMetaDataManager.
 """
 import json
 import pytest
-from simulation.win_rate.WinRateMetaDataManager import WinRateMetaDataManager
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.WinRateMetaDataManager import WinRateMetaDataManager
 
 
 class TestWinRateMetaDataManagerIntegration:

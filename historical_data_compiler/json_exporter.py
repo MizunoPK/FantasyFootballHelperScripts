@@ -15,11 +15,11 @@ import json
 from pathlib import Path
 from typing import Dict, List, Any, Optional
 
-from player_data_fetcher.player_data_exporter import DataExporter
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.player_data_fetcher.player_data_exporter import DataExporter
 
 from .constants import POSITION_JSON_FILES, REGULAR_SEASON_WEEKS, FANTASY_POSITIONS
 from .player_data_fetcher import PlayerData
-from utils.LoggingManager import get_logger
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.LoggingManager import get_logger
 
 
 class PlayerDataAdapter:

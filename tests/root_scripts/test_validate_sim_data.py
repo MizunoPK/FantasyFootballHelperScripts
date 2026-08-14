@@ -14,7 +14,7 @@ from unittest.mock import patch, MagicMock
 
 import pytest
 
-from historical_data_compiler.constants import (
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.historical_data_compiler.constants import (
     SEASON_SCHEDULE_FILE,
     GAME_DATA_FILE,
     TEAM_DATA_FOLDER,
@@ -24,7 +24,7 @@ from historical_data_compiler.constants import (
     POSITION_JSON_FILES,
 )
 
-from validate_sim_data import main
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.validate_sim_data import main
 
 
 class TestValidateSimData:

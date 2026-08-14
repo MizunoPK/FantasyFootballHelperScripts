@@ -37,8 +37,8 @@ from argparse import Namespace
 from pathlib import Path
 
 # Local
-import run_win_rate_simulation as rws
-from simulation.win_rate.ParallelLeagueRunner import _derive_task_seed
+import FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.run_win_rate_simulation as rws
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.ParallelLeagueRunner import _derive_task_seed
 
 
 # FIXTURES

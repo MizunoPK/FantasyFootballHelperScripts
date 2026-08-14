@@ -17,7 +17,7 @@ from difflib import SequenceMatcher
 
 import pandas as pd
 
-from utils.LoggingManager import get_logger
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.LoggingManager import get_logger
 
 logger = get_logger()
 

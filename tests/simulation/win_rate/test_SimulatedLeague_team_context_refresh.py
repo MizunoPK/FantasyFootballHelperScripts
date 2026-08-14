@@ -13,10 +13,10 @@ import pytest
 import inspect
 from unittest.mock import Mock
 
-from simulation.win_rate.SimulatedLeague import SimulatedLeague
-from league_helper.util.TeamDataManager import TeamDataManager
-from league_helper.util.PlayerManager import PlayerManager
-from utils.FantasyPlayer import FantasyPlayer
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.SimulatedLeague import SimulatedLeague
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.TeamDataManager import TeamDataManager
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.PlayerManager import PlayerManager
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.FantasyPlayer import FantasyPlayer
 
 
 def _make_player(team, position, name="P"):

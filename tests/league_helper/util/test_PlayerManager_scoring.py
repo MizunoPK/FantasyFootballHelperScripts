@@ -21,11 +21,11 @@ from unittest.mock import Mock, MagicMock, patch
 from typing import List
 from pathlib import Path
 
-from league_helper.util.PlayerManager import PlayerManager
-from league_helper.util.ConfigManager import ConfigManager
-from league_helper.util.TeamDataManager import TeamDataManager
-from league_helper.util.FantasyTeam import FantasyTeam
-from utils.FantasyPlayer import FantasyPlayer
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.PlayerManager import PlayerManager
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.ConfigManager import ConfigManager
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.TeamDataManager import TeamDataManager
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.FantasyTeam import FantasyTeam
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.FantasyPlayer import FantasyPlayer
 
 
 
@@ -257,7 +257,7 @@ def player_manager(mock_data_folder, config_manager, team_data_manager, mock_fan
     pm.season_schedule_manager.is_schedule_available = Mock(return_value=True)
     pm.season_schedule_manager.get_future_opponents = Mock(return_value=['DAL', 'PHI', 'NYG'])
 
-    from league_helper.util.player_scoring import PlayerScoringCalculator
+    from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.player_scoring import PlayerScoringCalculator
     pm.scoring_calculator = PlayerScoringCalculator(
         config_manager,
         pm.projected_points_manager,
@@ -452,7 +452,7 @@ class TestWeeklyProjections:
 
     def test_calculate_max_weekly_projection(self, player_manager):
         """Test calculate_max_weekly_projection() finds max and caches it"""
-        from utils.FantasyPlayer import FantasyPlayer
+        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.FantasyPlayer import FantasyPlayer
 
         projected1 = [0.0] * 17
         projected1[5] = 25.0
@@ -482,7 +482,7 @@ class TestWeeklyProjections:
 
     def test_calculate_max_weekly_projection_no_valid_projections(self, player_manager):
         """Test calculate_max_weekly_projection() handles edge case of no valid projections"""
-        from utils.FantasyPlayer import FantasyPlayer
+        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.FantasyPlayer import FantasyPlayer
 
         player1 = FantasyPlayer(id=1, name="Player 1", team="KC", position="QB")
         player2 = FantasyPlayer(id=2, name="Player 2", team="BUF", position="RB")

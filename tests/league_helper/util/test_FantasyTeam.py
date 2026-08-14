@@ -18,10 +18,10 @@ import pytest
 from unittest.mock import Mock, MagicMock, patch
 from typing import List
 
-from league_helper.util.FantasyTeam import FantasyTeam
-from league_helper.util.ConfigManager import ConfigManager
-import league_helper.constants as Constants
-from utils.FantasyPlayer import FantasyPlayer
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.FantasyTeam import FantasyTeam
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.ConfigManager import ConfigManager
+import FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.constants as Constants
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.FantasyPlayer import FantasyPlayer
 
 
 

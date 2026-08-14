@@ -42,18 +42,18 @@ from statistics import NormalDist
 from typing import Any, Dict
 
 # Local
-from league_helper.util.ConfigManager import ConfigManager
-from simulation.shared.atomic_io import atomic_write_json
-from simulation.win_rate.config_overrides import (
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.ConfigManager import ConfigManager
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.shared.atomic_io import atomic_write_json
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.config_overrides import (
     apply_draft_overrides,
     extract_draft_param_values,
 )
-from simulation.win_rate.paired_comparison import run_paired_ab_comparison
-from simulation.win_rate.strategy_loader import load_valid_strategies
-from simulation.win_rate.SweepTournament import DEFAULT_CONFIDENCE
-from simulation.win_rate.sweep_summary import rank_combinations, wilson_interval
-from utils.error_handler import ConfigurationError
-from utils.LoggingManager import get_logger
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.paired_comparison import run_paired_ab_comparison
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.strategy_loader import load_valid_strategies
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.SweepTournament import DEFAULT_CONFIDENCE
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.sweep_summary import rank_combinations, wilson_interval
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.error_handler import ConfigurationError
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.LoggingManager import get_logger
 
 logger = get_logger()
 

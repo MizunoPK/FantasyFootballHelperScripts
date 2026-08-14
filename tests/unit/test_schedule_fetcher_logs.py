@@ -11,7 +11,7 @@ Created: 2026-02-11 (Feature 06 S6 Phase 6 Task 13)
 
 import pytest
 from unittest.mock import MagicMock, AsyncMock
-from historical_data_compiler.schedule_fetcher import ScheduleFetcher
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.historical_data_compiler.schedule_fetcher import ScheduleFetcher
 
 
 class TestScheduleFetcherLogs:

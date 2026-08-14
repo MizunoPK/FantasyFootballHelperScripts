@@ -12,7 +12,7 @@ from pathlib import Path
 from unittest.mock import Mock, MagicMock, patch, call
 import threading
 
-from simulation.win_rate.ParallelLeagueRunner import ParallelLeagueRunner
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.ParallelLeagueRunner import ParallelLeagueRunner
 
 
 class TestParallelLeagueRunnerInitialization:
@@ -181,7 +181,7 @@ class TestRunSingleSimulation:
 
     def test_measured_config_packed_into_process_sim_args(self):
         """AC1/AC4 wiring: measured_config_dict packed into process-mode sim_args tuple."""
-        from simulation.win_rate.ParallelLeagueRunner import _run_simulation_process
+        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.ParallelLeagueRunner import _run_simulation_process
 
         with patch('simulation.win_rate.ParallelLeagueRunner.SimulatedLeague') as mock_league_class:
             mock_league = Mock()

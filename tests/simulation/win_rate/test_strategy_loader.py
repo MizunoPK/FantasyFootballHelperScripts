@@ -11,7 +11,7 @@ import json
 import pytest
 
 # Local
-from simulation.win_rate.strategy_loader import load_valid_strategies, validate_strategy
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.strategy_loader import load_valid_strategies, validate_strategy
 
 # A valid 15-entry DRAFT_ORDER (copied from data/configs/league_config.json).
 VALID_DRAFT_ORDER = [

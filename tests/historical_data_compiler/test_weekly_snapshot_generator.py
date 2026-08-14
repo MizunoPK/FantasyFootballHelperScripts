@@ -13,12 +13,12 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from historical_data_compiler.weekly_snapshot_generator import (
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.historical_data_compiler.weekly_snapshot_generator import (
     WeeklySnapshotGenerator,
     generate_weekly_snapshots,
 )
-from historical_data_compiler.constants import VALIDATION_WEEKS
-from historical_data_compiler.player_data_fetcher import PlayerData
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.historical_data_compiler.constants import VALIDATION_WEEKS
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.historical_data_compiler.player_data_fetcher import PlayerData
 
 
 @pytest.fixture

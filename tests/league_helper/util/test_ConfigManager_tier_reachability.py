@@ -25,7 +25,7 @@ from pathlib import Path
 
 import pytest
 
-from league_helper.util.ConfigManager import MULTIPLIER_INPUT_DOMAINS, ConfigManager
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.ConfigManager import MULTIPLIER_INPUT_DOMAINS, ConfigManager
 
 
 LEAGUE_FIXTURE = Path("tests/fixtures/league/league_config.json")

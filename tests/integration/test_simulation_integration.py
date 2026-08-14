@@ -17,13 +17,13 @@ import json
 
 project_root = Path(__file__).parent.parent.parent
 
-import simulation.win_rate.CombinationEvaluator as ce_module
-from simulation.shared.ConfigGenerator import ConfigGenerator
-from simulation.win_rate.DraftStrategyOrchestrator import DraftStrategyOrchestrator
-from simulation.win_rate.WinRateMetaDataManager import WinRateMetaDataManager
-from simulation.win_rate.ParallelLeagueRunner import ParallelLeagueRunner
-from simulation.shared.ResultsManager import ResultsManager
-from simulation.shared.ConfigPerformance import ConfigPerformance
+import FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.CombinationEvaluator as ce_module
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.shared.ConfigGenerator import ConfigGenerator
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.DraftStrategyOrchestrator import DraftStrategyOrchestrator
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.WinRateMetaDataManager import WinRateMetaDataManager
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.ParallelLeagueRunner import ParallelLeagueRunner
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.shared.ResultsManager import ResultsManager
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.shared.ConfigPerformance import ConfigPerformance
 
 # D4.3/UD7: the frozen committed fixture config tree the DraftStrategyOrchestrator constructions
 # below score against, so neither reads the live data/configs/league_config.json. Provenance and

@@ -9,9 +9,9 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from historical_data_compiler.json_exporter import generate_json_snapshots
-from historical_data_compiler.player_data_fetcher import PlayerData
-from historical_data_compiler.constants import REGULAR_SEASON_WEEKS
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.historical_data_compiler.json_exporter import generate_json_snapshots
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.historical_data_compiler.player_data_fetcher import PlayerData
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.historical_data_compiler.constants import REGULAR_SEASON_WEEKS
 
 
 def _make_player(position: str) -> PlayerData:

@@ -8,8 +8,8 @@ import asyncio
 import pytest
 from unittest.mock import patch, AsyncMock, Mock
 
-from player_data_fetcher.player_data_fetcher_main import main
-from player_data_fetcher.player_data_models import ProjectionData
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.player_data_fetcher.player_data_fetcher_main import main
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.player_data_fetcher.player_data_models import ProjectionData
 
 
 class TestPlayerDataFetcherMainIntegration:

@@ -15,7 +15,7 @@ from typing import Dict, Optional, Any
 
 import httpx
 
-from utils.LoggingManager import get_logger
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.LoggingManager import get_logger
 
 
 class CoordinatesManager:

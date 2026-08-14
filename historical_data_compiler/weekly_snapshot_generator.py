@@ -27,7 +27,7 @@ from .player_data_fetcher import PlayerData, PLAYERS_CSV_COLUMNS
 
 import sys
 sys.path.append(str(Path(__file__).parent.parent))
-from utils.LoggingManager import get_logger
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.LoggingManager import get_logger
 
 
 class WeeklySnapshotGenerator:

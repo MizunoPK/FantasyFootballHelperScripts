@@ -13,7 +13,7 @@ from unittest.mock import Mock, AsyncMock, patch
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from historical_data_compiler.game_data_fetcher import (
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.historical_data_compiler.game_data_fetcher import (
     GameData,
     GameDataFetcher,
     GAME_DATA_CSV_COLUMNS,

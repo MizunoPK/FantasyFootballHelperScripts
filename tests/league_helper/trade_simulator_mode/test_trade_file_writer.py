@@ -9,9 +9,9 @@ Author: Kai Mizuno
 
 import pytest
 from unittest.mock import Mock, MagicMock, patch, mock_open
-from league_helper.trade_simulator_mode.trade_file_writer import TradeFileWriter
-from league_helper.trade_simulator_mode.TradeSimTeam import TradeSimTeam
-from league_helper.trade_simulator_mode.TradeSnapshot import TradeSnapshot
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.trade_simulator_mode.trade_file_writer import TradeFileWriter
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.trade_simulator_mode.TradeSimTeam import TradeSimTeam
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.trade_simulator_mode.TradeSnapshot import TradeSnapshot
 
 
 @pytest.fixture

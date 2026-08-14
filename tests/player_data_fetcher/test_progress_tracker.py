@@ -11,7 +11,7 @@ import pytest
 from unittest.mock import Mock
 import time
 
-from player_data_fetcher.progress_tracker import ProgressTracker
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.player_data_fetcher.progress_tracker import ProgressTracker
 
 
 class TestProgressTrackerInit:

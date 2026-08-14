@@ -24,19 +24,19 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 # Local
-from simulation.win_rate import config_promoter
-from simulation.win_rate.config_promoter import (
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.tests.simulation.win_rate import config_promoter
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.config_promoter import (
     compute_promotion,
     promote_best_combination,
     CLUSTER_SE_INFLATION,
     DEFAULT_CONFIDENCE,
     DEFAULT_MIN_SHORTLIST_GAMES,
 )
-from simulation.win_rate.config_overrides import extract_draft_param_values
-from simulation.win_rate.paired_comparison import PairedComparisonResult
-from simulation.win_rate.SweepResultsManager import SweepResultsManager
-from simulation.win_rate.sweep_summary import wilson_interval
-from utils.error_handler import ConfigurationError, FileOperationError
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.config_overrides import extract_draft_param_values
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.paired_comparison import PairedComparisonResult
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.SweepResultsManager import SweepResultsManager
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.sweep_summary import wilson_interval
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.error_handler import ConfigurationError, FileOperationError
 
 MODULE = "simulation.win_rate.config_promoter"
 

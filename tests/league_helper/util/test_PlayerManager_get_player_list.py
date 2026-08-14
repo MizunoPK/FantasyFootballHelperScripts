@@ -22,8 +22,8 @@ import inspect
 import pytest
 from unittest.mock import Mock
 
-from league_helper.util.PlayerManager import PlayerManager
-from utils.FantasyPlayer import FantasyPlayer
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.PlayerManager import PlayerManager
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.FantasyPlayer import FantasyPlayer
 
 
 # FIXTURES / HELPERS

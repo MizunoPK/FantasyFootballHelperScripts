@@ -12,8 +12,8 @@ import pytest
 from pathlib import Path
 from unittest.mock import patch
 
-import run_player_fetcher
-from run_player_fetcher import parse_args, create_settings_dict
+import FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.run_player_fetcher as run_player_fetcher
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.run_player_fetcher import parse_args, create_settings_dict
 
 
 
@@ -123,7 +123,7 @@ class TestRunnerIntegration:
 
     def test_runner_imports_main_correctly(self):
         """I-6: run_player_fetcher module imports main from player_data_fetcher_main"""
-        from run_player_fetcher import main  # noqa: F401
+        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.run_player_fetcher import main  # noqa: F401
         assert callable(main)
 
 

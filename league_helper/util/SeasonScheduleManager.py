@@ -10,8 +10,8 @@ Author: Kai Mizuno
 
 from pathlib import Path
 from typing import Optional, List, Dict
-from utils.LoggingManager import get_logger
-from utils.csv_utils import read_csv_with_validation
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.LoggingManager import get_logger
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.csv_utils import read_csv_with_validation
 
 
 class SeasonScheduleManager:

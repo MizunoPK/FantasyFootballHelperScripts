@@ -27,7 +27,7 @@ class TestAccuracySimulationCLIFlags:
 
     def test_argparse_has_enable_log_file_flag(self):
         """Test 1.1: Verify --enable-log-file argument exists in argparse configuration"""
-        import run_accuracy_simulation
+        import FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.run_accuracy_simulation as run_accuracy_simulation
 
         result = subprocess.run(
             [sys.executable, str(project_root / "run_accuracy_simulation.py"), "--help"],
@@ -100,7 +100,7 @@ class TestAccuracySimulationCLIFlags:
 
     def test_logging_to_file_constant_changed_to_false(self):
         """Test 1.8: Verify LOGGING_TO_FILE constant is False (line 54)"""
-        import run_accuracy_simulation
+        import FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.run_accuracy_simulation as run_accuracy_simulation
 
         assert hasattr(run_accuracy_simulation, 'LOGGING_TO_FILE')
         assert run_accuracy_simulation.LOGGING_TO_FILE == False
@@ -118,7 +118,7 @@ class TestAccuracySimulationFeature01Integration:
         with patch('sys.argv', ['run_accuracy_simulation.py', '--enable-log-file']):
             with patch('run_accuracy_simulation.AccuracySimulationManager') as mock_manager:
 
-                import run_accuracy_simulation
+                import FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.run_accuracy_simulation as run_accuracy_simulation
                 import importlib
                 importlib.reload(run_accuracy_simulation)
 
@@ -131,7 +131,7 @@ class TestAccuracySimulationFeature01Integration:
         with patch('sys.argv', ['run_accuracy_simulation.py']):
             with patch('run_accuracy_simulation.AccuracySimulationManager') as mock_manager:
                 with patch('run_accuracy_simulation.main'):
-                    import run_accuracy_simulation
+                    import FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.run_accuracy_simulation as run_accuracy_simulation
 
                     assert run_accuracy_simulation.LOG_NAME == "accuracy_simulation"
 
@@ -142,7 +142,7 @@ class TestAccuracySimulationFeature01Integration:
 
         with patch('sys.argv', ['run_accuracy_simulation.py', '--enable-log-file']):
             with patch('run_accuracy_simulation.main'):
-                import run_accuracy_simulation
+                import FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.run_accuracy_simulation as run_accuracy_simulation
 
 
 
@@ -152,7 +152,7 @@ class TestAccuracySimulationDEBUGLogQuality:
 
     def test_queue_depth_logged_with_worker_activity(self):
         """Test 3.6: Verify worker messages include queue depth info"""
-        from simulation.accuracy.ParallelAccuracyRunner import ParallelAccuracyRunner
+        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.accuracy.ParallelAccuracyRunner import ParallelAccuracyRunner
 
         import inspect
         source = inspect.getsource(ParallelAccuracyRunner.evaluate_configs_parallel)
@@ -162,7 +162,7 @@ class TestAccuracySimulationDEBUGLogQuality:
 
     def test_no_debug_logs_in_tight_loops(self):
         """Test 3.7: Verify no DEBUG logs inside tight loops (performance concern)"""
-        from simulation.accuracy.ParallelAccuracyRunner import ParallelAccuracyRunner
+        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.accuracy.ParallelAccuracyRunner import ParallelAccuracyRunner
 
         import inspect
         source = inspect.getsource(ParallelAccuracyRunner.evaluate_configs_parallel)
@@ -171,7 +171,7 @@ class TestAccuracySimulationDEBUGLogQuality:
 
     def test_debug_logs_include_context(self):
         """Test 3.8: Verify DEBUG logs include context (not just "processing X")"""
-        from simulation.accuracy.AccuracySimulationManager import AccuracySimulationManager
+        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.accuracy.AccuracySimulationManager import AccuracySimulationManager
 
         import inspect
         source = inspect.getsource(AccuracySimulationManager)
@@ -194,7 +194,7 @@ class TestAccuracySimulationDEBUGLogQuality:
 
     def test_accuracy_simulation_manager_debug_logs(self):
         """Test 3.10: Verify AccuracySimulationManager has appropriate DEBUG logs (58 calls)"""
-        from simulation.accuracy.AccuracySimulationManager import AccuracySimulationManager
+        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.accuracy.AccuracySimulationManager import AccuracySimulationManager
 
         import inspect
         source = inspect.getsource(AccuracySimulationManager)
@@ -205,7 +205,7 @@ class TestAccuracySimulationDEBUGLogQuality:
 
     def test_accuracy_results_manager_debug_logs(self):
         """Test 3.11: Verify AccuracyResultsManager has appropriate DEBUG logs (23 calls)"""
-        from simulation.accuracy.AccuracyResultsManager import AccuracyResultsManager
+        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.accuracy.AccuracyResultsManager import AccuracyResultsManager
 
         import inspect
         source = inspect.getsource(AccuracyResultsManager)
@@ -214,7 +214,7 @@ class TestAccuracySimulationDEBUGLogQuality:
 
     def test_accuracy_calculator_debug_logs(self):
         """Test 3.12: Verify AccuracyCalculator has appropriate DEBUG logs (19 calls)"""
-        from simulation.accuracy.AccuracyCalculator import AccuracyCalculator
+        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.accuracy.AccuracyCalculator import AccuracyCalculator
 
         import inspect
         source = inspect.getsource(AccuracyCalculator)
@@ -224,7 +224,7 @@ class TestAccuracySimulationDEBUGLogQuality:
 
     def test_parallel_accuracy_runner_debug_logs(self):
         """Test 3.13: Verify ParallelAccuracyRunner has appropriate DEBUG logs (11 calls + worker tracing)"""
-        from simulation.accuracy.ParallelAccuracyRunner import ParallelAccuracyRunner
+        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.accuracy.ParallelAccuracyRunner import ParallelAccuracyRunner
 
         import inspect
         source = inspect.getsource(ParallelAccuracyRunner)
@@ -234,7 +234,7 @@ class TestAccuracySimulationDEBUGLogQuality:
 
     def test_message_decoration_preserved(self):
         """Test 3.14: Verify no excessive message decoration removed (per Q3)"""
-        from simulation.accuracy.ParallelAccuracyRunner import ParallelAccuracyRunner
+        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.accuracy.ParallelAccuracyRunner import ParallelAccuracyRunner
 
         import inspect
         source = inspect.getsource(ParallelAccuracyRunner)
@@ -244,7 +244,7 @@ class TestAccuracySimulationDEBUGLogQuality:
 
     def test_no_excessive_variable_logging(self):
         """Test 3.15: Verify no logging for every variable assignment (quality criteria)"""
-        from simulation.accuracy.AccuracySimulationManager import AccuracySimulationManager
+        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.accuracy.AccuracySimulationManager import AccuracySimulationManager
 
         import inspect
         source = inspect.getsource(AccuracySimulationManager)
@@ -263,7 +263,7 @@ class TestAccuracySimulationINFOLogQuality:
 
     def test_info_logs_show_major_phase_transitions(self):
         """Test 4.2: Verify major phases logged (initialization, baseline load, simulation, results)"""
-        from simulation.accuracy.AccuracySimulationManager import AccuracySimulationManager
+        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.accuracy.AccuracySimulationManager import AccuracySimulationManager
 
         import inspect
         source = inspect.getsource(AccuracySimulationManager)
@@ -272,7 +272,7 @@ class TestAccuracySimulationINFOLogQuality:
 
     def test_info_logs_show_significant_outcomes(self):
         """Test 4.3: Verify outcomes logged (configs evaluated, best config found, results saved)"""
-        from simulation.accuracy.AccuracyResultsManager import AccuracyResultsManager
+        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.accuracy.AccuracyResultsManager import AccuracyResultsManager
 
         import inspect
         source = inspect.getsource(AccuracyResultsManager)
@@ -282,7 +282,7 @@ class TestAccuracySimulationINFOLogQuality:
 
     def test_info_logs_show_completion_summary(self):
         """Test 4.8: Verify completion summary logged (total time, configs evaluated, best result)"""
-        from simulation.accuracy.AccuracySimulationManager import AccuracySimulationManager
+        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.accuracy.AccuracySimulationManager import AccuracySimulationManager
 
         import inspect
         source = inspect.getsource(AccuracySimulationManager.run_both)
@@ -297,7 +297,7 @@ class TestAccuracySimulationERRORLogQuality:
 
     def test_error_log_baseline_config_not_found(self):
         """Test 5.1: Verify ERROR logged when baseline config folder missing"""
-        import run_accuracy_simulation
+        import FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.run_accuracy_simulation as run_accuracy_simulation
 
         with open(project_root / 'run_accuracy_simulation.py', 'r') as f:
             source = f.read()
@@ -322,7 +322,7 @@ class TestAccuracySimulationERRORLogQuality:
 
     def test_error_log_parallel_execution_failure(self):
         """Test 5.5: Verify ERROR logged when parallel execution fails"""
-        from simulation.accuracy.ParallelAccuracyRunner import ParallelAccuracyRunner
+        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.accuracy.ParallelAccuracyRunner import ParallelAccuracyRunner
 
         import inspect
         source = inspect.getsource(ParallelAccuracyRunner)
@@ -457,7 +457,7 @@ class TestPromoteCLIFlag:
              patch('sys.argv', ['run_accuracy_simulation.py',
                                 '--promote', str(optimal)]):
             mock_promote.return_value = None
-            import run_accuracy_simulation
+            import FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.run_accuracy_simulation as run_accuracy_simulation
             try:
                 run_accuracy_simulation.main()
             except SystemExit as e:
@@ -482,7 +482,7 @@ class TestPromoteCLIFlag:
             mock_instance.run_both.return_value = optimal
             mock_instance.results_manager.get_summary.return_value = "Summary"
             mock_cls.return_value = mock_instance
-            import run_accuracy_simulation
+            import FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.run_accuracy_simulation as run_accuracy_simulation
             try:
                 run_accuracy_simulation.main()
             except SystemExit:
@@ -534,7 +534,7 @@ class TestF03CliAndSummaryEnhancements:
 
     def test_get_summary_with_overall_metrics_shows_pairwise(self):
         """Test: get_summary() with overall_metrics present shows Pairwise accuracy"""
-        from simulation.accuracy.AccuracyResultsManager import AccuracyResultsManager
+        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.accuracy.AccuracyResultsManager import AccuracyResultsManager
 
         with tempfile.TemporaryDirectory() as tmpdir:
             manager = AccuracyResultsManager(
@@ -556,7 +556,7 @@ class TestF03CliAndSummaryEnhancements:
 
     def test_get_summary_without_overall_metrics_falls_back_to_mae(self):
         """Test: get_summary() with overall_metrics=None falls back to MAE-only"""
-        from simulation.accuracy.AccuracyResultsManager import AccuracyResultsManager
+        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.accuracy.AccuracyResultsManager import AccuracyResultsManager
 
         with tempfile.TemporaryDirectory() as tmpdir:
             manager = AccuracyResultsManager(
@@ -575,7 +575,7 @@ class TestF03CliAndSummaryEnhancements:
     def test_load_folder_metrics_reads_ranking_metrics(self):
         """Test: load_folder_metrics() reads ranking_metrics from folder JSON files"""
         import json as json_module
-        import run_accuracy_simulation
+        import FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.run_accuracy_simulation as run_accuracy_simulation
 
         with tempfile.TemporaryDirectory() as tmpdir:
             folder = Path(tmpdir)
@@ -595,7 +595,7 @@ class TestF03CliAndSummaryEnhancements:
     def test_load_folder_metrics_handles_missing_ranking_metrics(self):
         """Test: load_folder_metrics() returns None for horizon with no ranking_metrics"""
         import json as json_module
-        import run_accuracy_simulation
+        import FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.run_accuracy_simulation as run_accuracy_simulation
 
         with tempfile.TemporaryDirectory() as tmpdir:
             folder = Path(tmpdir)
@@ -664,7 +664,7 @@ class TestHorizonLabelDelegationGuard:
 
     def test_cli_banner_delegates_to_the_shared_label_builders(self):
         import inspect
-        import run_accuracy_simulation
+        import FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.run_accuracy_simulation as run_accuracy_simulation
 
         source = inspect.getsource(run_accuracy_simulation.main)
 
@@ -685,7 +685,7 @@ class TestHorizonLabelDelegationGuard:
         that is not a re-inlined label.
         """
         import inspect
-        import run_accuracy_simulation
+        import FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.run_accuracy_simulation as run_accuracy_simulation
 
         source = inspect.getsource(run_accuracy_simulation.main)
 
@@ -710,7 +710,7 @@ class TestHorizonLabelDelegationGuard:
 
     def test_manager_startup_log_delegates_to_the_shared_label_builders(self):
         import inspect
-        from simulation.accuracy.AccuracySimulationManager import AccuracySimulationManager
+        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.accuracy.AccuracySimulationManager import AccuracySimulationManager
 
         source = inspect.getsource(AccuracySimulationManager.__init__)
 
@@ -725,7 +725,7 @@ class TestHorizonLabelDelegationGuard:
 
     def test_manager_startup_log_reinlines_no_horizon_count_literal(self):
         import inspect
-        from simulation.accuracy.AccuracySimulationManager import AccuracySimulationManager
+        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.accuracy.AccuracySimulationManager import AccuracySimulationManager
 
         source = inspect.getsource(AccuracySimulationManager.__init__)
 
@@ -748,7 +748,7 @@ class TestHorizonLabelDelegationGuard:
 
     def test_parallel_runner_evaluation_log_delegates_to_horizon_count(self):
         import inspect
-        from simulation.accuracy.ParallelAccuracyRunner import ParallelAccuracyRunner
+        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.accuracy.ParallelAccuracyRunner import ParallelAccuracyRunner
 
         source = inspect.getsource(ParallelAccuracyRunner.evaluate_configs_parallel)
 
@@ -764,7 +764,7 @@ class TestHorizonLabelDelegationGuard:
     def test_parallel_runner_no_longer_carries_its_own_week_ranges_copy(self):
         """T77 AC3: the function-local duplicate is the root of the drift."""
         import inspect
-        from simulation.accuracy import ParallelAccuracyRunner as par_module
+        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.tests.simulation.accuracy import ParallelAccuracyRunner as par_module
 
         source = inspect.getsource(par_module)
 
@@ -806,7 +806,7 @@ class TestHorizonCountAgreement:
         return paths
 
     def test_no_engine_site_disagrees_with_horizon_count(self):
-        from simulation.accuracy.horizon_labels import HORIZON_COUNT
+        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.accuracy.horizon_labels import HORIZON_COUNT
 
         disagreeing = []
         for path in self._engine_sources():
@@ -834,7 +834,7 @@ class TestHorizonCountAgreement:
 
     def test_count_agreement_scan_detects_a_planted_disagreement(self):
         """The guard must be discriminating, not merely present."""
-        from simulation.accuracy.horizon_labels import HORIZON_COUNT
+        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.accuracy.horizon_labels import HORIZON_COUNT
 
         planted = 'evaluated across all 5 horizons for every config'
 
@@ -852,21 +852,21 @@ class TestBannerOutputUnchanged:
     """
 
     def test_cli_banner_line_one_is_byte_identical(self):
-        from simulation.accuracy.horizon_labels import candidate_values_label
+        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.accuracy.horizon_labels import candidate_values_label
 
         assert candidate_values_label(6) == (
             'Candidate values per parameter per horizon: 6'
         )
 
     def test_cli_banner_line_two_is_byte_identical(self):
-        from simulation.accuracy.horizon_labels import configs_per_param_label
+        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.accuracy.horizon_labels import configs_per_param_label
 
         assert configs_per_param_label(6, 24) == (
             'Configs per horizon-specific parameter: 6 × 4 horizons = 24'
         )
 
     def test_manager_startup_line_is_byte_identical(self):
-        from simulation.accuracy.horizon_labels import (
+        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.accuracy.horizon_labels import (
             candidate_values_label,
             configs_per_param_label,
         )
@@ -896,7 +896,7 @@ class TestParallelRunnerEvaluationLogLine:
         import logging
         from unittest.mock import patch
 
-        from simulation.accuracy.ParallelAccuracyRunner import ParallelAccuracyRunner
+        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.accuracy.ParallelAccuracyRunner import ParallelAccuracyRunner
 
         runner = ParallelAccuracyRunner(
             data_folder=tmp_path,
@@ -1024,7 +1024,7 @@ class TestD84ExcludeLowCoverageWeeksFlag:
             mock_instance.run_both.return_value = folder
             mock_instance.results_manager.get_summary.return_value = "Summary"
             mock_cls.return_value = mock_instance
-            import run_accuracy_simulation
+            import FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.run_accuracy_simulation as run_accuracy_simulation
             try:
                 run_accuracy_simulation.main()
             except SystemExit:

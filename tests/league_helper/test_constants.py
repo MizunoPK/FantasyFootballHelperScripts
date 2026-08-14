@@ -9,7 +9,7 @@ Author: Kai Mizuno
 """
 
 import pytest
-from league_helper import constants
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.tests.league_helper import constants
 
 
 class TestLoggingConstants:

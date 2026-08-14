@@ -11,7 +11,7 @@ Author: Kai Mizuno
 """
 from unittest.mock import MagicMock, patch
 
-from run_win_rate_simulation import _build_parser, main
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.run_win_rate_simulation import _build_parser, main
 
 
 class TestNaiveOpponentsFlagParsing:

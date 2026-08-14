@@ -9,7 +9,7 @@ Author: Kai Mizuno
 """
 
 # Local
-from simulation.win_rate.sweep_summary import (
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.sweep_summary import (
     rank_combinations,
     format_summary,
     shape_report_json,

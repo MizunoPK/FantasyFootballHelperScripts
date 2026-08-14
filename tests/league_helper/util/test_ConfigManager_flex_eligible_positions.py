@@ -10,7 +10,7 @@ import pytest
 import json
 from unittest.mock import Mock
 
-from league_helper.util.ConfigManager import ConfigManager
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.ConfigManager import ConfigManager
 
 
 @pytest.fixture

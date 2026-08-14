@@ -17,13 +17,13 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 # Local
-from historical_data_compiler.constants import (
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.historical_data_compiler.constants import (
     POSITION_JSON_FILES,
     REGULAR_SEASON_WEEKS,
     VALIDATION_WEEKS,
     WEEKS_FOLDER,
 )
-from simulation.shared.sim_data_coverage import (
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.shared.sim_data_coverage import (
     BYE_CONVENTION,
     PER_SEASON_COVERAGE_FLOOR_PCT,
     PER_WEEK_COVERAGE_FLOOR_PCT,

@@ -16,8 +16,8 @@ Author: Kai Mizuno
 
 from typing import Dict, Any, List
 
-from league_helper.trade_simulator_mode.TradeSimTeam import TradeSimTeam
-from league_helper.util.ScoredPlayer import ScoredPlayer
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.trade_simulator_mode.TradeSimTeam import TradeSimTeam
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.ScoredPlayer import ScoredPlayer
 
 class TradeSnapshot:
     """

@@ -12,7 +12,7 @@ import json
 import tempfile
 from unittest.mock import Mock, MagicMock, patch, mock_open, call
 
-from simulation.win_rate.SimulatedLeague import SimulatedLeague
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.SimulatedLeague import SimulatedLeague
 
 
 
@@ -634,7 +634,7 @@ class TestJSONLoading:
         for pos in ['rb', 'wr', 'te', 'k', 'dst']:
             (week_folder / f"{pos}_data.json").write_text(json.dumps({f"{pos}_data": []}))
 
-        from simulation.win_rate.SimulatedLeague import SimulatedLeague
+        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.SimulatedLeague import SimulatedLeague
 
         config = {"config_name": "test", "description": "test", "parameters": {"num_teams": 2, "draft_rounds": 1}}
         data_folder = tmp_path / "data"
@@ -678,7 +678,7 @@ class TestJSONLoading:
         for pos in ['qb', 'wr', 'te', 'k', 'dst']:
             (week_folder / f"{pos}_data.json").write_text(json.dumps({f"{pos}_data": []}))
 
-        from simulation.win_rate.SimulatedLeague import SimulatedLeague
+        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.SimulatedLeague import SimulatedLeague
 
         config = {"config_name": "test", "description": "test", "parameters": {"num_teams": 2, "draft_rounds": 1}}
         data_folder = tmp_path / "data"
@@ -727,7 +727,7 @@ class TestJSONLoading:
         for pos in ['qb', 'rb', 'te', 'k', 'dst']:
             (week_folder / f"{pos}_data.json").write_text(json.dumps({f"{pos}_data": []}))
 
-        from simulation.win_rate.SimulatedLeague import SimulatedLeague
+        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.SimulatedLeague import SimulatedLeague
 
         config = {"config_name": "test", "description": "test", "parameters": {"num_teams": 2, "draft_rounds": 1}}
         data_folder = tmp_path / "data"
@@ -766,7 +766,7 @@ class TestJSONLoading:
             ]
             (week_folder / f"{pos}_data.json").write_text(json.dumps({f"{pos}_data": data}))
 
-        from simulation.win_rate.SimulatedLeague import SimulatedLeague
+        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.SimulatedLeague import SimulatedLeague
 
         config = {"config_name": "test", "description": "test", "parameters": {"num_teams": 2, "draft_rounds": 1}}
         data_folder = tmp_path / "data"
@@ -799,7 +799,7 @@ class TestJSONLoading:
                     "locked": False, "projected_points": [10.0] * 17, "actual_points": [11.0] * 17}]
         (week_folder / "qb_data.json").write_text(json.dumps({"qb_data": qb_data}))
 
-        from simulation.win_rate.SimulatedLeague import SimulatedLeague
+        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.SimulatedLeague import SimulatedLeague
 
         config = {"config_name": "test", "description": "test", "parameters": {"num_teams": 2, "draft_rounds": 1}}
         data_folder = tmp_path / "data"
@@ -829,7 +829,7 @@ class TestJSONLoading:
         for pos in ['rb', 'wr', 'te', 'k', 'dst']:
             (week_folder / f"{pos}_data.json").write_text(json.dumps({f"{pos}_data": []}))
 
-        from simulation.win_rate.SimulatedLeague import SimulatedLeague
+        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.SimulatedLeague import SimulatedLeague
 
         config = {"config_name": "test", "description": "test", "parameters": {"num_teams": 2, "draft_rounds": 1}}
         data_folder = tmp_path / "data"
@@ -869,7 +869,7 @@ class TestJSONLoading:
         for pos in ['qb', 'rb', 'wr', 'k', 'dst']:
             (week_folder / f"{pos}_data.json").write_text(json.dumps({f"{pos}_data": []}))
 
-        from simulation.win_rate.SimulatedLeague import SimulatedLeague
+        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.SimulatedLeague import SimulatedLeague
 
         config = {"config_name": "test", "description": "test", "parameters": {"num_teams": 2, "draft_rounds": 1}}
         data_folder = tmp_path / "data"
@@ -905,7 +905,7 @@ class TestJSONLoading:
         for pos in ['qb', 'rb', 'wr', 'te', 'dst']:
             (week_folder / f"{pos}_data.json").write_text(json.dumps({f"{pos}_data": []}))
 
-        from simulation.win_rate.SimulatedLeague import SimulatedLeague
+        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.SimulatedLeague import SimulatedLeague
 
         config = {"config_name": "test", "description": "test", "parameters": {"num_teams": 2, "draft_rounds": 1}}
         data_folder = tmp_path / "data"
@@ -972,7 +972,7 @@ class TestWeek17EdgeCase:
             (week_17 / f"{pos}_data.json").write_text(json.dumps({f"{pos}_data": []}))
             (week_18 / f"{pos}_data.json").write_text(json.dumps({f"{pos}_data": []}))
 
-        from simulation.win_rate.SimulatedLeague import SimulatedLeague
+        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.SimulatedLeague import SimulatedLeague
 
         config = {"config_name": "test", "description": "test", "parameters": {"num_teams": 2, "draft_rounds": 1}}
         data_folder = tmp_path
@@ -1019,7 +1019,7 @@ class TestWeek17EdgeCase:
             for pos in ['rb', 'wr', 'te', 'k', 'dst']:
                 (week_folder / f"{pos}_data.json").write_text(json.dumps({f"{pos}_data": []}))
 
-        from simulation.win_rate.SimulatedLeague import SimulatedLeague
+        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.SimulatedLeague import SimulatedLeague
 
         config = {"config_name": "test", "description": "test", "parameters": {"num_teams": 2, "draft_rounds": 1}}
         data_folder = tmp_path
@@ -1134,7 +1134,7 @@ class TestEdgeCaseBehavior:
         for pos in ['qb', 'rb', 'wr', 'te', 'k']:
             (week_folder / f"{pos}_data.json").write_text(json.dumps({f"{pos}_data": []}))
 
-        from simulation.win_rate.SimulatedLeague import SimulatedLeague
+        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.SimulatedLeague import SimulatedLeague
 
         config = {"config_name": "test", "description": "test", "parameters": {"num_teams": 2, "draft_rounds": 1}}
         data_folder = tmp_path / "data"

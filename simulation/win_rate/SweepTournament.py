@@ -26,9 +26,9 @@ from statistics import NormalDist
 from typing import Callable, Dict, List, Optional, Tuple
 
 # Local
-from utils.LoggingManager import get_logger
-from utils.error_handler import ConfigurationError
-from simulation.win_rate.param_value_generation import generate_candidate_values, DRAFT_SWEEP_PARAMS
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.LoggingManager import get_logger
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.error_handler import ConfigurationError
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.param_value_generation import generate_candidate_values, DRAFT_SWEEP_PARAMS
 
 # Significance-gate parameters (T58/D1/D3). A trial param value is adopted only when its FRESH
 # head-to-head win rate (the single evaluation just run against the incumbent, T54) is both

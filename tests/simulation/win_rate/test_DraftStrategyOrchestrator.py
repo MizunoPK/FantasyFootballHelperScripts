@@ -11,7 +11,7 @@ import json
 from unittest.mock import Mock, patch
 
 # Local
-from simulation.win_rate.DraftStrategyOrchestrator import DraftStrategyOrchestrator
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.DraftStrategyOrchestrator import DraftStrategyOrchestrator
 
 MODULE = "simulation.win_rate.DraftStrategyOrchestrator"
 

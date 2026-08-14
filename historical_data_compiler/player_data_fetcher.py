@@ -31,7 +31,7 @@ from .constants import (
     normalize_team_abbrev,
 )
 
-from utils.LoggingManager import get_logger
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.LoggingManager import get_logger
 
 
 PLAYERS_CSV_COLUMNS = [

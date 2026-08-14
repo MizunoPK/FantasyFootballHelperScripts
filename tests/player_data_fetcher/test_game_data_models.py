@@ -9,7 +9,7 @@ Author: Kai Mizuno
 import pytest
 from pydantic import ValidationError
 
-from player_data_fetcher.game_data_models import GameData, GAME_DATA_CSV_COLUMNS
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.player_data_fetcher.game_data_models import GameData, GAME_DATA_CSV_COLUMNS
 
 
 class TestGameDataInitialization:

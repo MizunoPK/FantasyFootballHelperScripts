@@ -11,8 +11,8 @@ import pytest
 from unittest.mock import Mock, patch
 import tempfile
 import csv
-from league_helper.util.GameDataManager import GameDataManager
-from league_helper.util.upcoming_game_model import UpcomingGame
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.GameDataManager import GameDataManager
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.upcoming_game_model import UpcomingGame
 
 
 class TestGameDataManagerInitialization:

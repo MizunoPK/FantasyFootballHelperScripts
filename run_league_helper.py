@@ -14,7 +14,7 @@ Arguments:
 Author: Kai Mizuno
 """
 
-from league_helper.LeagueHelperManager import main
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.LeagueHelperManager import main
 
 
 if __name__ == "__main__":

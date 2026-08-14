@@ -13,8 +13,8 @@ Author: Kai Mizuno
 import copy
 
 # Local
-from simulation.shared.config_constants import BASE_CONFIG_PARAMS, WEEK_SPECIFIC_PARAMS
-from simulation.shared.config_filters import extract_base_params
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.shared.config_constants import BASE_CONFIG_PARAMS, WEEK_SPECIFIC_PARAMS
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.shared.config_filters import extract_base_params
 
 
 _BASE_DESCRIPTION = 'Base configuration (non-week-specific parameters)'

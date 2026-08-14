@@ -21,13 +21,13 @@ Author: Kai Mizuno
 
 from typing import Dict, List
 
-import league_helper.constants as Constants
-from league_helper.util.ConfigManager import ConfigManager
-from league_helper.util.PlayerManager import PlayerManager
-from league_helper.util.TeamDataManager import TeamDataManager
-from league_helper.util.ScoredPlayer import ScoredPlayer
-from utils.LoggingManager import get_logger
-from utils.FantasyPlayer import FantasyPlayer
+import FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.constants as Constants
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.ConfigManager import ConfigManager
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.PlayerManager import PlayerManager
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.TeamDataManager import TeamDataManager
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.ScoredPlayer import ScoredPlayer
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.LoggingManager import get_logger
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.FantasyPlayer import FantasyPlayer
 
 class AddToRosterModeManager:
     """

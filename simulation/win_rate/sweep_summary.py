@@ -33,10 +33,10 @@ from statistics import NormalDist
 from typing import Dict, List, Optional, Tuple
 
 # Local
-from simulation.win_rate.param_value_generation import DRAFT_SWEEP_PARAMS
-from simulation.win_rate.SweepTournament import DEFAULT_CONFIDENCE
-from utils.LoggingManager import get_logger
-from utils.error_handler import error_context, FileOperationError
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.param_value_generation import DRAFT_SWEEP_PARAMS
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.SweepTournament import DEFAULT_CONFIDENCE
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.LoggingManager import get_logger
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.error_handler import error_context, FileOperationError
 
 logger = get_logger()
 

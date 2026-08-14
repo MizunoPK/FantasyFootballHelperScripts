@@ -26,14 +26,14 @@ from typing import Dict, List
 
 import pandas as pd
 
-from utils.FantasyPlayer import FantasyPlayer
-from utils.LoggingManager import setup_logger, get_logger
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.FantasyPlayer import FantasyPlayer
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.LoggingManager import setup_logger, get_logger
 
-from player_data_fetcher.player_data_models import ScoringFormat, ProjectionData
-from player_data_fetcher.espn_client import ESPNClient
-from player_data_fetcher.player_data_exporter import DataExporter
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.player_data_fetcher.player_data_models import ScoringFormat, ProjectionData
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.player_data_fetcher.espn_client import ESPNClient
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.player_data_fetcher.player_data_exporter import DataExporter
 
-from player_data_fetcher.config import LOG_NAME, LOGGING_FORMAT, POSITION_CODES, data_root
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.player_data_fetcher.config import LOG_NAME, LOGGING_FORMAT, POSITION_CODES, data_root
 
 
 MIN_EXPECTED_PLAYER_COUNT = 100
@@ -413,7 +413,7 @@ class NFLProjectionsCollector:
             return False
 
         try:
-            from player_data_fetcher.game_data_fetcher import fetch_game_data as do_fetch_game_data
+            from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.player_data_fetcher.game_data_fetcher import fetch_game_data as do_fetch_game_data
 
             self.logger.info("Fetching game data (venue, weather, scores)...")
 

@@ -1,7 +1,7 @@
 import json
 import datetime
 import pytest
-from simulation.win_rate.WinRateMetaDataManager import WinRateMetaDataManager
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.WinRateMetaDataManager import WinRateMetaDataManager
 
 
 def test_load_no_file_creates_empty_structure(tmp_path):

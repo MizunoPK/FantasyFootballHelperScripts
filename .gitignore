@@ -241,6 +241,8 @@ data/team_rankings_cache_*.json
 # scratch file uncovered.
 **/_accuracy_candidate_dump.jsonl
 
+_internal/
+
 # >>> Shamt (managed) — generated/regenerated content; not tracked in this repo.
 #     Restore .shamt-core/ via import-shamt; regenerate host wiring via /f4-regen-framework.
 #     This block is OWNED and REWRITTEN by regenerate-framework.sh on every regen —

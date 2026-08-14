@@ -11,8 +11,8 @@ from pathlib import Path
 
 import pytest
 
-from utils.FantasyPlayer import FantasyPlayer, safe_int_conversion, safe_float_conversion
-from league_helper.util.ConfigManager import ConfigManager
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.FantasyPlayer import FantasyPlayer, safe_int_conversion, safe_float_conversion
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.ConfigManager import ConfigManager
 
 
 class TestFantasyPlayerLockedIndicator:

@@ -3,8 +3,8 @@ import datetime
 from pathlib import Path
 from typing import Dict
 
-from utils.LoggingManager import get_logger
-from utils.error_handler import create_component_error_handler, error_context, FileOperationError
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.LoggingManager import get_logger
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.error_handler import create_component_error_handler, error_context, FileOperationError
 
 logger = get_logger()
 _error_handler = create_component_error_handler("WinRateMetaDataManager")

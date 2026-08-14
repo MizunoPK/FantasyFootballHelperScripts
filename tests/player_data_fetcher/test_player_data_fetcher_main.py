@@ -14,10 +14,10 @@ from pathlib import Path
 import pandas as pd
 import datetime
 
-from player_data_fetcher.player_data_fetcher_main import (
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.player_data_fetcher.player_data_fetcher_main import (
     Settings, NFLProjectionsCollector, create_settings_from_dict
 )
-from player_data_fetcher.player_data_models import ScoringFormat, ProjectionData, PlayerProjection
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.player_data_fetcher.player_data_models import ScoringFormat, ProjectionData, PlayerProjection
 
 
 class TestSettings:
@@ -521,17 +521,17 @@ class TestKAI10Refactoring:
 
     def test_nfl_season_not_in_module_namespace(self):
         """4.1: NFL_SEASON is not imported in player_data_fetcher_main module"""
-        import player_data_fetcher.player_data_fetcher_main as player_data_fetcher_main
+        import FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.player_data_fetcher.player_data_fetcher_main as player_data_fetcher_main
         assert not hasattr(player_data_fetcher_main, 'NFL_SEASON')
 
     def test_current_nfl_week_not_in_module_namespace(self):
         """4.2: CURRENT_NFL_WEEK is not imported in player_data_fetcher_main module"""
-        import player_data_fetcher.player_data_fetcher_main as player_data_fetcher_main
+        import FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.player_data_fetcher.player_data_fetcher_main as player_data_fetcher_main
         assert not hasattr(player_data_fetcher_main, 'CURRENT_NFL_WEEK')
 
     def test_pydantic_settings_not_imported(self):
         """4.3: pydantic_settings is not imported in player_data_fetcher_main"""
-        import player_data_fetcher.player_data_fetcher_main as player_data_fetcher_main
+        import FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.player_data_fetcher.player_data_fetcher_main as player_data_fetcher_main
         assert not hasattr(player_data_fetcher_main, 'BaseSettings')
         assert not hasattr(player_data_fetcher_main, 'SettingsConfigDict')
 
@@ -576,7 +576,7 @@ class TestKAI10Refactoring:
 
     def test_removed_config_constants_not_in_module(self):
         """I-10: CLI-configurable constants are not accessible in player_data_fetcher_main"""
-        import player_data_fetcher.player_data_fetcher_main as player_data_fetcher_main
+        import FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.player_data_fetcher.player_data_fetcher_main as player_data_fetcher_main
         removed_constants = [
             'NFL_SEASON', 'CURRENT_NFL_WEEK', 'REQUEST_TIMEOUT', 'RATE_LIMIT_DELAY',
             'LOGGING_LEVEL', 'ENABLE_HISTORICAL_DATA_SAVE', 'ENABLE_GAME_DATA_FETCH',
@@ -587,7 +587,7 @@ class TestKAI10Refactoring:
 
     def test_create_settings_from_dict_function_exists(self):
         """I-11: create_settings_from_dict function exists in player_data_fetcher_main"""
-        import player_data_fetcher.player_data_fetcher_main as player_data_fetcher_main
+        import FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.player_data_fetcher.player_data_fetcher_main as player_data_fetcher_main
         assert hasattr(player_data_fetcher_main, 'create_settings_from_dict')
         assert callable(player_data_fetcher_main.create_settings_from_dict)
 

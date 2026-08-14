@@ -26,7 +26,7 @@ from .game_data_fetcher import GameData
 
 import sys
 sys.path.append(str(Path(__file__).parent.parent))
-from utils.LoggingManager import get_logger
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.LoggingManager import get_logger
 
 
 TEAM_DATA_CSV_COLUMNS = [

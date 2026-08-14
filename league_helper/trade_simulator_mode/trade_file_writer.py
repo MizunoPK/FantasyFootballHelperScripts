@@ -12,9 +12,9 @@ from datetime import datetime
 import re
 
 import pandas as pd
-from utils.LoggingManager import get_logger
-from league_helper.trade_simulator_mode.TradeSnapshot import TradeSnapshot
-from league_helper.trade_simulator_mode.TradeSimTeam import TradeSimTeam
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.LoggingManager import get_logger
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.trade_simulator_mode.TradeSnapshot import TradeSnapshot
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.trade_simulator_mode.TradeSimTeam import TradeSimTeam
 
 
 class TradeFileWriter:

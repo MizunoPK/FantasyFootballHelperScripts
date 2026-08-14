@@ -32,19 +32,19 @@ import json
 from pathlib import Path
 from typing import Dict, FrozenSet, List, Optional, Tuple
 
-from utils.LoggingManager import get_logger
-from simulation.shared.ConfigGenerator import ConfigGenerator, DEFAULT_ACCURACY_SEED
-from simulation.shared.ProgressTracker import ProgressTracker
-from simulation.shared.config_cleanup import cleanup_accuracy_intermediate_folders
-from simulation.shared.sim_data_coverage import excluded_weeks_by_season
-from simulation.accuracy.AccuracyCalculator import AccuracyCalculator
-from simulation.accuracy.AccuracyResultsManager import (
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.LoggingManager import get_logger
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.shared.ConfigGenerator import ConfigGenerator, DEFAULT_ACCURACY_SEED
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.shared.ProgressTracker import ProgressTracker
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.shared.config_cleanup import cleanup_accuracy_intermediate_folders
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.shared.sim_data_coverage import excluded_weeks_by_season
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.accuracy.AccuracyCalculator import AccuracyCalculator
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.accuracy.AccuracyResultsManager import (
     AccuracyResultsManager,
     WEEK_RANGES,
     format_metric_pct,
     format_metric_corr,
 )
-from simulation.accuracy.horizon_labels import (
+from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.accuracy.horizon_labels import (
     HORIZON_COUNT,
     candidate_values_label,
     configs_per_param_label,
@@ -624,7 +624,7 @@ class AccuracySimulationManager:
                     config_metadata.append((horizon, test_idx))
 
             if self.parallel_runner is None:
-                from simulation.accuracy.ParallelAccuracyRunner import ParallelAccuracyRunner
+                from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.accuracy.ParallelAccuracyRunner import ParallelAccuracyRunner
                 self.parallel_runner = ParallelAccuracyRunner(
                     self.data_folder,
                     self.available_seasons,
