@@ -16,7 +16,6 @@
       "PRIMARY": 50,
       "SECONDARY": 50
     },
-    "DRAFT_ORDER_FILE": 24,
     "DRAFT_ORDER": [
       {
         "RB": "P",
@@ -27,12 +26,12 @@
         "RB": "S"
       },
       {
-        "RB": "P",
-        "WR": "S"
-      },
-      {
         "WR": "P",
         "RB": "S"
+      },
+      {
+        "RB": "P",
+        "WR": "S"
       },
       {
         "QB": "P",
@@ -43,12 +42,12 @@
         "FLEX": "S"
       },
       {
-        "RB": "P",
-        "WR": "S"
+        "FLEX": "P",
+        "QB": "S"
       },
       {
-        "WR": "P",
-        "RB": "S"
+        "FLEX": "P",
+        "QB": "S"
       },
       {
         "QB": "P",
@@ -59,12 +58,10 @@
         "FLEX": "S"
       },
       {
-        "RB": "P",
-        "WR": "S"
+        "FLEX": "P"
       },
       {
-        "WR": "P",
-        "RB": "S"
+        "FLEX": "P"
       },
       {
         "K": "P",
@@ -78,7 +75,7 @@
         "FLEX": "P"
       }
     ],
-    "DRAFT_NORMALIZATION_MAX_SCALE": 163,
+    "DRAFT_NORMALIZATION_MAX_SCALE": 100,
     "MAX_POSITIONS": {
       "QB": 2,
       "RB": 4,
