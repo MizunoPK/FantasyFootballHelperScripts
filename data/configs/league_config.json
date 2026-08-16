@@ -9,8 +9,8 @@
     "DIFF_POS_BYE_WEIGHT": 0.01,
     "INJURY_PENALTIES": {
       "LOW": 0,
-      "MEDIUM": 0,
-      "HIGH": 0
+      "MEDIUM": 5,
+      "HIGH": 50
     },
     "DRAFT_ORDER_BONUSES": {
       "PRIMARY": 50,
@@ -127,6 +127,8 @@
       "Saquon Deez",
       "The Eskimo Brothers",
       "Pidgin"
-    ]
+    ],
+    "NFL_TEAM_PENALTY": ["NYJ", "LV", "MIN", "TEN"],
+    "NFL_TEAM_PENALTY_WEIGHT": 0.95
   }
 }
