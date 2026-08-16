@@ -14,7 +14,7 @@
     },
     "DRAFT_ORDER_BONUSES": {
       "PRIMARY": 50,
-      "SECONDARY": 50
+      "SECONDARY": 25
     },
     "DRAFT_ORDER": [
       {
