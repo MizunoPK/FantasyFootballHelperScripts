@@ -5,36 +5,51 @@ This module contains Pydantic v2 data models for the ESPN authenticated league-d
 payload (`draftDetail.picks[]`, `teams[]`, `settings.draftSettings`) from the `mDraftDetail` +
 `mTeam` view pair, plus model-level semantic validation of that payload's cross-row invariants.
 
+**Envelope ownership decision.** This module owns unwrapping the `draftDetail` / `settings`
+payload nesting: `LeagueSnapshot.model_validate()` accepts the RAW merged `mDraftDetail` +
+`mTeam` response as ESPN actually returns it (`draftDetail.{picks,drafted,inProgress}`,
+top-level `teams[]`, `settings.draftSettings`) — a consumer (D17.3) hands it the raw response
+directly and never pre-flattens it. `LeagueSnapshot` itself is `extra='forbid'`: an unexpected
+TOP-LEVEL key is schema drift and fails loudly. The nested wrappers (`DraftDetail`,
+`LeagueSettings`) and the per-row/per-team models (`DraftPick`, `LeagueTeam`, `DraftSettings`)
+deliberately do NOT forbid extras — ESPN routinely adds new fields to `picks[]` rows and similar
+nested shapes, and rejecting an unknown nested field would turn a harmless response addition into
+a hard parse failure in the middle of a live draft, which is the worst possible moment for that
+failure mode. "Strict" therefore means: strict envelope shape, strict field typing throughout,
+but tolerant of unknown fields anywhere except the top-level envelope.
+
 Author: Kai Mizuno
 """
 
 from typing import Dict, List, Optional
 
-from pydantic import BaseModel, Field, StrictBool, StrictInt, model_validator
+from pydantic import BaseModel, ConfigDict, StrictBool, StrictInt, model_validator
+
+from player_data_fetcher.player_data_constants import ESPN_POSITION_MAPPINGS
 
 
-DEFAULT_POSITION_ID_TO_POSITION: Dict[int, str] = {
-    1: 'QB',
-    2: 'RB',
-    3: 'WR',
-    4: 'TE',
-    5: 'K',
-    16: 'DST',
-}
+DEFAULT_POSITION_ID_TO_POSITION: Dict[int, str] = ESPN_POSITION_MAPPINGS
 """Maps the projections-view (`kona_player_info`) `defaultPositionId` enum to a position name.
 Not used by this module's own models (`DraftPick` carries no `defaultPositionId` field — that
 field belongs to a different ESPN view outside this unit's `mDraftDetail` + `mTeam` scope) —
 provided so a caller resolving `defaultPositionId` elsewhere has a table symmetric with
 LINEUP_SLOT_ID_TO_POSITION below, per unit.md AC6.
 
+This is a re-exported alias of `player_data_fetcher.player_data_constants.ESPN_POSITION_MAPPINGS`
+— that module is the established owner of this exact `defaultPositionId` table (consumed as such
+by `espn_client.py`'s player-position resolution, via the `.get(position_id, 'UNKNOWN')` idiom),
+and this module deliberately does not duplicate it under a second, independently-maintained copy.
+The alias exists only to give this module's callers a name symmetric with
+`LINEUP_SLOT_ID_TO_POSITION`, which genuinely has no existing owner and is defined below.
+
 Coverage / miss contract: these six starting-position values are the complete set this unit's
 evidence base confirms (`player_data_fetcher/espn_client.py`'s existing `ESPN_POSITION_MAPPINGS`
-site, `player_data_fetcher/player_data_constants.py`). ESPN's `defaultPositionId` enum is not
-otherwise evidenced by the spike (`.shamt-core/spikes/archive/espn-draft-night-integration.md`
-never lists a `defaultPositionId` value outside this set), so a value outside this table is
-either genuinely unassigned or simply unobserved by this unit's evidence base — exhaustiveness is
-NOT claimed. A caller doing lookup MUST use `.get(value, 'UNKNOWN')`, mirroring the established
-`ESPN_POSITION_MAPPINGS.get(position_id, 'UNKNOWN')` idiom at `espn_client.py:1478` — direct `[]`
+usage, `player_data_fetcher/player_data_constants.py`). ESPN's `defaultPositionId` enum is not
+otherwise evidenced by the spike (`spikes/archive/espn-draft-night-integration.md` never lists a
+`defaultPositionId` value outside this set), so a value outside this table is either genuinely
+unassigned or simply unobserved by this unit's evidence base — exhaustiveness is NOT claimed. A
+caller doing lookup MUST use `.get(value, 'UNKNOWN')`, mirroring the established
+`ESPN_POSITION_MAPPINGS.get(position_id, 'UNKNOWN')` idiom in `espn_client.py` — direct `[]`
 indexing on a miss raises `KeyError` rather than returning `None`, which is why the `.get(...,
 'UNKNOWN')` form is the documented contract rather than an incidental usage note."""
 
@@ -53,19 +68,19 @@ tables are never merged (spike F14a).
 Coverage / miss contract: these six starting-position-slot values are the complete set this
 unit's evidence base confirms — spike F11's live-probe field list for `picks[]` names
 `lineupSlotId` as a real field but does not enumerate its full value range, and this repo's
-pre-existing `_position_to_slot_id` docstring (`espn_client.py:1337`) independently documents the
-identical six-value set (`QB=0, RB=2, WR=4, TE=6, K=17, DST=16`) under a different name (ranking
-`slotId`). ESPN's public `lineupSlotId` enum is known to include non-starting values this unit's
-evidence does NOT confirm or deny — bench, IR, and multi-position flex slots among them — so this
-table's exhaustiveness over the FULL enum is explicitly NOT claimed; only the six evidenced
-starting-position values are asserted correct. A caller doing lookup MUST use `.get(value,
-'UNKNOWN')`, the same fail-loud-via-sentinel idiom `DEFAULT_POSITION_ID_TO_POSITION` documents
-above — direct `[]` indexing on an unmapped `lineupSlotId` (e.g. a bench/IR/flex slot) raises
-`KeyError` rather than silently returning `None`; a caller that must distinguish "no position"
-from "table incomplete" should catch `KeyError` explicitly rather than relying on `.get()`'s
-sentinel alone. D17.4 (reconciliation, out of this unit's scope) is the consumer responsible for
-deciding what a genuinely-unmapped completed pick's `lineupSlotId` means for ownership purposes;
-this unit's job stops at making the miss loud rather than silent."""
+pre-existing `_position_to_slot_id` helper (`player_data_fetcher/espn_client.py`) independently
+documents the identical six-value set (`QB=0, RB=2, WR=4, TE=6, K=17, DST=16`) under a different
+name (ranking `slotId`). ESPN's public `lineupSlotId` enum is known to include non-starting values
+this unit's evidence does NOT confirm or deny — bench, IR, and multi-position flex slots among
+them — so this table's exhaustiveness over the FULL enum is explicitly NOT claimed; only the six
+evidenced starting-position values are asserted correct. A caller doing lookup MUST use `.get(
+value, 'UNKNOWN')`, the same fail-loud-via-sentinel idiom `DEFAULT_POSITION_ID_TO_POSITION`
+documents above — direct `[]` indexing on an unmapped `lineupSlotId` (e.g. a bench/IR/flex slot)
+raises `KeyError` rather than silently returning `None`; a caller that must distinguish "no
+position" from "table incomplete" should catch `KeyError` explicitly rather than relying on
+`.get()`'s sentinel alone. D17.4 (reconciliation, out of this unit's scope) is the consumer
+responsible for deciding what a genuinely-unmapped completed pick's `lineupSlotId` means for
+ownership purposes; this unit's job stops at making the miss loud rather than silent."""
 
 
 class DraftPick(BaseModel):
@@ -75,6 +90,10 @@ class DraftPick(BaseModel):
     `picks[]` is pre-allocated for the whole draft before any selection is made, with every
     unfilled row carrying `playerId == -1` (spike F11a) — never infer completion from array
     length or truthiness; use `playerId != -1` (see `LeagueSnapshot`'s semantic validators).
+
+    Deliberately permissive on unknown fields (no `extra='forbid'`) — ESPN routinely adds fields
+    to a `picks[]` row, and this row-level model should not hard-fail a live draft fetch over an
+    unrecognized addition. Only the top-level `LeagueSnapshot` envelope enforces `extra='forbid'`.
 
     Attributes:
         overallPickNumber: 1-based overall pick order across the whole draft. Strict int — no coercion.
@@ -114,6 +133,9 @@ class LeagueTeam(BaseModel):
     One row of `teams[]` from the ESPN `mTeam` view — the id-to-name mapping `drafted_by`
     resolution depends on.
 
+    Deliberately permissive on unknown fields (no `extra='forbid'`) — see `DraftPick`'s docstring
+    for the rationale, which applies identically here.
+
     Attributes:
         id: The fantasy team's ESPN integer ID. Strict int — no coercion; `DraftPick.teamId`
             joins against this field.
@@ -131,6 +153,9 @@ class DraftSettings(BaseModel):
     """
     The `settings.draftSettings` sub-object from the ESPN `mTeam` view.
 
+    Deliberately permissive on unknown fields (no `extra='forbid'`) — see `DraftPick`'s docstring
+    for the rationale, which applies identically here.
+
     Attributes:
         pickOrder: The team-ID draft order for round 1 (length == team count; spike F11). Every
             entry is strict int — no coercion — since this list is the payload's only
@@ -146,10 +171,50 @@ class DraftSettings(BaseModel):
     timePerSelection: Optional[int] = None
 
 
+class DraftDetail(BaseModel):
+    """
+    The `draftDetail` sub-object from the ESPN `mDraftDetail` view — wraps `picks[]` plus the
+    two draft-level status flags. Deliberately permissive on unknown fields (no `extra='forbid'`)
+    — see `DraftPick`'s docstring for the rationale.
+
+    Attributes:
+        picks: `draftDetail.picks[]` — one row per pre-allocated draft slot.
+        drafted: Draft-level "has drafting started" flag. Strict bool — no coercion. Never used
+            as a completed-pick predicate; see `playerId != -1` on `LeagueSnapshot`.
+        inProgress: Draft-level "is drafting currently active" flag. Strict bool — no coercion.
+            Never used as a completed-pick predicate; see `playerId != -1` on `LeagueSnapshot`.
+    """
+
+    picks: List[DraftPick]
+    drafted: StrictBool
+    inProgress: StrictBool
+
+
+class LeagueSettings(BaseModel):
+    """
+    The `settings` sub-object from the ESPN `mTeam` view — wraps `draftSettings`. Deliberately
+    permissive on unknown fields (no `extra='forbid'`) — see `DraftPick`'s docstring for the
+    rationale.
+
+    Attributes:
+        draftSettings: `settings.draftSettings`.
+    """
+
+    draftSettings: DraftSettings
+
+
 class LeagueSnapshot(BaseModel):
     """
     The top-level ESPN league-draft-snapshot envelope combining `draftDetail`, `teams[]`, and
     `settings.draftSettings` from the `mDraftDetail` + `mTeam` view pair.
+
+    This model mirrors the RAW payload 1:1 — `draftDetail` and `settings` are nested wrappers,
+    `teams` is genuinely top-level — so `LeagueSnapshot.model_validate(raw_espn_response)` works
+    directly against the unmodified merged response (see module docstring, "Envelope ownership
+    decision"). `extra='forbid'` is set HERE ONLY: an unexpected top-level envelope key is
+    treated as schema drift and raises `ValidationError`, while an unexpected key nested inside
+    `draftDetail.picks[]`, `teams[]`, or `settings.draftSettings` is silently tolerated (see each
+    nested model's own docstring).
 
     Model-level (`@model_validator`) semantic checks enforce invariants that span multiple rows
     or sub-objects and cannot be expressed as per-field constraints: no duplicate completed
@@ -158,26 +223,39 @@ class LeagueSnapshot(BaseModel):
     `len(picks)`, array truthiness, or `drafted`/`inProgress` (spike F11a).
 
     Attributes:
-        picks: `draftDetail.picks[]` — one row per pre-allocated draft slot.
-        drafted: Draft-level "has drafting started" flag. Strict bool — no coercion. Never used
-            as a completed-pick predicate; see `playerId != -1` above.
-        inProgress: Draft-level "is drafting currently active" flag. Strict bool — no coercion.
-            Never used as a completed-pick predicate; see `playerId != -1` above.
-        teams: `teams[]` — the id-to-name mapping pick `teamId` values join against.
-        draftSettings: `settings.draftSettings`.
+        draftDetail: `draftDetail` — wraps `picks[]` plus the two draft-level status flags.
+        teams: `teams[]` — the id-to-name mapping pick `teamId` values join against. Genuinely
+            top-level in the payload (unlike `draftDetail`/`settings`) — never wrapped.
+        settings: `settings` — wraps `draftSettings`.
     """
 
-    picks: List[DraftPick]
-    drafted: StrictBool
-    inProgress: StrictBool
+    model_config = ConfigDict(extra='forbid')
+
+    draftDetail: DraftDetail
     teams: List[LeagueTeam]
-    draftSettings: DraftSettings
+    settings: LeagueSettings
+
+    @property
+    def round_count(self) -> int:
+        """Round count derived from `draftDetail.picks[]`'s own `roundId` values (unit.md AC7)
+        — never hardcoded to 15. Raises `ValueError` on an empty `picks[]`, which should never
+        occur against a real ESPN payload (spike F11: `picks[]` is always pre-allocated)."""
+        if not self.draftDetail.picks:
+            raise ValueError("Cannot derive round_count from an empty picks[] list")
+        return max(pick.roundId for pick in self.draftDetail.picks)
+
+    @property
+    def team_count(self) -> int:
+        """Team count derived from `teams[]` (unit.md AC7) — never hardcoded to 150. Cross-check
+        available via `len(settings.draftSettings.pickOrder)`, which spike F11 records as equal
+        to the team count for a normal snake draft."""
+        return len(self.teams)
 
     @model_validator(mode="after")
     def _no_duplicate_completed_player_ids(self) -> "LeagueSnapshot":
         """Reject a snapshot with more than one completed pick sharing the same `playerId`."""
         seen: Dict[int, int] = {}
-        for pick in self.picks:
+        for pick in self.draftDetail.picks:
             if pick.playerId == -1:
                 continue
             seen[pick.playerId] = seen.get(pick.playerId, 0) + 1
@@ -192,7 +270,7 @@ class LeagueSnapshot(BaseModel):
     def _no_duplicate_overall_pick_number(self) -> "LeagueSnapshot":
         """Reject a snapshot with more than one pick row sharing the same `overallPickNumber`."""
         seen: Dict[int, int] = {}
-        for pick in self.picks:
+        for pick in self.draftDetail.picks:
             seen[pick.overallPickNumber] = seen.get(pick.overallPickNumber, 0) + 1
         duplicates = [number for number, count in seen.items() if count > 1]
         if duplicates:
@@ -206,7 +284,11 @@ class LeagueSnapshot(BaseModel):
         """Reject a completed pick whose `teamId` is absent from `teams[]`."""
         team_ids = {team.id for team in self.teams}
         missing = sorted(
-            {pick.teamId for pick in self.picks if pick.playerId != -1 and pick.teamId not in team_ids}
+            {
+                pick.teamId
+                for pick in self.draftDetail.picks
+                if pick.playerId != -1 and pick.teamId not in team_ids
+            }
         )
         if missing:
             raise ValueError(
