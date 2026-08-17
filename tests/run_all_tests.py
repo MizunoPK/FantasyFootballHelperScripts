@@ -101,17 +101,38 @@ class TestRunner:
             return False, 0, 0, f"Error running tests: {str(e)}"
 
     def _parse_test_results(self, output: str) -> Tuple[int, int]:
-        """Parse pytest output to extract passed/total counts"""
+        """Parse pytest output to extract passed/total counts
+
+        Counts are read from pytest's terminal summary line ONLY (the last line
+        carrying an "in <duration>s" suffix, e.g. "6 failed, 34 passed in 0.40s").
+        Searching the whole output is wrong: captured log records can contain
+        incidental text such as "Simulation 0 failed: ...", and an unanchored
+        search matched that first — reporting 0 failures for a file with 6, which
+        then silently undercounted the run-wide failure headline.
+        """
         import re
 
-        passed_match = re.search(r'(\d+) passed', output)
-        passed_count = int(passed_match.group(1)) if passed_match else 0
+        summary = ""
+        for line in reversed(output.splitlines()):
+            candidate = line.strip().strip('=').strip()
+            # The outcome vocabulary here identifies the summary LINE; only passed /
+            # failed / error counts feed the totals below. It deliberately includes
+            # outcomes this runner does not count (skipped, xfailed, ...) so that a
+            # skipped-only or deselected-only run is recognised as a real summary
+            # rather than falling through to the no-summary-at-all case.
+            if re.search(r'\bin \d+(\.\d+)?s', candidate) and \
+                    re.search(r'\b\d+ (passed|failed|error|errors|skipped|deselected'
+                              r'|xfailed|xpassed|warning|warnings)\b', candidate):
+                summary = candidate
+                break
 
-        failed_match = re.search(r'(\d+) failed', output)
-        failed_count = int(failed_match.group(1)) if failed_match else 0
+        def _count(word: str) -> int:
+            match = re.search(rf'(\d+) {word}', summary)
+            return int(match.group(1)) if match else 0
 
-        error_match = re.search(r'(\d+) error', output)
-        error_count = int(error_match.group(1)) if error_match else 0
+        passed_count = _count('passed')
+        failed_count = _count('failed')
+        error_count = _count('error')
 
         total_count = passed_count + failed_count + error_count
 
