@@ -12,6 +12,7 @@ load_espn_env() and get_espn_credentials() explicitly.
 Author: Kai Mizuno
 """
 
+import logging
 import os
 from typing import Tuple, Union
 from pathlib import Path
@@ -99,3 +100,74 @@ def redact(text: str, *secrets: str) -> str:
         if secret:
             redacted = redacted.replace(secret, REDACTION_MARKER)
     return redacted
+
+
+class CredentialRedactionFilter(logging.Filter):
+    """Global, process-wide `logging.Filter` scrubbing ESPN session credential
+    values from every `LogRecord` it sees (D17.3 BLOCKING-3 remediation).
+
+    Reads `espn_s2` / `SWID` directly from `os.environ` on every record --
+    never captured once at install time -- so it redacts correctly whether
+    the filter is installed before or after `load_espn_env()` populates the
+    process environment, and it keeps working if credentials are rotated
+    mid-process. A record logged while neither credential is set is passed
+    through unchanged (`redact()` no-ops on falsy secrets).
+    """
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        espn_s2 = os.environ.get('espn_s2', '')
+        swid = os.environ.get('SWID', '')
+        if not espn_s2 and not swid:
+            return True
+        # Render args into the message first (record.getMessage() does this),
+        # then redact the rendered text and clear args so downstream
+        # formatters don't re-interpolate the original (unredacted) args.
+        message = record.getMessage()
+        redacted = redact(message, espn_s2, swid)
+        if redacted != message:
+            record.msg = redacted
+            record.args = None
+        return True
+
+
+_credential_redaction_filter = CredentialRedactionFilter()
+_credential_redaction_installed = False
+
+
+def install_credential_redaction() -> None:
+    """Install the global credential-redaction filter (D17.3 BLOCKING-3/(a)).
+
+    Idempotent -- safe to call more than once (e.g. from multiple entry
+    points) or with the filter already present.
+
+    Installs on **both** the root logger and this project's shared logger
+    (`utils.LoggingManager.get_logger()`). Root alone is not sufficient:
+    `LoggingManager.setup_logger()` sets `logger.propagate = False` on the
+    logger it configures, and a `logging.Filter` added to a `Logger` object
+    (as opposed to a `Handler`) is consulted only by that logger's own
+    `Logger.handle()` -- never by a descendant/propagating logger's records,
+    and never inherited from an ancestor irrespective of `propagate`. So a
+    filter added only to the root logger would silently never run for any
+    record logged through the project's actual (non-propagating) logger --
+    exactly the "logger sits outside the hierarchy" failure mode this
+    installer must rule out. Installing directly on the project logger
+    closes that gap; installing on root too is defense-in-depth for any
+    logger that *does* propagate.
+
+    Must be called before any credential-touching code runs (obligation (a)
+    of the D17.3 review's remediation).
+    """
+    global _credential_redaction_installed
+    if _credential_redaction_installed:
+        return
+
+    root_logger = logging.getLogger()
+    if _credential_redaction_filter not in root_logger.filters:
+        root_logger.addFilter(_credential_redaction_filter)
+
+    from utils.LoggingManager import get_logger
+    project_logger = get_logger()
+    if _credential_redaction_filter not in project_logger.filters:
+        project_logger.addFilter(_credential_redaction_filter)
+
+    _credential_redaction_installed = True

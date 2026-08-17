@@ -21,14 +21,18 @@ Author: Kai Mizuno
 
 import argparse
 import asyncio
+import datetime
 import hashlib
 import json
+import os
 import re
+import shutil
+import tempfile
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from player_data_fetcher.espn_client import ESPNClient
-from player_data_fetcher.espn_credentials import load_espn_env
+from player_data_fetcher.espn_credentials import install_credential_redaction, load_espn_env
 from player_data_fetcher.player_data_fetcher_main import Settings
 
 SCHEMA_VERSION = 1
@@ -42,6 +46,9 @@ SENTINEL_LEAGUE_ID = 999999999
 _GUID_PATTERN = re.compile(
     r"\{?[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}\}?"
 )
+# CONCERN-3 widening: an email address is another unmodelled-surface identity
+# leak vector (some ESPN league shapes carry one on a member entry).
+_EMAIL_PATTERN = re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}")
 
 
 class SanitizationLeakError(RuntimeError):
@@ -67,25 +74,45 @@ def _scrub_identity_shaped_strings(value: Any) -> Any:
     return value
 
 
-def assert_no_identity_leak(payload: Dict[str, Any]) -> None:
-    """Fail-closed post-sanitization scan (KDD2 hardening, polish pass 3).
+def assert_no_identity_leak(payload: Dict[str, Any], real_league_id: Optional[int] = None) -> None:
+    """Fail-closed post-sanitization scan (KDD2 hardening, polish pass 3; widened
+    per D17.3 review CONCERN-3).
 
-    Scans the full serialized payload for any GUID-shaped value anywhere.
-    A clean `sanitize_league_payload()` output should never contain one --
-    a hit means some ESPN field carrying identity data (a `members[].id`
-    SWID-shaped credential, or any other unmodelled field) was not
-    recognized and replaced by the sanitizer. This is deliberately a
-    write-time gate rather than an input allowlist: an allowlist that
-    dropped unknown top-level keys would risk silently discarding fields
-    the replay corpus actually needs (this script's whole job is to
-    preserve mDraftDetail/mTeam shape for replay), whereas refusing to
-    write forces a human to explicitly teach the sanitizer about the new
-    field before any corpus reaches disk.
+    Scans the full serialized payload for: any GUID-shaped value; any
+    email-shaped value; and, when `real_league_id` is supplied, the real
+    (unsanitized) league ID's own string form.
+
+    CONCERN-3's correction: this guard proves a **shape**, not the **class**
+    of "no unrecognized identity data survived." It cannot catch a numeric
+    account id (indistinguishable from the pick/team integers the sanitizer
+    deliberately preserves) or a real name/league name outside the four
+    surfaces `sanitize_league_payload()` handles. Kept and widened anyway --
+    real, checked value against the two concretely-demonstrated leak shapes
+    (a SWID-shaped GUID, the production league ID) plus one plausible
+    additional shape (email) -- but its docstring states what it actually
+    proves rather than the total guarantee the original wording implied.
+
+    This is deliberately a write-time gate rather than an input allowlist:
+    an allowlist that dropped unknown top-level keys would risk silently
+    discarding fields the replay corpus actually needs (this script's whole
+    job is to preserve mDraftDetail/mTeam shape for replay), whereas
+    refusing to write forces a human to explicitly teach the sanitizer about
+    the new field before any corpus reaches disk.
+
+    Args:
+        payload: The (supposedly) sanitized payload to scan.
+        real_league_id: The real, unsanitized ESPN league ID, if available,
+            so its literal string form can be checked for directly (the
+            sanitizer only ever replaces `payload["id"]`, so this closes the
+            gap where the real ID leaks through some other field).
 
     Raises:
-        SanitizationLeakError: If a GUID-shaped value is found anywhere.
+        SanitizationLeakError: If a GUID-shaped value, an email-shaped
+            value, or the real league ID is found anywhere in the payload.
     """
-    match = _GUID_PATTERN.search(json.dumps(payload))
+    serialized = json.dumps(payload)
+
+    match = _GUID_PATTERN.search(serialized)
     if match:
         raise SanitizationLeakError(
             f"Refusing to write corpus: sanitized payload still contains a "
@@ -94,6 +121,23 @@ def assert_no_identity_leak(payload: Dict[str, Any]) -> None:
             f"members[].id SWID-shaped credential) was not recognized and replaced. "
             f"Add handling for the offending field to sanitize_league_payload() "
             f"before re-running -- do not bypass this check."
+        )
+
+    email_match = _EMAIL_PATTERN.search(serialized)
+    if email_match:
+        raise SanitizationLeakError(
+            f"Refusing to write corpus: sanitized payload still contains an "
+            f"email-shaped value ({email_match.group(0)!r}) after sanitize_league_payload(). "
+            f"Add handling for the offending field to sanitize_league_payload() "
+            f"before re-running -- do not bypass this check."
+        )
+
+    if real_league_id is not None and str(real_league_id) in serialized:
+        raise SanitizationLeakError(
+            f"Refusing to write corpus: sanitized payload still contains the real "
+            f"league ID ({real_league_id!r}) after sanitize_league_payload(). "
+            f"sanitize_league_payload() only replaces the top-level 'id' field -- "
+            f"the real ID is leaking through some other field."
         )
 
 
@@ -184,9 +228,20 @@ def derive_steps(sanitized_source: Dict[str, Any]) -> List[Dict[str, Any]]:
     Returns:
         List of step payload dicts, one per completed-picks count from 0
         through len(picks) inclusive, index-ordered.
+
+    Raises:
+        ValueError: If `sanitized_source` has no `draftDetail` block. Fails
+            fast and legibly here (SUGGESTION, D17.3 review) rather than the
+            `.get(..., {})` default silently producing an empty `picks` list
+            and an opaque `KeyError` a few lines later in the write path --
+            after a live, credential-bearing capture that is expensive to repeat.
     """
-    draft_detail = sanitized_source.get("draftDetail", {})
-    picks = draft_detail.get("picks", [])
+    if "draftDetail" not in sanitized_source:
+        raise ValueError(
+            "Captured payload has no 'draftDetail' block; the mDraftDetail view "
+            "may not have been returned by ESPN for this request."
+        )
+    picks = sanitized_source["draftDetail"].get("picks", [])
 
     steps = []
     for n in range(len(picks) + 1):
@@ -196,21 +251,36 @@ def derive_steps(sanitized_source: Dict[str, Any]) -> List[Dict[str, Any]]:
     return steps
 
 
-def write_corpus(output_dir: Path, sanitized_source: Dict[str, Any], steps: List[Dict[str, Any]]) -> None:
+def write_corpus(
+    output_dir: Path,
+    sanitized_source: Dict[str, Any],
+    steps: List[Dict[str, Any]],
+    real_league_id: Optional[int] = None,
+) -> None:
     """Write source.json, step_NNN.json files, and manifest.json (R5).
 
-    Refuses to run if output_dir already exists (no-overwrite, R5-e).
+    Refuses to run if output_dir already exists (no-overwrite, R5-e). Writes
+    atomically (CONCERN-4, D17.3 review): every file is written into a fresh
+    sibling temp directory first, and only the final `os.replace()` -- atomic
+    on POSIX -- makes the corpus visible at `output_dir`. A failure partway
+    through (disk full, interrupt, an OSError on any single write) therefore
+    never leaves a partial corpus at the canonical path blocking its own
+    regeneration behind the no-overwrite guard above.
 
     Args:
         output_dir: Target league_draft/ directory (must not yet exist).
         sanitized_source: Sanitized source.json content.
         steps: Ordered list of step payloads from derive_steps().
+        real_league_id: The real, unsanitized league ID, forwarded to
+            `assert_no_identity_leak()` so it can also be checked for
+            directly (CONCERN-3).
 
     Raises:
         FileExistsError: If output_dir already exists.
         SanitizationLeakError: If `sanitized_source` or any step still
-            contains a GUID-shaped value after sanitization (fail-closed
-            guard, polish pass 3) -- checked before anything is written.
+            contains identity-shaped data (a GUID, an email, or the real
+            league ID) after sanitization (fail-closed guard, polish pass 3;
+            widened CONCERN-3) -- checked before anything is written.
     """
     if output_dir.exists():
         raise FileExistsError(
@@ -221,57 +291,74 @@ def write_corpus(output_dir: Path, sanitized_source: Dict[str, Any], steps: List
 
     # Fail-closed: refuse to write anything if identity-shaped data survived
     # sanitization, in the source or in any derived step.
-    assert_no_identity_leak(sanitized_source)
+    assert_no_identity_leak(sanitized_source, real_league_id=real_league_id)
     for step_payload in steps:
-        assert_no_identity_leak(step_payload)
+        assert_no_identity_leak(step_payload, real_league_id=real_league_id)
 
-    output_dir.mkdir(parents=True)
+    output_dir.parent.mkdir(parents=True, exist_ok=True)
+    tmp_dir = Path(tempfile.mkdtemp(prefix=f".{output_dir.name}.tmp-", dir=output_dir.parent))
 
-    source_path = output_dir / "source.json"
-    source_path.write_text(json.dumps(sanitized_source, indent=2))
+    try:
+        source_path = tmp_dir / "source.json"
+        source_path.write_text(json.dumps(sanitized_source, indent=2), encoding="utf-8")
 
-    entries = []
-    width = max(3, len(str(len(steps) - 1)))
-    for step_idx, step_payload in enumerate(steps):
-        filename = f"step_{step_idx:0{width}d}.json"
-        file_path = output_dir / filename
-        content = json.dumps(step_payload, indent=2)
-        file_path.write_text(content)
-        sha256 = hashlib.sha256(content.encode("utf-8")).hexdigest()
-        completed_picks = sum(
-            1 for p in step_payload["draftDetail"]["picks"] if p.get("playerId") != -1
-        )
-        entries.append(
-            {
-                "step": step_idx,
-                "completed_picks": completed_picks,
-                "file": filename,
-                "sha256": sha256,
-            }
-        )
+        entries = []
+        width = max(3, len(str(len(steps) - 1)))
+        for step_idx, step_payload in enumerate(steps):
+            filename = f"step_{step_idx:0{width}d}.json"
+            file_path = tmp_dir / filename
+            content = json.dumps(step_payload, indent=2)
+            # Explicit UTF-8 (PR review, Copilot generate_espn_draft_corpus.py:240):
+            # the sha256 below is computed over content.encode("utf-8"), so the file
+            # must be written with that same explicit encoding -- write_text()'s
+            # platform-default encoding would otherwise write different bytes than
+            # were hashed on a non-UTF-8 locale, breaking replay's hash check.
+            file_path.write_text(content, encoding="utf-8")
+            sha256 = hashlib.sha256(content.encode("utf-8")).hexdigest()
+            completed_picks = sum(
+                1 for p in step_payload["draftDetail"]["picks"] if p.get("playerId") != -1
+            )
+            entries.append(
+                {
+                    "step": step_idx,
+                    "completed_picks": completed_picks,
+                    "file": filename,
+                    "sha256": sha256,
+                }
+            )
 
-    manifest = {
-        "schema_version": SCHEMA_VERSION,
-        "provenance": {
-            "capture_date": __import__("datetime").date.today().isoformat(),
-            "endpoint_class": "league_draft",
-            "views": ["mDraftDetail", "mTeam"],
-            "sanitizer_version": SANITIZER_VERSION,
-        },
-        "entries": entries,
-    }
-    manifest_path = output_dir / "manifest.json"
-    manifest_path.write_text(json.dumps(manifest, indent=2))
+        manifest = {
+            "schema_version": SCHEMA_VERSION,
+            "provenance": {
+                "capture_date": datetime.date.today().isoformat(),
+                "endpoint_class": "league_draft",
+                "views": ["mDraftDetail", "mTeam"],
+                "sanitizer_version": SANITIZER_VERSION,
+            },
+            "entries": entries,
+        }
+        manifest_path = tmp_dir / "manifest.json"
+        # Explicit UTF-8 (PR review, Copilot generate_espn_draft_corpus.py:264):
+        # manifest.json is generated on one machine and consumed on another via
+        # _resolve_league_draft_fixture(); a non-UTF-8 default encoding here would
+        # make the manifest itself non-portable across locales.
+        manifest_path.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+
+        os.replace(tmp_dir, output_dir)
+    except BaseException:
+        shutil.rmtree(tmp_dir, ignore_errors=True)
+        raise
 
 
 async def _capture_raw_payload(league_id: int, season: int) -> Dict[str, Any]:
     """Call ESPNClient._get_raw_league_snapshot once (R5-a) and close the client.
 
-    Must enter `client.session()` before issuing the request: `BaseAPIClient` only
-    populates `self._client` inside `session()` (espn_client.py), and `_make_request`
-    dereferences it unconditionally. `session()`'s own `finally` does not tear the
-    client down (that is `close()`'s job), so the explicit `close()` below is still
-    required and is not redundant with entering `session()`.
+    Must enter `client.session()` before issuing the request: `BaseAPIClient.__init__`
+    only populates `self._client` inside `BaseAPIClient.session()`, and
+    `BaseAPIClient._make_request` dereferences it unconditionally. `session()`'s own
+    `finally` is `pass` -- it does not tear the client down (that is `close()`'s job),
+    so the explicit `close()` below is still required and is not redundant with
+    entering `session()`.
     """
     settings = Settings(season=season)
     client = ESPNClient(settings)
@@ -294,6 +381,12 @@ def main() -> None:
     )
     args = parser.parse_args()
 
+    # D17.3 review obligation (a): install the global credential-redaction
+    # logging filter before any credential-touching code runs -- including
+    # before load_espn_env() populates espn_s2/SWID, since the filter itself
+    # reads the environment live on every record rather than at install time.
+    install_credential_redaction()
+
     # Entry-point startup: load .env before any credential read (D17.1 UD3 --
     # explicit, non-import-time loader; this is the designated caller).
     load_espn_env()
@@ -303,7 +396,7 @@ def main() -> None:
     steps = derive_steps(sanitized)
 
     try:
-        write_corpus(args.output_dir, sanitized, steps)
+        write_corpus(args.output_dir, sanitized, steps, real_league_id=args.league_id)
     except FileExistsError as e:
         print(f"ERROR: {e}")
         raise SystemExit(1)

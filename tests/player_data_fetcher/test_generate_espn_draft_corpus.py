@@ -12,6 +12,7 @@ Author: Kai Mizuno
 
 import hashlib
 import json
+from pathlib import Path
 from unittest.mock import patch
 
 import pytest
@@ -26,7 +27,7 @@ from player_data_fetcher.generate_espn_draft_corpus import (
     SENTINEL_LEAGUE_ID,
     SanitizationLeakError,
 )
-from player_data_fetcher.espn_client import ESPNClient
+from player_data_fetcher.espn_client import ESPNClient, ESPNAPIError
 
 
 # FIXTURES
@@ -254,6 +255,13 @@ class TestDeriveSteps:
         steps[0]["draftDetail"]["picks"].append({"playerId": 999})
         assert steps[1]["draftDetail"]["picks"] != steps[0]["draftDetail"]["picks"]
 
+    def test_missing_draft_detail_fails_fast_with_valueerror(self):
+        """SUGGESTION (D17.3 review): a captured payload missing 'draftDetail' entirely
+        must fail fast and legibly here, not with a misleading empty-picks step followed
+        by an opaque KeyError a few lines later in write_corpus."""
+        with pytest.raises(ValueError, match="draftDetail"):
+            derive_steps({"id": 1, "teams": []})
+
 
 class TestWriteCorpus:
     """Test write_corpus (R5-d, R5-e)."""
@@ -297,6 +305,84 @@ class TestWriteCorpus:
         with pytest.raises(FileExistsError):
             write_corpus(target, sanitized, steps)
         assert [p.name for p in target.iterdir()] == ["sentinel.txt"]
+
+    def test_step_files_and_manifest_written_as_explicit_utf8(self, tmp_path, raw_payload):
+        """PR review (Copilot, generate_espn_draft_corpus.py:240 and :264): step files and
+        manifest.json must be written with explicit encoding="utf-8", matching the
+        content.encode("utf-8") the sha256 is computed over -- not the platform-default
+        encoding, which differs from UTF-8 on some locales and would make the written
+        bytes not match the hashed bytes, breaking _resolve_league_draft_fixture's
+        replay hash check on that locale.
+
+        Embeds non-ASCII content (a team name) so a non-UTF-8 default encoding would
+        produce visibly different bytes than were hashed, making this test a real check
+        rather than one that passes by coincidence on an already-UTF-8 platform default.
+        """
+        payload = json.loads(json.dumps(raw_payload))
+        payload["settings"]["name"] = "Liga Español – Draft 🏈"  # non-ASCII + emoji
+        sanitized = sanitize_league_payload(payload)
+        steps = derive_steps(sanitized)
+        target = tmp_path / "league_draft"
+        write_corpus(target, sanitized, steps)
+
+        manifest = json.loads((target / "manifest.json").read_bytes().decode("utf-8"))
+        for entry in manifest["entries"]:
+            file_path = target / entry["file"]
+            # Read the raw bytes exactly as _resolve_league_draft_fixture does
+            # (file_path.read_bytes()) and hash them directly -- this fails if the file
+            # was written with any encoding other than the one the hash was computed over.
+            actual_bytes = file_path.read_bytes()
+            assert hashlib.sha256(actual_bytes).hexdigest() == entry["sha256"]
+            # And the bytes must decode as UTF-8 without error.
+            actual_bytes.decode("utf-8")
+
+    def test_write_corpus_is_atomic_on_write_failure(self, tmp_path, raw_payload, monkeypatch):
+        """CONCERN-4 (D17.3 review): a failure partway through writing must not leave a
+        partial corpus at the canonical output path -- it should leave nothing at all,
+        so a re-run is not blocked by the no-overwrite guard."""
+        sanitized = sanitize_league_payload(raw_payload)
+        steps = derive_steps(sanitized)
+        target = tmp_path / "league_draft"
+
+        original_write_text = Path.write_text
+        call_count = {"n": 0}
+
+        def flaky_write_text(self, *args, **kwargs):
+            call_count["n"] += 1
+            if call_count["n"] == 2:
+                raise OSError("simulated disk failure mid-write")
+            return original_write_text(self, *args, **kwargs)
+
+        monkeypatch.setattr(Path, "write_text", flaky_write_text)
+
+        with pytest.raises(OSError):
+            write_corpus(target, sanitized, steps)
+
+        assert not target.exists(), "a failed write must leave nothing at the canonical output path"
+        # No leftover temp sibling directories either.
+        leftovers = [p for p in tmp_path.iterdir() if p.name != target.name]
+        assert leftovers == [], f"temp directory was not cleaned up: {leftovers}"
+
+    def test_write_corpus_checks_real_league_id_leak(self, tmp_path, raw_payload):
+        """CONCERN-3 widening (D17.3 review): assert_no_identity_leak, given the real
+        league ID, must catch it leaking through some field other than the top-level
+        'id' the sanitizer replaces."""
+        sanitized = sanitize_league_payload(raw_payload)
+        # Simulate the real league ID leaking through an unmodelled field.
+        sanitized["someUnmodelledField"] = str(raw_payload["id"])
+        steps = derive_steps(sanitized)
+        target = tmp_path / "league_draft"
+
+        with pytest.raises(SanitizationLeakError, match="real league ID"):
+            write_corpus(target, sanitized, steps, real_league_id=raw_payload["id"])
+
+        assert not target.exists()
+
+    def test_assert_no_identity_leak_catches_email_shaped_value(self):
+        """CONCERN-3 widening (D17.3 review): an email address is another
+        unmodelled-surface identity leak vector."""
+        with pytest.raises(SanitizationLeakError, match="email-shaped value"):
+            assert_no_identity_leak({"someUnmodelledField": "real.owner@example.com"})
 
 
 class TestMainLoadsEnvBeforeCredentialRead:
@@ -397,7 +483,16 @@ class TestCapturePayloadEntersSession:
     @pytest.mark.asyncio
     async def test_get_raw_league_snapshot_fails_clearly_without_session(self, monkeypatch):
         """The private seam itself: calling it with no active session must raise a
-        clear RuntimeError rather than an AttributeError on a None client."""
+        clear, credential-safe error rather than an AttributeError on a None client.
+
+        D17.3 review CONCERN-2 moved the no-active-session guard from
+        _get_raw_league_snapshot into BaseAPIClient._make_request (so it protects
+        every live-path caller, not just this one method); the guard's RuntimeError
+        is then raised *inside* _get_raw_league_snapshot's try block and re-wrapped
+        by its single redacting ESPNAPIError wrapper (obligation (b)), same as any
+        other exception on that seam -- so the caller now sees ESPNAPIError, not a
+        bare RuntimeError.
+        """
         monkeypatch.setenv("espn_s2", "fake-s2")
         monkeypatch.setenv("SWID", "{fake-swid}")
 
@@ -406,5 +501,5 @@ class TestCapturePayloadEntersSession:
         client = ESPNClient(Settings(season=2026))
         assert client._client is None
 
-        with pytest.raises(RuntimeError, match="session"):
+        with pytest.raises(ESPNAPIError, match="session"):
             await client._get_raw_league_snapshot(123, 2026)
