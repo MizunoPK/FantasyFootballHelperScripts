@@ -11,6 +11,7 @@ Author: Kai Mizuno
 import datetime
 import json
 import pytest
+from unittest.mock import AsyncMock, Mock
 
 from player_data_fetcher.espn_client import (
     ESPNAPIError, ESPNRateLimitError, ESPNServerError,
@@ -579,3 +580,70 @@ class TestRankingsCacheIntegration:
         assert result == api_rankings
         mock_api.assert_called_once()
         mock_save.assert_called_once_with(api_rankings)
+
+
+class TestParseEspnDataPositionRankRanges:
+    """D9.1: position_rank_ranges is derived from the export set, not the ranked input set."""
+
+    @pytest.fixture
+    def client(self):
+        settings = Settings(current_nfl_week=1)
+        client = ESPNClient(settings)
+        client._fetch_team_rankings = AsyncMock(return_value={})
+        client._fetch_current_week_schedule = AsyncMock(return_value={})
+        client._load_season_schedule_from_csv = Mock(return_value={})
+        client._calculate_week_by_week_projection = Mock(return_value=0.0)
+        client._calculate_position_defense_rankings = Mock(return_value={})
+
+        def _populate_side_effect(projection, player_info, name, position):
+            if projection.id == '1004':
+                raise ValueError('synthetic parse failure')
+            return None
+
+        client._populate_weekly_projections = Mock(side_effect=_populate_side_effect)
+        return client
+
+    @pytest.mark.asyncio
+    async def test_survivor_only_population_reaches_both_endpoints(self, client):
+        """Neither the guard-rejected row (1003) nor the parse-failed row (1004) may widen
+        RB's range, so the two exported survivors normalize to exactly 100.0 and the 1.0 floor.
+
+        Row roles: 1001 is the exported best rank (PPR rank 1), 1002 the exported worst
+        survivor (rank 2), 1003 is rejected by the unknown-team guard (proTeamId 999), and
+        1004 raises after rank discovery but before append. Asserting exactly [100.0, 1.0]
+        is what pins the invariant: had the ranges been collected over the ranked *input*
+        set, 1003/1004 would stretch RB's max to rank 4 and no survivor would reach 1.0.
+        """
+        # Arrange
+        players = [
+            {'player': {
+                'id': 1001, 'firstName': 'Alpha', 'lastName': 'One',
+                'defaultPositionId': 2, 'proTeamId': 1,
+                'draftRanksByRankType': {'PPR': {'rank': 1}},
+            }},
+            {'player': {
+                'id': 1002, 'firstName': 'Bravo', 'lastName': 'Two',
+                'defaultPositionId': 2, 'proTeamId': 1,
+                'draftRanksByRankType': {'PPR': {'rank': 2}},
+            }},
+            {'player': {
+                'id': 1003, 'firstName': 'Charlie', 'lastName': 'Three',
+                'defaultPositionId': 2, 'proTeamId': 999,
+                'draftRanksByRankType': {'PPR': {'rank': 3}},
+            }},
+            {'player': {
+                'id': 1004, 'firstName': 'Delta', 'lastName': 'Four',
+                'defaultPositionId': 2, 'proTeamId': 1,
+                'draftRanksByRankType': {'PPR': {'rank': 4}},
+            }},
+        ]
+
+        # Act
+        projections = await client._parse_espn_data({'players': players})
+
+        # Assert
+        ids = [projection.id for projection in projections]
+        ratings = [projection.player_rating for projection in projections]
+
+        assert ids == ['1001', '1002']
+        assert ratings == [100.0, 1.0]
