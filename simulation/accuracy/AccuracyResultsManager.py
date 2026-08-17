@@ -1246,8 +1246,19 @@ def propagate_to_configs(
     # THRESHOLDS.STEPS (ConfigGenerator._apply_param_value). If that mis-nesting
     # is ever corrected, revisit this entry — it would begin suppressing a value
     # the sweep legitimately tunes.
+    # D10.2 (TD5a): three more hand-owned nested paths. Both factors' SCALING is
+    # a hand-set mechanism selector no sweep dial writes, and
+    # PLAYER_RATING_SCORING.THRESHOLDS is the exact mirror of the ADP entry above
+    # — ConfigGenerator has no PLAYER_RATING_SCORING_STEPS dial, and its
+    # SCORING_SECTIONS constant (:120) has no reader anywhere in the repo, so
+    # nothing in that THRESHOLDS block is swept. Each factor's WEIGHT is
+    # deliberately still absent: both ARE swept (ConfigGenerator.PARAM_DEFINITIONS
+    # :93, :96), so promoting them is the point of the loop.
     PRESERVE_SUBPATHS = [
         ('ADP_SCORING', 'THRESHOLDS'),
+        ('ADP_SCORING', 'SCALING'),
+        ('PLAYER_RATING_SCORING', 'SCALING'),
+        ('PLAYER_RATING_SCORING', 'THRESHOLDS'),
     ]
 
     target_folder.mkdir(parents=True, exist_ok=True)
@@ -1297,11 +1308,28 @@ def propagate_to_configs(
                     continue
                 if not isinstance(payload_section, dict):
                     continue
-                if payload_section.get(subkey) != live_section[subkey]:
+                # D10.2 (TD5a): the TWO arms are deliberate, not an inconsistency
+                # to "restore". The single-arm message this loop shipped with was
+                # written for THRESHOLDS, where the promoted payload always
+                # carries the key too. SCALING is different: every
+                # accuracy_optimal_* folder generated before this ticket lacks
+                # it, so for as long as one of those is the promote source the
+                # ordinary post-cutover case is an ABSENT promoted key — and the
+                # inherited wording reported that as "suppressing promoted value
+                # None", naming a suppressed value that never existed. The
+                # mechanism was always right (None != "LINEAR", so the live
+                # value is retained); only the message misdescribed it.
+                if subkey not in payload_section:
+                    logger.warning(
+                        f"propagate_to_configs: retaining live {section}.{subkey} "
+                        f"for {target_path}; the promoted payload carries no "
+                        f"{subkey} key"
+                    )
+                elif payload_section[subkey] != live_section[subkey]:
                     logger.warning(
                         f"propagate_to_configs: retaining live {section}.{subkey} "
                         f"for {target_path}; suppressing promoted value "
-                        f"{payload_section.get(subkey)} in favor of live value "
+                        f"{payload_section[subkey]} in favor of live value "
                         f"{live_section[subkey]}"
                     )
                 payload_section[subkey] = live_section[subkey]
