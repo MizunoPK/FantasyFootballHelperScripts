@@ -5,8 +5,8 @@ import pytest
 from pathlib import Path
 from unittest.mock import patch
 
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.SimDataLoader import SimDataLoader, MIN_VALID_PLAYERS, WEEKS_REQUIRED
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.SimulatedLeague import SimulatedLeague, DRAFT_ROUNDS
+from simulation.win_rate.SimDataLoader import SimDataLoader, MIN_VALID_PLAYERS, WEEKS_REQUIRED
+from simulation.win_rate.SimulatedLeague import SimulatedLeague, DRAFT_ROUNDS
 
 
 def _write_position_file(week_folder, position_file, players):

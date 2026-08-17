@@ -15,7 +15,7 @@ from typing import List, Dict, Any, Optional, Union
 import logging
 import asyncio
 
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.error_handler import (
+from utils.error_handler import (
     create_component_error_handler, FileOperationError, DataProcessingError,
     handle_errors, error_context
 )

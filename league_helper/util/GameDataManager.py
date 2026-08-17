@@ -12,9 +12,9 @@ import csv
 from pathlib import Path
 from typing import Dict, Optional
 
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.LoggingManager import get_logger
+from utils.LoggingManager import get_logger
 
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.upcoming_game_model import UpcomingGame
+from league_helper.util.upcoming_game_model import UpcomingGame
 
 
 class GameDataManager:

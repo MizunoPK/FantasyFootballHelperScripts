@@ -18,7 +18,7 @@ import json
 from pathlib import Path
 from typing import Any, Optional
 
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.error_handler import FileOperationError
+from utils.error_handler import FileOperationError
 
 
 def atomic_write_json(data: Any, path: Path, error_message: Optional[str] = None) -> None:

@@ -27,8 +27,8 @@ from unittest.mock import Mock
 
 import pytest
 
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.PlayerManager import PlayerManager
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.player_scoring import PlayerScoringCalculator
+from league_helper.util.PlayerManager import PlayerManager
+from league_helper.util.player_scoring import PlayerScoringCalculator
 
 
 DRAFT_SCALE = 163.0

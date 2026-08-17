@@ -20,9 +20,9 @@ Author: Kai Mizuno
 import json
 import shutil
 from pathlib import Path
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.LoggingManager import get_logger
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.ConfigManager import ConfigManager
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.PlayerManager import PlayerManager
+from utils.LoggingManager import get_logger
+from league_helper.util.ConfigManager import ConfigManager
+from league_helper.util.PlayerManager import PlayerManager
 
 
 class SaveCalculatedPointsManager:

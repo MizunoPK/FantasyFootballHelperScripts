@@ -22,8 +22,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
 
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.LoggingManager import setup_logger, get_logger
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.historical_data_compiler.constants import (
+from utils.LoggingManager import setup_logger, get_logger
+from historical_data_compiler.constants import (
     SEASON_SCHEDULE_FILE,
     GAME_DATA_FILE,
     TEAM_DATA_FOLDER,
@@ -32,7 +32,7 @@ from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.historic
     EXPECTED_NFL_TEAMS,
     POSITION_JSON_FILES,
 )
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.shared.sim_data_coverage import check_coverage
+from simulation.shared.sim_data_coverage import check_coverage
 
 
 def check_csv_files(output_dir: Path) -> bool:

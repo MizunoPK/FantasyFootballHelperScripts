@@ -13,9 +13,9 @@ from pathlib import Path
 from typing import Union
 import pandas as pd
 
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.csv_utils import read_csv_with_validation
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.LoggingManager import get_logger
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.error_handler import DataProcessingError
+from utils.csv_utils import read_csv_with_validation
+from utils.LoggingManager import get_logger
+from utils.error_handler import DataProcessingError
 
 logger = get_logger()
 

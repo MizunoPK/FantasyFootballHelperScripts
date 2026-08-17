@@ -12,8 +12,8 @@ Created: 2026-07-29
 import pytest
 import json
 
-import FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.constants as Constants
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.ConfigManager import ConfigManager
+import league_helper.constants as Constants
+from league_helper.util.ConfigManager import ConfigManager
 
 
 # FIXTURES

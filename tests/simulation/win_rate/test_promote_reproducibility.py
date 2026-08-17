@@ -28,15 +28,15 @@ import random
 from pathlib import Path
 
 # Local
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.SweepTournament import SweepTournament
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.SweepResultsManager import SweepResultsManager
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.sweep_summary import rank_combinations
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.param_value_generation import (
+from simulation.win_rate.SweepTournament import SweepTournament
+from simulation.win_rate.SweepResultsManager import SweepResultsManager
+from simulation.win_rate.sweep_summary import rank_combinations
+from simulation.win_rate.param_value_generation import (
     DRAFT_SWEEP_PARAMS,
     generate_candidate_values,
 )
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.ParallelLeagueRunner import _derive_task_seed
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.shared.ConfigGenerator import ConfigGenerator
+from simulation.win_rate.ParallelLeagueRunner import _derive_task_seed
+from simulation.shared.ConfigGenerator import ConfigGenerator
 
 
 # FIXTURES

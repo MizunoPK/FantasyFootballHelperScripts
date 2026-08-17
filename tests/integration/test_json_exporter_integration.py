@@ -6,8 +6,8 @@ import json
 import pytest
 from unittest.mock import patch
 
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.historical_data_compiler.json_exporter import JSONSnapshotExporter
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.historical_data_compiler.player_data_fetcher import PlayerData
+from historical_data_compiler.json_exporter import JSONSnapshotExporter
+from historical_data_compiler.player_data_fetcher import PlayerData
 
 
 class TestJSONExporterIntegration:

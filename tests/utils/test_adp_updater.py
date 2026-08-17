@@ -13,7 +13,7 @@ import json
 from pathlib import Path
 import pandas as pd
 
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.adp_updater import (
+from utils.adp_updater import (
     normalize_name,
     calculate_similarity,
     extract_dst_team_name,

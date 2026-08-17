@@ -18,8 +18,8 @@ Author: Kai Mizuno
 from typing import Dict, List
 
 # Local
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.shared.ConfigGenerator import ConfigGenerator
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.error_handler import ConfigurationError
+from simulation.shared.ConfigGenerator import ConfigGenerator
+from utils.error_handler import ConfigurationError
 
 
 # The six draft-side parameters this sweep optimizes (flat names matching

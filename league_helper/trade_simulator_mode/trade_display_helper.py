@@ -9,8 +9,8 @@ Author: Kai Mizuno
 
 from typing import List, Tuple
 
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.FantasyPlayer import FantasyPlayer
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.trade_simulator_mode.TradeSnapshot import TradeSnapshot
+from utils.FantasyPlayer import FantasyPlayer
+from league_helper.trade_simulator_mode.TradeSnapshot import TradeSnapshot
 
 
 class TradeDisplayHelper:

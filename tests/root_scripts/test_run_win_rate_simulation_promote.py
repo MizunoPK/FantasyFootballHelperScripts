@@ -13,12 +13,12 @@ from unittest.mock import Mock, patch
 import pytest
 
 # Local
-import FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.run_win_rate_simulation as rws
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.config_promoter import (
+import run_win_rate_simulation as rws
+from simulation.win_rate.config_promoter import (
     DEFAULT_PROMOTE_SHORTLIST,
     DEFAULT_PROMOTE_SIMS,
 )
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.error_handler import ConfigurationError, FileOperationError
+from utils.error_handler import ConfigurationError, FileOperationError
 
 MODULE = "run_win_rate_simulation"
 

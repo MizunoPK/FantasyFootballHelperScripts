@@ -9,7 +9,7 @@ Author: Kai Mizuno
 import pytest
 from unittest.mock import Mock, patch
 
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.player_data_fetcher.fantasy_points_calculator import (
+from player_data_fetcher.fantasy_points_calculator import (
     FantasyPointsConfig,
     FantasyPointsExtractor,
     extract_week_fantasy_points,
@@ -726,7 +726,7 @@ class TestFantasyPointsCalculatorKAI10:
 
     def test_nfl_season_not_imported_from_config(self):
         """8.1: fantasy_points_calculator does not import NFL_SEASON from config"""
-        import FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.player_data_fetcher.fantasy_points_calculator as fantasy_points_calculator
+        import player_data_fetcher.fantasy_points_calculator as fantasy_points_calculator
         assert not hasattr(fantasy_points_calculator, 'NFL_SEASON')
 
     def test_default_season_is_current_year(self):

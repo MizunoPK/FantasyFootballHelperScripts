@@ -2,13 +2,13 @@ import json
 from pathlib import Path
 from typing import Dict, Optional, Any
 
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.SimulatedLeague import (
+from simulation.win_rate.SimulatedLeague import (
     SimulatedLeague,
     DRAFT_ROUNDS,
     WEEKS_PER_SEASON,
     load_week_player_data,
 )
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.LoggingManager import get_logger
+from utils.LoggingManager import get_logger
 
 MIN_VALID_PLAYERS = sum(SimulatedLeague.SELF_PLAY_TEAM_STRATEGIES.values()) * DRAFT_ROUNDS
 

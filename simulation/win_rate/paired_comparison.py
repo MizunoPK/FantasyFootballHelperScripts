@@ -34,10 +34,10 @@ from pathlib import Path
 from typing import Dict, Optional, Tuple
 
 # Local
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.LoggingManager import get_logger
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.SimDataLoader import SimDataLoader
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.SimulatedLeague import SimulatedLeague
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.ParallelLeagueRunner import _derive_task_seed
+from utils.LoggingManager import get_logger
+from simulation.win_rate.SimDataLoader import SimDataLoader
+from simulation.win_rate.SimulatedLeague import SimulatedLeague
+from simulation.win_rate.ParallelLeagueRunner import _derive_task_seed
 
 
 @dataclass(frozen=True)

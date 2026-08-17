@@ -9,7 +9,7 @@ Author: Kai Mizuno
 
 from typing import List, Optional, Tuple
 
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.FantasyPlayer import FantasyPlayer
+from utils.FantasyPlayer import FantasyPlayer
 
 
 class TradeInputParser:

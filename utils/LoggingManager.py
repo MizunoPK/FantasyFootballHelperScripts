@@ -16,7 +16,7 @@ from pathlib import Path
 from typing import Optional, Union
 from datetime import datetime
 
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.LineBasedRotatingHandler import LineBasedRotatingHandler
+from utils.LineBasedRotatingHandler import LineBasedRotatingHandler
 
 
 class LoggingManager:

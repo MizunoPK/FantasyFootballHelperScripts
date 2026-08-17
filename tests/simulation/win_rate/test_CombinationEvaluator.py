@@ -19,8 +19,8 @@ from unittest.mock import Mock, patch
 import pytest
 
 # Local
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.CombinationEvaluator import CombinationEvaluator
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.error_handler import FileOperationError
+from simulation.win_rate.CombinationEvaluator import CombinationEvaluator
+from utils.error_handler import FileOperationError
 
 MODULE = "simulation.win_rate.CombinationEvaluator"
 

@@ -9,8 +9,8 @@ Author: Kai Mizuno
 import pytest
 from unittest.mock import Mock, MagicMock, patch
 
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.SimulatedOpponent import SimulatedOpponent
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.FantasyPlayer import FantasyPlayer
+from simulation.win_rate.SimulatedOpponent import SimulatedOpponent
+from utils.FantasyPlayer import FantasyPlayer
 
 
 class TestSimulatedOpponentInitialization:

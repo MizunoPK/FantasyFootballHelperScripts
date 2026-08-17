@@ -13,11 +13,11 @@ import pytest
 import json
 from unittest.mock import Mock
 
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.PlayerManager import PlayerManager
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.TeamDataManager import TeamDataManager
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.ConfigManager import ConfigManager, ConfigKeys
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.player_scoring import PlayerScoringCalculator
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.FantasyPlayer import FantasyPlayer
+from league_helper.util.PlayerManager import PlayerManager
+from league_helper.util.TeamDataManager import TeamDataManager
+from league_helper.util.ConfigManager import ConfigManager, ConfigKeys
+from league_helper.util.player_scoring import PlayerScoringCalculator
+from utils.FantasyPlayer import FantasyPlayer
 
 
 def _make_player(team, position, name="P"):

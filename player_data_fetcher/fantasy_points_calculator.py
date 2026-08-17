@@ -20,7 +20,7 @@ Author: Kai Mizuno
 import datetime
 from dataclasses import dataclass
 from typing import Dict, Any, Optional
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.LoggingManager import get_logger
+from utils.LoggingManager import get_logger
 
 
 @dataclass

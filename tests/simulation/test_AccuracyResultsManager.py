@@ -14,8 +14,8 @@ from unittest.mock import Mock, patch
 import tempfile
 import shutil
 
-import FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.accuracy.AccuracyResultsManager as AccuracyResultsManagerModule
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.accuracy.AccuracyResultsManager import (
+import simulation.accuracy.AccuracyResultsManager as AccuracyResultsManagerModule
+from simulation.accuracy.AccuracyResultsManager import (
     AccuracyResultsManager,
     AccuracyConfigPerformance,
     RankingMetrics,
@@ -25,10 +25,10 @@ from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulati
     DUMP_SCRATCH_FILENAME,
     DUMP_PROMOTED_FILENAME,
 )
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.accuracy.AccuracyCalculator import AccuracyResult
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.shared.config_constants import BASE_CONFIG_PARAMS, WEEK_SPECIFIC_PARAMS
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.shared.config_cleanup import cleanup_accuracy_intermediate_folders
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.error_handler import FileOperationError
+from simulation.accuracy.AccuracyCalculator import AccuracyResult
+from simulation.shared.config_constants import BASE_CONFIG_PARAMS, WEEK_SPECIFIC_PARAMS
+from simulation.shared.config_cleanup import cleanup_accuracy_intermediate_folders
+from utils.error_handler import FileOperationError
 
 
 class TestAccuracyConfigPerformance:

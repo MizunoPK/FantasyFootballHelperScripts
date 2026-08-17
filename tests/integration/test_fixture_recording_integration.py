@@ -16,7 +16,7 @@ class TestScheduleFetcherRecording:
     @pytest.mark.asyncio
     async def test_recording_writes_file_when_env_var_set(self, monkeypatch, tmp_path):
         """Verify fixture file written with correct content when ESPN_RECORD_FIXTURES_DIR is set."""
-        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.schedule_data_fetcher.ScheduleFetcher import ScheduleFetcher
+        from schedule_data_fetcher.ScheduleFetcher import ScheduleFetcher
 
         fixture_data = {"events": [{"id": "401547353"}]}
         record_dir = tmp_path / "records"
@@ -48,7 +48,7 @@ class TestScheduleFetcherRecording:
     @pytest.mark.asyncio
     async def test_recording_creates_directory_if_missing(self, monkeypatch, tmp_path):
         """Verify espn_api/ subdir is auto-created when target directory doesn't exist."""
-        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.schedule_data_fetcher.ScheduleFetcher import ScheduleFetcher
+        from schedule_data_fetcher.ScheduleFetcher import ScheduleFetcher
 
         fixture_data = {"events": []}
         record_dir = tmp_path / "new_records"
@@ -78,7 +78,7 @@ class TestScheduleFetcherRecording:
     @pytest.mark.asyncio
     async def test_no_recording_when_env_var_not_set(self, monkeypatch, tmp_path):
         """Verify no files are written when ESPN_RECORD_FIXTURES_DIR is not set."""
-        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.schedule_data_fetcher.ScheduleFetcher import ScheduleFetcher
+        from schedule_data_fetcher.ScheduleFetcher import ScheduleFetcher
 
         fixture_data = {"events": []}
 
@@ -106,7 +106,7 @@ class TestScheduleFetcherRecording:
     @pytest.mark.asyncio
     async def test_recording_overwrites_existing_file(self, monkeypatch, tmp_path):
         """Verify recording overwrites existing fixture file rather than appending."""
-        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.schedule_data_fetcher.ScheduleFetcher import ScheduleFetcher
+        from schedule_data_fetcher.ScheduleFetcher import ScheduleFetcher
 
         old_data = {"events": [{"id": "OLD"}]}
         new_data = {"events": [{"id": "NEW"}]}
@@ -140,7 +140,7 @@ class TestScheduleFetcherRecording:
     @pytest.mark.asyncio
     async def test_no_recording_when_offline_mode_active(self, monkeypatch, tmp_path):
         """Verify no recording happens when ESPN_FIXTURE_DIR is set (F2 offline returns early)."""
-        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.schedule_data_fetcher.ScheduleFetcher import ScheduleFetcher
+        from schedule_data_fetcher.ScheduleFetcher import ScheduleFetcher
 
         fixture_data = {"events": [{"id": "OFFLINE"}]}
         fixture_dir = tmp_path / "fixtures"
@@ -167,7 +167,7 @@ class TestBaseAPIClientRecording:
     @pytest.mark.asyncio
     async def test_recording_writes_file_when_env_var_set(self, monkeypatch, tmp_path):
         """Verify fixture file written with correct content when ESPN_RECORD_FIXTURES_DIR is set."""
-        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.player_data_fetcher.espn_client import BaseAPIClient
+        from player_data_fetcher.espn_client import BaseAPIClient
 
         fixture_data = {"players": [{"id": "12345"}]}
         record_dir = tmp_path / "records"
@@ -197,7 +197,7 @@ class TestBaseAPIClientRecording:
     @pytest.mark.asyncio
     async def test_recording_creates_directory_if_missing(self, monkeypatch, tmp_path):
         """Verify espn_api/ subdir is auto-created when target directory doesn't exist."""
-        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.player_data_fetcher.espn_client import BaseAPIClient
+        from player_data_fetcher.espn_client import BaseAPIClient
 
         fixture_data = {"players": []}
         record_dir = tmp_path / "new_records"
@@ -225,7 +225,7 @@ class TestBaseAPIClientRecording:
     @pytest.mark.asyncio
     async def test_no_recording_when_env_var_not_set(self, monkeypatch, tmp_path):
         """Verify no files are written when ESPN_RECORD_FIXTURES_DIR is not set."""
-        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.player_data_fetcher.espn_client import BaseAPIClient
+        from player_data_fetcher.espn_client import BaseAPIClient
 
         fixture_data = {"players": []}
 
@@ -251,7 +251,7 @@ class TestBaseAPIClientRecording:
     @pytest.mark.asyncio
     async def test_recording_overwrites_existing_file(self, monkeypatch, tmp_path):
         """Verify recording overwrites existing fixture file rather than appending."""
-        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.player_data_fetcher.espn_client import BaseAPIClient
+        from player_data_fetcher.espn_client import BaseAPIClient
 
         old_data = {"players": [{"id": "OLD"}]}
         new_data = {"players": [{"id": "NEW"}]}
@@ -283,7 +283,7 @@ class TestBaseAPIClientRecording:
     @pytest.mark.asyncio
     async def test_no_recording_when_offline_mode_active(self, monkeypatch, tmp_path):
         """Verify no recording happens when ESPN_FIXTURE_DIR is set (F2 offline returns early)."""
-        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.player_data_fetcher.espn_client import BaseAPIClient
+        from player_data_fetcher.espn_client import BaseAPIClient
 
         fixture_data = {"players": [{"id": "OFFLINE"}]}
         fixture_dir = tmp_path / "fixtures"

@@ -12,8 +12,8 @@ import json
 import pytest
 from pathlib import Path
 
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.accuracy.ParallelAccuracyRunner import _evaluate_config_tournament_process, _load_season_data
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.accuracy.AccuracyCalculator import AccuracyResult
+from simulation.accuracy.ParallelAccuracyRunner import _evaluate_config_tournament_process, _load_season_data
+from simulation.accuracy.AccuracyCalculator import AccuracyResult
 
 project_root = Path(__file__).parent.parent.parent
 

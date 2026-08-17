@@ -13,7 +13,7 @@ class TestINFOLogQuality:
 
     def test_config_info_log_added(self):
         """T4.1: Verify config INFO log added at startup"""
-        import FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.compile_historical_data as compile_historical_data
+        import compile_historical_data as compile_historical_data
 
         mock_logger = MagicMock()
         test_args = ['compile_historical_data.py', '--year', '2024', '--format', 'both']

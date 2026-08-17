@@ -15,7 +15,7 @@ from unittest.mock import Mock, patch
 import pytest
 
 # Local
-import FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.run_win_rate_simulation as rws
+import run_win_rate_simulation as rws
 
 MODULE = "run_win_rate_simulation"
 

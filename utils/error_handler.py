@@ -24,7 +24,7 @@ from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, TypeVar, Union
 from dataclasses import dataclass, field
 
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.LoggingManager import get_logger
+from utils.LoggingManager import get_logger
 
 T = TypeVar('T')
 F = TypeVar('F', bound=Callable[..., Any])

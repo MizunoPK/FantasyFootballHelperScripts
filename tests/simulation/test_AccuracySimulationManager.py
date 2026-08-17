@@ -17,8 +17,8 @@ from unittest.mock import Mock, patch, MagicMock
 
 project_root = Path(__file__).parent.parent.parent
 
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.accuracy.AccuracyResultsManager import WEEK_RANGES
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.accuracy.AccuracySimulationManager import (
+from simulation.accuracy.AccuracyResultsManager import WEEK_RANGES
+from simulation.accuracy.AccuracySimulationManager import (
     AccuracySimulationManager,
     MAX_ASCENT_PASSES,
 )
@@ -688,7 +688,7 @@ class TestRunBothCliWiring:
 
         mock_summary = "Pairwise=72.3% | Top-10=68.1% | Spearman=0.714 | MAE=3.2104 (diag)"
 
-        import FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.run_accuracy_simulation as run_accuracy_simulation
+        import run_accuracy_simulation as run_accuracy_simulation
         with patch('run_accuracy_simulation.AccuracySimulationManager') as MockMgr, \
              patch('sys.argv', ['run_accuracy_simulation.py',
                                 '--baseline', str(baseline_path),
@@ -905,7 +905,7 @@ class TestLowAccuracyPromotedWarnings:
 
     def test_threshold_constants_keep_their_values(self):
         """R5: both constants survive the deletion at their original values."""
-        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.tests.simulation.accuracy import AccuracySimulationManager as module
+        from simulation.accuracy import AccuracySimulationManager as module
 
         assert module.PAIRWISE_ACCURACY_WARN_THRESHOLD == 0.65
         assert module.TOP_10_ACCURACY_WARN_THRESHOLD == 0.70

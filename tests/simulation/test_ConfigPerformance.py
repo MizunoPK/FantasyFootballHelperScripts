@@ -8,7 +8,7 @@ Author: Kai Mizuno
 
 import pytest
 
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.shared.ConfigPerformance import ConfigPerformance
+from simulation.shared.ConfigPerformance import ConfigPerformance
 
 
 class TestConfigPerformanceInitialization:
@@ -497,37 +497,37 @@ class TestGetWeekRange:
 
     def test_weeks_1_to_5_return_1_5(self):
         """Weeks 1-5 should return '1-5' range."""
-        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.shared.ConfigPerformance import get_week_range
+        from simulation.shared.ConfigPerformance import get_week_range
         for week in range(1, 6):
             assert get_week_range(week) == "1-5"
 
     def test_weeks_6_to_9_return_6_9(self):
         """Weeks 6-9 should return '6-9' range."""
-        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.shared.ConfigPerformance import get_week_range
+        from simulation.shared.ConfigPerformance import get_week_range
         for week in range(6, 10):
             assert get_week_range(week) == "6-9"
 
     def test_weeks_10_to_13_return_10_13(self):
         """Weeks 10-13 should return '10-13' range."""
-        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.shared.ConfigPerformance import get_week_range
+        from simulation.shared.ConfigPerformance import get_week_range
         for week in range(10, 14):
             assert get_week_range(week) == "10-13"
 
     def test_weeks_14_to_17_return_14_17(self):
         """Weeks 14-17 should return '14-17' range."""
-        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.shared.ConfigPerformance import get_week_range
+        from simulation.shared.ConfigPerformance import get_week_range
         for week in range(14, 18):
             assert get_week_range(week) == "14-17"
 
     def test_week_0_raises_error(self):
         """Week 0 should raise ValueError."""
-        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.shared.ConfigPerformance import get_week_range
+        from simulation.shared.ConfigPerformance import get_week_range
         with pytest.raises(ValueError, match="Invalid week number: 0"):
             get_week_range(0)
 
     def test_week_18_raises_error(self):
         """Week 18 should raise ValueError."""
-        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.shared.ConfigPerformance import get_week_range
+        from simulation.shared.ConfigPerformance import get_week_range
         with pytest.raises(ValueError, match="Invalid week number: 18"):
             get_week_range(18)
 
@@ -708,28 +708,28 @@ class TestHorizonsConstant:
 
     def test_horizons_constant_exists(self):
         """HORIZONS constant should exist and be importable"""
-        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.shared.ConfigPerformance import HORIZONS
+        from simulation.shared.ConfigPerformance import HORIZONS
         assert HORIZONS is not None
 
     def test_horizons_constant_is_list(self):
         """HORIZONS should be a list"""
-        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.shared.ConfigPerformance import HORIZONS
+        from simulation.shared.ConfigPerformance import HORIZONS
         assert isinstance(HORIZONS, list)
 
     def test_horizons_constant_has_four_elements(self):
         """HORIZONS should contain exactly 4 weekly horizons"""
-        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.shared.ConfigPerformance import HORIZONS
+        from simulation.shared.ConfigPerformance import HORIZONS
         assert len(HORIZONS) == 4
 
     def test_horizons_constant_values(self):
         """HORIZONS should contain correct horizon names"""
-        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.shared.ConfigPerformance import HORIZONS
+        from simulation.shared.ConfigPerformance import HORIZONS
         expected = ['1-5', '6-9', '10-13', '14-17']
         assert HORIZONS == expected
 
     def test_horizons_constant_order(self):
         """HORIZONS should be in correct order (week ranges in chronological order)"""
-        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.shared.ConfigPerformance import HORIZONS
+        from simulation.shared.ConfigPerformance import HORIZONS
         assert HORIZONS[0] == '1-5'
         assert HORIZONS[1] == '6-9'
         assert HORIZONS[2] == '10-13'
@@ -741,28 +741,28 @@ class TestHorizonFilesConstant:
 
     def test_horizon_files_constant_exists(self):
         """HORIZON_FILES constant should exist and be importable"""
-        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.shared.ConfigPerformance import HORIZON_FILES
+        from simulation.shared.ConfigPerformance import HORIZON_FILES
         assert HORIZON_FILES is not None
 
     def test_horizon_files_constant_is_dict(self):
         """HORIZON_FILES should be a dictionary"""
-        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.shared.ConfigPerformance import HORIZON_FILES
+        from simulation.shared.ConfigPerformance import HORIZON_FILES
         assert isinstance(HORIZON_FILES, dict)
 
     def test_horizon_files_has_four_entries(self):
         """HORIZON_FILES should map all 4 weekly horizons"""
-        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.shared.ConfigPerformance import HORIZON_FILES
+        from simulation.shared.ConfigPerformance import HORIZON_FILES
         assert len(HORIZON_FILES) == 4
 
     def test_horizon_files_keys(self):
         """HORIZON_FILES should have correct horizon keys"""
-        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.shared.ConfigPerformance import HORIZON_FILES
+        from simulation.shared.ConfigPerformance import HORIZON_FILES
         expected_keys = {'1-5', '6-9', '10-13', '14-17'}
         assert set(HORIZON_FILES.keys()) == expected_keys
 
     def test_horizon_files_week_mappings(self):
         """HORIZON_FILES should map week ranges to correct filenames"""
-        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.shared.ConfigPerformance import HORIZON_FILES
+        from simulation.shared.ConfigPerformance import HORIZON_FILES
         assert HORIZON_FILES['1-5'] == 'week1-5.json'
         assert HORIZON_FILES['6-9'] == 'week6-9.json'
         assert HORIZON_FILES['10-13'] == 'week10-13.json'
@@ -770,13 +770,13 @@ class TestHorizonFilesConstant:
 
     def test_horizon_files_all_values_unique(self):
         """HORIZON_FILES should have unique filenames"""
-        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.shared.ConfigPerformance import HORIZON_FILES
+        from simulation.shared.ConfigPerformance import HORIZON_FILES
         filenames = list(HORIZON_FILES.values())
         assert len(filenames) == len(set(filenames))
 
     def test_horizon_files_all_values_are_json(self):
         """HORIZON_FILES values should all be .json files"""
-        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.shared.ConfigPerformance import HORIZON_FILES
+        from simulation.shared.ConfigPerformance import HORIZON_FILES
         for filename in HORIZON_FILES.values():
             assert filename.endswith('.json')
 
@@ -786,12 +786,12 @@ class TestHorizonsAndFilesCompatibility:
 
     def test_horizons_and_horizon_files_same_keys(self):
         """HORIZONS list items should match HORIZON_FILES keys"""
-        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.shared.ConfigPerformance import HORIZONS, HORIZON_FILES
+        from simulation.shared.ConfigPerformance import HORIZONS, HORIZON_FILES
         assert set(HORIZONS) == set(HORIZON_FILES.keys())
 
     def test_can_iterate_horizons_to_get_files(self):
         """Should be able to iterate HORIZONS and lookup files"""
-        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.shared.ConfigPerformance import HORIZONS, HORIZON_FILES
+        from simulation.shared.ConfigPerformance import HORIZONS, HORIZON_FILES
 
         files = []
         for horizon in HORIZONS:

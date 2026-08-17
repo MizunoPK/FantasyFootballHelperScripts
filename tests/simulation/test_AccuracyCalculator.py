@@ -9,9 +9,9 @@ Author: Kai Mizuno
 import numpy as np
 import pytest
 
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.accuracy.AccuracyCalculator import AccuracyCalculator, AccuracyResult
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.accuracy.accuracy_types import RankingMetrics
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.accuracy.AccuracyResultsManager import AccuracyConfigPerformance
+from simulation.accuracy.AccuracyCalculator import AccuracyCalculator, AccuracyResult
+from simulation.accuracy.accuracy_types import RankingMetrics
+from simulation.accuracy.AccuracyResultsManager import AccuracyConfigPerformance
 
 
 class TestAccuracyResult:

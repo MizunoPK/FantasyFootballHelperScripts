@@ -14,7 +14,7 @@ from datetime import datetime
 from pathlib import Path
 from unittest.mock import Mock, patch, MagicMock
 
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.error_handler import (
+from utils.error_handler import (
     ErrorContext,
     FantasyFootballError,
     DataProcessingError,

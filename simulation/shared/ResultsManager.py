@@ -13,11 +13,11 @@ from pathlib import Path
 from typing import Dict, Optional, List, Tuple, Any
 from datetime import datetime
 
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.LoggingManager import get_logger
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.shared.ConfigPerformance import ConfigPerformance, WEEK_RANGES
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.shared.config_cleanup import cleanup_old_optimal_folders
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.shared.config_constants import WEEK_SPECIFIC_PARAMS
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.shared.config_filters import extract_base_params
+from utils.LoggingManager import get_logger
+from simulation.shared.ConfigPerformance import ConfigPerformance, WEEK_RANGES
+from simulation.shared.config_cleanup import cleanup_old_optimal_folders
+from simulation.shared.config_constants import WEEK_SPECIFIC_PARAMS
+from simulation.shared.config_filters import extract_base_params
 
 
 class ResultsManager:

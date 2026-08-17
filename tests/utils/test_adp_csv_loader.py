@@ -12,8 +12,8 @@ import pytest
 from pathlib import Path
 import pandas as pd
 
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.adp_csv_loader import load_adp_from_csv
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.error_handler import DataProcessingError
+from utils.adp_csv_loader import load_adp_from_csv
+from utils.error_handler import DataProcessingError
 
 
 class TestLoadAdpFromCsv:

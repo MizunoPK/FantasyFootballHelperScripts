@@ -16,7 +16,7 @@ import json
 
 import pytest
 
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.ConfigManager import ConfigManager
+from league_helper.util.ConfigManager import ConfigManager
 
 
 @pytest.fixture

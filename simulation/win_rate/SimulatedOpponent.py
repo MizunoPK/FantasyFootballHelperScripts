@@ -17,11 +17,11 @@ Author: Kai Mizuno
 import random
 from typing import List, Optional
 
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.PlayerManager import PlayerManager
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.ConfigManager import ConfigManager
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.TeamDataManager import TeamDataManager
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.FantasyPlayer import FantasyPlayer
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.LoggingManager import get_logger
+from league_helper.util.PlayerManager import PlayerManager
+from league_helper.util.ConfigManager import ConfigManager
+from league_helper.util.TeamDataManager import TeamDataManager
+from utils.FantasyPlayer import FantasyPlayer
+from utils.LoggingManager import get_logger
 
 
 class SimulatedOpponent:

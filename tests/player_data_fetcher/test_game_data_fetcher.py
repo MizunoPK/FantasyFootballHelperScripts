@@ -13,8 +13,8 @@ from datetime import datetime, timezone, timedelta
 import pandas as pd
 from pathlib import Path
 
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.player_data_fetcher.game_data_fetcher import GameDataFetcher, fetch_game_data
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.player_data_fetcher.game_data_models import GameData
+from player_data_fetcher.game_data_fetcher import GameDataFetcher, fetch_game_data
+from player_data_fetcher.game_data_models import GameData
 
 
 class TestGameDataFetcherInitialization:

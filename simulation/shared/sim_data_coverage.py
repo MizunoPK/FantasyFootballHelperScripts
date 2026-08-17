@@ -42,13 +42,13 @@ from pathlib import Path
 from typing import Dict, FrozenSet, Iterable, List, Optional, Tuple
 
 # Local
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.historical_data_compiler.constants import (
+from historical_data_compiler.constants import (
     POSITION_JSON_FILES,
     REGULAR_SEASON_WEEKS,
     VALIDATION_WEEKS,
     WEEKS_FOLDER,
 )
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.LoggingManager import get_logger
+from utils.LoggingManager import get_logger
 
 
 COVERAGE_POPULATION_SIZE = 200

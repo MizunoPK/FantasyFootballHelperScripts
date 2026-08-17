@@ -19,11 +19,11 @@ from pathlib import Path
 from unittest.mock import Mock, MagicMock, patch, mock_open
 from io import StringIO
 
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.PlayerManager import PlayerManager
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.ConfigManager import ConfigManager
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.TeamDataManager import TeamDataManager
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.SeasonScheduleManager import SeasonScheduleManager
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.FantasyPlayer import FantasyPlayer
+from league_helper.util.PlayerManager import PlayerManager
+from league_helper.util.ConfigManager import ConfigManager
+from league_helper.util.TeamDataManager import TeamDataManager
+from league_helper.util.SeasonScheduleManager import SeasonScheduleManager
+from utils.FantasyPlayer import FantasyPlayer
 
 
 @pytest.fixture

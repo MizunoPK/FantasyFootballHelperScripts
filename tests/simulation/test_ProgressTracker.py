@@ -10,7 +10,7 @@ import pytest
 import time
 from unittest.mock import Mock, patch, call
 
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.shared.ProgressTracker import ProgressTracker, MultiLevelProgressTracker
+from simulation.shared.ProgressTracker import ProgressTracker, MultiLevelProgressTracker
 
 
 class TestProgressTrackerInitialization:

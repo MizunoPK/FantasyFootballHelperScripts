@@ -16,9 +16,9 @@ import pytest
 from unittest.mock import Mock, patch
 from pathlib import Path
 
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.TeamDataManager import TeamDataManager
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.ConfigManager import ConfigManager
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.TeamData import TeamData
+from league_helper.util.TeamDataManager import TeamDataManager
+from league_helper.util.ConfigManager import ConfigManager
+from utils.TeamData import TeamData
 
 
 

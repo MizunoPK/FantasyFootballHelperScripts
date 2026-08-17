@@ -13,12 +13,12 @@ Author: Kai Mizuno
 
 from pathlib import Path
 
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.PlayerManager import PlayerManager
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.player_search import PlayerSearch
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.user_input import show_list_selection
-import FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.constants as Constants
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.LoggingManager import get_logger
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.FantasyPlayer import FantasyPlayer
+from league_helper.util.PlayerManager import PlayerManager
+from league_helper.util.player_search import PlayerSearch
+from league_helper.util.user_input import show_list_selection
+import league_helper.constants as Constants
+from utils.LoggingManager import get_logger
+from utils.FantasyPlayer import FantasyPlayer
 
 
 class ModifyPlayerDataModeManager:

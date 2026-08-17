@@ -27,7 +27,7 @@ from .constants import (
 import sys
 from pathlib import Path
 sys.path.append(str(Path(__file__).parent.parent))
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.LoggingManager import get_logger
+from utils.LoggingManager import get_logger
 
 
 class HTTPClientError(Exception):

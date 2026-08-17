@@ -12,8 +12,8 @@ import logging
 from pathlib import Path
 import shutil
 
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.LoggingManager import LoggingManager
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.LineBasedRotatingHandler import LineBasedRotatingHandler
+from utils.LoggingManager import LoggingManager
+from utils.LineBasedRotatingHandler import LineBasedRotatingHandler
 
 
 class TestLoggingInfrastructureE2E(unittest.TestCase):

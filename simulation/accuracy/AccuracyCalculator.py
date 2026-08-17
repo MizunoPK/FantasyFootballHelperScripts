@@ -20,8 +20,8 @@ from typing import List, Dict, Tuple, Optional, Any
 import numpy as np
 from scipy.stats import spearmanr
 
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.LoggingManager import get_logger
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.accuracy.accuracy_types import RankingMetrics
+from utils.LoggingManager import get_logger
+from simulation.accuracy.accuracy_types import RankingMetrics
 
 
 class AccuracyResult:

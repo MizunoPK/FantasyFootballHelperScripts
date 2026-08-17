@@ -25,8 +25,8 @@ import pytest
 from pathlib import Path
 from unittest.mock import Mock, MagicMock
 
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.DraftedRosterManager import DraftedRosterManager
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.FantasyPlayer import FantasyPlayer
+from utils.DraftedRosterManager import DraftedRosterManager
+from utils.FantasyPlayer import FantasyPlayer
 
 
 class TestDraftedRosterManagerInit:
