@@ -30,7 +30,6 @@ class DraftStrategyOrchestrator:
         config_path: Path = Path("data/configs/league_config.json"),
         strategy_filter: Optional[str] = None,
         naive_opponents: bool = False,
-        legacy_construction_snapshot: bool = False,
         seed: Optional[int] = None,
     ) -> None:
         """
@@ -53,10 +52,6 @@ class DraftStrategyOrchestrator:
                 strategies.
             naive_opponents (bool): Forwarded to the CombinationEvaluator (and thus the
                 ParallelLeagueRunner / SimulatedLeague). False (default) = self-play; True = naive.
-            legacy_construction_snapshot (bool): Forwarded to the CombinationEvaluator (and
-                thus the ParallelLeagueRunner / SimulatedLeague). False (default, cutover)
-                selects the exact week_{WEEKS_PER_SEASON + 1:02d} snapshot and fails closed if
-                absent; True is the opt-in legacy sorted-last rollback (D1.2/TD5).
             seed (Optional[int]): Base seed for deterministic evaluation (D1/T29). Forwarded to
                 CombinationEvaluator → ParallelLeagueRunner. Default None → OS entropy (D3).
         """
@@ -71,7 +66,6 @@ class DraftStrategyOrchestrator:
             max_workers=max_workers,
             config_path=config_path,
             naive_opponents=naive_opponents,
-            legacy_construction_snapshot=legacy_construction_snapshot,
             seed=seed,
         )
         self._baseline_params: Dict[str, float] = extract_draft_param_values(

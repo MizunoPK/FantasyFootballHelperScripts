@@ -37,7 +37,7 @@ def _init_worker_process(week_data: Optional[Dict[int, Dict]]) -> None:
     _WORKER_PRELOADED_WEEK_DATA = week_data
 
 
-def _run_simulation_process(args: Tuple[dict, int, Path, bool, bool, Optional[int], Optional[dict]]) -> Tuple[int, int, float]:
+def _run_simulation_process(args: Tuple[dict, int, Path, bool, Optional[int], Optional[dict]]) -> Tuple[int, int, float]:
     """
     Run a single simulation in a separate process.
 
@@ -47,18 +47,18 @@ def _run_simulation_process(args: Tuple[dict, int, Path, bool, bool, Optional[in
     worker by _init_worker_process, avoiding per-simulation pickling.
 
     Args:
-        args: Tuple of (config_dict, simulation_id, data_folder, naive_opponents,
-            legacy_construction_snapshot, seed, measured_config_dict) where seed is the
-            per-task deterministic seed (None → entropy default) and measured_config_dict is
-            the measured team's trial config (T54/D1; None → symmetric single-config behavior).
+        args: Tuple of (config_dict, simulation_id, data_folder, naive_opponents, seed,
+            measured_config_dict) where seed is the per-task deterministic seed
+            (None → entropy default) and measured_config_dict is the measured team's trial
+            config (T54/D1; None → symmetric single-config behavior).
 
     Returns:
         Tuple[int, int, float]: (wins, losses, total_points) for DraftHelperTeam
     """
-    config_dict, simulation_id, data_folder, naive_opponents, legacy_construction_snapshot, seed, measured_config_dict = args
+    config_dict, simulation_id, data_folder, naive_opponents, seed, measured_config_dict = args
     league = None
     try:
-        league = SimulatedLeague(config_dict, data_folder, _WORKER_PRELOADED_WEEK_DATA, measured_config_dict=measured_config_dict, naive_opponents=naive_opponents, legacy_construction_snapshot=legacy_construction_snapshot, seed=seed)
+        league = SimulatedLeague(config_dict, data_folder, _WORKER_PRELOADED_WEEK_DATA, measured_config_dict=measured_config_dict, naive_opponents=naive_opponents, seed=seed)
         league.run_draft()
         league.run_season()
         wins, losses, total_points = league.get_draft_helper_results()
@@ -69,7 +69,7 @@ def _run_simulation_process(args: Tuple[dict, int, Path, bool, bool, Optional[in
             del league
 
 
-def _run_simulation_with_weeks_process(args: Tuple[dict, int, Path, bool, bool, Optional[int]]) -> List[Tuple[int, bool, float]]:
+def _run_simulation_with_weeks_process(args: Tuple[dict, int, Path, bool, Optional[int]]) -> List[Tuple[int, bool, float]]:
     """
     Run a single simulation with week tracking in a separate process.
 
@@ -79,18 +79,17 @@ def _run_simulation_with_weeks_process(args: Tuple[dict, int, Path, bool, bool, 
     _init_worker_process, avoiding per-simulation pickling.
 
     Args:
-        args: Tuple of (config_dict, simulation_id, data_folder, naive_opponents,
-            legacy_construction_snapshot, seed) where seed is the per-task deterministic
-            seed (None → entropy default).
+        args: Tuple of (config_dict, simulation_id, data_folder, naive_opponents, seed)
+            where seed is the per-task deterministic seed (None → entropy default).
 
     Returns:
         List[Tuple[int, bool, float]]: Per-week results as list of
             (week_number, won, points) tuples
     """
-    config_dict, simulation_id, data_folder, naive_opponents, legacy_construction_snapshot, seed = args
+    config_dict, simulation_id, data_folder, naive_opponents, seed = args
     league = None
     try:
-        league = SimulatedLeague(config_dict, data_folder, _WORKER_PRELOADED_WEEK_DATA, naive_opponents=naive_opponents, legacy_construction_snapshot=legacy_construction_snapshot, seed=seed)
+        league = SimulatedLeague(config_dict, data_folder, _WORKER_PRELOADED_WEEK_DATA, naive_opponents=naive_opponents, seed=seed)
         league.run_draft()
         league.run_season()
         week_results = league.get_draft_helper_results_by_week()
@@ -155,7 +154,6 @@ class ParallelLeagueRunner:
         progress_callback: Optional[Callable[[int, int], None]] = None,
         use_processes: bool = False,
         naive_opponents: bool = False,
-        legacy_construction_snapshot: bool = False,
         seed: Optional[int] = None
     ) -> None:
         """
@@ -173,10 +171,6 @@ class ParallelLeagueRunner:
             naive_opponents (bool): Forwarded verbatim to every SimulatedLeague this runner
                 builds (thread-mode and process-mode workers alike). False (default) selects the
                 self-play composition; True selects the legacy naive composition.
-            legacy_construction_snapshot (bool): Forwarded verbatim to every SimulatedLeague
-                this runner builds (thread-mode and process-mode workers alike). False (default,
-                cutover) selects the exact week_{WEEKS_PER_SEASON + 1:02d} snapshot and fails
-                closed if absent; True is the opt-in legacy sorted-last rollback (D1.2/TD5).
             seed (Optional[int]): Base seed for deterministic evaluation (D1/T29). When provided,
                 each simulation task receives a per-task seed derived from
                 (base_seed, season_folder, sim_id) via _derive_task_seed, making every league's
@@ -186,7 +180,6 @@ class ParallelLeagueRunner:
         self.data_folder = data_folder or Path("simulation/sim_data")
         self.use_processes = use_processes
         self.naive_opponents = naive_opponents
-        self.legacy_construction_snapshot = legacy_construction_snapshot
         self.seed = seed
         self.logger = get_logger()
         self.progress_callback = progress_callback
@@ -248,7 +241,7 @@ class ParallelLeagueRunner:
         """
         league = None
         try:
-            league = SimulatedLeague(config_dict, self.data_folder, preloaded_week_data, measured_config_dict=measured_config_dict, naive_opponents=self.naive_opponents, legacy_construction_snapshot=self.legacy_construction_snapshot, seed=seed)
+            league = SimulatedLeague(config_dict, self.data_folder, preloaded_week_data, measured_config_dict=measured_config_dict, naive_opponents=self.naive_opponents, seed=seed)
 
             league.run_draft()
             league.run_season()
@@ -295,7 +288,7 @@ class ParallelLeagueRunner:
         """
         league = None
         try:
-            league = SimulatedLeague(config_dict, self.data_folder, preloaded_week_data, naive_opponents=self.naive_opponents, legacy_construction_snapshot=self.legacy_construction_snapshot, seed=seed)
+            league = SimulatedLeague(config_dict, self.data_folder, preloaded_week_data, naive_opponents=self.naive_opponents, seed=seed)
 
             league.run_draft()
             league.run_season()
@@ -386,7 +379,7 @@ class ParallelLeagueRunner:
                 initargs=(preloaded_week_data,)
             )
             sim_args = [
-                (config_dict, sim_id, self.data_folder, self.naive_opponents, self.legacy_construction_snapshot, task_seeds[sim_id], measured_config_dict)
+                (config_dict, sim_id, self.data_folder, self.naive_opponents, task_seeds[sim_id], measured_config_dict)
                 for sim_id in range(num_simulations)
             ]
             future_to_sim_id = {
@@ -499,7 +492,7 @@ class ParallelLeagueRunner:
                 initargs=(preloaded_week_data,)
             )
             sim_args = [
-                (config_dict, sim_id, self.data_folder, self.naive_opponents, self.legacy_construction_snapshot, task_seeds[sim_id])
+                (config_dict, sim_id, self.data_folder, self.naive_opponents, task_seeds[sim_id])
                 for sim_id in range(num_simulations)
             ]
             future_to_sim_id = {

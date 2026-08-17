@@ -9,7 +9,7 @@ Author: Kai Mizuno
 import pytest
 import logging
 from pathlib import Path
-from unittest.mock import Mock, MagicMock, patch, call
+from unittest.mock import Mock, patch, call
 import threading
 
 from simulation.win_rate.ParallelLeagueRunner import ParallelLeagueRunner
@@ -85,7 +85,7 @@ class TestRunSingleSimulation:
         runner.run_single_simulation(config, simulation_id=1)
 
         mock_league_class.assert_called_once_with(
-            config, runner.data_folder, None, measured_config_dict=None, naive_opponents=True, legacy_construction_snapshot=False, seed=None
+            config, runner.data_folder, None, measured_config_dict=None, naive_opponents=True, seed=None
         )
 
     @patch('simulation.win_rate.ParallelLeagueRunner.SimulatedLeague')
@@ -100,7 +100,7 @@ class TestRunSingleSimulation:
 
         result = runner.run_single_simulation(config, simulation_id=1)
 
-        mock_league_class.assert_called_once_with(config, runner.data_folder, None, measured_config_dict=None, naive_opponents=False, legacy_construction_snapshot=False, seed=None)
+        mock_league_class.assert_called_once_with(config, runner.data_folder, None, measured_config_dict=None, naive_opponents=False, seed=None)
 
         mock_league.run_draft.assert_called_once()
         mock_league.run_season.assert_called_once()
@@ -191,10 +191,10 @@ class TestRunSingleSimulation:
             config = {'base': 'config'}
             measured = {'measured': 'config'}
             data_folder = Path('/test/data')
-            args = (config, 0, data_folder, False, False, None, measured)
+            args = (config, 0, data_folder, False, None, measured)
 
-            # Call _run_simulation_process directly with the 7-element tuple
-            # (legacy_construction_snapshot between naive_opponents and seed; renamed D1.2)
+            # Call _run_simulation_process directly with the 6-element tuple
+            # (D1.3: the retired rollback-flag field between naive_opponents and seed is gone)
             _run_simulation_process(args)
 
             # Assert measured_config_dict was passed to SimulatedLeague
@@ -252,7 +252,7 @@ class TestRunSimulationsForConfig:
 
         call_count = [0]
 
-        def create_league_with_failure(config, data_folder, preloaded_week_data=None, measured_config_dict=None, naive_opponents=False, legacy_construction_snapshot=False, seed=None):
+        def create_league_with_failure(config, data_folder, preloaded_week_data=None, measured_config_dict=None, naive_opponents=False, seed=None):
             mock_league = Mock()
             sim_num = call_count[0]
             call_count[0] += 1
@@ -335,7 +335,7 @@ class TestRunSimulationsForConfig:
 
         call_count = [0]
 
-        def create_league_with_failure(config, data_folder, preloaded_week_data=None, measured_config_dict=None, naive_opponents=False, legacy_construction_snapshot=False, seed=None):
+        def create_league_with_failure(config, data_folder, preloaded_week_data=None, measured_config_dict=None, naive_opponents=False, seed=None):
             mock_league = Mock()
             sim_num = call_count[0]
             call_count[0] += 1
@@ -485,7 +485,7 @@ class TestTestSingleRun:
         result = runner.test_single_run(config)
 
         assert result == (10, 7, 1234.56)
-        mock_league_class.assert_called_once_with(config, runner.data_folder, None, measured_config_dict=None, naive_opponents=False, legacy_construction_snapshot=False, seed=None)
+        mock_league_class.assert_called_once_with(config, runner.data_folder, None, measured_config_dict=None, naive_opponents=False, seed=None)
 
     @patch('simulation.win_rate.ParallelLeagueRunner.SimulatedLeague')
     def test_test_single_run_with_exception(self, mock_league_class):
@@ -607,7 +607,7 @@ class TestIntegrationScenarios:
 
         runner.test_single_run(config)
 
-        mock_league_class.assert_called_once_with(config, custom_folder, None, measured_config_dict=None, naive_opponents=False, legacy_construction_snapshot=False, seed=None)
+        mock_league_class.assert_called_once_with(config, custom_folder, None, measured_config_dict=None, naive_opponents=False, seed=None)
 
 
 class TestEdgeCases:
@@ -730,72 +730,3 @@ class TestParallelLeagueRunnerCleanup:
 
         mock_gc.collect.assert_not_called()
         assert len(results) == 4
-
-
-class TestLegacyConstructionSnapshotProcessPoolPins:
-    """
-    D1.2/UD8: True-valued pins on the four use_processes=True forwarding sites that were
-    previously covered only at legacy_construction_snapshot=False (see module docstring of
-    the renamed tests/root_scripts/test_run_win_rate_simulation_legacy_construction_flag.py
-    for why these four sites are out of scope there). Each of the four asserts the value
-    reaches its site when set to True, closing the gap a False-only mutation could hide
-    under the flipped cutover default (D1.2 spec §3).
-    """
-
-    def test_pack_site_run_simulations_for_config_carries_true(self):
-        """Pack site :389 — run_simulations_for_config's sim_args tuple.
-
-        No existing test in this file mocks ProcessPoolExecutor directly (the four
-        process-pool sites were previously covered only indirectly, per D1.1's flag-test
-        module docstring) — this is new coverage, not a conforming reuse of an existing
-        double, because none exists at this exact seam.
-        """
-        with patch('simulation.win_rate.ParallelLeagueRunner.ProcessPoolExecutor') as mock_pp_cls, \
-             patch('simulation.win_rate.ParallelLeagueRunner.as_completed', return_value=[]):
-            mock_executor = MagicMock()
-            mock_pp_cls.return_value = mock_executor
-            runner = ParallelLeagueRunner(max_workers=1, use_processes=True, legacy_construction_snapshot=True)
-            runner.run_simulations_for_config({'config': 'x'}, num_simulations=1)
-            submitted_args = mock_executor.submit.call_args_list[0][0][1]
-            assert submitted_args[4] is True  # legacy_construction_snapshot position
-
-    def test_pack_site_run_simulations_for_config_with_weeks_carries_true(self):
-        """Pack site :502 — run_simulations_for_config_with_weeks's sim_args tuple."""
-        with patch('simulation.win_rate.ParallelLeagueRunner.ProcessPoolExecutor') as mock_pp_cls, \
-             patch('simulation.win_rate.ParallelLeagueRunner.as_completed', return_value=[]):
-            mock_executor = MagicMock()
-            mock_pp_cls.return_value = mock_executor
-            runner = ParallelLeagueRunner(max_workers=1, use_processes=True, legacy_construction_snapshot=True)
-            runner.run_simulations_for_config_with_weeks({'config': 'x'}, num_simulations=1)
-            submitted_args = mock_executor.submit.call_args_list[0][0][1]
-            assert submitted_args[4] is True  # legacy_construction_snapshot position
-
-    def test_unpack_site_run_simulation_process_forwards_true(self):
-        """Unpack site :61 — _run_simulation_process forwards legacy_construction_snapshot=True."""
-        from simulation.win_rate.ParallelLeagueRunner import _run_simulation_process
-
-        with patch('simulation.win_rate.ParallelLeagueRunner.SimulatedLeague') as mock_league_class:
-            mock_league = Mock()
-            mock_league.get_draft_helper_results.return_value = (10, 7, 1234.56)
-            mock_league_class.return_value = mock_league
-
-            args = ({'base': 'config'}, 0, Path('/test/data'), False, True, None, None)
-            _run_simulation_process(args)
-
-            call_kwargs = mock_league_class.call_args.kwargs
-            assert call_kwargs['legacy_construction_snapshot'] is True
-
-    def test_unpack_site_run_simulation_with_weeks_process_forwards_true(self):
-        """Unpack site :93 — _run_simulation_with_weeks_process forwards legacy_construction_snapshot=True."""
-        from simulation.win_rate.ParallelLeagueRunner import _run_simulation_with_weeks_process
-
-        with patch('simulation.win_rate.ParallelLeagueRunner.SimulatedLeague') as mock_league_class:
-            mock_league = Mock()
-            mock_league.get_draft_helper_results_by_week.return_value = []
-            mock_league_class.return_value = mock_league
-
-            args = ({'base': 'config'}, 0, Path('/test/data'), False, True, None)
-            _run_simulation_with_weeks_process(args)
-
-            call_kwargs = mock_league_class.call_args.kwargs
-            assert call_kwargs['legacy_construction_snapshot'] is True

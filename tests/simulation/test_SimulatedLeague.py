@@ -1106,9 +1106,10 @@ class TestSelfLoadRefusesMissingActuals:
 
 class TestExplicitConstructionSnapshotGuard:
     """
-    D1.2/TD1-TD3, cutover-default path (D1.1 supplied it opt-in; D1.2 makes it default): the
-    SimulatedLeague._initialize_teams must select week_18 (WEEKS_PER_SEASON + 1) by exact
-    path and raise FileNotFoundError naming it when absent, entering through the same
+    TD1-TD3, the sole construction-snapshot path (D1.1 supplied it opt-in, D1.2 made it the
+    default, D1.3 made it the only path): SimulatedLeague._initialize_teams selects week_18
+    (WEEKS_PER_SEASON + 1) by exact path and raises FileNotFoundError naming it when absent,
+    entering through the same
     non-empty-preloaded_week_data bypass seam TestSelfLoadRefusesMissingActuals covers for
     the legacy preload path — a fixture with preloaded_week_data=None would stop at the
     pre-existing _preload_all_weeks guard and falsely claim coverage of THIS guard, so the
@@ -1133,41 +1134,6 @@ class TestExplicitConstructionSnapshotGuard:
                     tmp_path,
                     preloaded_week_data={1: {"projected": {}, "actual": {}}},
                 )
-
-    def test_legacy_flag_true_uses_legacy_selector_on_same_corpus(self, tmp_path):
-        # Discriminator: on the IDENTICAL missing-week_18 corpus, the legacy-flag path
-        # must NOT raise FileNotFoundError before _create_shared_data_dir — legacy sorted-last
-        # resolves to week_17 successfully. If a future edit routed the True case through the
-        # default exact-path guard instead of this legacy branch, test_missing_week_18_raises_before_shared_data
-        # would stop failing as expected. This intentionally stops at _create_shared_data_dir
-        # (mocked to short-circuit via a sentinel exception) rather than running full team/draft
-        # construction — no test in this file runs _initialize_teams unmocked against a
-        # config_dict this minimal (every other class here patches _initialize_teams outright);
-        # a minimal 2-parameter config would fail ConfigManager's real required-parameter list
-        # for reasons unrelated to the selector this test targets.
-        weeks_folder = tmp_path / "weeks"
-        weeks_folder.mkdir()
-        TestSelfLoadRefusesMissingActuals._write_week(weeks_folder, 17)
-
-        config = {"config_name": "test", "description": "test", "parameters": {"num_teams": 2, "draft_rounds": 1}}
-
-        class _ReachedSharedDataDir(Exception):
-            pass
-
-        with patch('simulation.win_rate.SimulatedLeague.tempfile.mkdtemp') as mock_mkdtemp, \
-             patch('simulation.win_rate.SimulatedLeague.SimulatedLeague._create_shared_data_dir',
-                   side_effect=_ReachedSharedDataDir) as mock_create_shared:
-            temp_dir = tmp_path / "temp"
-            temp_dir.mkdir()
-            mock_mkdtemp.return_value = str(temp_dir)
-            with pytest.raises(_ReachedSharedDataDir):
-                SimulatedLeague(
-                    config,
-                    tmp_path,
-                    preloaded_week_data={1: {"projected": {}, "actual": {}}},
-                    legacy_construction_snapshot=True,
-                )
-            mock_create_shared.assert_called_once_with("shared_data", weeks_folder / "week_17")
 
     def test_missing_week_18_releases_temp_dir_on_raise(self, tmp_path):
         """

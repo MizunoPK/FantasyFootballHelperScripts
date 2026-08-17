@@ -86,23 +86,30 @@ def load_week_player_data(
             predicted 1-win drop.
 
             T73's contrary observation (0.529, HIGHER) was CONFOUNDED, not evidence of an
-            upward effect. Deleting a week_18 folder changes two independent things, and
-            T73 attributed both to the fallback. The second is `_initialize_teams`, which
-            builds the shared construction snapshot from `available_weeks[-1]` — reachable,
-            since the D1.2 cutover, only under the opt-in `--legacy-construction-snapshot`
-            rollback flag, the default instead failing closed. Delete week_18 and that
-            snapshot silently becomes week_17.
-            Because `set_player_data` refreshes only projected_points/actual_points, every
-            OTHER FantasyPlayer field stays frozen at that snapshot, including
-            `player_rating`, which the draft scorer reads. All ten teams therefore draft
-            different rosters and play a different season. Measured in isolation that
+            upward effect. At the time, deleting a week_18 folder changed two independent
+            things, and T73 attributed both to the fallback. The second was
+            `_initialize_teams`'s then-sorted-last construction-snapshot selection: with
+            week_18 absent it slid the shared snapshot onto week_17. Because
+            `set_player_data` refreshes only projected_points/actual_points, every OTHER
+            FantasyPlayer field stayed frozen at whichever snapshot was selected, including
+            `player_rating`, which the draft scorer reads — so all ten teams drafted
+            different rosters and played a different season. Measured in isolation that
             channel moved the rate by -6 to +6 wins with SEED-DEPENDENT SIGN (3 up, 3 down
             across 6 base seeds), dwarfing and flipping the fallback's own -1.
 
-            Consequence for anyone reasoning here: a degenerate WEEK biases downward and is
-            safe to reason about, but a missing week FOLDER additionally re-rolls the draft
-            and is not directional at all. Do not generalise the folder-level observation to
-            other degenerate-input questions.
+            That second channel is RETIRED as of D1.3 and is stated here only as history.
+            `_initialize_teams` now selects week_18 (`WEEKS_PER_SEASON + 1`) by exact path
+            and raises FileNotFoundError unconditionally when it is absent, before any team
+            is built — there is no sorted-last fallback left to slide onto week_17, and no
+            other week folder ever fed the construction snapshot.
+
+            Consequence for anyone reasoning here: the degenerate-WEEK effect above is the
+            only channel still reachable from missing/degenerate week data, and it biases
+            downward, so it is safe to reason about directionally. A missing week_18 is not
+            a degenerate-input question at all — it is a hard failure. A missing week_N+1
+            for some other N reaches only the raise above. Do not resurrect the retired
+            draft-re-roll reasoning when analysing today's code, and do not generalise the
+            historical folder-level observation to other degenerate-input questions.
     """
     projected_folder = weeks_folder / f"week_{week_num:02d}"
 
@@ -169,7 +176,7 @@ class SimulatedLeague:
     }
     """Legacy naive-opponent composition (selected when naive_opponents=True): 1 DraftHelperTeam + 9 SimulatedOpponents. dict values sum to 9 opponents + 1 DraftHelperTeam = 10 total teams per league. The 1/2/2/2/3 distribution reflects the relative prevalence of each strategy among typical human fantasy drafters. Retained verbatim so the prior ~0.84 baseline regime stays reproducible (T24)."""
 
-    def __init__(self, config_dict: dict, data_folder: Path = Path("./simulation/sim_data"), preloaded_week_data: Optional[Dict[int, Dict]] = None, measured_config_dict: Optional[dict] = None, naive_opponents: bool = False, legacy_construction_snapshot: bool = False, seed: Optional[int] = None) -> None:
+    def __init__(self, config_dict: dict, data_folder: Path = Path("./simulation/sim_data"), preloaded_week_data: Optional[Dict[int, Dict]] = None, measured_config_dict: Optional[dict] = None, naive_opponents: bool = False, seed: Optional[int] = None) -> None:
         """
         Initialize SimulatedLeague with configuration.
 
@@ -190,13 +197,6 @@ class SimulatedLeague:
                 (SELF_PLAY_TEAM_STRATEGIES — 10 DraftHelperTeams, no SimulatedOpponents). When True
                 the legacy naive composition (NAIVE_TEAM_STRATEGIES — 1 DraftHelperTeam + 9
                 SimulatedOpponents) is used, reproducing the prior ~0.84 baseline regime (T24).
-            legacy_construction_snapshot (bool): When False (default, cutover-stage D1.2)
-                `_initialize_teams` resolves `week_{WEEKS_PER_SEASON + 1:02d}` directly and
-                raises FileNotFoundError before any shared player data is constructed if that
-                exact folder is absent (TD1/TD2). When True, it instead selects the legacy
-                sorted-last `available_weeks[-1]` week folder — the runtime rollback for this
-                rollout's last cleanly reversible point (TD5); `D1.3` removes this branch
-                entirely at contract.
             seed (Optional[int]): Base seed for this league's private RNG (random.Random). When
                 provided, every random draw in this league (team-slot shuffle, draft-order shuffle,
                 opponent human-error picks) is deterministic and isolated from other leagues and
@@ -215,7 +215,6 @@ class SimulatedLeague:
         self.config_dict = config_dict
         self.measured_config_dict = measured_config_dict
         self.naive_opponents = naive_opponents
-        self.legacy_construction_snapshot = legacy_construction_snapshot
         self.data_folder = data_folder
         # Per-league private RNG (D1/T29): seeded deterministically when seed is provided so
         # every draw is isolated from the process-global random module and from other leagues.
@@ -291,43 +290,21 @@ class SimulatedLeague:
 
         weeks_folder = self.data_folder / "weeks"
 
-        if not self.legacy_construction_snapshot:
-            # D1.2/TD1/TD2: exact-path resolution is now the cutover default (UD1/UD7).
-            # Derived locally from WEEKS_PER_SEASON (no import of SimDataLoader.WEEKS_REQUIRED
-            # back into this module — that would be a circular dependency and would put
-            # SimDataLoader.py in this unit's diff, violating an explicit success criterion).
-            construction_week = WEEKS_PER_SEASON + 1
-            expected_week_folder = weeks_folder / f"week_{construction_week:02d}"
-            if not expected_week_folder.is_dir():
-                raise FileNotFoundError(
-                    f"Expected construction-snapshot week folder not found: "
-                    f"{expected_week_folder} (week_{construction_week:02d} is the required "
-                    f"construction snapshot; pass --legacy-construction-snapshot to roll back "
-                    f"to sorted-last selection)"
-                )
-            week_folder = expected_week_folder
-        else:
-            # D1.2/TD5: opt-in runtime rollback to the legacy sorted-last selector — the last
-            # cleanly reversible point of this rollout. D1.3 removes this branch at contract.
-            available_weeks = sorted([f for f in weeks_folder.iterdir() if f.is_dir() and f.name.startswith("week_")])
-            if not available_weeks:
-                raise FileNotFoundError(f"No week folders found in: {weeks_folder}")
-
-            # T74: this snapshot is LOAD-BEARING FOR THE DRAFT, not just for actual_points.
-            # `set_player_data` later refreshes only projected_points/actual_points, so every
-            # other FantasyPlayer field -- notably `player_rating`, which the draft scorer reads
-            # -- stays frozen at whatever this folder held. If the season is ever truncated,
-            # `available_weeks[-1]` slides to an earlier week and EVERY TEAM DRAFTS A DIFFERENT
-            # ROSTER. Measured effect: -6 to +6 wins out of 34, sign depending on the seed.
-            #
-            # How loudly that fails depends on the path. Under the DEFAULT (non-legacy) path
-            # this branch is not reachable at all; on THIS opt-in legacy path the failure is
-            # silent whenever the preload is BYPASSED -- `__init__` short-circuits
-            # `_preload_all_weeks` when non-empty `preloaded_week_data` is supplied -- which is
-            # exactly how T74's experiment separated this channel from the zeroed-actuals one.
-            # D1.3 owns the full reconciliation of this paragraph (UD9); this clause only scopes
-            # the hazard to the legacy flag now that it is no longer the default path.
-            week_folder = available_weeks[-1]
+        # D1.3: the exact-path guard is now unconditional — the legacy sorted-last selector
+        # and its opt-in rollback flag are retired (contract; see Week.py and
+        # load_week_player_data's docstring for the full T74 reconciliation). Derived locally
+        # from WEEKS_PER_SEASON (no import of SimDataLoader.WEEKS_REQUIRED back into this
+        # module — that would be a circular dependency and would put SimDataLoader.py in this
+        # unit's diff, violating an explicit success criterion).
+        construction_week = WEEKS_PER_SEASON + 1
+        expected_week_folder = weeks_folder / f"week_{construction_week:02d}"
+        if not expected_week_folder.is_dir():
+            raise FileNotFoundError(
+                f"Expected construction-snapshot week folder not found: "
+                f"{expected_week_folder} (week_{construction_week:02d} is the required "
+                f"construction snapshot)"
+            )
+        week_folder = expected_week_folder
 
         self.logger.debug(f"Using {week_folder.name} JSON files for team setup (has complete actual_points data)")
 
