@@ -23,6 +23,7 @@ import argparse
 import asyncio
 import hashlib
 import json
+import re
 from pathlib import Path
 from typing import Any, Dict, List
 
@@ -34,16 +35,84 @@ SCHEMA_VERSION = 1
 SANITIZER_VERSION = 1
 SENTINEL_LEAGUE_ID = 999999999
 
+# ESPN's SWID cookie (the live authenticated credential) and its `members[].id`
+# counterpart are both `{XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX}`-shaped GUIDs.
+# Any GUID-shaped string surviving sanitization is treated as unmodelled
+# identity data (KDD2 fail-closed hardening, polish pass 3).
+_GUID_PATTERN = re.compile(
+    r"\{?[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}\}?"
+)
+
+
+class SanitizationLeakError(RuntimeError):
+    """Raised when sanitized output still contains identity-shaped data.
+
+    Fail-closed guard: refusing to write a corpus is always preferred over
+    emitting one that might carry a real ESPN member GUID or name.
+    """
+
+
+def _scrub_identity_shaped_strings(value: Any) -> Any:
+    """Recursively replace any GUID-shaped string found anywhere in `value`.
+
+    Used on fields (e.g. `members[].notificationSettings`) whose sub-shape
+    is not fully modeled but which may embed a GUID-shaped identity value.
+    """
+    if isinstance(value, dict):
+        return {k: _scrub_identity_shaped_strings(v) for k, v in value.items()}
+    if isinstance(value, list):
+        return [_scrub_identity_shaped_strings(v) for v in value]
+    if isinstance(value, str) and _GUID_PATTERN.search(value):
+        return "[REDACTED-IDENTITY-VALUE]"
+    return value
+
+
+def assert_no_identity_leak(payload: Dict[str, Any]) -> None:
+    """Fail-closed post-sanitization scan (KDD2 hardening, polish pass 3).
+
+    Scans the full serialized payload for any GUID-shaped value anywhere.
+    A clean `sanitize_league_payload()` output should never contain one --
+    a hit means some ESPN field carrying identity data (a `members[].id`
+    SWID-shaped credential, or any other unmodelled field) was not
+    recognized and replaced by the sanitizer. This is deliberately a
+    write-time gate rather than an input allowlist: an allowlist that
+    dropped unknown top-level keys would risk silently discarding fields
+    the replay corpus actually needs (this script's whole job is to
+    preserve mDraftDetail/mTeam shape for replay), whereas refusing to
+    write forces a human to explicitly teach the sanitizer about the new
+    field before any corpus reaches disk.
+
+    Raises:
+        SanitizationLeakError: If a GUID-shaped value is found anywhere.
+    """
+    match = _GUID_PATTERN.search(json.dumps(payload))
+    if match:
+        raise SanitizationLeakError(
+            f"Refusing to write corpus: sanitized payload still contains a "
+            f"GUID-shaped value ({match.group(0)!r}) after sanitize_league_payload(). "
+            f"This means some ESPN payload field carrying identity data (e.g. a "
+            f"members[].id SWID-shaped credential) was not recognized and replaced. "
+            f"Add handling for the offending field to sanitize_league_payload() "
+            f"before re-running -- do not bypass this check."
+        )
+
 
 def sanitize_league_payload(raw: Dict[str, Any]) -> Dict[str, Any]:
     """Deterministically sanitize a raw league payload (KDD2).
 
-    Replaces the production league ID, ESPN owner identifiers, and real
-    team/league names with deterministic positional synthetic values.
-    Preserves every pick<->team<->player integer relationship: team `id`,
-    `playerId`, `overallPickNumber`, `roundId`, and `lineupSlotId` are
-    left untouched — only identity-bearing string/name fields and the
-    league ID are replaced.
+    Replaces the production league ID, ESPN owner identifiers, real
+    team/league names, and the top-level `members` array (owner GUIDs
+    a.k.a. the SWID-shaped credential, first/last/display names,
+    notification settings) with deterministic positional synthetic
+    values. Preserves every pick<->team<->player integer relationship:
+    team `id`, `playerId`, `overallPickNumber`, `roundId`, and
+    `lineupSlotId` are left untouched — only identity-bearing
+    string/name fields and the league ID are replaced.
+
+    Any `members[].id` referenced by `teams[].owners` or
+    `teams[].primaryOwner` is replaced consistently (same real GUID ->
+    same synthetic token everywhere it appears), so identity
+    relationships the corpus depends on for replay are preserved.
 
     Args:
         raw: Raw dict as returned by ESPNClient._get_raw_league_snapshot.
@@ -61,13 +130,47 @@ def sanitize_league_payload(raw: Dict[str, Any]) -> Dict[str, Any]:
     if isinstance(settings_block, dict) and "name" in settings_block:
         settings_block["name"] = "Synthetic League"
 
+    # Sanitize the top-level `members` array first so its real-GUID ->
+    # synthetic-token mapping is available when sanitizing `teams` below.
+    member_id_map: Dict[str, str] = {}
+    members = sanitized.get("members")
+    if isinstance(members, list):
+        for idx, member in enumerate(members, start=1):
+            if not isinstance(member, dict):
+                continue
+            synthetic_id = f"SYNTHETIC-MEMBER-{idx}"
+            real_id = member.get("id")
+            if isinstance(real_id, str):
+                member_id_map[real_id] = synthetic_id
+            if "id" in member:
+                member["id"] = synthetic_id
+            if "firstName" in member:
+                member["firstName"] = "Synthetic"
+            if "lastName" in member:
+                member["lastName"] = f"Member{idx}"
+            if "displayName" in member:
+                member["displayName"] = f"syntheticmember{idx}"
+            if "notificationSettings" in member:
+                member["notificationSettings"] = _scrub_identity_shaped_strings(
+                    member["notificationSettings"]
+                )
+
     for idx, team in enumerate(sanitized.get("teams", []), start=1):
         for name_field in ("name", "location", "nickname", "abbrev"):
             if name_field in team:
                 team[name_field] = f"Synthetic Team {idx}"
         owners = team.get("owners")
         if isinstance(owners, list):
-            team["owners"] = [f"Synthetic Owner {j}" for j, _ in enumerate(owners, start=1)]
+            new_owners = []
+            for j, owner in enumerate(owners, start=1):
+                if isinstance(owner, str) and owner in member_id_map:
+                    new_owners.append(member_id_map[owner])
+                else:
+                    new_owners.append(f"Synthetic Owner {j}")
+            team["owners"] = new_owners
+        if "primaryOwner" in team:
+            real_primary = team["primaryOwner"]
+            team["primaryOwner"] = member_id_map.get(real_primary, "SYNTHETIC-PRIMARY-OWNER")
 
     return sanitized
 
@@ -105,6 +208,9 @@ def write_corpus(output_dir: Path, sanitized_source: Dict[str, Any], steps: List
 
     Raises:
         FileExistsError: If output_dir already exists.
+        SanitizationLeakError: If `sanitized_source` or any step still
+            contains a GUID-shaped value after sanitization (fail-closed
+            guard, polish pass 3) -- checked before anything is written.
     """
     if output_dir.exists():
         raise FileExistsError(
@@ -112,6 +218,12 @@ def write_corpus(output_dir: Path, sanitized_source: Dict[str, Any], steps: List
             f"Review the existing corpus and explicitly replace it (rm -r) before rerunning, "
             f"or write to a fresh temp/output location and swap it in as a reviewed step."
         )
+
+    # Fail-closed: refuse to write anything if identity-shaped data survived
+    # sanitization, in the source or in any derived step.
+    assert_no_identity_leak(sanitized_source)
+    for step_payload in steps:
+        assert_no_identity_leak(step_payload)
 
     output_dir.mkdir(parents=True)
 

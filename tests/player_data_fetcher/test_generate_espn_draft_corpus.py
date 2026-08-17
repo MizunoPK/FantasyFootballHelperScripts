@@ -22,7 +22,9 @@ from player_data_fetcher.generate_espn_draft_corpus import (
     write_corpus,
     main,
     _capture_raw_payload,
+    assert_no_identity_leak,
     SENTINEL_LEAGUE_ID,
+    SanitizationLeakError,
 )
 from player_data_fetcher.espn_client import ESPNClient
 
@@ -97,6 +99,135 @@ class TestSanitizeLeaguePayload:
         original = json.loads(json.dumps(raw_payload))
         sanitize_league_payload(raw_payload)
         assert raw_payload == original
+
+
+class TestSanitizeMembersArray:
+    """Regression tests (polish pass 3, D17.3): the top-level `members`
+    array -- carrying `firstName`/`lastName`/`displayName`,
+    `notificationSettings`, and an `id` that is the SWID-shaped account
+    GUID -- must be fully scrubbed, and any `teams[].owners` /
+    `teams[].primaryOwner` reference to a `members[].id` must resolve to
+    the *same* synthetic token consistently.
+    """
+
+    @pytest.fixture
+    def raw_payload_with_members(self):
+        return {
+            "id": 555,
+            "settings": {"name": "Real League Name"},
+            "members": [
+                {
+                    "id": "{AAAAAAAA-1111-2222-3333-444444444444}",
+                    "firstName": "Real",
+                    "lastName": "Operator",
+                    "displayName": "realoperator",
+                    "notificationSettings": [
+                        {"id": "{AAAAAAAA-1111-2222-3333-444444444444}", "enabled": True}
+                    ],
+                },
+                {
+                    "id": "{BBBBBBBB-1111-2222-3333-444444444444}",
+                    "firstName": "Other",
+                    "lastName": "Owner",
+                    "displayName": "otherowner",
+                    "notificationSettings": [],
+                },
+            ],
+            "teams": [
+                {
+                    "id": 1,
+                    "name": "Real Team One",
+                    "location": "Real",
+                    "nickname": "One",
+                    "abbrev": "RT1",
+                    "owners": ["{AAAAAAAA-1111-2222-3333-444444444444}"],
+                    "primaryOwner": "{AAAAAAAA-1111-2222-3333-444444444444}",
+                },
+                {
+                    "id": 2,
+                    "name": "Real Team Two",
+                    "location": "Real",
+                    "nickname": "Two",
+                    "abbrev": "RT2",
+                    "owners": ["{BBBBBBBB-1111-2222-3333-444444444444}"],
+                    "primaryOwner": "{BBBBBBBB-1111-2222-3333-444444444444}",
+                },
+            ],
+            "draftDetail": {
+                "drafted": True,
+                "inProgress": False,
+                "picks": [
+                    {"overallPickNumber": 1, "playerId": 4242, "teamId": 1, "roundId": 1, "lineupSlotId": 2},
+                ],
+            },
+        }
+
+    def test_members_bearing_payload_is_fully_scrubbed(self, raw_payload_with_members):
+        result = sanitize_league_payload(raw_payload_with_members)
+        dumped = json.dumps(result)
+
+        # No real name, real GUID, or the raw notificationSettings id leaks anywhere.
+        for real_value in (
+            "Real", "Operator", "realoperator", "Other", "otherowner",
+            "{AAAAAAAA-1111-2222-3333-444444444444}",
+            "{BBBBBBBB-1111-2222-3333-444444444444}",
+        ):
+            assert real_value not in dumped
+
+        assert result["members"][0]["id"] == "SYNTHETIC-MEMBER-1"
+        assert result["members"][1]["id"] == "SYNTHETIC-MEMBER-2"
+        assert result["members"][0]["firstName"] == "Synthetic"
+        assert result["members"][0]["lastName"] == "Member1"
+        assert result["members"][0]["displayName"] == "syntheticmember1"
+        # notificationSettings' embedded GUID was scrubbed too.
+        assert result["members"][0]["notificationSettings"][0]["id"] == "[REDACTED-IDENTITY-VALUE]"
+
+        # Passes the fail-closed scan cleanly.
+        assert_no_identity_leak(result)
+
+    def test_member_id_substitution_is_consistent_across_references(self, raw_payload_with_members):
+        result = sanitize_league_payload(raw_payload_with_members)
+
+        # teams[0].owners[0] and teams[0].primaryOwner both referenced the same
+        # real member GUID -- they must resolve to the same synthetic token,
+        # and that token must equal the member's own sanitized id.
+        assert result["teams"][0]["owners"][0] == result["members"][0]["id"]
+        assert result["teams"][0]["primaryOwner"] == result["members"][0]["id"]
+        assert result["teams"][1]["owners"][0] == result["members"][1]["id"]
+        assert result["teams"][1]["primaryOwner"] == result["members"][1]["id"]
+        # Distinct real owners still map to distinct synthetic tokens.
+        assert result["teams"][0]["primaryOwner"] != result["teams"][1]["primaryOwner"]
+
+
+class TestAssertNoIdentityLeak:
+    """Regression tests (polish pass 3, D17.3): the fail-closed guard must
+    actually trigger on an unmodelled identity-bearing field, and write_corpus
+    must refuse to write anything when it does.
+    """
+
+    def test_raises_on_guid_shaped_value_anywhere(self):
+        with pytest.raises(SanitizationLeakError, match="GUID-shaped value"):
+            assert_no_identity_leak(
+                {"someUnmodelledField": "{DEADBEEF-0000-0000-0000-000000000000}"}
+            )
+
+    def test_passes_on_payload_with_no_guid_shaped_values(self):
+        assert_no_identity_leak(
+            {"id": 999999999, "teams": [{"owners": ["Synthetic Owner 1"]}]}
+        )
+
+    def test_write_corpus_refuses_to_write_when_leak_detected(self, tmp_path, raw_payload):
+        # Simulate an unmodelled field slipping past sanitize_league_payload by
+        # injecting a raw GUID directly into an already-"sanitized" payload.
+        sanitized = sanitize_league_payload(raw_payload)
+        sanitized["someUnmodelledField"] = "{DEADBEEF-0000-0000-0000-000000000000}"
+        steps = derive_steps(sanitized)
+        target = tmp_path / "league_draft"
+
+        with pytest.raises(SanitizationLeakError):
+            write_corpus(target, sanitized, steps)
+
+        assert not target.exists()
 
 
 class TestDeriveSteps:
