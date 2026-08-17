@@ -129,6 +129,8 @@
       "Pidgin"
     ],
     "NFL_TEAM_PENALTY": ["NYJ", "LV", "MIN", "TEN"],
-    "NFL_TEAM_PENALTY_WEIGHT": 0.95
+    "NFL_TEAM_PENALTY_WEIGHT": 0.95,
+    "ESPN_LEAGUE_ID": "138260302",
+    "ESPN_TEAM_ID": 1
   }
 }
