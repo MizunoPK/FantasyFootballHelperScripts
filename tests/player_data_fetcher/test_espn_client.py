@@ -583,6 +583,7 @@ class TestRankingsCacheIntegration:
 
 
 class TestParseEspnDataPositionRankRanges:
+    """D9.1: position_rank_ranges is derived from the export set, not the ranked input set."""
 
     @pytest.fixture
     def client(self):
@@ -604,6 +605,16 @@ class TestParseEspnDataPositionRankRanges:
 
     @pytest.mark.asyncio
     async def test_survivor_only_population_reaches_both_endpoints(self, client):
+        """Neither the guard-rejected row (1003) nor the parse-failed row (1004) may widen
+        RB's range, so the two exported survivors normalize to exactly 100.0 and the 1.0 floor.
+
+        Row roles: 1001 is the exported best rank (PPR rank 1), 1002 the exported worst
+        survivor (rank 2), 1003 is rejected by the unknown-team guard (proTeamId 999), and
+        1004 raises after rank discovery but before append. Asserting exactly [100.0, 1.0]
+        is what pins the invariant: had the ranges been collected over the ranked *input*
+        set, 1003/1004 would stretch RB's max to rank 4 and no survivor would reach 1.0.
+        """
+        # Arrange
         players = [
             {'player': {
                 'id': 1001, 'firstName': 'Alpha', 'lastName': 'One',

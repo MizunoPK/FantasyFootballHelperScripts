@@ -1710,43 +1710,35 @@ class ESPNClient(BaseAPIClient):
                 positional_rank = player_positional_ranks[projection.id]
                 position = projection.position
 
-                if position in position_rank_ranges:
-                    min_rank = position_rank_ranges[position]['min']
-                    max_rank = position_rank_ranges[position]['max']
+                min_rank = position_rank_ranges[position]['min']
+                max_rank = position_rank_ranges[position]['max']
 
-                    if min_rank == max_rank:
-                        projection.player_rating = 50.0
-                        self.logger.debug(
-                            f"Single rank for position {position} (rank={min_rank}), "
-                            f"using neutral rating 50.0 for {projection.name}"
-                        )
-                    else:
-                        normalized = 1 + ((positional_rank - max_rank) / (min_rank - max_rank)) * 99
-                        projection.player_rating = normalized
-
-                        if not (1.0 <= normalized <= 100.0):
-                            self.logger.warning(
-                                f"Normalized rating out of range for {projection.name}: {normalized:.2f} "
-                                f"(rank={positional_rank}, min={min_rank}, max={max_rank})"
-                            )
-
-                        if normalized >= 99.5 or normalized <= 1.5:
-                            self.logger.debug(
-                                f"Extreme rating for {projection.name} ({position}): {normalized:.1f} "
-                                f"(rank={positional_rank:.1f})"
-                            )
-
-                    normalized_count += 1
-
-                    if normalized_count % 100 == 0:
-                        self.logger.debug(f"Normalized {normalized_count} player ratings...")
-
-                else:
-                    self.logger.warning(
-                        f"Position {position} not in rank ranges for {projection.name}, "
-                        f"player_rating will remain None"
+                if min_rank == max_rank:
+                    projection.player_rating = 50.0
+                    self.logger.debug(
+                        f"Single rank for position {position} (rank={min_rank}), "
+                        f"using neutral rating 50.0 for {projection.name}"
                     )
-                    fallback_count += 1
+                else:
+                    normalized = 1 + ((positional_rank - max_rank) / (min_rank - max_rank)) * 99
+                    projection.player_rating = normalized
+
+                    if not (1.0 <= normalized <= 100.0):
+                        self.logger.warning(
+                            f"Normalized rating out of range for {projection.name}: {normalized:.2f} "
+                            f"(rank={positional_rank}, min={min_rank}, max={max_rank})"
+                        )
+
+                    if normalized >= 99.5 or normalized <= 1.5:
+                        self.logger.debug(
+                            f"Extreme rating for {projection.name} ({position}): {normalized:.1f} "
+                            f"(rank={positional_rank:.1f})"
+                        )
+
+                normalized_count += 1
+
+                if normalized_count % 100 == 0:
+                    self.logger.debug(f"Normalized {normalized_count} player ratings...")
             elif projection.player_rating is None:
                 fallback_count += 1
 
@@ -1761,7 +1753,7 @@ class ESPNClient(BaseAPIClient):
             if fallback_percentage > 10:
                 self.logger.warning(
                     f"High fallback usage: {fallback_percentage:.1f}% of players "
-                    f"({fallback_count}/{total_players}) using fallback or have no rating"
+                    f"({fallback_count}/{total_players}) have no rating"
                 )
 
         return projections
