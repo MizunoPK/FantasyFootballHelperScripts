@@ -250,8 +250,16 @@ class SimulatedLeague:
 
             self._generate_schedule()
         except Exception:
-            if self.temp_dir.exists():
-                shutil.rmtree(self.temp_dir)
+            # Best-effort cleanup: swallow any failure from the rmtree itself (e.g. a
+            # permissions error or a transient FS issue) so it can never displace the real
+            # construction error being propagated below. A clear FileNotFoundError naming the
+            # missing week folder is this guard's entire diagnostic value -- do not "tidy" this
+            # back to a bare rmtree call, which would let a cleanup-path exception mask it.
+            try:
+                if self.temp_dir.exists():
+                    shutil.rmtree(self.temp_dir)
+            except Exception:
+                pass
             raise
 
     def _initialize_teams(self) -> None:

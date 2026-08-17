@@ -1207,6 +1207,44 @@ class TestExplicitConstructionSnapshotGuard:
                 )
             assert not temp_dir.exists()
 
+    def test_cleanup_failure_does_not_mask_construction_error(self, tmp_path):
+        """
+        D1.2/UD6 regression pin (PR #107 Copilot review, 2026-08-17): the guard's best-effort
+        cleanup must never let a failure in shutil.rmtree itself replace the real construction
+        error. A clear FileNotFoundError naming the missing week folder is this guard's entire
+        diagnostic value; if a cleanup-path OSError propagated instead, an operator with a
+        truncated corpus would see a filesystem error instead of the actionable message.
+
+        Reuses the same missing-week_18 + non-empty preloaded_week_data fixture as the sibling
+        pin above, with shutil.rmtree patched to raise. SimulatedLeague.__del__ also calls
+        cleanup() (the same masking trap the sibling pin above found), so __del__ is again
+        patched to a no-op -- otherwise the destructor's own rmtree call (also patched to raise
+        here) could itself raise from a GC-triggered finalizer in a way unrelated to what this
+        test targets, muddying the observation.
+
+        Mutation discrimination: with the fix reverted (bare `shutil.rmtree(self.temp_dir)`,
+        no inner try/except), this test fails because the patched rmtree's OSError propagates
+        instead of the FileNotFoundError.
+        """
+        weeks_folder = tmp_path / "weeks"
+        weeks_folder.mkdir()
+        TestSelfLoadRefusesMissingActuals._write_week(weeks_folder, 17)
+
+        config = {"config_name": "test", "description": "test", "parameters": {"num_teams": 2, "draft_rounds": 1}}
+
+        with patch('simulation.win_rate.SimulatedLeague.tempfile.mkdtemp') as mock_mkdtemp, \
+             patch('simulation.win_rate.SimulatedLeague.shutil.rmtree', side_effect=OSError("permission denied")), \
+             patch.object(SimulatedLeague, '__del__', lambda self: None):
+            temp_dir = tmp_path / "temp"
+            temp_dir.mkdir()
+            mock_mkdtemp.return_value = str(temp_dir)
+            with pytest.raises(FileNotFoundError, match="week_18"):
+                SimulatedLeague(
+                    config,
+                    tmp_path,
+                    preloaded_week_data={1: {"projected": {}, "actual": {}}},
+                )
+
 
 class TestEdgeCaseBehavior:
     """Test edge case handling for JSON loading"""
