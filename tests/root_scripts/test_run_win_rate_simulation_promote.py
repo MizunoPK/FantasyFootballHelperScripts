@@ -72,10 +72,11 @@ class TestRunPromoteMode:
             )
 
         # Writer called once with the constructed store object + data_folder + the threaded
-        # re-measurement parameters (T62).
+        # re-measurement parameters (T62/D1.1).
         mock_promote.assert_called_once_with(
             MockStore.return_value, tmp_path,
             seed=_SAMPLE_SEED, shortlist=_SAMPLE_SHORTLIST, sims=_SAMPLE_SIMS,
+            explicit_construction_snapshot=False,
         )
         out = capsys.readouterr().out
         # Full report content: the re-measured headline leads, the store maximum is labelled.
@@ -131,6 +132,7 @@ class TestRunPromoteMode:
         mock_compute.assert_called_once_with(
             MockStore.return_value, tmp_path,
             seed=_SAMPLE_SEED, shortlist=_SAMPLE_SHORTLIST, sims=_SAMPLE_SIMS,
+            explicit_construction_snapshot=False,
         )
         mock_promote.assert_not_called()
         out = capsys.readouterr().out

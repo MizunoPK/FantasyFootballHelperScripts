@@ -100,6 +100,7 @@ def _run_arm(
     season_folder: Path,
     week_data_cache: Dict[int, Dict],
     seed: int,
+    explicit_construction_snapshot: bool = False,
 ) -> Tuple[int, int]:
     """Run one asymmetric measured-vs-reference league and return (wins, games).
 
@@ -114,6 +115,9 @@ def _run_arm(
         season_folder (Path): The committed season directory (data_folder for the league).
         week_data_cache (Dict[int, Dict]): Preloaded week data from SimDataLoader.
         seed (int): The shared per-(season, sim_id) task seed.
+        explicit_construction_snapshot (bool): Forwarded to the SimulatedLeague constructor.
+            False (default) preserves today's sorted-last selection; True selects the exact
+            week_{WEEKS_PER_SEASON + 1:02d} snapshot and fails closed if absent (D1.1/UD4/UQ2).
 
     Returns:
         Tuple[int, int]: (wins, games) for the measured DraftHelperTeam; games = wins + losses.
@@ -125,6 +129,7 @@ def _run_arm(
             season_folder,
             week_data_cache,
             measured_config_dict=measured_config,
+            explicit_construction_snapshot=explicit_construction_snapshot,
             seed=seed,
         )
         league.run_draft()
@@ -145,6 +150,7 @@ def run_paired_ab_comparison(
     reference_config: Optional[dict] = None,
     num_simulations: int = 1,
     max_workers: int = 8,
+    explicit_construction_snapshot: bool = False,
 ) -> PairedComparisonResult:
     """Measure the CRN-paired before/after win-rate delta of two configs.
 
@@ -168,6 +174,10 @@ def run_paired_ab_comparison(
             sequentially per season here — this helper is called once per bounded operational
             run, not in a hot loop — so it is accepted for API/signature stability and not
             yet threaded into an executor.
+        explicit_construction_snapshot (bool): Forwarded to both _run_arm calls (and thus every
+            SimulatedLeague this comparator constructs). False (default) preserves today's
+            sorted-last selection; True selects the exact week_{WEEKS_PER_SEASON + 1:02d}
+            snapshot and fails closed if absent (D1.1/UD4/UQ2).
 
     Returns:
         PairedComparisonResult: (current_rate, recommended_rate, delta, z, games, seed).
@@ -200,8 +210,10 @@ def run_paired_ab_comparison(
         week_data_cache = loader.week_data_cache
         for sim_id in range(num_simulations):
             task_seed = _derive_task_seed(seed, season_folder, sim_id)
-            cw, cg = _run_arm(reference, current_config, season_folder, week_data_cache, task_seed)
-            rw, rg = _run_arm(reference, recommended_config, season_folder, week_data_cache, task_seed)
+            cw, cg = _run_arm(reference, current_config, season_folder, week_data_cache, task_seed,
+                              explicit_construction_snapshot=explicit_construction_snapshot)
+            rw, rg = _run_arm(reference, recommended_config, season_folder, week_data_cache, task_seed,
+                              explicit_construction_snapshot=explicit_construction_snapshot)
             wins_current += cw
             games_current += cg
             wins_recommended += rw

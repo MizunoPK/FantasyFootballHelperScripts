@@ -132,6 +132,14 @@ def _build_parser() -> argparse.ArgumentParser:
              "instead of the default self-play field (10 DraftHelperTeams). Reproduces the prior ~0.84 baseline."
     )
     parser.add_argument(
+        "--explicit-construction-snapshot", action="store_true",
+        help="Select the win-rate construction snapshot by exact week number "
+             f"(week_{WEEKS_PER_SEASON + 1:02d}) instead of the legacy sorted-last available week "
+             "folder. Opt-in provision-stage rollout flag (D1.1); fails closed with "
+             "FileNotFoundError if the exact folder is absent. Default preserves today's "
+             "sorted-last behavior byte-for-byte."
+    )
+    parser.add_argument(
         "--seed", type=int, default=None, metavar="N",
         help="Base seed for deterministic evaluation (T29). With --seed N, repeated runs with "
              "identical inputs produce identical win-rate aggregates. Omit to use OS entropy "
@@ -261,6 +269,7 @@ def main() -> None:
                 data_folder, logger, confirm=args.confirm,
                 seed=_resolve_sweep_seed(args, logger, mode_label="promote"),
                 shortlist=args.promote_shortlist, sims=args.promote_sims,
+                explicit_construction_snapshot=args.explicit_construction_snapshot,
             )
         return
 
@@ -269,6 +278,7 @@ def main() -> None:
             data_folder, logger, confirm=args.confirm,
             seed=_resolve_sweep_seed(args, logger, mode_label="promote"),
             shortlist=args.promote_shortlist, sims=args.promote_sims,
+            explicit_construction_snapshot=args.explicit_construction_snapshot,
         )
         return
 
@@ -281,6 +291,7 @@ def main() -> None:
         config_path=config_path,
         strategy_filter=args.strategy,
         naive_opponents=args.naive_opponents,
+        explicit_construction_snapshot=args.explicit_construction_snapshot,
         seed=args.seed,
     )
 
@@ -351,7 +362,8 @@ def _run_sweep_mode(args: argparse.Namespace, data_folder: Path, logger) -> None
     base_seed = _resolve_sweep_seed(args, logger)
     evaluator = CombinationEvaluator(
         data_folder=data_folder, num_simulations=args.sims, max_workers=args.workers,
-        config_path=Path(args.config), naive_opponents=args.naive_opponents, seed=base_seed
+        config_path=Path(args.config), naive_opponents=args.naive_opponents,
+        explicit_construction_snapshot=args.explicit_construction_snapshot, seed=base_seed
     )
 
     # T61/D1: games-per-evaluation reachability pre-flight, run BEFORE any evaluation and at
@@ -556,7 +568,7 @@ def _run_sweep_mode(args: argparse.Namespace, data_folder: Path, logger) -> None
 
 
 def _run_promote_mode(data_folder: Path, logger, confirm: bool, seed: int,
-                      shortlist: int, sims: int) -> None:
+                      shortlist: int, sims: int, explicit_construction_snapshot: bool = False) -> None:
     """Preview or (with confirm=True) write the re-measured winning combination.
 
     The human-approval gate in front of the live-config write (T34). With confirm=False
@@ -580,17 +592,24 @@ def _run_promote_mode(data_folder: Path, logger, confirm: bool, seed: int,
             _resolve_sweep_seed, so an unseeded run logs a reproduce hint).
         shortlist (int): How many top-ranked candidates to re-measure (--promote-shortlist).
         sims (int): Simulations per season per arm per candidate (--promote-sims).
+        explicit_construction_snapshot (bool): Forwarded to the re-measurement's SimulatedLeague
+            construction (via compute_promotion / promote_best_combination ->
+            run_paired_ab_comparison -> _run_arm). False (default) preserves today's
+            sorted-last selection on the promote path; True selects the exact
+            week_{WEEKS_PER_SEASON + 1:02d} snapshot and fails closed if absent (D1.1/UD4/UQ2).
     """
     store = SweepResultsManager(data_folder / "win_rate_sweep_results.json")
     try:
         if confirm:
             result = promote_best_combination(
-                store, data_folder, seed=seed, shortlist=shortlist, sims=sims
+                store, data_folder, seed=seed, shortlist=shortlist, sims=sims,
+                explicit_construction_snapshot=explicit_construction_snapshot,
             )
             _print_promotion(result)
         else:
             plan = compute_promotion(
-                store, data_folder, seed=seed, shortlist=shortlist, sims=sims
+                store, data_folder, seed=seed, shortlist=shortlist, sims=sims,
+                explicit_construction_snapshot=explicit_construction_snapshot,
             )
             _print_promotion_preview(plan)
     except (ConfigurationError, FileOperationError) as e:

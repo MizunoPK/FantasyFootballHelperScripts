@@ -223,6 +223,11 @@ class TestMainFlow:
                 config_path=Path("data/configs/league_config.json"),
                 strategy_filter=None,
                 naive_opponents=False,
+                # D1.1: main() now also forwards --explicit-construction-snapshot to the
+                # orchestrator's existing explicit_construction_snapshot parameter. No
+                # --explicit-construction-snapshot is passed in this test's argv, so the value
+                # here is the flag's DEFAULT.
+                explicit_construction_snapshot=False,
                 seed=None,
             )
 

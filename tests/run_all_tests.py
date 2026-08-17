@@ -101,17 +101,65 @@ class TestRunner:
             return False, 0, 0, f"Error running tests: {str(e)}"
 
     def _parse_test_results(self, output: str) -> Tuple[int, int]:
-        """Parse pytest output to extract passed/total counts"""
+        """Parse pytest output to extract passed/total counts
+
+        Counts are read from pytest's terminal summary line ONLY (the last line
+        carrying an "in <duration>s" suffix, e.g. "6 failed, 34 passed in 0.40s").
+        Searching the whole output is wrong: captured log records can contain
+        incidental text such as "Simulation 0 failed: ...", and an unanchored
+        search matched that first — reporting 0 failures for a file with 6, which
+        then silently undercounted the run-wide failure headline.
+
+        The scan is a heuristic, not a parser: it takes the LAST line matching both
+        shape tokens over combined stdout+stderr, so stray post-summary output that
+        happened to carry a duration AND an outcome count could still mislead it.
+        That is strictly narrower than the whole-output search it replaces, and the
+        surviving risk is bounded by pytest emitting its summary last in practice.
+        """
         import re
 
-        passed_match = re.search(r'(\d+) passed', output)
-        passed_count = int(passed_match.group(1)) if passed_match else 0
+        summary = ""
+        for line in reversed(output.splitlines()):
+            candidate = line.strip().strip('=').strip()
+            # The outcome vocabulary here is deliberately NARROW: only the outcomes
+            # this parser actually counts (passed / failed / error). Widening it to
+            # non-counted outcomes (skipped, warnings, deselected, ...) is not merely
+            # inert, it is harmful — the scan takes the LAST matching line, so a
+            # trailing "3 warnings in 0.50s" line emitted after a real
+            # "3 failed, 7 passed in 2.00s" summary would be selected instead, and
+            # every count would read 0. That reopens the very undercount class this
+            # summary-line scan exists to close (stderr is concatenated after stdout
+            # above, so trailing non-summary duration lines are a real shape).
+            # A summary carrying only non-counted outcomes (e.g. "5 skipped in 0.05s")
+            # therefore does not match. When it is the ONLY duration-and-count-shaped
+            # line, the scan finds nothing and yields (0, 0) — the same value the wide
+            # vocabulary produced for it, since skips are never counted anyway. When an
+            # EARLIER line carries both shape tokens, though, the two vocabularies
+            # DIVERGE: the narrow scan skips the real skipped-only summary and falls
+            # back to that earlier line. For
+            #     "ERROR  log: Simulation 6 failed after retry in 3.20s\n"
+            #     "5 skipped in 0.05s\n"
+            # wide yields (0, 0) but narrow yields (0, 6), which makes
+            # passed_count == total_count false and reports a skipped-only file as
+            # FAILING. That is accepted deliberately: the narrow vocabulary's failure
+            # mode is fail-LOUD (a spurious, visible failure) whereas the wide
+            # vocabulary's was fail-SILENT (real failures hidden behind a false green),
+            # so the narrowing is still the correct trade. Pinned by
+            # tests/root_scripts/test_run_all_tests_result_parsing.py::
+            # TestSummaryLineIsAuthoritative::
+            # test_skipped_only_summary_falls_back_to_earlier_count_bearing_line.
+            if re.search(r'\bin \d+(\.\d+)?s', candidate) and \
+                    re.search(r'\b\d+ (passed|failed|error|errors)\b', candidate):
+                summary = candidate
+                break
 
-        failed_match = re.search(r'(\d+) failed', output)
-        failed_count = int(failed_match.group(1)) if failed_match else 0
+        def _count(word: str) -> int:
+            match = re.search(rf'(\d+) {word}', summary)
+            return int(match.group(1)) if match else 0
 
-        error_match = re.search(r'(\d+) error', output)
-        error_count = int(error_match.group(1)) if error_match else 0
+        passed_count = _count('passed')
+        failed_count = _count('failed')
+        error_count = _count('error')
 
         total_count = passed_count + failed_count + error_count
 
