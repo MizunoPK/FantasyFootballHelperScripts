@@ -1106,7 +1106,7 @@ class TestSelfLoadRefusesMissingActuals:
 
 class TestExplicitConstructionSnapshotGuard:
     """
-    D1.1/TD1-TD3: the opt-in explicit_construction_snapshot=True path in
+    D1.2/TD1-TD3, cutover-default path (D1.1 supplied it opt-in; D1.2 makes it default): the
     SimulatedLeague._initialize_teams must select week_18 (WEEKS_PER_SEASON + 1) by exact
     path and raise FileNotFoundError naming it when absent, entering through the same
     non-empty-preloaded_week_data bypass seam TestSelfLoadRefusesMissingActuals covers for
@@ -1132,14 +1132,13 @@ class TestExplicitConstructionSnapshotGuard:
                     config,
                     tmp_path,
                     preloaded_week_data={1: {"projected": {}, "actual": {}}},
-                    explicit_construction_snapshot=True,
                 )
 
-    def test_flag_false_uses_legacy_selector_on_same_corpus(self, tmp_path):
-        # Discriminator: on the IDENTICAL missing-week_18 corpus, the no-flag (default) path
+    def test_legacy_flag_true_uses_legacy_selector_on_same_corpus(self, tmp_path):
+        # Discriminator: on the IDENTICAL missing-week_18 corpus, the legacy-flag path
         # must NOT raise FileNotFoundError before _create_shared_data_dir — legacy sorted-last
-        # resolves to week_17 successfully. If a future edit routed the True case through this
-        # legacy branch instead of the new guard, test_missing_week_18_raises_before_shared_data
+        # resolves to week_17 successfully. If a future edit routed the True case through the
+        # default exact-path guard instead of this legacy branch, test_missing_week_18_raises_before_shared_data
         # would stop failing as expected. This intentionally stops at _create_shared_data_dir
         # (mocked to short-circuit via a sentinel exception) rather than running full team/draft
         # construction — no test in this file runs _initialize_teams unmocked against a
@@ -1166,9 +1165,85 @@ class TestExplicitConstructionSnapshotGuard:
                     config,
                     tmp_path,
                     preloaded_week_data={1: {"projected": {}, "actual": {}}},
-                    explicit_construction_snapshot=False,
+                    legacy_construction_snapshot=True,
                 )
             mock_create_shared.assert_called_once_with("shared_data", weeks_folder / "week_17")
+
+    def test_missing_week_18_releases_temp_dir_on_raise(self, tmp_path):
+        """
+        D1.2/UD6 regression pin (review CONCERN): the __init__ guard itself must release
+        self.temp_dir on the same unwind this class's other test already proves raises
+        FileNotFoundError. Reuses that test's identical missing-week_18 + non-empty
+        preloaded_week_data fixture so this test enters through the same seam.
+
+        SimulatedLeague.__del__ ALSO calls cleanup(), which independently removes
+        temp_dir once the partially-constructed instance is garbage-collected -- so
+        without isolating that safety net, this test would pass whether or not the
+        __init__ guard itself does anything (verified: deleting only the guard's
+        shutil.rmtree line still left temp_dir absent, because __del__'s own rmtree
+        fired first). __del__ is therefore patched to a no-op for the duration of the
+        assertion so only the __init__ guard's own behavior is observed.
+
+        Mutation discrimination: with __del__ neutralized, deleting the guard's
+        shutil.rmtree(self.temp_dir) line makes this test fail (temp_dir still exists)
+        while leaving it byte-for-byte otherwise passing.
+        """
+        weeks_folder = tmp_path / "weeks"
+        weeks_folder.mkdir()
+        TestSelfLoadRefusesMissingActuals._write_week(weeks_folder, 17)
+
+        config = {"config_name": "test", "description": "test", "parameters": {"num_teams": 2, "draft_rounds": 1}}
+
+        with patch('simulation.win_rate.SimulatedLeague.tempfile.mkdtemp') as mock_mkdtemp, \
+             patch.object(SimulatedLeague, '__del__', lambda self: None):
+            temp_dir = tmp_path / "temp"
+            temp_dir.mkdir()
+            mock_mkdtemp.return_value = str(temp_dir)
+            with pytest.raises(FileNotFoundError, match="week_18"):
+                SimulatedLeague(
+                    config,
+                    tmp_path,
+                    preloaded_week_data={1: {"projected": {}, "actual": {}}},
+                )
+            assert not temp_dir.exists()
+
+    def test_cleanup_failure_does_not_mask_construction_error(self, tmp_path):
+        """
+        D1.2/UD6 regression pin (PR #107 Copilot review, 2026-08-17): the guard's best-effort
+        cleanup must never let a failure in shutil.rmtree itself replace the real construction
+        error. A clear FileNotFoundError naming the missing week folder is this guard's entire
+        diagnostic value; if a cleanup-path OSError propagated instead, an operator with a
+        truncated corpus would see a filesystem error instead of the actionable message.
+
+        Reuses the same missing-week_18 + non-empty preloaded_week_data fixture as the sibling
+        pin above, with shutil.rmtree patched to raise. SimulatedLeague.__del__ also calls
+        cleanup() (the same masking trap the sibling pin above found), so __del__ is again
+        patched to a no-op -- otherwise the destructor's own rmtree call (also patched to raise
+        here) could itself raise from a GC-triggered finalizer in a way unrelated to what this
+        test targets, muddying the observation.
+
+        Mutation discrimination: with the fix reverted (bare `shutil.rmtree(self.temp_dir)`,
+        no inner try/except), this test fails because the patched rmtree's OSError propagates
+        instead of the FileNotFoundError.
+        """
+        weeks_folder = tmp_path / "weeks"
+        weeks_folder.mkdir()
+        TestSelfLoadRefusesMissingActuals._write_week(weeks_folder, 17)
+
+        config = {"config_name": "test", "description": "test", "parameters": {"num_teams": 2, "draft_rounds": 1}}
+
+        with patch('simulation.win_rate.SimulatedLeague.tempfile.mkdtemp') as mock_mkdtemp, \
+             patch('simulation.win_rate.SimulatedLeague.shutil.rmtree', side_effect=OSError("permission denied")), \
+             patch.object(SimulatedLeague, '__del__', lambda self: None):
+            temp_dir = tmp_path / "temp"
+            temp_dir.mkdir()
+            mock_mkdtemp.return_value = str(temp_dir)
+            with pytest.raises(FileNotFoundError, match="week_18"):
+                SimulatedLeague(
+                    config,
+                    tmp_path,
+                    preloaded_week_data={1: {"projected": {}, "actual": {}}},
+                )
 
 
 class TestEdgeCaseBehavior:

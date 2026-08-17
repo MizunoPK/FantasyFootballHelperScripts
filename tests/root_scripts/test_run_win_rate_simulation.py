@@ -223,11 +223,12 @@ class TestMainFlow:
                 config_path=Path("data/configs/league_config.json"),
                 strategy_filter=None,
                 naive_opponents=False,
-                # D1.1: main() now also forwards --explicit-construction-snapshot to the
-                # orchestrator's existing explicit_construction_snapshot parameter. No
-                # --explicit-construction-snapshot is passed in this test's argv, so the value
-                # here is the flag's DEFAULT.
-                explicit_construction_snapshot=False,
+                # D1.2: main() forwards --legacy-construction-snapshot to the orchestrator's
+                # legacy_construction_snapshot parameter (renamed + polarity-flipped from D1.1's
+                # explicit_construction_snapshot). No --legacy-construction-snapshot is passed
+                # in this test's argv, so the value here is the flag's DEFAULT — which now means
+                # the cutover-default explicit selector, not the legacy one.
+                legacy_construction_snapshot=False,
                 seed=None,
             )
 

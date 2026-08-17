@@ -104,8 +104,9 @@ class Week:
             Do NOT extend that reasoning to a missing week FOLDER. That additionally slides
             the construction snapshot in `SimulatedLeague._initialize_teams`
             (`available_weeks[-1]`) and re-rolls the draft, whose effect is larger and of
-            seed-dependent sign. See `load_week_player_data`'s docstring for the full T74
-            finding.
+            seed-dependent sign — under the cutover default (D1.2) this branch is reachable
+            only via the opt-in `--legacy-construction-snapshot` flag; D1.3 removes it
+            entirely. See `load_week_player_data`'s docstring for the full T74 finding.
         """
         self.logger.debug(f"Simulating Week {self.week_number} with {len(self.matchups)} matchups")
 
