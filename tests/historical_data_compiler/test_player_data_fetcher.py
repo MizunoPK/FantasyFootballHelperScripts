@@ -230,3 +230,37 @@ class TestParsePlayersPositionRankRanges:
             result = await fetcher._parse_players({"players": rows}, 2025, {"ATL": 5, "BUF": 6})
         assert [player.id for player in result] == ["rb-best", "rb-export-floor"]
         assert [player.player_rating for player in result] == [100.0, 1.0]
+
+    @pytest.mark.asyncio
+    async def test_player_without_extractable_rank_keeps_no_rating(self, fetcher):
+        """A parsed player carrying no rankings leaves player_rating None.
+
+        Covers the `positional_rank is None` continue branch in both new loops.
+        """
+        rows = [
+            {"player": {"id": "rb-ranked-a", "firstName": "Ranked", "lastName": "Back", "proTeamId": 1, "defaultPositionId": 2, "rankings": {"0": [{"rankType": "PPR", "slotId": 2, "averageRank": 10.0}]}, "ownership": {}, "stats": []}},
+            {"player": {"id": "rb-ranked-b", "firstName": "Other", "lastName": "Back", "proTeamId": 2, "defaultPositionId": 2, "rankings": {"0": [{"rankType": "PPR", "slotId": 2, "averageRank": 20.0}]}, "ownership": {}, "stats": []}},
+            {"player": {"id": "rb-unranked", "firstName": "Unranked", "lastName": "Back", "proTeamId": 3, "defaultPositionId": 2, "ownership": {}, "stats": []}},
+        ]
+        with patch.object(fetcher, '_extract_weekly_points', new_callable=AsyncMock) as mock_weekly:
+            mock_weekly.return_value = ({}, {})
+            result = await fetcher._parse_players({"players": rows}, 2025, {})
+        by_id = {player.id: player for player in result}
+        assert by_id["rb-unranked"].player_rating is None
+        assert by_id["rb-ranked-a"].player_rating == 100.0
+
+    @pytest.mark.asyncio
+    async def test_single_ranked_player_in_position_keeps_no_rating(self, fetcher):
+        """A position with one ranked exported player leaves player_rating None.
+
+        Covers the degenerate `ranges['max'] <= ranges['min']` continue branch,
+        whose None is converted to 50.0 downstream by json_exporter.
+        """
+        rows = [
+            {"player": {"id": "qb-only", "firstName": "Only", "lastName": "Passer", "proTeamId": 1, "defaultPositionId": 1, "rankings": {"0": [{"rankType": "PPR", "slotId": 0, "averageRank": 12.0}]}, "ownership": {}, "stats": []}},
+        ]
+        with patch.object(fetcher, '_extract_weekly_points', new_callable=AsyncMock) as mock_weekly:
+            mock_weekly.return_value = ({}, {})
+            result = await fetcher._parse_players({"players": rows}, 2025, {})
+        assert [player.id for player in result] == ["qb-only"]
+        assert result[0].player_rating is None

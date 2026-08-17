@@ -249,7 +249,7 @@ class PlayerDataFetcher:
                 continue
             if parsed.position not in position_rank_ranges:
                 position_rank_ranges[parsed.position] = {
-                    'min': positional_rank, 'max': positional_rank
+                    'min': positional_rank, 'max': positional_rank, 'count': 1
                 }
             else:
                 position_rank_ranges[parsed.position]['min'] = min(
@@ -258,6 +258,16 @@ class PlayerDataFetcher:
                 position_rank_ranges[parsed.position]['max'] = max(
                     position_rank_ranges[parsed.position]['max'], positional_rank
                 )
+                position_rank_ranges[parsed.position]['count'] += 1
+
+        self.logger.info(
+            f"Position rank ranges collected for {len(position_rank_ranges)} positions:"
+        )
+        for position, ranges in sorted(position_rank_ranges.items()):
+            self.logger.debug(
+                f"  {position}: {ranges['min']:.1f}-{ranges['max']:.1f} "
+                f"({int(ranges['count'])} players with ranks)"
+            )
 
         for parsed in players_list:
             positional_rank = player_positional_ranks.get(parsed.id)
@@ -354,8 +364,6 @@ class PlayerDataFetcher:
         if ownership and 'averageDraftPosition' in ownership:
             adp = ownership['averageDraftPosition']
 
-        player_rating = None
-
         injury_status = player_info.get('injuryStatus', 'ACTIVE')
 
         week_points, projected_weeks = await self._extract_weekly_points(
@@ -372,7 +380,6 @@ class PlayerDataFetcher:
             bye_week=bye_week,
             fantasy_points=fantasy_points,
             average_draft_position=adp,
-            player_rating=player_rating,
             injury_status=injury_status,
             week_points=week_points,
             projected_weeks=projected_weeks,

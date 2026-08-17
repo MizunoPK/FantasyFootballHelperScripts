@@ -188,7 +188,13 @@ class TestScoreboardUserAgent:
         assert 'Mozilla' not in ESPN_SCOREBOARD_USER_AGENT
 
     def test_scoreboard_user_agent_identifies_the_http_library(self):
-        """Scoreboard user agent should identify the HTTP library"""
-        assert ESPN_SCOREBOARD_USER_AGENT == 'python-httpx'
+        """Scoreboard user agent should name httpx and stay unversioned.
+
+        Pins the property the constant's own comment claims — deliberately
+        unversioned, so an httpx upgrade cannot invalidate it — rather than
+        restating the literal, which could only fail on an intentional edit.
+        """
+        assert 'httpx' in ESPN_SCOREBOARD_USER_AGENT
+        assert not any(char.isdigit() for char in ESPN_SCOREBOARD_USER_AGENT)
 
 
