@@ -51,6 +51,31 @@ class TestSummaryLineIsAuthoritative:
 
         assert _parse(output) == (34, 40)
 
+    def test_skipped_only_summary_falls_back_to_earlier_count_bearing_line(self):
+        """
+        The bound on the narrow outcome vocabulary, pinned rather than asserted in prose.
+
+        The scan admits only passed/failed/error, so a skipped-only summary is not
+        recognised as a summary at all. When an EARLIER line happens to carry both
+        shape tokens (a duration AND a counted-outcome word), the scan falls back to
+        it: here the captured log record "Simulation 6 failed after retry in 3.20s"
+        parses as 6 failures, giving (0, 6) where the older wide vocabulary gave
+        (0, 0). (0, 6) makes passed_count == total_count false, so a skipped-only
+        file is reported as failing.
+
+        This is accepted, not a defect to fix: the divergence is fail-LOUD (a
+        spurious failure the operator sees) whereas the wide vocabulary's own
+        misparse class was fail-SILENT (real failures hidden by a false green), which
+        is why the narrowing remains the right trade. This test exists so the
+        trade-off is verified behaviour rather than a claim in a comment.
+        """
+        output = (
+            "ERROR  log: Simulation 6 failed after retry in 3.20s\n"
+            "5 skipped in 0.05s\n"
+        )
+
+        assert _parse(output) == (0, 6)
+
     def test_incidental_passed_text_does_not_inflate_total(self):
         """A log record mentioning a passed count must not be read as the summary."""
         output = (

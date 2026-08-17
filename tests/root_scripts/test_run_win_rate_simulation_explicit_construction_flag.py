@@ -1,10 +1,11 @@
 """
 Unit tests for the --explicit-construction-snapshot CLI flag and its TRUE-path threading.
 
-Covers D1.1's CLI surface and every forwarding hop the flag's value travels, with the value
-set to TRUE — the peer shape is tests/root_scripts/test_run_win_rate_simulation_naive_flag.py
-(--naive-opponents is the precedent DEPLOYMENT_STANDARDS.md cites), extended here to the
-sweep and promote dispatch arms and the engine chain.
+Covers D1.1's CLI surface and the flag's in-process (single-process) forwarding chain, with
+the value set to TRUE — the peer shape is
+tests/root_scripts/test_run_win_rate_simulation_naive_flag.py (--naive-opponents is the
+precedent DEPLOYMENT_STANDARDS.md cites), extended here to the sweep and promote dispatch
+arms and the engine chain.
 
 The flag parses to args.explicit_construction_snapshot (store_true; absent -> False), and
 True is forwarded verbatim along:
@@ -13,10 +14,24 @@ True is forwarded verbatim along:
               -> SimulatedLeague
     main() -> _run_sweep_mode -> CombinationEvaluator
     main() -> _run_promote_mode -> compute_promotion / promote_best_combination
+              -> run_paired_ab_comparison -> _run_arm -> SimulatedLeague
 
-Every assertion pins one specific hop's call kwargs, so deleting any single forwarding site
-fails at least one test here. Composition/wiring only — the True path's own snapshot-selection
-behavior is covered in tests/simulation/test_SimulatedLeague.py.
+Both main() dispatch arms that reach _run_promote_mode are pinned separately: the
+promote-only arm (run_win_rate_simulation.py:277-282) and the sweep-then-promote arm
+(:268-273).
+
+Scope, stated precisely rather than as a blanket claim: each assertion pins ONE specific
+hop's call kwargs, so a mutation at any forwarding site listed above fails at least one test
+here. It is NOT true that every forwarding site in the codebase is pinned. The known
+exceptions are ParallelLeagueRunner's ProcessPoolExecutor branches — the two task-tuple pack
+sites (ParallelLeagueRunner.py:389 and :502) and the two module-level worker unpack sites
+(:61 and :93), reachable only under use_processes=True, which the win-rate path does not use.
+Those four sites carry False-valued coverage in tests/simulation/test_ParallelLeagueRunner.py
+but no True-valued pin, so a mutation hardcoding False there would survive; the win-rate
+thread branch routes through run_single_simulation (:251), which IS pinned.
+
+Composition/wiring only — the True path's own snapshot-selection behavior is covered in
+tests/simulation/test_SimulatedLeague.py.
 
 Author: Kai Mizuno
 """
@@ -110,6 +125,7 @@ class TestFlagThreadsToSweepAndPromoteDispatch:
         assert MockEval.call_args.kwargs["explicit_construction_snapshot"] is True
 
     def test_main_promote_dispatch_threads_true(self, tmp_path):
+        """The promote-ONLY arm (run_win_rate_simulation.py:277-282)."""
         with (
             patch("sys.argv", ["prog", "--promote", "--explicit-construction-snapshot",
                                "--data", str(tmp_path)]),
@@ -120,6 +136,28 @@ class TestFlagThreadsToSweepAndPromoteDispatch:
         ):
             main()
 
+        assert mock_promote_mode.call_args.kwargs["explicit_construction_snapshot"] is True
+
+    def test_main_sweep_then_promote_dispatch_threads_true(self, tmp_path):
+        """
+        The sweep-THEN-promote arm (run_win_rate_simulation.py:268-273) is a SECOND,
+        distinct _run_promote_mode forwarding site: `--sweep --promote` runs the sweep
+        and then falls through to promote, so it never reaches the promote-only arm
+        above. Pinning only that arm left a mutant hardcoding False at :272 alive
+        through the whole suite.
+        """
+        with (
+            patch("sys.argv", ["prog", "--sweep", "--promote",
+                               "--explicit-construction-snapshot", "--data", str(tmp_path)]),
+            patch(f"{MODULE}.setup_logger"),
+            patch(f"{MODULE}.get_logger", return_value=MagicMock()),
+            patch(f"{MODULE}._resolve_sweep_seed", return_value=7),
+            patch(f"{MODULE}._run_sweep_mode") as mock_sweep_mode,
+            patch(f"{MODULE}._run_promote_mode") as mock_promote_mode,
+        ):
+            main()
+
+        assert mock_sweep_mode.call_count == 1
         assert mock_promote_mode.call_args.kwargs["explicit_construction_snapshot"] is True
 
     def test_run_promote_mode_threads_true_to_writer(self, tmp_path):

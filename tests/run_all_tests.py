@@ -131,8 +131,23 @@ class TestRunner:
             # summary-line scan exists to close (stderr is concatenated after stdout
             # above, so trailing non-summary duration lines are a real shape).
             # A summary carrying only non-counted outcomes (e.g. "5 skipped in 0.05s")
-            # therefore does not match, and yields (0, 0) — the same value the wide
-            # vocabulary produced for it, since skips are never counted anyway.
+            # therefore does not match. When it is the ONLY duration-and-count-shaped
+            # line, the scan finds nothing and yields (0, 0) — the same value the wide
+            # vocabulary produced for it, since skips are never counted anyway. When an
+            # EARLIER line carries both shape tokens, though, the two vocabularies
+            # DIVERGE: the narrow scan skips the real skipped-only summary and falls
+            # back to that earlier line. For
+            #     "ERROR  log: Simulation 6 failed after retry in 3.20s\n"
+            #     "5 skipped in 0.05s\n"
+            # wide yields (0, 0) but narrow yields (0, 6), which makes
+            # passed_count == total_count false and reports a skipped-only file as
+            # FAILING. That is accepted deliberately: the narrow vocabulary's failure
+            # mode is fail-LOUD (a spurious, visible failure) whereas the wide
+            # vocabulary's was fail-SILENT (real failures hidden behind a false green),
+            # so the narrowing is still the correct trade. Pinned by
+            # tests/root_scripts/test_run_all_tests_result_parsing.py::
+            # TestSummaryLineIsAuthoritative::
+            # test_skipped_only_summary_falls_back_to_earlier_count_bearing_line.
             if re.search(r'\bin \d+(\.\d+)?s', candidate) and \
                     re.search(r'\b\d+ (passed|failed|error|errors)\b', candidate):
                 summary = candidate
