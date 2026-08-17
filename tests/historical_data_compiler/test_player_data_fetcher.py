@@ -209,3 +209,24 @@ class TestParsePlayersMilestoneLogging:
             await fetcher._parse_players({"players": self._make_4_players()}, 2025, {})
         info_calls = [c.args[0] for c in mock_logger.info.call_args_list]
         assert any("100%" in msg for msg in info_calls)
+
+
+class TestParsePlayersPositionRankRanges:
+    """D9.2: Regression that the rating population is exactly the exported population."""
+
+    @pytest.fixture
+    def fetcher(self):
+        return PlayerDataFetcher(MagicMock())
+
+    @pytest.mark.asyncio
+    async def test_range_population_is_the_exported_population(self, fetcher):
+        rows = [
+            {"player": {"id": "rb-best", "firstName": "Best", "lastName": "Back", "proTeamId": 1, "defaultPositionId": 2, "rankings": {"0": [{"rankType": "PPR", "slotId": 2, "averageRank": 10.0}]}, "ownership": {}, "stats": []}},
+            {"player": {"id": "rb-export-floor", "firstName": "Floor", "lastName": "Back", "proTeamId": 2, "defaultPositionId": 2, "rankings": {"0": [{"rankType": "PPR", "slotId": 2, "averageRank": 20.0}]}, "ownership": {}, "stats": []}},
+            {"player": {"id": "rb-unknown-team", "firstName": "Dropped", "lastName": "Back", "proTeamId": 0, "defaultPositionId": 2, "rankings": {"0": [{"rankType": "PPR", "slotId": 2, "averageRank": 30.0}]}, "ownership": {}, "stats": []}},
+        ]
+        with patch.object(fetcher, '_extract_weekly_points', new_callable=AsyncMock) as mock_weekly:
+            mock_weekly.return_value = ({}, {})
+            result = await fetcher._parse_players({"players": rows}, 2025, {"ATL": 5, "BUF": 6})
+        assert [player.id for player in result] == ["rb-best", "rb-export-floor"]
+        assert [player.player_rating for player in result] == [100.0, 1.0]

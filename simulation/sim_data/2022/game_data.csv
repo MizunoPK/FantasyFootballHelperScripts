@@ -211,7 +211,7 @@ week,home_team,away_team,temperature,gust,precipitation,home_team_score,away_tea
 15,MIN,IND,,,,39,36,True,False,USA,Minneapolis,MN,2022-12-17T18:00Z
 15,CLE,BAL,34,25,0.0,13,3,False,False,USA,Cleveland,OH,2022-12-17T21:40Z
 15,BUF,MIA,32,36,0.0,32,29,False,False,USA,Orchard Park,NY,2022-12-18T01:15Z
-15,CHI,PHI,23,25,0.0,20,25,False,False,USA,Chicago,IL,2022-12-18T18:00Z
+15,CHI,PHI,22,25,0.0,20,25,False,False,USA,Chicago,IL,2022-12-18T18:00Z
 15,NO,ATL,,,,21,18,True,False,USA,New Orleans,LA,2022-12-18T18:00Z
 15,NYJ,DET,39,25,0.0,17,20,False,False,USA,East Rutherford,NJ,2022-12-18T18:00Z
 15,CAR,PIT,45,16,0.0,16,24,False,False,USA,Charlotte,NC,2022-12-18T18:00Z
@@ -229,7 +229,7 @@ week,home_team,away_team,temperature,gust,precipitation,home_team_score,away_tea
 16,KC,SEA,14,24,0.0,24,10,False,False,USA,Kansas City,MO,2022-12-24T18:00Z
 16,MIN,NYG,,,,27,24,True,False,USA,Minneapolis,MN,2022-12-24T18:00Z
 16,NE,CIN,18,26,0.0,18,22,False,False,USA,Foxborough,MA,2022-12-24T18:00Z
-16,CAR,DET,23,24,0.0,37,23,False,False,USA,Charlotte,NC,2022-12-24T18:00Z
+16,CAR,DET,22,24,0.0,37,23,False,False,USA,Charlotte,NC,2022-12-24T18:00Z
 16,BAL,ATL,16,31,0.0,17,9,False,False,USA,Baltimore,MD,2022-12-24T18:00Z
 16,TEN,HOU,23,23,0.0,14,19,False,False,USA,Nashville,TN,2022-12-24T19:00Z
 16,SF,WSH,54,10,0.0,37,20,False,False,USA,Santa Clara,CA,2022-12-24T21:05Z
