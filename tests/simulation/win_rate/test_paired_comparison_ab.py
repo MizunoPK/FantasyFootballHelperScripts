@@ -58,8 +58,7 @@ class _FakeLeague:
     """Fast Bernoulli-kernel stand-in for SimulatedLeague (no draft/season replay, no I/O)."""
 
     def __init__(self, config_dict, data_folder, preloaded_week_data=None,
-                 measured_config_dict=None, seed=None, naive_opponents=False,
-                 legacy_construction_snapshot=False):
+                 measured_config_dict=None, seed=None, naive_opponents=False):
         self._p = measured_config_dict["_p"]
         self._seed = seed
 

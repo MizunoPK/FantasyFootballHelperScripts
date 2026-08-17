@@ -101,12 +101,14 @@ class Week:
             `CombinationEvaluator` computes `total_games = total_wins + total_losses`, so
             the denominator is unchanged. Measured in isolation: 17/34 -> 16/34.
 
-            Do NOT extend that reasoning to a missing week FOLDER. That additionally slides
-            the construction snapshot in `SimulatedLeague._initialize_teams`
-            (`available_weeks[-1]`) and re-rolls the draft, whose effect is larger and of
-            seed-dependent sign — under the cutover default (D1.2) this branch is reachable
-            only via the opt-in `--legacy-construction-snapshot` flag; D1.3 removes it
-            entirely. See `load_week_player_data`'s docstring for the full T74 finding.
+            Do NOT extend that reasoning to a missing week FOLDER. Before D1.3, a missing
+            week FOLDER additionally slid the shared construction snapshot in
+            `SimulatedLeague._initialize_teams` — the retired legacy sorted-last week
+            selector — and re-rolled the draft, whose effect was larger and of
+            seed-dependent sign. That slide is no longer a reachable code path: the
+            exact-path guard now raises unconditionally rather than silently substituting
+            an earlier week. See `load_week_player_data`'s docstring for the full T74
+            finding.
         """
         self.logger.debug(f"Simulating Week {self.week_number} with {len(self.matchups)} matchups")
 

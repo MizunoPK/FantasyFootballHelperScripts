@@ -76,7 +76,6 @@ class TestRunPromoteMode:
         mock_promote.assert_called_once_with(
             MockStore.return_value, tmp_path,
             seed=_SAMPLE_SEED, shortlist=_SAMPLE_SHORTLIST, sims=_SAMPLE_SIMS,
-            legacy_construction_snapshot=False,
         )
         out = capsys.readouterr().out
         # Full report content: the re-measured headline leads, the store maximum is labelled.
@@ -132,7 +131,6 @@ class TestRunPromoteMode:
         mock_compute.assert_called_once_with(
             MockStore.return_value, tmp_path,
             seed=_SAMPLE_SEED, shortlist=_SAMPLE_SHORTLIST, sims=_SAMPLE_SIMS,
-            legacy_construction_snapshot=False,
         )
         mock_promote.assert_not_called()
         out = capsys.readouterr().out
