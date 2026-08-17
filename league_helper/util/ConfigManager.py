@@ -256,6 +256,19 @@ class ConfigManager:
         self.description: str = ""
         self.parameters: Dict[str, Any] = {}
         self.logger = get_logger()
+        # Per-block cache of the sorted LINEAR anchor table, populated once at config
+        # load by _cache_linear_anchors and read by _get_multiplier, which is the hot
+        # path of player_scoring (per player, per factor, every recommendation pass and
+        # both simulation engines). Keyed by id() of the scoring block; each entry holds
+        # a STRONG reference to that block, so its id cannot be reused by a later object
+        # while the entry lives -- that reference is what makes the id key sound rather
+        # than merely unlikely to collide. Deliberately NOT stored on the scoring block
+        # itself: those blocks are round-tripped through json.dump by the simulation
+        # layer (ResultsManager, ParallelAccuracyRunner), where a private tuple entry
+        # would either leak into a written config or raise on serialization.
+        self._linear_anchors_cache: Dict[
+            int, Tuple[Dict[str, Any], Tuple[Any, ...], Tuple[Tuple[float, float, str], ...]]
+        ] = {}
 
         configs_folder = data_folder / 'configs'
         if configs_folder.exists() and (configs_folder / 'league_config.json').exists():
@@ -1283,7 +1296,7 @@ class ConfigManager:
             # key is exactly the invisible-degradation class the tier-reachability guard
             # exists to stop, and it matches validate_threshold_params' posture for a bad
             # DIRECTION / STEPS. Failing at config load, not at the first scoring call.
-            scaling = scoring_dict.get(self.keys.SCALING, self.keys.SCALING_BUCKETED)
+            scaling = self._resolve_scaling(scoring_dict)
             if scaling not in (self.keys.SCALING_BUCKETED, self.keys.SCALING_LINEAR):
                 error_msg = (
                     f"{scoring_type}: SCALING must be one of "
@@ -1324,13 +1337,35 @@ class ConfigManager:
             if scaling == self.keys.SCALING_LINEAR:
                 linear_tier_keys = (self.keys.VERY_POOR, self.keys.POOR,
                                     self.keys.GOOD, self.keys.EXCELLENT)
-                resolved = [thresholds_config.get(tier) for tier in linear_tier_keys]
+                # float()-COERCE before comparing, so this load-time check and the
+                # runtime LINEAR branch agree on what "distinct" means. The branch sorts
+                # float()-coerced anchors, so a threshold authored as a numeric string
+                # ({"POOR": "20"} beside {"EXCELLENT": 20}) would otherwise be distinct
+                # HERE and collided THERE -- the check would pass and the ladder would
+                # then be silently contradictory. A non-numeric threshold is a different
+                # failure class, left to the ladder validators that already name it,
+                # hence the guarded coercion rather than a bare float().
+                raw = [thresholds_config.get(tier) for tier in linear_tier_keys]
+                try:
+                    resolved = [None if v is None else float(v) for v in raw]
+                except (TypeError, ValueError) as exc:
+                    # Logged, never silent. A non-numeric threshold is a real problem,
+                    # but naming it is NOT this check's job -- this check owns
+                    # distinctness only. Fall back to comparing the raw values so the
+                    # distinctness raise still fires where it can, and leave the type
+                    # error to the validators that own it.
+                    self.logger.debug(
+                        f"{scoring_type}: LINEAR threshold distinctness check could not "
+                        f"coerce a threshold to float ({type(exc).__name__}: {exc}); "
+                        f"comparing raw values instead"
+                    )
+                    resolved = raw
                 if None not in resolved and len(set(resolved)) != len(resolved):
                     error_msg = (
                         f"{scoring_type}: SCALING is "
                         f"'{self.keys.SCALING_LINEAR}' but its four THRESHOLDS are not "
-                        f"distinct (VERY_POOR={resolved[0]}, POOR={resolved[1]}, "
-                        f"GOOD={resolved[2]}, EXCELLENT={resolved[3]}) -- a zero-width "
+                        f"distinct (VERY_POOR={raw[0]}, POOR={raw[1]}, "
+                        f"GOOD={raw[2]}, EXCELLENT={raw[3]}) -- a zero-width "
                         f"segment has no interpolable multiplier"
                     )
                     self.logger.error(error_msg)
@@ -1343,9 +1378,114 @@ class ConfigManager:
         # neutralizing the guard cannot silently remove an unrelated fix.
         for scoring_key, scoring_dict, _accessor in self._multiplier_factors():
             self._resolve_calculated_thresholds(scoring_key, scoring_dict)
+            # Anchors are a pure function of the block, so build them ONCE here rather
+            # than per call in _get_multiplier. Must run AFTER the line above: a
+            # calculated ladder has no THRESHOLDS to sort until it is materialized.
+            self._cache_linear_anchors(scoring_dict)
 
         self._validate_tier_reachability()
 
+
+    def _resolve_scaling(self, scoring_dict: Dict[str, Any]) -> str:
+        """Return a scoring block's interpolation mode; absent SCALING => BUCKETED (TD4).
+
+        The SINGLE owner of the absent-key default. That default is what makes this
+        change land dark, and it is read from three places -- _extract_parameters'
+        unrecognized-value validation, _validate_tier_reachability's required-label
+        selection, and _get_multiplier's mode dispatch. Three independent copies would
+        mean a future change to the default, the key name, or a third legal value at
+        cutover could be missed in one site, and a miss produces a SILENT split-brain:
+        a block the validator accepts on one mode and the dispatcher routes on another.
+
+        Args:
+            scoring_dict (Dict[str, Any]): A scoring factor's ladder block.
+
+        Returns:
+            str: SCALING_BUCKETED or SCALING_LINEAR (an unrecognized configured value is
+                returned as-is, so _extract_parameters can name it in its raise).
+        """
+        return scoring_dict.get(self.keys.SCALING, self.keys.SCALING_BUCKETED)
+
+    def _linear_tier_order(self) -> Tuple[str, str, str, str]:
+        """Return the four LINEAR anchor tier labels in a fixed, canonical order."""
+        return (self.keys.VERY_POOR, self.keys.POOR,
+                self.keys.GOOD, self.keys.EXCELLENT)
+
+    def _linear_threshold_key(self, scoring_dict: Dict[str, Any]) -> Tuple[Any, ...]:
+        """Return a LINEAR block's raw threshold values, as the anchor cache's key."""
+        thresholds = scoring_dict[self.keys.THRESHOLDS]
+        return tuple(thresholds[tier] for tier in self._linear_tier_order())
+
+    def _build_linear_anchors(
+        self, scoring_dict: Dict[str, Any]
+    ) -> Tuple[Tuple[float, float, str], ...]:
+        """Sort the four (threshold, multiplier, label) anchors by THRESHOLD.
+
+        TD2: every DIRECTION calculate_thresholds emits lays the ladder out so that
+        sorting by threshold yields a monotonic multiplier curve, so one sorted-anchor
+        implementation is correct for all four without a per-direction branch -- and it
+        is ladder-faithful, neither reading nor rescuable by `rising_thresholds`, which
+        is inert here by design.
+        """
+        return tuple(sorted(
+            (float(scoring_dict[self.keys.THRESHOLDS][tier]),
+             scoring_dict[self.keys.MULTIPLIERS][tier],
+             tier)
+            for tier in self._linear_tier_order()
+        ))
+
+    def _cache_linear_anchors(self, scoring_dict: Dict[str, Any]) -> None:
+        """Precompute a LINEAR block's sorted anchor table once, at config load.
+
+        A no-op for a BUCKETED block, and a no-op for a malformed one: this is an
+        optimization, never a validator, so a block missing a tier key or carrying a
+        non-numeric threshold is left untouched for _validate_tier_reachability and the
+        ladder validators to name. Swallowing here cannot hide a bad config, because the
+        uncached block takes the identical compute-fresh path in _linear_anchors and
+        raises there exactly as it did before this cache existed.
+        """
+        if self._resolve_scaling(scoring_dict) != self.keys.SCALING_LINEAR:
+            return
+        try:
+            self._linear_anchors_cache[id(scoring_dict)] = (
+                scoring_dict,
+                self._linear_threshold_key(scoring_dict),
+                self._build_linear_anchors(scoring_dict),
+            )
+        except (KeyError, TypeError, ValueError) as exc:
+            # Logged, never silent (CODING_STANDARDS "Don't catch without logging").
+            # DEBUG rather than WARNING because this is not the diagnosis: the same
+            # malformed block is about to be named properly by _validate_tier_reachability
+            # or the ladder validators, and a WARNING here would double-report it.
+            self.logger.debug(
+                f"_cache_linear_anchors: skipping anchor precompute for a LINEAR block "
+                f"({type(exc).__name__}: {exc}); the block is left for the load-time "
+                f"validators to name"
+            )
+            return
+
+    def _linear_anchors(
+        self, scoring_dict: Dict[str, Any]
+    ) -> Tuple[Tuple[float, float, str], ...]:
+        """Return a LINEAR block's sorted anchor table, from cache when it is valid.
+
+        The anchors are a pure function of the block, and the block is fixed at config
+        load, so the load-time cache serves every scoring call. The entry is validated
+        on read against BOTH the block's identity and its current raw threshold values,
+        so a block mutated AFTER load is served a freshly-computed table rather than a
+        stale one -- the caller-bypasses-load-validation case TD2a names, and what
+        test_a_degenerate_ladder_cannot_divide_by_zero depends on.
+
+        A miss computes WITHOUT storing. Only the load-time pass populates, so a caller
+        that hands in an ephemeral hand-built ladder (as the tier-reachability suite's
+        comparator probes do) cannot grow the cache without bound or keep those dicts
+        alive.
+        """
+        cached = self._linear_anchors_cache.get(id(scoring_dict))
+        if (cached is not None and cached[0] is scoring_dict
+                and cached[1] == self._linear_threshold_key(scoring_dict)):
+            return cached[2]
+        return self._build_linear_anchors(scoring_dict)
 
     def _multiplier_factors(self) -> List[Tuple[str, Dict[str, Any],
                                                 Callable[[float], Tuple[float, str]]]]:
@@ -1578,7 +1718,7 @@ class ConfigManager:
                 continue
 
             domain = MULTIPLIER_INPUT_DOMAINS[scoring_key]
-            scaling = scoring_dict.get(self.keys.SCALING, self.keys.SCALING_BUCKETED)
+            scaling = self._resolve_scaling(scoring_dict)
             required_tiers = (linear_tiers if scaling == self.keys.SCALING_LINEAR
                               else bucketed_tiers)
             unreachable = required_tiers - self._probe_tier_labels(
@@ -1650,7 +1790,11 @@ class ConfigManager:
                     3. Strictly between two anchors → interpolate the multiplier, and
                        take the label of the bracketing anchor with the HIGHER
                        multiplier (the better side).
-                NEUTRAL is never emitted for a valued LINEAR input.
+                NEUTRAL is never emitted for an ORDERED valued LINEAR input. A NaN input
+                falls through to the same (1.0, NEUTRAL) result the BUCKETED branches
+                produce for it: every comparison against NaN is False, so no arm and no
+                segment assigns, and the pre-loop initializer stands. That agreement is
+                deliberate, not an oversight -- the two modes must not diverge on NaN.
 
             Both modes then share the unchanged `multiplier ** WEIGHT` step below, so
             LINEAR interpolates the BASE multiplier and the exponent is applied after
@@ -1660,31 +1804,26 @@ class ConfigManager:
             self.logger.debug(f"Multiplier calculation received None value, returning NEUTRAL (1.0)")
             multiplier, label = 1.0, self.keys.NEUTRAL
 
-        elif (scoring_dict.get(self.keys.SCALING, self.keys.SCALING_BUCKETED)
-              == self.keys.SCALING_LINEAR):
-            # TD2: sort the four (threshold, multiplier) anchors by THRESHOLD. Every
-            # DIRECTION calculate_thresholds emits lays the ladder out so that sorting by
-            # threshold yields a monotonic multiplier curve, so one sorted-anchor
-            # implementation is correct for all four without a per-direction branch --
-            # and this branch is ladder-faithful: it neither reads nor can be rescued by
-            # `rising_thresholds`, which is inert here by design.
-            anchors = sorted(
-                (float(scoring_dict[self.keys.THRESHOLDS][tier]),
-                 scoring_dict[self.keys.MULTIPLIERS][tier],
-                 tier)
-                for tier in (self.keys.VERY_POOR, self.keys.POOR,
-                             self.keys.GOOD, self.keys.EXCELLENT)
-            )
+        elif self._resolve_scaling(scoring_dict) == self.keys.SCALING_LINEAR:
+            # Sorted anchor table, built once at config load (TD2 rationale lives on
+            # _build_linear_anchors). Read from the cache here because this method is the
+            # hot path -- per player, per factor, across every recommendation pass and
+            # both simulation engines.
+            anchors = self._linear_anchors(scoring_dict)
 
-            exact = [anchor for anchor in anchors if val == anchor[0]]
-            if exact:
+            # Short-circuit on the FIRST at-anchor match rather than materializing every
+            # match: the common case is a non-anchor input, which now stops at the first
+            # mismatch instead of scanning all four. Behaviourally identical to taking
+            # element [0] of the full match list.
+            exact = next((anchor for anchor in anchors if val == anchor[0]), None)
+            if exact is not None:
                 # TD3 clause 1, checked FIRST: an at-anchor input takes that anchor's own
                 # multiplier and label. This is what makes LINEAR bit- and label-identical
                 # to BUCKETED at all four anchors, and it cannot be folded into clause 3 --
                 # at an interior anchor the two bracketing segments disagree, and the two
                 # live factors need OPPOSITE resolutions, so no uniform segment-preference
                 # rule substitutes for it.
-                multiplier, label = exact[0][1], exact[0][2]
+                multiplier, label = exact[1], exact[2]
             elif val < anchors[0][0]:
                 # TD3 clause 2: clamp to the end anchor's multiplier AND label. Never
                 # extrapolate -- extrapolation gives the right label with the wrong value.

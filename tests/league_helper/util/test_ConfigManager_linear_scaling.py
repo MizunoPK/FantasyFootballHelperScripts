@@ -107,6 +107,27 @@ def _config_with(tmp_path, data):
     return ConfigManager(_write_legacy_config(tmp_path, data))
 
 
+def _assert_multiplier(actual, expected):
+    """Assert a (multiplier, label) pair: label EXACTLY, multiplier via pytest.approx.
+
+    Multipliers are `MULTIPLIERS[...] ** WEIGHT` results with a non-integer WEIGHT, so
+    exact float equality on them is brittle across platforms and libm implementations,
+    and inconsistent with this suite's general use of pytest.approx. The LABEL is an
+    exact claim and stays one.
+
+    NOTE: this helper is for comparisons against a hard-coded literal only. A direct
+    linear-vs-bucketed tuple comparison stays EXACT `==`, because bit-identity at the
+    anchors is precisely what TD1 / TD3 clause 1 assert -- both sides are computed in
+    the same process by the same expression, so approx there would weaken the claim.
+
+    Args:
+        actual: The (multiplier, label) pair returned by an accessor.
+        expected: The (multiplier, label) pair expected.
+    """
+    assert actual[1] == expected[1]
+    assert actual[0] == pytest.approx(expected[0], abs=1e-12)
+
+
 @pytest.fixture
 def linear_adp(tmp_path, league_params):
     """ConfigManager whose ADP_SCORING is a LINEAR literal ladder on live geometry."""
@@ -147,10 +168,14 @@ class TestScalingValidation:
     def test_absent_scaling_loads_and_selects_the_step_branch(self, bucketed_adp):
         """Absent => BUCKETED (TD4) is what makes this unit's landing dark."""
         # Act
-        result = bucketed_adp.get_adp_multiplier(30)
+        multiplier, label = bucketed_adp.get_adp_multiplier(30)
 
-        # Assert
-        assert result == (1.053742737956907, "GOOD")
+        # Assert -- label exactly, multiplier via approx: the value comes out of
+        # `MULTIPLIERS[...] ** WEIGHT` with a non-integer WEIGHT, and exact float
+        # equality on a libm pow result is brittle across platforms. approx is this
+        # suite's established convention for computed multipliers.
+        assert label == "GOOD"
+        assert multiplier == pytest.approx(1.053742737956907, abs=1e-12)
 
     def test_explicit_bucketed_spelling_loads_and_selects_the_step_branch(
         self, tmp_path, league_params
@@ -164,12 +189,16 @@ class TestScalingValidation:
         config = _config_with(tmp_path, league_params)
 
         # Assert
-        assert config.get_adp_multiplier(30) == (1.053742737956907, "GOOD")
+        multiplier, label = config.get_adp_multiplier(30)
+        assert label == "GOOD"
+        assert multiplier == pytest.approx(1.053742737956907, abs=1e-12)
 
     def test_linear_spelling_loads(self, linear_adp):
         """The LINEAR spelling loads and reaches the interpolation branch."""
         # Assert
-        assert linear_adp.get_adp_multiplier(30) == (1.0811719838761076, "EXCELLENT")
+        multiplier, label = linear_adp.get_adp_multiplier(30)
+        assert label == "EXCELLENT"
+        assert multiplier == pytest.approx(1.0811719838761076, abs=1e-12)
 
     def test_unrecognized_scaling_raises_on_a_literal_ladder(
         self, tmp_path, league_params
@@ -257,7 +286,14 @@ class TestLinearLadderDistinctness:
                       ("VERY_POOR", "POOR", "GOOD", "EXCELLENT")) == [25, 50, 75, 100]
 
     def test_a_degenerate_ladder_cannot_divide_by_zero(self, linear_adp):
-        """DIRECT no-ZeroDivisionError check, per TD2a's defence-in-depth clause.
+        """DIRECT no-ZeroDivisionError check over a degenerate ladder.
+
+        This does NOT execute the `width == 0` branch, and no input can: the segment
+        loop's strict bounds (`if not lower < val < upper: continue`) skip the degenerate
+        segment outright, which is precisely why that branch is a declared
+        non-distinguisher (CODING_STANDARDS.md:123-124). What this test pins is the
+        reachable claim -- that a post-load-mutated degenerate ladder still returns an
+        anchor's own value without raising.
 
         The ladder is made degenerate AFTER load, which is the only way to reach the
         branch with a ladder config-load validation would have rejected -- i.e. exactly
@@ -278,7 +314,8 @@ class TestLinearLadderDistinctness:
         # anchor's own value rather than an interpolated one
         at_anchor_multiplier, at_anchor_label = results[2]
         assert at_anchor_label in ("GOOD", "POOR")
-        assert at_anchor_multiplier == MULTIPLIERS[at_anchor_label] ** ADP_WEIGHT
+        assert at_anchor_multiplier == pytest.approx(
+            MULTIPLIERS[at_anchor_label] ** ADP_WEIGHT, abs=1e-12)
 
 
 # THE RETAINED BUCKETED BRANCH (obligation item 10)
@@ -304,7 +341,7 @@ class TestBucketedRetention:
         surfaced as an unexplained number rather than a named failure.
         """
         # Assert
-        assert bucketed_adp.get_adp_multiplier(adp) == expected
+        _assert_multiplier(bucketed_adp.get_adp_multiplier(adp), expected)
 
 
 # THE `val is None` ARM IS UNCHANGED (obligation item 11)
@@ -346,8 +383,10 @@ class TestAnchorIdentity:
         bucketed = bucketed_adp.get_adp_multiplier(adp)
 
         # Assert
+        # Bit-identity between the two modes stays an EXACT comparison -- that is the
+        # TD1 / TD3-clause-1 claim itself. Only the hard-coded literal uses approx.
         assert linear == bucketed
-        assert linear == expected
+        _assert_multiplier(linear, expected)
 
     def test_an_interior_anchor_takes_its_own_value_not_a_segment_interpolation(
         self, linear_adp
@@ -366,8 +405,8 @@ class TestAnchorIdentity:
 
         # Assert
         assert label == "GOOD"
-        assert multiplier == MULTIPLIERS["GOOD"] ** ADP_WEIGHT
-        assert multiplier == 1.053742737956907
+        assert multiplier == pytest.approx(MULTIPLIERS["GOOD"] ** ADP_WEIGHT, abs=1e-12)
+        assert multiplier == pytest.approx(1.053742737956907, abs=1e-12)
 
     @pytest.mark.parametrize("rating,expected", [
         (20, (0.8145062499999999, "VERY_POOR")),
@@ -384,7 +423,7 @@ class TestAnchorIdentity:
 
         # Assert
         assert linear == bucketed
-        assert linear == expected
+        _assert_multiplier(linear, expected)
 
 
 # TD3 CLAUSE 3 -- STRICTLY BETWEEN ANCHORS (items 2 and 5)
@@ -404,9 +443,9 @@ class TestInteriorDiscrimination:
         bucketed_multiplier, _ = bucketed_adp.get_adp_multiplier(30)
 
         # Assert
-        assert linear_multiplier == 1.0811719838761076
-        assert bucketed_multiplier == 1.053742737956907
-        assert linear_multiplier != bucketed_multiplier
+        assert linear_multiplier == pytest.approx(1.0811719838761076, abs=1e-12)
+        assert bucketed_multiplier == pytest.approx(1.053742737956907, abs=1e-12)
+        assert linear_multiplier != pytest.approx(bucketed_multiplier, abs=1e-12)
 
     def test_adp_30_linear_label_is_excellent(self, linear_adp):
         """The better side of a DECREASING ladder is the LOWER-valued anchor (20)."""
@@ -505,9 +544,9 @@ class TestClamping:
         multiplier, label = linear_adp.get_adp_multiplier(10)
 
         # Assert
-        assert multiplier == 1.1089738719028956
+        assert multiplier == pytest.approx(1.1089738719028956, abs=1e-12)
         assert label == "EXCELLENT"
-        assert multiplier != 1.1371489379735318
+        assert multiplier != pytest.approx(1.1371489379735318, abs=1e-12)
 
     def test_clamps_above_the_worst_anchor(self, linear_adp):
         # Arrange -- extrapolating the 60..80 segment up to ADP 90 gives
@@ -516,9 +555,9 @@ class TestClamping:
         multiplier, label = linear_adp.get_adp_multiplier(90)
 
         # Assert
-        assert multiplier == 0.8969619974461313
+        assert multiplier == pytest.approx(0.8969619974461313, abs=1e-12)
         assert label == "VERY_POOR"
-        assert multiplier != 0.872125742973272
+        assert multiplier != pytest.approx(0.872125742973272, abs=1e-12)
 
 
 # THE TIER-REACHABILITY GUARD IS MODE-AWARE (obligation item 12, added 2026-08-17)
