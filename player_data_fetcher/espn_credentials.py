@@ -172,45 +172,6 @@ _credential_redaction_filter = CredentialRedactionFilter()
 _credential_redaction_installed = False
 
 
-def _make_add_handler_with_redaction(original_add_handler):
-    """Build a `logging.Logger.addHandler` replacement wrapping
-    `original_add_handler` (D17.3 review CONCERN-8).
-
-    Attaches the credential-redaction filter to every handler as it is
-    added, on *any* logger in the process, before delegating to the real
-    `addHandler`. This is the ordering-proof half of the install: a
-    handler-level filter (not just a logger-level one) is what a propagated
-    record from a child logger actually consults (`Handler.handle()`
-    checks its own filters regardless of which logger originated the
-    record), but enumerating `logger.handlers` once at install time would
-    miss any handler attached afterwards -- concretely,
-    `LoggingManager.setup_logger()` calls `logger.handlers.clear()` and
-    re-adds fresh handlers, and `utils/error_handler`'s own setup can run
-    after this installer. Wrapping `addHandler` itself means no ordering
-    assumption is needed: every handler this process ever adds, whenever it
-    is added, is redacting before this installer even returns.
-
-    The wrapper is marked with `_credential_redaction_wrapped` and the
-    original it closed over is read back from the *currently installed*
-    `logging.Logger.addHandler` (never from a module-level variable
-    captured once at import time) -- if this module is ever imported more
-    than once (a second `sys.modules` entry under a different qualified
-    path, which some test-collection setups produce), a naive
-    module-level "original" would be re-captured from an already-wrapped
-    `addHandler`, and chaining a second wrapper around itself recurses
-    without bound. Checking the marker on the live attribute makes a
-    repeat install a true no-op instead of a second wrap.
-    """
-
-    def _add_handler_with_redaction(self: logging.Logger, hdlr: logging.Handler) -> None:
-        if _credential_redaction_filter not in hdlr.filters:
-            hdlr.addFilter(_credential_redaction_filter)
-        original_add_handler(self, hdlr)
-
-    _add_handler_with_redaction._credential_redaction_wrapped = True
-    return _add_handler_with_redaction
-
-
 def install_credential_redaction() -> None:
     """Install the global credential-redaction filter (D17.3 BLOCKING-3/BLOCKING-5).
 
@@ -221,9 +182,9 @@ def install_credential_redaction() -> None:
     already active -- this is a structural guarantee of the credential-read
     contract, not a caller obligation to remember.
 
-    Installs at three levels, because a `logging.Filter` on a `Logger`
-    object and a `logging.Filter` on a `Handler` object are consulted in
-    different circumstances and neither alone is sufficient:
+    Installs at two levels, because a `logging.Filter` on a `Logger` object
+    and a `logging.Filter` on a `Handler` object are consulted in different
+    circumstances and neither alone is sufficient:
 
     1. Directly on this project's shared logger
        (`utils.LoggingManager.get_logger()`). `LoggingManager.setup_logger()`
@@ -239,13 +200,27 @@ def install_credential_redaction() -> None:
        any child logger reaching those handlers today (a logger-level
        filter on an ancestor is never consulted for a propagated record;
        only a handler-level filter is, per `Handler.handle()`).
-    3. On every handler added from this point forward, on *any* logger in
-       the process (`_add_handler_with_redaction`, installed by monkey-
-       patching `logging.Logger.addHandler`). This is what makes (2)
-       ordering-proof rather than a point-in-time snapshot -- D17.3 review
-       CONCERN-8 found that enumerating handlers only at install time misses
-       a handler attached afterwards (e.g. `LoggingManager.setup_logger()`
-       re-running, or `utils/error_handler`'s own setup running later).
+
+    The ordering problem CONCERN-8 raised -- a handler attached *after*
+    this function runs would miss the above two -- is closed at its actual
+    source instead of by patching `logging.Logger.addHandler` process-wide:
+    `utils.LoggingManager.setup_logger()` (the project's one handler-
+    creation site, both the console `StreamHandler` and the file
+    `LineBasedRotatingHandler`) attaches this same filter itself, at
+    creation time, to every handler it builds -- including on a
+    `setup_logger()` re-run, which clears and re-adds handlers. See
+    `LoggingManager._attach_credential_redaction()`. An earlier version of
+    this function instead monkeypatched `logging.Logger.addHandler`
+    globally to make the coverage ordering-proof for *any* handler added
+    anywhere in the process; that was reverted (D17.3 review, driver-
+    verified blast radius) because it mutated stdlib behaviour process-wide
+    and permanently for a benefit -- coverage of one project site plus
+    arbitrary third-party handlers -- that a one-line addition at the
+    actual creation site achieves without the hazard (it produced a
+    demonstrated `RecursionError` under repeat/duplicate-import install).
+    The residual obligation this narrower approach accepts: a *future
+    second* project handler-creation site would need the same one-line
+    call; see `addressed_feedback.md` D17.3 Pass 5 for the greppable check.
 
     Must be called before any credential-touching code runs. As of
     BLOCKING-5's remediation this is enforced structurally:
@@ -272,8 +247,5 @@ def install_credential_redaction() -> None:
     for handler in project_logger.handlers:
         if _credential_redaction_filter not in handler.filters:
             handler.addFilter(_credential_redaction_filter)
-
-    if not getattr(logging.Logger.addHandler, "_credential_redaction_wrapped", False):
-        logging.Logger.addHandler = _make_add_handler_with_redaction(logging.Logger.addHandler)
 
     _credential_redaction_installed = True

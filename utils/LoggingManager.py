@@ -82,6 +82,7 @@ class LoggingManager:
             console_handler = logging.StreamHandler(sys.stdout)
             console_handler.setFormatter(formatter)
             console_handler.setLevel(level)
+            self._attach_credential_redaction(console_handler)
             logger.addHandler(console_handler)
 
         if log_to_file:
@@ -100,10 +101,40 @@ class LoggingManager:
             )
             file_handler.setFormatter(formatter)
             file_handler.setLevel(level)
+            self._attach_credential_redaction(file_handler)
             logger.addHandler(file_handler)
 
         self._logger = logger
         return logger
+
+    @staticmethod
+    def _attach_credential_redaction(handler: logging.Handler) -> None:
+        """Attach the ESPN credential-redaction filter (D17.3 review CONCERN-8)
+        to every handler this manager creates.
+
+        This is the project's single handler-creation site for both the
+        console and file handlers, so attaching here -- rather than relying
+        on a point-in-time enumeration elsewhere -- means the filter survives
+        `setup_logger()` being called again (which clears and re-adds
+        handlers) with no ordering assumption needed. Deferred import avoids
+        a module-level dependency from `utils` (generic, low-level) on
+        `player_data_fetcher` (a specific consumer); `ImportError` is
+        swallowed because not every process that uses `LoggingManager`
+        touches ESPN credentials, and the filter itself is a no-op unless
+        `espn_s2`/`SWID` are actually set.
+
+        Residual obligation, recorded rather than silently assumed complete:
+        this covers the project's one handler-creation site today. A future
+        second site in project code (an `addHandler(...)`/`StreamHandler(`
+        call outside `tests/`) would need the same call -- see
+        `addressed_feedback.md` D17.3 Pass 5's greppable check for this.
+        """
+        try:
+            from player_data_fetcher.espn_credentials import _credential_redaction_filter
+        except ImportError:
+            return
+        if _credential_redaction_filter not in handler.filters:
+            handler.addFilter(_credential_redaction_filter)
     
     def get_logger(self) -> logging.Logger:
         return self._logger
