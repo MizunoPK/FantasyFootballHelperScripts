@@ -13,7 +13,7 @@ directly and never pre-flattens it.
 
 **Extra-key policy — permissive at every depth, deliberately.** No model in this module —
 including `LeagueSnapshot` itself — sets `extra='forbid'`. The real ESPN envelope carries fields
-this unit does not model: spike `spikes/archive/espn-draft-night-integration.md:311-314` records
+this unit does not model: spike `spikes/archive/espn-draft-night-integration.md:313-314` records
 a top-level `status` object (`isFull`, `teamsJoined`, `activatedDate`) and a
 `settings.rosterSettings.lineupSlotCounts` object alongside `settings.draftSettings`, both
 present on every real response. A `LeagueSnapshot.model_validate(raw_response)` call MUST accept
@@ -24,9 +24,10 @@ three modeled top-level keys — `draftDetail`, `teams`, `settings` — were the
 are not, and that config raised `extra_forbidden` on `status` against a real response. Corrected
 here.) "Strict" therefore means: strict field TYPING wherever a field is modeled, and strict
 required-field presence for the fields this unit's validators depend on — never strict envelope
-CLOSURE. Unexpected keys anywhere, at any depth, are silently and permanently tolerated by
-design, because ESPN extends its response routinely and a new field must never hard-fail a live
-draft fetch.
+CLOSURE. Unexpected keys anywhere, at any depth, are silently tolerated by design, because ESPN
+extends its response routinely and a new field must never hard-fail a live draft fetch. This is
+tolerated until a future decision revisits it on captured-corpus evidence — not a permanent
+commitment; see spec_addendum1's D5.
 
 Author: Kai Mizuno
 """
@@ -249,7 +250,11 @@ class LeagueSnapshot(BaseModel):
     def round_count(self) -> int:
         """Round count derived from `draftDetail.picks[]`'s own `roundId` values (unit.md AC7)
         — never hardcoded to 15. Raises `ValueError` on an empty `picks[]`, which should never
-        occur against a real ESPN payload (spike F11: `picks[]` is always pre-allocated)."""
+        occur against a real ESPN payload (spike F11: `picks[]` is always pre-allocated). This
+        `ValueError` is raised outside `model_validate()`'s `ValidationError` contract — it is a
+        property access on an already-validated snapshot, not a validation, so it is NOT covered
+        by `implementation_plan.md`'s statement that `ValidationError` is the one exception type
+        D17.3 must catch (see review_2026-08-17T1945.md NITPICK N2 / spec_addendum1 D5)."""
         if not self.draftDetail.picks:
             raise ValueError("Cannot derive round_count from an empty picks[] list")
         return max(pick.roundId for pick in self.draftDetail.picks)

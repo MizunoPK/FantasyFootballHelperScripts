@@ -476,11 +476,18 @@ class TestLeagueSnapshotExtraFieldsPermissive:
                         "roundId": 1,
                         "lineupSlotId": 0,
                     },
+                    {
+                        "overallPickNumber": 2,
+                        "playerId": -1,
+                        "teamId": 2,
+                        "roundId": 2,
+                        "lineupSlotId": 2,
+                    },
                 ],
             },
-            "teams": [{"id": 1, "name": "Team One"}],
+            "teams": [{"id": 1, "name": "Team One"}, {"id": 2, "name": "Team Two"}],
             "settings": {
-                "draftSettings": {"pickOrder": [1], "type": "SNAKE", "timePerSelection": 90},
+                "draftSettings": {"pickOrder": [1, 2], "type": "SNAKE", "timePerSelection": 90},
                 # Real, F11-evidenced sibling of draftSettings — not modeled, must not reject.
                 "rosterSettings": {"lineupSlotCounts": {"0": 1, "2": 2, "4": 2}},
             },
@@ -491,6 +498,10 @@ class TestLeagueSnapshotExtraFieldsPermissive:
         snapshot = LeagueSnapshot.model_validate(raw)
         assert snapshot.draftDetail.picks[0].playerId == -1
         assert snapshot.settings.draftSettings.type == "SNAKE"
+        # Pins the derived-count claim (review_2026-08-17T1945.md Summary) on the real,
+        # F11-evidenced extra-key shape itself, not merely on a synthetic payload elsewhere.
+        assert snapshot.round_count == 2
+        assert snapshot.team_count == 2
 
     def test_model_validate_accepts_synthetic_unexpected_top_level_key(self):
         raw = {
@@ -552,7 +563,7 @@ class TestLeagueSnapshotExtraFieldsPermissive:
         snapshot = LeagueSnapshot.model_validate(raw)
         assert snapshot.settings.draftSettings.pickOrder == []
 
-    def test_extra_forbid_on_wrappers_would_still_pass_the_prior_suite(self):
+    def test_isolated_sub_model_tolerance_is_not_evidence_about_the_envelope(self):
         # Regression guard for the checker's demonstrated gap: inserting extra='forbid' into
         # DraftDetail/LeagueSettings does NOT break DraftPick/LeagueTeam/DraftSettings
         # construction in isolation, which is exactly why an isolated-sub-model test proves
