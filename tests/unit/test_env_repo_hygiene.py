@@ -11,6 +11,8 @@ Author: Kai Mizuno
 import subprocess
 from pathlib import Path
 
+import pytest
+
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
 
@@ -50,7 +52,13 @@ class TestEnvIgnoredUnindexedHistoryless:
             f".env is not covered by an ignore rule (git check-ignore exit "
             f"{result.returncode}): {result.stdout}{result.stderr}"
         )
-        assert '.env' in result.stdout
+        assert result.stdout.startswith('.gitignore:'), (
+            f"expected the match to come from .gitignore, got: {result.stdout!r}"
+        )
+        assert result.stdout.strip().endswith('\t.env'), (
+            f"expected the matched pathspec to be exactly '.env' (not e.g. "
+            f".env.example or a substring hit), got: {result.stdout!r}"
+        )
 
     def test_env_is_not_tracked(self):
         result = _run_git('ls-files', '.env')
@@ -68,11 +76,9 @@ class TestEnvIgnoredUnindexedHistoryless:
         --ignored=matching -- .env` reports a currently-untracked,
         currently-ignore-matched path as the single line `!! .env`; anything
         else (blank, or a bare `?? .env`) means untracked-but-unprotected."""
-        assert (REPO_ROOT / '.env').is_file(), (
-            ".env does not exist on disk -- the untracked/ignored assertions "
-            "in this class would be vacuous against a path that is not even "
-            "present to be tracked or ignored."
-        )
+        if not (REPO_ROOT / '.env').is_file():
+            pytest.skip(".env absent on this checkout (expected on a fresh clone); "
+                        "the ignore-match assertion below needs a present path to be non-vacuous")
         result = _run_git('status', '--porcelain', '--ignored=matching', '--', '.env')
         assert result.stdout.strip() == '!! .env', (
             f"expected .env to report as currently ignored+untracked "

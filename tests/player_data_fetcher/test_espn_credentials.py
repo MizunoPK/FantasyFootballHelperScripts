@@ -23,9 +23,25 @@ from utils.error_handler import ConfigurationError
 
 @pytest.fixture(autouse=True)
 def _clean_espn_env(monkeypatch):
-    """Ensure espn_s2/SWID start unset for every test in this module."""
+    """espn_s2/SWID start unset for every test AND do not leak out of it.
+
+    monkeypatch alone is insufficient here: load_espn_env() (via
+    python-dotenv's load_dotenv) writes directly into the real os.environ,
+    and monkeypatch only remembers names it *itself* deleted/set -- it
+    cannot undo a write made underneath it by other code during the test.
+    Without an explicit snapshot/restore, a value loaded by one test's
+    load_espn_env() call survives into every later test in the same pytest
+    session (CONCERN, review_2026-08-17T0933.md).
+    """
+    saved = {k: os.environ.get(k) for k in ('espn_s2', 'SWID')}
     monkeypatch.delenv('espn_s2', raising=False)
     monkeypatch.delenv('SWID', raising=False)
+    yield
+    for key, value in saved.items():
+        if value is None:
+            os.environ.pop(key, None)
+        else:
+            os.environ[key] = value
 
 
 class TestLoadEspnEnv:

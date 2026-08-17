@@ -52,20 +52,24 @@ def get_espn_credentials() -> Tuple[str, str]:
     function; nothing calls it at import time.
 
     Returns:
-        Tuple[str, str]: (espn_s2, swid)
+        Tuple[str, str]: (espn_s2, swid), each stripped of surrounding
+            whitespace. Validation checks the stripped form, so the
+            returned form matches what was validated -- a .env line with
+            a trailing space (e.g. from a stray editor autosave) never
+            hands a whitespace-padded cookie value to a caller.
 
     Raises:
         ConfigurationError: If either credential is missing or blank. The
             message names which credential(s) are absent and contains no
             credential value.
     """
-    espn_s2 = os.environ.get('espn_s2', '')
-    swid = os.environ.get('SWID', '')
+    espn_s2 = os.environ.get('espn_s2', '').strip()
+    swid = os.environ.get('SWID', '').strip()
 
     missing = []
-    if not espn_s2.strip():
+    if not espn_s2:
         missing.append('espn_s2')
-    if not swid.strip():
+    if not swid:
         missing.append('SWID')
 
     if missing:
