@@ -125,6 +125,11 @@ class ConfigKeys:
     CALCULATED = "_calculated"
     MAX_SEARCH_RESULTS = "MAX_SEARCH_RESULTS"
 
+    # ESPN authenticated-draft league identity (D17, TD4) -- non-secret, optional.
+    # Session cookies (espn_s2 / SWID) never live here; see player_data_fetcher/espn_credentials.py.
+    ESPN_LEAGUE_ID = "ESPN_LEAGUE_ID"
+    ESPN_TEAM_ID = "ESPN_TEAM_ID"
+
 
 # Declared input domain of each _get_multiplier consumer, keyed by scoring-type key, as an
 # (lo, hi) pair in which EITHER bound may be None; a factor whose input is wholly unbounded
@@ -295,6 +300,12 @@ class ConfigManager:
 
         self._threshold_cache: Dict[Tuple[str, float, str, float], Dict[str, float]] = {}
         self.max_search_results: int = 15
+
+        # ESPN authenticated-draft league identity (D17, TD4) -- optional/additive:
+        # no config on disk is required to carry these yet, and no caller reads them
+        # in this unit (D17.3 is the first reader).
+        self.espn_league_id: str = ""
+        self.espn_team_id: int = 0
 
         self._load_config()
 
@@ -1065,6 +1076,18 @@ class ConfigManager:
         self.opponent_teams = self.parameters.get(
             self.keys.OPPONENT_TEAMS, []
         )
+
+        self.espn_league_id = self.parameters.get(self.keys.ESPN_LEAGUE_ID, "")
+        self.espn_team_id = self.parameters.get(self.keys.ESPN_TEAM_ID, 0)
+
+        if not isinstance(self.espn_league_id, str):
+            raise ValueError(
+                f"ESPN_LEAGUE_ID must be a string, got {type(self.espn_league_id).__name__}"
+            )
+        if not isinstance(self.espn_team_id, int) or isinstance(self.espn_team_id, bool):
+            raise ValueError(
+                f"ESPN_TEAM_ID must be an integer, got {type(self.espn_team_id).__name__}"
+            )
 
         trade_sim_section = self.parameters.get(self.keys.TRADE_SIMULATOR, {}) or {}
 
