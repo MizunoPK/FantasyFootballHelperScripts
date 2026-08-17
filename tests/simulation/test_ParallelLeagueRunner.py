@@ -9,7 +9,7 @@ Author: Kai Mizuno
 import pytest
 import logging
 from pathlib import Path
-from unittest.mock import Mock, MagicMock, patch, call
+from unittest.mock import Mock, patch, call
 import threading
 
 from simulation.win_rate.ParallelLeagueRunner import ParallelLeagueRunner

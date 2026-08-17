@@ -86,22 +86,30 @@ def load_week_player_data(
             predicted 1-win drop.
 
             T73's contrary observation (0.529, HIGHER) was CONFOUNDED, not evidence of an
-            upward effect. Deleting a week_18 folder changes two independent things, and
-            T73 attributed both to the fallback. The second was `_initialize_teams`'s
-            construction-snapshot selection: as of D1.3, the exact-path guard fails closed
-            unconditionally on a missing week_18, so this hazard no longer has a reachable
-            channel at all — there is no sorted-last fallback left to slide onto week_17.
-            Because `set_player_data` refreshes only projected_points/actual_points, every
-            OTHER FantasyPlayer field stays frozen at that snapshot, including
-            `player_rating`, which the draft scorer reads. All ten teams therefore draft
-            different rosters and play a different season. Measured in isolation that
+            upward effect. At the time, deleting a week_18 folder changed two independent
+            things, and T73 attributed both to the fallback. The second was
+            `_initialize_teams`'s then-sorted-last construction-snapshot selection: with
+            week_18 absent it slid the shared snapshot onto week_17. Because
+            `set_player_data` refreshes only projected_points/actual_points, every OTHER
+            FantasyPlayer field stayed frozen at whichever snapshot was selected, including
+            `player_rating`, which the draft scorer reads — so all ten teams drafted
+            different rosters and played a different season. Measured in isolation that
             channel moved the rate by -6 to +6 wins with SEED-DEPENDENT SIGN (3 up, 3 down
             across 6 base seeds), dwarfing and flipping the fallback's own -1.
 
-            Consequence for anyone reasoning here: a degenerate WEEK biases downward and is
-            safe to reason about, but a missing week FOLDER additionally re-rolls the draft
-            and is not directional at all. Do not generalise the folder-level observation to
-            other degenerate-input questions.
+            That second channel is RETIRED as of D1.3 and is stated here only as history.
+            `_initialize_teams` now selects week_18 (`WEEKS_PER_SEASON + 1`) by exact path
+            and raises FileNotFoundError unconditionally when it is absent, before any team
+            is built — there is no sorted-last fallback left to slide onto week_17, and no
+            other week folder ever fed the construction snapshot.
+
+            Consequence for anyone reasoning here: the degenerate-WEEK effect above is the
+            only channel still reachable from missing/degenerate week data, and it biases
+            downward, so it is safe to reason about directionally. A missing week_18 is not
+            a degenerate-input question at all — it is a hard failure. A missing week_N+1
+            for some other N reaches only the raise above. Do not resurrect the retired
+            draft-re-roll reasoning when analysing today's code, and do not generalise the
+            historical folder-level observation to other degenerate-input questions.
     """
     projected_folder = weeks_folder / f"week_{week_num:02d}"
 

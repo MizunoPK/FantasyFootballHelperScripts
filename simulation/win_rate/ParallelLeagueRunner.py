@@ -47,10 +47,10 @@ def _run_simulation_process(args: Tuple[dict, int, Path, bool, Optional[int], Op
     worker by _init_worker_process, avoiding per-simulation pickling.
 
     Args:
-        args: Tuple of (config_dict, simulation_id, data_folder, naive_opponents,
-            seed, measured_config_dict) where seed is the
-            per-task deterministic seed (None → entropy default) and measured_config_dict is
-            the measured team's trial config (T54/D1; None → symmetric single-config behavior).
+        args: Tuple of (config_dict, simulation_id, data_folder, naive_opponents, seed,
+            measured_config_dict) where seed is the per-task deterministic seed
+            (None → entropy default) and measured_config_dict is the measured team's trial
+            config (T54/D1; None → symmetric single-config behavior).
 
     Returns:
         Tuple[int, int, float]: (wins, losses, total_points) for DraftHelperTeam
@@ -79,9 +79,8 @@ def _run_simulation_with_weeks_process(args: Tuple[dict, int, Path, bool, Option
     _init_worker_process, avoiding per-simulation pickling.
 
     Args:
-        args: Tuple of (config_dict, simulation_id, data_folder, naive_opponents,
-            seed) where seed is the per-task deterministic
-            seed (None → entropy default).
+        args: Tuple of (config_dict, simulation_id, data_folder, naive_opponents, seed)
+            where seed is the per-task deterministic seed (None → entropy default).
 
     Returns:
         List[Tuple[int, bool, float]]: Per-week results as list of

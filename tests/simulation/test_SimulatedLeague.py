@@ -1106,9 +1106,10 @@ class TestSelfLoadRefusesMissingActuals:
 
 class TestExplicitConstructionSnapshotGuard:
     """
-    D1.2/TD1-TD3, cutover-default path (D1.1 supplied it opt-in; D1.2 makes it default): the
-    SimulatedLeague._initialize_teams must select week_18 (WEEKS_PER_SEASON + 1) by exact
-    path and raise FileNotFoundError naming it when absent, entering through the same
+    TD1-TD3, the sole construction-snapshot path (D1.1 supplied it opt-in, D1.2 made it the
+    default, D1.3 made it the only path): SimulatedLeague._initialize_teams selects week_18
+    (WEEKS_PER_SEASON + 1) by exact path and raises FileNotFoundError naming it when absent,
+    entering through the same
     non-empty-preloaded_week_data bypass seam TestSelfLoadRefusesMissingActuals covers for
     the legacy preload path — a fixture with preloaded_week_data=None would stop at the
     pre-existing _preload_all_weeks guard and falsely claim coverage of THIS guard, so the

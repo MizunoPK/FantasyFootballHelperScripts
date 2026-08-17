@@ -223,9 +223,6 @@ class TestMainFlow:
                 config_path=Path("data/configs/league_config.json"),
                 strategy_filter=None,
                 naive_opponents=False,
-                # D1.3: the opt-in construction-snapshot rollback CLI flag and its
-                # forwarded parameter are retired (contract); the orchestrator call
-                # carries no such kwarg any longer.
                 seed=None,
             )
 
