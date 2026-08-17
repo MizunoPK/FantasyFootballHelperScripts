@@ -2416,6 +2416,47 @@ class TestPropagateToConfigs:
             assert written[section]['WEIGHT'] == promoted_weight, \
                 f"{section}.WEIGHT is swept - it must still promote from the source"
 
+    def test_differing_promoted_scaling_is_suppressed_and_names_both_values(self, tmp_path):
+        """D10.2/TD5a: the differing-value arm, exercised on SCALING itself.
+
+        The other two graft states are pinned for SCALING directly (live-absent and
+        promoted-absent); promoted-present-and-differing was covered only generically
+        through THRESHOLDS. SCALING is the key this ticket cuts over, and a post-D10
+        optimal folder carrying its own SCALING against a hand-set live value is the
+        ordinary case D10.3/D10.4 create - so it gets its own case rather than
+        inheriting one.
+
+        Mutation check (CODING_STANDARDS Test Discrimination): drop the ADP_SCORING
+        SCALING entry from PRESERVE_SUBPATHS and this test fails - the source's
+        'BUCKETED' lands and no warning fires.
+        Target is under tmp_path only - never data/configs/.
+        """
+        optimal = tmp_path / "optimal"
+        optimal.mkdir()
+        target = tmp_path / "target"
+        target.mkdir()
+        (optimal / 'league_config.json').write_text(json.dumps(
+            {'parameters': {'ADP_SCORING': {'SCALING': 'BUCKETED', 'WEIGHT': 1.5}}}))
+        (target / 'league_config.json').write_text(json.dumps(
+            {'parameters': {'ADP_SCORING': {'SCALING': 'LINEAR', 'WEIGHT': 2.12}}}))
+
+        mock_logger = Mock()
+        propagate_to_configs(optimal, target, mock_logger)
+
+        with open(target / 'league_config.json') as f:
+            written = json.load(f)['parameters']
+        assert written['ADP_SCORING']['SCALING'] == 'LINEAR', \
+            "the hand-owned live SCALING must be retained over a differing promoted value"
+        assert written['ADP_SCORING']['WEIGHT'] == 1.5, \
+            "ADP_SCORING.WEIGHT is swept - it must still promote from the source"
+
+        guard_warnings = [str(c) for c in mock_logger.warning.call_args_list
+                          if 'ADP_SCORING.SCALING' in str(c)]
+        assert len(guard_warnings) == 1, \
+            f"a suppressed differing promoted SCALING must warn exactly once: {guard_warnings}"
+        assert 'BUCKETED' in guard_warnings[0] and 'LINEAR' in guard_warnings[0], \
+            "the warning must name both the suppressed source value and the retained live value"
+
     def test_no_scaling_warning_while_the_live_config_has_no_scaling_yet(self, tmp_path):
         """D10.2/TD5 AC4(4): the pre-cutover window is silent, and the source value lands.
 

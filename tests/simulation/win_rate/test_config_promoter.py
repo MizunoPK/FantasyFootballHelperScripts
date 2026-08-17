@@ -2,7 +2,8 @@
 Tests for simulation.win_rate.config_promoter.
 
 Covers the live-config promotion writer: promoting the top-ranked combination's
-DRAFT_ORDER + 6 params, preserving all other keys, cumulative-win-rate ranking
+DRAFT_ORDER + 6 params, preserving all other keys, unknown nested keys inside the
+promoted scoring blocks surviving a promote (D10.2/TD5b), cumulative-win-rate ranking
 (not best_single_run_win_rate), the four error paths that converge to ConfigurationError with
 no write (empty store, strategy absent, strategy files missing, config missing/
 corrupt), the git dirty-state warn-and-proceed behavior, the graceful git probe,

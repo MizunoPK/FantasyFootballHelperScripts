@@ -1193,11 +1193,18 @@ def propagate_to_configs(
     MAX_POSITIONS, FLEX_ELIGIBLE_POSITIONS, INJURY_PENALTIES, OPPONENT_TEAMS are
     preserved from the existing target file (if present), so live-only
     user-maintained keys are never dropped by the atomic replace. The live
-    ADP_SCORING.THRESHOLDS sub-block is preserved as well (D4.1) whenever the
-    source folder's filtered parameters carries an ADP_SCORING block to graft
-    onto, so an accuracy promote can no longer overwrite the hand-owned threshold
-    ladder, while the sibling ADP_SCORING.WEIGHT continues to promote from the
-    source.
+    ADP_SCORING.THRESHOLDS, ADP_SCORING.SCALING, PLAYER_RATING_SCORING.SCALING
+    and PLAYER_RATING_SCORING.THRESHOLDS sub-blocks are preserved as well (D4.1,
+    then D10.2/TD5a) whenever the source folder's filtered parameters carries the
+    parent section to graft onto, so an accuracy promote can no longer overwrite a
+    hand-owned scoring key. BOTH factors' WEIGHT are deliberately NOT preserved —
+    both are swept (ConfigGenerator.PARAM_DEFINITIONS :93, :96), so they continue
+    to promote from the source and the simulate -> promote -> use-live loop stays
+    intact for them.
+    When the guard bites, it warns in one of two forms: the promoted payload
+    carrying a DIFFERING value is reported as a suppressed value; the promoted
+    payload carrying NO such key at all is reported as an absent key, never as a
+    suppressed None.
     For weekly config files: copies as-is (MATCHUP->SCHEDULE sync already applied
     by save_optimal_configs() at write time). The simulation-only 'performance_metrics'
     block is stripped from all written files before writing.
