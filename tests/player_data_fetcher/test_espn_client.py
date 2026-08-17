@@ -11,6 +11,7 @@ Author: Kai Mizuno
 import datetime
 import json
 import pytest
+from unittest.mock import AsyncMock, Mock
 
 from player_data_fetcher.espn_client import (
     ESPNAPIError, ESPNRateLimitError, ESPNServerError,
@@ -579,3 +580,59 @@ class TestRankingsCacheIntegration:
         assert result == api_rankings
         mock_api.assert_called_once()
         mock_save.assert_called_once_with(api_rankings)
+
+
+class TestParseEspnDataPositionRankRanges:
+
+    @pytest.fixture
+    def client(self):
+        settings = Settings(current_nfl_week=1)
+        client = ESPNClient(settings)
+        client._fetch_team_rankings = AsyncMock(return_value={})
+        client._fetch_current_week_schedule = AsyncMock(return_value={})
+        client._load_season_schedule_from_csv = Mock(return_value={})
+        client._calculate_week_by_week_projection = Mock(return_value=0.0)
+        client._calculate_position_defense_rankings = Mock(return_value={})
+
+        def _populate_side_effect(projection, player_info, name, position):
+            if projection.id == '1004':
+                raise ValueError('synthetic parse failure')
+            return None
+
+        client._populate_weekly_projections = Mock(side_effect=_populate_side_effect)
+        return client
+
+    @pytest.mark.asyncio
+    async def test_survivor_only_population_reaches_both_endpoints(self, client):
+        players = [
+            {'player': {
+                'id': 1001, 'firstName': 'Alpha', 'lastName': 'One',
+                'defaultPositionId': 2, 'proTeamId': 1,
+                'draftRanksByRankType': {'PPR': {'rank': 1}},
+            }},
+            {'player': {
+                'id': 1002, 'firstName': 'Bravo', 'lastName': 'Two',
+                'defaultPositionId': 2, 'proTeamId': 1,
+                'draftRanksByRankType': {'PPR': {'rank': 2}},
+            }},
+            {'player': {
+                'id': 1003, 'firstName': 'Charlie', 'lastName': 'Three',
+                'defaultPositionId': 2, 'proTeamId': 999,
+                'draftRanksByRankType': {'PPR': {'rank': 3}},
+            }},
+            {'player': {
+                'id': 1004, 'firstName': 'Delta', 'lastName': 'Four',
+                'defaultPositionId': 2, 'proTeamId': 1,
+                'draftRanksByRankType': {'PPR': {'rank': 4}},
+            }},
+        ]
+
+        # Act
+        projections = await client._parse_espn_data({'players': players})
+
+        # Assert
+        ids = [projection.id for projection in projections]
+        ratings = [projection.player_rating for projection in projections]
+
+        assert ids == ['1001', '1002']
+        assert ratings == [100.0, 1.0]
