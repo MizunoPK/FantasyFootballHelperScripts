@@ -27,6 +27,7 @@ from pathlib import Path
 from typing import Any, Dict, List
 
 from player_data_fetcher.espn_client import ESPNClient
+from player_data_fetcher.espn_credentials import load_espn_env
 from player_data_fetcher.player_data_fetcher_main import Settings
 
 SCHEMA_VERSION = 1
@@ -172,6 +173,10 @@ def main() -> None:
         help="Target corpus directory (must not already exist).",
     )
     args = parser.parse_args()
+
+    # Entry-point startup: load .env before any credential read (D17.1 UD3 --
+    # explicit, non-import-time loader; this is the designated caller).
+    load_espn_env()
 
     raw = asyncio.run(_capture_raw_payload(args.league_id, args.season))
     sanitized = sanitize_league_payload(raw)

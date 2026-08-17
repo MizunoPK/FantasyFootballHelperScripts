@@ -12,6 +12,7 @@ Author: Kai Mizuno
 
 import hashlib
 import json
+from unittest.mock import patch
 
 import pytest
 
@@ -19,6 +20,7 @@ from player_data_fetcher.generate_espn_draft_corpus import (
     sanitize_league_payload,
     derive_steps,
     write_corpus,
+    main,
     SENTINEL_LEAGUE_ID,
 )
 
@@ -162,3 +164,60 @@ class TestWriteCorpus:
         with pytest.raises(FileExistsError):
             write_corpus(target, sanitized, steps)
         assert [p.name for p in target.iterdir()] == ["sentinel.txt"]
+
+
+class TestMainLoadsEnvBeforeCredentialRead:
+    """Regression test (polish pass, D17.3): main() must call load_espn_env()
+    at entry-point startup, before any credential read, per D17.1 UD3's
+    "called from fetcher startup" design. Without this call the offline test
+    suite is green (tests inject credentials directly) while the real CLI
+    path fails with ConfigurationError before any network call -- this test
+    exercises the actual entry point rather than injecting credentials, so
+    it fails if the load_espn_env() call is ever removed or reordered.
+    """
+
+    def test_main_calls_load_espn_env_before_capturing_payload(self, tmp_path, monkeypatch):
+        call_order = []
+
+        def record_load_espn_env(*args, **kwargs):
+            call_order.append("load_espn_env")
+
+        def record_capture(coro):
+            call_order.append("capture_raw_payload")
+            coro.close()  # avoid "coroutine was never awaited" warning
+            return {
+                "id": 1,
+                "settings": {},
+                "teams": [],
+                "draftDetail": {"picks": []},
+            }
+
+        output_dir = tmp_path / "league_draft"
+        monkeypatch.setattr(
+            "sys.argv",
+            [
+                "generate_espn_draft_corpus.py",
+                "--league-id",
+                "123",
+                "--season",
+                "2026",
+                "--output-dir",
+                str(output_dir),
+            ],
+        )
+
+        with patch(
+            "player_data_fetcher.generate_espn_draft_corpus.load_espn_env",
+            side_effect=record_load_espn_env,
+        ) as mock_load_env, patch(
+            "player_data_fetcher.generate_espn_draft_corpus.asyncio.run",
+            side_effect=record_capture,
+        ):
+            main()
+
+        mock_load_env.assert_called_once()
+        assert call_order == ["load_espn_env", "capture_raw_payload"], (
+            "load_espn_env() must be called before the credential-requiring "
+            "payload capture, so a missing .env fails clearly rather than "
+            "the loader silently never running."
+        )
