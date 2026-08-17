@@ -167,7 +167,7 @@ class SimulatedLeague:
     }
     """Legacy naive-opponent composition (selected when naive_opponents=True): 1 DraftHelperTeam + 9 SimulatedOpponents. dict values sum to 9 opponents + 1 DraftHelperTeam = 10 total teams per league. The 1/2/2/2/3 distribution reflects the relative prevalence of each strategy among typical human fantasy drafters. Retained verbatim so the prior ~0.84 baseline regime stays reproducible (T24)."""
 
-    def __init__(self, config_dict: dict, data_folder: Path = Path("./simulation/sim_data"), preloaded_week_data: Optional[Dict[int, Dict]] = None, measured_config_dict: Optional[dict] = None, naive_opponents: bool = False, seed: Optional[int] = None) -> None:
+    def __init__(self, config_dict: dict, data_folder: Path = Path("./simulation/sim_data"), preloaded_week_data: Optional[Dict[int, Dict]] = None, measured_config_dict: Optional[dict] = None, naive_opponents: bool = False, explicit_construction_snapshot: bool = False, seed: Optional[int] = None) -> None:
         """
         Initialize SimulatedLeague with configuration.
 
@@ -188,6 +188,13 @@ class SimulatedLeague:
                 (SELF_PLAY_TEAM_STRATEGIES — 10 DraftHelperTeams, no SimulatedOpponents). When True
                 the legacy naive composition (NAIVE_TEAM_STRATEGIES — 1 DraftHelperTeam + 9
                 SimulatedOpponents) is used, reproducing the prior ~0.84 baseline regime (T24).
+            explicit_construction_snapshot (bool): When False (default) `_initialize_teams`
+                selects the construction snapshot the way it always has — the sorted-last
+                `available_weeks[-1]` week folder — byte-identical to today (D1.1/UD2). When
+                True, it instead resolves `week_{WEEKS_PER_SEASON + 1:02d}` directly and raises
+                FileNotFoundError before any shared player data is constructed if that exact
+                folder is absent (D1.1/TD1/TD2). Opt-in provision-stage rollout flag (D1.1/TD5);
+                the default flips at cutover (D1.2).
             seed (Optional[int]): Base seed for this league's private RNG (random.Random). When
                 provided, every random draw in this league (team-slot shuffle, draft-order shuffle,
                 opponent human-error picks) is deterministic and isolated from other leagues and
@@ -206,6 +213,7 @@ class SimulatedLeague:
         self.config_dict = config_dict
         self.measured_config_dict = measured_config_dict
         self.naive_opponents = naive_opponents
+        self.explicit_construction_snapshot = explicit_construction_snapshot
         self.data_folder = data_folder
         # Per-league private RNG (D1/T29): seeded deterministically when seed is provided so
         # every draw is isolated from the process-global random module and from other leagues.
@@ -263,27 +271,44 @@ class SimulatedLeague:
         self._rng.shuffle(strategies)  # site #1 (T29): team-slot assignment via per-league RNG
 
         weeks_folder = self.data_folder / "weeks"
-        available_weeks = sorted([f for f in weeks_folder.iterdir() if f.is_dir() and f.name.startswith("week_")])
-        if not available_weeks:
-            raise FileNotFoundError(f"No week folders found in: {weeks_folder}")
 
-        # T74: this snapshot is LOAD-BEARING FOR THE DRAFT, not just for actual_points.
-        # `set_player_data` later refreshes only projected_points/actual_points, so every
-        # other FantasyPlayer field -- notably `player_rating`, which the draft scorer reads
-        # -- stays frozen at whatever this folder held. If the season is ever truncated,
-        # `available_weeks[-1]` slides to an earlier week and EVERY TEAM DRAFTS A DIFFERENT
-        # ROSTER. Measured effect: -6 to +6 wins out of 34, sign depending on the seed.
-        #
-        # How loudly that fails depends on the path. On the DEFAULT path it is not silent:
-        # `_preload_all_weeks` walks weeks 1..17 and `load_week_player_data` raises
-        # FileNotFoundError on the missing week_N+1, and T73's `_validate_season_data` gate
-        # refuses the season earlier still. The slide is silent only when the preload is
-        # BYPASSED -- `__init__` short-circuits `_preload_all_weeks` when non-empty
-        # `preloaded_week_data` is supplied -- which is exactly how T74's experiment
-        # separated this channel from the zeroed-actuals one. So this is a latent hazard
-        # behind two gates, not a live silent corruption; the comment records why both
-        # gates are load-bearing.
-        week_folder = available_weeks[-1]
+        if self.explicit_construction_snapshot:
+            # D1.1/TD1/TD2: exact-path resolution behind the opt-in provision-stage flag.
+            # Derived locally from WEEKS_PER_SEASON (no import of SimDataLoader.WEEKS_REQUIRED
+            # back into this module — that would be a circular dependency and would put
+            # SimDataLoader.py in this unit's diff, violating an explicit success criterion).
+            construction_week = WEEKS_PER_SEASON + 1
+            expected_week_folder = weeks_folder / f"week_{construction_week:02d}"
+            if not expected_week_folder.is_dir():
+                raise FileNotFoundError(
+                    f"Expected construction-snapshot week folder not found: "
+                    f"{expected_week_folder} (week_{construction_week:02d} is the required "
+                    f"construction snapshot for explicit_construction_snapshot=True)"
+                )
+            week_folder = expected_week_folder
+        else:
+            available_weeks = sorted([f for f in weeks_folder.iterdir() if f.is_dir() and f.name.startswith("week_")])
+            if not available_weeks:
+                raise FileNotFoundError(f"No week folders found in: {weeks_folder}")
+
+            # T74: this snapshot is LOAD-BEARING FOR THE DRAFT, not just for actual_points.
+            # `set_player_data` later refreshes only projected_points/actual_points, so every
+            # other FantasyPlayer field -- notably `player_rating`, which the draft scorer reads
+            # -- stays frozen at whatever this folder held. If the season is ever truncated,
+            # `available_weeks[-1]` slides to an earlier week and EVERY TEAM DRAFTS A DIFFERENT
+            # ROSTER. Measured effect: -6 to +6 wins out of 34, sign depending on the seed.
+            #
+            # How loudly that fails depends on the path. On the DEFAULT path it is not silent:
+            # `_preload_all_weeks` walks weeks 1..17 and `load_week_player_data` raises
+            # FileNotFoundError on the missing week_N+1, and T73's `_validate_season_data` gate
+            # refuses the season earlier still. The slide is silent only when the preload is
+            # BYPASSED -- `__init__` short-circuits `_preload_all_weeks` when non-empty
+            # `preloaded_week_data` is supplied -- which is exactly how T74's experiment
+            # separated this channel from the zeroed-actuals one. So this is a latent hazard
+            # behind two gates, not a live silent corruption; the comment records why both
+            # gates are load-bearing.
+            week_folder = available_weeks[-1]
+
         self.logger.debug(f"Using {week_folder.name} JSON files for team setup (has complete actual_points data)")
 
         shared_dir = self._create_shared_data_dir("shared_data", week_folder)

@@ -191,9 +191,10 @@ class TestRunSingleSimulation:
             config = {'base': 'config'}
             measured = {'measured': 'config'}
             data_folder = Path('/test/data')
-            args = (config, 0, data_folder, False, None, measured)
+            args = (config, 0, data_folder, False, False, None, measured)
 
-            # Call _run_simulation_process directly with the 6-element tuple
+            # Call _run_simulation_process directly with the 7-element tuple (D1.1 added
+            # explicit_construction_snapshot between naive_opponents and seed)
             _run_simulation_process(args)
 
             # Assert measured_config_dict was passed to SimulatedLeague

@@ -85,6 +85,7 @@ def compute_promotion(
     seed: int,
     shortlist: int = DEFAULT_PROMOTE_SHORTLIST,
     sims: int = DEFAULT_PROMOTE_SIMS,
+    explicit_construction_snapshot: bool = False,
 ) -> Dict[str, Any]:
     """
     Re-measure the shortlisted sweep candidates and compute the promotion WITHOUT writing.
@@ -128,6 +129,10 @@ def compute_promotion(
             reproducible and CRN-paired across arms. Required — the caller resolves it.
         shortlist (int): How many top-LCB candidates to re-measure (K).
         sims (int): Simulations per season per arm for each re-measurement (B).
+        explicit_construction_snapshot (bool): Forwarded to run_paired_ab_comparison (and thus
+            every re-measurement SimulatedLeague it constructs via _run_arm). False (default)
+            preserves today's sorted-last selection; True selects the exact
+            week_{WEEKS_PER_SEASON + 1:02d} snapshot and fails closed if absent (D1.1/UD4/UQ2).
 
     Returns:
         Dict[str, Any]: {"strategy_id", "param_values", "remeasured_rate", "remeasured_ci",
@@ -208,7 +213,8 @@ def compute_promotion(
 
         try:
             measured = run_paired_ab_comparison(
-                sim_base, sim_candidate, data_folder, seed, num_simulations=sims
+                sim_base, sim_candidate, data_folder, seed, num_simulations=sims,
+                explicit_construction_snapshot=explicit_construction_snapshot,
             )
         except (FileNotFoundError, ValueError) as e:
             # The comparator's two new failure modes reach the promote path for the first
@@ -310,6 +316,7 @@ def promote_best_combination(
     seed: int,
     shortlist: int = DEFAULT_PROMOTE_SHORTLIST,
     sims: int = DEFAULT_PROMOTE_SIMS,
+    explicit_construction_snapshot: bool = False,
 ) -> Dict[str, Any]:
     """
     Write the re-measurement-winning sweep combination into league_config.json.
@@ -336,6 +343,8 @@ def promote_best_combination(
         seed (int): Base seed for the re-measurement (required; the caller resolves it).
         shortlist (int): How many top-LCB candidates to re-measure (K).
         sims (int): Simulations per season per arm for each re-measurement (B).
+        explicit_construction_snapshot (bool): Forwarded to compute_promotion (D1.1/UD4/UQ2).
+            False (default) preserves today's sorted-last selection.
 
     Returns:
         Dict[str, Any]: Exactly {"strategy_id", "param_values", "remeasured_rate",
@@ -355,7 +364,8 @@ def promote_best_combination(
             untouched and no orphaned .tmp remains).
     """
     plan = compute_promotion(
-        store, data_folder, config_path, seed=seed, shortlist=shortlist, sims=sims
+        store, data_folder, config_path, seed=seed, shortlist=shortlist, sims=sims,
+        explicit_construction_snapshot=explicit_construction_snapshot,
     )
     new_config = plan["new_config"]
 

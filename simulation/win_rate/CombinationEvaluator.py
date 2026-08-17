@@ -49,6 +49,7 @@ class CombinationEvaluator:
         max_workers: int = 8,
         config_path: Path = Path("data/configs/league_config.json"),
         naive_opponents: bool = False,
+        explicit_construction_snapshot: bool = False,
         seed: Optional[int] = None,
     ) -> None:
         """
@@ -62,6 +63,10 @@ class CombinationEvaluator:
                 is the ConfigManager data root. Defaults to data/configs/league_config.json.
             naive_opponents (bool): Forwarded to the ParallelLeagueRunner (and thus every
                 SimulatedLeague). False (default) = self-play composition; True = legacy naive.
+            explicit_construction_snapshot (bool): Forwarded to the ParallelLeagueRunner (and
+                thus every SimulatedLeague). False (default) preserves today's sorted-last
+                selection; True selects the exact week_{WEEKS_PER_SEASON + 1:02d} snapshot and
+                fails closed if absent (D1.1).
             seed (Optional[int]): Base seed for deterministic evaluation (D1/T29). Forwarded to
                 ParallelLeagueRunner; per-task seeds are derived config-independently (D2). Default
                 None → OS entropy, preserving stochastic behavior (D3).
@@ -84,7 +89,7 @@ class CombinationEvaluator:
         except (FileNotFoundError, ValueError) as e:
             raise FileOperationError(f"Failed to load config from {config_path}: {e}") from e
 
-        self._runner = ParallelLeagueRunner(max_workers=max_workers, data_folder=data_folder, naive_opponents=naive_opponents, seed=seed)
+        self._runner = ParallelLeagueRunner(max_workers=max_workers, data_folder=data_folder, naive_opponents=naive_opponents, explicit_construction_snapshot=explicit_construction_snapshot, seed=seed)
 
         seasons = sorted(data_folder.glob("20*/"))
         if not seasons:
