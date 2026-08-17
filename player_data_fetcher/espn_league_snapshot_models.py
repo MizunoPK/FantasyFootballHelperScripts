@@ -9,21 +9,31 @@ payload (`draftDetail.picks[]`, `teams[]`, `settings.draftSettings`) from the `m
 payload nesting: `LeagueSnapshot.model_validate()` accepts the RAW merged `mDraftDetail` +
 `mTeam` response as ESPN actually returns it (`draftDetail.{picks,drafted,inProgress}`,
 top-level `teams[]`, `settings.draftSettings`) — a consumer (D17.3) hands it the raw response
-directly and never pre-flattens it. `LeagueSnapshot` itself is `extra='forbid'`: an unexpected
-TOP-LEVEL key is schema drift and fails loudly. The nested wrappers (`DraftDetail`,
-`LeagueSettings`) and the per-row/per-team models (`DraftPick`, `LeagueTeam`, `DraftSettings`)
-deliberately do NOT forbid extras — ESPN routinely adds new fields to `picks[]` rows and similar
-nested shapes, and rejecting an unknown nested field would turn a harmless response addition into
-a hard parse failure in the middle of a live draft, which is the worst possible moment for that
-failure mode. "Strict" therefore means: strict envelope shape, strict field typing throughout,
-but tolerant of unknown fields anywhere except the top-level envelope.
+directly and never pre-flattens it.
+
+**Extra-key policy — permissive at every depth, deliberately.** No model in this module —
+including `LeagueSnapshot` itself — sets `extra='forbid'`. The real ESPN envelope carries fields
+this unit does not model: spike `spikes/archive/espn-draft-night-integration.md:311-314` records
+a top-level `status` object (`isFull`, `teamsJoined`, `activatedDate`) and a
+`settings.rosterSettings.lineupSlotCounts` object alongside `settings.draftSettings`, both
+present on every real response. A `LeagueSnapshot.model_validate(raw_response)` call MUST accept
+those unmodeled keys rather than raising — this module's job is to validate the sub-shape it
+actually depends on, not to reject a payload for carrying more than that. (An earlier revision of
+this module set `extra='forbid'` on `LeagueSnapshot` alone, on the mistaken premise that the
+three modeled top-level keys — `draftDetail`, `teams`, `settings` — were the whole envelope; they
+are not, and that config raised `extra_forbidden` on `status` against a real response. Corrected
+here.) "Strict" therefore means: strict field TYPING wherever a field is modeled, and strict
+required-field presence for the fields this unit's validators depend on — never strict envelope
+CLOSURE. Unexpected keys anywhere, at any depth, are silently and permanently tolerated by
+design, because ESPN extends its response routinely and a new field must never hard-fail a live
+draft fetch.
 
 Author: Kai Mizuno
 """
 
 from typing import Dict, List, Optional
 
-from pydantic import BaseModel, ConfigDict, StrictBool, StrictInt, model_validator
+from pydantic import BaseModel, StrictBool, StrictInt, model_validator
 
 from player_data_fetcher.player_data_constants import ESPN_POSITION_MAPPINGS
 
@@ -93,7 +103,8 @@ class DraftPick(BaseModel):
 
     Deliberately permissive on unknown fields (no `extra='forbid'`) — ESPN routinely adds fields
     to a `picks[]` row, and this row-level model should not hard-fail a live draft fetch over an
-    unrecognized addition. Only the top-level `LeagueSnapshot` envelope enforces `extra='forbid'`.
+    unrecognized addition. See module docstring "Extra-key policy" — permissive at every depth,
+    including the top-level `LeagueSnapshot` envelope.
 
     Attributes:
         overallPickNumber: 1-based overall pick order across the whole draft. Strict int — no coercion.
@@ -208,13 +219,14 @@ class LeagueSnapshot(BaseModel):
     The top-level ESPN league-draft-snapshot envelope combining `draftDetail`, `teams[]`, and
     `settings.draftSettings` from the `mDraftDetail` + `mTeam` view pair.
 
-    This model mirrors the RAW payload 1:1 — `draftDetail` and `settings` are nested wrappers,
-    `teams` is genuinely top-level — so `LeagueSnapshot.model_validate(raw_espn_response)` works
-    directly against the unmodified merged response (see module docstring, "Envelope ownership
-    decision"). `extra='forbid'` is set HERE ONLY: an unexpected top-level envelope key is
-    treated as schema drift and raises `ValidationError`, while an unexpected key nested inside
-    `draftDetail.picks[]`, `teams[]`, or `settings.draftSettings` is silently tolerated (see each
-    nested model's own docstring).
+    This model mirrors the sub-shape of the RAW payload this unit depends on — `draftDetail` and
+    `settings` are nested wrappers, `teams` is genuinely top-level — so
+    `LeagueSnapshot.model_validate(raw_espn_response)` works directly against the unmodified
+    merged response (see module docstring, "Envelope ownership decision"). No `extra='forbid'`
+    anywhere, including here: the real response carries top-level `status` and a
+    `settings.rosterSettings` this unit does not model, and both must parse through unrejected
+    (see module docstring, "Extra-key policy"). An unexpected key at ANY depth — top-level,
+    inside `draftDetail.picks[]`, `teams[]`, or `settings.draftSettings` — is silently tolerated.
 
     Model-level (`@model_validator`) semantic checks enforce invariants that span multiple rows
     or sub-objects and cannot be expressed as per-field constraints: no duplicate completed
@@ -228,8 +240,6 @@ class LeagueSnapshot(BaseModel):
             top-level in the payload (unlike `draftDetail`/`settings`) — never wrapped.
         settings: `settings` — wraps `draftSettings`.
     """
-
-    model_config = ConfigDict(extra='forbid')
 
     draftDetail: DraftDetail
     teams: List[LeagueTeam]

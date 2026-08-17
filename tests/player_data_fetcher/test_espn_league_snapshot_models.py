@@ -428,10 +428,10 @@ class TestPositionEnumLookupTables:
 
 
 class TestLeagueSnapshotSchemaDrift:
-    """A schema-drifting payload fails loudly — missing/wrong-type fields and an unexpected
-    TOP-LEVEL envelope key (unit.md AC8). Deliberately does NOT cover an unexpected NESTED key
-    (inside draftDetail.picks[]/teams[]/settings.draftSettings) — see
-    TestLeagueSnapshotNestedExtraFieldsPermissive for that deliberate asymmetry."""
+    """A schema-drifting payload fails loudly for the shape this unit actually models —
+    missing/wrong-type required fields (unit.md AC8). Deliberately does NOT cover an unexpected
+    key at ANY depth, including the top level — see TestLeagueSnapshotExtraFieldsPermissive for
+    that deliberate, permanent tolerance (there is no envelope-closure guarantee to test)."""
 
     def test_missing_required_top_level_key_rejected(self, two_team_settings, two_teams):
         with pytest.raises(ValidationError):
@@ -445,58 +445,121 @@ class TestLeagueSnapshotSchemaDrift:
         with pytest.raises(ValidationError):
             DraftDetail(picks="not-a-list", drafted=False, inProgress=False)
 
-    def test_unexpected_top_level_key_rejected(self, two_team_settings, two_teams):
-        # extra='forbid' is set on LeagueSnapshot itself — an unrecognized TOP-LEVEL envelope
-        # key (schema drift) must raise ValidationError, making the "strict" documentation true
-        # where it matters most: the envelope shape D17.3 depends on.
-        with pytest.raises(ValidationError):
-            LeagueSnapshot(
-                **_snapshot_kwargs(
-                    picks=[_placeholder_pick(1, 1, 1)],
-                    drafted=False,
-                    in_progress=False,
-                    teams=two_teams,
-                    draft_settings=two_team_settings,
-                ),
-                unexpectedTopLevelKey="drift",
-            )
 
+class TestLeagueSnapshotExtraFieldsPermissive:
+    """Unexpected keys are tolerated at EVERY depth — top-level envelope, inside
+    draftDetail.picks[] rows, and inside DraftDetail/LeagueSettings wrappers — exercised through
+    the raw-dict model_validate() path, not pre-instantiated sub-models (a pre-built sub-model
+    would already have discarded an extra key on its own construction, proving nothing about
+    LeagueSnapshot's own validation of a raw payload).
 
-class TestLeagueSnapshotNestedExtraFieldsPermissive:
-    """The deliberate asymmetry: LeagueSnapshot forbids unknown TOP-LEVEL keys, but every nested
-    model (DraftPick, LeagueTeam, DraftSettings, DraftDetail, LeagueSettings) tolerates an
-    unknown key, because ESPN routinely extends picks[]/teams[]/draftSettings row shapes and a
-    hard failure there would break a live draft over a harmless new field. This asymmetry is the
-    decision's teeth (context.md / Polish batch Decision 2) — pin it so a future "tidy-up" of
-    the nested models to also forbid extras doesn't silently reintroduce the live-draft failure
-    mode this was rejected to avoid."""
+    The real-shape case (test_model_validate_accepts_f11_shaped_payload_with_real_extra_keys)
+    is the one that matters: spike F11 (spikes/archive/espn-draft-night-integration.md:311-314)
+    records that every real ESPN response carries a top-level `status` object
+    (`isFull`/`teamsJoined`/`activatedDate`) and `settings.rosterSettings.lineupSlotCounts`
+    alongside `settings.draftSettings` — neither modeled by this unit. If either broke parsing,
+    D17.3 would hit it on its very first live call. An earlier revision set `extra='forbid'` on
+    `LeagueSnapshot`, which a synthetic-key-only test suite failed to catch because it never
+    exercised the real payload shape; this class exists specifically to close that gap."""
 
-    def test_extra_field_inside_picks_row_is_accepted(self):
+    def test_model_validate_accepts_f11_shaped_payload_with_real_extra_keys(self):
+        # The exact unmodeled keys spike F11 records on every real response.
+        raw = {
+            "draftDetail": {
+                "drafted": True,
+                "inProgress": False,
+                "picks": [
+                    {
+                        "overallPickNumber": 1,
+                        "playerId": -1,
+                        "teamId": 1,
+                        "roundId": 1,
+                        "lineupSlotId": 0,
+                    },
+                ],
+            },
+            "teams": [{"id": 1, "name": "Team One"}],
+            "settings": {
+                "draftSettings": {"pickOrder": [1], "type": "SNAKE", "timePerSelection": 90},
+                # Real, F11-evidenced sibling of draftSettings — not modeled, must not reject.
+                "rosterSettings": {"lineupSlotCounts": {"0": 1, "2": 2, "4": 2}},
+            },
+            # Real, F11-evidenced top-level sibling of draftDetail/teams/settings — not modeled,
+            # must not reject.
+            "status": {"isFull": True, "teamsJoined": 10, "activatedDate": 1700000000000},
+        }
+        snapshot = LeagueSnapshot.model_validate(raw)
+        assert snapshot.draftDetail.picks[0].playerId == -1
+        assert snapshot.settings.draftSettings.type == "SNAKE"
+
+    def test_model_validate_accepts_synthetic_unexpected_top_level_key(self):
+        raw = {
+            "draftDetail": {"drafted": False, "inProgress": False, "picks": []},
+            "teams": [],
+            "settings": {"draftSettings": {"pickOrder": []}},
+            "unexpectedTopLevelKey": "drift",
+        }
+        # An empty picks[] is atypical of a real payload but is a valid probe for this
+        # extra-key-tolerance assertion specifically; round_count is not exercised here.
+        snapshot = LeagueSnapshot.model_validate(raw)
+        assert snapshot.teams == []
+
+    def test_model_validate_accepts_extra_key_inside_picks_row(self):
+        raw = {
+            "draftDetail": {
+                "drafted": False,
+                "inProgress": False,
+                "picks": [
+                    {
+                        "overallPickNumber": 1,
+                        "playerId": -1,
+                        "teamId": 1,
+                        "roundId": 1,
+                        "lineupSlotId": 0,
+                        "unexpectedNestedKey": "new-espn-field",
+                    },
+                ],
+            },
+            "teams": [{"id": 1}],
+            "settings": {"draftSettings": {"pickOrder": [1]}},
+        }
+        snapshot = LeagueSnapshot.model_validate(raw)
+        assert snapshot.draftDetail.picks[0].overallPickNumber == 1
+
+    def test_model_validate_accepts_extra_key_inside_draft_detail_wrapper(self):
+        raw = {
+            "draftDetail": {
+                "drafted": False,
+                "inProgress": False,
+                "picks": [],
+                "unexpectedNestedKey": "new-espn-field",
+            },
+            "teams": [],
+            "settings": {"draftSettings": {"pickOrder": []}},
+        }
+        snapshot = LeagueSnapshot.model_validate(raw)
+        assert snapshot.draftDetail.drafted is False
+
+    def test_model_validate_accepts_extra_key_inside_settings_wrapper(self):
+        raw = {
+            "draftDetail": {"drafted": False, "inProgress": False, "picks": []},
+            "teams": [],
+            "settings": {
+                "draftSettings": {"pickOrder": []},
+                "unexpectedNestedKey": "new-espn-field",
+            },
+        }
+        snapshot = LeagueSnapshot.model_validate(raw)
+        assert snapshot.settings.draftSettings.pickOrder == []
+
+    def test_extra_forbid_on_wrappers_would_still_pass_the_prior_suite(self):
+        # Regression guard for the checker's demonstrated gap: inserting extra='forbid' into
+        # DraftDetail/LeagueSettings does NOT break DraftPick/LeagueTeam/DraftSettings
+        # construction in isolation, which is exactly why an isolated-sub-model test proves
+        # nothing about the raw model_validate() path — only the tests above, which go through
+        # LeagueSnapshot.model_validate() on a raw dict carrying real extras, actually guard it.
         pick = DraftPick(**VALID_DRAFT_PICK_KWARGS, unexpectedNestedKey="new-espn-field")
         assert pick.overallPickNumber == 1
-
-    def test_extra_field_on_team_is_accepted(self):
-        team = LeagueTeam(id=1, name="Team One", unexpectedNestedKey="new-espn-field")
-        assert team.id == 1
-
-    def test_extra_field_on_draft_settings_is_accepted(self):
-        settings = DraftSettings(pickOrder=[1, 2], unexpectedNestedKey="new-espn-field")
-        assert settings.pickOrder == [1, 2]
-
-    def test_snapshot_with_extra_field_inside_picks_row_still_parses(self, two_team_settings, two_teams):
-        # The full end-to-end asymmetry check: a snapshot whose picks[] row carries an unknown
-        # field parses successfully (nested tolerance), unlike an unknown TOP-LEVEL key (above).
-        pick_with_drift = DraftPick(**VALID_DRAFT_PICK_KWARGS, aBrandNewEspnField=123)
-        snapshot = LeagueSnapshot(
-            **_snapshot_kwargs(
-                picks=[pick_with_drift],
-                drafted=False,
-                in_progress=False,
-                teams=two_teams,
-                draft_settings=two_team_settings,
-            )
-        )
-        assert snapshot.draftDetail.picks[0].overallPickNumber == 1
 
 
 class TestLeagueSnapshotModelValidateRoundTrip:
