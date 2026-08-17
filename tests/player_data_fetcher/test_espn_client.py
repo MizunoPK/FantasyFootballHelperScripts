@@ -985,19 +985,23 @@ class TestAuthenticatedLeagueSnapshot:
         traversed, which is precisely the check the review says per-path unit
         tests (mocking _make_request wholesale) cannot provide.
 
-        Also installs the global credential-redaction filter and attaches
-        caplog's handler directly to the project's actual logger object
-        (utils.LoggingManager.get_logger()): that logger sets propagate=False
-        (LoggingManager.setup_logger), so caplog's default root-logger handler
-        would capture nothing from it and the log assertion would pass
-        vacuously -- attaching directly to the logger's own handler list is
-        unaffected by propagate (Logger.callHandlers always runs a logger's own
-        handlers before considering propagation).
-        """
-        from player_data_fetcher.espn_credentials import install_credential_redaction
-        from utils.LoggingManager import get_logger
+        Deliberately does NOT call install_credential_redaction() itself
+        (D17.3 review BLOCKING-5): the filter is now installed unconditionally
+        inside get_espn_credentials() (called below, via
+        _get_raw_league_snapshot), so this test proves the *production*
+        wiring rather than supplying its own setup -- the inverted assertion
+        the review named as the fix for the exact blind spot that let
+        BLOCKING-5 ship undetected three passes in a row.
 
-        install_credential_redaction()
+        Attaches caplog's handler directly to the project's actual logger
+        object (utils.LoggingManager.get_logger()): that logger sets
+        propagate=False (LoggingManager.setup_logger), so caplog's default
+        root-logger handler would capture nothing from it and the log
+        assertion would pass vacuously -- attaching directly to the logger's
+        own handler list is unaffected by propagate (Logger.callHandlers
+        always runs a logger's own handlers before considering propagation).
+        """
+        from utils.LoggingManager import get_logger
 
         sentinel_s2 = "SENTINEL_S2_e2e_9f8e7d6c"
         sentinel_swid = "SENTINEL_SWID_e2e_1a2b3c4d"
@@ -1080,7 +1084,10 @@ class TestFixtureRecordingRefusesCorpusRoute:
             def json(self):
                 return {"draftDetail": {"picks": []}, "teams": [], "members": []}
 
+        call_count = {"n": 0}
+
         async def fake_request(method, url, **kwargs):
+            call_count["n"] += 1
             return FakeResponse()
 
         async with client.session():
@@ -1091,6 +1098,17 @@ class TestFixtureRecordingRefusesCorpusRoute:
                     "https://lm-api-reads.fantasy.espn.com/apis/v3/games/ffl/seasons/2026/segments/0/leagues/123",
                     params={"view": ["mDraftDetail", "mTeam"]},
                 )
+
+        # D17.3 review CONCERN-10/11: the refusal must be classified
+        # non-retryable (FixtureRecordingRefused, excluded structurally in
+        # _should_retry_espn_request), not just eventually raised -- a
+        # deterministic configuration error that retries 3x still costs 3
+        # live authenticated requests against ESPN on the real path. This
+        # assertion is the regression pin on that classification.
+        assert call_count["n"] == 1, (
+            "a deterministic FixtureRecordingRefused must not be retried -- "
+            "expected exactly 1 request attempt"
+        )
 
         record_dir = tmp_path / "espn_api"
         assert not record_dir.exists() or not any(record_dir.rglob("*")), (

@@ -52,6 +52,19 @@ def get_espn_credentials() -> Tuple[str, str]:
     owner of validating both are present and non-blank. It is a plain
     function; nothing calls it at import time.
 
+    Unconditionally installs the global credential-redaction logging filter
+    (`install_credential_redaction()`) as its first statement (D17.3 review
+    BLOCKING-5). This deliberately broadens this function's role beyond
+    D17.1 UD3's original charter ("sole owner of the os.environ read and the
+    missing/blank validation") to also be the sole gate no caller can bypass
+    to obtain credentials without redaction active -- an intentional,
+    recorded reversal of the earlier decision to keep .env *loading*
+    (`load_espn_env()`) out of this function for ownership clarity (see
+    `addressed_feedback.md` Pass 1 item 1 and Pass 4's BLOCKING-5 disposition
+    for the full reasoning: a security guarantee must not be caller-optional,
+    while an environment-loading convenience may be). `install_credential_redaction()`
+    is idempotent, so calling it here on every invocation is cheap and safe.
+
     Returns:
         Tuple[str, str]: (espn_s2, swid), each stripped of surrounding
             whitespace. Validation checks the stripped form, so the
@@ -64,6 +77,8 @@ def get_espn_credentials() -> Tuple[str, str]:
             message names which credential(s) are absent and contains no
             credential value.
     """
+    install_credential_redaction()
+
     espn_s2 = os.environ.get('espn_s2', '').strip()
     swid = os.environ.get('SWID', '').strip()
 
@@ -127,6 +142,29 @@ class CredentialRedactionFilter(logging.Filter):
         if redacted != message:
             record.msg = redacted
             record.args = None
+
+        # D17.3 review CONCERN-9: the msg/args axis above does not cover the
+        # exception axis. A Formatter appends the formatted traceback from
+        # exc_info *after* filtering runs, so a credential embedded anywhere
+        # in an exception chain (e.g. a raw ESPN response body echoed by a
+        # third-party exception __str__) would otherwise reach the log
+        # unredacted whenever a caller logs with exc_info=True -- and this
+        # repo has two live exc_info=True sinks on paths a fetcher failure
+        # reaches: player_data_fetcher_main.py's top-level handler and
+        # utils/error_handler.py's shared error handler. Pre-format exc_info
+        # into record.exc_text (redacted) so the eventual Formatter reuses it
+        # verbatim instead of re-formatting the original.
+        if record.exc_info:
+            exc_text = record.exc_text or logging.Formatter().formatException(record.exc_info)
+            redacted_exc_text = redact(exc_text, espn_s2, swid)
+            if redacted_exc_text != exc_text:
+                record.exc_text = redacted_exc_text
+
+        if record.stack_info:
+            redacted_stack_info = redact(record.stack_info, espn_s2, swid)
+            if redacted_stack_info != record.stack_info:
+                record.stack_info = redacted_stack_info
+
         return True
 
 
@@ -134,28 +172,87 @@ _credential_redaction_filter = CredentialRedactionFilter()
 _credential_redaction_installed = False
 
 
+def _make_add_handler_with_redaction(original_add_handler):
+    """Build a `logging.Logger.addHandler` replacement wrapping
+    `original_add_handler` (D17.3 review CONCERN-8).
+
+    Attaches the credential-redaction filter to every handler as it is
+    added, on *any* logger in the process, before delegating to the real
+    `addHandler`. This is the ordering-proof half of the install: a
+    handler-level filter (not just a logger-level one) is what a propagated
+    record from a child logger actually consults (`Handler.handle()`
+    checks its own filters regardless of which logger originated the
+    record), but enumerating `logger.handlers` once at install time would
+    miss any handler attached afterwards -- concretely,
+    `LoggingManager.setup_logger()` calls `logger.handlers.clear()` and
+    re-adds fresh handlers, and `utils/error_handler`'s own setup can run
+    after this installer. Wrapping `addHandler` itself means no ordering
+    assumption is needed: every handler this process ever adds, whenever it
+    is added, is redacting before this installer even returns.
+
+    The wrapper is marked with `_credential_redaction_wrapped` and the
+    original it closed over is read back from the *currently installed*
+    `logging.Logger.addHandler` (never from a module-level variable
+    captured once at import time) -- if this module is ever imported more
+    than once (a second `sys.modules` entry under a different qualified
+    path, which some test-collection setups produce), a naive
+    module-level "original" would be re-captured from an already-wrapped
+    `addHandler`, and chaining a second wrapper around itself recurses
+    without bound. Checking the marker on the live attribute makes a
+    repeat install a true no-op instead of a second wrap.
+    """
+
+    def _add_handler_with_redaction(self: logging.Logger, hdlr: logging.Handler) -> None:
+        if _credential_redaction_filter not in hdlr.filters:
+            hdlr.addFilter(_credential_redaction_filter)
+        original_add_handler(self, hdlr)
+
+    _add_handler_with_redaction._credential_redaction_wrapped = True
+    return _add_handler_with_redaction
+
+
 def install_credential_redaction() -> None:
-    """Install the global credential-redaction filter (D17.3 BLOCKING-3/(a)).
+    """Install the global credential-redaction filter (D17.3 BLOCKING-3/BLOCKING-5).
 
     Idempotent -- safe to call more than once (e.g. from multiple entry
-    points) or with the filter already present.
+    points) or with the filter already present. Called unconditionally from
+    `get_espn_credentials()` (D17.3 review BLOCKING-5's architect-decided
+    remediation) so no caller can obtain ESPN credentials without redaction
+    already active -- this is a structural guarantee of the credential-read
+    contract, not a caller obligation to remember.
 
-    Installs on **both** the root logger and this project's shared logger
-    (`utils.LoggingManager.get_logger()`). Root alone is not sufficient:
-    `LoggingManager.setup_logger()` sets `logger.propagate = False` on the
-    logger it configures, and a `logging.Filter` added to a `Logger` object
-    (as opposed to a `Handler`) is consulted only by that logger's own
-    `Logger.handle()` -- never by a descendant/propagating logger's records,
-    and never inherited from an ancestor irrespective of `propagate`. So a
-    filter added only to the root logger would silently never run for any
-    record logged through the project's actual (non-propagating) logger --
-    exactly the "logger sits outside the hierarchy" failure mode this
-    installer must rule out. Installing directly on the project logger
-    closes that gap; installing on root too is defense-in-depth for any
-    logger that *does* propagate.
+    Installs at three levels, because a `logging.Filter` on a `Logger`
+    object and a `logging.Filter` on a `Handler` object are consulted in
+    different circumstances and neither alone is sufficient:
 
-    Must be called before any credential-touching code runs (obligation (a)
-    of the D17.3 review's remediation).
+    1. Directly on this project's shared logger
+       (`utils.LoggingManager.get_logger()`). `LoggingManager.setup_logger()`
+       sets `logger.propagate = False` on the logger it configures, and a
+       `logging.Filter` added to a `Logger` (as opposed to a `Handler`) is
+       consulted only by that logger's own `Logger.handle()` -- never by a
+       descendant/propagating logger's records, and never inherited from an
+       ancestor irrespective of `propagate`. Installing here covers every
+       record actually logged through the project's own logger, cheaply
+       (before any handler runs).
+    2. Directly on every *existing* handler of the root logger and the
+       project logger, at install time -- covers propagated records from
+       any child logger reaching those handlers today (a logger-level
+       filter on an ancestor is never consulted for a propagated record;
+       only a handler-level filter is, per `Handler.handle()`).
+    3. On every handler added from this point forward, on *any* logger in
+       the process (`_add_handler_with_redaction`, installed by monkey-
+       patching `logging.Logger.addHandler`). This is what makes (2)
+       ordering-proof rather than a point-in-time snapshot -- D17.3 review
+       CONCERN-8 found that enumerating handlers only at install time misses
+       a handler attached afterwards (e.g. `LoggingManager.setup_logger()`
+       re-running, or `utils/error_handler`'s own setup running later).
+
+    Must be called before any credential-touching code runs. As of
+    BLOCKING-5's remediation this is enforced structurally:
+    `get_espn_credentials()` calls this function unconditionally as its
+    first statement, so "before any credential-touching code runs" now
+    reduces to "before `get_espn_credentials()` is ever called," which the
+    process's own import/call order already guarantees.
     """
     global _credential_redaction_installed
     if _credential_redaction_installed:
@@ -164,10 +261,19 @@ def install_credential_redaction() -> None:
     root_logger = logging.getLogger()
     if _credential_redaction_filter not in root_logger.filters:
         root_logger.addFilter(_credential_redaction_filter)
+    for handler in root_logger.handlers:
+        if _credential_redaction_filter not in handler.filters:
+            handler.addFilter(_credential_redaction_filter)
 
     from utils.LoggingManager import get_logger
     project_logger = get_logger()
     if _credential_redaction_filter not in project_logger.filters:
         project_logger.addFilter(_credential_redaction_filter)
+    for handler in project_logger.handlers:
+        if _credential_redaction_filter not in handler.filters:
+            handler.addFilter(_credential_redaction_filter)
+
+    if not getattr(logging.Logger.addHandler, "_credential_redaction_wrapped", False):
+        logging.Logger.addHandler = _make_add_handler_with_redaction(logging.Logger.addHandler)
 
     _credential_redaction_installed = True

@@ -381,10 +381,11 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    # D17.3 review obligation (a): install the global credential-redaction
-    # logging filter before any credential-touching code runs -- including
-    # before load_espn_env() populates espn_s2/SWID, since the filter itself
-    # reads the environment live on every record rather than at install time.
+    # D17.3 review BLOCKING-5's remediation moved the mandatory install
+    # inside get_espn_credentials() itself, so this call is no longer
+    # load-bearing -- kept anyway because it is harmless (idempotent) and it
+    # covers this CLI's own pre-request logging before the first credential
+    # read happens.
     install_credential_redaction()
 
     # Entry-point startup: load .env before any credential read (D17.1 UD3 --

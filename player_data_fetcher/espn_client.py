@@ -43,7 +43,23 @@ class ESPNRateLimitError(ESPNAPIError):
 
 
 class ESPNServerError(ESPNAPIError):
-    """ESPN server error exception"""  
+    """ESPN server error exception"""
+    pass
+
+
+class FixtureRecordingRefused(ESPNAPIError):
+    """Raised when ESPN_RECORD_FIXTURES_DIR is set against a route that
+    refuses single-file fixture recording (D17.3 review CONCERN-10/11).
+
+    A distinct, narrowly-scoped exception type -- rather than a bare
+    ESPNAPIError -- so `_should_retry_espn_request` can exclude it by
+    isinstance (structural) rather than by scanning the message text for
+    the literal digits "401"/"403", which the refusal message never
+    contains. This is a deterministic configuration error (the caller set
+    an env var incompatible with the route being driven); it cannot succeed
+    on retry, so retrying it just spends live round trips against ESPN for
+    nothing.
+    """
     pass
 
 
@@ -80,6 +96,13 @@ def _should_retry_espn_request(exc: BaseException) -> bool:
     if isinstance(exc, RuntimeError):
         # Programming-error guards (e.g. the no-active-session guard) can never
         # succeed on retry.
+        return False
+    if isinstance(exc, FixtureRecordingRefused):
+        # D17.3 review CONCERN-10: a deterministic configuration error (the
+        # caller set ESPN_RECORD_FIXTURES_DIR against a route that refuses
+        # single-file recording) cannot succeed on retry -- excluded
+        # structurally by type rather than by scanning the message for
+        # "401"/"403", which this refusal's message never contains.
         return False
     if isinstance(exc, ESPNAPIError) and not isinstance(exc, (ESPNRateLimitError, ESPNServerError)):
         message = str(exc)
@@ -402,7 +425,7 @@ class BaseAPIClient:
                     # never a single recordable fixture file. Silently writing the raw,
                     # unsanitized payload here would land real identity data in
                     # tests/fixtures/, which CODING_STANDARDS.md defines as committed.
-                    raise ESPNAPIError(
+                    raise FixtureRecordingRefused(
                         f"Refusing to record fixtures for corpus route {filename.key!r}: "
                         f"the league_draft corpus is a manifest-backed directory produced "
                         f"only by generate_espn_draft_corpus.py, not a single recordable "
