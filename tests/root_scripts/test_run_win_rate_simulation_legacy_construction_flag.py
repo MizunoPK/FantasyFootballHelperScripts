@@ -1,13 +1,16 @@
 """
-Unit tests for the --explicit-construction-snapshot CLI flag and its TRUE-path threading.
+Unit tests for the --legacy-construction-snapshot CLI flag and its TRUE-path threading.
 
-Covers D1.1's CLI surface and the flag's in-process (single-process) forwarding chain, with
-the value set to TRUE — the peer shape is
+D1.2 renamed and polarity-flipped D1.1's --explicit-construction-snapshot /
+explicit_construction_snapshot: the exact-week selector is now the no-flag cutover default,
+and this flag is the opt-in runtime rollback to legacy sorted-last selection. This module
+(renamed from test_run_win_rate_simulation_explicit_construction_flag.py) pins the
+LEGACY-flag TRUE-path's forwarding chain — the peer shape is
 tests/root_scripts/test_run_win_rate_simulation_naive_flag.py (--naive-opponents is the
-precedent DEPLOYMENT_STANDARDS.md cites), extended here to the sweep and promote dispatch
-arms and the engine chain.
+precedent DEPLOYMENT_STANDARDS.md cites), covering the sweep and promote dispatch arms and
+the engine chain.
 
-The flag parses to args.explicit_construction_snapshot (store_true; absent -> False), and
+The flag parses to args.legacy_construction_snapshot (store_true; absent -> False), and
 True is forwarded verbatim along:
 
     main() -> DraftStrategyOrchestrator -> CombinationEvaluator -> ParallelLeagueRunner
@@ -17,20 +20,19 @@ True is forwarded verbatim along:
               -> run_paired_ab_comparison -> _run_arm -> SimulatedLeague
 
 Both main() dispatch arms that reach _run_promote_mode are pinned separately: the
-promote-only arm (run_win_rate_simulation.py:277-282) and the sweep-then-promote arm
-(:268-273).
+promote-only arm and the sweep-then-promote arm.
 
 Scope, stated precisely rather than as a blanket claim: each assertion pins ONE specific
 hop's call kwargs, so a mutation at any forwarding site listed above fails at least one test
-here. It is NOT true that every forwarding site in the codebase is pinned. The known
-exceptions are ParallelLeagueRunner's ProcessPoolExecutor branches — the two task-tuple pack
-sites (ParallelLeagueRunner.py:389 and :502) and the two module-level worker unpack sites
-(:61 and :93), reachable only under use_processes=True, which the win-rate path does not use.
-Those four sites carry False-valued coverage in tests/simulation/test_ParallelLeagueRunner.py
-but no True-valued pin, so a mutation hardcoding False there would survive; the win-rate
-thread branch routes through run_single_simulation (:251), which IS pinned.
+here. It is NOT true that every forwarding site in the codebase is pinned via this module.
+ParallelLeagueRunner's ProcessPoolExecutor branches — the two task-tuple pack sites
+(ParallelLeagueRunner.py:389 and :502) and the two module-level worker unpack sites (:61 and
+:93), reachable only under use_processes=True — are pinned TRUE-valued by D1.2's new
+TestLegacyConstructionSnapshotProcessPoolPins class in
+tests/simulation/test_ParallelLeagueRunner.py instead (UD8), not here; the win-rate thread
+branch routes through run_single_simulation (:251), which IS pinned in this module.
 
-Composition/wiring only — the True path's own snapshot-selection behavior is covered in
+Composition/wiring only — the legacy path's own snapshot-selection behavior is covered in
 tests/simulation/test_SimulatedLeague.py.
 
 Author: Kai Mizuno
@@ -52,23 +54,23 @@ MODULE = "run_win_rate_simulation"
 
 
 class TestExplicitConstructionSnapshotFlagParsing:
-    """--explicit-construction-snapshot is a store_true flag defaulting to False."""
+    """--legacy-construction-snapshot is a store_true flag defaulting to False."""
 
     def test_default_is_false(self):
         args = _build_parser().parse_args([])
-        assert args.explicit_construction_snapshot is False
+        assert args.legacy_construction_snapshot is False
 
     def test_store_true(self):
-        args = _build_parser().parse_args(["--explicit-construction-snapshot"])
-        assert args.explicit_construction_snapshot is True
+        args = _build_parser().parse_args(["--legacy-construction-snapshot"])
+        assert args.legacy_construction_snapshot is True
 
 
 class TestFlagThreadsToOrchestrator:
-    """main() passes args.explicit_construction_snapshot into DraftStrategyOrchestrator."""
+    """main() passes args.legacy_construction_snapshot into DraftStrategyOrchestrator."""
 
     def test_flag_true_threads_true(self, tmp_path):
         with (
-            patch("sys.argv", ["prog", "--explicit-construction-snapshot", "--data", str(tmp_path)]),
+            patch("sys.argv", ["prog", "--legacy-construction-snapshot", "--data", str(tmp_path)]),
             patch(f"{MODULE}.setup_logger"),
             patch(f"{MODULE}.get_logger") as mock_get_logger,
             patch(f"{MODULE}.WinRateMetaDataManager") as mock_mdm_cls,
@@ -77,7 +79,7 @@ class TestFlagThreadsToOrchestrator:
             mock_get_logger.return_value = MagicMock()
             mock_mdm_cls.return_value.get_all_strategies.return_value = {}
             main()
-            assert mock_orch_cls.call_args.kwargs["explicit_construction_snapshot"] is True
+            assert mock_orch_cls.call_args.kwargs["legacy_construction_snapshot"] is True
 
     def test_flag_absent_threads_false(self, tmp_path):
         with (
@@ -90,7 +92,7 @@ class TestFlagThreadsToOrchestrator:
             mock_get_logger.return_value = MagicMock()
             mock_mdm_cls.return_value.get_all_strategies.return_value = {}
             main()
-            assert mock_orch_cls.call_args.kwargs["explicit_construction_snapshot"] is False
+            assert mock_orch_cls.call_args.kwargs["legacy_construction_snapshot"] is False
 
 
 class TestFlagThreadsToSweepAndPromoteDispatch:
@@ -102,7 +104,7 @@ class TestFlagThreadsToSweepAndPromoteDispatch:
             sims=10, workers=2, endless=False, strategy=None,
             log_level="INFO", enable_log_file=False, sweep=True,
             num_values=5, promote=False, fresh=False, naive_opponents=False,
-            explicit_construction_snapshot=True,
+            legacy_construction_snapshot=True,
             seed=None,
         )
 
@@ -122,12 +124,12 @@ class TestFlagThreadsToSweepAndPromoteDispatch:
             MockStore.return_value.get_all_combinations.return_value = {}
             rws._run_sweep_mode(args, Path(args.data), Mock())
 
-        assert MockEval.call_args.kwargs["explicit_construction_snapshot"] is True
+        assert MockEval.call_args.kwargs["legacy_construction_snapshot"] is True
 
     def test_main_promote_dispatch_threads_true(self, tmp_path):
         """The promote-ONLY arm (run_win_rate_simulation.py:277-282)."""
         with (
-            patch("sys.argv", ["prog", "--promote", "--explicit-construction-snapshot",
+            patch("sys.argv", ["prog", "--promote", "--legacy-construction-snapshot",
                                "--data", str(tmp_path)]),
             patch(f"{MODULE}.setup_logger"),
             patch(f"{MODULE}.get_logger", return_value=MagicMock()),
@@ -136,7 +138,7 @@ class TestFlagThreadsToSweepAndPromoteDispatch:
         ):
             main()
 
-        assert mock_promote_mode.call_args.kwargs["explicit_construction_snapshot"] is True
+        assert mock_promote_mode.call_args.kwargs["legacy_construction_snapshot"] is True
 
     def test_main_sweep_then_promote_dispatch_threads_true(self, tmp_path):
         """
@@ -148,7 +150,7 @@ class TestFlagThreadsToSweepAndPromoteDispatch:
         """
         with (
             patch("sys.argv", ["prog", "--sweep", "--promote",
-                               "--explicit-construction-snapshot", "--data", str(tmp_path)]),
+                               "--legacy-construction-snapshot", "--data", str(tmp_path)]),
             patch(f"{MODULE}.setup_logger"),
             patch(f"{MODULE}.get_logger", return_value=MagicMock()),
             patch(f"{MODULE}._resolve_sweep_seed", return_value=7),
@@ -158,7 +160,7 @@ class TestFlagThreadsToSweepAndPromoteDispatch:
             main()
 
         assert mock_sweep_mode.call_count == 1
-        assert mock_promote_mode.call_args.kwargs["explicit_construction_snapshot"] is True
+        assert mock_promote_mode.call_args.kwargs["legacy_construction_snapshot"] is True
 
     def test_run_promote_mode_threads_true_to_writer(self, tmp_path):
         with patch(f"{MODULE}.SweepResultsManager"), \
@@ -166,10 +168,10 @@ class TestFlagThreadsToSweepAndPromoteDispatch:
              patch(f"{MODULE}._print_promotion"):
             rws._run_promote_mode(
                 tmp_path, Mock(), confirm=True, seed=7, shortlist=3, sims=20,
-                explicit_construction_snapshot=True,
+                legacy_construction_snapshot=True,
             )
 
-        assert mock_promote.call_args.kwargs["explicit_construction_snapshot"] is True
+        assert mock_promote.call_args.kwargs["legacy_construction_snapshot"] is True
 
     def test_run_promote_mode_threads_true_to_preview(self, tmp_path):
         with patch(f"{MODULE}.SweepResultsManager"), \
@@ -177,10 +179,10 @@ class TestFlagThreadsToSweepAndPromoteDispatch:
              patch(f"{MODULE}._print_promotion_preview"):
             rws._run_promote_mode(
                 tmp_path, Mock(), confirm=False, seed=7, shortlist=3, sims=20,
-                explicit_construction_snapshot=True,
+                legacy_construction_snapshot=True,
             )
 
-        assert mock_compute.call_args.kwargs["explicit_construction_snapshot"] is True
+        assert mock_compute.call_args.kwargs["legacy_construction_snapshot"] is True
 
 
 class TestEngineChainForwardsTrue:
@@ -196,10 +198,10 @@ class TestEngineChainForwardsTrue:
                 num_simulations=10,
                 max_workers=2,
                 meta_data_manager=Mock(),
-                explicit_construction_snapshot=True,
+                legacy_construction_snapshot=True,
             )
 
-        assert MockEval.call_args.kwargs["explicit_construction_snapshot"] is True
+        assert MockEval.call_args.kwargs["legacy_construction_snapshot"] is True
 
     def test_evaluator_threads_true_to_runner(self, tmp_path):
         (tmp_path / "2024").mkdir()
@@ -211,30 +213,30 @@ class TestEngineChainForwardsTrue:
             CombinationEvaluator(
                 data_folder=tmp_path,
                 num_simulations=10,
-                explicit_construction_snapshot=True,
+                legacy_construction_snapshot=True,
             )
 
-        assert MockRunner.call_args.kwargs["explicit_construction_snapshot"] is True
+        assert MockRunner.call_args.kwargs["legacy_construction_snapshot"] is True
 
     def test_runner_threads_true_to_simulated_league(self, tmp_path):
         runner = ParallelLeagueRunner(
-            max_workers=1, data_folder=tmp_path, explicit_construction_snapshot=True
+            max_workers=1, data_folder=tmp_path, legacy_construction_snapshot=True
         )
         with patch("simulation.win_rate.ParallelLeagueRunner.SimulatedLeague") as MockLeague:
             MockLeague.return_value.get_draft_helper_results.return_value = (1, 2, 3.0)
             runner.run_single_simulation({}, 0)
 
-        assert MockLeague.call_args.kwargs["explicit_construction_snapshot"] is True
+        assert MockLeague.call_args.kwargs["legacy_construction_snapshot"] is True
 
     def test_runner_with_weeks_threads_true_to_simulated_league(self, tmp_path):
         runner = ParallelLeagueRunner(
-            max_workers=1, data_folder=tmp_path, explicit_construction_snapshot=True
+            max_workers=1, data_folder=tmp_path, legacy_construction_snapshot=True
         )
         with patch("simulation.win_rate.ParallelLeagueRunner.SimulatedLeague") as MockLeague:
             MockLeague.return_value.get_draft_helper_results_by_week.return_value = []
             runner.run_single_simulation_with_weeks({}, 0)
 
-        assert MockLeague.call_args.kwargs["explicit_construction_snapshot"] is True
+        assert MockLeague.call_args.kwargs["legacy_construction_snapshot"] is True
 
 
 class TestPromotePathForwardsTrue:
@@ -247,10 +249,10 @@ class TestPromotePathForwardsTrue:
             MockLeague.return_value.get_draft_helper_results.return_value = (1, 2, 3.0)
             paired_comparison._run_arm(
                 {"parameters": {}}, {"parameters": {}}, tmp_path, {}, 7,
-                explicit_construction_snapshot=True,
+                legacy_construction_snapshot=True,
             )
 
-        assert MockLeague.call_args.kwargs["explicit_construction_snapshot"] is True
+        assert MockLeague.call_args.kwargs["legacy_construction_snapshot"] is True
 
     def test_run_paired_ab_comparison_threads_true_to_both_arms(self, tmp_path):
         from simulation.win_rate import paired_comparison
@@ -264,12 +266,12 @@ class TestPromotePathForwardsTrue:
             paired_comparison.run_paired_ab_comparison(
                 {"parameters": {}}, {"parameters": {}}, tmp_path,
                 num_simulations=1, seed=7,
-                explicit_construction_snapshot=True,
+                legacy_construction_snapshot=True,
             )
 
         assert mock_arm.call_count == 2
         for call in mock_arm.call_args_list:
-            assert call.kwargs["explicit_construction_snapshot"] is True
+            assert call.kwargs["legacy_construction_snapshot"] is True
 
     def test_compute_promotion_threads_true_to_paired_comparison(self, tmp_path):
         from simulation.win_rate import config_promoter
@@ -294,10 +296,10 @@ class TestPromotePathForwardsTrue:
                           return_value=measured) as mock_ab:
             config_promoter.compute_promotion(
                 store, tmp_path, seed=7, shortlist=1, sims=1,
-                explicit_construction_snapshot=True,
+                legacy_construction_snapshot=True,
             )
 
-        assert mock_ab.call_args.kwargs["explicit_construction_snapshot"] is True
+        assert mock_ab.call_args.kwargs["legacy_construction_snapshot"] is True
 
     def test_promote_best_combination_threads_true_to_compute_promotion(self, tmp_path):
         from simulation.win_rate import config_promoter
@@ -316,7 +318,7 @@ class TestPromotePathForwardsTrue:
              patch.object(config_promoter, "_atomic_write_json"):
             config_promoter.promote_best_combination(
                 Mock(), tmp_path, seed=7, shortlist=1, sims=1,
-                explicit_construction_snapshot=True,
+                legacy_construction_snapshot=True,
             )
 
-        assert mock_compute.call_args.kwargs["explicit_construction_snapshot"] is True
+        assert mock_compute.call_args.kwargs["legacy_construction_snapshot"] is True

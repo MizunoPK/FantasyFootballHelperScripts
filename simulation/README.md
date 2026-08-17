@@ -256,11 +256,11 @@ authoritative list; the summaries below are a convenience.
 --endless              Run continuously until KeyboardInterrupt
 --seed N               Seed the run
 --naive-opponents      Use the legacy naive opponent field instead of the self-play default
---explicit-construction-snapshot
-                       Select the win-rate construction snapshot by exact week number
-                       (week_18) instead of the legacy sorted-last available week folder.
-                       Opt-in rollout flag; fails closed with FileNotFoundError if that
-                       folder is absent. Omitted = today's sorted-last behavior.
+--legacy-construction-snapshot
+                       Roll back to the legacy sorted-last available-week construction
+                       snapshot instead of the cutover-default exact week number (week_18).
+                       Opt-in runtime-rollback flag; the default fails closed with
+                       FileNotFoundError if week_18 is absent.
 --sweep                Coordinate-ascent parameter sweep over DRAFT_SWEEP_PARAMS
 --num-values N         Candidate values per parameter in the sweep
 --fresh                Ignore the existing sweep store and start over

@@ -59,7 +59,7 @@ class _FakeLeague:
 
     def __init__(self, config_dict, data_folder, preloaded_week_data=None,
                  measured_config_dict=None, seed=None, naive_opponents=False,
-                 explicit_construction_snapshot=False):
+                 legacy_construction_snapshot=False):
         self._p = measured_config_dict["_p"]
         self._seed = seed
 

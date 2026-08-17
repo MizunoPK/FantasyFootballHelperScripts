@@ -1106,7 +1106,7 @@ class TestSelfLoadRefusesMissingActuals:
 
 class TestExplicitConstructionSnapshotGuard:
     """
-    D1.1/TD1-TD3: the opt-in explicit_construction_snapshot=True path in
+    D1.2/TD1-TD3, cutover-default path (D1.1 supplied it opt-in; D1.2 makes it default): the
     SimulatedLeague._initialize_teams must select week_18 (WEEKS_PER_SEASON + 1) by exact
     path and raise FileNotFoundError naming it when absent, entering through the same
     non-empty-preloaded_week_data bypass seam TestSelfLoadRefusesMissingActuals covers for
@@ -1132,14 +1132,13 @@ class TestExplicitConstructionSnapshotGuard:
                     config,
                     tmp_path,
                     preloaded_week_data={1: {"projected": {}, "actual": {}}},
-                    explicit_construction_snapshot=True,
                 )
 
-    def test_flag_false_uses_legacy_selector_on_same_corpus(self, tmp_path):
-        # Discriminator: on the IDENTICAL missing-week_18 corpus, the no-flag (default) path
+    def test_legacy_flag_true_uses_legacy_selector_on_same_corpus(self, tmp_path):
+        # Discriminator: on the IDENTICAL missing-week_18 corpus, the legacy-flag path
         # must NOT raise FileNotFoundError before _create_shared_data_dir — legacy sorted-last
-        # resolves to week_17 successfully. If a future edit routed the True case through this
-        # legacy branch instead of the new guard, test_missing_week_18_raises_before_shared_data
+        # resolves to week_17 successfully. If a future edit routed the True case through the
+        # default exact-path guard instead of this legacy branch, test_missing_week_18_raises_before_shared_data
         # would stop failing as expected. This intentionally stops at _create_shared_data_dir
         # (mocked to short-circuit via a sentinel exception) rather than running full team/draft
         # construction — no test in this file runs _initialize_teams unmocked against a
@@ -1166,7 +1165,7 @@ class TestExplicitConstructionSnapshotGuard:
                     config,
                     tmp_path,
                     preloaded_week_data={1: {"projected": {}, "actual": {}}},
-                    explicit_construction_snapshot=False,
+                    legacy_construction_snapshot=True,
                 )
             mock_create_shared.assert_called_once_with("shared_data", weeks_folder / "week_17")
 
