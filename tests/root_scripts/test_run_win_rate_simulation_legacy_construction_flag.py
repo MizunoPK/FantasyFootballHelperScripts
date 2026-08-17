@@ -53,7 +53,7 @@ from simulation.win_rate.ParallelLeagueRunner import ParallelLeagueRunner
 MODULE = "run_win_rate_simulation"
 
 
-class TestExplicitConstructionSnapshotFlagParsing:
+class TestLegacyConstructionSnapshotFlagParsing:
     """--legacy-construction-snapshot is a store_true flag defaulting to False."""
 
     def test_default_is_false(self):

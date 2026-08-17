@@ -1169,6 +1169,44 @@ class TestExplicitConstructionSnapshotGuard:
                 )
             mock_create_shared.assert_called_once_with("shared_data", weeks_folder / "week_17")
 
+    def test_missing_week_18_releases_temp_dir_on_raise(self, tmp_path):
+        """
+        D1.2/UD6 regression pin (review CONCERN): the __init__ guard itself must release
+        self.temp_dir on the same unwind this class's other test already proves raises
+        FileNotFoundError. Reuses that test's identical missing-week_18 + non-empty
+        preloaded_week_data fixture so this test enters through the same seam.
+
+        SimulatedLeague.__del__ ALSO calls cleanup(), which independently removes
+        temp_dir once the partially-constructed instance is garbage-collected -- so
+        without isolating that safety net, this test would pass whether or not the
+        __init__ guard itself does anything (verified: deleting only the guard's
+        shutil.rmtree line still left temp_dir absent, because __del__'s own rmtree
+        fired first). __del__ is therefore patched to a no-op for the duration of the
+        assertion so only the __init__ guard's own behavior is observed.
+
+        Mutation discrimination: with __del__ neutralized, deleting the guard's
+        shutil.rmtree(self.temp_dir) line makes this test fail (temp_dir still exists)
+        while leaving it byte-for-byte otherwise passing.
+        """
+        weeks_folder = tmp_path / "weeks"
+        weeks_folder.mkdir()
+        TestSelfLoadRefusesMissingActuals._write_week(weeks_folder, 17)
+
+        config = {"config_name": "test", "description": "test", "parameters": {"num_teams": 2, "draft_rounds": 1}}
+
+        with patch('simulation.win_rate.SimulatedLeague.tempfile.mkdtemp') as mock_mkdtemp, \
+             patch.object(SimulatedLeague, '__del__', lambda self: None):
+            temp_dir = tmp_path / "temp"
+            temp_dir.mkdir()
+            mock_mkdtemp.return_value = str(temp_dir)
+            with pytest.raises(FileNotFoundError, match="week_18"):
+                SimulatedLeague(
+                    config,
+                    tmp_path,
+                    preloaded_week_data={1: {"projected": {}, "actual": {}}},
+                )
+            assert not temp_dir.exists()
+
 
 class TestEdgeCaseBehavior:
     """Test edge case handling for JSON loading"""

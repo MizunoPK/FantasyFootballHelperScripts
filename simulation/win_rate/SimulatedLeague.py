@@ -88,9 +88,10 @@ def load_week_player_data(
             T73's contrary observation (0.529, HIGHER) was CONFOUNDED, not evidence of an
             upward effect. Deleting a week_18 folder changes two independent things, and
             T73 attributed both to the fallback. The second is `_initialize_teams`, which
-            (under the opt-in `--legacy-construction-snapshot` rollback flag — the cutover
-            default (D1.2) instead fails closed — builds the shared construction snapshot
-            from `available_weeks[-1]`) — delete week_18 and that silently becomes week_17.
+            builds the shared construction snapshot from `available_weeks[-1]` — reachable,
+            since the D1.2 cutover, only under the opt-in `--legacy-construction-snapshot`
+            rollback flag, the default instead failing closed. Delete week_18 and that
+            snapshot silently becomes week_17.
             Because `set_player_data` refreshes only projected_points/actual_points, every
             OTHER FantasyPlayer field stays frozen at that snapshot, including
             `player_rating`, which the draft scorer reads. All ten teams therefore draft
