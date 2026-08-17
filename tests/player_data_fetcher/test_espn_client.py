@@ -647,3 +647,259 @@ class TestParseEspnDataPositionRankRanges:
 
         assert ids == ['1001', '1002']
         assert ratings == [100.0, 1.0]
+
+
+class TestLeagueDraftFixtureCorpus:
+    """Test league_draft fixture corpus resolution (R4, R6)"""
+
+    def test_get_fixture_filename_maps_league_route(self):
+        """Test _get_fixture_filename returns 'league_draft' for authenticated league URL"""
+        url = "https://lm-api-reads.fantasy.espn.com/apis/v3/games/ffl/seasons/2026/segments/0/leagues/123"
+        result = BaseAPIClient._get_fixture_filename(url, {})
+        assert result == "league_draft"
+
+    def test_resolve_league_draft_fixture_missing_manifest_raises_filenotfounderror(self, tmp_path):
+        """Test missing manifest.json raises FileNotFoundError (R6)"""
+        # No manifest.json present
+        with pytest.raises(FileNotFoundError):
+            BaseAPIClient._resolve_league_draft_fixture(str(tmp_path))
+
+    def test_resolve_league_draft_fixture_missing_selector_raises_valueerror(self, tmp_path, monkeypatch):
+        """Test missing ESPN_DRAFT_FIXTURE_STEP raises ValueError (R6)"""
+        # Create minimal manifest
+        manifest_dir = tmp_path / "espn_api" / "league_draft"
+        manifest_dir.mkdir(parents=True)
+        manifest_path = manifest_dir / "manifest.json"
+        manifest_path.write_text(json.dumps({"entries": [{"step": 0, "file": "step_000.json"}]}))
+
+        # No ESPN_DRAFT_FIXTURE_STEP set
+        monkeypatch.delenv("ESPN_DRAFT_FIXTURE_STEP", raising=False)
+
+        with pytest.raises(ValueError, match="ESPN_DRAFT_FIXTURE_STEP is required"):
+            BaseAPIClient._resolve_league_draft_fixture(str(tmp_path))
+
+    def test_resolve_league_draft_fixture_non_integer_selector_raises_valueerror(self, tmp_path, monkeypatch):
+        """Test non-integer ESPN_DRAFT_FIXTURE_STEP raises ValueError (R6)"""
+        manifest_dir = tmp_path / "espn_api" / "league_draft"
+        manifest_dir.mkdir(parents=True)
+        manifest_path = manifest_dir / "manifest.json"
+        manifest_path.write_text(json.dumps({"entries": []}))
+
+        monkeypatch.setenv("ESPN_DRAFT_FIXTURE_STEP", "not-an-int")
+
+        with pytest.raises(ValueError, match="must be an integer"):
+            BaseAPIClient._resolve_league_draft_fixture(str(tmp_path))
+
+    def test_resolve_league_draft_fixture_out_of_range_selector_raises_valueerror(self, tmp_path, monkeypatch):
+        """Test out-of-range ESPN_DRAFT_FIXTURE_STEP raises ValueError (R6)"""
+        manifest_dir = tmp_path / "espn_api" / "league_draft"
+        manifest_dir.mkdir(parents=True)
+        manifest_path = manifest_dir / "manifest.json"
+        manifest_path.write_text(json.dumps({"entries": [{"step": 0}, {"step": 1}]}))
+
+        monkeypatch.setenv("ESPN_DRAFT_FIXTURE_STEP", "99")
+
+        with pytest.raises(ValueError, match="does not match exactly one manifest entry"):
+            BaseAPIClient._resolve_league_draft_fixture(str(tmp_path))
+
+    def test_resolve_league_draft_fixture_hash_mismatch_raises_valueerror(self, tmp_path, monkeypatch):
+        """Test hash mismatch raises ValueError (R6)"""
+        manifest_dir = tmp_path / "espn_api" / "league_draft"
+        manifest_dir.mkdir(parents=True)
+
+        step_file = manifest_dir / "step_000.json"
+        step_file.write_text(json.dumps({"test": "data"}))
+
+        manifest_path = manifest_dir / "manifest.json"
+        manifest_path.write_text(json.dumps({
+            "entries": [{"step": 0, "file": "step_000.json", "sha256": "wronghash"}]
+        }))
+
+        monkeypatch.setenv("ESPN_DRAFT_FIXTURE_STEP", "0")
+
+        with pytest.raises(ValueError, match="sha256 mismatch"):
+            BaseAPIClient._resolve_league_draft_fixture(str(tmp_path))
+
+    def test_resolve_league_draft_fixture_happy_path_returns_selected_step(self, tmp_path, monkeypatch):
+        """Test happy path returns selected step content (R6)"""
+        import hashlib
+
+        manifest_dir = tmp_path / "espn_api" / "league_draft"
+        manifest_dir.mkdir(parents=True)
+
+        # Create step files
+        step0_content = json.dumps({"step": 0, "picks": []})
+        step0_file = manifest_dir / "step_000.json"
+        step0_file.write_text(step0_content)
+        step0_hash = hashlib.sha256(step0_content.encode("utf-8")).hexdigest()
+
+        step1_content = json.dumps({"step": 1, "picks": [{"playerId": 123}]})
+        step1_file = manifest_dir / "step_001.json"
+        step1_file.write_text(step1_content)
+        step1_hash = hashlib.sha256(step1_content.encode("utf-8")).hexdigest()
+
+        manifest_path = manifest_dir / "manifest.json"
+        manifest_path.write_text(json.dumps({
+            "entries": [
+                {"step": 0, "file": "step_000.json", "sha256": step0_hash},
+                {"step": 1, "file": "step_001.json", "sha256": step1_hash},
+            ]
+        }))
+
+        monkeypatch.setenv("ESPN_DRAFT_FIXTURE_STEP", "1")
+        result = BaseAPIClient._resolve_league_draft_fixture(str(tmp_path))
+
+        assert result == {"step": 1, "picks": [{"playerId": 123}]}
+
+    @pytest.mark.asyncio
+    async def test_make_request_offline_league_draft_dispatches_to_resolver(self, tmp_path, monkeypatch):
+        """Test _make_request dispatches league_draft to resolver (R4, R6)"""
+        import hashlib
+
+        manifest_dir = tmp_path / "espn_api" / "league_draft"
+        manifest_dir.mkdir(parents=True)
+
+        # Create one step file
+        step_content = json.dumps({"draftDetail": {"picks": []}, "teams": []})
+        step_file = manifest_dir / "step_000.json"
+        step_file.write_text(step_content)
+        step_hash = hashlib.sha256(step_content.encode("utf-8")).hexdigest()
+
+        manifest_path = manifest_dir / "manifest.json"
+        manifest_path.write_text(json.dumps({
+            "entries": [{"step": 0, "file": "step_000.json", "sha256": step_hash}]
+        }))
+
+        monkeypatch.setenv("ESPN_FIXTURE_DIR", str(tmp_path))
+        monkeypatch.setenv("ESPN_DRAFT_FIXTURE_STEP", "0")
+
+        settings = Settings()
+        client = BaseAPIClient(settings)
+
+        result = await client._make_request(
+            "GET",
+            "https://lm-api-reads.fantasy.espn.com/apis/v3/games/ffl/seasons/2026/segments/0/leagues/123",
+            params={"view": ["mDraftDetail", "mTeam"]}
+        )
+
+        assert result == {"draftDetail": {"picks": []}, "teams": []}
+
+
+class TestAuthenticatedLeagueSnapshot:
+    """Test authenticated league snapshot reading (R1, R1a, R2, R3)"""
+
+    @pytest.mark.asyncio
+    async def test_get_raw_league_snapshot_calls_make_request_with_expected_shape(self, monkeypatch):
+        """Test _get_raw_league_snapshot constructs request with correct shape (R1)"""
+        monkeypatch.setenv("espn_s2", "sentinel_s2")
+        monkeypatch.setenv("SWID", "sentinel_swid")
+
+        settings = Settings()
+        client = ESPNClient(settings)
+
+        # Mock _make_request
+        mock_response = {"draftDetail": {"picks": []}, "teams": []}
+        client._make_request = AsyncMock(return_value=mock_response)
+
+        result = await client._get_raw_league_snapshot(league_id=123, season=2026)
+
+        # Verify the mock was called with expected arguments
+        client._make_request.assert_called_once()
+        call_args = client._make_request.call_args
+        assert call_args.args[0] == "GET"
+        assert "seasons/2026" in call_args.args[1]
+        assert "leagues/123" in call_args.args[1]
+        assert call_args.kwargs.get("params") == {"view": ["mDraftDetail", "mTeam"]}
+        assert call_args.kwargs.get("cookies") == {"espn_s2": "sentinel_s2", "SWID": "sentinel_swid"}
+
+        assert result == mock_response
+
+    @pytest.mark.asyncio
+    async def test_get_league_snapshot_returns_validated_only(self, monkeypatch):
+        """Test get_league_snapshot returns only validated LeagueSnapshot (R2)"""
+        from player_data_fetcher.espn_league_snapshot_models import LeagueSnapshot
+
+        monkeypatch.setenv("espn_s2", "sentinel_s2")
+        monkeypatch.setenv("SWID", "sentinel_swid")
+
+        settings = Settings()
+        client = ESPNClient(settings)
+
+        # Valid minimal payload matching LeagueSnapshot contract
+        valid_payload = {
+            "draftDetail": {"picks": [], "drafted": False, "inProgress": False},
+            "teams": [],
+            "settings": {"draftSettings": {"pickOrder": []}},
+        }
+
+        # Mock _get_raw_league_snapshot to return the valid payload
+        client._get_raw_league_snapshot = AsyncMock(return_value=valid_payload)
+
+        result = await client.get_league_snapshot(league_id=123)
+
+        # Assert result is a validated LeagueSnapshot instance
+        assert isinstance(result, LeagueSnapshot)
+
+    @pytest.mark.asyncio
+    async def test_get_league_snapshot_raises_on_invalid_payload(self, monkeypatch):
+        """Test get_league_snapshot raises ESPNAPIError on validation failure (R2)"""
+        monkeypatch.setenv("espn_s2", "sentinel_s2")
+        monkeypatch.setenv("SWID", "sentinel_swid")
+
+        settings = Settings()
+        client = ESPNClient(settings)
+
+        # Invalid payload: draftDetail missing or wrong type
+        invalid_payload = {"draftDetail": None, "teams": []}
+
+        # Mock _get_raw_league_snapshot to return invalid payload
+        client._get_raw_league_snapshot = AsyncMock(return_value=invalid_payload)
+
+        # Should raise ESPNAPIError on validation failure
+        with pytest.raises(ESPNAPIError, match="validation failed"):
+            await client.get_league_snapshot(league_id=123)
+
+    @pytest.mark.asyncio
+    async def test_get_raw_league_snapshot_redacts_credential_on_http_error(self, monkeypatch):
+        """Test _get_raw_league_snapshot redacts credentials from error messages (R3)"""
+        sentinel_s2 = "sentinel_s2_secret"
+        sentinel_swid = "sentinel_swid_secret"
+        monkeypatch.setenv("espn_s2", sentinel_s2)
+        monkeypatch.setenv("SWID", sentinel_swid)
+
+        settings = Settings()
+        client = ESPNClient(settings)
+
+        # Mock _make_request to raise an error containing a sentinel value
+        error_msg = f"HTTP 401 Unauthorized: {sentinel_s2} is invalid"
+        client._make_request = AsyncMock(side_effect=ESPNAPIError(error_msg))
+
+        with pytest.raises(ESPNAPIError) as exc_info:
+            await client._get_raw_league_snapshot(league_id=123)
+
+        # Verify the sentinel is NOT in the raised error message
+        raised_msg = str(exc_info.value)
+        assert sentinel_s2 not in raised_msg
+        assert sentinel_swid not in raised_msg
+
+    @pytest.mark.asyncio
+    async def test_get_raw_league_snapshot_missing_credentials_fails_loudly(self, monkeypatch):
+        """Test _get_raw_league_snapshot fails before calling _make_request if credentials missing (R1, R3)"""
+        monkeypatch.delenv("espn_s2", raising=False)
+        monkeypatch.delenv("SWID", raising=False)
+
+        settings = Settings()
+        client = ESPNClient(settings)
+
+        # Mock _make_request so we can verify it's not called
+        client._make_request = Mock()
+
+        # Should raise before even calling _make_request
+        with pytest.raises(Exception):  # Will be raised by get_espn_credentials
+            # Run in a try to suppress the exception
+            try:
+                await client._get_raw_league_snapshot(league_id=123)
+            except Exception:
+                # Verify _make_request was never called
+                client._make_request.assert_not_called()
+                raise

@@ -11,6 +11,7 @@ Author: Kai Mizuno
 import asyncio
 from contextlib import asynccontextmanager
 import datetime
+import hashlib
 import json
 import math
 import os
@@ -164,11 +165,72 @@ class BaseAPIClient:
             season_idx = parts.index("seasons") + 1
             season = parts[season_idx]
             return f"season_projections_{season}.json"
+        elif "/leagues/" in path and "/seasons/" in path:
+            return "league_draft"
         else:
             raise ValueError(
                 f"No fixture filename defined for URL: {url}. "
                 f"Add a mapping to BaseAPIClient._get_fixture_filename()."
             )
+
+    @staticmethod
+    def _resolve_league_draft_fixture(fixture_dir: str) -> Dict[str, Any]:
+        """Resolve the manifest-backed `league_draft` corpus to one selected step's payload.
+
+        Args:
+            fixture_dir: Value of ESPN_FIXTURE_DIR.
+
+        Returns:
+            Parsed JSON content of the manifest-selected step file.
+
+        Raises:
+            FileNotFoundError: If manifest.json is missing (same shape as the existing
+                missing-single-fixture-file case).
+            ValueError: If ESPN_DRAFT_FIXTURE_STEP is missing, non-integer, does not match
+                exactly one manifest entry, or the matched entry's file is missing or its
+                sha256 does not match the file's actual content.
+        """
+        manifest_path = Path(fixture_dir) / "espn_api" / "league_draft" / "manifest.json"
+        if not manifest_path.exists():
+            raise FileNotFoundError(
+                f"Fixture manifest not found: {manifest_path}. "
+                f"Run generate_espn_draft_corpus.py to populate the league_draft fixture directory."
+            )
+        manifest = json.loads(manifest_path.read_text())
+        entries = manifest.get("entries", [])
+
+        step_env = os.environ.get("ESPN_DRAFT_FIXTURE_STEP")
+        if step_env is None:
+            raise ValueError(
+                "ESPN_DRAFT_FIXTURE_STEP is required to select a league_draft fixture step but is not set."
+            )
+        try:
+            step = int(step_env)
+        except ValueError:
+            raise ValueError(f"ESPN_DRAFT_FIXTURE_STEP must be an integer, got: {step_env!r}")
+
+        matches = [e for e in entries if e.get("step") == step]
+        if len(matches) != 1:
+            raise ValueError(
+                f"ESPN_DRAFT_FIXTURE_STEP={step} does not match exactly one manifest entry "
+                f"(found {len(matches)} in {manifest_path})."
+            )
+        entry = matches[0]
+
+        file_path = Path(fixture_dir) / "espn_api" / "league_draft" / entry["file"]
+        if not file_path.exists():
+            raise ValueError(f"Manifest entry for step {step} names a missing file: {file_path}")
+
+        content = file_path.read_bytes()
+        actual_hash = hashlib.sha256(content).hexdigest()
+        expected_hash = entry.get("sha256")
+        if actual_hash != expected_hash:
+            raise ValueError(
+                f"Manifest sha256 mismatch for step {step} file {entry['file']}: "
+                f"expected {expected_hash}, got {actual_hash}"
+            )
+
+        return json.loads(content)
 
     @retry(stop=stop_after_attempt(3), wait=wait_random_exponential(multiplier=1, max=10), retry=retry_if_exception(_should_retry_espn_request))
     async def _make_request(self, method: str, url: str, **kwargs) -> Dict[str, Any]:
@@ -201,6 +263,8 @@ class BaseAPIClient:
         if fixture_dir:
             params = kwargs.get("params", {}) or {}
             filename = self._get_fixture_filename(url, params)
+            if filename == "league_draft":
+                return self._resolve_league_draft_fixture(fixture_dir)
             fixture_path = Path(fixture_dir) / "espn_api" / filename
             if not fixture_path.exists():
                 raise FileNotFoundError(
@@ -664,7 +728,65 @@ class ESPNClient(BaseAPIClient):
         
         data = await self._make_request("GET", url, params=params, headers=headers)
         return await self._parse_espn_data(data)
-    
+
+    async def _get_raw_league_snapshot(self, league_id: int, season: Optional[int] = None) -> Dict[str, Any]:
+        """Raw-fetch seam (R1a): the authenticated private-league GET, unvalidated.
+
+        Exactly two callers are permitted: this class's own `get_league_snapshot` (validates
+        immediately) and `generate_espn_draft_corpus.py` (sanitizes immediately). Never call
+        this method from any other production code path.
+
+        Args:
+            league_id: ESPN league ID.
+            season: Optional season year (defaults to settings.season if not provided).
+
+        Returns:
+            Unvalidated dict: the raw `mDraftDetail` + `mTeam` league payload.
+
+        Raises:
+            ESPNAPIError: On non-success HTTP response or network failure; message is
+                credential-safe (redacted via player_data_fetcher.espn_credentials.redact).
+        """
+        from player_data_fetcher.espn_credentials import get_espn_credentials, redact
+
+        use_season = season if season is not None else self.settings.season
+        espn_s2, swid = get_espn_credentials()
+
+        url = (
+            f"https://lm-api-reads.fantasy.espn.com/apis/v3/games/ffl/"
+            f"seasons/{use_season}/segments/0/leagues/{league_id}"
+        )
+        params = {"view": ["mDraftDetail", "mTeam"]}
+        cookies = {"espn_s2": espn_s2, "SWID": swid}
+
+        try:
+            return await self._make_request("GET", url, params=params, cookies=cookies)
+        except ESPNAPIError as e:
+            raise ESPNAPIError(redact(str(e), espn_s2, swid)) from e
+
+    async def get_league_snapshot(self, league_id: int, season: Optional[int] = None):
+        """Get the authenticated private-league snapshot (mDraftDetail + mTeam), validated (R1, R2).
+
+        Args:
+            league_id: ESPN league ID.
+            season: Optional season year (defaults to settings.season if not provided).
+
+        Returns:
+            A validated `player_data_fetcher.espn_league_snapshot_models.LeagueSnapshot`.
+
+        Raises:
+            ESPNAPIError: On non-success HTTP response, network failure, or snapshot
+                validation failure; message is credential-safe.
+        """
+        from player_data_fetcher.espn_league_snapshot_models import LeagueSnapshot
+        from pydantic import ValidationError
+
+        raw = await self._get_raw_league_snapshot(league_id, season)
+        try:
+            return LeagueSnapshot.model_validate(raw)
+        except ValidationError as e:
+            raise ESPNAPIError(f"League snapshot validation failed: {e}") from e
+
     async def _make_request(self, method: str, url: str, **kwargs):
         """Override to add ESPN-specific headers"""
         if 'headers' not in kwargs:
