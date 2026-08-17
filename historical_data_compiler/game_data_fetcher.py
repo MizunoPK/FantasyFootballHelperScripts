@@ -19,6 +19,7 @@ from typing import Any, Dict, List, Optional
 from .http_client import BaseHTTPClient
 from .constants import (
     ESPN_SCOREBOARD_API_URL,
+    ESPN_SCOREBOARD_USER_AGENT,
     OPEN_METEO_ARCHIVE_URL,
     REGULAR_SEASON_WEEKS,
     GAME_DATA_FILE,
@@ -195,7 +196,11 @@ class GameDataFetcher:
             }
 
             try:
-                data = await self.http_client.get(ESPN_SCOREBOARD_API_URL, params=params)
+                data = await self.http_client.get(
+                    ESPN_SCOREBOARD_API_URL,
+                    headers={"User-Agent": ESPN_SCOREBOARD_USER_AGENT},
+                    params=params
+                )
                 week_games = await self._parse_week_games(data, week)
                 all_games.extend(week_games)
             except Exception as e:

@@ -198,7 +198,6 @@ class PlayerDataFetcher:
 
         self.logger.info(f"Processing {len(raw_players)} raw players from ESPN API")
 
-        position_rank_ranges: Dict[str, Dict[str, float]] = {}
         player_positional_ranks: Dict[str, float] = {}
 
         for player in raw_players:
@@ -217,23 +216,13 @@ class PlayerDataFetcher:
             if positional_rank is not None:
                 player_positional_ranks[player_id] = positional_rank
 
-                if position not in position_rank_ranges:
-                    position_rank_ranges[position] = {'min': positional_rank, 'max': positional_rank}
-                else:
-                    position_rank_ranges[position]['min'] = min(
-                        position_rank_ranges[position]['min'], positional_rank
-                    )
-                    position_rank_ranges[position]['max'] = max(
-                        position_rank_ranges[position]['max'], positional_rank
-                    )
-
         total_players = len(raw_players)
         processed = 0
         logged_milestones: Set[float] = set()
         for player in raw_players:
             try:
                 player_data = await self._parse_single_player(
-                    player, year, bye_weeks, player_positional_ranks, position_rank_ranges
+                    player, year, bye_weeks
                 )
                 if player_data:
                     players_list.append(player_data)
@@ -252,6 +241,44 @@ class PlayerDataFetcher:
             except Exception as e:
                 self.logger.warning(f"Error parsing player: {e}")
                 continue
+
+        position_rank_ranges: Dict[str, Dict[str, float]] = {}
+        for parsed in players_list:
+            positional_rank = player_positional_ranks.get(parsed.id)
+            if positional_rank is None:
+                continue
+            if parsed.position not in position_rank_ranges:
+                position_rank_ranges[parsed.position] = {
+                    'min': positional_rank, 'max': positional_rank, 'count': 1
+                }
+            else:
+                position_rank_ranges[parsed.position]['min'] = min(
+                    position_rank_ranges[parsed.position]['min'], positional_rank
+                )
+                position_rank_ranges[parsed.position]['max'] = max(
+                    position_rank_ranges[parsed.position]['max'], positional_rank
+                )
+                position_rank_ranges[parsed.position]['count'] += 1
+
+        self.logger.info(
+            f"Position rank ranges collected for {len(position_rank_ranges)} positions:"
+        )
+        for position, ranges in sorted(position_rank_ranges.items()):
+            self.logger.debug(
+                f"  {position}: {ranges['min']:.1f}-{ranges['max']:.1f} "
+                f"({int(ranges['count'])} players with ranks)"
+            )
+
+        for parsed in players_list:
+            positional_rank = player_positional_ranks.get(parsed.id)
+            if positional_rank is None:
+                continue
+            ranges = position_rank_ranges.get(parsed.position)
+            if ranges is None or ranges['max'] <= ranges['min']:
+                continue
+            rating = 100 - ((positional_rank - ranges['min']) /
+                            (ranges['max'] - ranges['min']) * 99)
+            parsed.player_rating = max(1.0, min(100.0, rating))
 
         return players_list
 
@@ -294,9 +321,7 @@ class PlayerDataFetcher:
         self,
         player: dict,
         year: int,
-        bye_weeks: Dict[str, int],
-        player_positional_ranks: Dict[str, float],
-        position_rank_ranges: Dict[str, Dict[str, float]]
+        bye_weeks: Dict[str, int]
     ) -> Optional[PlayerData]:
         """
         Parse a single player from ESPN API response.
@@ -305,8 +330,6 @@ class PlayerDataFetcher:
             player: Raw player dict from ESPN
             year: NFL season year
             bye_weeks: Dict mapping team to bye week
-            player_positional_ranks: Dict of player_id -> positional rank
-            position_rank_ranges: Dict of position -> {min, max} ranks
 
         Returns:
             PlayerData or None if player should be skipped
@@ -341,15 +364,6 @@ class PlayerDataFetcher:
         if ownership and 'averageDraftPosition' in ownership:
             adp = ownership['averageDraftPosition']
 
-        player_rating = None
-        positional_rank = player_positional_ranks.get(player_id)
-        if positional_rank is not None and position in position_rank_ranges:
-            ranges = position_rank_ranges[position]
-            if ranges['max'] > ranges['min']:
-                player_rating = 100 - ((positional_rank - ranges['min']) /
-                                       (ranges['max'] - ranges['min']) * 99)
-                player_rating = max(1.0, min(100.0, player_rating))
-
         injury_status = player_info.get('injuryStatus', 'ACTIVE')
 
         week_points, projected_weeks = await self._extract_weekly_points(
@@ -366,7 +380,6 @@ class PlayerDataFetcher:
             bye_week=bye_week,
             fantasy_points=fantasy_points,
             average_draft_position=adp,
-            player_rating=player_rating,
             injury_status=injury_status,
             week_points=week_points,
             projected_weeks=projected_weeks,

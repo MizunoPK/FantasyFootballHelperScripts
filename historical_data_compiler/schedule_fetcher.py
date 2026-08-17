@@ -15,6 +15,7 @@ from typing import Dict, List, Optional, Tuple
 from .http_client import BaseHTTPClient
 from .constants import (
     ESPN_SCOREBOARD_API_URL,
+    ESPN_SCOREBOARD_USER_AGENT,
     ALL_NFL_TEAMS,
     REGULAR_SEASON_WEEKS,
     SEASON_SCHEDULE_FILE,
@@ -75,7 +76,11 @@ class ScheduleFetcher:
                 "dates": year
             }
 
-            data = await self.http_client.get(ESPN_SCOREBOARD_API_URL, params=params)
+            data = await self.http_client.get(
+                ESPN_SCOREBOARD_API_URL,
+                headers={"User-Agent": ESPN_SCOREBOARD_USER_AGENT},
+                params=params
+            )
 
             week_schedule = self._parse_week_schedule(data, week)
             full_schedule[week] = week_schedule
