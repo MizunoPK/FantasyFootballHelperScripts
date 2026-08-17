@@ -109,6 +109,12 @@ class TestRunner:
         incidental text such as "Simulation 0 failed: ...", and an unanchored
         search matched that first — reporting 0 failures for a file with 6, which
         then silently undercounted the run-wide failure headline.
+
+        The scan is a heuristic, not a parser: it takes the LAST line matching both
+        shape tokens over combined stdout+stderr, so stray post-summary output that
+        happened to carry a duration AND an outcome count could still mislead it.
+        That is strictly narrower than the whole-output search it replaces, and the
+        surviving risk is bounded by pytest emitting its summary last in practice.
         """
         import re
 

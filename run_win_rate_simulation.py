@@ -134,7 +134,7 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--explicit-construction-snapshot", action="store_true",
         help="Select the win-rate construction snapshot by exact week number "
-             "(week_{WEEKS_PER_SEASON + 1:02d}) instead of the legacy sorted-last available week "
+             f"(week_{WEEKS_PER_SEASON + 1:02d}) instead of the legacy sorted-last available week "
              "folder. Opt-in provision-stage rollout flag (D1.1); fails closed with "
              "FileNotFoundError if the exact folder is absent. Default preserves today's "
              "sorted-last behavior byte-for-byte."
