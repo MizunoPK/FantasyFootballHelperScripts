@@ -749,6 +749,12 @@ class ESPNClient(BaseAPIClient):
         """
         from player_data_fetcher.espn_credentials import get_espn_credentials, redact
 
+        if self._client is None:
+            raise RuntimeError(
+                "_get_raw_league_snapshot() called without an active session; "
+                "callers must wrap this call in 'async with client.session():'."
+            )
+
         use_season = season if season is not None else self.settings.season
         espn_s2, swid = get_espn_credentials()
 

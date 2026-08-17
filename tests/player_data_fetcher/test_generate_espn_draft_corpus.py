@@ -21,8 +21,10 @@ from player_data_fetcher.generate_espn_draft_corpus import (
     derive_steps,
     write_corpus,
     main,
+    _capture_raw_payload,
     SENTINEL_LEAGUE_ID,
 )
+from player_data_fetcher.espn_client import ESPNClient
 
 
 # FIXTURES
@@ -221,3 +223,57 @@ class TestMainLoadsEnvBeforeCredentialRead:
             "payload capture, so a missing .env fails clearly rather than "
             "the loader silently never running."
         )
+
+
+class TestCapturePayloadEntersSession:
+    """Regression test (2nd polish pass, D17.3): _capture_raw_payload() must enter
+    ESPNClient.session() before calling _get_raw_league_snapshot(). BaseAPIClient
+    only populates self._client inside session() (espn_client.py); _make_request
+    dereferences self._client unconditionally. The prior implementation called
+    client._get_raw_league_snapshot(...) directly, never entering session(), so
+    self._client stayed None and every real invocation died with an AttributeError
+    on the very first request -- retried 3x by tenacity and surfacing as a
+    tenacity.RetryError, before any socket was opened. No offline test caught this
+    because none exercised the real client lifecycle end to end. This test drives
+    the actual production coroutine (not a mock standing in for the whole call) and
+    asserts the client's session is populated at the moment the raw-snapshot request
+    fires, and that it is torn down afterward.
+    """
+
+    @pytest.mark.asyncio
+    async def test_client_has_active_session_when_snapshot_is_requested(self, monkeypatch):
+        monkeypatch.setenv("espn_s2", "fake-s2")
+        monkeypatch.setenv("SWID", "{fake-swid}")
+
+        observed = {}
+
+        async def fake_make_request(self, method, url, **kwargs):
+            # If _capture_raw_payload had not entered session() first, self._client
+            # would be None here and a real BaseAPIClient._make_request would raise
+            # AttributeError on self._client.request(...).
+            observed["client_was_active"] = self._client is not None
+            return {"id": 1, "settings": {}, "teams": [], "draftDetail": {"picks": []}}
+
+        with patch.object(ESPNClient, "_make_request", new=fake_make_request):
+            result = await _capture_raw_payload(league_id=123, season=2026)
+
+        assert observed.get("client_was_active") is True, (
+            "_get_raw_league_snapshot() must run with an active session "
+            "(client._client populated), not None."
+        )
+        assert result == {"id": 1, "settings": {}, "teams": [], "draftDetail": {"picks": []}}
+
+    @pytest.mark.asyncio
+    async def test_get_raw_league_snapshot_fails_clearly_without_session(self, monkeypatch):
+        """The private seam itself: calling it with no active session must raise a
+        clear RuntimeError rather than an AttributeError on a None client."""
+        monkeypatch.setenv("espn_s2", "fake-s2")
+        monkeypatch.setenv("SWID", "{fake-swid}")
+
+        from player_data_fetcher.player_data_fetcher_main import Settings
+
+        client = ESPNClient(Settings(season=2026))
+        assert client._client is None
+
+        with pytest.raises(RuntimeError, match="session"):
+            await client._get_raw_league_snapshot(123, 2026)

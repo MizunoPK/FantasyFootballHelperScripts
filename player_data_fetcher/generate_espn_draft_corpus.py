@@ -153,11 +153,19 @@ def write_corpus(output_dir: Path, sanitized_source: Dict[str, Any], steps: List
 
 
 async def _capture_raw_payload(league_id: int, season: int) -> Dict[str, Any]:
-    """Call ESPNClient._get_raw_league_snapshot once (R5-a) and close the client."""
+    """Call ESPNClient._get_raw_league_snapshot once (R5-a) and close the client.
+
+    Must enter `client.session()` before issuing the request: `BaseAPIClient` only
+    populates `self._client` inside `session()` (espn_client.py), and `_make_request`
+    dereferences it unconditionally. `session()`'s own `finally` does not tear the
+    client down (that is `close()`'s job), so the explicit `close()` below is still
+    required and is not redundant with entering `session()`.
+    """
     settings = Settings(season=season)
     client = ESPNClient(settings)
     try:
-        return await client._get_raw_league_snapshot(league_id, season)
+        async with client.session():
+            return await client._get_raw_league_snapshot(league_id, season)
     finally:
         await client.close()
 

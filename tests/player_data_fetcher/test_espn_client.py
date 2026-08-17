@@ -797,7 +797,9 @@ class TestAuthenticatedLeagueSnapshot:
         settings = Settings()
         client = ESPNClient(settings)
 
-        # Mock _make_request
+        # Mock _make_request; _get_raw_league_snapshot requires an active session
+        # (polish pass, D17.3), so simulate one without opening a real httpx client.
+        client._client = object()
         mock_response = {"draftDetail": {"picks": []}, "teams": []}
         client._make_request = AsyncMock(return_value=mock_response)
 
@@ -870,7 +872,10 @@ class TestAuthenticatedLeagueSnapshot:
         settings = Settings()
         client = ESPNClient(settings)
 
-        # Mock _make_request to raise an error containing a sentinel value
+        # Mock _make_request to raise an error containing a sentinel value;
+        # _get_raw_league_snapshot requires an active session (polish pass,
+        # D17.3), so simulate one without opening a real httpx client.
+        client._client = object()
         error_msg = f"HTTP 401 Unauthorized: {sentinel_s2} is invalid"
         client._make_request = AsyncMock(side_effect=ESPNAPIError(error_msg))
 
