@@ -3,7 +3,7 @@ Integration tests for SeasonScheduleManager week-18 schedule behavior.
 """
 import csv
 import pytest
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.SeasonScheduleManager import SeasonScheduleManager
+from league_helper.util.SeasonScheduleManager import SeasonScheduleManager
 
 
 class TestWeek18ScheduleIntegration:

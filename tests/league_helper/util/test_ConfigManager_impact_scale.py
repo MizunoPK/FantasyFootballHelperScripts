@@ -15,7 +15,7 @@ from pathlib import Path
 import json
 import tempfile
 
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.ConfigManager import ConfigManager
+from league_helper.util.ConfigManager import ConfigManager
 
 
 

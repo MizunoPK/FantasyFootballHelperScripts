@@ -9,8 +9,8 @@ import pytest
 from io import StringIO
 from pathlib import Path
 from unittest.mock import Mock, patch, MagicMock, call
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.modify_player_data_mode.ModifyPlayerDataModeManager import ModifyPlayerDataModeManager
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.FantasyPlayer import FantasyPlayer
+from league_helper.modify_player_data_mode.ModifyPlayerDataModeManager import ModifyPlayerDataModeManager
+from utils.FantasyPlayer import FantasyPlayer
 
 
 class TestModifyPlayerDataModeManagerInit:

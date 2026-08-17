@@ -12,13 +12,13 @@ Author: Kai Mizuno
 import pytest
 
 # Local
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.param_value_generation import (
+from simulation.win_rate.param_value_generation import (
     generate_candidate_values,
     DRAFT_SWEEP_PARAMS,
     _discrete_grid,
 )
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.shared.ConfigGenerator import ConfigGenerator
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.error_handler import ConfigurationError
+from simulation.shared.ConfigGenerator import ConfigGenerator
+from utils.error_handler import ConfigurationError
 
 
 @pytest.fixture

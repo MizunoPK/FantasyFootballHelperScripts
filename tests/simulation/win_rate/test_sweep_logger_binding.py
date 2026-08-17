@@ -11,8 +11,8 @@ Author: Kai Mizuno
 from unittest.mock import Mock, patch
 
 # Local
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.SweepTournament import SweepTournament
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.SweepResultsManager import SweepResultsManager
+from simulation.win_rate.SweepTournament import SweepTournament
+from simulation.win_rate.SweepResultsManager import SweepResultsManager
 
 
 def _baseline():
@@ -54,7 +54,7 @@ class TestSweepTournamentLoggerBinding:
 
     def test_module_has_no_import_time_logger_global(self):
         # The import-time module global must be gone (it captured the stale "default" logger).
-        import FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.SweepTournament as st
+        import simulation.win_rate.SweepTournament as st
         assert not hasattr(st, "logger")
 
 
@@ -62,5 +62,5 @@ class TestCombinationEvaluatorLoggerBinding:
     """KDD-3: CombinationEvaluator resolves its logger at call time inside __init__."""
 
     def test_module_has_no_import_time_logger_global(self):
-        import FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.CombinationEvaluator as ce
+        import simulation.win_rate.CombinationEvaluator as ce
         assert not hasattr(ce, "logger")

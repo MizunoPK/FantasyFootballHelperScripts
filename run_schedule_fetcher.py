@@ -21,8 +21,8 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.schedule_data_fetcher.ScheduleFetcher import ScheduleFetcher
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.LoggingManager import setup_logger
+from schedule_data_fetcher.ScheduleFetcher import ScheduleFetcher
+from utils.LoggingManager import setup_logger
 
 
 def _non_negative_float(value: str) -> float:

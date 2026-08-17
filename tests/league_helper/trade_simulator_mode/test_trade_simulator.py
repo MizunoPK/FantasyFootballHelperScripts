@@ -18,11 +18,11 @@ from pathlib import Path
 from unittest.mock import Mock, MagicMock, patch
 from typing import List
 
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.FantasyPlayer import FantasyPlayer
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.trade_simulator_mode.TradeSimTeam import TradeSimTeam
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.trade_simulator_mode.TradeSnapshot import TradeSnapshot
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.trade_simulator_mode.TradeSimulatorModeManager import TradeSimulatorModeManager
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.PlayerManager import PlayerManager
+from utils.FantasyPlayer import FantasyPlayer
+from league_helper.trade_simulator_mode.TradeSimTeam import TradeSimTeam
+from league_helper.trade_simulator_mode.TradeSnapshot import TradeSnapshot
+from league_helper.trade_simulator_mode.TradeSimulatorModeManager import TradeSimulatorModeManager
+from league_helper.util.PlayerManager import PlayerManager
 
 
 
@@ -983,8 +983,8 @@ class TestBackwardCompatibility:
 
     def test_trade_simulator_uses_ros_normalization(self, mock_player_manager, mock_config):
         """Test that Trade Simulator mode continues using ROS max_projection (backward compatibility)"""
-        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.FantasyPlayer import FantasyPlayer
-        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.ScoredPlayer import ScoredPlayer
+        from utils.FantasyPlayer import FantasyPlayer
+        from league_helper.util.ScoredPlayer import ScoredPlayer
 
         test_player = FantasyPlayer(id=1, name="Test Player", team="KC", position="RB",
                                    fantasy_points=300.0, injury_status="ACTIVE")

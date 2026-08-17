@@ -16,7 +16,7 @@ import time
 from pathlib import Path
 from unittest.mock import Mock, patch, MagicMock
 
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.data_file_manager import (
+from utils.data_file_manager import (
     DataFileManager,
     log_file_operation,
     enforce_caps_for_new_file

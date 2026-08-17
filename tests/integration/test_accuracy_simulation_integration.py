@@ -18,11 +18,11 @@ import tempfile
 
 project_root = Path(__file__).parent.parent.parent
 
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.shared.ConfigGenerator import ConfigGenerator
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.accuracy.AccuracySimulationManager import AccuracySimulationManager
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.accuracy.AccuracyResultsManager import AccuracyResultsManager, RankingMetrics, WEEK_RANGES
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.accuracy.AccuracyCalculator import AccuracyCalculator, AccuracyResult
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.accuracy.ParallelAccuracyRunner import _load_season_data
+from simulation.shared.ConfigGenerator import ConfigGenerator
+from simulation.accuracy.AccuracySimulationManager import AccuracySimulationManager
+from simulation.accuracy.AccuracyResultsManager import AccuracyResultsManager, RankingMetrics, WEEK_RANGES
+from simulation.accuracy.AccuracyCalculator import AccuracyCalculator, AccuracyResult
+from simulation.accuracy.ParallelAccuracyRunner import _load_season_data
 
 
 TEST_PARAMETER_ORDER = [

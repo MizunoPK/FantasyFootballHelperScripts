@@ -17,7 +17,7 @@ from unittest.mock import Mock, patch
 import pytest
 
 # Local
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.SweepTournament import (
+from simulation.win_rate.SweepTournament import (
     SweepTournament,
     _adopt_by_significance,
     _read_convergence_best_rate,
@@ -25,9 +25,9 @@ from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulati
     DEFAULT_MIN_EFFECT_SIZE,
     DEFAULT_MIN_GAMES,
 )
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.SweepResultsManager import SweepResultsManager
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.param_value_generation import generate_candidate_values, DRAFT_SWEEP_PARAMS
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.error_handler import ConfigurationError
+from simulation.win_rate.SweepResultsManager import SweepResultsManager
+from simulation.win_rate.param_value_generation import generate_candidate_values, DRAFT_SWEEP_PARAMS
+from utils.error_handler import ConfigurationError
 
 
 def _baseline():

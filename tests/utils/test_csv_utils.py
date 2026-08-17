@@ -15,7 +15,7 @@ from pathlib import Path
 from unittest.mock import Mock, patch
 import csv
 
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.csv_utils import (
+from utils.csv_utils import (
     validate_csv_columns,
     read_csv_with_validation,
     write_csv_with_backup,
@@ -26,7 +26,7 @@ from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.cs
     safe_csv_read,
     csv_column_exists
 )
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.error_handler import FileOperationError, DataProcessingError
+from utils.error_handler import FileOperationError, DataProcessingError
 
 
 class TestValidateCsvColumns:

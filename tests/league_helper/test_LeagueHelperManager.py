@@ -11,9 +11,9 @@ Author: Kai Mizuno
 import pytest
 from pathlib import Path
 from unittest.mock import Mock, MagicMock, patch, call
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.tests.league_helper import constants
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.LeagueHelperManager import LeagueHelperManager, main
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.LoggingManager import setup_logger
+from league_helper import constants
+from league_helper.LeagueHelperManager import LeagueHelperManager, main
+from utils.LoggingManager import setup_logger
 
 
 class TestLeagueHelperManagerInit:

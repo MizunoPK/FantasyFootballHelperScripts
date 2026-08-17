@@ -13,12 +13,12 @@ Date: 2025-10-10
 import pytest
 from unittest.mock import Mock, MagicMock, patch
 from typing import List
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.starter_helper_mode.StarterHelperModeManager import StarterHelperModeManager, OptimalLineup
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.ScoredPlayer import ScoredPlayer
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.ConfigManager import ConfigManager
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.PlayerManager import PlayerManager
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.TeamDataManager import TeamDataManager
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.FantasyPlayer import FantasyPlayer
+from league_helper.starter_helper_mode.StarterHelperModeManager import StarterHelperModeManager, OptimalLineup
+from league_helper.util.ScoredPlayer import ScoredPlayer
+from league_helper.util.ConfigManager import ConfigManager
+from league_helper.util.PlayerManager import PlayerManager
+from league_helper.util.TeamDataManager import TeamDataManager
+from utils.FantasyPlayer import FantasyPlayer
 
 
 class TestOptimalLineupInitialization:

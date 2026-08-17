@@ -14,7 +14,7 @@ import pytest
 import shutil
 from unittest.mock import patch, MagicMock
 
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.shared.config_cleanup import cleanup_old_optimal_folders, cleanup_old_accuracy_optimal_folders, MAX_OPTIMAL_FOLDERS
+from simulation.shared.config_cleanup import cleanup_old_optimal_folders, cleanup_old_accuracy_optimal_folders, MAX_OPTIMAL_FOLDERS
 
 
 class TestCleanupOldOptimalFolders:

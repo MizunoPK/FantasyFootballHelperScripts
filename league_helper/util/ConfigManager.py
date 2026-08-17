@@ -21,10 +21,10 @@ import statistics
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Set, Tuple
 
-import FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.constants as Constants
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.historical_data_compiler.constants import ALL_NFL_TEAMS
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.LoggingManager import get_logger
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.FantasyPlayer import FantasyPlayer
+import league_helper.constants as Constants
+from historical_data_compiler.constants import ALL_NFL_TEAMS
+from utils.LoggingManager import get_logger
+from utils.FantasyPlayer import FantasyPlayer
 
 
 class ConfigKeys:

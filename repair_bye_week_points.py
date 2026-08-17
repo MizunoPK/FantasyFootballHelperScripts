@@ -32,9 +32,9 @@ from typing import Any, Optional
 
 sys.path.insert(0, str(Path(__file__).parent))
 
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.LoggingManager import setup_logger, get_logger
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.player_data_fetcher.config import POSITION_CODES, data_root
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.player_data_fetcher.player_data_exporter import zero_bye_week_points
+from utils.LoggingManager import setup_logger, get_logger
+from player_data_fetcher.config import POSITION_CODES, data_root
+from player_data_fetcher.player_data_exporter import zero_bye_week_points
 
 WEEKS_PER_SEASON = 17
 POINT_ARRAY_KEYS = ('projected_points', 'actual_points')

@@ -30,7 +30,7 @@ class TestSetupLoggerIntegration:
         with patch('sys.argv', test_args):
             with patch('compile_historical_data.setup_logger') as mock_setup:
                 with patch('compile_historical_data.get_logger', return_value=MagicMock()):
-                    import FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.compile_historical_data as compile_historical_data
+                    import compile_historical_data as compile_historical_data
                     args = compile_historical_data.parse_args()
 
                     log_level = "DEBUG" if args.verbose else "INFO"
@@ -57,7 +57,7 @@ class TestSetupLoggerIntegration:
         with patch('sys.argv', test_args):
             with patch('compile_historical_data.setup_logger') as mock_setup:
                 with patch('compile_historical_data.get_logger', return_value=MagicMock()):
-                    import FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.compile_historical_data as compile_historical_data
+                    import compile_historical_data as compile_historical_data
                     args = compile_historical_data.parse_args()
 
                     log_level = "DEBUG" if args.verbose else "INFO"
@@ -83,7 +83,7 @@ class TestSetupLoggerIntegration:
         with patch('sys.argv', test_args):
             with patch('compile_historical_data.setup_logger') as mock_setup:
                 with patch('compile_historical_data.get_logger', return_value=MagicMock()):
-                    import FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.compile_historical_data as compile_historical_data
+                    import compile_historical_data as compile_historical_data
                     args = compile_historical_data.parse_args()
 
                     log_level = "DEBUG" if args.verbose else "INFO"
@@ -110,7 +110,7 @@ class TestSetupLoggerIntegration:
         with patch('sys.argv', test_args):
             with patch('compile_historical_data.setup_logger') as mock_setup:
                 with patch('compile_historical_data.get_logger', return_value=MagicMock()):
-                    import FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.compile_historical_data as compile_historical_data
+                    import compile_historical_data as compile_historical_data
                     args = compile_historical_data.parse_args()
 
                     log_level = "DEBUG" if args.verbose else "INFO"

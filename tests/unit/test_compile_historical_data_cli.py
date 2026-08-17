@@ -27,7 +27,7 @@ class TestCLIFlagParsing:
         test_args = ['compile_historical_data.py', '--year', '2024', '--enable-log-file']
 
         with patch('sys.argv', test_args):
-            import FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.compile_historical_data as compile_historical_data
+            import compile_historical_data as compile_historical_data
             args = compile_historical_data.parse_args()
 
             assert args.enable_log_file is True, "Flag should be True when --enable-log-file provided"
@@ -42,7 +42,7 @@ class TestCLIFlagParsing:
         test_args = ['compile_historical_data.py', '--year', '2024']
 
         with patch('sys.argv', test_args):
-            import FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.compile_historical_data as compile_historical_data
+            import compile_historical_data as compile_historical_data
             args = compile_historical_data.parse_args()
 
             assert args.enable_log_file is False, "Flag should default to False when not provided"
@@ -57,7 +57,7 @@ class TestCLIFlagParsing:
         test_args = ['compile_historical_data.py', '--help']
 
         with patch('sys.argv', test_args):
-            import FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.compile_historical_data as compile_historical_data
+            import compile_historical_data as compile_historical_data
 
             try:
                 compile_historical_data.parse_args()
@@ -76,73 +76,73 @@ class TestNewCLIFlags:
 
     def test_format_csv(self):
         with patch('sys.argv', ['compile_historical_data.py', '--year', '2024', '--format', 'csv']):
-            import FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.compile_historical_data as compile_historical_data
+            import compile_historical_data as compile_historical_data
             args = compile_historical_data.parse_args()
             assert args.format == 'csv'
 
     def test_format_json(self):
         with patch('sys.argv', ['compile_historical_data.py', '--year', '2024', '--format', 'json']):
-            import FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.compile_historical_data as compile_historical_data
+            import compile_historical_data as compile_historical_data
             args = compile_historical_data.parse_args()
             assert args.format == 'json'
 
     def test_format_both(self):
         with patch('sys.argv', ['compile_historical_data.py', '--year', '2024', '--format', 'both']):
-            import FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.compile_historical_data as compile_historical_data
+            import compile_historical_data as compile_historical_data
             args = compile_historical_data.parse_args()
             assert args.format == 'both'
 
     def test_format_default_is_json(self):
         with patch('sys.argv', ['compile_historical_data.py', '--year', '2024']):
-            import FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.compile_historical_data as compile_historical_data
+            import compile_historical_data as compile_historical_data
             args = compile_historical_data.parse_args()
             assert args.format == 'json'
 
     def test_keep_partial_true(self):
         with patch('sys.argv', ['compile_historical_data.py', '--year', '2024', '--keep-partial']):
-            import FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.compile_historical_data as compile_historical_data
+            import compile_historical_data as compile_historical_data
             args = compile_historical_data.parse_args()
             assert args.keep_partial is True
 
     def test_keep_partial_default_false(self):
         with patch('sys.argv', ['compile_historical_data.py', '--year', '2024']):
-            import FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.compile_historical_data as compile_historical_data
+            import compile_historical_data as compile_historical_data
             args = compile_historical_data.parse_args()
             assert args.keep_partial is False
 
     def test_all_years_flag(self):
         with patch('sys.argv', ['compile_historical_data.py', '--all-years']):
-            import FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.compile_historical_data as compile_historical_data
+            import compile_historical_data as compile_historical_data
             args = compile_historical_data.parse_args()
             assert args.all_years is True
 
     def test_all_years_and_year_mutually_exclusive(self):
         with patch('sys.argv', ['compile_historical_data.py', '--all-years', '--year', '2024']):
-            import FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.compile_historical_data as compile_historical_data
+            import compile_historical_data as compile_historical_data
             with pytest.raises(SystemExit):
                 compile_historical_data.parse_args()
 
     def test_weeks_flag(self):
         with patch('sys.argv', ['compile_historical_data.py', '--year', '2024', '--weeks', '3']):
-            import FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.compile_historical_data as compile_historical_data
+            import compile_historical_data as compile_historical_data
             args = compile_historical_data.parse_args()
             assert args.weeks == 3
 
     def test_neither_year_nor_all_years_raises_error(self):
         with patch('sys.argv', ['compile_historical_data.py']):
-            import FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.compile_historical_data as compile_historical_data
+            import compile_historical_data as compile_historical_data
             with pytest.raises(SystemExit):
                 compile_historical_data.parse_args()
 
     def test_weeks_zero_raises_error(self):
         with patch('sys.argv', ['compile_historical_data.py', '--year', '2024', '--weeks', '0']):
-            import FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.compile_historical_data as compile_historical_data
+            import compile_historical_data as compile_historical_data
             with pytest.raises(SystemExit):
                 compile_historical_data.parse_args()
 
     def test_weeks_negative_raises_error(self):
         with patch('sys.argv', ['compile_historical_data.py', '--year', '2024', '--weeks', '-3']):
-            import FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.compile_historical_data as compile_historical_data
+            import compile_historical_data as compile_historical_data
             with pytest.raises(SystemExit):
                 compile_historical_data.parse_args()
 
@@ -151,7 +151,7 @@ class TestWeeksPropagation:
     """Tests verifying max_weeks flows through compile_season_data to all downstream callers."""
 
     def test_weeks_propagated_to_all_phases(self):
-        import FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.compile_historical_data as compile_historical_data
+        import compile_historical_data as compile_historical_data
         from unittest.mock import AsyncMock
 
         mock_http = MagicMock()
@@ -179,7 +179,7 @@ class TestKeepPartialBehavior:
     """Tests verifying --keep-partial suppresses cleanup and preserves exit code 1."""
 
     def test_keep_partial_prevents_cleanup_on_failure(self):
-        import FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.compile_historical_data as compile_historical_data
+        import compile_historical_data as compile_historical_data
 
         mock_logger = MagicMock()
 
@@ -206,8 +206,8 @@ class TestWeeksCapBehavior:
     def test_weeks_exceeding_season_capped_to_regular_season_weeks(self):
         import asyncio
         from unittest.mock import AsyncMock as AM
-        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.historical_data_compiler.schedule_fetcher import ScheduleFetcher
-        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.historical_data_compiler.constants import REGULAR_SEASON_WEEKS
+        from historical_data_compiler.schedule_fetcher import ScheduleFetcher
+        from historical_data_compiler.constants import REGULAR_SEASON_WEEKS
 
         mock_http = MagicMock()
         mock_http.get = AM(return_value={'events': []})

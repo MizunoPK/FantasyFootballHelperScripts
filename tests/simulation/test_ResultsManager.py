@@ -11,8 +11,8 @@ from pathlib import Path
 from unittest.mock import Mock, MagicMock, patch, mock_open
 import json
 
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.shared.ResultsManager import ResultsManager
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.shared.ConfigPerformance import ConfigPerformance
+from simulation.shared.ResultsManager import ResultsManager
+from simulation.shared.ConfigPerformance import ConfigPerformance
 
 
 class TestResultsManagerInitialization:

@@ -20,11 +20,11 @@ from typing import Dict, List, Optional, Set, Any
 import httpx
 import pandas as pd
 
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.LoggingManager import get_logger
+from utils.LoggingManager import get_logger
 
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.player_data_fetcher.game_data_models import GameData, GAME_DATA_CSV_COLUMNS
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.player_data_fetcher.coordinates_manager import CoordinatesManager
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.player_data_fetcher.config import COORDINATES_JSON
+from player_data_fetcher.game_data_models import GameData, GAME_DATA_CSV_COLUMNS
+from player_data_fetcher.coordinates_manager import CoordinatesManager
+from player_data_fetcher.config import COORDINATES_JSON
 
 
 class GameDataFetcher:

@@ -9,7 +9,7 @@ Author: Kai Mizuno
 import pytest
 from unittest.mock import Mock, MagicMock
 
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.Week import Week, WeekResult
+from simulation.win_rate.Week import Week, WeekResult
 
 
 class TestWeekResult:

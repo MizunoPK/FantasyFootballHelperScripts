@@ -7,8 +7,8 @@ to player scores in Add to Roster mode.
 
 import pytest
 from unittest.mock import Mock
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.player_scoring import PlayerScoringCalculator
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.FantasyPlayer import FantasyPlayer
+from league_helper.util.player_scoring import PlayerScoringCalculator
+from utils.FantasyPlayer import FantasyPlayer
 
 
 class TestNFLTeamPenaltyLogic:

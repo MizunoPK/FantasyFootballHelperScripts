@@ -13,7 +13,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.compile_historical_data import compile_season_data
+from compile_historical_data import compile_season_data
 
 
 @pytest.mark.filterwarnings("ignore:coroutine.*was never awaited:RuntimeWarning")

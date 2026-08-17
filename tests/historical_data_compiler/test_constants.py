@@ -11,7 +11,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.historical_data_compiler.constants import (
+from historical_data_compiler.constants import (
     ESPN_TEAM_MAPPINGS,
     ESPN_POSITION_MAPPINGS,
     ALL_NFL_TEAMS,

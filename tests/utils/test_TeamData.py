@@ -16,7 +16,7 @@ from unittest.mock import Mock
 import sys
 sys.path.append(str(Path(__file__).parent.parent.parent))
 
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.TeamData import (
+from utils.TeamData import (
     TeamData,
     _safe_int_conversion,
     _safe_string_conversion,

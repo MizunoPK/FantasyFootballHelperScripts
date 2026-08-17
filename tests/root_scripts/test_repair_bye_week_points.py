@@ -13,7 +13,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.repair_bye_week_points import main, repair_pool
+from repair_bye_week_points import main, repair_pool
 
 POSITIONS = ('qb', 'rb', 'wr', 'te', 'k', 'dst')
 

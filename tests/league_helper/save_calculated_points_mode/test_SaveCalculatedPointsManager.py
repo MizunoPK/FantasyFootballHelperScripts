@@ -13,10 +13,10 @@ Tests the Save Calculated Points mode manager functionality including:
 import pytest
 import json
 from unittest.mock import Mock
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.save_calculated_points_mode.SaveCalculatedPointsManager import SaveCalculatedPointsManager
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.ConfigManager import ConfigManager
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.PlayerManager import PlayerManager
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.FantasyPlayer import FantasyPlayer
+from league_helper.save_calculated_points_mode.SaveCalculatedPointsManager import SaveCalculatedPointsManager
+from league_helper.util.ConfigManager import ConfigManager
+from league_helper.util.PlayerManager import PlayerManager
+from utils.FantasyPlayer import FantasyPlayer
 
 
 class TestSaveCalculatedPointsManager:

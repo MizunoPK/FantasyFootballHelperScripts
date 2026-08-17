@@ -19,11 +19,11 @@ import pytest
 from unittest.mock import Mock, MagicMock, patch
 from typing import List
 
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.player_scoring import PlayerScoringCalculator
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.ConfigManager import ConfigManager
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.TeamDataManager import TeamDataManager
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.SeasonScheduleManager import SeasonScheduleManager
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.FantasyPlayer import FantasyPlayer
+from league_helper.util.player_scoring import PlayerScoringCalculator
+from league_helper.util.ConfigManager import ConfigManager
+from league_helper.util.TeamDataManager import TeamDataManager
+from league_helper.util.SeasonScheduleManager import SeasonScheduleManager
+from utils.FantasyPlayer import FantasyPlayer
 
 
 
@@ -456,9 +456,9 @@ class TestPerformanceDeviation:
 
     def test_calculate_performance_deviation_respects_max_lookback_limit(self, mock_data_folder):
         """Test that lookback respects 2x MIN_WEEKS limit"""
-        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.ConfigManager import ConfigManager
-        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.TeamDataManager import TeamDataManager
-        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.SeasonScheduleManager import SeasonScheduleManager
+        from league_helper.util.ConfigManager import ConfigManager
+        from league_helper.util.TeamDataManager import TeamDataManager
+        from league_helper.util.SeasonScheduleManager import SeasonScheduleManager
 
         config_content = """{
   "config_name": "Test Config",

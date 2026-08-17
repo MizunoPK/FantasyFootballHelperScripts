@@ -12,7 +12,7 @@ import pytest
 import csv
 from unittest.mock import patch, AsyncMock
 
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.schedule_data_fetcher.ScheduleFetcher import ScheduleFetcher
+from schedule_data_fetcher.ScheduleFetcher import ScheduleFetcher
 
 
 class TestScheduleFetcherInit:
@@ -276,7 +276,7 @@ class TestModuleImports:
 
     def test_import_schedule_fetcher(self):
         """Test ScheduleFetcher can be imported"""
-        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.schedule_data_fetcher.ScheduleFetcher import ScheduleFetcher
+        from schedule_data_fetcher.ScheduleFetcher import ScheduleFetcher
 
         assert ScheduleFetcher is not None
 

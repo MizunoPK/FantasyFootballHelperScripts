@@ -34,7 +34,7 @@ import sys
 from pathlib import Path
 from typing import Dict, List, Optional
 
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.accuracy.AccuracyResultsManager import DUMP_PROMOTED_FILENAME
+from simulation.accuracy.AccuracyResultsManager import DUMP_PROMOTED_FILENAME
 
 # Anchored at the repo root via __file__ (not ambient CWD), matching the
 # established in-repo convention for a subprocess-invoking runner:

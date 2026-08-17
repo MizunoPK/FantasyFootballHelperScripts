@@ -12,7 +12,7 @@ Author: Kai Mizuno
 from dataclasses import dataclass
 from typing import Optional, Dict, Any, List
 import pandas as pd
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.csv_utils import read_csv_with_validation, write_csv_with_backup
+from utils.csv_utils import read_csv_with_validation, write_csv_with_backup
 
 
 @dataclass

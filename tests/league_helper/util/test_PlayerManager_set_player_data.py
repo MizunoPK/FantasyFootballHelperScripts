@@ -16,8 +16,8 @@ Author: Kai Mizuno
 import pytest
 from unittest.mock import Mock
 
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.PlayerManager import PlayerManager
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.FantasyPlayer import FantasyPlayer
+from league_helper.util.PlayerManager import PlayerManager
+from utils.FantasyPlayer import FantasyPlayer
 
 
 def _make_player(player_id, projected=None, actual=None, drafted_by="", locked=False):

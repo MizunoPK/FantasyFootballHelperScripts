@@ -48,8 +48,8 @@ import copy
 from pathlib import Path
 from typing import List, Dict
 
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.LoggingManager import get_logger
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.shared.config_constants import BASE_CONFIG_PARAMS, WEEK_SPECIFIC_PARAMS
+from utils.LoggingManager import get_logger
+from simulation.shared.config_constants import BASE_CONFIG_PARAMS, WEEK_SPECIFIC_PARAMS
 
 # Default seed for the accuracy engine's private candidate-value RNG (T51). A fixed
 # default makes the plain `run_accuracy_simulation.py` command reproducible run-to-run;

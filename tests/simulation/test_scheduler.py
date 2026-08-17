@@ -9,7 +9,7 @@ Author: Kai Mizuno
 
 import pytest
 
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.utils.scheduler import (
+from simulation.utils.scheduler import (
     generate_round_robin,
     generate_double_round_robin,
     generate_schedule_for_nfl_season,

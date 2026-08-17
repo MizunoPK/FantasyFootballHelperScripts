@@ -10,7 +10,7 @@ Created: 2026-01-13
 import pytest
 import json
 
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.ConfigManager import ConfigManager
+from league_helper.util.ConfigManager import ConfigManager
 
 
 @pytest.fixture

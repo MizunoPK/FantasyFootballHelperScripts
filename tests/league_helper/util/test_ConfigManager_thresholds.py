@@ -18,7 +18,7 @@ from unittest.mock import Mock, patch
 import json
 import tempfile
 
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.ConfigManager import ConfigManager, ConfigKeys
+from league_helper.util.ConfigManager import ConfigManager, ConfigKeys
 
 
 
@@ -686,7 +686,7 @@ class TestGetterMethodEdgeCases:
 
     def test_get_bye_week_penalty_same_position_only(self, minimal_hardcoded_config):
         """get_bye_week_penalty with only same position conflicts (median-based)"""
-        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.FantasyPlayer import FantasyPlayer
+        from utils.FantasyPlayer import FantasyPlayer
 
         config = ConfigManager(minimal_hardcoded_config)
 
@@ -721,7 +721,7 @@ class TestGetterMethodEdgeCases:
 
     def test_get_bye_week_penalty_different_position(self, minimal_hardcoded_config):
         """get_bye_week_penalty with different position conflicts (median-based)"""
-        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.FantasyPlayer import FantasyPlayer
+        from utils.FantasyPlayer import FantasyPlayer
 
         config = ConfigManager(minimal_hardcoded_config)
 

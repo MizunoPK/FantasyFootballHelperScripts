@@ -9,8 +9,8 @@ Author: Kai Mizuno
 import pytest
 from unittest.mock import Mock, MagicMock, patch
 
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.DraftHelperTeam import DraftHelperTeam
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.FantasyPlayer import FantasyPlayer
+from simulation.win_rate.DraftHelperTeam import DraftHelperTeam
+from utils.FantasyPlayer import FantasyPlayer
 
 
 @pytest.fixture

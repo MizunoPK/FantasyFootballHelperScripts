@@ -24,8 +24,8 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.ConfigManager import ConfigManager
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.ParallelLeagueRunner import ParallelLeagueRunner, _derive_task_seed
+from league_helper.util.ConfigManager import ConfigManager
+from simulation.win_rate.ParallelLeagueRunner import ParallelLeagueRunner, _derive_task_seed
 
 
 # FIXTURES

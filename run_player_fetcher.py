@@ -17,8 +17,8 @@ import asyncio
 import tempfile
 from pathlib import Path
 
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.player_data_fetcher.config import data_root
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.player_data_fetcher.player_data_fetcher_main import main
+from player_data_fetcher.config import data_root
+from player_data_fetcher.player_data_fetcher_main import main
 
 
 def parse_args(argv=None):

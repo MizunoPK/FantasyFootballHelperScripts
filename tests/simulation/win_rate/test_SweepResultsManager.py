@@ -16,8 +16,8 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 # Local
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.SweepResultsManager import SweepResultsManager
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.param_value_generation import DRAFT_SWEEP_PARAMS
+from simulation.win_rate.SweepResultsManager import SweepResultsManager
+from simulation.win_rate.param_value_generation import DRAFT_SWEEP_PARAMS
 
 
 def _param_values(**overrides):

@@ -30,12 +30,12 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.PlayerManager import PlayerManager
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.SimulatedLeague import SimulatedLeague, load_week_player_data
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.SimDataLoader import SimDataLoader
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.DraftHelperTeam import DraftHelperTeam
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.SimulatedOpponent import SimulatedOpponent
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.FantasyPlayer import FantasyPlayer
+from league_helper.util.PlayerManager import PlayerManager
+from simulation.win_rate.SimulatedLeague import SimulatedLeague, load_week_player_data
+from simulation.win_rate.SimDataLoader import SimDataLoader
+from simulation.win_rate.DraftHelperTeam import DraftHelperTeam
+from simulation.win_rate.SimulatedOpponent import SimulatedOpponent
+from utils.FantasyPlayer import FantasyPlayer
 
 
 # Fixture constants (also reused as the expected post-swap values in TestWinTallyingSourcesActualPm).

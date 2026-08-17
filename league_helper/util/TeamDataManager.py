@@ -20,12 +20,12 @@ from typing import Dict, List, Optional, Any, TYPE_CHECKING
 import csv
 import json
 
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.TeamData import TeamData, load_team_weekly_data, NFL_TEAMS
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.LoggingManager import get_logger
+from utils.TeamData import TeamData, load_team_weekly_data, NFL_TEAMS
+from utils.LoggingManager import get_logger
 
 if TYPE_CHECKING:
-    from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.SeasonScheduleManager import SeasonScheduleManager
-    from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.ConfigManager import ConfigManager
+    from league_helper.util.SeasonScheduleManager import SeasonScheduleManager
+    from league_helper.util.ConfigManager import ConfigManager
 
 
 class TeamDataManager:
@@ -390,7 +390,7 @@ class TeamDataManager:
         Returns:
             Position-specific defense rank (1-32) or None if not found.
         """
-        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.constants import DEFENSE_POSITIONS
+        from league_helper.constants import DEFENSE_POSITIONS
 
         if position in DEFENSE_POSITIONS:
             return self.defensive_ranks.get(team)
@@ -478,7 +478,7 @@ class TeamDataManager:
             self.logger.debug(f"No opponent found for team: {player_team}")
             return None
 
-        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.constants import DEFENSE_POSITIONS
+        from league_helper.constants import DEFENSE_POSITIONS
         is_defense = position in DEFENSE_POSITIONS
 
         if is_defense:

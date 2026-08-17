@@ -11,7 +11,7 @@ from pathlib import Path
 
 import pytest
 
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.player_data_fetcher.player_data_fetcher_main import main, POSITION_CODES
+from player_data_fetcher.player_data_fetcher_main import main, POSITION_CODES
 
 
 FIXTURES_DIR = Path(__file__).parent.parent / 'fixtures'

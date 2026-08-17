@@ -17,9 +17,9 @@ Author: Kai Mizuno
 
 from typing import Dict, Any, List
 
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.PlayerManager import PlayerManager
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.ScoredPlayer import ScoredPlayer
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.FantasyPlayer import FantasyPlayer
+from league_helper.util.PlayerManager import PlayerManager
+from league_helper.util.ScoredPlayer import ScoredPlayer
+from utils.FantasyPlayer import FantasyPlayer
 
 class TradeSimTeam:
     """

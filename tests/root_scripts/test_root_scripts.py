@@ -30,12 +30,12 @@ class TestRunLeagueHelper:
 
     def test_run_league_helper_no_subprocess(self):
         """Test run_league_helper does not use subprocess"""
-        import FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.run_league_helper as run_league_helper
+        import run_league_helper as run_league_helper
         assert not hasattr(run_league_helper, 'subprocess')
 
     def test_run_league_helper_imports_main_from_league_helper(self):
         """Test run_league_helper imports main from league_helper.LeagueHelperManager"""
-        import FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.run_league_helper as run_league_helper
+        import run_league_helper as run_league_helper
         assert hasattr(run_league_helper, 'main')
 
     def test_run_league_helper_has_main_block(self):
@@ -52,19 +52,19 @@ class TestRunPlayerFetcher:
 
     def test_run_player_fetcher_has_parse_args(self):
         """Test run_player_fetcher has parse_args function (KAI-10 refactoring)"""
-        import FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.run_player_fetcher as run_player_fetcher
+        import run_player_fetcher as run_player_fetcher
         assert hasattr(run_player_fetcher, 'parse_args')
         assert callable(run_player_fetcher.parse_args)
 
     def test_run_player_fetcher_has_create_settings_dict(self):
         """Test run_player_fetcher has create_settings_dict function"""
-        import FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.run_player_fetcher as run_player_fetcher
+        import run_player_fetcher as run_player_fetcher
         assert hasattr(run_player_fetcher, 'create_settings_dict')
         assert callable(run_player_fetcher.create_settings_dict)
 
     def test_run_player_fetcher_no_subprocess(self):
         """Test run_player_fetcher does not use subprocess (KAI-10 direct import)"""
-        import FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.run_player_fetcher as run_player_fetcher
+        import run_player_fetcher as run_player_fetcher
         assert not hasattr(run_player_fetcher, 'subprocess')
 
 
@@ -77,7 +77,7 @@ class TestRunPreCommitValidation:
         """Test successful validation"""
         mock_run.return_value = Mock(returncode=0)
 
-        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.run_pre_commit_validation import run_validation
+        from run_pre_commit_validation import run_validation
         exit_code = run_validation()
 
         assert exit_code == 0
@@ -92,7 +92,7 @@ class TestRunPreCommitValidation:
         """Test validation failure"""
         mock_run.return_value = Mock(returncode=1)
 
-        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.run_pre_commit_validation import run_validation
+        from run_pre_commit_validation import run_validation
         exit_code = run_validation()
 
         assert exit_code == 1
@@ -102,7 +102,7 @@ class TestRunPreCommitValidation:
         """Test handling of exceptions during validation"""
         mock_run.side_effect = RuntimeError("Test error")
 
-        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.run_pre_commit_validation import run_validation
+        from run_pre_commit_validation import run_validation
         exit_code = run_validation()
 
         assert exit_code == 1
@@ -112,7 +112,7 @@ class TestRunPreCommitValidation:
         """Test that validation doesn't raise on failure"""
         mock_run.return_value = Mock(returncode=1)
 
-        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.run_pre_commit_validation import run_validation
+        from run_pre_commit_validation import run_validation
         exit_code = run_validation()
 
         assert exit_code == 1

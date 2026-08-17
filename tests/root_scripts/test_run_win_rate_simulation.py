@@ -11,7 +11,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.run_win_rate_simulation import _build_parser, _print_summary, main
+from run_win_rate_simulation import _build_parser, _print_summary, main
 
 
 class TestNewCLIFlags:

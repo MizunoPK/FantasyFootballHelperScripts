@@ -8,8 +8,8 @@ Author: Kai Mizuno
 """
 
 import pytest
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.FantasyPlayer import FantasyPlayer
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.trade_simulator_mode.trade_input_parser import TradeInputParser
+from utils.FantasyPlayer import FantasyPlayer
+from league_helper.trade_simulator_mode.trade_input_parser import TradeInputParser
 
 
 class TestTradeInputParserInitialization:

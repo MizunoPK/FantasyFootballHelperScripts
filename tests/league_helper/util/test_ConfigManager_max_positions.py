@@ -17,7 +17,7 @@ from unittest.mock import Mock, patch
 import json
 import tempfile
 
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.ConfigManager import ConfigManager, ConfigKeys
+from league_helper.util.ConfigManager import ConfigManager, ConfigKeys
 
 
 

@@ -24,7 +24,7 @@ project_root = Path(__file__).parent.parent.parent
 if str(project_root / 'tests') not in sys.path:
     sys.path.insert(0, str(project_root / 'tests'))
 
-import FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.tests.run_all_tests as run_all_tests  # noqa: E402
+import run_all_tests  # noqa: E402
 
 
 # FIXTURES

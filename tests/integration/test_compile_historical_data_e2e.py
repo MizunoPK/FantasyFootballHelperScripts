@@ -18,8 +18,8 @@ from unittest.mock import patch
 
 import pytest
 
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.historical_data_compiler.constants import VALIDATION_WEEKS
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.historical_data_compiler.http_client import BaseHTTPClient
+from historical_data_compiler.constants import VALIDATION_WEEKS
+from historical_data_compiler.http_client import BaseHTTPClient
 
 REPO_ROOT = Path(__file__).parent.parent.parent
 

@@ -21,14 +21,14 @@ from urllib.parse import urlparse
 import httpx
 from tenacity import retry, stop_after_attempt, wait_random_exponential, retry_if_exception
 
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.player_data_fetcher.player_data_models import ESPNPlayerData, ScoringFormat
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.player_data_fetcher.fantasy_points_calculator import FantasyPointsExtractor, FantasyPointsConfig
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.player_data_fetcher.player_data_constants import (
+from player_data_fetcher.player_data_models import ESPNPlayerData, ScoringFormat
+from player_data_fetcher.fantasy_points_calculator import FantasyPointsExtractor, FantasyPointsConfig
+from player_data_fetcher.player_data_constants import (
     ESPN_TEAM_MAPPINGS, ESPN_POSITION_MAPPINGS, MIN_WEEKS_FOR_RANKINGS
 )
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.player_data_fetcher.config import ESPN_USER_AGENT
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.LoggingManager import get_logger
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.csv_utils import read_dict_csv
+from player_data_fetcher.config import ESPN_USER_AGENT
+from utils.LoggingManager import get_logger
+from utils.csv_utils import read_dict_csv
 
 
 class ESPNAPIError(Exception):
@@ -1409,7 +1409,7 @@ class ESPNClient(BaseAPIClient):
         Returns:
             ESPN defaultPositionId, or -1 if unknown
         """
-        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.player_data_fetcher.player_data_constants import ESPN_POSITION_MAPPINGS
+        from player_data_fetcher.player_data_constants import ESPN_POSITION_MAPPINGS
 
         if position == 'D/ST':
             position = 'DST'
@@ -1419,7 +1419,7 @@ class ESPNClient(BaseAPIClient):
 
     async def _parse_espn_data(self, data: Dict[str, Any]) -> List[ESPNPlayerData]:
         """Parse ESPN API response into ESPNPlayerData objects"""
-        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.player_data_fetcher.config import PROGRESS_ETA_WINDOW_SIZE
+        from player_data_fetcher.config import PROGRESS_ETA_WINDOW_SIZE
 
         projections = []
         unknown_position_count = 0
@@ -1435,7 +1435,7 @@ class ESPNClient(BaseAPIClient):
         players = data.get('players', [])
         self.logger.info(f"Processing {len(players)} players from ESPN API")
 
-        from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.player_data_fetcher.progress_tracker import ProgressTracker
+        from player_data_fetcher.progress_tracker import ProgressTracker
         progress_tracker = ProgressTracker(
             total_players=len(players),
             logger=self.logger,

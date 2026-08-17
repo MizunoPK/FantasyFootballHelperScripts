@@ -16,9 +16,9 @@ from pathlib import Path
 import pytest
 
 # Local
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.CombinationEvaluator import CombinationEvaluator
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.win_rate.param_value_generation import DRAFT_SWEEP_PARAMS
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.simulation.shared.ConfigGenerator import ConfigGenerator
+from simulation.win_rate.CombinationEvaluator import CombinationEvaluator
+from simulation.win_rate.param_value_generation import DRAFT_SWEEP_PARAMS
+from simulation.shared.ConfigGenerator import ConfigGenerator
 
 
 def _fake_params():

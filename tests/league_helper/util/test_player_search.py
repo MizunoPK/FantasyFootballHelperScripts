@@ -8,9 +8,9 @@ import json
 import pytest
 from pathlib import Path
 from unittest.mock import patch
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.FantasyPlayer import FantasyPlayer
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.player_search import PlayerSearch
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.league_helper.util.ConfigManager import ConfigManager
+from utils.FantasyPlayer import FantasyPlayer
+from league_helper.util.player_search import PlayerSearch
+from league_helper.util.ConfigManager import ConfigManager
 
 FIXTURE_LEAGUE_CONFIG = Path(__file__).parent.parent.parent / "fixtures" / "league" / "league_config.json"
 

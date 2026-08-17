@@ -16,8 +16,8 @@ import shutil
 
 project_root = Path(__file__).parent.parent.parent
 
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.schedule_data_fetcher.ScheduleFetcher import ScheduleFetcher
-from FantasyFootballHelperScriptsWorkspace.FantasyFootballHelperScripts.utils.LoggingManager import setup_logger
+from schedule_data_fetcher.ScheduleFetcher import ScheduleFetcher
+from utils.LoggingManager import setup_logger
 
 pytestmark = pytest.mark.live_api
 
