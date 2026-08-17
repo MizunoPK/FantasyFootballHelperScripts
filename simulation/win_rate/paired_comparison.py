@@ -210,8 +210,10 @@ def run_paired_ab_comparison(
         week_data_cache = loader.week_data_cache
         for sim_id in range(num_simulations):
             task_seed = _derive_task_seed(seed, season_folder, sim_id)
-            cw, cg = _run_arm(reference, current_config, season_folder, week_data_cache, task_seed, explicit_construction_snapshot)
-            rw, rg = _run_arm(reference, recommended_config, season_folder, week_data_cache, task_seed, explicit_construction_snapshot)
+            cw, cg = _run_arm(reference, current_config, season_folder, week_data_cache, task_seed,
+                              explicit_construction_snapshot=explicit_construction_snapshot)
+            rw, rg = _run_arm(reference, recommended_config, season_folder, week_data_cache, task_seed,
+                              explicit_construction_snapshot=explicit_construction_snapshot)
             wins_current += cw
             games_current += cg
             wins_recommended += rw

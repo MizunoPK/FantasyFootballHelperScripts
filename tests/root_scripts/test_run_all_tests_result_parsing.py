@@ -94,12 +94,13 @@ class TestOrdinarySummaries:
         """
         assert _parse("no tests ran in 0.01s\n") == (0, 0)
 
-    def test_skipped_only_run_is_recognised_as_a_summary(self):
+    def test_skipped_only_run_is_zero_zero(self):
         """
-        A skipped-only summary carries no passed/failed/error token. It must still be
-        RECOGNISED as the summary line (rather than falling through to the crashed-
-        interpreter case) so that a later count-bearing outcome on the same line is
-        never missed. Skips themselves are not counted as passes or failures.
+        A skipped-only summary carries no passed/failed/error token, so it reports
+        (0, 0): skips are never counted as passes or failures. This assertion pins
+        that reported value only -- it cannot (and does not) distinguish whether the
+        line was recognised as a summary, because a recognised skipped-only line and
+        an unrecognised one both yield (0, 0).
         """
         assert _parse("5 skipped in 0.05s\n") == (0, 0)
 
@@ -109,6 +110,21 @@ class TestOrdinarySummaries:
 
     def test_failure_alongside_deselection_is_counted(self):
         assert _parse("1 failed, 9 passed, 4 deselected in 0.80s\n") == (9, 10)
+
+    def test_trailing_warnings_line_does_not_displace_the_real_summary(self):
+        """
+        Regression pin for the vocabulary-width defect. The scan takes the LAST
+        matching line, so if the outcome vocabulary admitted non-counted outcomes
+        (warnings/skipped/deselected/...), a trailing "3 warnings in 0.50s" would be
+        selected as the summary and every count would read 0 -- silently hiding 3
+        failures. The narrow vocabulary skips that line and keeps the real summary.
+        """
+        output = (
+            "3 failed, 7 passed in 2.00s\n"
+            "3 warnings in 0.50s\n"
+        )
+
+        assert _parse(output) == (7, 10)
 
     def test_output_with_no_summary_line_is_zero_zero(self):
         """A crashed interpreter produces no summary; report nothing rather than guess."""

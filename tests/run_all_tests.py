@@ -121,14 +121,20 @@ class TestRunner:
         summary = ""
         for line in reversed(output.splitlines()):
             candidate = line.strip().strip('=').strip()
-            # The outcome vocabulary here identifies the summary LINE; only passed /
-            # failed / error counts feed the totals below. It deliberately includes
-            # outcomes this runner does not count (skipped, xfailed, ...) so that a
-            # skipped-only or deselected-only run is recognised as a real summary
-            # rather than falling through to the no-summary-at-all case.
+            # The outcome vocabulary here is deliberately NARROW: only the outcomes
+            # this parser actually counts (passed / failed / error). Widening it to
+            # non-counted outcomes (skipped, warnings, deselected, ...) is not merely
+            # inert, it is harmful — the scan takes the LAST matching line, so a
+            # trailing "3 warnings in 0.50s" line emitted after a real
+            # "3 failed, 7 passed in 2.00s" summary would be selected instead, and
+            # every count would read 0. That reopens the very undercount class this
+            # summary-line scan exists to close (stderr is concatenated after stdout
+            # above, so trailing non-summary duration lines are a real shape).
+            # A summary carrying only non-counted outcomes (e.g. "5 skipped in 0.05s")
+            # therefore does not match, and yields (0, 0) — the same value the wide
+            # vocabulary produced for it, since skips are never counted anyway.
             if re.search(r'\bin \d+(\.\d+)?s', candidate) and \
-                    re.search(r'\b\d+ (passed|failed|error|errors|skipped|deselected'
-                              r'|xfailed|xpassed|warning|warnings)\b', candidate):
+                    re.search(r'\b\d+ (passed|failed|error|errors)\b', candidate):
                 summary = candidate
                 break
 
