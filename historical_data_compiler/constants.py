@@ -84,6 +84,13 @@ ESPN_USER_AGENT = (
     "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 )
 
+# site.api.espn.com returns 403 for browser-shaped user agents and 200 for recognized
+# programmatic-client ones. This value identifies the HTTP library actually issuing the
+# request (httpx), is deliberately unversioned so an httpx upgrade cannot invalidate it,
+# and must not be replaced with a browser string or a project-branded string — both were
+# measured at 403 on 2026-08-17.
+ESPN_SCOREBOARD_USER_AGENT = "python-httpx"
+
 ESPN_PLAYER_LIMIT = 1500
 
 

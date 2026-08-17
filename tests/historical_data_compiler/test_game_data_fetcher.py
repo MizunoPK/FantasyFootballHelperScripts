@@ -13,6 +13,10 @@ from unittest.mock import Mock, AsyncMock, patch
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
+from historical_data_compiler.constants import (
+    ESPN_SCOREBOARD_API_URL,
+    ESPN_SCOREBOARD_USER_AGENT,
+)
 from historical_data_compiler.game_data_fetcher import (
     GameData,
     GameDataFetcher,
@@ -278,5 +282,28 @@ class TestGetCoordinates:
         coords = fetcher._get_coordinates('UNKNOWN', 'Unknown City', 'Unknown Country', True)
 
         assert coords is None
+
+
+class TestGameDataFetcherScoreboardHeaders:
+    """Tests that the scoreboard request sends a User-Agent the endpoint accepts"""
+
+    @pytest.mark.asyncio
+    async def test_scoreboard_request_sends_the_accepted_user_agent(self):
+        """Should pass an explicit programmatic User-Agent, not the injected browser one"""
+        http_client = Mock()
+        http_client.get = AsyncMock(return_value={"events": []})
+        fetcher = GameDataFetcher(http_client)
+
+        await fetcher.fetch_game_data(2024, max_weeks=1)
+
+        http_client.get.assert_called_once()
+        call_args = http_client.get.call_args
+        assert call_args.args[0] == ESPN_SCOREBOARD_API_URL
+        assert call_args.kwargs["headers"] == {"User-Agent": ESPN_SCOREBOARD_USER_AGENT}
+        assert call_args.kwargs["params"] == {
+            "seasontype": 2,
+            "week": 1,
+            "dates": 2024,
+        }
 
 

@@ -14,6 +14,8 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from historical_data_compiler.constants import (
     ESPN_TEAM_MAPPINGS,
     ESPN_POSITION_MAPPINGS,
+    ESPN_USER_AGENT,
+    ESPN_SCOREBOARD_USER_AGENT,
     ALL_NFL_TEAMS,
     FANTASY_POSITIONS,
     REGULAR_SEASON_WEEKS,
@@ -175,5 +177,18 @@ class TestJSONFileConstants:
     def test_position_json_files_matches_fantasy_positions(self):
         """POSITION_JSON_FILES keys should match FANTASY_POSITIONS"""
         assert set(POSITION_JSON_FILES.keys()) == set(FANTASY_POSITIONS)
+
+
+class TestScoreboardUserAgent:
+    """Tests for the scoreboard user agent constant"""
+
+    def test_scoreboard_user_agent_is_not_the_browser_agent(self):
+        """Scoreboard user agent should not be the browser agent"""
+        assert ESPN_SCOREBOARD_USER_AGENT != ESPN_USER_AGENT
+        assert 'Mozilla' not in ESPN_SCOREBOARD_USER_AGENT
+
+    def test_scoreboard_user_agent_identifies_the_http_library(self):
+        """Scoreboard user agent should identify the HTTP library"""
+        assert ESPN_SCOREBOARD_USER_AGENT == 'python-httpx'
 
 
