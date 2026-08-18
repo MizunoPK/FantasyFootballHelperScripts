@@ -143,14 +143,37 @@ class TestPlayerRatingLadderUnchanged:
         # Assert
         assert direction == "INCREASING"
 
-    def test_player_rating_ascending_pairing_discriminates(self, live_config):
-        """Three distinct labels prove the assertion above is not a tautology."""
+    def test_player_rating_linear_ascending_pairing_discriminates(self, live_config):
+        """Three distinct labels prove the assertion above is not a tautology.
+
+        D10.4: the live block is now SCALING "LINEAR" with STEPS 25, so the
+        middle probe's expected label moves NEUTRAL -> GOOD under TD3 option C
+        (a valued input between two anchors takes the BETTER-side bracketing
+        anchor: 62.5 brackets POOR=50 .. GOOD=75). Observed, not reasoned:
+        62.5 -> (0.9999999999999996, "GOOD") against the real _get_multiplier.
+        NEUTRAL is no longer emitted for any VALUED player_rating input; the
+        `val is None` -> NEUTRAL arm is untouched and still pinned by
+        tests/utils/test_FantasyPlayer.py:439-440.
+
+        Recorded honestly (CODING_STANDARDS.md:123-125): at STEPS 25 the 4.5
+        multiple probes 112.5, which is OUTSIDE this factor's declared input
+        domain (0, 100). It clamps to the EXCELLENT anchor and is bit-identical
+        to probing 100.0 (both -> 1.2155062500000002), so the assertion still
+        discriminates -- but it is a clamped probe, not an in-domain one, and
+        that is stated rather than left for a reader to discover. Changing the
+        probe multiple is deliberately NOT done here: D10.4's spec assigns this
+        test only a label re-point and a rename.
+
+        The fixture is deliberately still the LIVE store (live_config, :28) --
+        the module docstring above makes that live-ness the guard, so a fixture
+        re-point would retire it as silently as a deletion (TD3 collateral).
+        """
         # Arrange
         thresholds = live_config.player_rating_scoring["THRESHOLDS"]
         base, steps = thresholds["BASE_POSITION"], thresholds["STEPS"]
         expected = [
             (0.5, "VERY_POOR"),
-            (2.5, "NEUTRAL"),
+            (2.5, "GOOD"),
             (4.5, "EXCELLENT"),
         ]
 
