@@ -1,0 +1,63 @@
+{
+  "name": "Live league_config order",
+  "description": "Verbatim copy of the DRAFT_ORDER in data/configs/league_config.json \u2014 the order actually drafted with. 2 RB / 2 WR / 5 FLEX: rounds 7, 8, 11, 12 and 15 stay uncommitted between RB and WR.",
+  "DRAFT_ORDER": [
+    {
+      "RB": "P",
+      "WR": "S"
+    },
+    {
+      "WR": "P",
+      "RB": "S"
+    },
+    {
+      "WR": "P",
+      "RB": "S"
+    },
+    {
+      "RB": "P",
+      "WR": "S"
+    },
+    {
+      "QB": "P",
+      "FLEX": "S"
+    },
+    {
+      "TE": "P",
+      "FLEX": "S"
+    },
+    {
+      "FLEX": "P",
+      "QB": "S"
+    },
+    {
+      "FLEX": "P",
+      "QB": "S"
+    },
+    {
+      "QB": "P",
+      "FLEX": "S"
+    },
+    {
+      "TE": "P",
+      "FLEX": "S"
+    },
+    {
+      "FLEX": "P"
+    },
+    {
+      "FLEX": "P"
+    },
+    {
+      "K": "P",
+      "FLEX": "S"
+    },
+    {
+      "DST": "P",
+      "FLEX": "S"
+    },
+    {
+      "FLEX": "P"
+    }
+  ]
+}

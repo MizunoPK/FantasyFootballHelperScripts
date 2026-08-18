@@ -114,12 +114,26 @@ def validate_strategy(strategy_filename: str, strategy_data: dict) -> bool:
         )
         return False
 
-    expected_p_counts = {"QB": 2, "RB": 4, "WR": 4, "FLEX": 1, "TE": 2, "K": 1, "DST": 1}
+    # RB / WR / FLEX are counted as one pooled group rather than individually.
+    # "FLEX" means "either RB or WR", so a round left as FLEX is declining to
+    # pre-commit RB-vs-WR — a real strategy the old per-position 4/4/1 counts
+    # could not express. Only the pooled total is load-bearing: the scoring path
+    # (ConfigManager.get_draft_order_bonus) matches the native position key first
+    # and the FLEX alias second, and never inspects how the 9 rounds are split.
+    expected_p_counts = {"QB": 2, "TE": 2, "K": 1, "DST": 1}
+    pooled_positions = ("RB", "WR", "FLEX")
+    expected_pooled_total = 9
+
     actual_p_counts = {pos: 0 for pos in expected_p_counts}
+    pooled_total = 0
     for entry in draft_order:
         for pos, role in entry.items():
-            if role == "P" and pos in actual_p_counts:
+            if role != "P":
+                continue
+            if pos in actual_p_counts:
                 actual_p_counts[pos] += 1
+            elif pos in pooled_positions:
+                pooled_total += 1
     for pos, exp in expected_p_counts.items():
         got = actual_p_counts[pos]
         if got != exp:
@@ -127,6 +141,12 @@ def validate_strategy(strategy_filename: str, strategy_data: dict) -> bool:
                 f"Skipping {strategy_filename}: invalid P-count for {pos} (expected {exp}, got {got})"
             )
             return False
+    if pooled_total != expected_pooled_total:
+        logger.warning(
+            f"Skipping {strategy_filename}: invalid pooled P-count for "
+            f"{'/'.join(pooled_positions)} (expected {expected_pooled_total}, got {pooled_total})"
+        )
+        return False
 
     qb_p_indices = [i for i, entry in enumerate(draft_order) if entry.get("QB") == "P"]
     for idx in range(len(qb_p_indices) - 1):
