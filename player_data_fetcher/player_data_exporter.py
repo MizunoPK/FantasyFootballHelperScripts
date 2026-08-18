@@ -9,6 +9,7 @@ Author: Kai Mizuno
 """
 
 import asyncio
+import math
 from pathlib import Path
 from typing import Any, List, Dict, Optional
 import json
@@ -528,15 +529,97 @@ class DataExporter:
         if espn_data is None or not espn_data.raw_stats:
             return [0.0] * 17
 
+        season = self._espn_season()
         projected_points = []
         for week in range(1, 18):
-            projected = None
-            for stat in espn_data.raw_stats:
-                if stat.get('scoringPeriodId') == week and stat.get('statSourceId') == 1:
-                    projected = stat.get('appliedTotal')
-                    break
-            projected_points.append(float(projected) if projected else 0.0)
+            projected = self._select_week_stat(
+                espn_data.raw_stats, week, stat_source_id=1, season=season
+            )
+            projected_points.append(projected if projected else 0.0)
         return projected_points
+
+    def _espn_season(self) -> Optional[int]:
+        """Return the season this export is for, or None when it is not known.
+
+        The live fetcher constructs this exporter with `espn_settings`, so the
+        season is always known on that path. `historical_data_compiler` does not
+        pass one; there the value is None and season filtering is skipped, which
+        keeps that producer's output byte-identical to its pre-fix behaviour. Its
+        raw_stats come from a single-season fetch, so it has no cross-season
+        collision to guard against.
+
+        Returns:
+            The configured ESPN season as an int, or None when unavailable.
+        """
+        season = getattr(self.espn_settings, 'season', None)
+        try:
+            return int(season) if season is not None else None
+        except (TypeError, ValueError):
+            return None
+
+    def _select_week_stat(
+        self,
+        raw_stats: List[Dict],
+        week: int,
+        stat_source_id: int,
+        season: Optional[int]
+    ) -> Optional[float]:
+        """Select one week's appliedTotal, scoped to the requested SEASON.
+
+        ESPN returns entries for MULTIPLE seasons under the same
+        `scoringPeriodId`. Matching on (`scoringPeriodId`, `statSourceId`) alone
+        and taking the first hit therefore reads whichever season happens to sort
+        first. Measured live on 2026-08-18: ARI week 8 carried
+        {2025: 24, 2026: 20} entries, and across the corpus the first match was a
+        PRIOR-season entry for 2,445 zeroed player-weeks. Because a team's prior
+        bye week has appliedTotal 0.0, that read blanked the ENTIRE roster for the
+        week that was the team's bye in the PREVIOUS season -- 24 of 32 teams,
+        2,021 recoverable player-weeks, e.g. Jahmyr Gibbs week 8 stored as 0.0
+        against a true 2026 projection of 21.53.
+
+        Mirrors `ESPNClient._extract_raw_espn_week_points`, which already filters
+        on `seasonId == self.settings.season`; this is that same guard applied to
+        the exporter's own extraction rather than a second convention.
+
+        A malformed, non-numeric or NaN appliedTotal is skipped rather than
+        raising. Scanning continues past a zero so a non-zero sibling entry for
+        the same season wins, which is the analogue of the sibling's
+        "first positive among valid entries" selection.
+
+        Args:
+            raw_stats: The player's raw ESPN stat entries.
+            week: One-based scoring period to select.
+            stat_source_id: 1 for ESPN projections, 0 for actual results.
+            season: Season to scope to; None skips season filtering entirely.
+
+        Returns:
+            The selected appliedTotal as a float, or None when no entry matches.
+        """
+        selected = None
+        for stat in raw_stats:
+            if not isinstance(stat, dict):
+                continue
+            if stat.get('scoringPeriodId') != week:
+                continue
+            if stat.get('statSourceId') != stat_source_id:
+                continue
+            if season is not None and stat.get('seasonId') != season:
+                continue
+
+            value = stat.get('appliedTotal')
+            if value is None:
+                continue
+            try:
+                value = float(value)
+            except (TypeError, ValueError):
+                continue
+            if math.isnan(value):
+                continue
+
+            selected = value
+            if selected:
+                break
+        return selected
 
     def _get_actual_points_array(self, espn_data: Optional[ESPNPlayerData]) -> List[float]:
         """
@@ -559,15 +642,15 @@ class DataExporter:
         if espn_data is None or not espn_data.raw_stats:
             return [0.0] * 17
 
+        season = self._espn_season()
         actual_points = []
         for week in range(1, 18):
             actual = None
             if week < self.current_nfl_week:
-                for stat in espn_data.raw_stats:
-                    if stat.get('scoringPeriodId') == week and stat.get('statSourceId') == 0:
-                        actual = stat.get('appliedTotal')
-                        break
-            actual_points.append(float(actual) if actual else 0.0)
+                actual = self._select_week_stat(
+                    espn_data.raw_stats, week, stat_source_id=0, season=season
+                )
+            actual_points.append(actual if actual else 0.0)
         return actual_points
 
     def _extract_stat_value(self, raw_stats: List[Dict], week: int, stat_id: str) -> float:
