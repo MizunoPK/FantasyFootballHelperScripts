@@ -49,6 +49,7 @@ def reconcile_espn_attribution(
 
     attribution: Dict[str, str] = {}
     missing_ids = []
+    unresolved_team_ids = []
 
     for pick in snapshot.draftDetail.picks:
         if pick.playerId == -1:
@@ -60,9 +61,14 @@ def reconcile_espn_attribution(
             missing_ids.append(pick.playerId)
             continue
 
-        attribution[local_id] = team_names_by_id.get(pick.teamId, "")
+        team_name = team_names_by_id.get(pick.teamId)
+        if team_name is None:
+            unresolved_team_ids.append(pick.teamId)
+            continue
 
-    if missing_ids:
+        attribution[local_id] = team_name
+
+    if missing_ids or unresolved_team_ids:
         return None
 
     return attribution

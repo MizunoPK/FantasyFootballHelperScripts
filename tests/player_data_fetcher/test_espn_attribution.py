@@ -59,6 +59,20 @@ class TestReconcileEspnAttribution:
 
         assert result == {"101": "Team A", "102": "Team B"}
 
+    def test_none_team_name_rejects_whole_map(self):
+        """CONCERN-2 (D17.4 polish): a team present in teams[] with a null
+        `name` must reject the whole map, never silently yield '' (the
+        FantasyPlayer undrafted sentinel) or a None value in a Dict[str,str]
+        contract."""
+        picks = [make_pick(101, 1), make_pick(102, 2)]
+        teams = [make_team(1, None), make_team(2, "Team B")]
+        snapshot = make_snapshot(picks, teams)
+        players = [make_local_player("101"), make_local_player("102")]
+
+        result = reconcile_espn_attribution(snapshot, players)
+
+        assert result is None
+
     def test_returns_none_when_completed_playerid_missing_locally(self):
         """AC4: any completed playerId absent from the local pool rejects the
         whole snapshot -- None, never a partial dict."""

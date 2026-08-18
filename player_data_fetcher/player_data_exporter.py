@@ -131,6 +131,13 @@ class DataExporter:
         if self.use_csv_ownership:
             return
 
+        if self.espn_settings is None:
+            raise PlayerDataValidationError(
+                "load_espn_attribution requires espn_settings when "
+                "use_csv_ownership is False; DataExporter was constructed "
+                "without an espn_settings object."
+            )
+
         from league_helper.util.ConfigManager import ConfigManager, ConfigKeys
         from player_data_fetcher.espn_client import ESPNClient
 
@@ -138,20 +145,34 @@ class DataExporter:
         league_id = config_manager.get_parameter(ConfigKeys.ESPN_LEAGUE_ID)
 
         espn_client = ESPNClient(self.espn_settings)
-        snapshot = await espn_client.get_league_snapshot(league_id, self.espn_settings.season)
+        try:
+            async with espn_client.session():
+                snapshot = await espn_client.get_league_snapshot(league_id, self.espn_settings.season)
+        finally:
+            await espn_client.close()
 
         attribution = reconcile_espn_attribution(snapshot, players)
 
         if attribution is None:
             local_ids = {player.id for player in players}
+            team_ids = {team.id for team in snapshot.teams if team.name is not None}
             missing_ids = sorted(
                 pick.playerId
                 for pick in snapshot.draftDetail.picks
                 if pick.playerId != -1 and str(pick.playerId) not in local_ids
             )
+            unresolved_team_ids = sorted(set(
+                pick.teamId
+                for pick in snapshot.draftDetail.picks
+                if pick.playerId != -1
+                and str(pick.playerId) in local_ids
+                and pick.teamId not in team_ids
+            ))
             raise PlayerDataValidationError(
                 f"ESPN attribution reconciliation failed: completed playerId(s) "
-                f"{missing_ids} have no local player match; ownership state unchanged."
+                f"{missing_ids} have no local player match, and teamId(s) "
+                f"{unresolved_team_ids} have no resolvable team name; "
+                f"ownership state unchanged."
             )
 
         self._espn_attribution = attribution
@@ -217,9 +238,14 @@ class DataExporter:
         if self.use_csv_ownership:
             fantasy_players = self.drafted_roster_manager.apply_drafted_state_to_players(fantasy_players)
         else:
-            espn_attribution = self._espn_attribution or {}
+            if self._espn_attribution is None:
+                raise PlayerDataValidationError(
+                    "get_fantasy_players reached with the ESPN supplier "
+                    "selected but attribution not loaded; "
+                    "load_espn_attribution must be awaited first."
+                )
             for player in fantasy_players:
-                team_name = espn_attribution.get(str(player.id))
+                team_name = self._espn_attribution.get(str(player.id))
                 if team_name is not None:
                     player.drafted_by = team_name
 
