@@ -246,7 +246,7 @@ class AddToRosterModeManager:
                 draft_round=current_round - 1,
                 adp=True,
                 player_rating=True,
-                team_quality=False,
+                team_quality=True,
                 performance=False,
                 matchup=False,
                 schedule=False,
