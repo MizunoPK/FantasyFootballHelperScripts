@@ -132,9 +132,16 @@ class TestPlayerDataFetcherMainIntegration:
 
         asyncio.run(main(self._settings_dict(tmp_path)))
 
-        mock_setup.return_value.warning.assert_called_once()
-        warning_call_str = str(mock_setup.return_value.warning.call_args)
-        assert 'network failure' in warning_call_str
+        # D17.7: assert THIS warning, not the global count. A credential-free
+        # environment now also emits the ownership-degradation warning, so a bare
+        # assert_called_once() would fail for a reason unrelated to what this test
+        # is about (a game-data failure warns and the run continues).
+        warning_messages = [str(c) for c in mock_setup.return_value.warning.call_args_list]
+        game_data_warnings = [m for m in warning_messages if 'network failure' in m]
+        assert len(game_data_warnings) == 1, (
+            f"expected exactly one game-data warning, got {game_data_warnings!r} "
+            f"out of {warning_messages!r}"
+        )
         mock_collector.save_to_historical_data.assert_called_once()
 
 

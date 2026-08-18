@@ -29,6 +29,8 @@ import pandas as pd
 
 from utils.FantasyPlayer import FantasyPlayer
 from utils.LoggingManager import setup_logger, get_logger
+from utils.error_handler import ConfigurationError
+from player_data_fetcher.espn_credentials import get_espn_credentials
 
 from player_data_fetcher.player_data_models import ScoringFormat, ProjectionData
 from player_data_fetcher.espn_client import ESPNClient
@@ -616,8 +618,51 @@ async def main(settings_dict: dict | None = None) -> None:
                 "skipping the authenticated league read. drafted_by will be empty for every "
                 "player in this run."
             )
+            collector.exporter._espn_attribution = {}
         else:
-            await collector.exporter.load_espn_attribution(projection_data['season'].players)
+            # D17.7 review CONCERN-4: discriminate STRUCTURALLY, not by exception
+            # type over a wide await. The catch used to span the whole
+            # `load_espn_attribution` call, so any future ConfigurationError raised
+            # inside it -- ConfigManager documents an intended module-wide
+            # ValueError->ConfigurationError migration -- would have started
+            # degrading silently, with a green suite. Probing credentials FIRST
+            # means only a genuine missing-credential condition can reach the
+            # degrade arm; everything else propagates from the await untouched.
+            try:
+                get_espn_credentials()
+            except ConfigurationError as exc:
+                # ABSENT credentials degrade. INVALID ones cannot reach here:
+                # get_espn_credentials() only checks presence (it strips and tests
+                # for empty), so a present-but-wrong cookie passes this probe,
+                # reaches ESPN, and fails loudly with ESPNAPIError from the await
+                # below. Trading a visible auth error for an invisible unowned
+                # board is the silent-failure class this ticket exists to remove.
+                #
+                # `{}` -- not None -- is the state: attribution resolved nobody.
+                # `None` stays "never awaited", a wiring bug get_fantasy_players
+                # must still fail closed on.
+                message = (
+                    "LEAGUE OWNERSHIP UNAVAILABLE -- this run could not read your league's "
+                    "draft, so EVERY player will show as undrafted. Projections, ADP and "
+                    "ratings were fetched normally and are complete; only ownership is "
+                    "affected. Note this is indistinguishable from a genuine pre-draft "
+                    "board, so if your draft has already happened, treat this run's "
+                    "ownership as missing rather than empty. Set espn_s2 and SWID in a "
+                    f"local .env to restore it. Cause: {exc}"
+                )
+                logger.warning(message)
+                # D17.7 review BLOCKING-1: this file's dominant pattern for a
+                # user-facing degradation notice pairs the log with a stdout write
+                # (3/3 peers -- :663-664, :684-685, :707-726). D2 makes this warning
+                # the ONLY trace distinguishing a degraded run from a real pre-draft
+                # board, so a logger-only notice buried among 40+ later log lines is
+                # a correctness problem, not a cosmetic one.
+                print("\n" + "=" * 80)
+                print("WARNING: " + message)
+                print("=" * 80 + "\n")
+                collector.exporter._espn_attribution = {}
+            else:
+                await collector.exporter.load_espn_attribution(projection_data['season'].players)
 
         loop = asyncio.get_running_loop()
         game_data_future = loop.run_in_executor(None, collector.fetch_game_data)
