@@ -101,7 +101,7 @@ if 'ownership' in player_info:
 ```python
 def _apply_adp_multiplier(self, p: FantasyPlayer, player_score: float) -> Tuple[float, str]:
     multiplier, rating = self.config.get_adp_multiplier(p.adp)
-    reason = f"ADP: {rating} ({multiplier:.2f}x)"
+    reason = f"ADP: {rating} ({multiplier:.4f}x)"
     return player_score * multiplier, reason
 ```
 
@@ -151,7 +151,7 @@ def get_adp_multiplier(self, adp_val) -> Tuple[float, str]:
 | Final Multiplier | 1.05^2.846 = 1.152 |
 | Adjusted Score | 128.5 × 1.152 = 148.03 |
 
-**Reason String**: `"ADP: EXCELLENT (1.15x)"`
+**Reason String**: `"ADP: EXCELLENT (1.1500x)"`
 
 ## Edge Cases
 

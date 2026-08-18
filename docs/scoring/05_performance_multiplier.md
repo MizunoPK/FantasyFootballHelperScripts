@@ -142,7 +142,7 @@ def _apply_performance_multiplier(self, p: FantasyPlayer, player_score: float) -
         return player_score, ""
 
     multiplier, rating = self.config.get_performance_multiplier(deviation)
-    reason = f"Performance: {rating} ({deviation*100:+.1f}%, {multiplier:.2f}x)"
+    reason = f"Performance: {rating} ({deviation*100:+.1f}%, {multiplier:.4f}x)"
     return player_score * multiplier, reason
 ```
 
@@ -189,7 +189,7 @@ def _apply_performance_multiplier(self, p: FantasyPlayer, player_score: float) -
 | Final Multiplier | 1.025^2.681 = 1.069 |
 | Adjusted Score | 159.34 × 1.069 = 170.33 |
 
-**Reason String**: `"Performance: GOOD (+25.2%, 1.07x)"`
+**Reason String**: `"Performance: GOOD (+25.2%, 1.0700x)"`
 
 ## Edge Cases
 

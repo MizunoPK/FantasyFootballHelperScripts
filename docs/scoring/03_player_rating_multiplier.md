@@ -140,7 +140,7 @@ else:
 ```python
 def _apply_player_rating_multiplier(self, p: FantasyPlayer, player_score: float) -> Tuple[float, str]:
     multiplier, rating = self.config.get_player_rating_multiplier(p.player_rating)
-    reason = f"Player Rating: {rating} ({multiplier:.2f}x)"
+    reason = f"Player Rating: {rating} ({multiplier:.4f}x)"
     return player_score * multiplier, reason
 ```
 
@@ -185,7 +185,7 @@ def _apply_player_rating_multiplier(self, p: FantasyPlayer, player_score: float)
 | Final Multiplier | 1.05^0.784 = 1.039 |
 | Adjusted Score | 148.03 × 1.039 = 153.80 |
 
-**Reason String**: `"Player Rating: EXCELLENT (1.04x)"`
+**Reason String**: `"Player Rating: EXCELLENT (1.0400x)"`
 
 ## Edge Cases
 

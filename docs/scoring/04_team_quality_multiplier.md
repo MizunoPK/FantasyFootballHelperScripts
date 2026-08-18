@@ -137,7 +137,7 @@ def _apply_team_quality_multiplier(self, p: FantasyPlayer, player_score: float) 
         quality_val = p.team_defensive_rank
 
     multiplier, rating = self.config.get_team_quality_multiplier(quality_val)
-    reason = f"Team Quality: {rating} ({multiplier:.2f}x)"
+    reason = f"Team Quality: {rating} ({multiplier:.4f}x)"
     return player_score * multiplier, reason
 ```
 
@@ -197,7 +197,7 @@ class TeamDataManager:
 | Final Multiplier | 1.05^1.777 = 1.091 |
 | Adjusted Score | 153.80 × 1.091 = 167.80 |
 
-**Reason String**: `"Team Quality: EXCELLENT (1.09x)"`
+**Reason String**: `"Team Quality: EXCELLENT (1.0900x)"`
 
 ## D/ST-Specific Behavior
 
@@ -264,7 +264,7 @@ This reuse simplifies implementation without requiring data model changes.
 | Previous Score | 100.0 |
 | Adjusted Score | 100.0 × 1.091 = 109.1 |
 
-**Reason String**: `"Team Quality: EXCELLENT (1.09x)"`
+**Reason String**: `"Team Quality: EXCELLENT (1.0900x)"`
 
 ## Edge Cases
 
