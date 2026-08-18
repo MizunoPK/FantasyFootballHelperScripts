@@ -20,7 +20,7 @@ Base Config Parameters:
   8. ADP_SCORING_STEPS: [5, 50] - ADP picks per tier
 
 Week-Specific Parameters:
-  9. PLAYER_RATING_SCORING_WEIGHT: [0.5, 4.0] - Expert ranking weight
+  9. PLAYER_RATING_SCORING_WEIGHT: [0.5, 7.0] - Expert ranking weight
   10. TEAM_QUALITY_SCORING_WEIGHT: [0.0, 4.0] - Team strength weight
   11. TEAM_QUALITY_MIN_WEEKS: [1, 12] - Min weeks of team data
   12. PERFORMANCE_SCORING_WEIGHT: [0.0, 8.0] - Performance deviation weight
@@ -93,7 +93,7 @@ class ConfigGenerator:
         'ADP_SCORING_WEIGHT': (0.50, 7.00, 2),
         'ADP_SCORING_STEPS': (5, 50, 0),
 
-        'PLAYER_RATING_SCORING_WEIGHT': (0.50, 4.00, 2),
+        'PLAYER_RATING_SCORING_WEIGHT': (0.50, 7.00, 2),
 
         'TEAM_QUALITY_SCORING_WEIGHT': (0.00, 4.00, 2),
         'TEAM_QUALITY_MIN_WEEKS': (1, 12, 0),

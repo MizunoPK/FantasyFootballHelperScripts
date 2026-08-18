@@ -116,6 +116,17 @@ class TestGenerateCandidateValues:
         assert ConfigGenerator.PARAM_DEFINITIONS["SAME_POS_BYE_WEIGHT"] == (0.0, 1.0, 2)
         assert ConfigGenerator.PARAM_DEFINITIONS["DIFF_POS_BYE_WEIGHT"] == (0.0, 0.5, 2)
 
+    def test_player_rating_weight_ceiling_widened(self):
+        # Raised 4.00 -> 7.00 to match ADP_SCORING_WEIGHT, its nearest peer. The live
+        # config sits at 4.0, so at the old ceiling every candidate the sweep could
+        # offer was downward and a true optimum above 4.0 was unreachable — reported
+        # as "no improvement", indistinguishable from "4.0 is already right".
+        assert ConfigGenerator.PARAM_DEFINITIONS["PLAYER_RATING_SCORING_WEIGHT"] == (0.50, 7.00, 2)
+
+    def test_player_rating_grid_reaches_above_the_old_ceiling(self, current_values):
+        result = generate_candidate_values(current_values, num_values=1000)
+        assert max(result["PLAYER_RATING_SCORING_WEIGHT"]) == 7.00
+
     def test_bye_weight_grid_spans_widened_range(self, current_values):
         # The candidate grid reaches above the old 0.5/0.3 ceilings.
         result = generate_candidate_values(current_values, num_values=1000)
