@@ -29,6 +29,7 @@ import pandas as pd
 
 from utils.FantasyPlayer import FantasyPlayer
 from utils.LoggingManager import setup_logger, get_logger
+from utils.error_handler import ConfigurationError
 
 from player_data_fetcher.player_data_models import ScoringFormat, ProjectionData
 from player_data_fetcher.espn_client import ESPNClient
@@ -616,8 +617,37 @@ async def main(settings_dict: dict | None = None) -> None:
                 "skipping the authenticated league read. drafted_by will be empty for every "
                 "player in this run."
             )
+            collector.exporter._espn_attribution = {}
         else:
-            await collector.exporter.load_espn_attribution(projection_data['season'].players)
+            try:
+                await collector.exporter.load_espn_attribution(projection_data['season'].players)
+            except ConfigurationError as exc:
+                # D17.7 D1/D3: ABSENT credentials degrade; INVALID ones do not.
+                # `get_espn_credentials()` strips its values and raises
+                # ConfigurationError only when espn_s2/SWID are missing or blank --
+                # i.e. "never configured". Credentials that are PRESENT but wrong
+                # get past that check, reach ESPN, and fail with ESPNAPIError on a
+                # 401/403, which is deliberately NOT caught here: trading a visible
+                # auth error for an invisible unowned board is the silent-failure
+                # class this ticket exists to eliminate.
+                #
+                # The credential read happens before the request is built
+                # (espn_client.py:905 precedes the request), so this path makes NO
+                # authenticated network call at all.
+                #
+                # `{}` -- not None -- is the state: attribution ran and resolved
+                # nobody. `None` remains "never awaited", a wiring bug that must
+                # still fail closed in get_fantasy_players.
+                logger.warning(
+                    "LEAGUE OWNERSHIP UNAVAILABLE -- no ESPN credentials found, so this run "
+                    "could not read your league's draft. Player projections, ADP and ratings "
+                    "were fetched normally and are complete; ONLY ownership is affected: every "
+                    "player will show as undrafted (drafted_by empty), which is indistinguishable "
+                    "from a pre-draft board. Set espn_s2 and SWID in a local .env to restore "
+                    "ownership. Details: %s",
+                    exc,
+                )
+                collector.exporter._espn_attribution = {}
 
         loop = asyncio.get_running_loop()
         game_data_future = loop.run_in_executor(None, collector.fetch_game_data)
