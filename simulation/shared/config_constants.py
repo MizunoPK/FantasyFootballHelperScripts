@@ -13,7 +13,15 @@ BASE_CONFIG_PARAMS = [
     'FLEX_ELIGIBLE_POSITIONS',
     'ADP_SCORING',
     'PLAYER_RATING_SCORING',
-    'OPPONENT_TEAMS'
+    'OPPONENT_TEAMS',
+    # D17.8 G1: ESPN league identity. Added by D17.1 to league_config.json but
+    # omitted from this list, so extract_base_params dropped both keys from every
+    # promoted payload -- and, being absent from PRESERVE_KEYS too, an accuracy
+    # --promote silently DELETED the user's league identity and broke ownership
+    # fetching entirely. Same live-only, user-maintained shape as OPPONENT_TEAMS
+    # above; both lists are required (see AccuracyResultsManager.PRESERVE_KEYS).
+    'ESPN_LEAGUE_ID',
+    'ESPN_TEAM_ID'
 ]
 
 WEEK_SPECIFIC_PARAMS = [

@@ -60,6 +60,10 @@ class TestPlayerDataFetcherIntegration:
 
         mock_client.get_season_projections = mock_get_season_projections
 
+        # D17.8 G4: the collector now closes the client in a `finally`, so the
+        # mock's close() must be awaitable. A plain Mock() attribute raises
+        # "'Mock' object can't be awaited" -- a fixture gap, not a code defect.
+        mock_client.close = AsyncMock()
         async_cm = AsyncMock()
         async_cm.__aenter__.return_value = None
         async_cm.__aexit__.return_value = None

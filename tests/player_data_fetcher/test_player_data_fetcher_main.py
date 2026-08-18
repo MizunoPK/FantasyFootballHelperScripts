@@ -20,6 +20,54 @@ from player_data_fetcher.player_data_fetcher_main import (
 from player_data_fetcher.player_data_models import ScoringFormat, ProjectionData, PlayerProjection
 
 
+class TestD178ClientLifecycle:
+    """D17.8 G4: collect_all_projections must close its client on every path.
+
+    This site entered `async with client.session():` and never called close() --
+    pre-existing (identical on origin/main before D17), which is why every unit
+    correctly left it alone, but it was the last instance of the lifecycle pattern
+    D17.4/D17.5 fixed everywhere else. Routed as D17.4 SUGGESTION-B and /dt5 G4.
+    """
+
+    @pytest.mark.asyncio
+    async def test_client_closed_on_success(self):
+        from unittest.mock import Mock, AsyncMock, patch
+        collector = NFLProjectionsCollector.__new__(NFLProjectionsCollector)
+        collector.logger = Mock()
+        collector.bye_weeks = {}
+        collector.settings = Mock(season=2025, scoring_format=Mock(value='ppr'), current_nfl_week=1)
+        client = Mock()
+        client.close = AsyncMock()
+        client.session.return_value = AsyncMock()
+        client.get_season_projections = AsyncMock(return_value=[])
+        client.team_rankings = {}
+        client.current_week_schedule = {}
+        client.position_defense_rankings = {}
+        client.full_season_schedule = {}
+        client._collect_team_weekly_data = Mock(return_value={})
+        with patch.object(collector, '_get_api_client', return_value=client):
+            await collector.collect_all_projections()
+        client.close.assert_awaited_once()
+
+    @pytest.mark.asyncio
+    async def test_client_closed_when_the_session_block_raises(self):
+        """The finally must fire on the exception path too -- that is the leak."""
+        from unittest.mock import Mock, AsyncMock, patch
+        collector = NFLProjectionsCollector.__new__(NFLProjectionsCollector)
+        collector.logger = Mock()
+        collector.bye_weeks = {}
+        collector.settings = Mock(season=2025, scoring_format=Mock(value='ppr'), current_nfl_week=1)
+        client = Mock()
+        client.close = AsyncMock()
+        session_cm = AsyncMock()
+        session_cm.__aenter__.side_effect = RuntimeError("session blew up")
+        client.session.return_value = session_cm
+        with patch.object(collector, '_get_api_client', return_value=client):
+            with pytest.raises(RuntimeError):
+                await collector.collect_all_projections()
+        client.close.assert_awaited_once()
+
+
 class TestSettings:
     """Test Settings configuration class"""
 
