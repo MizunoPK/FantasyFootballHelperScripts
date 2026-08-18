@@ -531,7 +531,10 @@ class DataExporter:
         """
         Get drafted_by value from player (team name or empty string).
 
-        Player already has correct drafted_by value populated by DraftedRosterManager
+        Player already has its drafted_by value populated by whichever ownership
+        supplier `get_fantasy_players` selected: the ESPN snapshot reconciliation on
+        the default path (D17.5), or DraftedRosterManager on the --use-csv-ownership
+        rollback path. This accessor is supplier-agnostic and reads the field only.
         in post-processing. This method maintains abstraction layer for future flexibility.
 
         Args:

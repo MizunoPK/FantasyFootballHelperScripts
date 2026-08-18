@@ -180,13 +180,26 @@ class ModifyPlayerDataModeManager:
             self.logger.info("User exited Mark Player as Drafted mode")
             return
 
-        # D17.5 D5ii: the TEAM SELECTION list is derived from the pool's own
-        # drafted_by names plus our own team. The OPPONENT_TEAMS config seed is
-        # deliberately NOT read here: after the ESPN ownership cutover it holds
-        # stale NFL.com names that are no longer any team's drafted_by value, so
-        # seeding from it would offer teams that cannot exist in the data.
-        # OPPONENT_TEAMS stays configured and validated (retired in D17.6).
-        team_names = set()
+        # D17.5 D5ii, REVISED after review BLOCKING-1: the OPPONENT_TEAMS seed is
+        # READ HERE and must stay read. An earlier D17.5 draft dropped it, reasoning
+        # (as D5 does for the trade simulator) that the config list holds stale
+        # NFL.com names post-cutover. That reasoning is sound for a READER and wrong
+        # for this WRITER: show_list_selection is a closed numbered menu with no
+        # free-text entry (user_input.py:22-62), so a team absent from this list
+        # cannot be chosen at all. On an undrafted pool the derived-only list is just
+        # our own team -- making it impossible to record any opponent's FIRST pick,
+        # which is precisely the team that owns no player yet. The union is what
+        # keeps a not-yet-seen team selectable.
+        #
+        # The stale-name problem is real but is CONFIG data, not code: OPPONENT_TEAMS
+        # must be retyped with the ESPN league's team names when the real league is
+        # configured. Offering a stale name is a cosmetic annoyance; offering nothing
+        # is a functional dead end.
+        if not self.player_manager.config.opponent_teams:
+            print("Warning: no OPPONENT_TEAMS configured in data/configs/league_config.json - "
+                  "the team list will only show teams already present in the player data.")
+            self.logger.warning("OPPONENT_TEAMS is empty or absent; TEAM SELECTION falls back to data-derived names only")
+        team_names = set(self.player_manager.config.opponent_teams)
         for player in self.player_manager.players:
             if player.drafted_by and player.drafted_by != "":
                 team_names.add(player.drafted_by)
