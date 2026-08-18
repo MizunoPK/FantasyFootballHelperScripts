@@ -30,15 +30,18 @@ Author: Claude Code
 Date: 2026-08-17
 """
 
-import json
 from pathlib import Path
 
 import pytest
 
 from league_helper.util.ConfigManager import ConfigManager
+from tests.league_helper.util._config_fixtures import (
+    LEAGUE_FIXTURE,
+    league_params,
+    _write_legacy_config,
+)
 
 
-LEAGUE_FIXTURE = Path("tests/fixtures/league/league_config.json")
 LIVE_CONFIG_ROOT = Path("data")
 
 # The LIVE ladder geometry, transcribed from data/configs/league_config.json as resolved
@@ -55,18 +58,6 @@ PLAYER_RATING_WEIGHT = 4.0
 
 
 # FIXTURES
-
-@pytest.fixture
-def league_params():
-    """A complete, guard-clean legacy config, re-read so a test may mutate it freely."""
-    return json.loads(LEAGUE_FIXTURE.read_text())
-
-
-def _write_legacy_config(tmp_path, data):
-    """Write `data` as a legacy single-file config; return the data folder."""
-    (tmp_path / "league_config.json").write_text(json.dumps(data))
-    return tmp_path
-
 
 def _put_literal_ladder(data, scoring_key, thresholds, weight, scaling=None):
     """Replace one scoring block with a LITERAL ladder (no BASE_POSITION).

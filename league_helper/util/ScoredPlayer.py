@@ -34,7 +34,7 @@ class ScoredPlayer:
             player: FantasyPlayer instance with player data
             score: Calculated draft score (higher = better draft pick)
             reasons: List of human-readable scoring factor explanations
-                    (e.g., "ADP: EXCELLENT (1.2000x)", "Matchup: FAVORABLE")
+                    (e.g., "ADP: EXCELLENT (1.2000x)", "Matchup: EXCELLENT (+2.0 pts)")
             projected_points: Raw fantasy points projection used in scoring calculation
                              (ROS or weekly depending on scoring context). Default 0.0
                              for backward compatibility with existing callers.
