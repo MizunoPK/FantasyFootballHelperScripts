@@ -1248,6 +1248,10 @@ def propagate_to_configs(
         # OPPONENT_TEAMS. That guard is what hid the gap.
         'ESPN_LEAGUE_ID',
         'ESPN_TEAM_ID',
+        # D17.8 G7: same shape, same fix -- live-only user-maintained keys that
+        # no source folder carries. Found by this unit's own review gap-hunt.
+        'NFL_TEAM_PENALTY',
+        'NFL_TEAM_PENALTY_WEIGHT',
     ]
     # D4.1: nested counterpart of PRESERVE_KEYS. Each entry is a
     # (section, subkey) path under 'parameters' whose LIVE value survives a

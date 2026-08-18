@@ -31,6 +31,16 @@ from simulation.shared.config_cleanup import cleanup_accuracy_intermediate_folde
 from utils.error_handler import FileOperationError
 
 
+
+def PRESERVE_KEYS_FOR_TEST():
+    """Read PRESERVE_KEYS from source, avoiding a heavy import in this assertion."""
+    import re as _re
+    src = open('simulation/accuracy/AccuracyResultsManager.py').read()
+    blk = src[src.index('PRESERVE_KEYS = ['):]
+    blk = blk[:blk.index(']')]
+    return _re.findall(r"'([A-Z_]+)'", blk)
+
+
 class TestAccuracyConfigPerformance:
     """Tests for AccuracyConfigPerformance class."""
 
@@ -2231,6 +2241,36 @@ class TestPropagateToConfigs:
             written = json.load(f)['parameters']
         assert written['OPPONENT_TEAMS'] == original_teams, \
             "OPPONENT_TEAMS must be preserved from the promote target, not dropped"
+
+    def test_no_live_config_key_is_silently_droppable_by_a_promote(self):
+        """D17.8 G7: the GENERALISED guard -- catches the NEXT key, not just this one.
+
+        This bug has now occurred three times with three different key sets:
+        OPPONENT_TEAMS (fixed by T90), ESPN_LEAGUE_ID/ESPN_TEAM_ID (D17.8 G1), and
+        NFL_TEAM_PENALTY/NFL_TEAM_PENALTY_WEIGHT (D17.8 G7). Each time the shape was
+        identical: a live-only, user-maintained key in data/configs/league_config.json
+        that is in NEITHER BASE_CONFIG_PARAMS nor PRESERVE_KEYS, so extract_base_params
+        drops it from the promoted payload and nothing re-adds it -- silently, with
+        ConfigManager falling back to a default and no error anywhere.
+
+        Fixing instances one at a time guarantees a fourth. This asserts the
+        INVARIANT: every key present in the live config must be recoverable after a
+        promote. Adding a new key to league_config.json without listing it turns
+        this red immediately, at the moment the key is introduced, rather than
+        whenever someone next runs an accuracy promote and loses their config.
+        """
+        import json as _json
+        from simulation.shared.config_constants import BASE_CONFIG_PARAMS
+
+        with open('data/configs/league_config.json') as f:
+            live_keys = set(_json.load(f)['parameters'])
+
+        unprotected = sorted(live_keys - set(BASE_CONFIG_PARAMS) - set(PRESERVE_KEYS_FOR_TEST()))
+        assert unprotected == [], (
+            f"These live league_config.json keys are in neither BASE_CONFIG_PARAMS nor "
+            f"PRESERVE_KEYS, so an accuracy promote will SILENTLY DELETE them: {unprotected}. "
+            f"Add each to both lists (see the OPPONENT_TEAMS / ESPN_LEAGUE_ID precedents)."
+        )
 
     def test_espn_league_identity_survives_a_promote(self, tmp_path):
         """D17.8 G1: ESPN_LEAGUE_ID / ESPN_TEAM_ID survive a promote.

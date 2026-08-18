@@ -21,7 +21,16 @@ BASE_CONFIG_PARAMS = [
     # fetching entirely. Same live-only, user-maintained shape as OPPONENT_TEAMS
     # above; both lists are required (see AccuracyResultsManager.PRESERVE_KEYS).
     'ESPN_LEAGUE_ID',
-    'ESPN_TEAM_ID'
+    'ESPN_TEAM_ID',
+    # D17.8 G7: the SAME bug as the ESPN keys above, with different keys. Both
+    # live only in league_config.json, are read and validated by ConfigManager,
+    # and were in neither list -- so every accuracy promote deleted them and
+    # ConfigManager silently fell back to [] and 1.0. Named in the very
+    # test_config_constants message this ticket read three times and classified
+    # as cosmetic drift: that `unexpected=` list is not test noise, it is an
+    # INVENTORY of keys the promote will drop.
+    'NFL_TEAM_PENALTY',
+    'NFL_TEAM_PENALTY_WEIGHT'
 ]
 
 WEEK_SPECIFIC_PARAMS = [

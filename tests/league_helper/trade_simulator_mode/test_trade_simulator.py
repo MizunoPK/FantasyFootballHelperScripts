@@ -303,6 +303,53 @@ class TestD178DegradedOwnershipVisibility:
             mgr.trade_snapshots = []
             return mgr
 
+    def _init_manager(self, rosters):
+        """Build a manager and run the real init_team_data against a given pool."""
+        from unittest.mock import Mock, patch
+        pm = Mock()
+        pm.get_players_by_team.return_value = rosters
+        pm.reload_player_data = Mock()
+        pm.players = [p for lst in rosters.values() for p in lst]
+        pm.team = Mock(roster=[])
+        cfg = Mock()
+        cfg.opponent_teams = ["Annihilators", "Pidgin"]
+        pm.config = cfg
+        from league_helper.trade_simulator_mode.TradeSimulatorModeManager import (
+            TradeSimulatorModeManager,
+        )
+        mgr = TradeSimulatorModeManager.__new__(TradeSimulatorModeManager)
+        mgr.player_manager = pm
+        mgr.config = cfg
+        mgr.logger = Mock()
+        with patch('league_helper.trade_simulator_mode.TradeSimulatorModeManager.TradeSimTeam'):
+            mgr.init_team_data()
+        return mgr
+
+    def test_init_warns_when_the_pool_carries_no_ownership(self, capsys):
+        """D17.8 G3 / review CONCERN-3: the init notice itself must be pinned.
+
+        The unit's original tests exercised only the waiver guard and hand-set
+        opponent_simulated_teams, so this notice -- the one a user sees FIRST on a
+        credential-degraded export -- had no coverage at all.
+        """
+        mgr = self._init_manager({})
+        out = capsys.readouterr().out
+        assert "no ownership data found" in out.lower()
+        assert mgr.opponent_simulated_teams == []
+        mgr.logger.warning.assert_called()
+        # D2: states an OBSERVATION, never a cause -- League Helper cannot know
+        # whether credentials were missing or the draft simply has not happened.
+        assert "credential" not in out.lower().split("re-run")[0]
+
+    def test_init_is_silent_when_ownership_is_present(self, capsys):
+        """The notice must NOT fire on a normally-owned pool."""
+        from unittest.mock import Mock
+        rosters = {"Sea Sharp": [Mock()], "Annihilators": [Mock()]}
+        mgr = self._init_manager(rosters)
+        out = capsys.readouterr().out
+        assert "no ownership data found" not in out.lower()
+        assert len(mgr.opponent_simulated_teams) >= 1
+
     def test_zero_opponents_warns_on_an_ownership_free_pool(self, capsys):
         """An all-undrafted pool must say so, not proceed silently."""
         mgr = self._manager({})
