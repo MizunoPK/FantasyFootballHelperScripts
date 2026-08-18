@@ -75,7 +75,7 @@ class Settings:
         default_factory=lambda: str(data_root() / 'drafted_data.csv')
     )
     my_team_name: str = 'Sea Sharp'
-    use_csv_ownership: bool = True
+    use_csv_ownership: bool = False
 
     progress_frequency: int = 10
     log_level: str = 'INFO'
@@ -124,7 +124,7 @@ def create_settings_from_dict(args_dict: dict) -> Settings:
         load_drafted_data=args_dict['load_drafted_data'],
         drafted_data_path=args_dict['drafted_data_path'],
         my_team_name=args_dict['my_team_name'],
-        use_csv_ownership=args_dict.get('use_csv_ownership', True),
+        use_csv_ownership=args_dict.get('use_csv_ownership', False),
         progress_frequency=args_dict['progress_frequency'],
         log_level=args_dict['log_level'],
         logging_to_file=args_dict['logging_to_file'],

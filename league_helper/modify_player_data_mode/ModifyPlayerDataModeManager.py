@@ -180,14 +180,13 @@ class ModifyPlayerDataModeManager:
             self.logger.info("User exited Mark Player as Drafted mode")
             return
 
-        # Data-present drafted_by names are union'd in on top of the configured
-        # roster so a team seeded out-of-band (DraftedRosterManager, from
-        # drafted_data.csv) never becomes unselectable when it is absent from config.
-        if not self.player_manager.config.opponent_teams:
-            print("Warning: no OPPONENT_TEAMS configured in data/configs/league_config.json - "
-                  "the team list will only show teams already present in the player data.")
-            self.logger.warning("OPPONENT_TEAMS is empty or absent; TEAM SELECTION falls back to data-derived names only")
-        team_names = set(self.player_manager.config.opponent_teams)
+        # D17.5 D5ii: the TEAM SELECTION list is derived from the pool's own
+        # drafted_by names plus our own team. The OPPONENT_TEAMS config seed is
+        # deliberately NOT read here: after the ESPN ownership cutover it holds
+        # stale NFL.com names that are no longer any team's drafted_by value, so
+        # seeding from it would offer teams that cannot exist in the data.
+        # OPPONENT_TEAMS stays configured and validated (retired in D17.6).
+        team_names = set()
         for player in self.player_manager.players:
             if player.drafted_by and player.drafted_by != "":
                 team_names.add(player.drafted_by)

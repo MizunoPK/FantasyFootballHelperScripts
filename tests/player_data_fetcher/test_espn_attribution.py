@@ -85,17 +85,21 @@ class TestReconcileEspnAttribution:
 
         assert result is None
 
-    def test_own_team_picks_included_no_separate_path(self):
-        """AC3: our own configured teamId's completed picks flow through the
-        same reconciliation as every other team."""
+    def test_returns_raw_espn_name_for_our_own_team(self):
+        """D17.5 D6: normalization to Constants.FANTASY_TEAM_NAME lives in
+        DataExporter.load_espn_attribution, NOT here -- this function stays pure
+        and returns the raw ESPN team name for our own team too. The fixture's
+        team name is deliberately not "Sea Sharp", so leaking the normalization
+        into this function makes this test fail."""
         picks = [make_pick(101, 1), make_pick(102, 7)]
-        teams = [make_team(1, "Opponent"), make_team(7, "Sea Sharp")]
+        teams = [make_team(1, "Synthetic Team 1"), make_team(7, "Kai's Krew")]
         snapshot = make_snapshot(picks, teams)
         players = [make_local_player("101"), make_local_player("102")]
 
         result = reconcile_espn_attribution(snapshot, players)
 
-        assert result["102"] == "Sea Sharp"
+        assert result["102"] == "Kai's Krew"
+        assert "Sea Sharp" not in result.values()
 
     def test_placeholder_picks_playerid_negative_one_excluded(self):
         """AC5: playerId != -1 is the sole completeness predicate; a

@@ -158,8 +158,14 @@ class TradeSimulatorModeManager:
         self.opponent_simulated_teams = []
         self.trade_snapshots = []
 
+        # D17.5 D5i: opponents are DERIVED from the loaded pool's own drafted_by
+        # names -- every team present except our own -- rather than intersected
+        # against the static OPPONENT_TEAMS list. After the ESPN ownership
+        # cutover drafted_by carries ESPN league names, so that intersection
+        # would be empty and the simulator would silently run with zero
+        # opponents. OPPONENT_TEAMS stays configured and validated (retired in D17.6).
         for team_name, team_list in self.team_rosters.items():
-            if team_name in self.config.opponent_teams:
+            if team_name != Constants.FANTASY_TEAM_NAME:
                 self.opponent_simulated_teams.append(TradeSimTeam(team_name, team_list, self.player_manager))
 
     

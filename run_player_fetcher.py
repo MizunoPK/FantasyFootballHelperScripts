@@ -83,8 +83,8 @@ def parse_args(argv=None):
     parser.add_argument(
         '--use-csv-ownership',
         action=argparse.BooleanOptionalAction,
-        default=True,
-        help='Use CSV drafted-roster ownership instead of the ESPN attribution path (default: enabled)'
+        default=False,
+        help='Use CSV drafted-roster ownership instead of the ESPN attribution path (default: disabled -- ESPN is the default supplier)'
     )
     parser.add_argument(
         '--drafted-data-path',

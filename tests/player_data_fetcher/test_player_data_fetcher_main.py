@@ -275,7 +275,10 @@ class TestGetFantasyPlayers:
         mock_exporter.get_fantasy_players.return_value = []
         mock_exporter_class.return_value = mock_exporter
 
-        settings = Settings()
+        # D17.5: this collector builds a REAL DataExporter (the patch above
+        # targets a different import site), so it must declare the CSV supplier
+        # explicitly now that the stored default is the ESPN one.
+        settings = Settings(use_csv_ownership=True)
         with patch.object(NFLProjectionsCollector, '_derive_bye_weeks_from_schedule', return_value={}):
             collector = NFLProjectionsCollector(settings)
 
@@ -672,12 +675,12 @@ class TestCreateSettingsFromDict:
 
 
 class TestUseCsvOwnershipSetting:
-    """D17.4: Settings.use_csv_ownership defaults True and threads through
-    create_settings_from_dict unchanged (mirrors load_drafted_data)."""
+    """D17.5: Settings.use_csv_ownership defaults False (ESPN is the default
+    supplier) and threads through create_settings_from_dict unchanged."""
 
-    def test_settings_default_use_csv_ownership_true(self):
+    def test_settings_default_use_csv_ownership_false(self):
         settings = Settings()
-        assert settings.use_csv_ownership is True
+        assert settings.use_csv_ownership is False
 
     def test_create_settings_from_dict_threads_use_csv_ownership_false(self):
         args_dict = {

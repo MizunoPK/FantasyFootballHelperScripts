@@ -645,6 +645,139 @@ class TestCSVDeprecation:
         assert not (temp_data_folder / "players.csv").exists()
 
 
+class TestOwnershipCutoverEndToEnd:
+    """D17.5 D5 composition: League Helper's opponent derivation is proven
+    against player JSON the EXPORTER actually wrote, not a hand-mocked
+    get_players_by_team(). Every unit-level test in this rollout stubs one side
+    of the seam; this one stubs neither, so a schema or ownership-token mismatch
+    between the fetcher's output and League Helper's reader is caught here.
+
+    Run under BOTH suppliers, because D5's supplier-agnostic claim is exactly
+    the claim a single-supplier test cannot make.
+    """
+
+    POOL = [
+        ("101", "Alpha Runner", "KC", "RB"),
+        ("102", "Bravo Runner", "SF", "RB"),
+        ("103", "Charlie Catcher", "MIN", "WR"),
+        ("104", "Delta Undrafted", "BUF", "WR"),
+    ]
+
+    def _data_folder(self, tmp_path):
+        """A League-Helper-shaped data folder, built exactly as the sibling
+        TestDraftedRosterManagerConsolidation fixture builds one."""
+        data_folder = tmp_path / "data"
+        data_folder.mkdir()
+        (data_folder / "team_data").mkdir()
+        (data_folder / "player_data").mkdir()
+
+        source_configs = project_root / "data" / "configs"
+        shutil.copytree(source_configs, data_folder / "configs")
+        return data_folder
+
+    def _projection_data(self):
+        from player_data_fetcher.player_data_models import ProjectionData, ESPNPlayerData
+
+        return ProjectionData(
+            season=2025, scoring_format="ppr", total_players=len(self.POOL),
+            players=[ESPNPlayerData(id=i, name=n, team=t, position=p) for i, n, t, p in self.POOL],
+        )
+
+    def _read_opponents(self, data_folder):
+        """Drive the real League Helper reader chain over the exported files."""
+        from league_helper.util.PlayerManager import PlayerManager
+        from league_helper.util.ConfigManager import ConfigManager
+        from league_helper.util.TeamDataManager import TeamDataManager
+        from league_helper.util.SeasonScheduleManager import SeasonScheduleManager
+        from league_helper.trade_simulator_mode.TradeSimulatorModeManager import TradeSimulatorModeManager
+
+        config = ConfigManager(data_folder)
+        team_data = TeamDataManager(data_folder, config.current_nfl_week)
+        schedule = SeasonScheduleManager(data_folder)
+        player_manager = PlayerManager(data_folder, config, team_data, schedule)
+
+        trade_sim = TradeSimulatorModeManager(data_folder, player_manager, config)
+        trade_sim.init_team_data()
+        return trade_sim, config
+
+    def test_espn_supplier_output_yields_the_right_opponents(self, tmp_path):
+        """The ESPN default path, end to end: snapshot -> normalization ->
+        exported JSON -> PlayerManager -> TradeSimulatorModeManager opponents.
+
+        The ESPN team names deliberately match NO OPPONENT_TEAMS entry, which is
+        the post-cutover reality; before D5i this produced zero opponents.
+        """
+        import asyncio
+        from unittest.mock import Mock as _Mock
+        from player_data_fetcher.player_data_exporter import DataExporter
+
+        data_folder = self._data_folder(tmp_path)
+
+        def _pick(player_id, team_id):
+            pick = _Mock(); pick.playerId = player_id; pick.teamId = team_id; return pick
+
+        def _team(team_id, name):
+            team = _Mock(); team.id = team_id; team.name = name; return team
+
+        snapshot = _Mock()
+        snapshot.draftDetail = _Mock()
+        snapshot.draftDetail.picks = [_pick(101, 7), _pick(102, 2), _pick(103, 3), _pick(-1, 3)]
+        snapshot.teams = [_team(7, "Kai's Krew"), _team(2, "Synthetic Team 2"), _team(3, "Synthetic Team 3")]
+
+        exporter = DataExporter(
+            output_dir=str(tmp_path / "out"),
+            position_json_output=str(data_folder / "player_data"),
+            team_data_folder=str(data_folder / "team_data"),
+        )
+        exporter._espn_attribution = exporter._normalize_our_team_attribution(
+            snapshot,
+            {"101": "Kai's Krew", "102": "Synthetic Team 2", "103": "Synthetic Team 3"},
+            7,
+        )
+        asyncio.run(exporter.export_position_json_files(self._projection_data()))
+
+        trade_sim, config = self._read_opponents(data_folder)
+
+        opponent_names = sorted(team.name for team in trade_sim.opponent_simulated_teams)
+        assert opponent_names == ["Synthetic Team 2", "Synthetic Team 3"]
+        assert "Sea Sharp" in trade_sim.team_rosters
+        assert "Sea Sharp" not in opponent_names
+        # The names really are absent from the configured list -- otherwise the
+        # old config intersection would have produced the same answer by luck.
+        for name in opponent_names:
+            assert name not in config.opponent_teams
+
+    def test_csv_rollback_supplier_output_yields_the_right_opponents(self, tmp_path):
+        """The same reader chain over JSON produced by the --use-csv-ownership
+        rollback path: rollback is preserved, not degraded (D5)."""
+        import asyncio
+        from player_data_fetcher.player_data_exporter import DataExporter
+
+        data_folder = self._data_folder(tmp_path)
+        drafted_csv = tmp_path / "drafted_data.csv"
+        drafted_csv.write_text(
+            "Alpha Runner RB - KC,Sea Sharp\n"
+            "Bravo Runner RB - SF,Annihilators\n"
+            "Charlie Catcher WR - MIN,Pidgin\n",
+            encoding="utf-8",
+        )
+
+        exporter = DataExporter(
+            output_dir=str(tmp_path / "out"),
+            position_json_output=str(data_folder / "player_data"),
+            team_data_folder=str(data_folder / "team_data"),
+            drafted_data_path=str(drafted_csv),
+            use_csv_ownership=True,
+        )
+        asyncio.run(exporter.export_position_json_files(self._projection_data()))
+
+        trade_sim, _config = self._read_opponents(data_folder)
+
+        opponent_names = sorted(team.name for team in trade_sim.opponent_simulated_teams)
+        assert opponent_names == ["Annihilators", "Pidgin"]
+        assert "Sea Sharp" in trade_sim.team_rosters
+        assert "Sea Sharp" not in opponent_names
+
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

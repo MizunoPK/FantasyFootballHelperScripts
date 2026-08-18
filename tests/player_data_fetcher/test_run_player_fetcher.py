@@ -293,11 +293,12 @@ class TestParseArgsDataRootSeam:
 
 
 class TestUseCsvOwnershipArg:
-    """D17.4: --use-csv-ownership / --no-use-csv-ownership, default True."""
+    """D17.5: --use-csv-ownership / --no-use-csv-ownership, default False --
+    the ESPN attribution path is the default supplier after the cutover."""
 
-    def test_default_use_csv_ownership_true(self):
+    def test_default_use_csv_ownership_false(self):
         args = parse_args([])
-        assert args.use_csv_ownership is True
+        assert args.use_csv_ownership is False
 
     def test_no_use_csv_ownership_flag(self):
         args = parse_args(['--no-use-csv-ownership'])
