@@ -578,6 +578,18 @@ async def main(settings_dict: dict | None = None) -> None:
                 "skipping the authenticated league read. drafted_by will be empty for every "
                 "player in this run."
             )
+            # D17.6 user-test HALT (Problem B): the skip must record the
+            # LOADED-BUT-EMPTY state, not leave the never-loaded sentinel.
+            # `get_fantasy_players` distinguishes `None` (attribution was never
+            # awaited -- a wiring bug, fail closed) from `{}` (it ran and nobody
+            # is drafted -- the legitimate pre-draft board). Leaving `None` here
+            # made every skipped e2e run raise
+            # `PlayerDataValidationError` at export, so the arm logged "drafted_by
+            # will be empty" and then aborted instead -- the log told the truth
+            # about intent and the code did something else. `{}` is what this
+            # branch actually means. (D17.7 carries the same assignment on main, arrived
+            # at independently via its own review; this comment preserves how the
+            # defect was originally found -- by D17.6's user test, not the suite.)
             collector.exporter._espn_attribution = {}
         else:
             # D17.7 review CONCERN-4: discriminate STRUCTURALLY, not by exception
