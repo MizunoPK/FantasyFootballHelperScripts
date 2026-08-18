@@ -36,7 +36,6 @@ import pytest
 
 from league_helper.util.ConfigManager import ConfigManager
 from tests.league_helper.util._config_fixtures import (
-    LEAGUE_FIXTURE,
     league_params,
     _write_legacy_config,
 )

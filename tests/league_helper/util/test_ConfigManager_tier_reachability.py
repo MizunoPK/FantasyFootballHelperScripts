@@ -27,7 +27,6 @@ import pytest
 
 from league_helper.util.ConfigManager import MULTIPLIER_INPUT_DOMAINS, ConfigManager
 from tests.league_helper.util._config_fixtures import (
-    LEAGUE_FIXTURE,
     league_params,
     _write_legacy_config,
 )
