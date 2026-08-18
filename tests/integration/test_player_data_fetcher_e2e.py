@@ -42,6 +42,7 @@ class TestPlayerDataFetcherE2E:
             'log_level': 'WARNING',
             'logging_to_file': False,
             'scoring_format': 'ppr',
+            'use_csv_ownership': True,
         }
         prev = os.environ.get('ESPN_FIXTURE_DIR')
         os.environ['ESPN_FIXTURE_DIR'] = str(FIXTURES_DIR)

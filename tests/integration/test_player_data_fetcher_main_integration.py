@@ -30,6 +30,7 @@ class TestPlayerDataFetcherMainIntegration:
             'load_drafted_data': False,
             'drafted_data_path': str(tmp_path / 'drafted_data.csv'),
             'my_team_name': 'Test Team',
+            'use_csv_ownership': True,
             'progress_frequency': 10,
             'log_level': 'INFO',
             'logging_to_file': False,
@@ -43,9 +44,10 @@ class TestPlayerDataFetcherMainIntegration:
         """AC3/AC5: Guard fires when all positions return zero players; export_data not called."""
         mock_collector = mock_collector_class.return_value
         mock_collector.collect_all_projections = AsyncMock(return_value={
-            'qb': ProjectionData(season=2025, scoring_format='PPR', total_players=0, players=[])
+            'season': ProjectionData(season=2025, scoring_format='PPR', total_players=0, players=[])
         })
         mock_collector.export_data = AsyncMock(return_value=[])
+        mock_collector.exporter.load_espn_attribution = AsyncMock(return_value=None)
         mock_collector.fetch_game_data = Mock(return_value=False)
         mock_collector.save_to_historical_data = Mock(return_value=False)
 
@@ -65,6 +67,7 @@ class TestPlayerDataFetcherMainIntegration:
             'rb': ProjectionData(season=2025, scoring_format='PPR', total_players=20, players=[]),
         })
         mock_collector.export_data = AsyncMock(return_value=[])
+        mock_collector.exporter.load_espn_attribution = AsyncMock(return_value=None)
         mock_collector.fetch_game_data = Mock(return_value=False)
         mock_collector.save_to_historical_data = Mock(return_value=False)
 
@@ -81,9 +84,10 @@ class TestPlayerDataFetcherMainIntegration:
         """AC5: Guard does not fire when total player count is at or above 100; export_data called."""
         mock_collector = mock_collector_class.return_value
         mock_collector.collect_all_projections = AsyncMock(return_value={
-            'qb': ProjectionData(season=2025, scoring_format='PPR', total_players=200, players=[])
+            'season': ProjectionData(season=2025, scoring_format='PPR', total_players=200, players=[])
         })
         mock_collector.export_data = AsyncMock(return_value=[])
+        mock_collector.exporter.load_espn_attribution = AsyncMock(return_value=None)
         mock_collector.fetch_game_data = Mock(return_value=False)
         mock_collector.save_to_historical_data = Mock(return_value=False)
 
@@ -97,9 +101,10 @@ class TestPlayerDataFetcherMainIntegration:
         """AC6: logger.error called with message containing player count and threshold when guard triggers."""
         mock_collector = mock_collector_class.return_value
         mock_collector.collect_all_projections = AsyncMock(return_value={
-            'qb': ProjectionData(season=2025, scoring_format='PPR', total_players=0, players=[])
+            'season': ProjectionData(season=2025, scoring_format='PPR', total_players=0, players=[])
         })
         mock_collector.export_data = AsyncMock(return_value=[])
+        mock_collector.exporter.load_espn_attribution = AsyncMock(return_value=None)
         mock_collector.fetch_game_data = Mock(return_value=False)
         mock_collector.save_to_historical_data = Mock(return_value=False)
 
@@ -118,9 +123,10 @@ class TestPlayerDataFetcherMainIntegration:
         """R3: Exception from fetch_game_data logs warning and execution continues."""
         mock_collector = mock_collector_class.return_value
         mock_collector.collect_all_projections = AsyncMock(return_value={
-            'qb': ProjectionData(season=2025, scoring_format='PPR', total_players=200, players=[])
+            'season': ProjectionData(season=2025, scoring_format='PPR', total_players=200, players=[])
         })
         mock_collector.export_data = AsyncMock(return_value=[])
+        mock_collector.exporter.load_espn_attribution = AsyncMock(return_value=None)
         mock_collector.fetch_game_data = Mock(side_effect=RuntimeError("network failure"))
         mock_collector.save_to_historical_data = Mock(return_value=False)
 

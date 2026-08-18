@@ -10,13 +10,14 @@ Author: Kai Mizuno
 
 import asyncio
 from pathlib import Path
-from typing import List, Dict, Optional
+from typing import Any, List, Dict, Optional
 import json
 
 import aiofiles
 
 from player_data_fetcher.config import data_root
-from player_data_fetcher.player_data_models import ProjectionData, ESPNPlayerData
+from player_data_fetcher.player_data_models import ProjectionData, ESPNPlayerData, PlayerDataValidationError
+from player_data_fetcher.espn_attribution import reconcile_espn_attribution
 
 from utils.FantasyPlayer import FantasyPlayer
 from utils.TeamData import save_team_weekly_data
@@ -61,7 +62,9 @@ class DataExporter:
         team_data_folder: Optional[str] = None,
         load_drafted_data: bool = True,
         drafted_data_path: Optional[str] = None,
-        my_team_name: str = 'Sea Sharp'
+        my_team_name: str = 'Sea Sharp',
+        use_csv_ownership: bool = True,
+        espn_settings: Optional[Any] = None
     ):
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(exist_ok=True, parents=True)
@@ -97,6 +100,61 @@ class DataExporter:
         self.drafted_roster_manager = DraftedRosterManager(self.drafted_data_path, self.my_team_name)
         if self.load_drafted_data:
             self.drafted_roster_manager.load_drafted_data()
+
+        self.use_csv_ownership = use_csv_ownership
+        self.espn_settings = espn_settings
+        self._espn_attribution: Optional[Dict[str, str]] = None
+
+    async def load_espn_attribution(self, players: List[ESPNPlayerData]) -> None:
+        """Fetch + reconcile ESPN draft attribution when the ESPN supplier is selected.
+
+        No-op when `use_csv_ownership` is True (the default at this unit --
+        spec.md AC7). When False, calls D17.3's authenticated ESPNClient method,
+        then `reconcile_espn_attribution` (this unit), and stores the complete
+        map on `self._espn_attribution`. Must be awaited before any
+        `get_fantasy_players` call this run can reach (spec.md D2 ordering
+        requirement) -- the caller (player_data_fetcher_main.py) is responsible
+        for that ordering; this method itself performs no scheduling.
+
+        Args:
+            players: The complete local ProjectionData player pool for this
+                run (the same pool get_fantasy_players will later convert).
+
+        Raises:
+            ESPNAPIError (or subclass): propagated unchanged from D17.3's
+                client on transport/auth/validation failure -- never caught or
+                re-wrapped here (spec.md D2/D3).
+            PlayerDataValidationError: when `reconcile_espn_attribution` returns
+                None (a completed playerId has no local match), naming every
+                offending playerId (spec.md D3). Never a silent CSV fallback.
+        """
+        if self.use_csv_ownership:
+            return
+
+        from league_helper.util.ConfigManager import ConfigManager, ConfigKeys
+        from player_data_fetcher.espn_client import ESPNClient
+
+        config_manager = ConfigManager(data_root())
+        league_id = config_manager.get_parameter(ConfigKeys.ESPN_LEAGUE_ID)
+
+        espn_client = ESPNClient(self.espn_settings)
+        snapshot = await espn_client.get_league_snapshot(league_id, self.espn_settings.season)
+
+        attribution = reconcile_espn_attribution(snapshot, players)
+
+        if attribution is None:
+            local_ids = {player.id for player in players}
+            missing_ids = sorted(
+                pick.playerId
+                for pick in snapshot.draftDetail.picks
+                if pick.playerId != -1 and str(pick.playerId) not in local_ids
+            )
+            raise PlayerDataValidationError(
+                f"ESPN attribution reconciliation failed: completed playerId(s) "
+                f"{missing_ids} have no local player match; ownership state unchanged."
+            )
+
+        self._espn_attribution = attribution
 
     def set_team_rankings(self, team_rankings: dict):
         """Set team rankings data from ESPN client for team exports"""
@@ -156,7 +214,14 @@ class DataExporter:
         """Convert ProjectionData to list of FantasyPlayer objects"""
         fantasy_players = [self._espn_player_to_fantasy_player(player) for player in data.players]
 
-        fantasy_players = self.drafted_roster_manager.apply_drafted_state_to_players(fantasy_players)
+        if self.use_csv_ownership:
+            fantasy_players = self.drafted_roster_manager.apply_drafted_state_to_players(fantasy_players)
+        else:
+            espn_attribution = self._espn_attribution or {}
+            for player in fantasy_players:
+                team_name = espn_attribution.get(str(player.id))
+                if team_name is not None:
+                    player.drafted_by = team_name
 
         return fantasy_players
 

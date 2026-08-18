@@ -13,7 +13,7 @@ from unittest.mock import Mock, patch, AsyncMock
 from pathlib import Path
 
 from player_data_fetcher.player_data_exporter import DataExporter, zero_bye_week_points
-from player_data_fetcher.player_data_models import ProjectionData, PlayerProjection
+from player_data_fetcher.player_data_models import ProjectionData, PlayerProjection, ESPNPlayerData
 
 
 # FIXTURES
@@ -498,3 +498,44 @@ class TestDataExporterDataRootSeam:
         assert all(str(tmp_path) in f for f in files), \
             "no exported file may escape tmp_path into the tracked repo tree"
 
+
+
+class TestUseCsvOwnershipFlag:
+    """D17.4 AC7/D1/D2: opt-in flag defaults True, DraftedRosterManager stays
+    eager/unconditional, get_fantasy_players branches on the flag."""
+
+    def test_default_use_csv_ownership_is_true(self, tmp_path):
+        """AC7: use_csv_ownership defaults True (CSV path unchanged)."""
+        exporter = DataExporter(
+            output_dir=str(tmp_path / 'out'),
+            load_drafted_data=False,
+        )
+        assert exporter.use_csv_ownership is True
+
+    def test_drafted_roster_manager_constructed_regardless_of_flag(self, tmp_path):
+        """D1: DraftedRosterManager construction stays eager/unconditional
+        even when use_csv_ownership=False."""
+        exporter = DataExporter(
+            output_dir=str(tmp_path / 'out'),
+            load_drafted_data=False,
+            use_csv_ownership=False,
+        )
+        assert exporter.drafted_roster_manager is not None
+
+    def test_get_fantasy_players_applies_espn_attribution_when_flag_false(self, tmp_path):
+        """D2: when use_csv_ownership is False, get_fantasy_players applies
+        the pre-populated self._espn_attribution map instead of the CSV map."""
+        exporter = DataExporter(
+            output_dir=str(tmp_path / 'out'),
+            load_drafted_data=False,
+            use_csv_ownership=False,
+        )
+        exporter._espn_attribution = {"101": "ESPN Team"}
+
+        data = ProjectionData(season=2025, scoring_format="ppr", total_players=1, players=[
+            ESPNPlayerData(id="101", name="Test Player", team="KC", position="WR"),
+        ])
+
+        fantasy_players = exporter.get_fantasy_players(data)
+
+        assert fantasy_players[0].drafted_by == "ESPN Team"

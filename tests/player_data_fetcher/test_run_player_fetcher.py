@@ -290,3 +290,24 @@ class TestParseArgsDataRootSeam:
         assert args.position_json_output == explicit
 
 
+
+
+class TestUseCsvOwnershipArg:
+    """D17.4: --use-csv-ownership / --no-use-csv-ownership, default True."""
+
+    def test_default_use_csv_ownership_true(self):
+        args = parse_args([])
+        assert args.use_csv_ownership is True
+
+    def test_no_use_csv_ownership_flag(self):
+        args = parse_args(['--no-use-csv-ownership'])
+        assert args.use_csv_ownership is False
+
+    def test_explicit_use_csv_ownership_flag(self):
+        args = parse_args(['--use-csv-ownership'])
+        assert args.use_csv_ownership is True
+
+    def test_create_settings_dict_threads_use_csv_ownership(self):
+        args = parse_args(['--no-use-csv-ownership'])
+        settings_dict = create_settings_dict(args)
+        assert settings_dict['use_csv_ownership'] is False
