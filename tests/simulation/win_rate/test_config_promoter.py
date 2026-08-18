@@ -2,7 +2,8 @@
 Tests for simulation.win_rate.config_promoter.
 
 Covers the live-config promotion writer: promoting the top-ranked combination's
-DRAFT_ORDER + 6 params, preserving all other keys, cumulative-win-rate ranking
+DRAFT_ORDER + 6 params, preserving all other keys, unknown nested keys inside the
+promoted scoring blocks surviving a promote (D10.2/TD5b), cumulative-win-rate ranking
 (not best_single_run_win_rate), the four error paths that converge to ConfigurationError with
 no write (empty store, strategy absent, strategy files missing, config missing/
 corrupt), the git dirty-state warn-and-proceed behavior, the graceful git probe,
@@ -237,6 +238,40 @@ class TestConfigPromoter:
         for key, value in original["parameters"].items():
             if key not in promoted_sections:
                 assert written["parameters"][key] == value, f"{key} was mutated"
+
+    def test_unknown_nested_keys_in_the_scoring_blocks_survive_a_promote(self, store, config_path):
+        """D10.2/TD5b: an unknown nested key inside the two promoted scoring blocks survives.
+
+        test_other_keys_preserved above structurally cannot see this: its
+        promoted_sections exclusion set contains ADP_SCORING and
+        PLAYER_RATING_SCORING, because the promoter legitimately rewrites their
+        WEIGHT. So this assertion is KEY-scoped, never section-scoped - widening
+        that exclusion set instead would fail on the promoted WEIGHT, and the
+        WEIGHT assertion below is what pins that the fix stayed key-scoped.
+
+        A sentinel is asserted rather than SCALING itself so the test states the
+        actual contract - unknown nested keys survive - and stays meaningful once
+        SCALING is no longer new.
+
+        Mutation check (CODING_STANDARDS Test Discrimination): replace
+        config_overrides.apply_draft_overrides' copy.deepcopy(base_config) with a
+        whitelist rebuild of parameters and this test fails - the sentinels vanish.
+        """
+        config = json.loads(config_path.read_text())
+        for section in ("ADP_SCORING", "PLAYER_RATING_SCORING"):
+            config["parameters"][section]["D10_SENTINEL"] = f"sentinel-{section}"
+        config_path.write_text(json.dumps(config))
+
+        with _patch_strategies((_WINNER_ID, _WINNER_ORDER, "Winner")), \
+                patch(f"{MODULE}._has_uncommitted_changes", return_value=False):
+            promote_best_combination(store, Path("unused"), config_path, seed=_SEED)
+
+        written = json.loads(config_path.read_text())
+        for section in ("ADP_SCORING", "PLAYER_RATING_SCORING"):
+            assert written["parameters"][section]["D10_SENTINEL"] == f"sentinel-{section}", \
+                f"an unknown nested key inside {section} must survive a promote"
+        assert extract_draft_param_values(written) == _WINNER_PARAMS, \
+            "the promoted WEIGHT values must still land - the assertion is key-scoped"
 
     def test_ranks_by_cumulative_not_best(self, tmp_path, config_path):
         # A: high single-run best (0.9) but low cumulative (90/200 = 0.45).

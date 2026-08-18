@@ -2315,8 +2315,22 @@ class TestPropagateToConfigs:
         assert same_params['ADP_SCORING']['THRESHOLDS'] == live_thresholds
         assert same_params['ADP_SCORING']['WEIGHT'] == 1.5
 
-    def test_player_rating_scoring_thresholds_are_not_preserved(self, tmp_path):
-        """D4.1 UD4: guard breadth is ADP-only - PLAYER_RATING_SCORING still promotes verbatim."""
+    def test_live_player_rating_thresholds_survive_a_promote(self, tmp_path):
+        """D10.2/TD5a: the INVERSION of D4.1's UD4 - the guard is no longer ADP-only.
+
+        D4.1 asserted PLAYER_RATING_SCORING promotes verbatim ("guard breadth is
+        ADP-only"). That intent was deliberately re-decided at D10's ticket design
+        gate: no sweep dial writes PLAYER_RATING_SCORING.THRESHOLDS (there is no
+        PLAYER_RATING_SCORING_STEPS in ConfigGenerator.PARAM_DEFINITIONS, and
+        SCORING_SECTIONS has no reader), so it is hand-owned exactly as ADP's is,
+        and a promote from a pre-D10 optimal folder would silently reset TD6's
+        hand-derived STEPS. This test is that D4.1 test INVERTED, not a new one -
+        deleting it rather than inverting it loses the pinned mutation.
+
+        Mutation check (CODING_STANDARDS Test Discrimination): empty
+        PRESERVE_SUBPATHS and this test fails - the source's STEPS 20 block lands.
+        Target is under tmp_path only - never data/configs/.
+        """
         optimal = tmp_path / "optimal"
         optimal.mkdir()
         target = tmp_path / "target"
@@ -2335,10 +2349,13 @@ class TestPropagateToConfigs:
 
         with open(target / 'league_config.json') as f:
             written = json.load(f)['parameters']
-        assert written['PLAYER_RATING_SCORING'] == source_block, \
-            "PLAYER_RATING_SCORING must promote verbatim - the guard is ADP-only"
-        assert [c for c in mock_logger.warning.call_args_list
-                if 'PLAYER_RATING_SCORING' in str(c)] == []
+        assert written['PLAYER_RATING_SCORING']['THRESHOLDS'] == live_block['THRESHOLDS'], \
+            "live PLAYER_RATING_SCORING.THRESHOLDS must survive an accuracy promote"
+        assert written['PLAYER_RATING_SCORING']['WEIGHT'] == 1.8, \
+            "PLAYER_RATING_SCORING.WEIGHT is swept - it must still promote from the source"
+        assert len([c for c in mock_logger.warning.call_args_list
+                    if 'PLAYER_RATING_SCORING.THRESHOLDS' in str(c)]) == 1, \
+            "a suppressed differing promoted value must warn exactly once"
 
     def test_source_thresholds_land_when_the_live_block_has_none(self, tmp_path):
         """D4.1: nothing live to preserve - the source's THRESHOLDS lands and no warning fires."""
@@ -2361,6 +2378,147 @@ class TestPropagateToConfigs:
             "with no live THRESHOLDS there is nothing to preserve"
         assert [c for c in mock_logger.warning.call_args_list
                 if 'ADP_SCORING.THRESHOLDS' in str(c)] == []
+
+    def test_live_scaling_survives_a_promote_while_weight_still_promotes(self, tmp_path):
+        """D10.2/TD5 AC4(1)+(2): SCALING is retained per factor; WEIGHT still promotes.
+
+        Every accuracy_optimal_* folder generated before this ticket lacks
+        SCALING, so a source lacking it is the real post-cutover case rather than
+        a contrived one - it is what the ticket's own WEIGHT criterion promotes
+        from. Asserted
+        once per factor because ADP_SCORING and PLAYER_RATING_SCORING are separate
+        PRESERVE_SUBPATHS entries - a guard added for only one of them passes a
+        single-factor test.
+
+        Mutation check (CODING_STANDARDS Test Discrimination): drop either SCALING
+        entry from PRESERVE_SUBPATHS and this test fails - that factor's live
+        SCALING is deleted by the promote.
+        Target is under tmp_path only - never data/configs/.
+        """
+        optimal = tmp_path / "optimal"
+        optimal.mkdir()
+        target = tmp_path / "target"
+        target.mkdir()
+        (optimal / 'league_config.json').write_text(json.dumps(
+            {'parameters': {'ADP_SCORING': {'WEIGHT': 1.5},
+                            'PLAYER_RATING_SCORING': {'WEIGHT': 1.8}}}))
+        (target / 'league_config.json').write_text(json.dumps(
+            {'parameters': {'ADP_SCORING': {'SCALING': 'LINEAR', 'WEIGHT': 2.12},
+                            'PLAYER_RATING_SCORING': {'SCALING': 'LINEAR', 'WEIGHT': 4.0}}}))
+
+        propagate_to_configs(optimal, target, Mock())
+
+        with open(target / 'league_config.json') as f:
+            written = json.load(f)['parameters']
+        for section, promoted_weight in (('ADP_SCORING', 1.5), ('PLAYER_RATING_SCORING', 1.8)):
+            assert written[section]['SCALING'] == 'LINEAR', \
+                f"live {section}.SCALING must survive an accuracy promote"
+            assert written[section]['WEIGHT'] == promoted_weight, \
+                f"{section}.WEIGHT is swept - it must still promote from the source"
+
+    def test_differing_promoted_scaling_is_suppressed_and_names_both_values(self, tmp_path):
+        """D10.2/TD5a: the differing-value arm, exercised on SCALING itself.
+
+        The other two graft states are pinned for SCALING directly (live-absent and
+        promoted-absent); promoted-present-and-differing was covered only generically
+        through THRESHOLDS. SCALING is the key this ticket cuts over, and a post-D10
+        optimal folder carrying its own SCALING against a hand-set live value is the
+        ordinary case D10.3/D10.4 create - so it gets its own case rather than
+        inheriting one.
+
+        Mutation check (CODING_STANDARDS Test Discrimination): drop the ADP_SCORING
+        SCALING entry from PRESERVE_SUBPATHS and this test fails - the source's
+        'BUCKETED' lands and no warning fires.
+        Target is under tmp_path only - never data/configs/.
+        """
+        optimal = tmp_path / "optimal"
+        optimal.mkdir()
+        target = tmp_path / "target"
+        target.mkdir()
+        (optimal / 'league_config.json').write_text(json.dumps(
+            {'parameters': {'ADP_SCORING': {'SCALING': 'BUCKETED', 'WEIGHT': 1.5}}}))
+        (target / 'league_config.json').write_text(json.dumps(
+            {'parameters': {'ADP_SCORING': {'SCALING': 'LINEAR', 'WEIGHT': 2.12}}}))
+
+        mock_logger = Mock()
+        propagate_to_configs(optimal, target, mock_logger)
+
+        with open(target / 'league_config.json') as f:
+            written = json.load(f)['parameters']
+        assert written['ADP_SCORING']['SCALING'] == 'LINEAR', \
+            "the hand-owned live SCALING must be retained over a differing promoted value"
+        assert written['ADP_SCORING']['WEIGHT'] == 1.5, \
+            "ADP_SCORING.WEIGHT is swept - it must still promote from the source"
+
+        guard_warnings = [str(c) for c in mock_logger.warning.call_args_list
+                          if 'ADP_SCORING.SCALING' in str(c)]
+        assert len(guard_warnings) == 1, \
+            f"a suppressed differing promoted SCALING must warn exactly once: {guard_warnings}"
+        assert 'BUCKETED' in guard_warnings[0] and 'LINEAR' in guard_warnings[0], \
+            "the warning must name both the suppressed source value and the retained live value"
+
+    def test_no_scaling_warning_while_the_live_config_has_no_scaling_yet(self, tmp_path):
+        """D10.2/TD5 AC4(4): the pre-cutover window is silent, and the source value lands.
+
+        Between this unit merging and the first cutover the live config carries no
+        SCALING at all, so the graft loop continues past it. That window is the
+        normal state for every promote taken in it - it must not warn.
+
+        Target is under tmp_path only - never data/configs/.
+        """
+        optimal = tmp_path / "optimal"
+        optimal.mkdir()
+        target = tmp_path / "target"
+        target.mkdir()
+        (optimal / 'league_config.json').write_text(json.dumps(
+            {'parameters': {'ADP_SCORING': {'SCALING': 'BUCKETED', 'WEIGHT': 1.5}}}))
+        (target / 'league_config.json').write_text(json.dumps(
+            {'parameters': {'ADP_SCORING': {'WEIGHT': 2.12}}}))
+
+        mock_logger = Mock()
+        propagate_to_configs(optimal, target, mock_logger)
+
+        with open(target / 'league_config.json') as f:
+            written = json.load(f)['parameters']
+        assert written['ADP_SCORING']['SCALING'] == 'BUCKETED', \
+            "with no live SCALING there is nothing to preserve - the source value lands"
+        assert [c for c in mock_logger.warning.call_args_list
+                if 'ADP_SCORING.SCALING' in str(c)] == []
+
+    def test_absent_promoted_scaling_warns_without_naming_a_suppressed_value(self, tmp_path):
+        """D10.2/TD5a: the absent-promoted-key arm must not report a suppressed None.
+
+        The single-arm message this loop shipped with was written for THRESHOLDS,
+        where both sides always exist. Against a pre-SCALING optimal folder it
+        logged "suppressing promoted value None" - an absent key described as a
+        suppressed value. This pins the two arms apart, so a later editor cannot
+        collapse them back together for consistency.
+
+        Mutation check (CODING_STANDARDS Test Discrimination): collapse the two
+        arms back into the single inherited message and this test fails on the
+        'None' assertion.
+        Target is under tmp_path only - never data/configs/.
+        """
+        optimal = tmp_path / "optimal"
+        optimal.mkdir()
+        target = tmp_path / "target"
+        target.mkdir()
+        (optimal / 'league_config.json').write_text(json.dumps(
+            {'parameters': {'ADP_SCORING': {'WEIGHT': 1.5}}}))
+        (target / 'league_config.json').write_text(json.dumps(
+            {'parameters': {'ADP_SCORING': {'SCALING': 'LINEAR', 'WEIGHT': 2.12}}}))
+
+        mock_logger = Mock()
+        propagate_to_configs(optimal, target, mock_logger)
+
+        guard_warnings = [str(c) for c in mock_logger.warning.call_args_list
+                          if 'ADP_SCORING.SCALING' in str(c)]
+        assert len(guard_warnings) == 1, \
+            f"an absent promoted SCALING must warn exactly once: {guard_warnings}"
+        assert 'None' not in guard_warnings[0], \
+            "an absent promoted key must not be reported as a suppressed value None"
+        assert 'carries no SCALING key' in guard_warnings[0], \
+            "the absent-key arm must say the promoted payload carries no key"
 
 
 if __name__ == "__main__":
