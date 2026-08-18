@@ -18,12 +18,15 @@ import aiofiles
 from player_data_fetcher.config import data_root
 from player_data_fetcher.player_data_models import ProjectionData, ESPNPlayerData, PlayerDataValidationError
 from player_data_fetcher.espn_attribution import reconcile_espn_attribution
+from player_data_fetcher.espn_league_snapshot_models import LeagueSnapshot
 
 from utils.FantasyPlayer import FantasyPlayer
 from utils.TeamData import save_team_weekly_data
 from utils.data_file_manager import DataFileManager
 from utils.LoggingManager import get_logger
 from utils.DraftedRosterManager import DraftedRosterManager
+
+from league_helper.constants import FANTASY_TEAM_NAME
 
 
 def zero_bye_week_points(
@@ -63,7 +66,7 @@ class DataExporter:
         load_drafted_data: bool = True,
         drafted_data_path: Optional[str] = None,
         my_team_name: str = 'Sea Sharp',
-        use_csv_ownership: bool = True,
+        use_csv_ownership: bool = False,
         espn_settings: Optional[Any] = None
     ):
         self.output_dir = Path(output_dir)
@@ -97,24 +100,37 @@ class DataExporter:
         self.position_defense_rankings = {}
         self.team_weekly_data = {}
 
-        self.drafted_roster_manager = DraftedRosterManager(self.drafted_data_path, self.my_team_name)
-        if self.load_drafted_data:
-            self.drafted_roster_manager.load_drafted_data()
-
         self.use_csv_ownership = use_csv_ownership
+
+        # D17.5 D2: the legacy CSV owner is absent from the default path's object
+        # graph, not merely unused -- construction itself is gated on the supplier
+        # flag, so the fuzzy-name path cannot be re-entered by accident after the
+        # cutover. It stays fully functional behind --use-csv-ownership (rollback).
+        self.drafted_roster_manager: Optional[DraftedRosterManager] = None
+        if self.use_csv_ownership:
+            self.drafted_roster_manager = DraftedRosterManager(self.drafted_data_path, self.my_team_name)
+            if self.load_drafted_data:
+                self.drafted_roster_manager.load_drafted_data()
+
         self.espn_settings = espn_settings
         self._espn_attribution: Optional[Dict[str, str]] = None
 
     async def load_espn_attribution(self, players: List[ESPNPlayerData]) -> None:
         """Fetch + reconcile ESPN draft attribution when the ESPN supplier is selected.
 
-        No-op when `use_csv_ownership` is True (the default at this unit --
-        spec.md AC7). When False, calls D17.3's authenticated ESPNClient method,
-        then `reconcile_espn_attribution` (this unit), and stores the complete
-        map on `self._espn_attribution`. Must be awaited before any
+        The ESPN supplier is the DEFAULT since D17.5's cutover; this method is a
+        no-op only on the `--use-csv-ownership` rollback path. On the default
+        path it calls D17.3's authenticated ESPNClient method, then
+        `reconcile_espn_attribution` (D17.4), then normalizes our own team's
+        picks to `FANTASY_TEAM_NAME` (`_normalize_our_team_attribution`, D17.5
+        D3/D6), and only then stores the complete map on
+        `self._espn_attribution`. Must be awaited before any
         `get_fantasy_players` call this run can reach (spec.md D2 ordering
         requirement) -- the caller (player_data_fetcher_main.py) is responsible
         for that ordering; this method itself performs no scheduling.
+
+        Nothing is stored, and no `drafted_by` is mutated, unless every step
+        above succeeds (ticket TD2 -- atomic, fail-closed).
 
         Args:
             players: The complete local ProjectionData player pool for this
@@ -126,7 +142,10 @@ class DataExporter:
                 re-wrapped here (spec.md D2/D3).
             PlayerDataValidationError: when `reconcile_espn_attribution` returns
                 None (a completed playerId has no local match), naming every
-                offending playerId (spec.md D3). Never a silent CSV fallback.
+                offending playerId (spec.md D3); when the configured
+                `ESPN_TEAM_ID` is absent from `snapshot.teams[]`; or when another
+                team's name collides with `FANTASY_TEAM_NAME` (D17.5 D6). Never a
+                silent CSV fallback.
         """
         if self.use_csv_ownership:
             return
@@ -143,6 +162,7 @@ class DataExporter:
 
         config_manager = ConfigManager(data_root())
         league_id = config_manager.get_parameter(ConfigKeys.ESPN_LEAGUE_ID)
+        our_team_id = config_manager.get_parameter(ConfigKeys.ESPN_TEAM_ID)
 
         espn_client = ESPNClient(self.espn_settings)
         try:
@@ -175,7 +195,93 @@ class DataExporter:
                 f"ownership state unchanged."
             )
 
-        self._espn_attribution = attribution
+        self._espn_attribution = self._normalize_our_team_attribution(
+            snapshot, attribution, our_team_id
+        )
+
+    def _normalize_our_team_attribution(
+        self,
+        snapshot: LeagueSnapshot,
+        attribution: Dict[str, str],
+        our_team_id: int,
+    ) -> Dict[str, str]:
+        """Rewrite our configured team's picks to the in-app ownership token.
+
+        D17.5 D3/D6. `reconcile_espn_attribution` returns raw ESPN league names
+        and stays pure/unchanged, but every downstream ownership reader compares
+        `drafted_by` against `league_helper.constants.FANTASY_TEAM_NAME` by string
+        equality (`FantasyPlayer.is_rostered`, utils/FantasyPlayer.py:367).
+        Normalizing here -- at the seam, keyed on the stable `teamId` rather than
+        on a name -- keeps `drafted_by` byte-identical to the CSV supplier's
+        output, so an ESPN-side team rename cannot break our own identity.
+
+        Args:
+            snapshot: The validated ESPN league snapshot `attribution` came from.
+            attribution: `reconcile_espn_attribution`'s complete
+                `local playerId -> raw ESPN team name` map.
+            our_team_id: The configured `ESPN_TEAM_ID`.
+
+        Returns:
+            A new map identical to `attribution` except that every pick belonging
+            to `our_team_id` carries `FANTASY_TEAM_NAME`.
+
+        Raises:
+            PlayerDataValidationError: when `our_team_id` is absent from
+                `snapshot.teams[]`, or when any OTHER team carries a name equal to
+                `FANTASY_TEAM_NAME` (compared case-insensitively and
+                whitespace-stripped). Both are fail-closed halts raised BEFORE the
+                caller stores anything, so no `drafted_by` is ever mutated.
+                Messages name team ids only -- never a credential value.
+        """
+        team_ids = {team.id for team in snapshot.teams}
+        if our_team_id not in team_ids:
+            raise PlayerDataValidationError(
+                f"ESPN attribution normalization failed: configured ESPN_TEAM_ID "
+                f"{our_team_id} is absent from the snapshot's teams[] "
+                f"(team ids present: {sorted(team_ids)}); "
+                f"ownership state unchanged."
+            )
+
+        our_token = FANTASY_TEAM_NAME.strip().casefold()
+        colliding_team_ids = sorted(
+            team.id
+            for team in snapshot.teams
+            if team.id != our_team_id
+            and team.name is not None
+            and team.name.strip().casefold() == our_token
+        )
+        if colliding_team_ids:
+            raise PlayerDataValidationError(
+                f"ESPN attribution normalization failed: team id(s) "
+                f"{colliding_team_ids} carry a name equal to FANTASY_TEAM_NAME "
+                f"while the configured team is id {our_team_id}; normalizing "
+                f"would make an opponent's players indistinguishable from ours. "
+                f"Rename the colliding ESPN team; ownership state unchanged."
+            )
+
+        our_local_ids = {
+            str(pick.playerId)
+            for pick in snapshot.draftDetail.picks
+            if pick.playerId != -1 and pick.teamId == our_team_id
+        }
+        normalized = {
+            local_id: (FANTASY_TEAM_NAME if local_id in our_local_ids else team_name)
+            for local_id, team_name in attribution.items()
+        }
+
+        completed_picks = sum(
+            1 for pick in snapshot.draftDetail.picks if pick.playerId != -1
+        )
+        our_matches = sum(1 for name in normalized.values() if name == FANTASY_TEAM_NAME)
+        if completed_picks and our_matches == 0:
+            self.logger.warning(
+                f"ESPN_TEAM_ID {our_team_id} matched zero of {completed_picks} "
+                f"completed picks in the ESPN draft snapshot. Check that "
+                f"ESPN_TEAM_ID in data/configs/league_config.json is your own "
+                f"team's id."
+            )
+
+        return normalized
 
     def set_team_rankings(self, team_rankings: dict):
         """Set team rankings data from ESPN client for team exports"""
@@ -425,8 +531,11 @@ class DataExporter:
         """
         Get drafted_by value from player (team name or empty string).
 
-        Player already has correct drafted_by value populated by DraftedRosterManager
-        in post-processing. This method maintains abstraction layer for future flexibility.
+        Player already has its drafted_by value populated by whichever ownership
+        supplier `get_fantasy_players` selected: the ESPN snapshot reconciliation on
+        the default path (D17.5), or DraftedRosterManager on the --use-csv-ownership
+        rollback path. This accessor is supplier-agnostic, reads the field only, and
+        maintains the abstraction layer for future flexibility.
 
         Args:
             player: FantasyPlayer with drafted_by field populated

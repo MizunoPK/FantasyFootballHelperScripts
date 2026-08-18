@@ -104,7 +104,8 @@ class TestMarkPlayerAsDrafted:
         mock_searcher.interactive_search.return_value = available_player
         mock_search_class.return_value = mock_searcher
 
-        # Sorted union is: 1 Annihilators, 2 Pidgin, 3 Sea Sharp, 4 Striking Shibas, 5 The Eskimo Brothers
+        # D17.5 review BLOCKING-1: the OPPONENT_TEAMS seed is READ again, so the
+        # menu is the config-union -- 1 Annihilators, 2 Pidgin, 3 Sea Sharp, ...
         mock_show_list.return_value = 3
 
         mode_manager._mark_player_as_drafted()
@@ -140,7 +141,8 @@ class TestMarkPlayerAsDrafted:
         mock_searcher.interactive_search.return_value = available_player
         mock_search_class.return_value = mock_searcher
 
-        # Sorted union is: 1 Annihilators, 2 Pidgin, 3 Sea Sharp, 4 Striking Shibas, 5 The Eskimo Brothers
+        # D17.5 review BLOCKING-1: the OPPONENT_TEAMS seed is READ again, so the
+        # menu is the config-union -- 1 Annihilators, 2 Pidgin, 3 Sea Sharp, ...
         mock_show_list.return_value = 3
 
         mode_manager._mark_player_as_drafted()
@@ -292,7 +294,14 @@ class TestMarkPlayerAsDraftedTeamMenuSources:
     def test_team_menu_lists_full_league_when_no_player_is_drafted(
         self, mock_search_class, mock_show_list, mock_constants, undrafted_player_manager, undrafted_players
     ):
-        """Test that a fully-undrafted pool still offers every configured opponent plus the user's team."""
+        """A fully-undrafted pool still offers every configured opponent plus our team.
+
+        D17.5 review BLOCKING-1: this is the REGRESSION GUARD for the closed-menu
+        dead end. show_list_selection has no free-text entry, so a team missing from
+        this list cannot be selected at all -- and on an undrafted pool the
+        data-derived names are empty, so without the config seed the only selectable
+        team is our own and no opponent's first pick can ever be recorded.
+        Deriving this menu from data alone is NOT a valid optimisation."""
         mock_constants.FANTASY_TEAM_NAME = "Sea Sharp"
         mode_manager = ModifyPlayerDataModeManager(undrafted_player_manager)
 
@@ -308,6 +317,10 @@ class TestMarkPlayerAsDraftedTeamMenuSources:
 
         offered_teams = mock_show_list.call_args[0][1]
         assert offered_teams == sorted(self.CONFIGURED_OPPONENTS + ["Sea Sharp"])
+        # The dead-end guard, stated positively: an opponent that owns no player yet
+        # must still be selectable, or its first pick can never be recorded.
+        for configured in self.CONFIGURED_OPPONENTS:
+            assert configured in offered_teams
 
     @patch('league_helper.modify_player_data_mode.ModifyPlayerDataModeManager.Constants')
     @patch('league_helper.modify_player_data_mode.ModifyPlayerDataModeManager.show_list_selection')
@@ -315,7 +328,7 @@ class TestMarkPlayerAsDraftedTeamMenuSources:
     def test_team_menu_unions_configured_opponents_with_data_present_names(
         self, mock_search_class, mock_show_list, mock_constants, undrafted_player_manager, undrafted_players
     ):
-        """Test that a data-only team name survives and an overlapping name is not duplicated."""
+        """A data-only team name survives and an overlapping name is not duplicated."""
         # "Saint Nix" is data-only (never configured); "Annihilators" is in BOTH sources.
         undrafted_players[0].drafted_by = "Saint Nix"
         undrafted_players[1].drafted_by = "Annihilators"
@@ -494,9 +507,24 @@ class TestTeamSelectionRejectsOutOfRangeWithoutWriting:
 
     @pytest.fixture
     def mock_player_manager(self, available_player):
-        """Create a mock PlayerManager - update_players_file is a Mock, so no file is written."""
+        """Create a mock PlayerManager - update_players_file is a Mock, so no file is written.
+
+        D17.5: the pool carries one already-drafted player ("Annihilators") so the
+        menu has a data-derived opponent row as well as configured ones.
+
+        NOTE: an earlier D17.5 draft said here that "the configured list is no longer
+        a source". That was true only of the withdrawn D5ii and is FALSE now --
+        `_mark_player_as_drafted` seeds TEAM SELECTION from `config.opponent_teams`
+        and unions the data-derived `drafted_by` names on top. The seed is load-bearing:
+        `show_list_selection` has no free-text entry, so without it an opponent that
+        owns no player yet is unselectable and its first pick can never be recorded
+        (review BLOCKING-1).
+        """
+        drafted_by_opponent = FantasyPlayer(id=2, name="Tyreek Hill", team="MIA", position="WR",
+                                            bye_week=8, drafted_by="Annihilators", locked=0,
+                                            score=85.0, fantasy_points=280.0)
         manager = Mock()
-        manager.players = [available_player]
+        manager.players = [available_player, drafted_by_opponent]
         manager.update_players_file = Mock()
         manager.config.opponent_teams = ["Annihilators", "Pidgin", "Striking Shibas"]
         manager.config.max_search_results = 10

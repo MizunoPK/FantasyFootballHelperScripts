@@ -79,9 +79,9 @@ def mock_config():
     config.trade_enable_three_for_two = True
     config.trade_enable_two_for_three = True
     config.trade_max_combinations = 50000
-    # Empty reproduces today's post-init state exactly: neither roster key returned by
-    # mock_player_manager.get_players_by_team() ("Sea Sharp", "Team Alpha") was ever in
-    # the old Constants.VALID_TEAMS, so opponent_simulated_teams was already [] here.
+    # D17.5 D5i: opponent construction no longer reads this list at all -- it is
+    # kept on the fixture only because the real ConfigManager still exposes the
+    # attribute (retired in D17.6). Opponents come from get_players_by_team().
     config.opponent_teams = []
     return config
 
@@ -1015,10 +1015,11 @@ class TestBackwardCompatibility:
 
 
 class TestInitTeamDataOpponentFilter:
-    """Test that init_team_data builds opponent teams from the configured roster (T80)"""
+    """Test that init_team_data builds opponent teams from the loaded pool's own
+    drafted_by names (T80; rebased onto D17.5 D5i)"""
 
-    def test_configured_team_becomes_an_opponent(self, temp_data_folder, mock_player_manager, mock_config):
-        """Test that a roster team named in config.opponent_teams becomes a simulated opponent"""
+    def test_data_present_team_becomes_an_opponent(self, temp_data_folder, mock_player_manager, mock_config):
+        """Test that a team owning players in the pool becomes a simulated opponent"""
         mock_config.opponent_teams = ["Team Alpha"]
 
         with patch('league_helper.constants.FANTASY_TEAM_NAME', 'Sea Sharp'):
@@ -1040,15 +1041,53 @@ class TestInitTeamDataOpponentFilter:
         assert "Sea Sharp" not in opponent_names
         assert manager.my_team.name == "Sea Sharp"
 
-    def test_unconfigured_roster_team_is_filtered_out(self, temp_data_folder, mock_player_manager, mock_config):
-        """Test that a roster team absent from config.opponent_teams is not simulated"""
+    def test_data_present_team_is_an_opponent_even_when_unconfigured(self, temp_data_folder, mock_player_manager, mock_config):
+        """D17.5 D5i: opponents come from the pool's own drafted_by names, so a
+        roster team absent from config.opponent_teams is STILL simulated.
+
+        This is the cutover regression guard: after the ESPN ownership cutover
+        drafted_by carries ESPN league names that match no OPPONENT_TEAMS entry.
+        Restoring the config intersection makes this test fail with zero
+        opponents."""
         mock_config.opponent_teams = []
 
         with patch('league_helper.constants.FANTASY_TEAM_NAME', 'Sea Sharp'):
             manager = TradeSimulatorModeManager(temp_data_folder, mock_player_manager, mock_config)
 
-        assert manager.opponent_simulated_teams == []
+        opponent_names = [team.name for team in manager.opponent_simulated_teams]
+        assert opponent_names == ["Team Alpha"]
         assert "Team Alpha" in manager.team_rosters
+
+    def test_config_opponent_teams_is_not_read_when_building_opponents(self, temp_data_folder, mock_player_manager, mock_config):
+        """D17.5 D5i: a configured name that owns no player in the pool is not
+        offered as an opponent -- the static list is not a source any more."""
+        mock_config.opponent_teams = ["Nobody Owns Me"]
+
+        with patch('league_helper.constants.FANTASY_TEAM_NAME', 'Sea Sharp'):
+            manager = TradeSimulatorModeManager(temp_data_folder, mock_player_manager, mock_config)
+
+        opponent_names = [team.name for team in manager.opponent_simulated_teams]
+        assert "Nobody Owns Me" not in opponent_names
+        assert opponent_names == ["Team Alpha"]
+
+    def test_opponents_are_derived_under_either_supplier_name_style(
+        self, temp_data_folder, mock_player_manager, mock_config, sample_players
+    ):
+        """D17.5 D5: the derivation is supplier-agnostic -- League Helper reads
+        persisted drafted_by and cannot know which supplier wrote it, so both
+        ESPN-style and CSV-style team names yield opponents."""
+        mock_config.opponent_teams = []
+
+        for team_name in ["Synthetic Team 3", "Annihilators"]:
+            mock_player_manager.get_players_by_team = Mock(return_value={
+                "Sea Sharp": sample_players[:3],
+                team_name: sample_players[3:6],
+            })
+
+            with patch('league_helper.constants.FANTASY_TEAM_NAME', 'Sea Sharp'):
+                manager = TradeSimulatorModeManager(temp_data_folder, mock_player_manager, mock_config)
+
+            assert [team.name for team in manager.opponent_simulated_teams] == [team_name]
 
 
 if __name__ == "__main__":

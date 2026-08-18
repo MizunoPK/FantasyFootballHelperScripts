@@ -234,6 +234,75 @@ class TestE2EGracefulSkip:
             with pytest.raises(FileNotFoundError):
                 await main(settings_dict)
 
+    @pytest.mark.asyncio
+    async def test_default_espn_path_does_not_require_the_drafted_csv(self, tmp_path):
+        """D17.5 review BLOCKING-2: on the DEFAULT (ESPN) path a missing
+        drafted_data.csv must NOT abort the run.
+
+        The whole-run precondition used to be gated on `load_drafted_data` alone.
+        That was a correct proxy before the cutover -- the CSV was the only
+        ownership source. After the flip the default path never opens the CSV, so
+        gating on that flag alone made the shipped default
+        (`python run_player_fetcher.py`, no flags) raise FileNotFoundError before
+        any fetch, against a file it does not need. Reverting the `and
+        settings.use_csv_ownership` clause turns this test red.
+        """
+        missing_path = str(tmp_path / 'nonexistent_drafted.csv')
+        settings_dict = _make_settings_dict(
+            tmp_path,
+            e2e_test=False,
+            load_drafted_data=True,       # the default
+            use_csv_ownership=False,      # the NEW default -- CSV is not the supplier
+            drafted_data_path=missing_path,
+        )
+        with patch('player_data_fetcher.player_data_fetcher_main.NFLProjectionsCollector') as mock_cls:
+            mock_collector = MagicMock()
+            mock_collector.collect_all_projections = AsyncMock(return_value={
+                'season': ProjectionData(season=2025, scoring_format='ppr', total_players=200, players=[])
+            })
+            mock_collector.export_data = AsyncMock(return_value=[])
+            mock_collector.exporter.load_espn_attribution = AsyncMock(return_value=None)
+            mock_cls.return_value = mock_collector
+            with patch('player_data_fetcher.player_data_fetcher_main.setup_logger'):
+                with patch('player_data_fetcher.player_data_fetcher_main.validate_output_files'):
+                    # Must reach the fetch, not raise on the absent CSV.
+                    await main(settings_dict)
+        mock_collector.collect_all_projections.assert_awaited_once()
+
+    @pytest.mark.asyncio
+    async def test_e2e_skips_the_authenticated_league_read_without_a_fixture_dir(self, tmp_path, monkeypatch):
+        """D17.5 review GAP-1: --e2e-test must not make a LIVE authenticated call.
+
+        Before the cutover, e2e mode only had to excuse a missing drafted_data.csv.
+        After the flip the flag inherits the ESPN supplier by default, so without the
+        skip arm an e2e run performs a live authenticated league read -- turning the
+        project's offline-graceful mode into one requiring credentials and network.
+        Removing the `settings.e2e_test and not settings.use_csv_ownership and not
+        ESPN_FIXTURE_DIR` arm turns this test red.
+        """
+        monkeypatch.delenv("ESPN_FIXTURE_DIR", raising=False)
+        settings_dict = _make_settings_dict(
+            tmp_path,
+            e2e_test=True,
+            load_drafted_data=True,
+            use_csv_ownership=False,      # what --e2e-test actually yields post-cutover
+            drafted_data_path=str(tmp_path / 'nonexistent_drafted.csv'),
+        )
+        with patch('player_data_fetcher.player_data_fetcher_main.NFLProjectionsCollector') as mock_cls:
+            mock_collector = MagicMock()
+            mock_collector.collect_all_projections = AsyncMock(return_value={
+                'season': ProjectionData(season=2025, scoring_format='ppr', total_players=200, players=[])
+            })
+            mock_collector.export_data = AsyncMock(return_value=[])
+            mock_collector.exporter.load_espn_attribution = AsyncMock(return_value=None)
+            mock_cls.return_value = mock_collector
+            with patch('player_data_fetcher.player_data_fetcher_main.setup_logger'):
+                with patch('player_data_fetcher.player_data_fetcher_main.validate_output_files'):
+                    await main(settings_dict)
+        # The authenticated read must NOT have been attempted.
+        mock_collector.exporter.load_espn_attribution.assert_not_awaited()
+        mock_collector.collect_all_projections.assert_awaited_once()
+
     def test_e2e_settings_flag_is_true(self, tmp_path):
         """E-1: e2e_test=True in settings_dict → Settings.e2e_test is True"""
         settings_dict = _make_settings_dict(

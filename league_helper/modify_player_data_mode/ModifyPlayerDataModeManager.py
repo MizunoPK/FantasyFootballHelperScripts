@@ -180,9 +180,35 @@ class ModifyPlayerDataModeManager:
             self.logger.info("User exited Mark Player as Drafted mode")
             return
 
-        # Data-present drafted_by names are union'd in on top of the configured
-        # roster so a team seeded out-of-band (DraftedRosterManager, from
-        # drafted_data.csv) never becomes unselectable when it is absent from config.
+        # D17.5 D5ii, REVISED after review BLOCKING-1: the OPPONENT_TEAMS seed is
+        # READ HERE and must stay read. An earlier D17.5 draft dropped it, reasoning
+        # (as D5 does for the trade simulator) that the config list holds stale
+        # NFL.com names post-cutover. That reasoning is sound for a READER and wrong
+        # for this WRITER: show_list_selection is a closed numbered menu with no
+        # free-text entry (user_input.py:22-62), so a team absent from this list
+        # cannot be chosen at all. On an undrafted pool the derived-only list is just
+        # our own team -- making it impossible to record any opponent's FIRST pick,
+        # which is precisely the team that owns no player yet. The union is what
+        # keeps a not-yet-seen team selectable.
+        #
+        # The stale-name problem is real but is CONFIG data, not code: OPPONENT_TEAMS
+        # must be retyped with the ESPN league's team names when the real league is
+        # configured.
+        #
+        # Its cost is NOT merely cosmetic, and the trade-off is recorded honestly
+        # (review CONCERN-4): selecting a stale configured name WRITES it to
+        # drafted_by, and D5i's derived opponent set then promotes it to a full
+        # phantom opponent indistinguishable from a real ESPN team -- and
+        # is_drafted_by_opponent() will hide that player from waiver recommendations
+        # for the rest of the session. It is bounded (user-initiated, never
+        # automatic; reversible via _drop_player; self-healing on the next fetch,
+        # which resets drafted_by) but a draft session never re-fetches, so it
+        # persists for that whole session.
+        #
+        # It is accepted anyway because the alternative is strictly worse: without
+        # the seed, no opponent's first pick can be recorded AT ALL. A wrong name the
+        # user chose and can undo beats a correct name the user cannot reach.
+        # Retyping OPPONENT_TEAMS removes the trade-off entirely.
         if not self.player_manager.config.opponent_teams:
             print("Warning: no OPPONENT_TEAMS configured in data/configs/league_config.json - "
                   "the team list will only show teams already present in the player data.")

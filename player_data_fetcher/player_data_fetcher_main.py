@@ -20,6 +20,7 @@ import json
 import logging
 import shutil
 import sys
+import os
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, List
@@ -75,7 +76,7 @@ class Settings:
         default_factory=lambda: str(data_root() / 'drafted_data.csv')
     )
     my_team_name: str = 'Sea Sharp'
-    use_csv_ownership: bool = True
+    use_csv_ownership: bool = False
 
     progress_frequency: int = 10
     log_level: str = 'INFO'
@@ -124,7 +125,7 @@ def create_settings_from_dict(args_dict: dict) -> Settings:
         load_drafted_data=args_dict['load_drafted_data'],
         drafted_data_path=args_dict['drafted_data_path'],
         my_team_name=args_dict['my_team_name'],
-        use_csv_ownership=args_dict.get('use_csv_ownership', True),
+        use_csv_ownership=args_dict.get('use_csv_ownership', False),
         progress_frequency=args_dict['progress_frequency'],
         log_level=args_dict['log_level'],
         logging_to_file=args_dict['logging_to_file'],
@@ -556,7 +557,15 @@ async def main(settings_dict: dict | None = None) -> None:
         log_format=LOGGING_FORMAT
     )
 
-    if settings.load_drafted_data:
+    # D17.5 review BLOCKING-2: this precondition must ALSO require the CSV
+    # supplier to be selected. Before the cutover, load_drafted_data alone was a
+    # correct proxy -- the CSV was the only ownership source, so a missing file
+    # meant an unowned board. After the flip the default path never opens the CSV,
+    # so gating on load_drafted_data alone aborts the whole run before any fetch
+    # for a file the run does not need. That made the shipped default
+    # (`python run_player_fetcher.py`, no flags) terminate immediately and left
+    # spec AC2 undeliverable through the CLI.
+    if settings.load_drafted_data and settings.use_csv_ownership:
         drafted_path = Path(settings.drafted_data_path)
         if not drafted_path.exists():
             if settings.e2e_test:
@@ -567,7 +576,13 @@ async def main(settings_dict: dict | None = None) -> None:
             else:
                 raise FileNotFoundError(
                     f"Drafted data file not found: {settings.drafted_data_path}. "
-                    f"Use --no-load-drafted-data to skip or --e2e-test for graceful handling."
+                    f"This run selected the CSV ownership supplier (--use-csv-ownership), "
+                    f"which requires that file. To fetch without it, drop the flag and use "
+                    f"the default ESPN ownership supplier. "
+                    f"(--no-load-drafted-data also proceeds, but on the CSV supplier it "
+                    f"produces a board with NO ownership applied and no further warning, "
+                    f"so prefer the default supplier unless you specifically want that.) "
+                    f"--e2e-test gives graceful handling in test runs."
                 )
 
     try:
@@ -586,7 +601,23 @@ async def main(settings_dict: dict | None = None) -> None:
             )
             sys.exit(1)
 
-        await collector.exporter.load_espn_attribution(projection_data['season'].players)
+        # D17.5 review GAP-1: `--e2e-test` means "run the pipeline without requiring
+        # locally-provisioned data". Before the cutover it only had to excuse a
+        # missing drafted_data.csv (see the precondition above). After the flip the
+        # flag inherits the ESPN supplier by default, so without this arm an e2e run
+        # would perform a LIVE AUTHENTICATED league read -- turning the project's
+        # offline-graceful mode into one that needs credentials and network. The CSV
+        # branch already skips gracefully in e2e; this is the symmetric treatment for
+        # the ESPN branch, and it is deliberately scoped to e2e mode only so a real
+        # run still fails loudly rather than silently shipping an unowned board.
+        if settings.e2e_test and not settings.use_csv_ownership and not os.environ.get("ESPN_FIXTURE_DIR"):
+            logger.info(
+                "E2E mode: ESPN ownership supplier selected but no ESPN_FIXTURE_DIR is set; "
+                "skipping the authenticated league read. drafted_by will be empty for every "
+                "player in this run."
+            )
+        else:
+            await collector.exporter.load_espn_attribution(projection_data['season'].players)
 
         loop = asyncio.get_running_loop()
         game_data_future = loop.run_in_executor(None, collector.fetch_game_data)
