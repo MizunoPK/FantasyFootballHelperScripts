@@ -11,11 +11,12 @@ Author: Kai Mizuno
 import asyncio
 from contextlib import asynccontextmanager
 import datetime
+import hashlib
 import json
 import math
 import os
 from pathlib import Path
-from typing import Dict, List, Any, Optional, Set
+from typing import Dict, List, Any, Optional, Set, Union
 from urllib.parse import urlparse
 
 import httpx
@@ -42,7 +43,23 @@ class ESPNRateLimitError(ESPNAPIError):
 
 
 class ESPNServerError(ESPNAPIError):
-    """ESPN server error exception"""  
+    """ESPN server error exception"""
+    pass
+
+
+class FixtureRecordingRefused(ESPNAPIError):
+    """Raised when ESPN_RECORD_FIXTURES_DIR is set against a route that
+    refuses single-file fixture recording (D17.3 review CONCERN-10/11).
+
+    A distinct, narrowly-scoped exception type -- rather than a bare
+    ESPNAPIError -- so `_should_retry_espn_request` can exclude it by
+    isinstance (structural) rather than by scanning the message text for
+    the literal digits "401"/"403", which the refusal message never
+    contains. This is a deterministic configuration error (the caller set
+    an env var incompatible with the route being driven); it cannot succeed
+    on retry, so retrying it just spends live round trips against ESPN for
+    nothing.
+    """
     pass
 
 
@@ -56,6 +73,10 @@ def _should_retry_espn_request(exc: BaseException) -> bool:
       - in offline fixture mode (ESPN_FIXTURE_DIR set), any deterministic
         fixture-resolution/parse error (ValueError, including its json.JSONDecodeError
         and UnicodeDecodeError subclasses) — the T53 broadening.
+      - a 401/403 authentication/authorization failure (D17.3 review BLOCKING-2
+        follow-up): an invalid/expired session cookie cannot succeed on retry --
+        retrying three times with backoff just spends round trips against ESPN
+        with bad credentials, the opposite of unit.md AC3's "fail loudly."
 
     The ValueError exclusion is gated on ESPN_FIXTURE_DIR so it never fires on the live
     request path (env unset), where response.json() legitimately raises a
@@ -72,7 +93,56 @@ def _should_retry_espn_request(exc: BaseException) -> bool:
         return False
     if os.environ.get("ESPN_FIXTURE_DIR") and isinstance(exc, ValueError):
         return False
+    if isinstance(exc, RuntimeError):
+        # Programming-error guards (e.g. the no-active-session guard) can never
+        # succeed on retry.
+        return False
+    if isinstance(exc, FixtureRecordingRefused):
+        # D17.3 review CONCERN-10: a deterministic configuration error (the
+        # caller set ESPN_RECORD_FIXTURES_DIR against a route that refuses
+        # single-file recording) cannot succeed on retry -- excluded
+        # structurally by type rather than by scanning the message for
+        # "401"/"403", which this refusal's message never contains.
+        return False
+    if isinstance(exc, ESPNAPIError) and not isinstance(exc, (ESPNRateLimitError, ESPNServerError)):
+        message = str(exc)
+        if "401" in message or "403" in message:
+            return False
     return True
+
+
+class CorpusRoute:
+    """Sentinel wrapping a fixture *corpus directory* key (D17.3 review BLOCKING-4).
+
+    `BaseAPIClient._get_fixture_filename()` returns either a plain filename
+    string (a single recordable/replayable fixture file) or -- for the
+    `league_draft` route -- a directory key naming a whole manifest-backed
+    replay corpus. Those two return kinds must be structurally
+    distinguishable so a second consumer of `_get_fixture_filename` (the
+    `ESPN_RECORD_FIXTURES_DIR` recording branch in `_make_request`) cannot
+    silently treat a directory key as a writable single fixture file, which
+    is exactly how BLOCKING-4 shipped: nothing marked "league_draft" as
+    anything other than an ordinary filename.
+    """
+
+    __slots__ = ("key",)
+
+    def __init__(self, key: str):
+        self.key = key
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, CorpusRoute) and self.key == other.key
+
+    def __hash__(self) -> int:
+        return hash(("CorpusRoute", self.key))
+
+    def __repr__(self) -> str:
+        return f"CorpusRoute({self.key!r})"
+
+
+def is_corpus_route(value: Any) -> bool:
+    """True if `value` is a `CorpusRoute` (a fixture *directory* key), not a filename."""
+    return isinstance(value, CorpusRoute)
 
 
 class BaseAPIClient:
@@ -134,7 +204,7 @@ class BaseAPIClient:
                 self.logger.debug("Closed HTTP client session")
 
     @staticmethod
-    def _get_fixture_filename(url: str, params: dict) -> str:
+    def _get_fixture_filename(url: str, params: dict) -> Union[str, "CorpusRoute"]:
         """Map an ESPN API URL + params to a deterministic fixture filename.
 
         Args:
@@ -142,7 +212,11 @@ class BaseAPIClient:
             params: Query parameters dict (may be empty)
 
         Returns:
-            Fixture filename (without directory prefix)
+            A plain fixture filename string (without directory prefix) for
+            every ordinary single-file route, or a `CorpusRoute` for the
+            `league_draft` route -- a directory key, not a filename. Callers
+            must check `is_corpus_route()` before treating the result as a
+            path component (D17.3 review BLOCKING-4).
 
         Raises:
             ValueError: If url does not match any known ESPN API endpoint
@@ -164,19 +238,119 @@ class BaseAPIClient:
             season_idx = parts.index("seasons") + 1
             season = parts[season_idx]
             return f"season_projections_{season}.json"
+        elif "/leagues/" in path and "/seasons/" in path:
+            return CorpusRoute("league_draft")
         else:
             raise ValueError(
                 f"No fixture filename defined for URL: {url}. "
                 f"Add a mapping to BaseAPIClient._get_fixture_filename()."
             )
 
-    @retry(stop=stop_after_attempt(3), wait=wait_random_exponential(multiplier=1, max=10), retry=retry_if_exception(_should_retry_espn_request))
+    @staticmethod
+    def _resolve_league_draft_fixture(fixture_dir: str) -> Dict[str, Any]:
+        """Resolve the manifest-backed `league_draft` corpus to one selected step's payload.
+
+        Args:
+            fixture_dir: Value of ESPN_FIXTURE_DIR.
+
+        Returns:
+            Parsed JSON content of the manifest-selected step file.
+
+        Raises:
+            FileNotFoundError: If manifest.json is missing (same shape as the existing
+                missing-single-fixture-file case).
+            ValueError: If ESPN_DRAFT_FIXTURE_STEP is missing, non-integer, does not match
+                exactly one manifest entry, the matched entry's file is missing or its
+                sha256 does not match the file's actual content, or the manifest itself is
+                structurally corrupt (non-contiguous step numbers or duplicate filenames --
+                the two whole-manifest properties `generate_espn_draft_corpus.py` guarantees
+                by construction, so a hand-edited or corrupted manifest is caught here
+                rather than replaying silently-wrong data; SUGGESTION, D17.3 review).
+        """
+        manifest_path = Path(fixture_dir) / "espn_api" / "league_draft" / "manifest.json"
+        if not manifest_path.exists():
+            raise FileNotFoundError(
+                f"Fixture manifest not found: {manifest_path}. "
+                f"Run generate_espn_draft_corpus.py to populate the league_draft fixture directory."
+            )
+        manifest = json.loads(manifest_path.read_text())
+        entries = manifest.get("entries", [])
+
+        steps_seen = [e.get("step") for e in entries]
+        if steps_seen != list(range(len(entries))):
+            raise ValueError(
+                f"Corrupt manifest at {manifest_path}: entry 'step' values {steps_seen} are "
+                f"not contiguous from 0 (expected {list(range(len(entries)))})."
+            )
+        filenames_seen = [e.get("file") for e in entries if e.get("file")]
+        if len(set(filenames_seen)) != len(filenames_seen):
+            raise ValueError(
+                f"Corrupt manifest at {manifest_path}: duplicate 'file' entries in {filenames_seen}."
+            )
+
+        step_env = os.environ.get("ESPN_DRAFT_FIXTURE_STEP")
+        if step_env is None:
+            raise ValueError(
+                "ESPN_DRAFT_FIXTURE_STEP is required to select a league_draft fixture step but is not set."
+            )
+        try:
+            step = int(step_env)
+        except ValueError:
+            raise ValueError(f"ESPN_DRAFT_FIXTURE_STEP must be an integer, got: {step_env!r}")
+
+        matches = [e for e in entries if e.get("step") == step]
+        if len(matches) != 1:
+            raise ValueError(
+                f"ESPN_DRAFT_FIXTURE_STEP={step} does not match exactly one manifest entry "
+                f"(found {len(matches)} in {manifest_path})."
+            )
+        entry = matches[0]
+
+        # PR review (Copilot, espn_client.py:231): index defensively -- a malformed
+        # manifest (missing/non-string "file") must raise ValueError like every other
+        # manifest defect this method validates, not an opaque KeyError that contradicts
+        # this docstring's ValueError guarantee.
+        entry_file = entry.get("file")
+        if not isinstance(entry_file, str) or not entry_file:
+            raise ValueError(
+                f"Manifest entry for step {step} is missing a valid 'file' field: {entry!r}"
+            )
+
+        file_path = Path(fixture_dir) / "espn_api" / "league_draft" / entry_file
+        if not file_path.exists():
+            raise ValueError(f"Manifest entry for step {step} names a missing file: {file_path}")
+
+        content = file_path.read_bytes()
+        actual_hash = hashlib.sha256(content).hexdigest()
+        expected_hash = entry.get("sha256")
+        if actual_hash != expected_hash:
+            raise ValueError(
+                f"Manifest sha256 mismatch for step {step} file {entry_file}: "
+                f"expected {expected_hash}, got {actual_hash}"
+            )
+
+        return json.loads(content)
+
+    @retry(
+        stop=stop_after_attempt(3),
+        wait=wait_random_exponential(multiplier=1, max=10),
+        retry=retry_if_exception(_should_retry_espn_request),
+        reraise=True,
+    )
     async def _make_request(self, method: str, url: str, **kwargs) -> Dict[str, Any]:
         """
         Make HTTP request with automatic retry logic and rate limiting.
 
         Uses tenacity retry decorator to automatically retry failed requests up to 3 times
         with exponential backoff (1s, 2s, 4s, up to 10s max between retries).
+
+        `reraise=True` (D17.3 review BLOCKING-2): on retry exhaustion, tenacity re-raises
+        the *original* exception instead of wrapping it in `tenacity.RetryError`. Without
+        this, callers that `except ESPNAPIError` (e.g. `_get_raw_league_snapshot`'s
+        redaction wrapper) never see it, because `RetryError` is not an `ESPNAPIError` --
+        the redaction boundary was silently unreachable on every exhausted-retry path.
+        Verified directly against tenacity: without `reraise=True` a caller catches
+        `RetryError`; with it, the caller catches the original exception.
 
         Rate limiting: Adds configurable delay before each request to avoid ESPN throttling.
 
@@ -192,6 +366,8 @@ class BaseAPIClient:
             ESPNRateLimitError: If ESPN returns 429 (Too Many Requests)
             ESPNServerError: If ESPN returns 500+ (server error)
             ESPNAPIError: For other HTTP errors (400-499) or network failures
+            RuntimeError: If called on the live path with no active session (`self._client`
+                is `None`) -- callers must wrap the call in `async with client.session():`.
             FileNotFoundError: If ESPN_FIXTURE_DIR is set and the fixture file is missing; non-retryable in fixture mode (excluded from the retry predicate, raised on the first attempt).
             ValueError: If ESPN_FIXTURE_DIR is set and a fixture is unresolvable or unparseable (an unmapped-URL ValueError, or a corrupt-fixture json.JSONDecodeError / UnicodeDecodeError — both ValueError subclasses); non-retryable in fixture mode, raised on the first attempt. On the live path (ESPN_FIXTURE_DIR unset) a response.json() JSONDecodeError is still retried.
         """
@@ -201,6 +377,8 @@ class BaseAPIClient:
         if fixture_dir:
             params = kwargs.get("params", {}) or {}
             filename = self._get_fixture_filename(url, params)
+            if is_corpus_route(filename):
+                return self._resolve_league_draft_fixture(fixture_dir)
             fixture_path = Path(fixture_dir) / "espn_api" / filename
             if not fixture_path.exists():
                 raise FileNotFoundError(
@@ -212,6 +390,16 @@ class BaseAPIClient:
         await asyncio.sleep(self.settings.rate_limit_delay)
 
         try:
+            # Session guard (D17.3 review CONCERN-2): moved here from
+            # _get_raw_league_snapshot so it fires on every live-path caller,
+            # not just one method, and is inert in the offline fixture branch
+            # above (which never dereferences self._client).
+            if self._client is None:
+                raise RuntimeError(
+                    "_make_request() called on the live path without an active "
+                    "session; callers must wrap this call in 'async with client.session():'."
+                )
+
             response = await self._client.request(method, url, **kwargs)
 
             if response.status_code == 429:
@@ -230,6 +418,20 @@ class BaseAPIClient:
             if record_dir:
                 params = kwargs.get("params", {}) or {}
                 filename = self._get_fixture_filename(url, params)
+                if is_corpus_route(filename):
+                    # D17.3 review BLOCKING-4: the league_draft corpus is a whole
+                    # manifest-backed directory produced only by
+                    # generate_espn_draft_corpus.py (which sanitizes before writing),
+                    # never a single recordable fixture file. Silently writing the raw,
+                    # unsanitized payload here would land real identity data in
+                    # tests/fixtures/, which CODING_STANDARDS.md defines as committed.
+                    raise FixtureRecordingRefused(
+                        f"Refusing to record fixtures for corpus route {filename.key!r}: "
+                        f"the league_draft corpus is a manifest-backed directory produced "
+                        f"only by generate_espn_draft_corpus.py, not a single recordable "
+                        f"fixture file. Unset ESPN_RECORD_FIXTURES_DIR when driving this "
+                        f"route, or run generate_espn_draft_corpus.py directly."
+                    )
                 record_path = Path(record_dir) / "espn_api" / filename
                 record_path.parent.mkdir(parents=True, exist_ok=True)
                 record_path.write_text(json.dumps(data, indent=2))
@@ -664,7 +866,101 @@ class ESPNClient(BaseAPIClient):
         
         data = await self._make_request("GET", url, params=params, headers=headers)
         return await self._parse_espn_data(data)
-    
+
+    async def _get_raw_league_snapshot(self, league_id: int, season: Optional[int] = None) -> Dict[str, Any]:
+        """Raw-fetch seam (R1a): the authenticated private-league GET, unvalidated.
+
+        Exactly two callers are permitted: this class's own `get_league_snapshot` (validates
+        immediately) and `generate_espn_draft_corpus.py` (sanitizes immediately). Never call
+        this method from any other production code path.
+
+        Args:
+            league_id: ESPN league ID.
+            season: Optional season year (defaults to settings.season if not provided).
+
+        Returns:
+            Unvalidated dict: the raw `mDraftDetail` + `mTeam` league payload.
+
+        Raises:
+            ESPNAPIError: On non-success HTTP response, network failure, no-active-session
+                misuse, or a malformed-manifest replay error; message is credential-safe
+                (redacted via player_data_fetcher.espn_credentials.redact). This is a single
+                broad redacting wrapper (D17.3 review's choke-point remediation) -- it catches
+                every exception family verified to escape the narrow `except ESPNAPIError`
+                this replaced: `RuntimeError` (the no-active-session guard, now raised inside
+                `_make_request`, obligation (b)), `ValueError` / `FileNotFoundError`
+                (CONCERN-7's `_resolve_league_draft_fixture` replay-corpus seam), and
+                `httpx.HTTPError` (SUGGESTION-15 -- `httpx.HTTPStatusError` from
+                `response.raise_for_status()`, unreachable today but included for
+                defence-in-depth against a future branch-ordering change). Any other
+                exception (e.g. a genuine programming error such as `AttributeError` or
+                `TypeError`) is deliberately left uncaught and propagates unredacted, per the
+                review's correction: a trailing bare `except Exception` would swallow those
+                into a misleading "API error" message -- precisely how BLOCKING-2's original
+                defect (an `AttributeError` masquerading as a retry exhaustion) went unnoticed.
+        """
+        from player_data_fetcher.espn_credentials import get_espn_credentials, redact
+
+        use_season = season if season is not None else self.settings.season
+        espn_s2, swid = get_espn_credentials()
+
+        url = (
+            f"https://lm-api-reads.fantasy.espn.com/apis/v3/games/ffl/"
+            f"seasons/{use_season}/segments/0/leagues/{league_id}"
+        )
+        params = {"view": ["mDraftDetail", "mTeam"]}
+        cookies = {"espn_s2": espn_s2, "SWID": swid}
+
+        try:
+            return await self._make_request("GET", url, params=params, cookies=cookies)
+        except (ESPNAPIError, RuntimeError, ValueError, FileNotFoundError, httpx.HTTPError) as e:
+            # `from None`, not `from e`: `raise ... from e` would keep the original
+            # exception on `__cause__`, and a traceback print would re-emit whatever
+            # unredacted content it carried (D17.3 review BLOCKING-1's `from e` note).
+            #
+            # `httpx.HTTPError` (D17.3 review SUGGESTION-15) covers
+            # `httpx.HTTPStatusError`, which `response.raise_for_status()` inside
+            # `_make_request` can raise. It is unreachable today -- the explicit
+            # >=400/>=500/429 branches above it convert every non-success status
+            # first, leaving `raise_for_status()` a defensive no-op -- but that
+            # unreachability is an accident of branch ordering, not a stated
+            # invariant, so it is included in this wrapper's catch tuple rather
+            # than left to escape unredacted if that ordering ever changes.
+            raise ESPNAPIError(redact(str(e), espn_s2, swid)) from None
+
+    async def get_league_snapshot(self, league_id: int, season: Optional[int] = None):
+        """Get the authenticated private-league snapshot (mDraftDetail + mTeam), validated (R1, R2).
+
+        Args:
+            league_id: ESPN league ID.
+            season: Optional season year (defaults to settings.season if not provided).
+
+        Returns:
+            A validated `player_data_fetcher.espn_league_snapshot_models.LeagueSnapshot`.
+
+        Raises:
+            ESPNAPIError: On non-success HTTP response, network failure, or snapshot
+                validation failure; message is credential-safe. On a pydantic
+                `ValidationError`, only the structural error locations/types are summarized
+                -- never `input_value` -- because pydantic v2 embeds the offending raw
+                payload value verbatim in its default string form, which would otherwise
+                echo real private-league content (owner GUIDs, names, the league ID) into
+                the raised message (D17.3 review BLOCKING-1).
+        """
+        from player_data_fetcher.espn_league_snapshot_models import LeagueSnapshot
+        from pydantic import ValidationError
+
+        raw = await self._get_raw_league_snapshot(league_id, season)
+        try:
+            return LeagueSnapshot.model_validate(raw)
+        except ValidationError as e:
+            locations = "; ".join(
+                f"{'.'.join(str(p) for p in err['loc'])}: {err['type']}" for err in e.errors()
+            )
+            raise ESPNAPIError(
+                f"League snapshot validation failed ({e.error_count()} error(s)): {locations}"
+            ) from None
+
     async def _make_request(self, method: str, url: str, **kwargs):
         """Override to add ESPN-specific headers"""
         if 'headers' not in kwargs:

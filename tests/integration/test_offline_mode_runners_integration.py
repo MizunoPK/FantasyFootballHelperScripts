@@ -9,7 +9,6 @@ import json
 import types
 from unittest.mock import AsyncMock, MagicMock
 import pytest
-from tenacity import RetryError
 
 
 class TestScheduleFetcherOfflineMode:
@@ -251,6 +250,11 @@ class TestBaseAPIClientOfflineMode:
 
         Positive control proving the offline ValueError exclusion did not leak into the live
         path (offline-confinement — D2/D4). asyncio.sleep is mocked so the retry loop is instant.
+
+        D17.3 review BLOCKING-2: @retry now carries reraise=True, so on exhaustion the
+        *original* ESPNServerError propagates instead of tenacity.RetryError -- the whole
+        point of the fix (a caller catching ESPNAPIError/ESPNServerError could never see a
+        RetryError). Updated to match; the retry *count* assertion is unchanged.
         """
         from player_data_fetcher.espn_client import BaseAPIClient, ESPNServerError
 
@@ -269,7 +273,7 @@ class TestBaseAPIClientOfflineMode:
         client._client = mock_http_client
 
         scoreboard_url = "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard"
-        with pytest.raises(RetryError):
+        with pytest.raises(ESPNServerError):
             await client._make_request("GET", scoreboard_url, params={"week": 1, "dates": 2025})
 
         assert mock_http_client.request.call_count == 3  # transient set still retried 3x
@@ -281,6 +285,10 @@ class TestBaseAPIClientOfflineMode:
         The decisive D2 positive control: the live malformed-body JSONDecodeError (a ValueError
         subclass) must keep retrying — the env gate confines the offline ValueError exclusion so
         it never fires here. An unconditional ValueError exclusion (Option A) would fail this.
+
+        D17.3 review BLOCKING-2: @retry now carries reraise=True, so on exhaustion the
+        original json.JSONDecodeError propagates instead of tenacity.RetryError. Updated to
+        match; the retry *count* assertion is unchanged.
         """
         from player_data_fetcher.espn_client import BaseAPIClient
 
@@ -300,7 +308,7 @@ class TestBaseAPIClientOfflineMode:
         client._client = mock_http_client
 
         scoreboard_url = "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard"
-        with pytest.raises(RetryError):
+        with pytest.raises(json.JSONDecodeError):
             await client._make_request("GET", scoreboard_url, params={"week": 1, "dates": 2025})
 
         assert mock_http_client.request.call_count == 3  # live JSONDecodeError still retried (D2)

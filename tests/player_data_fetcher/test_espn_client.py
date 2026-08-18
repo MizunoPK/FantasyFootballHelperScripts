@@ -8,14 +8,17 @@ Focuses on testable functionality without deep HTTP mocking.
 Author: Kai Mizuno
 """
 
+import asyncio
 import datetime
 import json
+import logging
 import pytest
+import httpx
 from unittest.mock import AsyncMock, Mock
 
 from player_data_fetcher.espn_client import (
     ESPNAPIError, ESPNRateLimitError, ESPNServerError,
-    BaseAPIClient, ESPNClient
+    BaseAPIClient, ESPNClient, CorpusRoute, is_corpus_route
 )
 from player_data_fetcher.player_data_fetcher_main import Settings
 
@@ -647,3 +650,546 @@ class TestParseEspnDataPositionRankRanges:
 
         assert ids == ['1001', '1002']
         assert ratings == [100.0, 1.0]
+
+
+class TestLeagueDraftFixtureCorpus:
+    """Test league_draft fixture corpus resolution (R4, R6)"""
+
+    def test_get_fixture_filename_maps_league_route(self):
+        """Test _get_fixture_filename returns a CorpusRoute('league_draft') for the
+        authenticated league URL -- a directory key, not a plain filename
+        (D17.3 review BLOCKING-4: the two return kinds must be structurally
+        distinguishable)."""
+        url = "https://lm-api-reads.fantasy.espn.com/apis/v3/games/ffl/seasons/2026/segments/0/leagues/123"
+        result = BaseAPIClient._get_fixture_filename(url, {})
+        assert is_corpus_route(result)
+        assert result.key == "league_draft"
+
+    def test_resolve_league_draft_fixture_missing_manifest_raises_filenotfounderror(self, tmp_path):
+        """Test missing manifest.json raises FileNotFoundError (R6)"""
+        # No manifest.json present
+        with pytest.raises(FileNotFoundError):
+            BaseAPIClient._resolve_league_draft_fixture(str(tmp_path))
+
+    def test_resolve_league_draft_fixture_missing_selector_raises_valueerror(self, tmp_path, monkeypatch):
+        """Test missing ESPN_DRAFT_FIXTURE_STEP raises ValueError (R6)"""
+        # Create minimal manifest
+        manifest_dir = tmp_path / "espn_api" / "league_draft"
+        manifest_dir.mkdir(parents=True)
+        manifest_path = manifest_dir / "manifest.json"
+        manifest_path.write_text(json.dumps({"entries": [{"step": 0, "file": "step_000.json"}]}))
+
+        # No ESPN_DRAFT_FIXTURE_STEP set
+        monkeypatch.delenv("ESPN_DRAFT_FIXTURE_STEP", raising=False)
+
+        with pytest.raises(ValueError, match="ESPN_DRAFT_FIXTURE_STEP is required"):
+            BaseAPIClient._resolve_league_draft_fixture(str(tmp_path))
+
+    def test_resolve_league_draft_fixture_non_integer_selector_raises_valueerror(self, tmp_path, monkeypatch):
+        """Test non-integer ESPN_DRAFT_FIXTURE_STEP raises ValueError (R6)"""
+        manifest_dir = tmp_path / "espn_api" / "league_draft"
+        manifest_dir.mkdir(parents=True)
+        manifest_path = manifest_dir / "manifest.json"
+        manifest_path.write_text(json.dumps({"entries": []}))
+
+        monkeypatch.setenv("ESPN_DRAFT_FIXTURE_STEP", "not-an-int")
+
+        with pytest.raises(ValueError, match="must be an integer"):
+            BaseAPIClient._resolve_league_draft_fixture(str(tmp_path))
+
+    def test_resolve_league_draft_fixture_out_of_range_selector_raises_valueerror(self, tmp_path, monkeypatch):
+        """Test out-of-range ESPN_DRAFT_FIXTURE_STEP raises ValueError (R6)"""
+        manifest_dir = tmp_path / "espn_api" / "league_draft"
+        manifest_dir.mkdir(parents=True)
+        manifest_path = manifest_dir / "manifest.json"
+        manifest_path.write_text(json.dumps({"entries": [{"step": 0}, {"step": 1}]}))
+
+        monkeypatch.setenv("ESPN_DRAFT_FIXTURE_STEP", "99")
+
+        with pytest.raises(ValueError, match="does not match exactly one manifest entry"):
+            BaseAPIClient._resolve_league_draft_fixture(str(tmp_path))
+
+    def test_resolve_league_draft_fixture_malformed_entry_raises_valueerror_not_keyerror(self, tmp_path, monkeypatch):
+        """PR review (Copilot, espn_client.py:231): a manifest entry with a missing/malformed
+        'file' field must raise ValueError -- the docstring's and error taxonomy's guaranteed
+        type -- not an opaque KeyError."""
+        manifest_dir = tmp_path / "espn_api" / "league_draft"
+        manifest_dir.mkdir(parents=True)
+        manifest_path = manifest_dir / "manifest.json"
+        # Entry matches the selector but has no 'file' field at all.
+        manifest_path.write_text(json.dumps({"entries": [{"step": 0}]}))
+
+        monkeypatch.setenv("ESPN_DRAFT_FIXTURE_STEP", "0")
+
+        with pytest.raises(ValueError, match="missing a valid 'file' field"):
+            BaseAPIClient._resolve_league_draft_fixture(str(tmp_path))
+
+    def test_resolve_league_draft_fixture_non_contiguous_steps_raises_valueerror(self, tmp_path, monkeypatch):
+        """SUGGESTION (D17.3 review): a manifest whose step numbers are not contiguous
+        from 0 is structurally corrupt and must be rejected before any selector matching."""
+        manifest_dir = tmp_path / "espn_api" / "league_draft"
+        manifest_dir.mkdir(parents=True)
+        manifest_path = manifest_dir / "manifest.json"
+        manifest_path.write_text(json.dumps({
+            "entries": [
+                {"step": 0, "file": "step_000.json"},
+                {"step": 2, "file": "step_002.json"},
+            ]
+        }))
+
+        monkeypatch.setenv("ESPN_DRAFT_FIXTURE_STEP", "0")
+
+        with pytest.raises(ValueError, match="not contiguous"):
+            BaseAPIClient._resolve_league_draft_fixture(str(tmp_path))
+
+    def test_resolve_league_draft_fixture_duplicate_filenames_raises_valueerror(self, tmp_path, monkeypatch):
+        """SUGGESTION (D17.3 review): a manifest whose entries reuse the same filename for
+        two different steps is structurally corrupt and must be rejected before any
+        selector matching."""
+        manifest_dir = tmp_path / "espn_api" / "league_draft"
+        manifest_dir.mkdir(parents=True)
+        manifest_path = manifest_dir / "manifest.json"
+        manifest_path.write_text(json.dumps({
+            "entries": [
+                {"step": 0, "file": "step_000.json"},
+                {"step": 1, "file": "step_000.json"},
+            ]
+        }))
+
+        monkeypatch.setenv("ESPN_DRAFT_FIXTURE_STEP", "0")
+
+        with pytest.raises(ValueError, match="duplicate 'file' entries"):
+            BaseAPIClient._resolve_league_draft_fixture(str(tmp_path))
+
+    def test_resolve_league_draft_fixture_hash_mismatch_raises_valueerror(self, tmp_path, monkeypatch):
+        """Test hash mismatch raises ValueError (R6)"""
+        manifest_dir = tmp_path / "espn_api" / "league_draft"
+        manifest_dir.mkdir(parents=True)
+
+        step_file = manifest_dir / "step_000.json"
+        step_file.write_text(json.dumps({"test": "data"}))
+
+        manifest_path = manifest_dir / "manifest.json"
+        manifest_path.write_text(json.dumps({
+            "entries": [{"step": 0, "file": "step_000.json", "sha256": "wronghash"}]
+        }))
+
+        monkeypatch.setenv("ESPN_DRAFT_FIXTURE_STEP", "0")
+
+        with pytest.raises(ValueError, match="sha256 mismatch"):
+            BaseAPIClient._resolve_league_draft_fixture(str(tmp_path))
+
+    def test_resolve_league_draft_fixture_happy_path_returns_selected_step(self, tmp_path, monkeypatch):
+        """Test happy path returns selected step content (R6)"""
+        import hashlib
+
+        manifest_dir = tmp_path / "espn_api" / "league_draft"
+        manifest_dir.mkdir(parents=True)
+
+        # Create step files
+        step0_content = json.dumps({"step": 0, "picks": []})
+        step0_file = manifest_dir / "step_000.json"
+        step0_file.write_text(step0_content)
+        step0_hash = hashlib.sha256(step0_content.encode("utf-8")).hexdigest()
+
+        step1_content = json.dumps({"step": 1, "picks": [{"playerId": 123}]})
+        step1_file = manifest_dir / "step_001.json"
+        step1_file.write_text(step1_content)
+        step1_hash = hashlib.sha256(step1_content.encode("utf-8")).hexdigest()
+
+        manifest_path = manifest_dir / "manifest.json"
+        manifest_path.write_text(json.dumps({
+            "entries": [
+                {"step": 0, "file": "step_000.json", "sha256": step0_hash},
+                {"step": 1, "file": "step_001.json", "sha256": step1_hash},
+            ]
+        }))
+
+        monkeypatch.setenv("ESPN_DRAFT_FIXTURE_STEP", "1")
+        result = BaseAPIClient._resolve_league_draft_fixture(str(tmp_path))
+
+        assert result == {"step": 1, "picks": [{"playerId": 123}]}
+
+    @pytest.mark.asyncio
+    async def test_make_request_offline_league_draft_dispatches_to_resolver(self, tmp_path, monkeypatch):
+        """Test _make_request dispatches league_draft to resolver (R4, R6)"""
+        import hashlib
+
+        manifest_dir = tmp_path / "espn_api" / "league_draft"
+        manifest_dir.mkdir(parents=True)
+
+        # Create one step file
+        step_content = json.dumps({"draftDetail": {"picks": []}, "teams": []})
+        step_file = manifest_dir / "step_000.json"
+        step_file.write_text(step_content)
+        step_hash = hashlib.sha256(step_content.encode("utf-8")).hexdigest()
+
+        manifest_path = manifest_dir / "manifest.json"
+        manifest_path.write_text(json.dumps({
+            "entries": [{"step": 0, "file": "step_000.json", "sha256": step_hash}]
+        }))
+
+        monkeypatch.setenv("ESPN_FIXTURE_DIR", str(tmp_path))
+        monkeypatch.setenv("ESPN_DRAFT_FIXTURE_STEP", "0")
+
+        settings = Settings()
+        client = BaseAPIClient(settings)
+
+        result = await client._make_request(
+            "GET",
+            "https://lm-api-reads.fantasy.espn.com/apis/v3/games/ffl/seasons/2026/segments/0/leagues/123",
+            params={"view": ["mDraftDetail", "mTeam"]}
+        )
+
+        assert result == {"draftDetail": {"picks": []}, "teams": []}
+
+
+class TestAuthenticatedLeagueSnapshot:
+    """Test authenticated league snapshot reading (R1, R1a, R2, R3)"""
+
+    @pytest.mark.asyncio
+    async def test_get_raw_league_snapshot_calls_make_request_with_expected_shape(self, monkeypatch):
+        """Test _get_raw_league_snapshot constructs request with correct shape (R1)"""
+        monkeypatch.setenv("espn_s2", "sentinel_s2")
+        monkeypatch.setenv("SWID", "sentinel_swid")
+
+        settings = Settings()
+        client = ESPNClient(settings)
+
+        # _make_request is mocked wholesale, so the real live-session guard (now
+        # inside BaseAPIClient._make_request, D17.3 review CONCERN-2) never runs --
+        # client._client's state is irrelevant here.
+        mock_response = {"draftDetail": {"picks": []}, "teams": []}
+        client._make_request = AsyncMock(return_value=mock_response)
+
+        result = await client._get_raw_league_snapshot(league_id=123, season=2026)
+
+        # Verify the mock was called with expected arguments
+        client._make_request.assert_called_once()
+        call_args = client._make_request.call_args
+        assert call_args.args[0] == "GET"
+        assert "seasons/2026" in call_args.args[1]
+        assert "leagues/123" in call_args.args[1]
+        assert call_args.kwargs.get("params") == {"view": ["mDraftDetail", "mTeam"]}
+        assert call_args.kwargs.get("cookies") == {"espn_s2": "sentinel_s2", "SWID": "sentinel_swid"}
+
+        assert result == mock_response
+
+    @pytest.mark.asyncio
+    async def test_get_league_snapshot_returns_validated_only(self, monkeypatch):
+        """Test get_league_snapshot returns only validated LeagueSnapshot (R2)"""
+        from player_data_fetcher.espn_league_snapshot_models import LeagueSnapshot
+
+        monkeypatch.setenv("espn_s2", "sentinel_s2")
+        monkeypatch.setenv("SWID", "sentinel_swid")
+
+        settings = Settings()
+        client = ESPNClient(settings)
+
+        # Valid minimal payload matching LeagueSnapshot contract
+        valid_payload = {
+            "draftDetail": {"picks": [], "drafted": False, "inProgress": False},
+            "teams": [],
+            "settings": {"draftSettings": {"pickOrder": []}},
+        }
+
+        # Mock _get_raw_league_snapshot to return the valid payload
+        client._get_raw_league_snapshot = AsyncMock(return_value=valid_payload)
+
+        result = await client.get_league_snapshot(league_id=123)
+
+        # Assert result is a validated LeagueSnapshot instance
+        assert isinstance(result, LeagueSnapshot)
+
+    @pytest.mark.asyncio
+    async def test_get_league_snapshot_raises_on_invalid_payload(self, monkeypatch):
+        """Test get_league_snapshot raises ESPNAPIError on validation failure (R2)"""
+        monkeypatch.setenv("espn_s2", "sentinel_s2")
+        monkeypatch.setenv("SWID", "sentinel_swid")
+
+        settings = Settings()
+        client = ESPNClient(settings)
+
+        # Invalid payload: draftDetail missing or wrong type
+        invalid_payload = {"draftDetail": None, "teams": []}
+
+        # Mock _get_raw_league_snapshot to return invalid payload
+        client._get_raw_league_snapshot = AsyncMock(return_value=invalid_payload)
+
+        # Should raise ESPNAPIError on validation failure
+        with pytest.raises(ESPNAPIError, match="validation failed"):
+            await client.get_league_snapshot(league_id=123)
+
+    @pytest.mark.asyncio
+    async def test_get_raw_league_snapshot_redacts_credential_on_http_error(self, monkeypatch):
+        """Test _get_raw_league_snapshot redacts credentials from error messages (R3)"""
+        sentinel_s2 = "sentinel_s2_secret"
+        sentinel_swid = "sentinel_swid_secret"
+        monkeypatch.setenv("espn_s2", sentinel_s2)
+        monkeypatch.setenv("SWID", sentinel_swid)
+
+        settings = Settings()
+        client = ESPNClient(settings)
+
+        # _make_request is mocked wholesale (see note above); client._client's
+        # state is irrelevant since the real guard never runs.
+        error_msg = f"HTTP 401 Unauthorized: {sentinel_s2} is invalid"
+        client._make_request = AsyncMock(side_effect=ESPNAPIError(error_msg))
+
+        with pytest.raises(ESPNAPIError) as exc_info:
+            await client._get_raw_league_snapshot(league_id=123)
+
+        # Verify the sentinel is NOT in the raised error message
+        raised_msg = str(exc_info.value)
+        assert sentinel_s2 not in raised_msg
+        assert sentinel_swid not in raised_msg
+
+    @pytest.mark.asyncio
+    async def test_get_raw_league_snapshot_missing_credentials_fails_loudly(self, monkeypatch):
+        """Test _get_raw_league_snapshot fails before calling _make_request if credentials missing (R1, R3)
+
+        D17.3 review CONCERN-1: previously this test passed vacuously -- the
+        polish-pass-2 RuntimeError session guard sat at the top of
+        _get_raw_league_snapshot (before get_espn_credentials() was even called),
+        and pytest.raises(Exception) is satisfied by any exception, so the test
+        no longer proved the "missing credential" failure mode it names; deleting
+        get_espn_credentials()'s whole validation block would have left it green.
+        The guard has since moved into BaseAPIClient._make_request (CONCERN-2), so
+        credential validation is reached first again regardless; the assertion is
+        also tightened to pin the exact failure this test is named for.
+        """
+        from utils.error_handler import ConfigurationError
+
+        monkeypatch.delenv("espn_s2", raising=False)
+        monkeypatch.delenv("SWID", raising=False)
+
+        settings = Settings()
+        client = ESPNClient(settings)
+
+        # Mock _make_request so we can verify it's not called
+        client._make_request = Mock()
+
+        with pytest.raises(ConfigurationError, match="Missing required ESPN credential"):
+            await client._get_raw_league_snapshot(league_id=123)
+
+        client._make_request.assert_not_called()
+
+    @pytest.mark.asyncio
+    async def test_end_to_end_sentinel_absent_from_message_and_logs(self, monkeypatch, caplog):
+        """D17.3 review obligation (d) -- the mandatory end-to-end sentinel test.
+
+        Drives the REAL decorated _make_request (through tenacity's @retry with
+        reraise=True, through the moved live-session guard, through the single
+        redacting wrapper in _get_raw_league_snapshot) by patching only
+        client._client.request -- the lowest possible level -- rather than mocking
+        _make_request itself, so BLOCKING-1/2/3's seams are all actually
+        traversed, which is precisely the check the review says per-path unit
+        tests (mocking _make_request wholesale) cannot provide.
+
+        Deliberately does NOT call install_credential_redaction() itself
+        (D17.3 review BLOCKING-5): the filter is now installed unconditionally
+        inside get_espn_credentials() (called below, via
+        _get_raw_league_snapshot), so this test proves the *production*
+        wiring rather than supplying its own setup -- the inverted assertion
+        the review named as the fix for the exact blind spot that let
+        BLOCKING-5 ship undetected three passes in a row.
+
+        Attaches caplog's handler directly to the project's actual logger
+        object (utils.LoggingManager.get_logger()): that logger sets
+        propagate=False (LoggingManager.setup_logger), so caplog's default
+        root-logger handler would capture nothing from it and the log
+        assertion would pass vacuously -- attaching directly to the logger's
+        own handler list is unaffected by propagate (Logger.callHandlers
+        always runs a logger's own handlers before considering propagation).
+        """
+        from utils.LoggingManager import get_logger
+
+        sentinel_s2 = "SENTINEL_S2_e2e_9f8e7d6c"
+        sentinel_swid = "SENTINEL_SWID_e2e_1a2b3c4d"
+        monkeypatch.setenv("espn_s2", sentinel_s2)
+        monkeypatch.setenv("SWID", sentinel_swid)
+        monkeypatch.delenv("ESPN_FIXTURE_DIR", raising=False)
+        monkeypatch.delenv("ESPN_RECORD_FIXTURES_DIR", raising=False)
+
+        # Tenacity's wait_random_exponential backoff sleeps real wall-clock time
+        # between the 3 attempts; patch asyncio.sleep (used both by tenacity's
+        # async retrying and by _make_request's own rate-limit delay) to keep
+        # this test fast without changing retry *counts* or *predicates*.
+        async def _no_sleep(*_args, **_kwargs):
+            return None
+
+        monkeypatch.setattr(asyncio, "sleep", _no_sleep)
+
+        settings = Settings()
+        client = ESPNClient(settings)
+
+        call_count = {"n": 0}
+
+        async def fake_request(method, url, **kwargs):
+            call_count["n"] += 1
+            # Simulates a network-layer failure whose message happens to embed
+            # credential-shaped text -- the class of leak BLOCKING-1/2 exist to
+            # close, regardless of which layer originates it.
+            raise httpx.ConnectError(
+                f"connection failed; cookie=espn_s2={sentinel_s2}; SWID={sentinel_swid}"
+            )
+
+        project_logger = get_logger()
+        project_logger.addHandler(caplog.handler)
+        caplog.set_level("DEBUG")
+        try:
+            async with client.session():
+                client._client.request = fake_request
+                with pytest.raises(ESPNAPIError) as exc_info:
+                    await client._get_raw_league_snapshot(league_id=123, season=2026)
+        finally:
+            project_logger.removeHandler(caplog.handler)
+
+        assert call_count["n"] == 3, "expected all 3 tenacity attempts to run (reraise=True, not swallowed)"
+
+        raised_msg = str(exc_info.value)
+        assert sentinel_s2 not in raised_msg
+        assert sentinel_swid not in raised_msg
+        assert sentinel_s2 not in caplog.text
+        assert sentinel_swid not in caplog.text
+
+    @pytest.mark.asyncio
+    async def test_end_to_end_sentinel_absent_from_file_sink_clean_slate(
+        self, monkeypatch, tmp_path
+    ):
+        """D17.3 review SUGGESTION-14 (both reach gaps, addressed together).
+
+        Gap 1 -- the predecessor e2e test asserts only on `caplog.text` via a
+        handler attached to the project logger; it never exercises the
+        **file** sink (`LineBasedRotatingHandler`, the handler CONCERN-8's
+        narrowing was specifically extended to cover). This test attaches a
+        real file-backed logger via `setup_logger(..., log_to_file=True)` and
+        asserts the sentinel is absent from the file's bytes on disk.
+
+        Gap 2 -- `_credential_redaction_installed` is a module global that
+        latches `True` for the whole pytest process, so under an unlucky
+        ordering the predecessor e2e test could pass because an *earlier*
+        test already installed the filter, not because `get_espn_credentials()`
+        did -- the exact "test supplies its own setup" blind spot BLOCKING-5's
+        remediation exists to eliminate, displaced one level. This test resets
+        that flag (and detaches the filter from every logger/handler it may
+        already be on) before driving the real production path, so the proof
+        is from a genuinely clean slate.
+        """
+        from player_data_fetcher import espn_credentials
+        from utils.credential_redaction import credential_redaction_filter
+        from utils.LoggingManager import setup_logger, get_logger
+
+        # Clean-slate reset (gap 2): undo any earlier test's install so this
+        # test proves get_espn_credentials()'s own unconditional install,
+        # not a residual from process-wide latching.
+        monkeypatch.setattr(espn_credentials, "_credential_redaction_installed", False)
+        for lg in (logging.getLogger(), get_logger()):
+            if credential_redaction_filter in lg.filters:
+                lg.removeFilter(credential_redaction_filter)
+            for handler in lg.handlers:
+                if credential_redaction_filter in handler.filters:
+                    handler.removeFilter(credential_redaction_filter)
+
+        sentinel_s2 = "SENTINEL_S2_filesink_5c4d3e2f"
+        sentinel_swid = "SENTINEL_SWID_filesink_6a7b8c9d"
+        monkeypatch.setenv("espn_s2", sentinel_s2)
+        monkeypatch.setenv("SWID", sentinel_swid)
+        monkeypatch.delenv("ESPN_FIXTURE_DIR", raising=False)
+        monkeypatch.delenv("ESPN_RECORD_FIXTURES_DIR", raising=False)
+
+        async def _no_sleep(*_args, **_kwargs):
+            return None
+
+        monkeypatch.setattr(asyncio, "sleep", _no_sleep)
+
+        # Re-point the project logger at a file-backed handler for the
+        # duration of this test, then restore it -- this logger is a
+        # process-wide singleton (utils.LoggingManager's module-level
+        # instance) shared with every other test.
+        log_file = tmp_path / "espn_filesink_test.log"
+        original_logger = get_logger()
+        setup_logger("default", log_to_file=True, log_file_path=log_file, enable_console=False)
+        try:
+            settings = Settings()
+            client = ESPNClient(settings)
+
+            async def fake_request(method, url, **kwargs):
+                raise httpx.ConnectError(
+                    f"connection failed; cookie=espn_s2={sentinel_s2}; SWID={sentinel_swid}"
+                )
+
+            async with client.session():
+                client._client.request = fake_request
+                with pytest.raises(ESPNAPIError):
+                    await client._get_raw_league_snapshot(league_id=123, season=2026)
+        finally:
+            setup_logger("default", log_to_file=False, enable_console=True)
+
+        file_bytes = log_file.read_bytes()
+        assert sentinel_s2.encode() not in file_bytes
+        assert sentinel_swid.encode() not in file_bytes
+        assert b"***REDACTED***" in file_bytes
+
+
+class TestFixtureRecordingRefusesCorpusRoute:
+    """Test BLOCKING-4: ESPN_RECORD_FIXTURES_DIR must never silently write the
+    raw, unsanitized league_draft payload -- that route is a manifest-backed
+    directory produced only by generate_espn_draft_corpus.py, never a single
+    recordable fixture file."""
+
+    @pytest.mark.asyncio
+    async def test_authenticated_route_refuses_to_record_fixtures(self, monkeypatch, tmp_path):
+        """D17.3 review obligation (d)'s second required check: set
+        ESPN_RECORD_FIXTURES_DIR, drive the authenticated route, assert nothing
+        is written and the call raises rather than silently succeeding."""
+        monkeypatch.delenv("ESPN_FIXTURE_DIR", raising=False)
+        monkeypatch.setenv("ESPN_RECORD_FIXTURES_DIR", str(tmp_path))
+
+        async def _no_sleep(*_args, **_kwargs):
+            return None
+
+        monkeypatch.setattr(asyncio, "sleep", _no_sleep)
+
+        settings = Settings()
+        client = BaseAPIClient(settings)
+
+        class FakeResponse:
+            status_code = 200
+
+            def raise_for_status(self):
+                pass
+
+            def json(self):
+                return {"draftDetail": {"picks": []}, "teams": [], "members": []}
+
+        call_count = {"n": 0}
+
+        async def fake_request(method, url, **kwargs):
+            call_count["n"] += 1
+            return FakeResponse()
+
+        async with client.session():
+            client._client.request = fake_request
+            with pytest.raises(ESPNAPIError, match="league_draft"):
+                await client._make_request(
+                    "GET",
+                    "https://lm-api-reads.fantasy.espn.com/apis/v3/games/ffl/seasons/2026/segments/0/leagues/123",
+                    params={"view": ["mDraftDetail", "mTeam"]},
+                )
+
+        # D17.3 review CONCERN-10/11: the refusal must be classified
+        # non-retryable (FixtureRecordingRefused, excluded structurally in
+        # _should_retry_espn_request), not just eventually raised -- a
+        # deterministic configuration error that retries 3x still costs 3
+        # live authenticated requests against ESPN on the real path. This
+        # assertion is the regression pin on that classification.
+        assert call_count["n"] == 1, (
+            "a deterministic FixtureRecordingRefused must not be retried -- "
+            "expected exactly 1 request attempt"
+        )
+
+        record_dir = tmp_path / "espn_api"
+        assert not record_dir.exists() or not any(record_dir.rglob("*")), (
+            "ESPN_RECORD_FIXTURES_DIR must write nothing for the league_draft corpus route"
+        )

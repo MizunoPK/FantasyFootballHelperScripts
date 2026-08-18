@@ -151,3 +151,137 @@ class TestRedact:
         """A blank/unset secret must not turn every empty substring into a hit."""
         result = redact('unchanged', '', '')
         assert result == 'unchanged'
+
+
+class TestCredentialRedactionFilterAttachment:
+    """D17.3 review BLOCKING-6 regression: the filter must be present on the
+    `"default"` logger's handlers after an entry-point-shaped
+    `setup_logger("<other-name>")` call -- the exact ordering the original
+    defect failed on (a circular deferred import inside
+    `LoggingManager._attach_credential_redaction`, silently swallowed by a
+    bare `except ImportError: return`, left the `"default"` logger's
+    handlers -- built at `utils.LoggingManager` import time -- without the
+    filter). The fix relocated `CredentialRedactionFilter` and its shared
+    singleton to `utils.credential_redaction`, a module with zero project
+    dependencies that `utils` can import directly, making the attachment
+    structurally incapable of failing rather than merely less likely to.
+    """
+
+    def test_default_logger_handlers_carry_filter_after_other_entry_point_setup(self):
+        import logging as _logging
+
+        from utils.LoggingManager import setup_logger
+        from utils.credential_redaction import credential_redaction_filter
+
+        # Mimic a real entry point: configure a *different* named logger,
+        # exactly as player_data_fetcher_main.py does.
+        setup_logger("some_other_entry_point")
+
+        default_logger = _logging.getLogger("default")
+        assert default_logger.handlers, "expected the default logger to have been configured at import time"
+        for handler in default_logger.handlers:
+            assert credential_redaction_filter in handler.filters, (
+                f"credential redaction filter missing from default logger handler {handler!r} "
+                "-- this is the exact BLOCKING-6 regression"
+            )
+
+
+class TestCredentialRedactionCoversLastResort:
+    """D17.3 review CONCERN-20: install_credential_redaction() must attach
+    the filter to logging.lastResort, so a bare `logging.getLogger(__name__)`
+    module with no handlers anywhere in its propagation chain (the concrete
+    instance the review named: utils/csv_utils.py) is still scrubbed at the
+    point stdlib would otherwise emit it unfiltered via lastResort.
+    """
+
+    def test_bare_getlogger_module_record_scrubbed_via_last_resort(self, monkeypatch, capsys):
+        import logging as _logging
+
+        import player_data_fetcher.espn_credentials as _creds
+
+        monkeypatch.setenv("espn_s2", "SENTINEL_S2_LASTRESORT")
+        monkeypatch.setenv("SWID", "SENTINEL_SWID_LASTRESORT")
+
+        # Reset install state and strip the filter from lastResort so this
+        # test proves the install call attaches it, not a leftover from an
+        # earlier test/process.
+        monkeypatch.setattr(_creds, "_credential_redaction_installed", False)
+        from utils.credential_redaction import credential_redaction_filter
+        if credential_redaction_filter in _logging.lastResort.filters:
+            _logging.lastResort.removeFilter(credential_redaction_filter)
+
+        _creds.install_credential_redaction()
+
+        assert credential_redaction_filter in _logging.lastResort.filters
+
+        # A bare getLogger(__name__)-style logger with propagate=True and no
+        # handlers anywhere up its chain -- mirrors utils/csv_utils.py's
+        # module-level logger shape exactly.
+        bare_logger = _logging.getLogger("test_bare_module_no_handlers")
+        bare_logger.handlers.clear()
+        bare_logger.propagate = True
+        bare_logger.setLevel(_logging.WARNING)
+
+        bare_logger.warning("csv leak %s", "SENTINEL_S2_LASTRESORT")
+
+        captured = capsys.readouterr()
+        assert "SENTINEL_S2_LASTRESORT" not in captured.err
+        assert "SENTINEL_S2_LASTRESORT" not in captured.out
+
+
+class TestCredentialRedactionFilterFailsOpen:
+    """D17.3 review CONCERN-12: `CredentialRedactionFilter.filter()` must not
+    raise at the log call site when a record's `%`-formatting is broken --
+    that failure belongs to the handler's own `handleError()` path (as it
+    would for any other formatting defect), not to the filter.
+    """
+
+    def test_broken_percent_formatting_does_not_raise_through_filter_when_credentials_set(self, monkeypatch):
+        import logging as _logging
+
+        from utils.credential_redaction import CredentialRedactionFilter
+
+        monkeypatch.setenv("espn_s2", "some_sentinel_value")
+        monkeypatch.setenv("SWID", "some_other_sentinel")
+
+        class _BadArg:
+            def __str__(self):
+                raise RuntimeError("boom")
+
+        record = _logging.LogRecord(
+            name="test", level=_logging.INFO, pathname=__file__, lineno=1,
+            msg="%s", args=(_BadArg(),), exc_info=None,
+        )
+
+        result = CredentialRedactionFilter().filter(record)
+        assert result is True
+
+    def test_broken_percent_formatting_scrubs_record_args_before_returning(self, monkeypatch):
+        """D17.3 review CONCERN-19: the fail-open arm must not leave
+        `record.args` unswept -- stock `Handler.handleError()` prints
+        `Arguments:` verbatim, so a credential passed as a raw `%`-arg on a
+        record with a mismatched format string must be scrubbed from
+        `record.args` (and `record.msg`) before the filter returns, not
+        just left for the (already-failed) msg/args redaction block above.
+        """
+        import logging as _logging
+
+        from utils.credential_redaction import CredentialRedactionFilter
+
+        monkeypatch.setenv("espn_s2", "SENTINEL_S2_AAA")
+        monkeypatch.setenv("SWID", "{SENTINEL_SWID}")
+
+        # Mismatched format string ('%s %s' with only one arg) -- this is
+        # exactly the review's own reproduction: record.getMessage() raises
+        # a TypeError, which the outer except Exception catches.
+        record = _logging.LogRecord(
+            name="test", level=_logging.INFO, pathname=__file__, lineno=1,
+            msg="mismatch %s %s", args=("SENTINEL_S2_AAA",), exc_info=None,
+        )
+
+        result = CredentialRedactionFilter().filter(record)
+
+        assert result is True
+        assert record.args == ("***REDACTED***",)
+        assert "SENTINEL_S2_AAA" not in str(record.args)
+        assert "SENTINEL_S2_AAA" not in str(record.msg)
