@@ -379,9 +379,21 @@ class TestCheckCoverageDegradation:
 
 
 class TestRealCorpusSeparation:
-    """The one fact D8 exists to protect, asserted as an inequality."""
+    """The one fact D8 exists to protect, asserted as an inequality.
 
-    def test_2023_week_1_is_below_every_other_season_week(self):
+    The 2023 season was REMOVED from the corpus (see PROVENANCE records): its
+    week 1 carried 16.0% coverage because ESPN's own archive holds only 91
+    non-zero week-1 projections for that season, which no recompile can raise.
+    So the defect this class was calibrated against is no longer present to
+    assert on, and the surviving obligation is the OTHER half of the same
+    inequality -- that every remaining season-week sits well clear of the floor,
+    with the margin the calibration assumed. The historical figures (defect
+    16.0%, next-lowest healthy 2021 wk16 81.0%, floor 0.50) are recorded in
+    coverage_baseline.md and restated here so the calibration is auditable
+    without the defect in the tree.
+    """
+
+    def test_every_committed_season_week_is_clear_of_the_floor(self):
         # Arrange
         seasons = _committed_seasons()
 
@@ -407,8 +419,14 @@ class TestRealCorpusSeparation:
         # population, a bye-convention flip, a wrong week span) moves one side
         # across it, while ordinary corpus drift cannot. The exact 16.0% / 81.0%
         # figures are recorded in coverage_baseline.md, D8.3's calibration input.
-        defective = rates.pop(('2023', 1))
-        assert defective < 0.50
+        assert ('2023', 1) not in rates, (
+            "2023 is expected to be absent from the corpus; if it has been "
+            "restored, reinstate the defect-separation assertion this replaced"
+        )
+        # The floor sits at 0.50 and the worst healthy week ever observed is
+        # 0.81, so a margin assertion still catches every regression the
+        # separation test caught (an ADP-ranked population, a bye-convention
+        # flip, a wrong week span) -- each moves the minimum across 0.50.
         assert min(rates.values()) > 0.50
 
 
@@ -590,7 +608,13 @@ class TestRealCorpusEnforcement:
     def _seasons(self):
         return _committed_seasons()
 
-    def test_only_2023_week_1_is_below_the_per_week_floor(self):
+    def test_no_committed_season_week_is_below_the_per_week_floor(self):
+        """2023 -- the only season that ever tripped this floor -- was removed.
+
+        Previously this asserted the defect fired on 2023 wk1 and nowhere else.
+        With that season gone the corpus should be uniformly clean, and a season
+        appearing here now means either a NEW defect or a mis-calibrated floor.
+        """
         # Arrange
         seasons = self._seasons()
 
@@ -600,10 +624,14 @@ class TestRealCorpusEnforcement:
             for season in seasons
         }
 
-        # Assert - the defect fires, and nothing else does. A floor that failed a
-        # second committed season would be mis-calibrated, not stricter.
-        assert offending.pop('2023') == [1]
-        assert all(weeks == [] for weeks in offending.values())
+        # Assert
+        assert '2023' not in offending, (
+            "2023 is expected to be absent from the corpus; if it has been "
+            "restored, its week 1 must be re-measured before this test is trusted"
+        )
+        assert all(weeks == [] for weeks in offending.values()), (
+            f"a committed season-week is below the per-week floor: {offending}"
+        )
 
     def test_no_committed_season_is_below_the_per_season_floor(self):
         # Arrange

@@ -9,7 +9,7 @@
       "injury_status": "ACTIVE",
       "drafted_by": "",
       "locked": false,
-      "average_draft_position": 166.40831663326654,
+      "average_draft_position": 200.0,
       "player_rating": 100.0,
       "projected_points": [
         6.9,
@@ -251,7 +251,7 @@
       "injury_status": "ACTIVE",
       "drafted_by": "",
       "locked": false,
-      "average_draft_position": 81.14483111566018,
+      "average_draft_position": 155.3,
       "player_rating": 96.8,
       "projected_points": [
         5.7,
@@ -493,7 +493,7 @@
       "injury_status": "ACTIVE",
       "drafted_by": "",
       "locked": false,
-      "average_draft_position": 123.75844421699078,
+      "average_draft_position": 148.8,
       "player_rating": 93.6,
       "projected_points": [
         6.6,
@@ -735,7 +735,7 @@
       "injury_status": "ACTIVE",
       "drafted_by": "",
       "locked": false,
-      "average_draft_position": 168.63927855711424,
+      "average_draft_position": 200.0,
       "player_rating": 90.4,
       "projected_points": [
         4.4,
@@ -977,7 +977,7 @@
       "injury_status": "ACTIVE",
       "drafted_by": "",
       "locked": false,
-      "average_draft_position": 158.44831115660185,
+      "average_draft_position": 200.0,
       "player_rating": 87.2,
       "projected_points": [
         3.9,
@@ -1219,7 +1219,7 @@
       "injury_status": "ACTIVE",
       "drafted_by": "",
       "locked": false,
-      "average_draft_position": 165.89099283520983,
+      "average_draft_position": 159.8,
       "player_rating": 84.0,
       "projected_points": [
         7.7,
@@ -1461,7 +1461,7 @@
       "injury_status": "ACTIVE",
       "drafted_by": "",
       "locked": false,
-      "average_draft_position": 58.17349027635619,
+      "average_draft_position": 115.0,
       "player_rating": 80.8,
       "projected_points": [
         4.5,
@@ -1703,7 +1703,7 @@
       "injury_status": "ACTIVE",
       "drafted_by": "",
       "locked": false,
-      "average_draft_position": 156.10747185261002,
+      "average_draft_position": 200.0,
       "player_rating": 77.6,
       "projected_points": [
         3.4,
@@ -1945,7 +1945,7 @@
       "injury_status": "ACTIVE",
       "drafted_by": "",
       "locked": false,
-      "average_draft_position": 146.99437052200614,
+      "average_draft_position": 137.9,
       "player_rating": 74.5,
       "projected_points": [
         6.7,
@@ -2187,7 +2187,7 @@
       "injury_status": "ACTIVE",
       "drafted_by": "",
       "locked": false,
-      "average_draft_position": 119.85516888433982,
+      "average_draft_position": 108.6,
       "player_rating": 71.3,
       "projected_points": [
         7.6,
@@ -2429,7 +2429,7 @@
       "injury_status": "ACTIVE",
       "drafted_by": "",
       "locked": false,
-      "average_draft_position": 163.59877175025588,
+      "average_draft_position": 137.5,
       "player_rating": 68.1,
       "projected_points": [
         5.4,
@@ -2671,7 +2671,7 @@
       "injury_status": "ACTIVE",
       "drafted_by": "",
       "locked": false,
-      "average_draft_position": 86.68526100307062,
+      "average_draft_position": 108.5,
       "player_rating": 64.9,
       "projected_points": [
         5.1,
@@ -2913,7 +2913,7 @@
       "injury_status": "ACTIVE",
       "drafted_by": "",
       "locked": false,
-      "average_draft_position": 167.79609218436875,
+      "average_draft_position": 200.0,
       "player_rating": 61.7,
       "projected_points": [
         6.9,
@@ -3155,7 +3155,7 @@
       "injury_status": "ACTIVE",
       "drafted_by": "",
       "locked": false,
-      "average_draft_position": 168.1161719549642,
+      "average_draft_position": 200.0,
       "player_rating": 58.5,
       "projected_points": [
         4.8,
@@ -3397,7 +3397,7 @@
       "injury_status": "ACTIVE",
       "drafted_by": "",
       "locked": false,
-      "average_draft_position": 168.9145342886387,
+      "average_draft_position": 200.0,
       "player_rating": 55.3,
       "projected_points": [
         4.4,
@@ -3639,7 +3639,7 @@
       "injury_status": "ACTIVE",
       "drafted_by": "",
       "locked": false,
-      "average_draft_position": 168.69689378757516,
+      "average_draft_position": 200.0,
       "player_rating": 52.1,
       "projected_points": [
         4.6,
@@ -3881,7 +3881,7 @@
       "injury_status": "ACTIVE",
       "drafted_by": "",
       "locked": false,
-      "average_draft_position": 168.74309109518936,
+      "average_draft_position": 200.0,
       "player_rating": 48.9,
       "projected_points": [
         4.5,
@@ -4123,7 +4123,7 @@
       "injury_status": "ACTIVE",
       "drafted_by": "",
       "locked": false,
-      "average_draft_position": 155.08751279426818,
+      "average_draft_position": 200.0,
       "player_rating": 45.7,
       "projected_points": [
         2.8,
@@ -4365,7 +4365,7 @@
       "injury_status": "ACTIVE",
       "drafted_by": "",
       "locked": false,
-      "average_draft_position": 165.99897645854657,
+      "average_draft_position": 158.2,
       "player_rating": 42.5,
       "projected_points": [
         6.9,
@@ -4607,7 +4607,7 @@
       "injury_status": "ACTIVE",
       "drafted_by": "",
       "locked": false,
-      "average_draft_position": 167.9575230296827,
+      "average_draft_position": 200.0,
       "player_rating": 39.3,
       "projected_points": [
         4.4,
@@ -4849,7 +4849,7 @@
       "injury_status": "ACTIVE",
       "drafted_by": "",
       "locked": false,
-      "average_draft_position": 169.2589559877175,
+      "average_draft_position": 200.0,
       "player_rating": 36.1,
       "projected_points": [
         7.0,
@@ -5091,7 +5091,7 @@
       "injury_status": "ACTIVE",
       "drafted_by": "",
       "locked": false,
-      "average_draft_position": 149.64529058116233,
+      "average_draft_position": 150.0,
       "player_rating": 32.9,
       "projected_points": [
         2.9,
@@ -5333,7 +5333,7 @@
       "injury_status": "ACTIVE",
       "drafted_by": "",
       "locked": false,
-      "average_draft_position": 168.68526100307062,
+      "average_draft_position": 200.0,
       "player_rating": 29.7,
       "projected_points": [
         6.5,
@@ -5575,7 +5575,7 @@
       "injury_status": "ACTIVE",
       "drafted_by": "",
       "locked": false,
-      "average_draft_position": 159.23541453428865,
+      "average_draft_position": 200.0,
       "player_rating": 26.5,
       "projected_points": [
         6.6,
@@ -5817,7 +5817,7 @@
       "injury_status": "ACTIVE",
       "drafted_by": "",
       "locked": false,
-      "average_draft_position": 166.8940634595701,
+      "average_draft_position": 173.2,
       "player_rating": 23.4,
       "projected_points": [
         4.3,
@@ -6059,7 +6059,7 @@
       "injury_status": "ACTIVE",
       "drafted_by": "",
       "locked": false,
-      "average_draft_position": 164.42384769539078,
+      "average_draft_position": 123.1,
       "player_rating": 20.2,
       "projected_points": [
         6.0,
@@ -6301,7 +6301,7 @@
       "injury_status": "ACTIVE",
       "drafted_by": "",
       "locked": false,
-      "average_draft_position": 168.51503006012024,
+      "average_draft_position": 200.0,
       "player_rating": 17.0,
       "projected_points": [
         5.8,
@@ -6543,7 +6543,7 @@
       "injury_status": "ACTIVE",
       "drafted_by": "",
       "locked": false,
-      "average_draft_position": 166.32214428857716,
+      "average_draft_position": 200.0,
       "player_rating": 13.8,
       "projected_points": [
         3.9,
@@ -6785,7 +6785,7 @@
       "injury_status": "ACTIVE",
       "drafted_by": "",
       "locked": false,
-      "average_draft_position": 169.6062124248497,
+      "average_draft_position": 200.0,
       "player_rating": 10.6,
       "projected_points": [
         6.4,
@@ -7027,7 +7027,7 @@
       "injury_status": "ACTIVE",
       "drafted_by": "",
       "locked": false,
-      "average_draft_position": 106.36072144288578,
+      "average_draft_position": 129.7,
       "player_rating": 7.4,
       "projected_points": [
         5.9,
@@ -7269,7 +7269,7 @@
       "injury_status": "ACTIVE",
       "drafted_by": "",
       "locked": false,
-      "average_draft_position": 164.40634595701127,
+      "average_draft_position": 200.0,
       "player_rating": 4.2,
       "projected_points": [
         4.5,
@@ -7511,7 +7511,7 @@
       "injury_status": "ACTIVE",
       "drafted_by": "",
       "locked": false,
-      "average_draft_position": 169.1811668372569,
+      "average_draft_position": 200.0,
       "player_rating": 1.0,
       "projected_points": [
         5.5,
