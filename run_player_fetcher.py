@@ -68,30 +68,6 @@ def parse_args(argv=None):
         help='Scoring format: ppr (default), half (half-PPR), std (standard)'
     )
 
-    parser.add_argument(
-        '--my-team-name',
-        type=str,
-        default='Sea Sharp',
-        help='Your fantasy team name (default: Sea Sharp)'
-    )
-    parser.add_argument(
-        '--load-drafted-data',
-        action=argparse.BooleanOptionalAction,
-        default=True,
-        help='Load drafted roster data (default: enabled)'
-    )
-    parser.add_argument(
-        '--use-csv-ownership',
-        action=argparse.BooleanOptionalAction,
-        default=False,
-        help='Use CSV drafted-roster ownership instead of the ESPN attribution path (default: disabled -- ESPN is the default supplier)'
-    )
-    parser.add_argument(
-        '--drafted-data-path',
-        type=str,
-        default=str(data_root() / 'drafted_data.csv'),
-        help='Path to drafted data CSV (default: <repo>/data/drafted_data.csv)'
-    )
 
     parser.add_argument(
         '--position-json-output',
@@ -173,10 +149,6 @@ def create_settings_dict(args) -> dict:
         'logging_to_file': args.enable_log_file,
         'current_nfl_week': args.week,
         'season': args.season,
-        'my_team_name': args.my_team_name,
-        'load_drafted_data': args.load_drafted_data,
-        'drafted_data_path': args.drafted_data_path,
-        'use_csv_ownership': args.use_csv_ownership,
         'position_json_output': position_json_output,
         'team_data_folder': team_data_folder,
         'game_data_csv': game_data_csv,

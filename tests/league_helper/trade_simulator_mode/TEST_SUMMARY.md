@@ -108,7 +108,7 @@ Comprehensive unit test coverage for the Fantasy Football Trade Simulator module
 ### Fixtures Used
 - **sample_players**: 12 diverse players across all positions with varying injury statuses
 - **mock_player_manager**: Mocked PlayerManager with controlled scoring behavior
-- **temp_data_folder**: Temporary directory with drafted_data.csv for testing
+- **temp_data_folder**: Temporary directory used as a data root for testing
 
 ### Testing Patterns
 1. **Unit Tests**: Individual method testing with mocks
@@ -175,7 +175,6 @@ pytest tests/league_helper/trade_simulator_mode/test_trade_simulator.py --cov=le
 
 - **start_manual_trade()**: Manual trade visualizer not implemented (returns False)
 - **Interactive UI**: User input/output testing excluded (UI logic only)
-- **DraftedRosterManager**: Tested separately in utils tests
 
 ---
 

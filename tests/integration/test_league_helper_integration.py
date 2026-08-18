@@ -375,8 +375,10 @@ class TestEndToEndWorkflow:
         assert manager is not None
 
 
-class TestDraftedRosterManagerConsolidation:
-    """Integration tests for Sub-feature 7: DraftedRosterManager consolidation"""
+class TestJsonOwnershipConsolidation:
+    """Integration tests for Sub-feature 7: ownership is read from the player
+    JSON rather than a separate roster file (originally the legacy CSV roster
+    manager consolidation; that manager was retired in D17.6)."""
 
     def test_get_players_by_team_with_real_json(self, tmp_path):
         """Test PlayerManager.get_players_by_team() with real JSON data"""
@@ -584,8 +586,9 @@ class TestDraftedRosterManagerConsolidation:
         assert len(trade_sim.team_rosters["Sea Sharp"]) == 4
         assert len(trade_sim.team_rosters["Team Alpha"]) == 4
 
-        drafted_csv = data_folder / "drafted_data.csv"
-        assert not drafted_csv.exists()
+        # Ownership comes from the player JSON alone -- no separate roster
+        # file is written or read anywhere in this chain (D17.6).
+        assert list(data_folder.glob("*.csv")) == []
 
 
 class TestCSVDeprecation:
@@ -646,14 +649,9 @@ class TestCSVDeprecation:
 
 
 class TestOwnershipCutoverEndToEnd:
-    """D17.5 D5 composition: League Helper's opponent derivation is proven
-    against player JSON the EXPORTER actually wrote, not a hand-mocked
-    get_players_by_team(). Every unit-level test in this rollout stubs one side
-    of the seam; this one stubs neither, so a schema or ownership-token mismatch
-    between the fetcher's output and League Helper's reader is caught here.
-
-    Run under BOTH suppliers, because D5's supplier-agnostic claim is exactly
-    the claim a single-supplier test cannot make.
+    """D17.6 deleted the CSV supplier, so the former second arm of this class (the
+    rollback-path run) went with it; the surviving arm is the only supplier there
+    is.
     """
 
     POOL = [
@@ -665,7 +663,7 @@ class TestOwnershipCutoverEndToEnd:
 
     def _data_folder(self, tmp_path):
         """A League-Helper-shaped data folder, built exactly as the sibling
-        TestDraftedRosterManagerConsolidation fixture builds one."""
+        TestJsonOwnershipConsolidation fixture builds one."""
         data_folder = tmp_path / "data"
         data_folder.mkdir()
         (data_folder / "team_data").mkdir()
@@ -746,38 +744,6 @@ class TestOwnershipCutoverEndToEnd:
         # old config intersection would have produced the same answer by luck.
         for name in opponent_names:
             assert name not in config.opponent_teams
-
-    def test_csv_rollback_supplier_output_yields_the_right_opponents(self, tmp_path):
-        """The same reader chain over JSON produced by the --use-csv-ownership
-        rollback path: rollback is preserved, not degraded (D5)."""
-        import asyncio
-        from player_data_fetcher.player_data_exporter import DataExporter
-
-        data_folder = self._data_folder(tmp_path)
-        drafted_csv = tmp_path / "drafted_data.csv"
-        drafted_csv.write_text(
-            "Alpha Runner RB - KC,Sea Sharp\n"
-            "Bravo Runner RB - SF,Annihilators\n"
-            "Charlie Catcher WR - MIN,Pidgin\n",
-            encoding="utf-8",
-        )
-
-        exporter = DataExporter(
-            output_dir=str(tmp_path / "out"),
-            position_json_output=str(data_folder / "player_data"),
-            team_data_folder=str(data_folder / "team_data"),
-            drafted_data_path=str(drafted_csv),
-            use_csv_ownership=True,
-        )
-        asyncio.run(exporter.export_position_json_files(self._projection_data()))
-
-        trade_sim, _config = self._read_opponents(data_folder)
-
-        opponent_names = sorted(team.name for team in trade_sim.opponent_simulated_teams)
-        assert opponent_names == ["Annihilators", "Pidgin"]
-        assert "Sea Sharp" in trade_sim.team_rosters
-        assert "Sea Sharp" not in opponent_names
-
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

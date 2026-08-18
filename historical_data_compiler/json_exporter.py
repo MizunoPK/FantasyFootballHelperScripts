@@ -72,15 +72,16 @@ class JSONSnapshotExporter:
         """Initialize JSONSnapshotExporter.
 
         Reuses a single DataExporter instance for stat extraction across all
-        players to avoid per-player instantiation cost. load_drafted_data=False
-        skips the drafted_data.csv read because the _extract_* methods used here
-        do not consult drafted-roster state.
+        players to avoid per-player instantiation cost. No ownership argument is
+        passed: the `_extract_*` methods used here do not consult ownership state,
+        and since D17.6 `DataExporter` performs no ownership work at construction
+        time (ownership is loaded only by the awaited `load_espn_attribution`,
+        which this exporter never calls).
         """
         self.logger = get_logger()
         self._data_exporter = DataExporter(
             output_dir=str(Path.cwd()),
             current_nfl_week=REGULAR_SEASON_WEEKS + 1,
-            load_drafted_data=False,
         )
 
     def _calculate_player_ratings(

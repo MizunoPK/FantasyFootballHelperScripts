@@ -116,19 +116,22 @@ For each trade, note:
 
 ## Step 2: Identify the User's Roster
 
-### 2.1 Read Drafted Data File
+### 2.1 Read Ownership Data
+
+Ownership lives in the player-data JSON the fetcher writes — there is no separate roster file.
 
 ```python
-Read("/path/to/data/drafted_data.csv")
+Read("/path/to/data/player_data/qb_data.json")   # and rb_/wr_/te_/k_/dst_data.json
 ```
 
-Format: `Player Name Position - Team, Owner Team Name`
+Format: each file is `{"<position>_data": [ {..., "name": ..., "team": ..., "drafted_by": ...}, ... ]}`.
+`drafted_by` holds the owning fantasy team's name, or `""` for a free agent.
 
 ### 2.2 Extract User's Team
 
 ```bash
 # If user's team is "Sea Sharp":
-grep "Sea Sharp" "/path/to/data/drafted_data.csv"
+grep -h '"drafted_by": "Sea Sharp"' -B6 /path/to/data/player_data/*_data.json
 ```
 
 ### 2.3 Organize Roster by Position
@@ -257,7 +260,7 @@ Keep track of where info came from:
 
 ### 4.1 Extract All Opponent Rosters
 
-From `drafted_data.csv`, extract rosters for:
+From `data/player_data/*_data.json`, extract rosters (by `drafted_by`) for:
 - The Eskimo Brothers
 - Pidgin
 - Striking Shibas
@@ -267,8 +270,8 @@ From `drafted_data.csv`, extract rosters for:
 - (Any other teams involved in trades)
 
 ```bash
-grep "The Eskimo Brothers" "/path/to/drafted_data.csv"
-grep "Pidgin" "/path/to/drafted_data.csv"
+grep -h '"drafted_by": "The Eskimo Brothers"' -B6 /path/to/data/player_data/*_data.json
+grep -h '"drafted_by": "Pidgin"' -B6 /path/to/data/player_data/*_data.json
 # etc.
 ```
 
@@ -632,7 +635,7 @@ For each player the user would acquire:
 
 **A. Extract Full Roster**
 ```bash
-grep "Opponent Team Name" /path/to/drafted_data.csv
+grep -h '"drafted_by": "Opponent Team Name"' -B6 /path/to/data/player_data/*_data.json
 ```
 
 **B. Categorize by Position**
@@ -1115,7 +1118,7 @@ WebSearch("Rhamondre Stevenson fantasy football week 7 2025 outlook")
 **Step 4: Research Opponent (Saquon Deez)**
 
 ```bash
-grep "Saquon Deez" /path/to/drafted_data.csv
+grep -h '"drafted_by": "Saquon Deez"' -B6 /path/to/data/player_data/*_data.json
 ```
 
 **Their Roster:**

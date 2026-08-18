@@ -24,7 +24,6 @@ from utils.FantasyPlayer import FantasyPlayer
 from utils.TeamData import save_team_weekly_data
 from utils.data_file_manager import DataFileManager
 from utils.LoggingManager import get_logger
-from utils.DraftedRosterManager import DraftedRosterManager
 
 from league_helper.constants import FANTASY_TEAM_NAME
 
@@ -63,10 +62,6 @@ class DataExporter:
         current_nfl_week: int = 17,
         position_json_output: Optional[str] = None,
         team_data_folder: Optional[str] = None,
-        load_drafted_data: bool = True,
-        drafted_data_path: Optional[str] = None,
-        my_team_name: str = 'Sea Sharp',
-        use_csv_ownership: bool = False,
         espn_settings: Optional[Any] = None
     ):
         self.output_dir = Path(output_dir)
@@ -85,12 +80,6 @@ class DataExporter:
             team_data_folder if team_data_folder is not None
             else str(_root / 'team_data')
         )
-        self.load_drafted_data = load_drafted_data
-        self.drafted_data_path = (
-            drafted_data_path if drafted_data_path is not None
-            else str(_root / 'drafted_data.csv')
-        )
-        self.my_team_name = my_team_name
         self.logger = get_logger()
 
         self.file_manager = DataFileManager(str(self.output_dir), None)
@@ -100,27 +89,14 @@ class DataExporter:
         self.position_defense_rankings = {}
         self.team_weekly_data = {}
 
-        self.use_csv_ownership = use_csv_ownership
-
-        # D17.5 D2: the legacy CSV owner is absent from the default path's object
-        # graph, not merely unused -- construction itself is gated on the supplier
-        # flag, so the fuzzy-name path cannot be re-entered by accident after the
-        # cutover. It stays fully functional behind --use-csv-ownership (rollback).
-        self.drafted_roster_manager: Optional[DraftedRosterManager] = None
-        if self.use_csv_ownership:
-            self.drafted_roster_manager = DraftedRosterManager(self.drafted_data_path, self.my_team_name)
-            if self.load_drafted_data:
-                self.drafted_roster_manager.load_drafted_data()
-
         self.espn_settings = espn_settings
         self._espn_attribution: Optional[Dict[str, str]] = None
 
     async def load_espn_attribution(self, players: List[ESPNPlayerData]) -> None:
         """Fetch + reconcile ESPN draft attribution when the ESPN supplier is selected.
 
-        The ESPN supplier is the DEFAULT since D17.5's cutover; this method is a
-        no-op only on the `--use-csv-ownership` rollback path. On the default
-        path it calls D17.3's authenticated ESPNClient method, then
+        The ESPN league snapshot is the SOLE ownership supplier since D17.6's
+        contraction. This method calls D17.3's authenticated ESPNClient method, then
         `reconcile_espn_attribution` (D17.4), then normalizes our own team's
         picks to `FANTASY_TEAM_NAME` (`_normalize_our_team_attribution`, D17.5
         D3/D6), and only then stores the complete map on
@@ -145,16 +121,12 @@ class DataExporter:
                 offending playerId (spec.md D3); when the configured
                 `ESPN_TEAM_ID` is absent from `snapshot.teams[]`; or when another
                 team's name collides with `FANTASY_TEAM_NAME` (D17.5 D6). Never a
-                silent CSV fallback.
+                silent fallback -- there is no second supplier (D17.6).
         """
-        if self.use_csv_ownership:
-            return
-
         if self.espn_settings is None:
             raise PlayerDataValidationError(
-                "load_espn_attribution requires espn_settings when "
-                "use_csv_ownership is False; DataExporter was constructed "
-                "without an espn_settings object."
+                "load_espn_attribution requires espn_settings; DataExporter was "
+                "constructed without an espn_settings object."
             )
 
         from league_helper.util.ConfigManager import ConfigManager, ConfigKeys
@@ -212,8 +184,8 @@ class DataExporter:
         `drafted_by` against `league_helper.constants.FANTASY_TEAM_NAME` by string
         equality (`FantasyPlayer.is_rostered`, utils/FantasyPlayer.py:367).
         Normalizing here -- at the seam, keyed on the stable `teamId` rather than
-        on a name -- keeps `drafted_by` byte-identical to the CSV supplier's
-        output, so an ESPN-side team rename cannot break our own identity.
+        on a name -- makes `drafted_by` carry the exact token those readers
+        compare against, so an ESPN-side team rename cannot break our own identity.
 
         Args:
             snapshot: The validated ESPN league snapshot `attribution` came from.
@@ -341,19 +313,15 @@ class DataExporter:
         """Convert ProjectionData to list of FantasyPlayer objects"""
         fantasy_players = [self._espn_player_to_fantasy_player(player) for player in data.players]
 
-        if self.use_csv_ownership:
-            fantasy_players = self.drafted_roster_manager.apply_drafted_state_to_players(fantasy_players)
-        else:
-            if self._espn_attribution is None:
-                raise PlayerDataValidationError(
-                    "get_fantasy_players reached with the ESPN supplier "
-                    "selected but attribution not loaded; "
-                    "load_espn_attribution must be awaited first."
-                )
-            for player in fantasy_players:
-                team_name = self._espn_attribution.get(str(player.id))
-                if team_name is not None:
-                    player.drafted_by = team_name
+        if self._espn_attribution is None:
+            raise PlayerDataValidationError(
+                "get_fantasy_players reached but ESPN attribution is not "
+                "loaded; load_espn_attribution must be awaited first."
+            )
+        for player in fantasy_players:
+            team_name = self._espn_attribution.get(str(player.id))
+            if team_name is not None:
+                player.drafted_by = team_name
 
         return fantasy_players
 
@@ -531,11 +499,10 @@ class DataExporter:
         """
         Get drafted_by value from player (team name or empty string).
 
-        Player already has its drafted_by value populated by whichever ownership
-        supplier `get_fantasy_players` selected: the ESPN snapshot reconciliation on
-        the default path (D17.5), or DraftedRosterManager on the --use-csv-ownership
-        rollback path. This accessor is supplier-agnostic, reads the field only, and
-        maintains the abstraction layer for future flexibility.
+        Player already has its drafted_by value populated by `get_fantasy_players`
+        from the reconciled ESPN league snapshot (the sole ownership supplier since
+        D17.6). This accessor reads the field only and maintains the abstraction
+        layer for future flexibility.
 
         Args:
             player: FantasyPlayer with drafted_by field populated

@@ -175,7 +175,7 @@ Two environment seams exist for this:
 
 | Variable | Redirects | Consumed by |
 |---|---|---|
-| `PLAYER_DATA_DIR` | the fetcher's data **root** — the directory *containing* `player_data/`, `team_data/`, `game_data.csv`, `drafted_data.csv` | `player_data_fetcher/config.py:data_root()` |
+| `PLAYER_DATA_DIR` | the fetcher's data **root** — the directory *containing* `player_data/`, `team_data/`, and `game_data.csv` | `player_data_fetcher/config.py:data_root()` |
 | `LEAGUE_DATA_DIR` | the League Helper's data tree | `league_helper/LeagueHelperManager.py` |
 
 ```python

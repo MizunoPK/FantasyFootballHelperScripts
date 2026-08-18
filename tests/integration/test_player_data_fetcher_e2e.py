@@ -1,8 +1,15 @@
 """
 E2E integration test for the player_data_fetcher pipeline in offline fixture mode.
 
-Tests the full pipeline using ESPN fixture files and the drafted_data fixture,
-exercising output validation, drafted state, and all 6 position JSON outputs.
+Tests the full pipeline using ESPN fixture files -- including the manifest-backed
+`league_draft` replay corpus as the ownership supplier -- exercising output
+validation, drafted state, and all 6 position JSON outputs.
+
+D17.6: the CSV ownership supplier this fixture used to drive was deleted. The run
+now drives the ESPN supplier the same way every other offline test does: dummy
+credentials in the process environment (`_get_raw_league_snapshot` reads them
+before `_make_request` reaches its fixture branch, so they are required even
+though no request leaves the machine) plus an explicit `ESPN_DRAFT_FIXTURE_STEP`.
 """
 import asyncio
 import json
@@ -15,6 +22,9 @@ from player_data_fetcher.player_data_fetcher_main import main, POSITION_CODES
 
 
 FIXTURES_DIR = Path(__file__).parent.parent / 'fixtures'
+# Last step of the league_draft replay corpus -- the only step with completed picks
+# for more than one team, so ownership is provably applied to several teams.
+DRAFT_FIXTURE_STEP = 7
 
 
 class TestPlayerDataFetcherE2E:
@@ -31,9 +41,6 @@ class TestPlayerDataFetcherE2E:
             'team_data_folder': str(output_root / 'team_data'),
             'game_data_csv': str(output_root / 'game_data.csv'),
             'enable_historical_save': False,
-            'load_drafted_data': True,
-            'drafted_data_path': str(FIXTURES_DIR / 'league' / 'drafted_data.csv'),
-            'my_team_name': 'Sea Sharp',
             'season': 2025,
             'current_nfl_week': 1,
             'request_timeout': 30,
@@ -42,17 +49,23 @@ class TestPlayerDataFetcherE2E:
             'log_level': 'WARNING',
             'logging_to_file': False,
             'scoring_format': 'ppr',
-            'use_csv_ownership': True,
         }
-        prev = os.environ.get('ESPN_FIXTURE_DIR')
-        os.environ['ESPN_FIXTURE_DIR'] = str(FIXTURES_DIR)
+        env = {
+            'ESPN_FIXTURE_DIR': str(FIXTURES_DIR),
+            'ESPN_DRAFT_FIXTURE_STEP': str(DRAFT_FIXTURE_STEP),
+            'espn_s2': 'offline-fixture-placeholder',
+            'SWID': '{OFFLINE-FIXTURE-PLACEHOLDER}',
+        }
+        prev = {k: os.environ.get(k) for k in env}
+        os.environ.update(env)
         try:
             asyncio.run(main(settings))
         finally:
-            if prev is None:
-                os.environ.pop('ESPN_FIXTURE_DIR', None)
-            else:
-                os.environ['ESPN_FIXTURE_DIR'] = prev
+            for k, v in prev.items():
+                if v is None:
+                    os.environ.pop(k, None)
+                else:
+                    os.environ[k] = v
         return output_root / 'player_data'
 
     def test_pipeline_runs_to_completion(self, pipeline_output):
@@ -76,7 +89,9 @@ class TestPlayerDataFetcherE2E:
             )
 
     def test_drafted_by_populated(self, pipeline_output):
-        """At least one player has non-empty drafted_by when fixture drafted data loaded."""
+        """D17.6 AC3: ownership APPLICATION survives the CSV supplier's deletion --
+        the exported JSON still carries drafted_by for the replay corpus's
+        completed picks."""
         all_players = []
         for pos in POSITION_CODES:
             file_path = pipeline_output / f'{pos}_data.json'

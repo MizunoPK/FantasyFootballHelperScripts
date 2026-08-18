@@ -26,9 +26,6 @@ def _make_settings_dict(tmp_path, **overrides):
         'logging_to_file': False,
         'current_nfl_week': 17,
         'season': 2025,
-        'my_team_name': 'Sea Sharp',
-        'load_drafted_data': False,
-        'drafted_data_path': str(tmp_path / 'drafted_data.csv'),
         'position_json_output': str(tmp_path / 'player_data'),
         'team_data_folder': str(tmp_path / 'team_data'),
         'game_data_csv': str(tmp_path / 'game_data.csv'),
@@ -39,7 +36,6 @@ def _make_settings_dict(tmp_path, **overrides):
         'rate_limit_delay': 0.2,
         'progress_frequency': 10,
         'scoring_format': 'ppr',
-        'use_csv_ownership': True,
     }
     base.update(overrides)
     return base
@@ -62,15 +58,16 @@ class TestSettingsDataclass:
         settings = Settings(season=2024)
         assert settings.season == 2024
 
-    def test_settings_has_all_18_required_fields(self):
-        """3.3: Settings has all 18 required fields"""
+    def test_settings_has_all_14_required_fields(self):
+        """3.3: Settings has all 14 required fields (D17.6 deleted the four
+        CSV-ownership fields: load_drafted_data, drafted_data_path,
+        my_team_name, use_csv_ownership)"""
         settings = Settings()
         required_fields = [
             'scoring_format', 'season', 'current_nfl_week', 'request_timeout',
             'rate_limit_delay', 'espn_player_limit', 'position_json_output',
             'team_data_folder', 'game_data_csv',
-            'enable_historical_save', 'enable_game_data', 'load_drafted_data',
-            'drafted_data_path', 'my_team_name', 'progress_frequency',
+            'enable_historical_save', 'enable_game_data', 'progress_frequency',
             'log_level', 'logging_to_file', 'e2e_test',
         ]
         for field in required_fields:
@@ -173,88 +170,23 @@ class TestSettingsEdgeCases:
 
 
 class TestE2EGracefulSkip:
-    """Test E2E graceful skip for missing drafted data file"""
+    """D17.6: what "graceful skip" means after the CSV precondition was deleted --
+    the default run has no local-file precondition at all, and --e2e-test skips
+    the authenticated league read rather than requiring credentials."""
 
     @pytest.mark.asyncio
-    async def test_e2e_missing_drafted_file_no_exception(self, tmp_path):
-        """11.2 / E-1: E2E mode + missing drafted data file → no FileNotFoundError"""
-        missing_path = str(tmp_path / 'nonexistent_drafted.csv')
-        settings_dict = _make_settings_dict(
-            tmp_path,
-            e2e_test=True,
-            load_drafted_data=True,
-            drafted_data_path=missing_path,
-        )
-        with patch('player_data_fetcher.player_data_fetcher_main.NFLProjectionsCollector') as mock_cls:
-            mock_collector = MagicMock()
-            mock_collector.collect_all_projections = AsyncMock(return_value={
-                'season': ProjectionData(season=2025, scoring_format='ppr', total_players=200, players=[])
-            })
-            mock_collector.export_data = AsyncMock(return_value=[])
-            mock_collector.exporter.load_espn_attribution = AsyncMock(return_value=None)
-            mock_cls.return_value = mock_collector
-            with patch('player_data_fetcher.player_data_fetcher_main.setup_logger'):
-                with patch('player_data_fetcher.player_data_fetcher_main.validate_output_files'):
-                    await main(settings_dict)
+    async def test_default_run_reaches_the_fetch_with_no_local_precondition(self, tmp_path):
+        """D17.5 review BLOCKING-2, carried forward by D17.6: the shipped default
+        (`python run_player_fetcher.py`, no flags) must reach the fetch.
 
-    @pytest.mark.asyncio
-    async def test_e2e_with_existing_drafted_file_loads_normally(self, tmp_path):
-        """11.3: E2E mode + file present → runs without error"""
-        drafted_csv = tmp_path / 'drafted.csv'
-        drafted_csv.write_text('player_name,team_name\nTest Player,Sea Sharp\n')
-        settings_dict = _make_settings_dict(
-            tmp_path,
-            e2e_test=True,
-            load_drafted_data=True,
-            drafted_data_path=str(drafted_csv),
-        )
-        with patch('player_data_fetcher.player_data_fetcher_main.NFLProjectionsCollector') as mock_cls:
-            mock_collector = MagicMock()
-            mock_collector.collect_all_projections = AsyncMock(return_value={
-                'season': ProjectionData(season=2025, scoring_format='ppr', total_players=200, players=[])
-            })
-            mock_collector.export_data = AsyncMock(return_value=[])
-            mock_collector.exporter.load_espn_attribution = AsyncMock(return_value=None)
-            mock_cls.return_value = mock_collector
-            with patch('player_data_fetcher.player_data_fetcher_main.setup_logger'):
-                with patch('player_data_fetcher.player_data_fetcher_main.validate_output_files'):
-                    await main(settings_dict)
-
-    @pytest.mark.asyncio
-    async def test_non_e2e_missing_drafted_file_raises(self, tmp_path):
-        """E-2: Non-E2E mode + missing drafted data file → FileNotFoundError"""
-        missing_path = str(tmp_path / 'nonexistent_drafted.csv')
-        settings_dict = _make_settings_dict(
-            tmp_path,
-            e2e_test=False,
-            load_drafted_data=True,
-            drafted_data_path=missing_path,
-        )
-        with patch('player_data_fetcher.player_data_fetcher_main.setup_logger'):
-            with pytest.raises(FileNotFoundError):
-                await main(settings_dict)
-
-    @pytest.mark.asyncio
-    async def test_default_espn_path_does_not_require_the_drafted_csv(self, tmp_path):
-        """D17.5 review BLOCKING-2: on the DEFAULT (ESPN) path a missing
-        drafted_data.csv must NOT abort the run.
-
-        The whole-run precondition used to be gated on `load_drafted_data` alone.
-        That was a correct proxy before the cutover -- the CSV was the only
-        ownership source. After the flip the default path never opens the CSV, so
-        gating on that flag alone made the shipped default
-        (`python run_player_fetcher.py`, no flags) raise FileNotFoundError before
-        any fetch, against a file it does not need. Reverting the `and
-        settings.use_csv_ownership` clause turns this test red.
+        D17.5 fixed this by narrowing the whole-run precondition to
+        `load_drafted_data and use_csv_ownership`. D17.6 deleted that precondition
+        outright with the CSV supplier it guarded -- there is no longer any local
+        file whose absence can abort a run before the first fetch. This test is
+        the surviving guard for that property: re-introducing ANY pre-fetch
+        local-file precondition in `main()` turns it red.
         """
-        missing_path = str(tmp_path / 'nonexistent_drafted.csv')
-        settings_dict = _make_settings_dict(
-            tmp_path,
-            e2e_test=False,
-            load_drafted_data=True,       # the default
-            use_csv_ownership=False,      # the NEW default -- CSV is not the supplier
-            drafted_data_path=missing_path,
-        )
+        settings_dict = _make_settings_dict(tmp_path, e2e_test=False)
         with patch('player_data_fetcher.player_data_fetcher_main.NFLProjectionsCollector') as mock_cls:
             mock_collector = MagicMock()
             mock_collector.collect_all_projections = AsyncMock(return_value={
@@ -273,21 +205,16 @@ class TestE2EGracefulSkip:
     async def test_e2e_skips_the_authenticated_league_read_without_a_fixture_dir(self, tmp_path, monkeypatch):
         """D17.5 review GAP-1: --e2e-test must not make a LIVE authenticated call.
 
-        Before the cutover, e2e mode only had to excuse a missing drafted_data.csv.
-        After the flip the flag inherits the ESPN supplier by default, so without the
-        skip arm an e2e run performs a live authenticated league read -- turning the
+        The ESPN league read is the only ownership supplier, so without the skip
+        arm an e2e run performs a live authenticated league read -- turning the
         project's offline-graceful mode into one requiring credentials and network.
-        Removing the `settings.e2e_test and not settings.use_csv_ownership and not
-        ESPN_FIXTURE_DIR` arm turns this test red.
+        Removing the `settings.e2e_test and not ESPN_FIXTURE_DIR` arm turns this
+        test red. (D17.6 dropped the arm's `not settings.use_csv_ownership`
+        conjunct with the flag; the flag's default was already False, so the
+        guard's truth table is unchanged for every reachable input.)
         """
         monkeypatch.delenv("ESPN_FIXTURE_DIR", raising=False)
-        settings_dict = _make_settings_dict(
-            tmp_path,
-            e2e_test=True,
-            load_drafted_data=True,
-            use_csv_ownership=False,      # what --e2e-test actually yields post-cutover
-            drafted_data_path=str(tmp_path / 'nonexistent_drafted.csv'),
-        )
+        settings_dict = _make_settings_dict(tmp_path, e2e_test=True)
         with patch('player_data_fetcher.player_data_fetcher_main.NFLProjectionsCollector') as mock_cls:
             mock_collector = MagicMock()
             mock_collector.collect_all_projections = AsyncMock(return_value={
@@ -502,11 +429,7 @@ class TestE2EGracefulSkip:
 
     def test_e2e_settings_flag_is_true(self, tmp_path):
         """E-1: e2e_test=True in settings_dict → Settings.e2e_test is True"""
-        settings_dict = _make_settings_dict(
-            tmp_path,
-            e2e_test=True,
-            drafted_data_path=str(tmp_path / 'nonexistent.csv'),
-        )
+        settings_dict = _make_settings_dict(tmp_path, e2e_test=True)
         settings = create_settings_from_dict(settings_dict)
         assert settings.e2e_test is True
 
@@ -536,7 +459,6 @@ class TestSettingsDataRootSeam:
         assert settings.position_json_output == str(root / 'player_data')
         assert settings.team_data_folder == str(root / 'team_data')
         assert settings.game_data_csv == str(root / 'game_data.csv')
-        assert settings.drafted_data_path == str(root / 'drafted_data.csv')
 
     def test_settings_defaults_are_repo_anchored_when_unset(self, monkeypatch):
         """T91-11 (AC3): unset, Settings' defaults are byte-identical to today's"""
@@ -550,7 +472,7 @@ class TestSettingsDataRootSeam:
         assert settings.position_json_output == str(repo_data / 'player_data')
         assert settings.team_data_folder == str(repo_data / 'team_data')
         assert settings.game_data_csv == str(repo_data / 'game_data.csv')
-        assert settings.drafted_data_path == str(repo_data / 'drafted_data.csv')
+        # D17.6: drafted_data_path deleted with the CSV ownership path.
 
     def test_settings_resolves_per_instance_not_at_class_definition(self, monkeypatch, tmp_path):
         """T91-12 (AC4): two Settings() built under different PLAYER_DATA_DIR values differ.
