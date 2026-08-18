@@ -193,8 +193,22 @@ class ModifyPlayerDataModeManager:
         #
         # The stale-name problem is real but is CONFIG data, not code: OPPONENT_TEAMS
         # must be retyped with the ESPN league's team names when the real league is
-        # configured. Offering a stale name is a cosmetic annoyance; offering nothing
-        # is a functional dead end.
+        # configured.
+        #
+        # Its cost is NOT merely cosmetic, and the trade-off is recorded honestly
+        # (review CONCERN-4): selecting a stale configured name WRITES it to
+        # drafted_by, and D5i's derived opponent set then promotes it to a full
+        # phantom opponent indistinguishable from a real ESPN team -- and
+        # is_drafted_by_opponent() will hide that player from waiver recommendations
+        # for the rest of the session. It is bounded (user-initiated, never
+        # automatic; reversible via _drop_player; self-healing on the next fetch,
+        # which resets drafted_by) but a draft session never re-fetches, so it
+        # persists for that whole session.
+        #
+        # It is accepted anyway because the alternative is strictly worse: without
+        # the seed, no opponent's first pick can be recorded AT ALL. A wrong name the
+        # user chose and can undo beats a correct name the user cannot reach.
+        # Retyping OPPONENT_TEAMS removes the trade-off entirely.
         if not self.player_manager.config.opponent_teams:
             print("Warning: no OPPONENT_TEAMS configured in data/configs/league_config.json - "
                   "the team list will only show teams already present in the player data.")

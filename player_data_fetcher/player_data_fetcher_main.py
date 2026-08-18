@@ -20,6 +20,7 @@ import json
 import logging
 import shutil
 import sys
+import os
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, List
@@ -600,7 +601,23 @@ async def main(settings_dict: dict | None = None) -> None:
             )
             sys.exit(1)
 
-        await collector.exporter.load_espn_attribution(projection_data['season'].players)
+        # D17.5 review GAP-1: `--e2e-test` means "run the pipeline without requiring
+        # locally-provisioned data". Before the cutover it only had to excuse a
+        # missing drafted_data.csv (see the precondition above). After the flip the
+        # flag inherits the ESPN supplier by default, so without this arm an e2e run
+        # would perform a LIVE AUTHENTICATED league read -- turning the project's
+        # offline-graceful mode into one that needs credentials and network. The CSV
+        # branch already skips gracefully in e2e; this is the symmetric treatment for
+        # the ESPN branch, and it is deliberately scoped to e2e mode only so a real
+        # run still fails loudly rather than silently shipping an unowned board.
+        if settings.e2e_test and not settings.use_csv_ownership and not os.environ.get("ESPN_FIXTURE_DIR"):
+            logger.info(
+                "E2E mode: ESPN ownership supplier selected but no ESPN_FIXTURE_DIR is set; "
+                "skipping the authenticated league read. drafted_by will be empty for every "
+                "player in this run."
+            )
+        else:
+            await collector.exporter.load_espn_attribution(projection_data['season'].players)
 
         loop = asyncio.get_running_loop()
         game_data_future = loop.run_in_executor(None, collector.fetch_game_data)
