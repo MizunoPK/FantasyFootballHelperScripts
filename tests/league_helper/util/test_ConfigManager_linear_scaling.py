@@ -645,19 +645,38 @@ class TestTierReachabilityIsModeAware:
 
         Deliberately reads the LIVE store rather than a fixture: the requirement here IS
         that the shipped configuration keeps its current accept verdict, which a temp-dir
-        copy could not evidence. As of D10.3 the live ADP_SCORING carries
-        SCALING: "LINEAR"; the remaining five factors are still BUCKETED (no SCALING key
-        exists on disk for them), so this exercises the switched ADP path and the
-        unchanged five-label path together, end to end.
+        copy could not evidence. As of D10.4 BOTH live cutover factors carry
+        SCALING: "LINEAR" -- ADP_SCORING (switched by D10.3) and PLAYER_RATING_SCORING
+        (switched by D10.4) -- while the remaining SIX factors are still BUCKETED (no
+        SCALING key exists on disk for them), so this exercises both switched paths and
+        the unchanged five-label path together, end to end.
+
+        SIX, not four: there are EIGHT SCALING-capable factors, enumerated by
+        ConfigManager.MULTIPLIER_INPUT_DOMAINS. TEMPERATURE_SCORING and WIND_SCORING live
+        in the week*.json horizons rather than league_config.json, which is why earlier
+        counts here omitted them -- but the merged config.parameters this test already
+        holds carries all eight, so they are covered by the negative loop below. Measured
+        through this same ConfigManager(LIVE_CONFIG_ROOT), 2026-08-18.
+
+        This test ENUMERATES which live factors carry SCALING, so every cutover unit must
+        move its own factor from the negative loop into the positive pinned set above it.
+        That is inherent to an enumerating test, not an oversight by any one unit.
         """
         # Act / Assert -- construction performs the whole load-time validation chain
         config = ConfigManager(LIVE_CONFIG_ROOT)
 
-        # Assert -- ADP_SCORING is the one live factor D10.3 switched to LINEAR
+        # Assert -- ADP_SCORING is the live factor D10.3 switched to LINEAR
         assert config.parameters["ADP_SCORING"]["SCALING"] == "LINEAR"
 
-        # Assert -- and no OTHER live block acquired a SCALING key
-        for scoring_key in ("PLAYER_RATING_SCORING",
-                            "TEAM_QUALITY_SCORING", "MATCHUP_SCORING",
-                            "SCHEDULE_SCORING", "PERFORMANCE_SCORING"):
+        # Assert -- PLAYER_RATING_SCORING is the live factor D10.4 switched to LINEAR.
+        # Pinned POSITIVELY rather than merely dropped from the loop below, so the test
+        # still fails on a WRONG value as well as on removal of the key.
+        assert config.parameters["PLAYER_RATING_SCORING"]["SCALING"] == "LINEAR"
+
+        # Assert -- and no OTHER live block acquired a SCALING key. All SIX remaining
+        # factors, including the two that live in the week*.json horizons rather than
+        # league_config.json.
+        for scoring_key in ("TEAM_QUALITY_SCORING", "MATCHUP_SCORING",
+                            "SCHEDULE_SCORING", "PERFORMANCE_SCORING",
+                            "TEMPERATURE_SCORING", "WIND_SCORING"):
             assert "SCALING" not in config.parameters[scoring_key]

@@ -108,7 +108,7 @@
       "THRESHOLDS": {
         "BASE_POSITION": 0,
         "DIRECTION": "INCREASING",
-        "STEPS": 20
+        "STEPS": 25
       },
       "MULTIPLIERS": {
         "VERY_POOR": 0.95,
@@ -116,6 +116,7 @@
         "GOOD": 1.025,
         "EXCELLENT": 1.05
       },
+      "SCALING": "LINEAR",
       "WEIGHT": 4.0
     },
     "OPPONENT_TEAMS": [
