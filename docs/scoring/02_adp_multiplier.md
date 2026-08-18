@@ -8,8 +8,9 @@ Average Draft Position (ADP) reflects market consensus on player value, incorpor
 |-----------|-------|
 | Step Number | 2 |
 | Type | Multiplicative |
-| Multiplier Range | 0.95 - 1.05 |
-| Weight Exponent | 2.846 |
+| Scaling Mode | LINEAR (continuous interpolation) |
+| Multiplier Range | 0.8970 - 1.1090 (after the weight exponent) |
+| Weight Exponent | 2.12 |
 | Data Source | `players.csv` → `average_draft_position` |
 
 ## Purpose
@@ -39,25 +40,39 @@ adjusted_score = normalized_score * final_multiplier
 
 ### Threshold System
 
-ADP uses **DECREASING** direction (lower ADP = better):
+ADP uses **DECREASING** direction (lower ADP = better) and, since D10.3,
+**`SCALING: "LINEAR"`** — the ladder is no longer a set of stepped bands.
 
-Calculated from BASE_POSITION=0, STEPS=31.63:
+Four anchors are calculated from BASE_POSITION=0, STEPS=25:
 
-| ADP Range | Rating | Base Multiplier | With Weight (2.846) |
+| Anchor ADP | Rating | Base Multiplier | With Weight (2.12) |
 |-----------|--------|-----------------|---------------------|
-| ≤31.6 | EXCELLENT | 1.05 | 1.152 |
-| 31.7-63.3 | GOOD | 1.025 | 1.073 |
-| 63.4-94.9 | AVERAGE | 1.0 | 1.000 |
-| 95.0-126.5 | POOR | 0.975 | 0.931 |
-| >126.5 | VERY_POOR | 0.95 | 0.866 |
+| 25 | EXCELLENT | 1.05 | 1.1090 |
+| 50 | GOOD | 1.025 | 1.0537 |
+| 75 | POOR | 0.975 | 0.9477 |
+| 100 | VERY_POOR | 0.95 | 0.8970 |
+
+The label and multiplier are resolved as follows:
+
+1. **Exactly on an anchor** → that anchor's own multiplier and label.
+2. **Outside the outermost anchors** (ADP < 25 or > 100) → clamp to the nearest
+   outer anchor's multiplier and label. The curve never extrapolates.
+3. **Strictly between two anchors** → **linearly interpolate** the *base*
+   multiplier between them, then apply the weight exponent; the label is taken
+   from the bracketing anchor with the **higher** multiplier (the better side).
+
+There is no middle band and **no `AVERAGE` rating** — that label does not exist
+in the codebase's tier vocabulary. `NEUTRAL` is reachable only for a **missing**
+ADP (`None`), never for an ordered valued one.
 
 ### Example Calculation
 
-**Player with ADP = 25 (EXCELLENT)**:
-- Base multiplier: 1.05
-- Weight: 2.846
-- Final multiplier: 1.05^2.846 = 1.152
-- If normalized score = 100: Final = 100 × 1.152 = 115.2
+**Player with ADP = 37.5 (interpolated, between the 25 and 50 anchors)**:
+- Interpolated base multiplier: 1.05 + (1.025 - 1.05) × (37.5 - 25) / (50 - 25) = 1.0375
+- Weight: 2.12
+- Final multiplier: 1.0375^2.12 = 1.0812
+- Label: EXCELLENT (the better-side bracketing anchor)
+- If normalized score = 100: Final = 100 × 1.0812 = 108.12
 
 ## Data Sources
 
@@ -122,10 +137,11 @@ def get_adp_multiplier(self, adp_val) -> Tuple[float, str]:
 ```json
 {
   "ADP_SCORING": {
+    "SCALING": "LINEAR",
     "THRESHOLDS": {
       "BASE_POSITION": 0,
       "DIRECTION": "DECREASING",
-      "STEPS": 31.63
+      "STEPS": 25
     },
     "MULTIPLIERS": {
       "VERY_POOR": 0.95,
@@ -133,7 +149,7 @@ def get_adp_multiplier(self, adp_val) -> Tuple[float, str]:
       "GOOD": 1.025,
       "EXCELLENT": 1.05
     },
-    "WEIGHT": 2.846
+    "WEIGHT": 2.12
   }
 }
 ```
@@ -144,20 +160,21 @@ def get_adp_multiplier(self, adp_val) -> Tuple[float, str]:
 
 | Metric | Value |
 |--------|-------|
-| ADP | 8.3 |
+| ADP | 8.3 (below the 25 anchor → clamped) |
 | Normalized Score | 128.5 |
 | Rating | EXCELLENT |
 | Base Multiplier | 1.05 |
-| Final Multiplier | 1.05^2.846 = 1.152 |
-| Adjusted Score | 128.5 × 1.152 = 148.03 |
+| Final Multiplier | 1.05^2.12 = 1.1090 |
+| Adjusted Score | 128.5 × 1.1090 = 142.50 |
 
-**Reason String**: `"ADP: EXCELLENT (1.1500x)"`
+**Reason String**: `"ADP: EXCELLENT (1.1090x)"`
 
 ## Edge Cases
 
 ### No ADP Data
 - Players without ownership data get `None` ADP
-- Treated as VERY_POOR (conservative estimate)
+- Treated as NEUTRAL (multiplier 1.0) — the step neither boosts nor penalises
+- This is the only way the ADP factor emits NEUTRAL under LINEAR scaling
 
 ### Very High ADP
 - Players with ADP > 300 treated as undrafted/low value

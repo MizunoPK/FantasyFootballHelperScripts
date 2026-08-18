@@ -645,14 +645,19 @@ class TestTierReachabilityIsModeAware:
 
         Deliberately reads the LIVE store rather than a fixture: the requirement here IS
         that the shipped configuration keeps its current accept verdict, which a temp-dir
-        copy could not evidence. Every live factor is BUCKETED (no SCALING key exists on
-        disk in this unit), so this exercises the unchanged five-label path end to end.
+        copy could not evidence. As of D10.3 the live ADP_SCORING carries
+        SCALING: "LINEAR"; the remaining five factors are still BUCKETED (no SCALING key
+        exists on disk for them), so this exercises the switched ADP path and the
+        unchanged five-label path together, end to end.
         """
         # Act / Assert -- construction performs the whole load-time validation chain
         config = ConfigManager(LIVE_CONFIG_ROOT)
 
-        # Assert -- and no live block acquired a SCALING key
-        for scoring_key in ("ADP_SCORING", "PLAYER_RATING_SCORING",
+        # Assert -- ADP_SCORING is the one live factor D10.3 switched to LINEAR
+        assert config.parameters["ADP_SCORING"]["SCALING"] == "LINEAR"
+
+        # Assert -- and no OTHER live block acquired a SCALING key
+        for scoring_key in ("PLAYER_RATING_SCORING",
                             "TEAM_QUALITY_SCORING", "MATCHUP_SCORING",
                             "SCHEDULE_SCORING", "PERFORMANCE_SCORING"):
             assert "SCALING" not in config.parameters[scoring_key]
