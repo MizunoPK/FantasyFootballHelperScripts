@@ -253,11 +253,13 @@ class TestE2EGracefulSkip:
         monkeypatch.setenv("SWID", "{present-for-this-test}")
         from player_data_fetcher.player_data_exporter import DataExporter
 
-        # The e2e arm on this base still carries the `not use_csv_ownership`
-        # conjunct (D17.6 removes it), and _make_settings_dict defaults that flag
-        # to True -- so without this the arm never fires and the run falls through
-        # to a real league read.
-        settings_dict = _make_settings_dict(tmp_path, e2e_test=True, use_csv_ownership=False)
+        # D17.6 deleted the `use_csv_ownership` flag, so the e2e arm now fires on
+        # `e2e_test` alone -- the conjunct this test previously had to defeat is
+        # gone, and passing the flag would be a dead argument to a key that no
+        # longer exists (`_make_settings_dict` would silently accept and drop it).
+        # The credentials-present setup above is what still matters: it closes the
+        # degrade arm so the e2e arm is the sole writer of `{}`.
+        settings_dict = _make_settings_dict(tmp_path, e2e_test=True)
         real_exporter = DataExporter(
             output_dir=str(tmp_path),
             espn_settings=create_settings_from_dict(settings_dict),
