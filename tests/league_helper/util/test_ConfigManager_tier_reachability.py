@@ -26,9 +26,12 @@ from pathlib import Path
 import pytest
 
 from league_helper.util.ConfigManager import MULTIPLIER_INPUT_DOMAINS, ConfigManager
+from tests.league_helper.util._config_fixtures import (
+    league_params,
+    _write_legacy_config,
+)
 
 
-LEAGUE_FIXTURE = Path("tests/fixtures/league/league_config.json")
 LIVE_CONFIG_ROOT = Path("data")
 ALL_TIERS = {"EXCELLENT", "GOOD", "NEUTRAL", "POOR", "VERY_POOR"}
 TIER_KEYS = ("VERY_POOR", "POOR", "GOOD", "EXCELLENT")
@@ -57,12 +60,6 @@ ACCESSOR_POLARITY = [
 # FIXTURES
 
 @pytest.fixture
-def league_params():
-    """A complete, guard-clean legacy config, re-read so a test may mutate it freely."""
-    return json.loads(LEAGUE_FIXTURE.read_text())
-
-
-@pytest.fixture
 def live_config():
     """ConfigManager over the LIVE data store — deliberately not a temp fixture."""
     return ConfigManager(LIVE_CONFIG_ROOT)
@@ -79,12 +76,6 @@ def frozen_config(tmp_path, league_params):
     where it is the requirement: TestAllFourHorizonsAreReachable (TD6).
     """
     return ConfigManager(_write_legacy_config(tmp_path, league_params))
-
-
-def _write_legacy_config(tmp_path, data):
-    """Write `data` as a legacy single-file config; return the data folder."""
-    (tmp_path / "league_config.json").write_text(json.dumps(data))
-    return tmp_path
 
 
 def _horizon_root(tmp_path, week):
