@@ -31,6 +31,16 @@ from simulation.shared.config_cleanup import cleanup_accuracy_intermediate_folde
 from utils.error_handler import FileOperationError
 
 
+
+def PRESERVE_KEYS_FOR_TEST():
+    """Read PRESERVE_KEYS from source, avoiding a heavy import in this assertion."""
+    import re as _re
+    src = open('simulation/accuracy/AccuracyResultsManager.py').read()
+    blk = src[src.index('PRESERVE_KEYS = ['):]
+    blk = blk[:blk.index(']')]
+    return _re.findall(r"'([A-Z_]+)'", blk)
+
+
 class TestAccuracyConfigPerformance:
     """Tests for AccuracyConfigPerformance class."""
 
@@ -2231,6 +2241,84 @@ class TestPropagateToConfigs:
             written = json.load(f)['parameters']
         assert written['OPPONENT_TEAMS'] == original_teams, \
             "OPPONENT_TEAMS must be preserved from the promote target, not dropped"
+
+    def test_no_live_config_key_is_silently_droppable_by_a_promote(self):
+        """D17.8 G7: the GENERALISED guard -- catches the NEXT key, not just this one.
+
+        This bug has now occurred three times with three different key sets:
+        OPPONENT_TEAMS (fixed by T90), ESPN_LEAGUE_ID/ESPN_TEAM_ID (D17.8 G1), and
+        NFL_TEAM_PENALTY/NFL_TEAM_PENALTY_WEIGHT (D17.8 G7). Each time the shape was
+        identical: a live-only, user-maintained key in data/configs/league_config.json
+        that is in NEITHER BASE_CONFIG_PARAMS nor PRESERVE_KEYS, so extract_base_params
+        drops it from the promoted payload and nothing re-adds it -- silently, with
+        ConfigManager falling back to a default and no error anywhere.
+
+        Fixing instances one at a time guarantees a fourth. This asserts the
+        INVARIANT: every key present in the live config must be recoverable after a
+        promote. Adding a new key to league_config.json without listing it turns
+        this red immediately, at the moment the key is introduced, rather than
+        whenever someone next runs an accuracy promote and loses their config.
+        """
+        import json as _json
+        from simulation.shared.config_constants import BASE_CONFIG_PARAMS
+
+        with open('data/configs/league_config.json') as f:
+            live_keys = set(_json.load(f)['parameters'])
+
+        unprotected = sorted(live_keys - set(BASE_CONFIG_PARAMS) - set(PRESERVE_KEYS_FOR_TEST()))
+        assert unprotected == [], (
+            f"These live league_config.json keys are in neither BASE_CONFIG_PARAMS nor "
+            f"PRESERVE_KEYS, so an accuracy promote will SILENTLY DELETE them: {unprotected}. "
+            f"Add each to both lists (see the OPPONENT_TEAMS / ESPN_LEAGUE_ID precedents)."
+        )
+
+    def test_espn_league_identity_survives_a_promote(self, tmp_path):
+        """D17.8 G1: ESPN_LEAGUE_ID / ESPN_TEAM_ID survive a promote.
+
+        Same drop direction as OPPONENT_TEAMS above, and the ticket's most
+        consequential latent bug: D17.1 added these keys to league_config.json but
+        to NEITHER BASE_CONFIG_PARAMS nor PRESERVE_KEYS, so extract_base_params
+        dropped them from every promoted payload and nothing re-added them -- a
+        routine accuracy promote silently DELETED the user's ESPN league identity
+        and broke ownership fetching, via an operation with no apparent connection
+        to ESPN.
+
+        Found by /dt5's cross-unit sweep, not by any unit: D17.6 was explicitly
+        forbidden from editing this file in order to PROTECT OPPONENT_TEAMS, and
+        that guard is what hid the gap.
+
+        Mutation check: removing either key from PRESERVE_KEYS turns this red.
+        Target is under tmp_path only - never data/configs/.
+        """
+        import logging
+        # Arrange
+        optimal = tmp_path / "optimal"
+        optimal.mkdir()
+        target = tmp_path / "target"
+        target.mkdir()
+        # The source folder does NOT carry the ESPN keys -- that is the whole point.
+        (optimal / 'league_config.json').write_text(
+            json.dumps({'parameters': {'CURRENT_NFL_WEEK': 9, 'ADP_SCORING': {'WEIGHT': 1.5}}}))
+        original_league_id = "138260302"
+        original_team_id = 1
+        (target / 'league_config.json').write_text(
+            json.dumps({'parameters': {
+                'CURRENT_NFL_WEEK': 1,
+                'ESPN_LEAGUE_ID': original_league_id,
+                'ESPN_TEAM_ID': original_team_id,
+            }}))
+        logger = logging.getLogger('test')
+
+        # Act
+        propagate_to_configs(optimal, target, logger)
+
+        # Assert
+        with open(target / 'league_config.json') as f:
+            written = json.load(f)['parameters']
+        assert written.get('ESPN_LEAGUE_ID') == original_league_id, \
+            "ESPN_LEAGUE_ID must survive a promote -- losing it breaks ownership fetching"
+        assert written.get('ESPN_TEAM_ID') == original_team_id, \
+            "ESPN_TEAM_ID must survive a promote -- losing it breaks our-team identity"
 
     def test_league_config_preserves_live_adp_thresholds_while_weight_promotes(self, tmp_path):
         """D4.1 AC1/AC2: live ADP_SCORING.THRESHOLDS survives a promote; WEIGHT still promotes.

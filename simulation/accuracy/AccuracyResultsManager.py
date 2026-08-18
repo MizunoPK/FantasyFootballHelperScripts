@@ -1239,6 +1239,19 @@ def propagate_to_configs(
         # the live file (no source folder carries it), so without preservation every
         # promote DELETES it. No subtractive filter can fix that direction.
         'OPPONENT_TEAMS',
+        # D17.8 G1: identical reasoning to OPPONENT_TEAMS above -- ESPN_LEAGUE_ID
+        # and ESPN_TEAM_ID are BASE_CONFIG_PARAMS members that live ONLY in the
+        # live file (no source folder carries them), so without preservation every
+        # promote deletes them. Found by /dt5's cross-unit sweep, not by any unit:
+        # D17.1 added the keys, and D17.6 -- the only unit that touched deletion --
+        # was explicitly forbidden from editing this file in order to PROTECT
+        # OPPONENT_TEAMS. That guard is what hid the gap.
+        'ESPN_LEAGUE_ID',
+        'ESPN_TEAM_ID',
+        # D17.8 G7: same shape, same fix -- live-only user-maintained keys that
+        # no source folder carries. Found by this unit's own review gap-hunt.
+        'NFL_TEAM_PENALTY',
+        'NFL_TEAM_PENALTY_WEIGHT',
     ]
     # D4.1: nested counterpart of PRESERVE_KEYS. Each entry is a
     # (section, subkey) path under 'parameters' whose LIVE value survives a

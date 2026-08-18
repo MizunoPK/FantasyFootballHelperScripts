@@ -20,6 +20,35 @@ from simulation.shared.config_filters import extract_base_params
 _BASE_DESCRIPTION = 'Base configuration (non-week-specific parameters)'
 
 
+class TestD178EspnKeysAreBaseParams:
+    """D17.8 G1, second half: BASE_CONFIG_PARAMS membership needs its own guard.
+
+    Review CONCERN-2: the unit mutation-verified only the PRESERVE_KEYS half.
+    Removing the ESPN keys from BASE_CONFIG_PARAMS turned NO green test red --
+    that half of the fix had no regression guard at all, and the only signal was
+    an already-red shape assertion widening by two entries, which is exactly the
+    kind of change seven prior units read past.
+
+    This asserts the BEHAVIOUR (extract_base_params emits the keys), not the
+    membership, so it fails for the reason that matters rather than restating the
+    list back to itself.
+    """
+
+    def test_extract_base_params_emits_the_espn_league_identity(self):
+        from simulation.shared.config_filters import extract_base_params
+        out = extract_base_params({'parameters': {
+            'ESPN_LEAGUE_ID': '138260302',
+            'ESPN_TEAM_ID': 1,
+            'CURRENT_NFL_WEEK': 3,
+        }})
+        params = out['parameters']
+        assert params.get('ESPN_LEAGUE_ID') == '138260302', (
+            "ESPN_LEAGUE_ID must survive base-param extraction; dropping it here is "
+            "what let an accuracy promote delete the user's league identity"
+        )
+        assert params.get('ESPN_TEAM_ID') == 1
+
+
 class TestExtractBaseParams:
     """Unit coverage of the shared BASE_CONFIG_PARAMS filter (T90 D3)."""
 

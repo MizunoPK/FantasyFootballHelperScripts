@@ -168,6 +168,29 @@ class TradeSimulatorModeManager:
             if team_name != Constants.FANTASY_TEAM_NAME:
                 self.opponent_simulated_teams.append(TradeSimTeam(team_name, team_list, self.player_manager))
 
+        # D17.8 G3: a player-data export written when ESPN credentials were absent
+        # carries drafted_by="" for EVERY player (D17.7 degrades rather than
+        # aborting). That file outlives the fetcher's warning, and League Helper
+        # reads it in a separate process days later with no warning in scope -- so
+        # without this the simulator silently runs with zero opponents and the
+        # waiver optimiser offers opponent-rostered players as free pickups.
+        #
+        # The message states an OBSERVATION, never a cause: a degraded export and a
+        # genuine pre-draft board are indistinguishable by design (D17.7 D2 reuses
+        # {} for "unavailable"), so claiming "credentials were missing" would be a
+        # confidently wrong message replacing a silent one.
+        if not self.opponent_simulated_teams:
+            print("\nNOTE: no ownership data found in this player pool - every player "
+                  "reads as undrafted, so no opponent teams could be identified.")
+            print("      If your draft has already happened, re-run the player fetcher "
+                  "with ESPN credentials configured; trade and waiver results are "
+                  "unreliable until then.")
+            self.logger.warning(
+                "No opponent teams derived: the loaded pool contains no non-empty "
+                "drafted_by values. Either the draft has not happened yet, or the "
+                "player data was exported without league ownership."
+            )
+
     
     def start_waiver_optimizer(self) -> Tuple[bool, List[TradeSnapshot], str, Optional[TradeSimTeam]]:
         """
@@ -185,6 +208,15 @@ class TradeSimulatorModeManager:
                 - Optional[TradeSimTeam]: My team with mode-specific scoring (for file output)
         """
         self.logger.info("Starting Waiver Optimizer mode")
+
+        # D17.8 G3: same guard the Manual Trade Visualizer already carries. Without
+        # it, a pool with no ownership yields zero opponents and every rostered
+        # star looks like an available waiver pickup -- silently.
+        if len(self.opponent_simulated_teams) == 0:
+            print("\nNo opponent teams available for waiver analysis - no ownership "
+                  "data was found in the loaded player pool.")
+            self.logger.warning("No opponent teams available for Waiver Optimizer")
+            return (True, [], "", None)
 
         mode_choice = show_list_selection(
             "WAIVER OPTIMIZER - SELECT MODE",

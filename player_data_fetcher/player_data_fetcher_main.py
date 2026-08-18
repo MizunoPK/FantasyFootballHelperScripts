@@ -248,46 +248,59 @@ class NFLProjectionsCollector:
 
         client.bye_weeks = self.bye_weeks
 
-        async with client.session():
-            results = {}
+        # D17.8 G4: pair the session with an explicit close, matching the shape
+        # D17.4/D17.5 established at every other ESPNClient call site. This site
+        # entered the session but never closed the client -- pre-existing (identical
+        # on origin/main before D17), which is why every unit correctly left it
+        # alone, but it is now the last instance of the pattern those units fixed
+        # everywhere else. Routed here by D17.4's review as SUGGESTION-B and by
+        # /dt5 as G4.
+        try:
+            async with client.session():
+                results = {}
 
-            self.logger.info("Collecting season projections")
-            try:
-                season_projections = await client.get_season_projections()
+                self.logger.info("Collecting season projections")
+                try:
+                    season_projections = await client.get_season_projections()
 
-                season_data = ProjectionData(
-                    season=self.settings.season,
-                    scoring_format=self.settings.scoring_format.value,
-                    total_players=len(season_projections),
-                    players=season_projections
-                )
+                    season_data = ProjectionData(
+                        season=self.settings.season,
+                        scoring_format=self.settings.scoring_format.value,
+                        total_players=len(season_projections),
+                        players=season_projections
+                    )
 
-                results['season'] = season_data
-                self.logger.info(f"Collected {len(season_projections)} season projections")
+                    results['season'] = season_data
+                    self.logger.info(f"Collected {len(season_projections)} season projections")
 
-                team_rankings = client.team_rankings
-                current_week_schedule = client.current_week_schedule
-                position_defense_rankings = client.position_defense_rankings
-                self.logger.info(f"Collected team rankings for {len(team_rankings)} teams")
-                self.logger.info(f"Collected current week schedule for {len(current_week_schedule)} teams")
-                self.logger.info(f"Collected position defense rankings for {len(position_defense_rankings)} teams")
+                    team_rankings = client.team_rankings
+                    current_week_schedule = client.current_week_schedule
+                    position_defense_rankings = client.position_defense_rankings
+                    self.logger.info(f"Collected team rankings for {len(team_rankings)} teams")
+                    self.logger.info(f"Collected current week schedule for {len(current_week_schedule)} teams")
+                    self.logger.info(f"Collected position defense rankings for {len(position_defense_rankings)} teams")
 
-                self.team_rankings = team_rankings
-                self.current_week_schedule = current_week_schedule
-                self.position_defense_rankings = position_defense_rankings
+                    self.team_rankings = team_rankings
+                    self.current_week_schedule = current_week_schedule
+                    self.position_defense_rankings = position_defense_rankings
 
-                self.team_weekly_data = client._collect_team_weekly_data(
-                    season_projections,
-                    client.full_season_schedule,
-                    self.settings.current_nfl_week
-                )
-                self.logger.info(f"Collected team weekly data for {len(self.team_weekly_data)} teams")
+                    self.team_weekly_data = client._collect_team_weekly_data(
+                        season_projections,
+                        client.full_season_schedule,
+                        self.settings.current_nfl_week
+                    )
+                    self.logger.info(f"Collected team weekly data for {len(self.team_weekly_data)} teams")
 
-            except Exception as e:
-                self.logger.error(f"Failed to collect season projections: {e}")
+                except Exception as e:
+                    self.logger.error(f"Failed to collect season projections: {e}")
 
-            return results
+                return results
     
+        finally:
+            # Closed on every path -- success, and any exception escaping the
+            # session block. `session()` manages the context; `close()` releases
+            # the underlying client (D17.4 review BLOCKING-1 established the pair).
+            await client.close()
     def _get_api_client(self) -> ESPNClient:
         """Get ESPN API client"""
         return ESPNClient(self.settings)
