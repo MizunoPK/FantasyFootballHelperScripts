@@ -338,7 +338,7 @@ def _resolve_sweep_seed(args: argparse.Namespace, logger, mode_label: str = "swe
 
 def _run_sweep_mode(args: argparse.Namespace, data_folder: Path, logger) -> None:
     """Run the multi-parameter sweep: tournament with per-config convergence as the stopping rule."""
-    triples, _ = load_valid_strategies(data_folder)        # raises FileNotFoundError if none -> caught by main
+    triples, _ = load_valid_strategies(data_folder, args.strategy)  # raises FileNotFoundError if none -> caught by main
     if not triples:
         logger.error("No valid strategies found for sweep")
         sys.exit(1)

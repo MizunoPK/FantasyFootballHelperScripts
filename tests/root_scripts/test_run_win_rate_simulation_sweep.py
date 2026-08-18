@@ -640,3 +640,39 @@ class TestSweepStarvationPreflight:
             "Sweep already complete" in str(c.args[0])
             for c in logger.info.call_args_list if c.args
         )
+
+
+class TestSweepHonorsStrategyFilter:
+    """--strategy restricts the sweep's strategy set, not just strategy-only mode.
+
+    It was previously accepted and silently ignored under --sweep, so a run meant to
+    tune the six draft-side params against ONE draft order swept every strategy file
+    instead — with no warning that the filter had been dropped.
+    """
+
+    def _run(self, tmp_path, strategy):
+        args = _sweep_args(tmp_path)
+        args.strategy = strategy
+        args.config = str(tmp_path / "sentinel_configs" / "league_config.json")
+        triples = [("1_a.json", [{"QB": "P"}], "A")]
+        with patch(f"{MODULE}.load_valid_strategies", return_value=(triples, 0)) as mock_load, \
+             patch(f"{MODULE}.CombinationEvaluator") as MockEval, \
+             patch(f"{MODULE}.extract_draft_param_values", return_value={"PRIMARY_BONUS": 67}), \
+             patch(f"{MODULE}.SweepResultsManager") as MockStore, \
+             patch(f"{MODULE}.SweepTournament"), \
+             patch(f"{MODULE}.rank_combinations", return_value=[]), \
+             patch(f"{MODULE}.format_summary", return_value="summary"), \
+             patch(f"{MODULE}.write_sweep_report"):
+            MockEval.return_value.base_config = {"parameters": {}}
+            MockEval.return_value.season_count = 1
+            MockStore.return_value.get_all_combinations.return_value = {}
+            rws._run_sweep_mode(args, Path(args.data), Mock())
+        return mock_load
+
+    def test_named_strategy_is_forwarded_to_the_loader(self, tmp_path):
+        mock_load = self._run(tmp_path, "51_MINE.json")
+        assert mock_load.call_args.args[1] == "51_MINE.json"
+
+    def test_absent_filter_forwards_none_and_sweeps_every_strategy(self, tmp_path):
+        mock_load = self._run(tmp_path, None)
+        assert mock_load.call_args.args[1] is None
