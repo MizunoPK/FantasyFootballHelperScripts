@@ -51,7 +51,6 @@ class TestJSONSnapshotExporterPerformance:
         mock_de.assert_called_once_with(
             output_dir=str(Path.cwd()),
             current_nfl_week=REGULAR_SEASON_WEEKS + 1,
-            load_drafted_data=False,
         )
 
     def test_no_per_player_instantiation_across_17_weeks(self, tmp_path):

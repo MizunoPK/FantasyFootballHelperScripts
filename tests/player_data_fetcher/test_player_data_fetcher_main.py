@@ -275,12 +275,17 @@ class TestGetFantasyPlayers:
         mock_exporter.get_fantasy_players.return_value = []
         mock_exporter_class.return_value = mock_exporter
 
-        # D17.5: this collector builds a REAL DataExporter (the patch above
-        # targets a different import site), so it must declare the CSV supplier
-        # explicitly now that the stored default is the ESPN one.
-        settings = Settings(use_csv_ownership=True)
+        # D17.6: this collector builds a REAL DataExporter (the patch above
+        # targets a different import site). Construction no longer does any
+        # ownership work, so plain defaults are enough; the ownership map is
+        # seeded below because get_fantasy_players fails closed without it.
+        settings = Settings()
         with patch.object(NFLProjectionsCollector, '_derive_bye_weeks_from_schedule', return_value={}):
             collector = NFLProjectionsCollector(settings)
+            # D17.6: get_fantasy_players fails closed when attribution was never
+            # loaded (the CSV branch that used to bypass it is gone); an empty
+            # map is the legitimate 'loaded, nobody drafted yet' state.
+            collector.exporter._espn_attribution = {}
 
             projection_data = {
                 'season': ProjectionData(
@@ -635,10 +640,6 @@ class TestCreateSettingsFromDict:
             'game_data_csv': str(tmp_path / 'game_data.csv'),
             'enable_historical_save': False,
             'enable_game_data': True,
-            'load_drafted_data': True,
-            'drafted_data_path': str(tmp_path / 'drafted_data.csv'),
-            'my_team_name': 'Test Team',
-            'use_csv_ownership': True,
             'progress_frequency': 10,
             'log_level': 'INFO',
             'logging_to_file': False,
@@ -674,25 +675,3 @@ class TestCreateSettingsFromDict:
 
 
 
-class TestUseCsvOwnershipSetting:
-    """D17.5: Settings.use_csv_ownership defaults False (ESPN is the default
-    supplier) and threads through create_settings_from_dict unchanged."""
-
-    def test_settings_default_use_csv_ownership_false(self):
-        settings = Settings()
-        assert settings.use_csv_ownership is False
-
-    def test_create_settings_from_dict_threads_use_csv_ownership_false(self):
-        args_dict = {
-            'season': 2025, 'current_nfl_week': 17, 'request_timeout': 30,
-            'rate_limit_delay': 0.2, 'espn_player_limit': 2000,
-            'position_json_output': '/tmp/pj', 'team_data_folder': '/tmp/td',
-            'game_data_csv': '/tmp/gd.csv', 'enable_historical_save': False,
-            'enable_game_data': True, 'load_drafted_data': True,
-            'drafted_data_path': '/tmp/dd.csv', 'my_team_name': 'Sea Sharp',
-            'progress_frequency': 10, 'log_level': 'INFO',
-            'logging_to_file': False, 'e2e_test': False,
-            'scoring_format': 'ppr', 'use_csv_ownership': False,
-        }
-        settings = create_settings_from_dict(args_dict)
-        assert settings.use_csv_ownership is False

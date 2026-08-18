@@ -13,7 +13,6 @@ Date: 2025-10-12
 import pytest
 import tempfile
 import json
-import csv
 from pathlib import Path
 from unittest.mock import Mock, MagicMock, patch
 from typing import List
@@ -118,17 +117,13 @@ def mock_player_manager(sample_players):
 
 @pytest.fixture
 def temp_data_folder():
-    """Create a temporary data folder with necessary CSV files"""
+    """Create a temporary data folder.
+
+    D17.6: this fixture used to seed a legacy drafted-roster CSV; the CSV
+    ownership path was deleted and no test in this module ever read the file.
+    """
     with tempfile.TemporaryDirectory() as tmpdir:
         data_path = Path(tmpdir)
-
-        drafted_csv = data_path / 'drafted_data.csv'
-        with open(drafted_csv, 'w', newline='') as f:
-            writer = csv.writer(f)
-            writer.writerow(['player_name', 'position', 'team', 'fantasy_team'])
-            writer.writerow(['Patrick Mahomes', 'QB', 'KC', 'Sea Sharp'])
-            writer.writerow(['Josh Allen', 'QB', 'BUF', 'Team 2'])
-            writer.writerow(['Christian McCaffrey', 'RB', 'SF', 'Team 3'])
 
         yield data_path
 

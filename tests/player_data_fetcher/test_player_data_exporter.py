@@ -124,9 +124,47 @@ class TestSetTeamData:
 class TestGetFantasyPlayers:
     """Test converting to FantasyPlayer objects"""
 
+    def test_get_fantasy_players_applies_the_espn_attribution_to_drafted_by(self, tmp_path):
+        """D17.6: ownership APPLICATION survives the CSV path's deletion.
+
+        This restores unit-level coverage the contraction removed. The deleted
+        `test_default_path_applies_espn_and_never_invokes_the_csv_applier` and
+        `test_exported_json_carries_the_default_supplier_ownership` were both
+        supplier-comparison tests, so they went with the second supplier -- but
+        half of what they proved SURVIVES: that a non-empty attribution map is
+        actually written onto `drafted_by`. Every other surviving assertion in
+        this file sets `_espn_attribution = {}`, so without this test the only
+        proof of application is the end-to-end e2e run. Emptying the apply loop
+        in `get_fantasy_players` turns this red.
+        """
+        exporter = DataExporter(output_dir=str(tmp_path))
+        exporter._espn_attribution = {"1": "Sea Sharp", "2": "Team Alpha"}
+
+        projection_data = ProjectionData(
+            season=2024,
+            scoring_format='PPR',
+            total_players=3,
+            players=[
+                PlayerProjection(id="1", name="Mine", position="QB", team="KC", fantasy_points=300.0),
+                PlayerProjection(id="2", name="Theirs", position="RB", team="SF", fantasy_points=280.0),
+                PlayerProjection(id="3", name="Undrafted", position="WR", team="MIA", fantasy_points=100.0),
+            ]
+        )
+
+        players = exporter.get_fantasy_players(projection_data)
+        by_id = {p.id: p for p in players}
+
+        assert by_id["1"].drafted_by == "Sea Sharp"
+        assert by_id["2"].drafted_by == "Team Alpha"
+        # A player absent from the map is genuinely undrafted, not an error.
+        assert by_id["3"].drafted_by == ""
+
     def test_get_fantasy_players_returns_list(self, tmp_path):
         """Test get_fantasy_players returns list of FantasyPlayer objects"""
-        exporter = DataExporter(output_dir=str(tmp_path), use_csv_ownership=True)
+        exporter = DataExporter(output_dir=str(tmp_path))
+        # D17.6: the ESPN map is the only ownership source and get_fantasy_players
+        # fails closed without it; {} is the legitimate "loaded, nobody drafted" state.
+        exporter._espn_attribution = {}
 
         projection_data = ProjectionData(
             season=2024,
@@ -144,7 +182,8 @@ class TestGetFantasyPlayers:
 
     def test_get_fantasy_players_with_empty_data(self, tmp_path):
         """Test get_fantasy_players handles empty data"""
-        exporter = DataExporter(output_dir=str(tmp_path), use_csv_ownership=True)
+        exporter = DataExporter(output_dir=str(tmp_path))
+        exporter._espn_attribution = {}
 
         projection_data = ProjectionData(
             season=2024,
@@ -174,8 +213,8 @@ class TestPositionJSONExport:
         exporter = DataExporter(
             output_dir=str(output_dir),
             position_json_output=str(position_json_output),
-            use_csv_ownership=True,
         )
+        exporter._espn_attribution = {}
 
         projection_data = ProjectionData(
             season=2024,
@@ -355,16 +394,9 @@ class TestDataExporterKAI10:
     """
     Tests verifying KAI-10 refactoring: DataExporter constructor accepts
     new parameters and defaults match old config.py values.
-    (REQ-07 — 6 tests)
+    (REQ-07 — 3 tests; D17.6 deleted the three my_team_name/drafted_data_path cases
+    with the CSV ownership surface those parameters served)
     """
-
-    def test_exporter_accepts_my_team_name_parameter(self, tmp_path):
-        """7.1: DataExporter accepts my_team_name constructor parameter"""
-        exporter = DataExporter(
-            output_dir=str(tmp_path),
-            my_team_name='Test Team',
-        )
-        assert exporter.my_team_name == 'Test Team'
 
     def test_exporter_accepts_current_nfl_week_parameter(self, tmp_path):
         """7.2: DataExporter accepts current_nfl_week constructor parameter"""
@@ -378,17 +410,15 @@ class TestDataExporterKAI10:
         """7.3: DataExporter(output_dir=...) still works without new params (backward compat)"""
         exporter = DataExporter(output_dir=str(tmp_path))
         assert exporter.current_nfl_week == 17
-        assert exporter.my_team_name == 'Sea Sharp'
-        assert exporter.load_drafted_data is True
 
     def test_exporter_defaults_anchored_to_repo_data_root(self, tmp_path, monkeypatch):
         """I-8 (T41): DataExporter path defaults are repo-anchored absolute paths, no longer cwd-relative '../data/...'
 
         T91: explicitly opts OUT of this file's autouse PLAYER_DATA_DIR redirect so
-        the six assertions below keep their original T41 subject -- the UNREDIRECTED
+        the four assertions below keep their original T41 subject -- the UNREDIRECTED
         production defaults. Opting out is safe here: this test only reads
         constructor attributes and writes nothing. Do not remove the delenv, and do
-        not weaken any of the six assertions.
+        not weaken any of the four assertions.
         """
         monkeypatch.delenv('PLAYER_DATA_DIR', raising=False)
         exporter = DataExporter(output_dir=str(tmp_path))
@@ -396,25 +426,6 @@ class TestDataExporterKAI10:
         assert exporter.position_json_output.endswith('data/player_data')
         assert Path(exporter.team_data_folder).is_absolute()
         assert exporter.team_data_folder.endswith('data/team_data')
-        assert Path(exporter.drafted_data_path).is_absolute()
-        assert exporter.drafted_data_path.endswith('data/drafted_data.csv')
-
-    def test_exporter_custom_team_name_used(self, tmp_path):
-        """E-14: DataExporter with custom my_team_name stores it correctly"""
-        exporter = DataExporter(
-            output_dir=str(tmp_path),
-            my_team_name='My Custom Team',
-        )
-        assert exporter.my_team_name == 'My Custom Team'
-
-    def test_exporter_custom_drafted_data_path(self, tmp_path):
-        """E-18: DataExporter with custom drafted_data_path stores it correctly"""
-        custom_path = str(tmp_path / 'custom_drafted.csv')
-        exporter = DataExporter(
-            output_dir=str(tmp_path),
-            drafted_data_path=custom_path,
-        )
-        assert exporter.drafted_data_path == custom_path
 
 
 class TestDataExporterDataRootSeam:
@@ -429,7 +440,6 @@ class TestDataExporterDataRootSeam:
 
         assert exporter.position_json_output == str(root / 'player_data')
         assert exporter.team_data_folder == str(root / 'team_data')
-        assert exporter.drafted_data_path == str(root / 'drafted_data.csv')
 
     def test_defaults_are_repo_anchored_when_unset(self, monkeypatch, tmp_path):
         """T91-6 (AC3): with PLAYER_DATA_DIR unset, the defaults are byte-identical to today's"""
@@ -440,7 +450,6 @@ class TestDataExporterDataRootSeam:
 
         assert exporter.position_json_output == str(repo_data / 'player_data')
         assert exporter.team_data_folder == str(repo_data / 'team_data')
-        assert exporter.drafted_data_path == str(repo_data / 'drafted_data.csv')
 
     def test_env_set_after_import_still_redirects(self, monkeypatch, tmp_path):
         """T91-7 (AC4): the module is ALREADY imported when the variable is set.
@@ -483,7 +492,8 @@ class TestDataExporterDataRootSeam:
         """
         root = tmp_path / 'fetcher_root'
         monkeypatch.setenv('PLAYER_DATA_DIR', str(root))
-        exporter = DataExporter(output_dir=str(tmp_path / 'out'), use_csv_ownership=True)
+        exporter = DataExporter(output_dir=str(tmp_path / 'out'))
+        exporter._espn_attribution = {}
         exporter.set_team_rankings({'KC': {'offense': 1, 'defense': 5}})
         projection_data = ProjectionData(
             season=2024,
@@ -504,69 +514,19 @@ class TestDataExporterDataRootSeam:
 
 
 
-class TestUseCsvOwnershipFlag:
-    """D17.5 D1/D2: the flag now defaults False (ESPN is the default supplier),
-    DraftedRosterManager construction is gated on it, and get_fantasy_players
-    branches on it."""
-
-    def test_default_use_csv_ownership_is_false(self, tmp_path):
-        """D17.5 D1: use_csv_ownership defaults False -- the ESPN snapshot is
-        the default ownership supplier after the cutover."""
-        exporter = DataExporter(
-            output_dir=str(tmp_path / 'out'),
-            load_drafted_data=False,
-        )
-        assert exporter.use_csv_ownership is False
-
-    def test_drafted_roster_manager_not_constructed_on_the_default_path(self, tmp_path):
-        """D17.5 D2: on the default (ESPN) path the legacy CSV owner is absent
-        from the object graph -- not merely unused."""
-        exporter = DataExporter(
-            output_dir=str(tmp_path / 'out'),
-            load_drafted_data=False,
-        )
-        assert exporter.drafted_roster_manager is None
-
-    def test_drafted_roster_manager_constructed_on_the_rollback_path(self, tmp_path):
-        """D17.5 D2: --use-csv-ownership still builds the legacy owner, so the
-        rollback path is intact."""
-        exporter = DataExporter(
-            output_dir=str(tmp_path / 'out'),
-            load_drafted_data=False,
-            use_csv_ownership=True,
-        )
-        assert exporter.drafted_roster_manager is not None
-
-
 class TestLoadEspnAttribution:
     """D17.4 CONCERN-1 (polish): coverage for the exporter's only new async
     method -- the session-wrapped live fetch, the fail-fast on missing
     espn_settings, and the fail-closed PlayerDataValidationError raise that
     AC4 requires but the pre-polish diff never exercised."""
 
-    def test_no_op_when_use_csv_ownership_true(self, tmp_path):
-        """No-op path: neither ConfigManager nor ESPNClient is touched."""
-        exporter = DataExporter(
-            output_dir=str(tmp_path / 'out'),
-            load_drafted_data=False,
-            use_csv_ownership=True,
-        )
-
-        with patch('player_data_fetcher.espn_client.ESPNClient') as mock_client_cls:
-            asyncio.run(exporter.load_espn_attribution(players=[]))
-
-        mock_client_cls.assert_not_called()
-        assert exporter._espn_attribution is None
-
     def test_raises_fast_when_espn_settings_missing(self, tmp_path):
         """New Copilot PR comment (player_data_exporter.py:142): espn_settings
-        is an optional ctor arg; use_csv_ownership=False with no espn_settings
-        must fail fast with a clear error, not AttributeError or
-        ESPNClient(None)."""
+        is an optional ctor arg; constructing without one and then calling
+        load_espn_attribution must fail fast with a clear error, not
+        AttributeError or ESPNClient(None)."""
         exporter = DataExporter(
             output_dir=str(tmp_path / 'out'),
-            load_drafted_data=False,
-            use_csv_ownership=False,
             espn_settings=None,
         )
 
@@ -584,8 +544,6 @@ class TestLoadEspnAttribution:
         afterwards (SUGGESTION-2) so the wrapper does not leak a connection."""
         exporter = DataExporter(
             output_dir=str(tmp_path / 'out'),
-            load_drafted_data=False,
-            use_csv_ownership=False,
             espn_settings=Mock(season=2025),
         )
 
@@ -628,8 +586,6 @@ class TestLoadEspnAttribution:
         with-scoped)."""
         exporter = DataExporter(
             output_dir=str(tmp_path / 'out'),
-            load_drafted_data=False,
-            use_csv_ownership=False,
             espn_settings=Mock(season=2025),
         )
 
@@ -684,7 +640,7 @@ def _cutover_snapshot(picks, teams):
 
 def _cutover_exporter(tmp_path, **kwargs):
     """A DataExporter on the default (ESPN) supplier path."""
-    params = dict(output_dir=str(tmp_path / 'out'), load_drafted_data=False)
+    params = dict(output_dir=str(tmp_path / 'out'))
     params.update(kwargs)
     return DataExporter(**params)
 
@@ -790,8 +746,9 @@ class TestOurTeamNormalization:
 
 
 class TestZeroMatchOwnershipWarning:
-    """D17.5 D4: the ESPN supplier's mirror of DraftedRosterManager's
-    zero-match guard (utils/DraftedRosterManager.py:247-250)."""
+    """D17.5 D4: the ownership zero-match guard. It began as a mirror of the
+    retired CSV roster manager's own zero-match warning; D17.6 deleted that
+    manager, so this is now the sole guard against a silently self-less board."""
 
     def test_warns_when_our_team_owns_none_of_the_completed_picks(self, tmp_path):
         exporter = _cutover_exporter(tmp_path)
@@ -930,185 +887,19 @@ class TestLoadEspnAttributionAppliesNormalization:
 
 
 class TestSupplierSelection:
-    """D17.5 D1/D2 composition: the flag selects WHICH SUPPLIER RUNS -- it does
-    not merely decide which of two equal outputs is returned.
+    """D17.6: the reconciled ESPN map is the SOLE ownership source.
 
-    Every test here wires BOTH suppliers with DELIBERATELY DIFFERENT values for
-    the same player, so the resulting `drafted_by` names the branch that
-    produced it. TestSupplierParity below asserts the two agree when both are
-    correctly wired, which is exactly why parity alone cannot catch a default
-    pointing at the wrong branch -- these tests can.
+    D17.5 proved the flag routed to the right one of two suppliers. With the CSV
+    supplier deleted the risk inverts: the danger is no longer routing to the
+    wrong branch but silently applying NOTHING. These tests assert on the
+    MECHANISM -- that the map is what lands, and that its absence fails closed
+    rather than yielding a quietly unowned board.
     """
 
     def _projection_data(self):
         return ProjectionData(season=2025, scoring_format="ppr", total_players=1, players=[
             ESPNPlayerData(id="101", name="Alpha Runner", team="KC", position="RB"),
         ])
-
-    def _csv_naming_a_different_owner(self, tmp_path):
-        csv_path = tmp_path / 'drafted_data.csv'
-        csv_path.write_text("Alpha Runner RB - KC,CSV Owner\n", encoding='utf-8')
-        return csv_path
-
-    def test_default_path_applies_espn_and_never_invokes_the_csv_applier(self, tmp_path):
-        """D17.5 D1/D2: with no flag supplied, the ESPN attribution is what
-        lands -- proven on the MECHANISM (the CSV applier is never called) as
-        well as on the value, because a value-only assertion cannot distinguish
-        the two suppliers once both are wired."""
-        exporter = DataExporter(
-            output_dir=str(tmp_path / 'out'),
-            drafted_data_path=str(self._csv_naming_a_different_owner(tmp_path)),
-        )
-
-        # D2 first: on the default path the legacy owner is not constructed.
-        assert exporter.drafted_roster_manager is None
-
-        # Now simulate the regression D2 exists to prevent -- a CSV owner back
-        # in the object graph -- and prove get_fantasy_players still does not
-        # route through it.
-        intruder = Mock()
-        exporter.drafted_roster_manager = intruder
-        exporter._espn_attribution = {"101": "ESPN Owner"}
-
-        players = exporter.get_fantasy_players(self._projection_data())
-
-        assert players[0].drafted_by == "ESPN Owner"
-        intruder.apply_drafted_state_to_players.assert_not_called()
-
-    def test_rollback_path_applies_csv_even_when_espn_attribution_is_present(self, tmp_path):
-        """D17.5 D1: with --use-csv-ownership the CSV supplier wins even though
-        a fully-populated ESPN map is sitting on the exporter -- so the test
-        cannot pass by reading the wrong source and getting a lucky match."""
-        exporter = DataExporter(
-            output_dir=str(tmp_path / 'out'),
-            drafted_data_path=str(self._csv_naming_a_different_owner(tmp_path)),
-            use_csv_ownership=True,
-        )
-        assert exporter.drafted_roster_manager is not None
-        apply_spy = Mock(wraps=exporter.drafted_roster_manager.apply_drafted_state_to_players)
-        exporter.drafted_roster_manager.apply_drafted_state_to_players = apply_spy
-        exporter._espn_attribution = {"101": "ESPN Owner"}
-
-        players = exporter.get_fantasy_players(self._projection_data())
-
-        assert players[0].drafted_by == "CSV Owner"
-        apply_spy.assert_called_once()
-
-    def test_exported_json_carries_the_default_supplier_ownership(self, tmp_path):
-        """The branch selection survives all the way into the written file, not
-        just the in-memory list: the exported JSON carries the ESPN owner while
-        a CSV naming a different owner sits on disk beside it."""
-        exporter = DataExporter(
-            output_dir=str(tmp_path / 'out'),
-            position_json_output=str(tmp_path / 'json'),
-            team_data_folder=str(tmp_path / 'team'),
-            drafted_data_path=str(self._csv_naming_a_different_owner(tmp_path)),
-        )
-        exporter._espn_attribution = {"101": "ESPN Owner"}
-
-        asyncio.run(exporter.export_position_json_files(self._projection_data()))
-
-        rb_json = json.loads((tmp_path / 'json' / 'rb_data.json').read_text())
-        assert [player['drafted_by'] for player in rb_json['rb_data']] == ["ESPN Owner"]
-
-
-class TestSupplierParity:
-    """D17.5: the rollback path still works, and both suppliers produce the same
-    exported JSON for the same ownership facts."""
-
-    POOL = [
-        ("4429795", "Alpha Runner", "KC", "RB"),
-        ("4430807", "Bravo Runner", "SF", "RB"),
-        ("4426515", "Charlie Catcher", "MIN", "WR"),
-        ("900001", "Delta Undrafted", "BUF", "WR"),
-    ]
-
-    def _projection_data(self):
-        return ProjectionData(
-            season=2025, scoring_format="ppr", total_players=len(self.POOL),
-            players=[ESPNPlayerData(id=i, name=n, team=t, position=p) for i, n, t, p in self.POOL],
-        )
-
-    def _drafted_csv(self, tmp_path):
-        csv_path = tmp_path / 'drafted_data.csv'
-        csv_path.write_text(
-            "Alpha Runner RB - KC,Sea Sharp\n"
-            "Bravo Runner RB - SF,Synthetic Team 2\n"
-            "Charlie Catcher WR - MIN,Synthetic Team 3\n",
-            encoding='utf-8',
-        )
-        return csv_path
-
-    def test_rollback_flag_reproduces_csv_ownership(self, tmp_path):
-        """--use-csv-ownership still applies the legacy CSV/fuzzy path -- and
-        does so BY INVOKING IT, not by coincidentally producing equal output."""
-        exporter = DataExporter(
-            output_dir=str(tmp_path / 'out'),
-            drafted_data_path=str(self._drafted_csv(tmp_path)),
-            use_csv_ownership=True,
-        )
-
-        # Invocation, not just output: the legacy owner must exist on this path
-        # and must be the thing that ran.
-        assert exporter.drafted_roster_manager is not None
-        apply_spy = Mock(wraps=exporter.drafted_roster_manager.apply_drafted_state_to_players)
-        exporter.drafted_roster_manager.apply_drafted_state_to_players = apply_spy
-
-        players = exporter.get_fantasy_players(self._projection_data())
-
-        assert [p.drafted_by for p in players] == [
-            "Sea Sharp", "Synthetic Team 2", "Synthetic Team 3", ""
-        ]
-        apply_spy.assert_called_once()
-
-    def test_exported_json_is_identical_under_both_suppliers(self, tmp_path):
-        """Downstream output parity on a sanitized completed-pick snapshot: the
-        ESPN default and the CSV rollback produce byte-equal position JSON."""
-        data = self._projection_data()
-
-        csv_exporter = DataExporter(
-            output_dir=str(tmp_path / 'csv_out_dir'),
-            position_json_output=str(tmp_path / 'csv_json'),
-            team_data_folder=str(tmp_path / 'csv_team'),
-            drafted_data_path=str(self._drafted_csv(tmp_path)),
-            use_csv_ownership=True,
-        )
-
-        snapshot = _cutover_snapshot(
-            [_cutover_pick(4429795, 7), _cutover_pick(4430807, 2), _cutover_pick(4426515, 3),
-             _cutover_pick(-1, 3)],
-            [_cutover_team(7, "Kai's Krew"), _cutover_team(2, "Synthetic Team 2"),
-             _cutover_team(3, "Synthetic Team 3")],
-        )
-        espn_exporter = _cutover_exporter(
-            tmp_path,
-            output_dir=str(tmp_path / 'espn_out_dir'),
-            position_json_output=str(tmp_path / 'espn_json'),
-            team_data_folder=str(tmp_path / 'espn_team'),
-        )
-        espn_exporter._espn_attribution = espn_exporter._normalize_our_team_attribution(
-            snapshot,
-            {"4429795": "Kai's Krew", "4430807": "Synthetic Team 2", "4426515": "Synthetic Team 3"},
-            7,
-        )
-
-        asyncio.run(csv_exporter.export_position_json_files(data))
-        asyncio.run(espn_exporter.export_position_json_files(data))
-
-        drafted_by_values = set()
-        for position in ['qb', 'rb', 'wr', 'te', 'k', 'dst']:
-            csv_json = json.loads((tmp_path / 'csv_json' / f'{position}_data.json').read_text())
-            espn_json = json.loads((tmp_path / 'espn_json' / f'{position}_data.json').read_text())
-            assert csv_json == espn_json
-            drafted_by_values.update(
-                player['drafted_by'] for player in csv_json[f'{position}_data']
-            )
-
-        # Non-vacuity: the two outputs agree on REAL ownership, not on an
-        # entirely undrafted board.
-        assert "Sea Sharp" in drafted_by_values
-        assert "Synthetic Team 2" in drafted_by_values
-
 
 class TestPreDraftZeroCompletedPicks:
     """D17.5 / ticket TD2: the PRE-DRAFT state -- `picks[]` fully pre-allocated

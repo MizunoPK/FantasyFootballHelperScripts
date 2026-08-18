@@ -55,15 +55,15 @@ class TestParseArgs:
         assert args.enable_historical_save is True
 
     def test_boolean_optional_action_defaults_true(self):
-        """1.7: load_drafted_data and enable_game_data default to True"""
+        """1.7: enable_game_data defaults to True (D17.6: load_drafted_data
+        was deleted with the CSV ownership path)."""
         args = parse_args([])
-        assert args.load_drafted_data is True
         assert args.enable_game_data is True
 
-    def test_no_load_drafted_data_disables_flag(self):
-        """1.8: --no-load-drafted-data sets load_drafted_data=False"""
-        args = parse_args(['--no-load-drafted-data'])
-        assert args.load_drafted_data is False
+    def test_no_enable_game_data_disables_flag(self):
+        """1.8: --no-enable-game-data sets enable_game_data=False"""
+        args = parse_args(['--no-enable-game-data'])
+        assert args.enable_game_data is False
 
 
 
@@ -76,7 +76,7 @@ class TestCreateSettingsDict:
         settings_dict = create_settings_dict(args)
         required_keys = [
             'e2e_test', 'log_level', 'logging_to_file', 'current_nfl_week',
-            'season', 'my_team_name', 'load_drafted_data', 'drafted_data_path',
+            'season',
             'position_json_output', 'team_data_folder', 'game_data_csv',
             'enable_historical_save', 'enable_game_data', 'espn_player_limit',
             'request_timeout', 'rate_limit_delay', 'progress_frequency',
@@ -108,12 +108,13 @@ class TestRunnerIntegration:
         with pytest.raises(SystemExit):
             parse_args(['--debug'])
 
-    def test_all_17_args_accessible(self):
-        """I-3: All 17 CLI args are accessible via parse_args"""
+    def test_all_13_args_accessible(self):
+        """I-3: All 13 CLI args are accessible via parse_args (D17.6 deleted
+        --my-team-name, --load-drafted-data, --drafted-data-path and
+        --use-csv-ownership with the CSV ownership path)"""
         args = parse_args([])
         arg_names = [
             'e2e_test', 'log_level', 'enable_log_file', 'week', 'season',
-            'my_team_name', 'load_drafted_data', 'drafted_data_path',
             'position_json_output', 'team_data_folder', 'game_data_csv',
             'enable_historical_save', 'enable_game_data', 'espn_player_limit',
             'request_timeout', 'rate_limit_delay', 'progress_frequency',
@@ -146,16 +147,6 @@ class TestEdgeCases:
         """E-5: Far-future --season is accepted by argparse"""
         args = parse_args(['--season', '2099'])
         assert args.season == 2099
-
-    def test_empty_team_name_accepted(self):
-        """E-6: Empty --my-team-name string is accepted"""
-        args = parse_args(['--my-team-name', ''])
-        assert args.my_team_name == ''
-
-    def test_team_name_with_spaces_accepted(self):
-        """E-7: Team name with spaces is accepted and stored as-is"""
-        args = parse_args(['--my-team-name', 'My Fantasy Team'])
-        assert args.my_team_name == 'My Fantasy Team'
 
     def test_rate_limit_delay_zero_accepted(self):
         """E-10: --rate-limit-delay 0 is accepted"""
@@ -236,10 +227,11 @@ class TestE2EAndLogLevel:
 
 
 class TestParseArgsDataRootSeam:
-    """T91: the CLI's four path defaults resolve per parse_args() call (spec D2, AC2/AC3/AC4)"""
+    """T91: the CLI's three path defaults resolve per parse_args() call (spec D2,
+    AC2/AC3/AC4). D17.6 deleted the fourth (--drafted-data-path)."""
 
     def test_path_defaults_redirect_under_player_data_dir(self, monkeypatch, tmp_path):
-        """T91-14 (AC2): PLAYER_DATA_DIR redirects all four argparse path defaults"""
+        """T91-14 (AC2): PLAYER_DATA_DIR redirects all three argparse path defaults"""
         root = tmp_path / 'fetcher_root'
         monkeypatch.setenv('PLAYER_DATA_DIR', str(root))
 
@@ -248,7 +240,6 @@ class TestParseArgsDataRootSeam:
         assert args.position_json_output == str(root / 'player_data')
         assert args.team_data_folder == str(root / 'team_data')
         assert args.game_data_csv == str(root / 'game_data.csv')
-        assert args.drafted_data_path == str(root / 'drafted_data.csv')
 
     def test_path_defaults_are_repo_anchored_when_unset(self, monkeypatch):
         """T91-15 (AC3): unset, the CLI defaults are byte-identical to today's"""
@@ -260,7 +251,6 @@ class TestParseArgsDataRootSeam:
         assert args.position_json_output == str(repo_data / 'player_data')
         assert args.team_data_folder == str(repo_data / 'team_data')
         assert args.game_data_csv == str(repo_data / 'game_data.csv')
-        assert args.drafted_data_path == str(repo_data / 'drafted_data.csv')
 
     def test_path_defaults_resolve_per_call(self, monkeypatch, tmp_path):
         """T91-16 (AC4): two parse_args([]) calls under different roots differ.
@@ -292,23 +282,3 @@ class TestParseArgsDataRootSeam:
 
 
 
-class TestUseCsvOwnershipArg:
-    """D17.5: --use-csv-ownership / --no-use-csv-ownership, default False --
-    the ESPN attribution path is the default supplier after the cutover."""
-
-    def test_default_use_csv_ownership_false(self):
-        args = parse_args([])
-        assert args.use_csv_ownership is False
-
-    def test_no_use_csv_ownership_flag(self):
-        args = parse_args(['--no-use-csv-ownership'])
-        assert args.use_csv_ownership is False
-
-    def test_explicit_use_csv_ownership_flag(self):
-        args = parse_args(['--use-csv-ownership'])
-        assert args.use_csv_ownership is True
-
-    def test_create_settings_dict_threads_use_csv_ownership(self):
-        args = parse_args(['--no-use-csv-ownership'])
-        settings_dict = create_settings_dict(args)
-        assert settings_dict['use_csv_ownership'] is False

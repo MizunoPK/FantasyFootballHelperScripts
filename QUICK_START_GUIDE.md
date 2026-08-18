@@ -102,12 +102,12 @@ python run_schedule_fetcher.py
 
 ### 2. Update Ownership Data
 
-Use the Chrome extension to import current league rosters:
+Ownership comes from the ESPN league API and is refreshed by the same fetch as step 1 — there is
+no separate import step:
 
-1. Install the extension from `nfl-fantasy-exporter-extension/`
-2. Go to NFL Fantasy → Players → All Taken Players
-3. Click the extension → "Extract All Pages" → Download CSV
-4. Move the file to `data/drafted_data.csv`
+1. Put `espn_s2` and `SWID` in a local, gitignored `.env` (see `.env.example`)
+2. Set `ESPN_LEAGUE_ID` and `ESPN_TEAM_ID` in `data/configs/league_config.json`
+3. Run `python run_player_fetcher.py` — `drafted_by` in `data/player_data/*.json` is updated
 
 ### 3. Optimize Your Lineup
 

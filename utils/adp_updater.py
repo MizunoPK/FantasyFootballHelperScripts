@@ -2,7 +2,8 @@
 ADP Player Data Updater Module
 
 Purpose: Match CSV players to JSON players using fuzzy matching and update ADP values.
-Adapts fuzzy matching logic from DraftedRosterManager.py and uses atomic write pattern
+Adapts fuzzy matching logic historically sourced from the retired CSV roster
+manager (removed in D17.6) and uses atomic write pattern
 from PlayerManager.py.
 
 Author: Claude Code (Epic: fix_2025_adp, Feature 2)
@@ -36,7 +37,8 @@ def normalize_name(name: str) -> str:
     """
     Normalize player name for fuzzy matching.
 
-    Adapted from DraftedRosterManager._normalize_player_info().
+    Historically adapted from the retired CSV roster manager's name normalizer
+    (removed in D17.6); this module now owns the logic outright.
     Removes punctuation, suffixes, and standardizes spacing.
 
     Args:
@@ -65,7 +67,8 @@ def calculate_similarity(name1: str, name2: str) -> float:
     Calculate similarity score between two names.
 
     Uses difflib.SequenceMatcher.ratio() for similarity scoring.
-    Adapted from DraftedRosterManager._similarity_score().
+    Historically adapted from the retired CSV roster manager's similarity scorer
+    (removed in D17.6); this module now owns the logic outright.
 
     Args:
         name1 (str): First name (normalized)

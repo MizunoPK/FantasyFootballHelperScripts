@@ -246,21 +246,18 @@ Sanity-checks a compiled `simulation/sim_data/{YEAR}/` tree for completeness and
 
 Wrapper that runs the full test suite (the same runner as `tests/run_all_tests.py`) as the gate before committing.
 
-### NFL Fantasy Data Exporter (Chrome Extension)
+### League Ownership (draft state)
 
-Chrome extension (`nfl-fantasy-exporter-extension/`) that extracts league ownership ("All Taken Players") from fantasy.nfl.com and exports it to CSV.
+Ownership is read directly from the ESPN league API by `run_player_fetcher.py`; there is no
+import step and no browser extension. Every completed draft pick is joined to the local player
+pool on ESPN's integer `playerId` and written to `drafted_by` in `data/player_data/*.json`.
 
-**Installation:**
-1. Open Chrome → `chrome://extensions/`
-2. Enable Developer mode
-3. Click "Load unpacked" → select the `nfl-fantasy-exporter-extension/` folder
+**Setup:** put your ESPN session cookies in a local, gitignored `.env` (`espn_s2`, `SWID` — see
+`.env.example`), and set your league ID and team ID in `data/configs/league_config.json`.
 
-**Usage:**
-1. Navigate to fantasy.nfl.com → your league → Players → All Taken Players
-2. Click the extension icon → "Extract All Pages"
-3. Download the CSV → move it to `data/drafted_data.csv`
-
-See `nfl-fantasy-exporter-extension/README.md` for details.
+**Usage:** `python run_player_fetcher.py` — ownership is refreshed as part of the normal fetch.
+The snapshot is applied atomically: if any completed pick cannot be resolved against the local
+pool, the whole snapshot is rejected and existing ownership is left unchanged.
 
 ## Project Structure
 
@@ -285,7 +282,6 @@ FantasyFootballHelperScripts/
 ├── tests/                        # pytest suite mirroring the source tree (+ fixtures, integration)
 ├── data/                         # Live working data (configs, player_data, team_data, schedule)
 ├── docs/                         # Scoring algorithm, ESPN API, simulation, and research docs
-├── nfl-fantasy-exporter-extension/ # Chrome extension exporting league ownership to CSV
 ├── requirements.txt              # pip dependencies
 ├── pytest.ini                    # pytest markers (live_api, offline)
 └── CLAUDE.md                     # Shamt framework rules (rendered template)

@@ -20,7 +20,7 @@ def data_root() -> Path:
     """The fetcher's data ROOT.
 
     This is the directory that CONTAINS player_data/, team_data/ and
-    drafted_data.csv -- it is NOT the player_data/ subdirectory itself.
+    game_data.csv -- it is NOT the player_data/ subdirectory itself.
 
     Redirected by the PLAYER_DATA_DIR environment variable (the player-data
     parallel of LEAGUE_DATA_DIR, league_helper/LeagueHelperManager.py). When
