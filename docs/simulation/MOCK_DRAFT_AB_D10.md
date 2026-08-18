@@ -51,15 +51,113 @@ git-ignored `_internal/`, and no league team name appears in this document.
 
 ## Result
 
-PENDING /du4-test
+Measured 2026-08-17 at unit branch `unit/D10.4` @ `90147b3b`, by the `/du4-test` agent-run pass
+recorded in that unit's `agent_test_session_2026-08-17T2310.md`.
+
+**The result is not null. Every one of the ten drafts diverged.**
+
+| Metric | A vs B (both cutovers) | A2 vs B (D10.4 alone) |
+|---|---|---|
+| Draft slots whose roster diverged | **10 of 10** | **10 of 10** |
+| Our picks that differ | **59 of 150** (39.3%) | **59 of 150** (39.3%) |
+| Earliest round of divergence | **Round 6**, in all ten slots | **Round 6**, in all ten slots |
+| Position mix of players B took that the comparison arm did not | TE 10, K 10, RB 4, DST 3, QB 1 | TE 10, K 10, RB 4, DST 3, QB 1 |
+
+**A third arm was added to isolate this factor, and it changed the attribution.** The two-arm
+comparison the section above defines (A = both factors BUCKETED, B = both LINEAR) measures D10.3 and
+D10.4 *together*. A third arm **A2** was therefore also replayed — `ADP_SCORING` LINEAR,
+`PLAYER_RATING_SCORING` BUCKETED, i.e. the tree exactly as it stood at this unit's branch point
+`ebb7a6e8`. **Arms A and A2 produced pick-for-pick identical rosters in all ten slots.** So
+`ADP_SCORING`'s LINEAR cutover (D10.3) has **zero** observable effect on draft selection in this
+scenario set, and **every** difference reported above is attributable to `PLAYER_RATING_SCORING`
+alone. That is consistent with, and independently reproduces, D10.3's own recorded finding that the
+committed ADP pool is a wall of identical placeholder values with none inside the interpolating
+window — its cutover is a no-op on committed data.
+
+**Arm construction, stated precisely because the arms are what the comparison rests on.** All three
+arms are scratch copies of the lane's `data/` tree that differ **only** in
+`configs/league_config.json` (asserted by `diff -rq` before the replays; no `player_data/`,
+`team_data/` or schedule file differs). Arm A's config is `git show cd16eef7:...`, the last commit
+on that file before D10's cutovers. Arm A2's is `git show ebb7a6e8:...`. Arm B's is the shipped
+branch state. `PLAYER_RATING_SCORING.WEIGHT` is **4.0 in all three arms** — asserted explicitly,
+because an unequal weight would have made this measure two changes at once. Nothing was committed,
+nothing was snapshotted, and the working tree was verified clean before and after.
+
+**Replay method.** Each of the ten recorded drafts is replayed pick-by-pick in `overall` order.
+Opponent picks are taken from the record and marked drafted. At each of our fifteen picks the
+recorded player is **ignored** and the real `AddToRosterModeManager.get_recommendations()` is called
+— the same call the interactive Add to Roster mode makes, driving `PlayerManager.score_player()` and
+therefore the real `ConfigManager._get_multiplier` — and its top recommendation is drafted via
+`PlayerManager.draft_player()`. No scoring logic was reimplemented, approximated or copied, and the
+scoring-scale spike's prototype was not used. Each slot ran in a fresh manager construction so no
+state leaks between slots or arms.
+
+**One population caveat, measured rather than assumed.** Seven distinct player names appearing in the
+recorded drafts (59 pick occurrences in total) are absent from the current 773-player pool, because
+the drafts were recorded on 2026-08-03 and the pool has moved since. Those picks are simply not
+marked taken — **identically in all three arms**, so they do not bias the comparison — but they mean
+each arm drafts against a pool 59 opponent-removals shallower than the original draft did.
 
 ## Per-slot roster deltas
 
-PENDING /du4-test
+Per-slot rosters for all three arms are in the unit's session log; the deltas are reproduced here
+because this is the tracked artifact. Rounds 1-5 are identical across all three arms in every slot —
+divergence begins at Round 6 (the TE slot) every time. "B-unique" = on arm B's roster and not on the
+comparison arm's; the reverse column is the comparison arm's. **A2 vs B is identical to A vs B in
+every row, because A and A2 are identical.**
+
+| Slot | First divergent round | Differing picks | B-unique | A / A2-unique |
+|---|---|---|---|---|
+| 01 | R6 | 6/15 | Travis Kelce (TE), Jake Bates (K), Tyrone Tracy Jr. (RB) | Jake Ferguson (TE), Jaylen Warren (RB), Brandon Aubrey (K) |
+| 02 | R6 | 6/15 | Travis Kelce (TE), Jake Bates (K), Kenneth Gainwell (RB) | Jake Ferguson (TE), Jaylen Warren (RB), Brandon Aubrey (K) |
+| 03 | R6 | 7/15 | Travis Kelce (TE), Jake Bates (K), Kenneth Gainwell (RB) | Jake Ferguson (TE), Jaylen Warren (RB), Brandon Aubrey (K) |
+| 04 | R6 | 5/15 | Travis Kelce (TE), Jake Bates (K) | Hunter Henry (TE), Brandon Aubrey (K) |
+| 05 | R6 | 5/15 | Travis Kelce (TE), Jake Bates (K) | Hunter Henry (TE), Brandon Aubrey (K) |
+| 06 | R6 | 6/15 | Travis Kelce (TE), Jake Bates (K), Steelers D/ST | Hunter Henry (TE), Brandon Aubrey (K), Seahawks D/ST |
+| 07 | R6 | 9/15 | Travis Kelce (TE), Jake Bates (K), Steelers D/ST, Kenneth Gainwell (RB) | Jaylen Warren (RB), Hunter Henry (TE), Brandon Aubrey (K), Lions D/ST |
+| 08 | R6 | 3/15 | Travis Kelce (TE), Jake Bates (K) | Hunter Henry (TE), Brandon Aubrey (K) |
+| 09 | R6 | 5/15 | Travis Kelce (TE), Jake Bates (K) | Hunter Henry (TE), Brandon Aubrey (K) |
+| 10 | R6 | 7/15 | Travis Kelce (TE), Baker Mayfield (QB), Jake Bates (K), Colts D/ST | Matthew Stafford (QB), Hunter Henry (TE), Brandon Aubrey (K), Bills D/ST |
+
+The two most consistent single-player swaps are the TE slot (Travis Kelce under LINEAR, in place of
+Jake Ferguson or Hunter Henry) and the K slot (Jake Bates in place of Brandon Aubrey), each in all
+ten slots. Only NFL player and NFL-defense names appear here; no fantasy league team name is recorded
+in this document or in the session log.
 
 ## Reading it — what this does and does not establish
 
-PENDING /du4-test
+**What it establishes.** Switching `PLAYER_RATING_SCORING` to LINEAR at `STEPS = 25` changes the
+drafted roster on committed data, in every one of the ten drafts, from Round 6 onward, in 39% of our
+picks. It is therefore **not** a no-op, and the ticket's premise — that the step function was
+discarding decision-relevant resolution — is borne out on the live scoring path rather than only in a
+distribution table. The mechanism is visible directly: under BUCKETED, 209 players (26% of the pool)
+all receive the identical maximum multiplier `1.2155x` and are indistinguishable to the recommender;
+at `STEPS = 25` that better-end collapse falls to **0**, and a probe of the real accessor on the
+shipped config returns six distinct interior values across 30/37.5/50/62.5/75/87.5 where the previous
+model returned repeated constants. A recommendation list driven through the real interactive Add to
+Roster surface shows the same thing — the top backs carry distinct `EXCELLENT`-tier multipliers
+(1.2102x, 1.2067x, 1.2155x, 1.2050x, 1.2120x) instead of all collapsing to `1.2155x`.
+
+**What it does NOT establish — and this is the load-bearing limit.** It does **not** show that arm B
+drafts *better* rosters. It measures **difference**, not **quality**. Nothing here is a win-rate,
+points, or accuracy measurement; no arm was scored against an outcome. A 39% pick-change rate is
+equally consistent with a real improvement and with a real regression, and this document must not be
+cited as evidence of improvement. Establishing direction needs the win-rate sweep of
+`PLAYER_RATING_SCORING_STEPS` that D10.7 owns, and a re-derived `WEIGHT` that no unit in this ticket
+performed.
+
+**Both arms carry weights fitted for the BUCKETED model.** As stated above, no `WEIGHT` was
+re-derived for this ticket; `PLAYER_RATING_SCORING.WEIGHT` is 4.0 in every arm. That is what makes
+the comparison single-variable and clean, and it is simultaneously why the shipped configuration is
+**not** the fully re-tuned one. The re-derivation is deferred and carried on the ticket's gap ledger.
+
+**The accompanying accuracy-simulation signal is unqualified.** `docs/simulation/ACCURACY_SIM_NOISE_FLOOR_D2.md`
+records D2 as `Status: PARTIAL - ONE-SEED SMOKE RUN ONLY`. Nothing in this ticket may present the
+accuracy sim as a qualified acceptance signal, and this A/B does not stand in for one.
+
+**Reproducibility.** Re-read the LOCAL-ONLY caveat at the head of this document. It is binding on
+this section too: the numbers above are durable, their inputs are not, and no reader can re-run this
+comparison without a checkout that already carries `_internal/mock_drafts/`.
 
 ## Standing caveats that survive whatever the numbers say
 
