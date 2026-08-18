@@ -262,6 +262,15 @@ class TestDeriveSteps:
         with pytest.raises(ValueError, match="draftDetail"):
             derive_steps({"id": 1, "teams": []})
 
+    def test_missing_picks_field_fails_fast_with_valueerror(self):
+        """SUGGESTION-22 (D17.3 review): a 'draftDetail' block present but with
+        no 'picks' field must fail fast and legibly, not silently default to an
+        empty picks list via `.get('picks', [])` -- the exact silent fallback the
+        docstring one line above the old default already rejected for the sibling
+        'draftDetail' case."""
+        with pytest.raises(ValueError, match="picks"):
+            derive_steps({"id": 1, "teams": [], "draftDetail": {}})
+
 
 class TestWriteCorpus:
     """Test write_corpus (R5-d, R5-e)."""

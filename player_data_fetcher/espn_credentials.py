@@ -188,6 +188,38 @@ def install_credential_redaction() -> None:
     still need the same call at its own creation site; see
     `addressed_feedback.md` D17.3 for the greppable check.
 
+    D17.3 review CONCERN-20: this function's install additionally attaches
+    the filter to `logging.lastResort` (chosen alternative (a) + the
+    `lastResort` line from (b) -- see `addressed_feedback.md` D17.3 Pass 7).
+    `logging.lastResort` is what stdlib falls back to for a WARNING+ record
+    on a logger with no handler anywhere in its propagation chain (the
+    exact situation of a bare `logging.getLogger(__name__)` module, e.g.
+    `utils/csv_utils.py`, which has 0 own handlers and a root logger with 0
+    handlers). Attaching there closes that gap for every present and future
+    bare-logger module in one line, without a per-module opt-in.
+
+    **Known residual, deliberately left open and recorded rather than
+    silently assumed closed (CONCERN-20's "known residual"):** the two
+    `for handler in ...logger.handlers:` loops below still enumerate root
+    and project logger handlers point-in-time, at install call. A handler
+    added to either logger *after* `install_credential_redaction()` runs
+    would still miss the filter (the same species of ordering gap CONCERN-8
+    closed at `LoggingManager`'s own creation site, but not re-derived
+    here). This is NOT closed by the `lastResort` attachment above --
+    `lastResort` only fires when a record reaches no handler at all, so a
+    handler added post-install and never wired to `LoggingManager`'s
+    creation-time attachment is a distinct gap. Closing it fully would mean
+    either re-deriving the ordering-proof pattern here (previously rejected
+    on this ticket, CONCERN-8's own history above, as a stdlib-mutating
+    monkeypatch with a demonstrated `RecursionError` hazard) or restricting
+    every project handler-creation path to go through `LoggingManager`
+    (true today per the grep in `addressed_feedback.md`, but not structurally
+    enforced). Accepted bound: the residual can only be exploited by new
+    handler-creation code added *outside* `LoggingManager` *after* process
+    start and *before* an explicit re-`install_credential_redaction()` call
+    -- there is no such code today (verified by the same grep CONCERN-20
+    cites), so the gap is latent, not live.
+
     Must be called before any credential-touching code runs. As of
     BLOCKING-5's remediation this is enforced structurally:
     `get_espn_credentials()` calls this function unconditionally as its
@@ -213,5 +245,12 @@ def install_credential_redaction() -> None:
     for handler in project_logger.handlers:
         if _credential_redaction_filter not in handler.filters:
             handler.addFilter(_credential_redaction_filter)
+
+    # D17.3 review CONCERN-20: covers any bare `logging.getLogger(__name__)`
+    # module with no handler anywhere in its propagation chain (e.g.
+    # utils/csv_utils.py) -- stdlib routes such a WARNING+ record to
+    # logging.lastResort, which had no filter before this line.
+    if _credential_redaction_filter not in logging.lastResort.filters:
+        logging.lastResort.addFilter(_credential_redaction_filter)
 
     _credential_redaction_installed = True

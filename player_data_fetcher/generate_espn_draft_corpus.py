@@ -230,18 +230,26 @@ def derive_steps(sanitized_source: Dict[str, Any]) -> List[Dict[str, Any]]:
         through len(picks) inclusive, index-ordered.
 
     Raises:
-        ValueError: If `sanitized_source` has no `draftDetail` block. Fails
-            fast and legibly here (SUGGESTION, D17.3 review) rather than the
-            `.get(..., {})` default silently producing an empty `picks` list
-            and an opaque `KeyError` a few lines later in the write path --
-            after a live, credential-bearing capture that is expensive to repeat.
+        ValueError: If `sanitized_source` has no `draftDetail` block, or if
+            `draftDetail` has no `picks` field. Fails fast and legibly here
+            (SUGGESTION, D17.3 review) rather than a `.get(..., {})` /
+            `.get("picks", [])` default silently producing an empty `picks`
+            list -- a one-entry corpus and a manifest that agrees with it --
+            after a live, credential-bearing capture that is expensive to
+            repeat (SUGGESTION-22: the original `picks` default violated
+            this exact docstring one line below where it was written).
     """
     if "draftDetail" not in sanitized_source:
         raise ValueError(
             "Captured payload has no 'draftDetail' block; the mDraftDetail view "
             "may not have been returned by ESPN for this request."
         )
-    picks = sanitized_source["draftDetail"].get("picks", [])
+    if "picks" not in sanitized_source["draftDetail"]:
+        raise ValueError(
+            "Captured payload's 'draftDetail' block has no 'picks' field; the "
+            "mDraftDetail view may not have returned picks for this request."
+        )
+    picks = sanitized_source["draftDetail"]["picks"]
 
     steps = []
     for n in range(len(picks) + 1):

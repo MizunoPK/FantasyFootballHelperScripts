@@ -47,6 +47,13 @@ def redact(text: str, *secrets: str) -> str:
         str: text with every occurrence of each non-empty secret replaced by
             REDACTION_MARKER. Empty/falsy secrets are skipped so an unset
             credential does not turn every empty substring into a match.
+
+    Caveat (D17.3 review SUGGESTION-21): matching is exact-literal only. A
+    credential that reaches a sink percent-encoded, JSON-escaped, or
+    otherwise transformed from the raw `os.environ` value will not match
+    and will NOT be redacted. No such transformed-form path exists in this
+    diff today; a future caller that logs a transformed credential must not
+    assume this function covers it.
     """
     redacted = text
     for secret in secrets:
@@ -56,10 +63,23 @@ def redact(text: str, *secrets: str) -> str:
 
 
 class CredentialRedactionFilter(logging.Filter):
-    """Global, process-wide `logging.Filter` scrubbing ESPN session credential
-    values from every `LogRecord` it sees (D17.3 BLOCKING-3 remediation).
+    """`logging.Filter` scrubbing ESPN session credential values from every
+    `LogRecord` it sees (D17.3 BLOCKING-3 remediation).
 
-    Reads `espn_s2` / `SWID` directly from `os.environ` on every record --
+    Reach (D17.3 review CONCERN-20, corrected from an earlier "global,
+    process-wide" claim): this filter covers records logged through this
+    project's own logger and through handlers `LoggingManager` builds, plus
+    `logging.lastResort` (attached by `install_credential_redaction()`, so a
+    bare `logging.getLogger(__name__)` module with no handlers and no root
+    handler -- e.g. `utils/csv_utils.py` -- still gets scrubbed at the point
+    stdlib would otherwise print it unfiltered). It is NOT truly global: a
+    `logging.Filter` on a *logger* is never consulted for a record that
+    propagated from a child logger to an ancestor, so a bare-`getLogger`
+    module's records are covered only via the `lastResort` attachment above,
+    not via any logger-level filter. `install_credential_redaction()`'s
+    root-*handler* enumeration is also point-in-time (see that function's
+    docstring for the recorded, currently-unclosed residual). Reads
+    `espn_s2` / `SWID` directly from `os.environ` on every record --
     never captured once at install time -- so it redacts correctly whether
     the filter is installed before or after `load_espn_env()` populates the
     process environment, and it keeps working if credentials are rotated
@@ -67,7 +87,7 @@ class CredentialRedactionFilter(logging.Filter):
     through unchanged (`redact()` no-ops on falsy secrets).
 
     `filter()` is wrapped in a broad `except Exception` (D17.3 review
-    CONCERN-12): `record.getMessage()` performs `msg %% args` interpolation,
+    CONCERN-12): `record.getMessage()` performs `msg % args` interpolation,
     which can raise on a mismatched placeholder or an argument whose
     `__str__` raises. In stock `logging`, that failure is caught inside
     `Handler.emit()` and routed to `Handler.handleError()` (a stderr notice,
@@ -83,6 +103,18 @@ class CredentialRedactionFilter(logging.Filter):
     for an application whose whole purpose is defensive, and the failure
     itself is neither swallowed nor hidden -- it still surfaces via the
     handler's `handleError()`, exactly as any other formatting defect would.
+
+    D17.3 review CONCERN-19: the fail-open arm above returns before
+    `record.args` (and `record.msg`'s string form) have been redacted --
+    the `except` fires precisely because rendering failed, so the
+    msg/args-redaction block never ran. Stock `Handler.handleError()`
+    prints both `Message:` and `Arguments:` to stderr, so a credential
+    passed as a raw `%`-arg on a call whose format string is defective
+    would otherwise reach stderr unredacted. The `except` arm therefore
+    makes its own best-effort redaction pass over `record.args` and
+    `record.msg` before returning -- itself wrapped in a nested
+    `try/except` so this second-chance scrub can never turn into a raise
+    and defeat the fail-open property it exists to preserve.
     """
 
     def filter(self, record: logging.LogRecord) -> bool:
@@ -129,6 +161,27 @@ class CredentialRedactionFilter(logging.Filter):
             # this filter cannot even render cannot be scrubbed, and the
             # handler's own handleError() path (which this return lets run)
             # is the existing, correct place for that failure to surface.
+            #
+            # D17.3 review CONCERN-19: handleError() prints record.args
+            # verbatim, and this arm is reached precisely when the
+            # msg/args-redaction block above never ran. Make a best-effort
+            # scrub of record.args / record.msg here so handleError's own
+            # stderr output cannot carry a raw credential -- nested in its
+            # own try/except so a broken arg's __str__ (or anything else)
+            # can never turn this second-chance scrub into a raise, which
+            # would defeat the fail-open guarantee this arm exists for.
+            try:
+                espn_s2 = os.environ.get('espn_s2', '')
+                swid = os.environ.get('SWID', '')
+                if espn_s2 or swid:
+                    if record.args:
+                        record.args = tuple(
+                            redact(str(arg), espn_s2, swid) for arg in record.args
+                        )
+                    if isinstance(record.msg, str):
+                        record.msg = redact(record.msg, espn_s2, swid)
+            except Exception:
+                pass
             return True
 
         return True
