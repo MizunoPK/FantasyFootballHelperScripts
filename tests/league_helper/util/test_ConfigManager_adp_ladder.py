@@ -15,6 +15,15 @@ verbatim because the sentence carrying it is the live-store mutation check
 itself; read it as describing the BUCKETED ladder this file was written
 against, not the label set the live LINEAR ADP factor now produces.
 
+NOTE (D10.4): the live `PLAYER_RATING_SCORING` block now ALSO carries `SCALING:
+"LINEAR"`, at `STEPS 25`, so that factor likewise emits only the FOUR anchor labels for a
+valued input and never NEUTRAL — the `val is None` -> `(1.0, NEUTRAL)` arm is untouched and
+remains pinned at `tests/utils/test_FantasyPlayer.py:439-440`. The class below was named
+`TestPlayerRatingLadderUnchanged` when it pinned only DIRECTION and a BUCKETED label
+triple; D10.4 renamed it to `TestPlayerRatingLinearLadder` because "Unchanged" became a
+claim this file's own diff falsified. Same remediation shape as the `NOTE (D10.3):`
+paragraph above.
+
 Also pins the neighbouring `PLAYER_RATING_SCORING` block, which is `INCREASING`
 *correctly* — `get_player_rating_multiplier` resolves to `rising_thresholds=True`
 via the default in `ConfigManager._get_multiplier`'s signature — so a symmetric
@@ -132,8 +141,8 @@ class TestAdpLadderReachability:
         assert direction == "DECREASING"
 
 
-class TestPlayerRatingLadderUnchanged:
-    """`PLAYER_RATING_SCORING` stays ascending and still discriminates (TD2, UD2)."""
+class TestPlayerRatingLinearLadder:
+    """`PLAYER_RATING_SCORING` stays ascending and discriminates under LINEAR (TD2, UD2, D10.4)."""
 
     def test_player_rating_direction_is_increasing(self, live_config):
         """The neighbouring INCREASING block is correct and must not be flipped."""
@@ -155,14 +164,16 @@ class TestPlayerRatingLadderUnchanged:
         `val is None` -> NEUTRAL arm is untouched and still pinned by
         tests/utils/test_FantasyPlayer.py:439-440.
 
-        Recorded honestly (CODING_STANDARDS.md:123-125): at STEPS 25 the 4.5
-        multiple probes 112.5, which is OUTSIDE this factor's declared input
-        domain (0, 100). It clamps to the EXCELLENT anchor and is bit-identical
-        to probing 100.0 (both -> 1.2155062500000002), so the assertion still
-        discriminates -- but it is a clamped probe, not an in-domain one, and
-        that is stated rather than left for a reader to discover. Changing the
-        probe multiple is deliberately NOT done here: D10.4's spec assigns this
-        test only a label re-point and a rename.
+        The top probe multiple moved 4.5 -> 3.5 so that every probe stays INSIDE
+        this factor's declared input domain (0, 100) after the STEPS change. At
+        STEPS 25 the old 4.5 multiple probed 112.5, out of domain, reaching
+        EXCELLENT only by clamping; 3.5 probes 87.5, which is in-domain and
+        exercises real interpolation. Observed, not reasoned: 87.5 ->
+        (1.1586504150390629, "EXCELLENT"), and the triple still yields three
+        distinct labels (12.5 -> VERY_POOR, 62.5 -> GOOD, 87.5 -> EXCELLENT).
+        CODING_STANDARDS.md:123-125 is deliberately NOT cited here: its
+        precondition ("no in-domain input can distinguish") is not met, and its
+        second sentence forbids constructing the out-of-domain probe.
 
         The fixture is deliberately still the LIVE store (live_config, :28) --
         the module docstring above makes that live-ness the guard, so a fixture
@@ -174,7 +185,7 @@ class TestPlayerRatingLadderUnchanged:
         expected = [
             (0.5, "VERY_POOR"),
             (2.5, "GOOD"),
-            (4.5, "EXCELLENT"),
+            (3.5, "EXCELLENT"),
         ]
 
         # Act

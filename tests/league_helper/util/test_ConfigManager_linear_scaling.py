@@ -647,9 +647,16 @@ class TestTierReachabilityIsModeAware:
         that the shipped configuration keeps its current accept verdict, which a temp-dir
         copy could not evidence. As of D10.4 BOTH live cutover factors carry
         SCALING: "LINEAR" -- ADP_SCORING (switched by D10.3) and PLAYER_RATING_SCORING
-        (switched by D10.4) -- while the remaining FOUR factors are still BUCKETED (no
+        (switched by D10.4) -- while the remaining SIX factors are still BUCKETED (no
         SCALING key exists on disk for them), so this exercises both switched paths and
         the unchanged five-label path together, end to end.
+
+        SIX, not four: there are EIGHT SCALING-capable factors, enumerated by
+        ConfigManager.MULTIPLIER_INPUT_DOMAINS. TEMPERATURE_SCORING and WIND_SCORING live
+        in the week*.json horizons rather than league_config.json, which is why earlier
+        counts here omitted them -- but the merged config.parameters this test already
+        holds carries all eight, so they are covered by the negative loop below. Measured
+        through this same ConfigManager(LIVE_CONFIG_ROOT), 2026-08-18.
 
         This test ENUMERATES which live factors carry SCALING, so every cutover unit must
         move its own factor from the negative loop into the positive pinned set above it.
@@ -666,7 +673,10 @@ class TestTierReachabilityIsModeAware:
         # still fails on a WRONG value as well as on removal of the key.
         assert config.parameters["PLAYER_RATING_SCORING"]["SCALING"] == "LINEAR"
 
-        # Assert -- and no OTHER live block acquired a SCALING key
+        # Assert -- and no OTHER live block acquired a SCALING key. All SIX remaining
+        # factors, including the two that live in the week*.json horizons rather than
+        # league_config.json.
         for scoring_key in ("TEAM_QUALITY_SCORING", "MATCHUP_SCORING",
-                            "SCHEDULE_SCORING", "PERFORMANCE_SCORING"):
+                            "SCHEDULE_SCORING", "PERFORMANCE_SCORING",
+                            "TEMPERATURE_SCORING", "WIND_SCORING"):
             assert "SCALING" not in config.parameters[scoring_key]
