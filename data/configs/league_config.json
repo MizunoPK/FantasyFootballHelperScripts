@@ -105,6 +105,7 @@
       "WEIGHT": 2.12
     },
     "PLAYER_RATING_SCORING": {
+      "MISSING_VALUE_TIER": "VERY_POOR",
       "THRESHOLDS": {
         "BASE_POSITION": -20,
         "DIRECTION": "INCREASING",

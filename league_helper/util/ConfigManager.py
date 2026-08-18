@@ -126,6 +126,10 @@ class ConfigKeys:
     SCALING_BUCKETED = "BUCKETED"
     SCALING_LINEAR = "LINEAR"
 
+    # Which tier an ABSENT (None) input scores as. Absent key => NEUTRAL, which is the
+    # pre-existing behaviour for every factor, so this lands dark exactly like SCALING.
+    MISSING_VALUE_TIER = "MISSING_VALUE_TIER"
+
     DIRECTION_INCREASING = "INCREASING"
     DIRECTION_DECREASING = "DECREASING"
     DIRECTION_BI_EXCELLENT_HI = "BI_EXCELLENT_HI"
@@ -1296,6 +1300,19 @@ class ConfigManager:
             # key is exactly the invisible-degradation class the tier-reachability guard
             # exists to stop, and it matches validate_threshold_params' posture for a bad
             # DIRECTION / STEPS. Failing at config load, not at the first scoring call.
+            # Same posture as SCALING below: an unrecognized value RAISES at config
+            # load rather than degrading silently to NEUTRAL, because a typo here is
+            # invisible -- it would simply restore the old behaviour for that factor.
+            missing_tier = self._resolve_missing_value_tier(scoring_dict)
+            valid_missing_tiers = self._linear_tier_order() + (self.keys.NEUTRAL,)
+            if missing_tier not in valid_missing_tiers:
+                error_msg = (
+                    f"{scoring_type}: {self.keys.MISSING_VALUE_TIER} must be one of "
+                    f"{list(valid_missing_tiers)}, got '{missing_tier}'"
+                )
+                self.logger.error(error_msg)
+                raise ValueError(error_msg)
+
             scaling = self._resolve_scaling(scoring_dict)
             if scaling not in (self.keys.SCALING_BUCKETED, self.keys.SCALING_LINEAR):
                 error_msg = (
@@ -1405,6 +1422,37 @@ class ConfigManager:
                 returned as-is, so _extract_parameters can name it in its raise).
         """
         return scoring_dict.get(self.keys.SCALING, self.keys.SCALING_BUCKETED)
+
+    def _resolve_missing_value_tier(self, scoring_dict: Dict[str, Any]) -> str:
+        """Return the tier an ABSENT (None) input scores as; absent key => NEUTRAL.
+
+        The SINGLE owner of this absent-key default, mirroring _resolve_scaling, and
+        read from two places -- _extract_parameters' validation and _get_multiplier's
+        None branch. NEUTRAL preserves the prior behaviour for every factor that does
+        not configure the key.
+
+        Why any factor configures it at all: NEUTRAL is 1.0, and 1.0 is not neutral
+        with respect to the POPULATION -- it sits wherever the multiplier curve crosses
+        1.0, which for PLAYER_RATING_SCORING's current ladder is around rating 55. An
+        unrated player therefore outscored every rated player below that point (364 of
+        819 in the 2026 corpus), and ESPN omits ratings precisely for fringe players, so
+        "unknown" correlated with "weak" in exactly the population the neutral reading
+        got most wrong. NEUTRAL remains right for a factor whose absence genuinely means
+        "does not apply" (no weather reading, no matchup), which is why this is per-factor
+        and not a global change to the None branch.
+
+        Note the crossover MOVES with the ladder: it is wherever the curve crosses 1.0,
+        so BASE_POSITION / STEPS changes relocate it. That is an argument for configuring
+        this key explicitly rather than relying on where 1.0 happens to land.
+
+        Args:
+            scoring_dict (Dict[str, Any]): A scoring factor's ladder block.
+
+        Returns:
+            str: A tier label (an unrecognized configured value is returned as-is, so
+                _extract_parameters can name it in its raise).
+        """
+        return scoring_dict.get(self.keys.MISSING_VALUE_TIER, self.keys.NEUTRAL)
 
     def _linear_tier_order(self) -> Tuple[str, str, str, str]:
         """Return the four LINEAR anchor tier labels in a fixed, canonical order."""
@@ -1801,8 +1849,19 @@ class ConfigManager:
             (TD1).
         """
         if val == None:
-            self.logger.debug(f"Multiplier calculation received None value, returning NEUTRAL (1.0)")
-            multiplier, label = 1.0, self.keys.NEUTRAL
+            # Per-factor, defaulting to NEUTRAL so every factor that does not configure
+            # MISSING_VALUE_TIER behaves exactly as before. The chosen tier's BASE
+            # multiplier is used here and the shared `** WEIGHT` step below applies to it
+            # unchanged, so a configured tier lands on the identical value a real input in
+            # that tier would score (VERY_POOR at WEIGHT 4.0 => 0.95 ** 4 => 0.8145).
+            label = self._resolve_missing_value_tier(scoring_dict)
+            if label == self.keys.NEUTRAL:
+                multiplier = 1.0
+            else:
+                multiplier = scoring_dict[self.keys.MULTIPLIERS][label]
+            self.logger.debug(
+                f"Multiplier calculation received None value, scoring it as {label}"
+            )
 
         elif self._resolve_scaling(scoring_dict) == self.keys.SCALING_LINEAR:
             # Sorted anchor table, built once at config load (TD2 rationale lives on
