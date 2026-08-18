@@ -8,10 +8,12 @@ the live file makes these tests fail (the mutation check, TD5/UD3).
 
 NOTE (D10.3): the live ADP block now carries `SCALING: "LINEAR"`, so the ADP
 factor emits only the FOUR anchor labels (EXCELLENT / GOOD / POOR / VERY_POOR)
-for a valued input and never NEUTRAL (TD3 option C). The "five-tier" wording
-above is retained verbatim because the sentence carrying it is the live-store
-mutation check itself; read it as describing the BUCKETED ladder this file was
-written against, not the label set the live LINEAR ADP factor now produces.
+for an ORDERED valued input and never NEUTRAL (TD3 option C) — a NaN ADP still
+falls through to `(1.0, NEUTRAL)`, matching the BUCKETED branches by design
+(`ConfigManager._get_multiplier`). The "five-tier" wording above is retained
+verbatim because the sentence carrying it is the live-store mutation check
+itself; read it as describing the BUCKETED ladder this file was written
+against, not the label set the live LINEAR ADP factor now produces.
 
 Also pins the neighbouring `PLAYER_RATING_SCORING` block, which is `INCREASING`
 *correctly* — `get_player_rating_multiplier` resolves to `rising_thresholds=True`
@@ -51,7 +53,8 @@ class TestAdpLadderReachability:
         The live ADP block is `SCALING: "LINEAR"` (D10.3), so an interior probe
         takes the BETTER-side bracketing anchor's label (TD3 clause 3) and an
         out-of-window probe clamps to the nearest outer anchor (TD3 clause 2);
-        NEUTRAL is unreachable for a valued ADP input.
+        NEUTRAL is unreachable for an ORDERED valued ADP input (a NaN ADP
+        still returns NEUTRAL, as `_get_multiplier` documents).
         """
         # Arrange
         thresholds = live_config.adp_scoring["THRESHOLDS"]
