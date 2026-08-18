@@ -20,8 +20,21 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 from utils.error_handler import ConfigurationError
+from utils.credential_redaction import (
+    REDACTION_MARKER,
+    CredentialRedactionFilter,
+    credential_redaction_filter as _credential_redaction_filter,
+    redact,
+)
 
-REDACTION_MARKER = "***REDACTED***"
+__all__ = [
+    "load_espn_env",
+    "get_espn_credentials",
+    "redact",
+    "REDACTION_MARKER",
+    "CredentialRedactionFilter",
+    "install_credential_redaction",
+]
 
 
 def load_espn_env(override: bool = False, dotenv_path: Union[str, Path, None] = None) -> None:
@@ -97,78 +110,16 @@ def get_espn_credentials() -> Tuple[str, str]:
     return espn_s2, swid
 
 
-def redact(text: str, *secrets: str) -> str:
-    """
-    Replace every occurrence of each secret value in text with a fixed marker.
+# `redact`, `CredentialRedactionFilter` and the shared filter singleton
+# (imported above as `_credential_redaction_filter`) now live in
+# `utils.credential_redaction` -- a dependency-free module `utils` can
+# import directly at module top level, which is what makes
+# `LoggingManager._attach_credential_redaction`'s attachment structurally
+# incapable of failing (D17.3 review BLOCKING-6). They are re-exported here
+# (see `__all__` above and the module docstring) for backward compatibility
+# with any existing `from player_data_fetcher.espn_credentials import ...`
+# caller; this module is no longer their defining owner.
 
-    Args:
-        text: Arbitrary text that may contain one or more secret values.
-        *secrets: One or more known secret values to redact.
-
-    Returns:
-        str: text with every occurrence of each non-empty secret replaced by
-            REDACTION_MARKER. Empty/falsy secrets are skipped so an unset
-            credential does not turn every empty substring into a match.
-    """
-    redacted = text
-    for secret in secrets:
-        if secret:
-            redacted = redacted.replace(secret, REDACTION_MARKER)
-    return redacted
-
-
-class CredentialRedactionFilter(logging.Filter):
-    """Global, process-wide `logging.Filter` scrubbing ESPN session credential
-    values from every `LogRecord` it sees (D17.3 BLOCKING-3 remediation).
-
-    Reads `espn_s2` / `SWID` directly from `os.environ` on every record --
-    never captured once at install time -- so it redacts correctly whether
-    the filter is installed before or after `load_espn_env()` populates the
-    process environment, and it keeps working if credentials are rotated
-    mid-process. A record logged while neither credential is set is passed
-    through unchanged (`redact()` no-ops on falsy secrets).
-    """
-
-    def filter(self, record: logging.LogRecord) -> bool:
-        espn_s2 = os.environ.get('espn_s2', '')
-        swid = os.environ.get('SWID', '')
-        if not espn_s2 and not swid:
-            return True
-        # Render args into the message first (record.getMessage() does this),
-        # then redact the rendered text and clear args so downstream
-        # formatters don't re-interpolate the original (unredacted) args.
-        message = record.getMessage()
-        redacted = redact(message, espn_s2, swid)
-        if redacted != message:
-            record.msg = redacted
-            record.args = None
-
-        # D17.3 review CONCERN-9: the msg/args axis above does not cover the
-        # exception axis. A Formatter appends the formatted traceback from
-        # exc_info *after* filtering runs, so a credential embedded anywhere
-        # in an exception chain (e.g. a raw ESPN response body echoed by a
-        # third-party exception __str__) would otherwise reach the log
-        # unredacted whenever a caller logs with exc_info=True -- and this
-        # repo has two live exc_info=True sinks on paths a fetcher failure
-        # reaches: player_data_fetcher_main.py's top-level handler and
-        # utils/error_handler.py's shared error handler. Pre-format exc_info
-        # into record.exc_text (redacted) so the eventual Formatter reuses it
-        # verbatim instead of re-formatting the original.
-        if record.exc_info:
-            exc_text = record.exc_text or logging.Formatter().formatException(record.exc_info)
-            redacted_exc_text = redact(exc_text, espn_s2, swid)
-            if redacted_exc_text != exc_text:
-                record.exc_text = redacted_exc_text
-
-        if record.stack_info:
-            redacted_stack_info = redact(record.stack_info, espn_s2, swid)
-            if redacted_stack_info != record.stack_info:
-                record.stack_info = redacted_stack_info
-
-        return True
-
-
-_credential_redaction_filter = CredentialRedactionFilter()
 _credential_redaction_installed = False
 
 
@@ -218,9 +169,24 @@ def install_credential_redaction() -> None:
     arbitrary third-party handlers -- that a one-line addition at the
     actual creation site achieves without the hazard (it produced a
     demonstrated `RecursionError` under repeat/duplicate-import install).
-    The residual obligation this narrower approach accepts: a *future
-    second* project handler-creation site would need the same one-line
-    call; see `addressed_feedback.md` D17.3 Pass 5 for the greppable check.
+
+    This narrower approach's residual obligation was originally recorded as
+    "a *future second* project handler-creation site would need the same
+    one-line call" -- which was incomplete (D17.3 review CONCERN-13): it
+    implied the *existing* site was already fully covered, when in fact the
+    `"default"` logger built by `LoggingManager.__init__` at
+    `utils.LoggingManager` import time was silently missing the filter
+    (BLOCKING-6), because the old deferred import from
+    `_attach_credential_redaction` back into this module cycled and its
+    `ImportError` was swallowed. That cycle is now removed structurally
+    (`CredentialRedactionFilter` and the shared filter singleton live in
+    `utils.credential_redaction`, which `utils` imports directly with no
+    cycle possible), so the *first* handler-creation site's attachment can
+    no longer silently fail. The residual obligation that remains is
+    unchanged in kind: a *future second* project handler-creation site
+    (an `addHandler(...)`/`StreamHandler(` call outside `tests/`) would
+    still need the same call at its own creation site; see
+    `addressed_feedback.md` D17.3 for the greppable check.
 
     Must be called before any credential-touching code runs. As of
     BLOCKING-5's remediation this is enforced structurally:

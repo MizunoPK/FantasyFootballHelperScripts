@@ -888,8 +888,11 @@ class ESPNClient(BaseAPIClient):
                 broad redacting wrapper (D17.3 review's choke-point remediation) -- it catches
                 every exception family verified to escape the narrow `except ESPNAPIError`
                 this replaced: `RuntimeError` (the no-active-session guard, now raised inside
-                `_make_request`, obligation (b)), and `ValueError` / `FileNotFoundError`
-                (CONCERN-7's `_resolve_league_draft_fixture` replay-corpus seam). Any other
+                `_make_request`, obligation (b)), `ValueError` / `FileNotFoundError`
+                (CONCERN-7's `_resolve_league_draft_fixture` replay-corpus seam), and
+                `httpx.HTTPError` (SUGGESTION-15 -- `httpx.HTTPStatusError` from
+                `response.raise_for_status()`, unreachable today but included for
+                defence-in-depth against a future branch-ordering change). Any other
                 exception (e.g. a genuine programming error such as `AttributeError` or
                 `TypeError`) is deliberately left uncaught and propagates unredacted, per the
                 review's correction: a trailing bare `except Exception` would swallow those
@@ -910,10 +913,19 @@ class ESPNClient(BaseAPIClient):
 
         try:
             return await self._make_request("GET", url, params=params, cookies=cookies)
-        except (ESPNAPIError, RuntimeError, ValueError, FileNotFoundError) as e:
+        except (ESPNAPIError, RuntimeError, ValueError, FileNotFoundError, httpx.HTTPError) as e:
             # `from None`, not `from e`: `raise ... from e` would keep the original
             # exception on `__cause__`, and a traceback print would re-emit whatever
             # unredacted content it carried (D17.3 review BLOCKING-1's `from e` note).
+            #
+            # `httpx.HTTPError` (D17.3 review SUGGESTION-15) covers
+            # `httpx.HTTPStatusError`, which `response.raise_for_status()` inside
+            # `_make_request` can raise. It is unreachable today -- the explicit
+            # >=400/>=500/429 branches above it convert every non-success status
+            # first, leaving `raise_for_status()` a defensive no-op -- but that
+            # unreachability is an accident of branch ordering, not a stated
+            # invariant, so it is included in this wrapper's catch tuple rather
+            # than left to escape unredacted if that ordering ever changes.
             raise ESPNAPIError(redact(str(e), espn_s2, swid)) from None
 
     async def get_league_snapshot(self, league_id: int, season: Optional[int] = None):

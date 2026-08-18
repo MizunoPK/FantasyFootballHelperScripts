@@ -11,6 +11,7 @@ Author: Kai Mizuno
 import asyncio
 import datetime
 import json
+import logging
 import pytest
 import httpx
 from unittest.mock import AsyncMock, Mock
@@ -1051,6 +1052,84 @@ class TestAuthenticatedLeagueSnapshot:
         assert sentinel_swid not in raised_msg
         assert sentinel_s2 not in caplog.text
         assert sentinel_swid not in caplog.text
+
+    @pytest.mark.asyncio
+    async def test_end_to_end_sentinel_absent_from_file_sink_clean_slate(
+        self, monkeypatch, tmp_path
+    ):
+        """D17.3 review SUGGESTION-14 (both reach gaps, addressed together).
+
+        Gap 1 -- the predecessor e2e test asserts only on `caplog.text` via a
+        handler attached to the project logger; it never exercises the
+        **file** sink (`LineBasedRotatingHandler`, the handler CONCERN-8's
+        narrowing was specifically extended to cover). This test attaches a
+        real file-backed logger via `setup_logger(..., log_to_file=True)` and
+        asserts the sentinel is absent from the file's bytes on disk.
+
+        Gap 2 -- `_credential_redaction_installed` is a module global that
+        latches `True` for the whole pytest process, so under an unlucky
+        ordering the predecessor e2e test could pass because an *earlier*
+        test already installed the filter, not because `get_espn_credentials()`
+        did -- the exact "test supplies its own setup" blind spot BLOCKING-5's
+        remediation exists to eliminate, displaced one level. This test resets
+        that flag (and detaches the filter from every logger/handler it may
+        already be on) before driving the real production path, so the proof
+        is from a genuinely clean slate.
+        """
+        from player_data_fetcher import espn_credentials
+        from utils.credential_redaction import credential_redaction_filter
+        from utils.LoggingManager import setup_logger, get_logger
+
+        # Clean-slate reset (gap 2): undo any earlier test's install so this
+        # test proves get_espn_credentials()'s own unconditional install,
+        # not a residual from process-wide latching.
+        monkeypatch.setattr(espn_credentials, "_credential_redaction_installed", False)
+        for lg in (logging.getLogger(), get_logger()):
+            if credential_redaction_filter in lg.filters:
+                lg.removeFilter(credential_redaction_filter)
+            for handler in lg.handlers:
+                if credential_redaction_filter in handler.filters:
+                    handler.removeFilter(credential_redaction_filter)
+
+        sentinel_s2 = "SENTINEL_S2_filesink_5c4d3e2f"
+        sentinel_swid = "SENTINEL_SWID_filesink_6a7b8c9d"
+        monkeypatch.setenv("espn_s2", sentinel_s2)
+        monkeypatch.setenv("SWID", sentinel_swid)
+        monkeypatch.delenv("ESPN_FIXTURE_DIR", raising=False)
+        monkeypatch.delenv("ESPN_RECORD_FIXTURES_DIR", raising=False)
+
+        async def _no_sleep(*_args, **_kwargs):
+            return None
+
+        monkeypatch.setattr(asyncio, "sleep", _no_sleep)
+
+        # Re-point the project logger at a file-backed handler for the
+        # duration of this test, then restore it -- this logger is a
+        # process-wide singleton (utils.LoggingManager's module-level
+        # instance) shared with every other test.
+        log_file = tmp_path / "espn_filesink_test.log"
+        original_logger = get_logger()
+        setup_logger("default", log_to_file=True, log_file_path=log_file, enable_console=False)
+        try:
+            settings = Settings()
+            client = ESPNClient(settings)
+
+            async def fake_request(method, url, **kwargs):
+                raise httpx.ConnectError(
+                    f"connection failed; cookie=espn_s2={sentinel_s2}; SWID={sentinel_swid}"
+                )
+
+            async with client.session():
+                client._client.request = fake_request
+                with pytest.raises(ESPNAPIError):
+                    await client._get_raw_league_snapshot(league_id=123, season=2026)
+        finally:
+            setup_logger("default", log_to_file=False, enable_console=True)
+
+        file_bytes = log_file.read_bytes()
+        assert sentinel_s2.encode() not in file_bytes
+        assert sentinel_swid.encode() not in file_bytes
+        assert b"***REDACTED***" in file_bytes
 
 
 class TestFixtureRecordingRefusesCorpusRoute:

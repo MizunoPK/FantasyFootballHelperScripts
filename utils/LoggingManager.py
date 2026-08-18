@@ -17,6 +17,7 @@ from typing import Optional, Union
 from datetime import datetime
 
 from utils.LineBasedRotatingHandler import LineBasedRotatingHandler
+from utils.credential_redaction import credential_redaction_filter
 
 
 class LoggingManager:
@@ -109,32 +110,48 @@ class LoggingManager:
 
     @staticmethod
     def _attach_credential_redaction(handler: logging.Handler) -> None:
-        """Attach the ESPN credential-redaction filter (D17.3 review CONCERN-8)
-        to every handler this manager creates.
+        """Attach the ESPN credential-redaction filter (D17.3 review CONCERN-8,
+        BLOCKING-6) to every handler this manager creates -- including the
+        `"default"` logger's handlers, created from `__init__` at
+        `utils.LoggingManager` import time.
 
         This is the project's single handler-creation site for both the
         console and file handlers, so attaching here -- rather than relying
         on a point-in-time enumeration elsewhere -- means the filter survives
         `setup_logger()` being called again (which clears and re-adds
-        handlers) with no ordering assumption needed. Deferred import avoids
-        a module-level dependency from `utils` (generic, low-level) on
-        `player_data_fetcher` (a specific consumer); `ImportError` is
-        swallowed because not every process that uses `LoggingManager`
-        touches ESPN credentials, and the filter itself is a no-op unless
-        `espn_s2`/`SWID` are actually set.
+        handlers) with no ordering assumption needed.
+
+        BLOCKING-6 history, recorded rather than erased: this used to be a
+        deferred `from player_data_fetcher.espn_credentials import
+        _credential_redaction_filter` inside a `try/except ImportError:
+        return`, on the theory that not every process using
+        `LoggingManager` touches ESPN credentials. That import cycled --
+        `espn_credentials` transitively imports `utils.error_handler`,
+        which imports from this still-initializing module -- and the
+        `ImportError` it raised was swallowed silently, so the `"default"`
+        logger's handlers (built at `LoggingManager.__init__` -> this
+        method, before `utils.LoggingManager` finishes importing) never
+        received the filter at all. The fix is not a louder error path
+        (logging from inside `setup_logger("default")` at that exact moment
+        has no reliable sink, since logging infrastructure is what is
+        mid-initialisation); it is removing the cycle. `filter` and its
+        `credential_redaction_filter` singleton now live in
+        `utils.credential_redaction`, a dependency-free module (`logging`,
+        `os` only) that `utils` can import directly at module top level.
+        There is no import to fail, so this attachment is structurally
+        incapable of the prior failure mode -- not merely less likely to
+        hit it.
 
         Residual obligation, recorded rather than silently assumed complete:
-        this covers the project's one handler-creation site today. A future
-        second site in project code (an `addHandler(...)`/`StreamHandler(`
-        call outside `tests/`) would need the same call -- see
-        `addressed_feedback.md` D17.3 Pass 5's greppable check for this.
+        this covers the project's handler-creation site(s) today (both the
+        `"default"` logger's own handlers and every handler
+        `setup_logger()` creates thereafter). A future second
+        handler-creation site in project code (an `addHandler(...)`/
+        `StreamHandler(` call outside `tests/`) would need the same call --
+        see `addressed_feedback.md` D17.3 for the greppable check.
         """
-        try:
-            from player_data_fetcher.espn_credentials import _credential_redaction_filter
-        except ImportError:
-            return
-        if _credential_redaction_filter not in handler.filters:
-            handler.addFilter(_credential_redaction_filter)
+        if credential_redaction_filter not in handler.filters:
+            handler.addFilter(credential_redaction_filter)
     
     def get_logger(self) -> logging.Logger:
         return self._logger

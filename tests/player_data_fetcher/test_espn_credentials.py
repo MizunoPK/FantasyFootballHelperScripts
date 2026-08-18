@@ -151,3 +151,64 @@ class TestRedact:
         """A blank/unset secret must not turn every empty substring into a hit."""
         result = redact('unchanged', '', '')
         assert result == 'unchanged'
+
+
+class TestCredentialRedactionFilterAttachment:
+    """D17.3 review BLOCKING-6 regression: the filter must be present on the
+    `"default"` logger's handlers after an entry-point-shaped
+    `setup_logger("<other-name>")` call -- the exact ordering the original
+    defect failed on (a circular deferred import inside
+    `LoggingManager._attach_credential_redaction`, silently swallowed by a
+    bare `except ImportError: return`, left the `"default"` logger's
+    handlers -- built at `utils.LoggingManager` import time -- without the
+    filter). The fix relocated `CredentialRedactionFilter` and its shared
+    singleton to `utils.credential_redaction`, a module with zero project
+    dependencies that `utils` can import directly, making the attachment
+    structurally incapable of failing rather than merely less likely to.
+    """
+
+    def test_default_logger_handlers_carry_filter_after_other_entry_point_setup(self):
+        import logging as _logging
+
+        from utils.LoggingManager import setup_logger
+        from utils.credential_redaction import credential_redaction_filter
+
+        # Mimic a real entry point: configure a *different* named logger,
+        # exactly as player_data_fetcher_main.py does.
+        setup_logger("some_other_entry_point")
+
+        default_logger = _logging.getLogger("default")
+        assert default_logger.handlers, "expected the default logger to have been configured at import time"
+        for handler in default_logger.handlers:
+            assert credential_redaction_filter in handler.filters, (
+                f"credential redaction filter missing from default logger handler {handler!r} "
+                "-- this is the exact BLOCKING-6 regression"
+            )
+
+
+class TestCredentialRedactionFilterFailsOpen:
+    """D17.3 review CONCERN-12: `CredentialRedactionFilter.filter()` must not
+    raise at the log call site when a record's `%`-formatting is broken --
+    that failure belongs to the handler's own `handleError()` path (as it
+    would for any other formatting defect), not to the filter.
+    """
+
+    def test_broken_percent_formatting_does_not_raise_through_filter_when_credentials_set(self, monkeypatch):
+        import logging as _logging
+
+        from utils.credential_redaction import CredentialRedactionFilter
+
+        monkeypatch.setenv("espn_s2", "some_sentinel_value")
+        monkeypatch.setenv("SWID", "some_other_sentinel")
+
+        class _BadArg:
+            def __str__(self):
+                raise RuntimeError("boom")
+
+        record = _logging.LogRecord(
+            name="test", level=_logging.INFO, pathname=__file__, lineno=1,
+            msg="%s", args=(_BadArg(),), exc_info=None,
+        )
+
+        result = CredentialRedactionFilter().filter(record)
+        assert result is True
