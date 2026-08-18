@@ -509,9 +509,16 @@ class TestTeamSelectionRejectsOutOfRangeWithoutWriting:
     def mock_player_manager(self, available_player):
         """Create a mock PlayerManager - update_players_file is a Mock, so no file is written.
 
-        D17.5 D5ii: the TEAM SELECTION menu is now derived from the pool's own
-        drafted_by names, so the pool carries one already-drafted player to give
-        the menu a real opponent row (the configured list is no longer a source).
+        D17.5: the pool carries one already-drafted player ("Annihilators") so the
+        menu has a data-derived opponent row as well as configured ones.
+
+        NOTE: an earlier D17.5 draft said here that "the configured list is no longer
+        a source". That was true only of the withdrawn D5ii and is FALSE now --
+        `_mark_player_as_drafted` seeds TEAM SELECTION from `config.opponent_teams`
+        and unions the data-derived `drafted_by` names on top. The seed is load-bearing:
+        `show_list_selection` has no free-text entry, so without it an opponent that
+        owns no player yet is unselectable and its first pick can never be recorded
+        (review BLOCKING-1).
         """
         drafted_by_opponent = FantasyPlayer(id=2, name="Tyreek Hill", team="MIA", position="WR",
                                             bye_week=8, drafted_by="Annihilators", locked=0,
