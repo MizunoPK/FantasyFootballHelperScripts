@@ -39,6 +39,7 @@ def _make_settings_dict(tmp_path, **overrides):
         'rate_limit_delay': 0.2,
         'progress_frequency': 10,
         'scoring_format': 'ppr',
+        'use_csv_ownership': True,
     }
     base.update(overrides)
     return base
@@ -108,9 +109,10 @@ class TestMainSignature:
         with patch('player_data_fetcher.player_data_fetcher_main.NFLProjectionsCollector') as mock_cls:
             mock_collector = MagicMock()
             mock_collector.collect_all_projections = AsyncMock(return_value={
-                'qb': ProjectionData(season=2025, scoring_format='ppr', total_players=200, players=[])
+                'season': ProjectionData(season=2025, scoring_format='ppr', total_players=200, players=[])
             })
             mock_collector.export_data = AsyncMock(return_value=[])
+            mock_collector.exporter.load_espn_attribution = AsyncMock(return_value=None)
             mock_cls.return_value = mock_collector
             with patch('player_data_fetcher.player_data_fetcher_main.setup_logger'):
                 with patch('player_data_fetcher.player_data_fetcher_main.validate_output_files'):
@@ -186,9 +188,10 @@ class TestE2EGracefulSkip:
         with patch('player_data_fetcher.player_data_fetcher_main.NFLProjectionsCollector') as mock_cls:
             mock_collector = MagicMock()
             mock_collector.collect_all_projections = AsyncMock(return_value={
-                'qb': ProjectionData(season=2025, scoring_format='ppr', total_players=200, players=[])
+                'season': ProjectionData(season=2025, scoring_format='ppr', total_players=200, players=[])
             })
             mock_collector.export_data = AsyncMock(return_value=[])
+            mock_collector.exporter.load_espn_attribution = AsyncMock(return_value=None)
             mock_cls.return_value = mock_collector
             with patch('player_data_fetcher.player_data_fetcher_main.setup_logger'):
                 with patch('player_data_fetcher.player_data_fetcher_main.validate_output_files'):
@@ -208,9 +211,10 @@ class TestE2EGracefulSkip:
         with patch('player_data_fetcher.player_data_fetcher_main.NFLProjectionsCollector') as mock_cls:
             mock_collector = MagicMock()
             mock_collector.collect_all_projections = AsyncMock(return_value={
-                'qb': ProjectionData(season=2025, scoring_format='ppr', total_players=200, players=[])
+                'season': ProjectionData(season=2025, scoring_format='ppr', total_players=200, players=[])
             })
             mock_collector.export_data = AsyncMock(return_value=[])
+            mock_collector.exporter.load_espn_attribution = AsyncMock(return_value=None)
             mock_cls.return_value = mock_collector
             with patch('player_data_fetcher.player_data_fetcher_main.setup_logger'):
                 with patch('player_data_fetcher.player_data_fetcher_main.validate_output_files'):

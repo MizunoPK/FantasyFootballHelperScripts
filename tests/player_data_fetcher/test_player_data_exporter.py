@@ -13,7 +13,9 @@ from unittest.mock import Mock, patch, AsyncMock
 from pathlib import Path
 
 from player_data_fetcher.player_data_exporter import DataExporter, zero_bye_week_points
-from player_data_fetcher.player_data_models import ProjectionData, PlayerProjection
+from player_data_fetcher.player_data_models import (
+    ProjectionData, PlayerProjection, ESPNPlayerData, PlayerDataValidationError,
+)
 
 
 # FIXTURES
@@ -498,3 +500,173 @@ class TestDataExporterDataRootSeam:
         assert all(str(tmp_path) in f for f in files), \
             "no exported file may escape tmp_path into the tracked repo tree"
 
+
+
+class TestUseCsvOwnershipFlag:
+    """D17.4 AC7/D1/D2: opt-in flag defaults True, DraftedRosterManager stays
+    eager/unconditional, get_fantasy_players branches on the flag."""
+
+    def test_default_use_csv_ownership_is_true(self, tmp_path):
+        """AC7: use_csv_ownership defaults True (CSV path unchanged)."""
+        exporter = DataExporter(
+            output_dir=str(tmp_path / 'out'),
+            load_drafted_data=False,
+        )
+        assert exporter.use_csv_ownership is True
+
+    def test_drafted_roster_manager_constructed_regardless_of_flag(self, tmp_path):
+        """D1: DraftedRosterManager construction stays eager/unconditional
+        even when use_csv_ownership=False."""
+        exporter = DataExporter(
+            output_dir=str(tmp_path / 'out'),
+            load_drafted_data=False,
+            use_csv_ownership=False,
+        )
+        assert exporter.drafted_roster_manager is not None
+
+    def test_get_fantasy_players_applies_espn_attribution_when_flag_false(self, tmp_path):
+        """D2: when use_csv_ownership is False, get_fantasy_players applies
+        the pre-populated self._espn_attribution map instead of the CSV map."""
+        exporter = DataExporter(
+            output_dir=str(tmp_path / 'out'),
+            load_drafted_data=False,
+            use_csv_ownership=False,
+        )
+        exporter._espn_attribution = {"101": "ESPN Team"}
+
+        data = ProjectionData(season=2025, scoring_format="ppr", total_players=1, players=[
+            ESPNPlayerData(id="101", name="Test Player", team="KC", position="WR"),
+        ])
+
+        fantasy_players = exporter.get_fantasy_players(data)
+
+        assert fantasy_players[0].drafted_by == "ESPN Team"
+
+    def test_get_fantasy_players_raises_when_espn_attribution_never_loaded(self, tmp_path):
+        """CONCERN-3 (D17.4 polish): fail closed, never fail open, when
+        use_csv_ownership is False and load_espn_attribution was never
+        awaited -- do not silently export every player as undrafted."""
+        exporter = DataExporter(
+            output_dir=str(tmp_path / 'out'),
+            load_drafted_data=False,
+            use_csv_ownership=False,
+        )
+
+        data = ProjectionData(season=2025, scoring_format="ppr", total_players=1, players=[
+            ESPNPlayerData(id="101", name="Test Player", team="KC", position="WR"),
+        ])
+
+        with pytest.raises(PlayerDataValidationError):
+            exporter.get_fantasy_players(data)
+
+
+class TestLoadEspnAttribution:
+    """D17.4 CONCERN-1 (polish): coverage for the exporter's only new async
+    method -- the session-wrapped live fetch, the fail-fast on missing
+    espn_settings, and the fail-closed PlayerDataValidationError raise that
+    AC4 requires but the pre-polish diff never exercised."""
+
+    def test_no_op_when_use_csv_ownership_true(self, tmp_path):
+        """No-op path: neither ConfigManager nor ESPNClient is touched."""
+        exporter = DataExporter(
+            output_dir=str(tmp_path / 'out'),
+            load_drafted_data=False,
+            use_csv_ownership=True,
+        )
+
+        with patch('player_data_fetcher.espn_client.ESPNClient') as mock_client_cls:
+            asyncio.run(exporter.load_espn_attribution(players=[]))
+
+        mock_client_cls.assert_not_called()
+        assert exporter._espn_attribution is None
+
+    def test_raises_fast_when_espn_settings_missing(self, tmp_path):
+        """New Copilot PR comment (player_data_exporter.py:142): espn_settings
+        is an optional ctor arg; use_csv_ownership=False with no espn_settings
+        must fail fast with a clear error, not AttributeError or
+        ESPNClient(None)."""
+        exporter = DataExporter(
+            output_dir=str(tmp_path / 'out'),
+            load_drafted_data=False,
+            use_csv_ownership=False,
+            espn_settings=None,
+        )
+
+        with patch('player_data_fetcher.espn_client.ESPNClient') as mock_client_cls:
+            with pytest.raises(PlayerDataValidationError):
+                asyncio.run(exporter.load_espn_attribution(players=[]))
+
+        mock_client_cls.assert_not_called()
+
+    def test_live_fetch_enters_session_and_closes_client(self, tmp_path):
+        """BLOCKING-1 (D17.4 polish): the live fetch must be wrapped in
+        `async with espn_client.session():` -- proven here by asserting the
+        mock client's session() context manager is entered before
+        get_league_snapshot is awaited -- and close() must be called
+        afterwards (SUGGESTION-2) so the wrapper does not leak a connection."""
+        exporter = DataExporter(
+            output_dir=str(tmp_path / 'out'),
+            load_drafted_data=False,
+            use_csv_ownership=False,
+            espn_settings=Mock(season=2025),
+        )
+
+        snapshot = Mock()
+        snapshot.draftDetail = Mock()
+        snapshot.draftDetail.picks = []
+        snapshot.teams = []
+
+        mock_client = Mock()
+        session_cm = AsyncMock()
+        mock_client.session = Mock(return_value=session_cm)
+        mock_client.get_league_snapshot = AsyncMock(return_value=snapshot)
+        mock_client.close = AsyncMock()
+
+        with patch('player_data_fetcher.espn_client.ESPNClient', return_value=mock_client), \
+             patch('league_helper.util.ConfigManager.ConfigManager') as mock_cm_cls:
+            mock_cm_cls.return_value.get_parameter.return_value = 12345
+            asyncio.run(exporter.load_espn_attribution(players=[]))
+
+        # session() entered (async context manager protocol) before the fetch,
+        # and close() called exactly once afterwards -- the copy-pasteable
+        # try/async-with/finally shape the review requires, not the wrapper
+        # alone.
+        session_cm.__aenter__.assert_awaited_once()
+        session_cm.__aexit__.assert_awaited_once()
+        mock_client.get_league_snapshot.assert_awaited_once()
+        mock_client.close.assert_awaited_once()
+        assert exporter._espn_attribution == {}
+
+    def test_raises_and_closes_client_on_fail_closed_missing_playerid(self, tmp_path):
+        """AC4's fail-closed half: a completed pick with no local match
+        raises PlayerDataValidationError naming the offending playerId, and
+        the client is still closed (finally-scoped close, not
+        with-scoped)."""
+        exporter = DataExporter(
+            output_dir=str(tmp_path / 'out'),
+            load_drafted_data=False,
+            use_csv_ownership=False,
+            espn_settings=Mock(season=2025),
+        )
+
+        pick = Mock(playerId=999, teamId=1)
+        team = Mock(id=1, name="Team A")
+        snapshot = Mock()
+        snapshot.draftDetail = Mock()
+        snapshot.draftDetail.picks = [pick]
+        snapshot.teams = [team]
+
+        session_cm = AsyncMock()
+        mock_client = Mock()
+        mock_client.session = Mock(return_value=session_cm)
+        mock_client.get_league_snapshot = AsyncMock(return_value=snapshot)
+        mock_client.close = AsyncMock()
+
+        with patch('player_data_fetcher.espn_client.ESPNClient', return_value=mock_client), \
+             patch('league_helper.util.ConfigManager.ConfigManager') as mock_cm_cls:
+            mock_cm_cls.return_value.get_parameter.return_value = 12345
+            with pytest.raises(PlayerDataValidationError, match="999"):
+                asyncio.run(exporter.load_espn_attribution(players=[]))
+
+        mock_client.close.assert_awaited_once()
+        assert exporter._espn_attribution is None

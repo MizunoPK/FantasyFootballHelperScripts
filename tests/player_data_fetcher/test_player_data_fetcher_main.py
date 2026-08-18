@@ -635,6 +635,7 @@ class TestCreateSettingsFromDict:
             'load_drafted_data': True,
             'drafted_data_path': str(tmp_path / 'drafted_data.csv'),
             'my_team_name': 'Test Team',
+            'use_csv_ownership': True,
             'progress_frequency': 10,
             'log_level': 'INFO',
             'logging_to_file': False,
@@ -668,3 +669,27 @@ class TestCreateSettingsFromDict:
 
         assert settings.scoring_format == ScoringFormat.HALF_PPR
 
+
+
+class TestUseCsvOwnershipSetting:
+    """D17.4: Settings.use_csv_ownership defaults True and threads through
+    create_settings_from_dict unchanged (mirrors load_drafted_data)."""
+
+    def test_settings_default_use_csv_ownership_true(self):
+        settings = Settings()
+        assert settings.use_csv_ownership is True
+
+    def test_create_settings_from_dict_threads_use_csv_ownership_false(self):
+        args_dict = {
+            'season': 2025, 'current_nfl_week': 17, 'request_timeout': 30,
+            'rate_limit_delay': 0.2, 'espn_player_limit': 2000,
+            'position_json_output': '/tmp/pj', 'team_data_folder': '/tmp/td',
+            'game_data_csv': '/tmp/gd.csv', 'enable_historical_save': False,
+            'enable_game_data': True, 'load_drafted_data': True,
+            'drafted_data_path': '/tmp/dd.csv', 'my_team_name': 'Sea Sharp',
+            'progress_frequency': 10, 'log_level': 'INFO',
+            'logging_to_file': False, 'e2e_test': False,
+            'scoring_format': 'ppr', 'use_csv_ownership': False,
+        }
+        settings = create_settings_from_dict(args_dict)
+        assert settings.use_csv_ownership is False

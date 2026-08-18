@@ -75,6 +75,7 @@ class Settings:
         default_factory=lambda: str(data_root() / 'drafted_data.csv')
     )
     my_team_name: str = 'Sea Sharp'
+    use_csv_ownership: bool = True
 
     progress_frequency: int = 10
     log_level: str = 'INFO'
@@ -123,6 +124,7 @@ def create_settings_from_dict(args_dict: dict) -> Settings:
         load_drafted_data=args_dict['load_drafted_data'],
         drafted_data_path=args_dict['drafted_data_path'],
         my_team_name=args_dict['my_team_name'],
+        use_csv_ownership=args_dict.get('use_csv_ownership', True),
         progress_frequency=args_dict['progress_frequency'],
         log_level=args_dict['log_level'],
         logging_to_file=args_dict['logging_to_file'],
@@ -173,6 +175,8 @@ class NFLProjectionsCollector:
             load_drafted_data=self.settings.load_drafted_data,
             drafted_data_path=self.settings.drafted_data_path,
             my_team_name=self.settings.my_team_name,
+            use_csv_ownership=self.settings.use_csv_ownership,
+            espn_settings=self.settings,
         )
         
         self.logger.info("Using ESPN hidden API - free but unofficial and may change")
@@ -581,6 +585,8 @@ async def main(settings_dict: dict | None = None) -> None:
                 f"(minimum {MIN_EXPECTED_PLAYER_COUNT}). Aborting to protect existing files."
             )
             sys.exit(1)
+
+        await collector.exporter.load_espn_attribution(projection_data['season'].players)
 
         loop = asyncio.get_running_loop()
         game_data_future = loop.run_in_executor(None, collector.fetch_game_data)

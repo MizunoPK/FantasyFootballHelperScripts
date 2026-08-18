@@ -81,6 +81,12 @@ def parse_args(argv=None):
         help='Load drafted roster data (default: enabled)'
     )
     parser.add_argument(
+        '--use-csv-ownership',
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help='Use CSV drafted-roster ownership instead of the ESPN attribution path (default: enabled)'
+    )
+    parser.add_argument(
         '--drafted-data-path',
         type=str,
         default=str(data_root() / 'drafted_data.csv'),
@@ -170,6 +176,7 @@ def create_settings_dict(args) -> dict:
         'my_team_name': args.my_team_name,
         'load_drafted_data': args.load_drafted_data,
         'drafted_data_path': args.drafted_data_path,
+        'use_csv_ownership': args.use_csv_ownership,
         'position_json_output': position_json_output,
         'team_data_folder': team_data_folder,
         'game_data_csv': game_data_csv,
