@@ -724,4 +724,25 @@ class TestParseScoringReasons:
         assert parsed["ADP Rating"] == "EXCELLENT"
         assert parsed["Performance"] == "GOOD"
 
+    def test_parses_four_decimal_multipliers(self, writer):
+        """Widened .4f emitter output parses without precision loss (D10.5 / TD8)"""
+        reasons = [
+            "ADP: EXCELLENT (1.1034x)",
+            "Player Rating: GOOD (1.2155x)",
+            "Team Quality: EXCELLENT (1.2996x)",
+            "Performance: GOOD (+0.1%, 1.0015x)"
+        ]
+        parsed = writer._parse_scoring_reasons(reasons)
+
+        assert parsed["ADP Rating"] == "EXCELLENT"
+        assert parsed["ADP Multiplier"] == 1.1034
+        assert parsed["Player Rating"] == "GOOD"
+        assert parsed["Player Rating Multiplier"] == 1.2155
+        assert parsed["Team Quality"] == "EXCELLENT"
+        assert parsed["Team Quality Multiplier"] == 1.2996
+        assert parsed["Performance"] == "GOOD"
+        assert parsed["Perf %"] == "+0.1"
+        assert parsed["Performance Multiplier"] == 1.0015
+        assert len(parsed) == 9
+
 

@@ -34,7 +34,7 @@ class ScoredPlayer:
             player: FantasyPlayer instance with player data
             score: Calculated draft score (higher = better draft pick)
             reasons: List of human-readable scoring factor explanations
-                    (e.g., "ADP: EXCELLENT", "Matchup: FAVORABLE")
+                    (e.g., "ADP: EXCELLENT (1.2000x)", "Matchup: FAVORABLE")
             projected_points: Raw fantasy points projection used in scoring calculation
                              (ROS or weekly depending on scoring context). Default 0.0
                              for backward compatibility with existing callers.
@@ -64,12 +64,12 @@ class ScoredPlayer:
         Example (with projection):
             [RB] [SF] Christian McCaffrey - 22.50 pts (Score: 145.67) (Bye=9)
                     - Projected: 22.50 pts, Weighted: 145.67 pts
-                    - ADP: EXCELLENT
+                    - ADP: EXCELLENT (1.2000x)
 
         Example (without projection):
             [RB] [SF] Christian McCaffrey - 145.67 pts (Bye=9)
                     - Base Projected Points: 22.5
-                    - ADP: EXCELLENT
+                    - ADP: EXCELLENT (1.2000x)
         """
         if self.projected_points > 0:
             header = f"[{self.player.position}] [{self.player.team}] {self.player.name} - {self.projected_points:.2f} pts (Score: {self.score:.2f}) (Bye={self.player.bye_week})"

@@ -455,13 +455,13 @@ class PlayerScoringCalculator:
     def _apply_adp_multiplier(self, p: FantasyPlayer, player_score: float) -> Tuple[float, str]:
         """Calculate ADP-based market wisdom adjustment multiplier (Step 2)."""
         multiplier, rating = self.config.get_adp_multiplier(p.adp)
-        reason = f"ADP: {rating} ({multiplier:.2f}x)"
+        reason = f"ADP: {rating} ({multiplier:.4f}x)"
         return player_score * multiplier, reason
 
     def _apply_player_rating_multiplier(self, p: FantasyPlayer, player_score: float) -> Tuple[float, str]:
         """Apply player rating multiplier (Step 3)."""
         multiplier, rating = self.config.get_player_rating_multiplier(p.player_rating)
-        reason = f"Player Rating: {rating} ({multiplier:.2f}x)"
+        reason = f"Player Rating: {rating} ({multiplier:.4f}x)"
         return player_score * multiplier, reason
 
     def _apply_team_quality_multiplier(self, p: FantasyPlayer, player_score: float) -> Tuple[float, str]:
@@ -471,7 +471,7 @@ class PlayerScoringCalculator:
             quality_val = p.team_defensive_rank
 
         multiplier, rating = self.config.get_team_quality_multiplier(quality_val)
-        reason = f"Team Quality: {rating} ({multiplier:.2f}x)"
+        reason = f"Team Quality: {rating} ({multiplier:.4f}x)"
         return player_score * multiplier, reason
 
     def _apply_performance_multiplier(self, p: FantasyPlayer, player_score: float) -> Tuple[float, str]:
@@ -504,7 +504,7 @@ class PlayerScoringCalculator:
 
         multiplier, rating = self.config.get_performance_multiplier(deviation)
 
-        reason = f"Performance: {rating} ({deviation*100:+.1f}%, {multiplier:.2f}x)"
+        reason = f"Performance: {rating} ({deviation*100:+.1f}%, {multiplier:.4f}x)"
         return player_score * multiplier, reason
 
     def _apply_matchup_multiplier(self, p: FantasyPlayer, player_score: float) -> Tuple[float, str]:
