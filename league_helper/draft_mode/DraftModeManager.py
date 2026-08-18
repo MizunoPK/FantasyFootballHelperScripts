@@ -1,5 +1,5 @@
 """
-Add to Roster Mode Manager
+Draft Mode Manager
 
 Manages the draft assistant mode for building your fantasy roster.
 Provides intelligent player recommendations based on draft position strategy,
@@ -29,9 +29,9 @@ from league_helper.util.ScoredPlayer import ScoredPlayer
 from utils.LoggingManager import get_logger
 from utils.FantasyPlayer import FantasyPlayer
 
-class AddToRosterModeManager:
+class DraftModeManager:
     """
-    Manages the Add to Roster (draft assistant) mode.
+    Manages the Draft Mode (draft assistant) mode.
 
     This mode helps users build their fantasy roster by providing intelligent
     player recommendations that consider:
@@ -47,7 +47,7 @@ class AddToRosterModeManager:
         team_data_manager (TeamDataManager): Provides team rankings
 
     Example workflow:
-        1. User enters Add to Roster mode
+        1. User enters Draft Mode
         2. System shows current roster organized by draft rounds
         3. System calculates top recommendations for current round
         4. User selects a player to draft
@@ -87,7 +87,7 @@ class AddToRosterModeManager:
 
     def start_interactive_mode(self, player_manager, team_data_manager):
         """
-        Start the interactive Add to Roster mode.
+        Start the interactive Draft Mode.
 
         Displays current roster and provides player recommendations until
         user drafts a player or chooses to return to main menu.
@@ -97,10 +97,10 @@ class AddToRosterModeManager:
             team_data_manager (TeamDataManager): Updated team data manager instance
         """
         self.set_managers(player_manager, team_data_manager)
-        self.logger.info("Entering Add to Roster interactive mode")
+        self.logger.info("Entering Draft Mode interactive mode")
 
         print("\n" + "="*50)
-        print("ADD TO ROSTER MODE")
+        print("DRAFT MODE")
         print("="*50)
 
         self.logger.debug(f"Displaying roster for user ({self.player_manager.get_roster_len()}/{self.config.max_players} players)")
@@ -252,7 +252,7 @@ class AddToRosterModeManager:
                 schedule=False,
                 bye=True,
                 injury=True,
-                is_draft_mode=True,
+                use_draft_normalization=True,
                 nfl_team_penalty=True
             )
             scored_players.append(scored_player)
@@ -395,5 +395,4 @@ class AddToRosterModeManager:
                 return round_num
 
         self.logger.debug("Roster is full (15/15 players) - no current round")
-
 

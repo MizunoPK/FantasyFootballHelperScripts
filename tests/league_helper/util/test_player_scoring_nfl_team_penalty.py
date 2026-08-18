@@ -2,7 +2,7 @@
 Unit tests for NFL Team Penalty feature (Step 14 in player scoring).
 
 Tests the _apply_nfl_team_penalty() method which applies penalty multiplier
-to player scores in Add to Roster mode.
+to player scores in Draft Mode.
 """
 
 import pytest

@@ -6,7 +6,7 @@ and weekly lineup optimization. This is the team being tested/optimized
 through simulations.
 
 The DraftHelperTeam uses:
-- AddToRosterModeManager for draft recommendations (always picks #1 recommendation, no error)
+- DraftModeManager for draft recommendations (always picks #1 recommendation, no error)
 - StarterHelperModeManager for weekly lineup decisions
 - Two PlayerManager instances: one for projected data, one for actual scoring
 
@@ -18,7 +18,7 @@ from typing import List, Optional
 from league_helper.util.PlayerManager import PlayerManager
 from league_helper.util.ConfigManager import ConfigManager
 from league_helper.util.TeamDataManager import TeamDataManager
-from league_helper.add_to_roster_mode.AddToRosterModeManager import AddToRosterModeManager
+from league_helper.draft_mode.DraftModeManager import DraftModeManager
 from league_helper.starter_helper_mode.StarterHelperModeManager import StarterHelperModeManager
 from utils.FantasyPlayer import FantasyPlayer
 from utils.LoggingManager import get_logger
@@ -29,7 +29,7 @@ class DraftHelperTeam:
     Team that uses DraftHelper system for drafting and lineup optimization.
 
     This class represents the team being tested in simulations. It uses the
-    AddToRosterModeManager for intelligent draft picks and StarterHelperModeManager
+    DraftModeManager for intelligent draft picks and StarterHelperModeManager
     for optimal weekly lineups.
 
     Key behaviors:
@@ -43,7 +43,7 @@ class DraftHelperTeam:
         config (ConfigManager): Configuration manager with scoring parameters
         team_data_mgr (TeamDataManager): Team rankings and matchup data
         roster (List[FantasyPlayer]): Current team roster (max 15 players)
-        add_to_roster_mgr (AddToRosterModeManager): Draft assistant manager
+        draft_mgr (DraftModeManager): Draft assistant manager
         starter_helper_mgr (StarterHelperModeManager): Weekly lineup optimizer
         logger: Logger instance for tracking operations
     """
@@ -73,7 +73,7 @@ class DraftHelperTeam:
 
         self.roster: List[FantasyPlayer] = []
 
-        self.add_to_roster_mgr: Optional[AddToRosterModeManager] = None
+        self.draft_mgr: Optional[DraftModeManager] = None
         self.starter_helper_mgr: Optional[StarterHelperModeManager] = None
 
     def draft_player(self, player: FantasyPlayer) -> None:
@@ -119,7 +119,7 @@ class DraftHelperTeam:
 
     def get_draft_recommendation(self) -> FantasyPlayer:
         """
-        Get the top draft recommendation using AddToRosterModeManager.
+        Get the top draft recommendation using DraftModeManager.
 
         This method ALWAYS returns the #1 recommendation (no human error).
         Uses the current roster state to determine the best available player.
@@ -128,16 +128,16 @@ class DraftHelperTeam:
             FantasyPlayer: The top recommended player to draft
 
         Note:
-            Creates a fresh AddToRosterModeManager each time to ensure
+            Creates a fresh DraftModeManager each time to ensure
             recommendations reflect the current roster state.
         """
-        self.add_to_roster_mgr = AddToRosterModeManager(
+        self.draft_mgr = DraftModeManager(
             self.config,
             self.projected_pm,
             self.team_data_mgr
         )
 
-        recommendations = self.add_to_roster_mgr.get_recommendations()
+        recommendations = self.draft_mgr.get_recommendations()
 
         if not recommendations:
             raise ValueError("No draft recommendations available - roster may be full")

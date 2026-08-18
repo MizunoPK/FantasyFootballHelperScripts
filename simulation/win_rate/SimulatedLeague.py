@@ -189,7 +189,7 @@ class SimulatedLeague:
                 DraftHelperTeam (the one reported by get_draft_helper_results) is built with
                 THIS config while every other team — including any additional self-play
                 DraftHelperTeam opponents — uses config_dict. Because draft scoring runs through
-                each team's own PlayerManager (AddToRosterModeManager -> player_manager.score_player),
+                each team's own PlayerManager (DraftModeManager -> player_manager.score_player),
                 the measured team's PlayerManagers are built with this config too, so its draft-side
                 params differ from the opponents'. Default None preserves the legacy single-config
                 behavior (the last draft_helper team is the measured one and shares config_dict).

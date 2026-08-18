@@ -548,7 +548,7 @@ class PlayerManager:
                 fantasy_points > 0 (the default). Set False to also include roster-legal
                 players whose current point-in-time projection is zero/unset — used as a
                 fallback when a still-open roster slot has no positive-value candidates left
-                (see AddToRosterModeManager.get_recommendations). Ignored when can_draft is False.
+                (see DraftModeManager.get_recommendations). Ignored when can_draft is False.
 
         Returns:
             List[FantasyPlayer]: Filtered list of players meeting all criteria
@@ -811,7 +811,7 @@ class PlayerManager:
 
         return self.get_projected_points_array(player, 1, current_week - 1)
 
-    def score_player(self, p: FantasyPlayer, use_weekly_projection=False, adp=False, player_rating=True, team_quality=True, performance=False, matchup=False, schedule=False, draft_round=-1, bye=True, injury=True, roster: Optional[List[FantasyPlayer]] = None, temperature=False, wind=False, location=False, *, is_draft_mode: bool = False, nfl_team_penalty=False) -> ScoredPlayer:
+    def score_player(self, p: FantasyPlayer, use_weekly_projection=False, adp=False, player_rating=True, team_quality=True, performance=False, matchup=False, schedule=False, draft_round=-1, bye=True, injury=True, roster: Optional[List[FantasyPlayer]] = None, temperature=False, wind=False, location=False, *, use_draft_normalization: bool = False, nfl_team_penalty=False) -> ScoredPlayer:
         """
         Calculate score for a player (14-step calculation).
 
@@ -849,9 +849,9 @@ class PlayerManager:
             temperature: Apply temperature bonus/penalty (game conditions)
             wind: Apply wind bonus/penalty (game conditions, QB/WR/K only)
             location: Apply location bonus/penalty (home/away/international)
-            is_draft_mode: Use draft normalization scale (163) instead of weekly scale.
-                Set to True for Add to Roster Mode (draft decisions). Default False.
-            nfl_team_penalty: Apply NFL team penalty multiplier (Add to Roster mode only).
+            use_draft_normalization: Use draft normalization scale (163) instead of weekly scale.
+                Set to True for Draft Mode (draft decisions). Default False.
+            nfl_team_penalty: Apply NFL team penalty multiplier (Draft Mode only).
                 Default False.
 
         Returns:
@@ -861,7 +861,7 @@ class PlayerManager:
         return self.scoring_calculator.score_player(
             p, team_roster, use_weekly_projection, adp, player_rating,
             team_quality, performance, matchup, schedule, draft_round, bye, injury, roster,
-            temperature, wind, location, is_draft_mode, nfl_team_penalty
+            temperature, wind, location, use_draft_normalization, nfl_team_penalty
         )
 
     def set_player_data(self, player_data: Dict[int, Dict[str, Any]]) -> None:

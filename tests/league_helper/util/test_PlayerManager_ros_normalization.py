@@ -133,8 +133,8 @@ class TestRosNormalizationDenominator:
         steady = _player(pm, "Steady Star")
         steady_ros = steady.get_rest_of_season_projection(mock_config)
 
-        # Act: Step-1 normalized base for the max-ROS player in draft/Add-to-Roster mode.
-        pm.scoring_calculator.is_draft_mode = True
+        # Act: Step-1 normalized base for the max-ROS player in draft/Draft-Mode.
+        pm.scoring_calculator.use_draft_normalization = True
         base = pm.scoring_calculator.weight_projection(steady_ros)
 
         # Assert: denominator is the ROS max (80.0), NOT the full-season max (202.0).
@@ -152,7 +152,7 @@ class TestRosNormalizationDenominator:
             steady = _player(pm, "Steady Star")
             steady_ros = steady.get_rest_of_season_projection(mock_config)
 
-            pm.scoring_calculator.is_draft_mode = True
+            pm.scoring_calculator.use_draft_normalization = True
             base = pm.scoring_calculator.weight_projection(steady_ros)
 
             assert base == pytest.approx(DRAFT_SCALE, rel=0.01), f"week {week}"
@@ -161,7 +161,7 @@ class TestRosNormalizationDenominator:
         # The weekly path normalizes by max_weekly_projection and must ignore max_projection.
         pm = _load_at_week(player_data_folder, mock_config, week=10)
         calc = pm.scoring_calculator
-        calc.is_draft_mode = False
+        calc.use_draft_normalization = False
         calc.max_weekly_projection = 50.0
 
         calc.max_projection = 999.0
