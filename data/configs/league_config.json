@@ -90,10 +90,11 @@
       "WR"
     ],
     "ADP_SCORING": {
+      "SCALING": "LINEAR",
       "THRESHOLDS": {
         "BASE_POSITION": 0,
         "DIRECTION": "DECREASING",
-        "STEPS": 20
+        "STEPS": 25
       },
       "MULTIPLIERS": {
         "VERY_POOR": 0.95,

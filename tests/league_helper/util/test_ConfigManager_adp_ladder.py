@@ -6,6 +6,13 @@ Pins the five-tier ADP ladder produced from the LIVE config store
 flipping `parameters.ADP_SCORING.THRESHOLDS.DIRECTION` back to `INCREASING` in
 the live file makes these tests fail (the mutation check, TD5/UD3).
 
+NOTE (D10.3): the live ADP block now carries `SCALING: "LINEAR"`, so the ADP
+factor emits only the FOUR anchor labels (EXCELLENT / GOOD / POOR / VERY_POOR)
+for a valued input and never NEUTRAL (TD3 option C). The "five-tier" wording
+above is retained verbatim because the sentence carrying it is the live-store
+mutation check itself; read it as describing the BUCKETED ladder this file was
+written against, not the label set the live LINEAR ADP factor now produces.
+
 Also pins the neighbouring `PLAYER_RATING_SCORING` block, which is `INCREASING`
 *correctly* — `get_player_rating_multiplier` resolves to `rising_thresholds=True`
 via the default in `ConfigManager._get_multiplier`'s signature — so a symmetric
@@ -31,23 +38,28 @@ def live_config():
 
 
 class TestAdpLadderReachability:
-    """All five ADP tiers are reachable under the live config (TD5, UD7)."""
+    """The live ADP ladder's label rule under TD3 option C (TD5, UD7)."""
 
-    def test_all_five_adp_tiers_reachable(self, live_config):
-        """Each tier is probed half a step inside its band, derived from the live ladder.
+    def test_adp_linear_tier_labels_follow_the_better_side_anchor(self, live_config):
+        """Each probe sits half a step inside a band, derived from the live ladder.
 
         Both BASE_POSITION and STEPS are read, because `calculate_thresholds`
         computes every boundary as `base_pos + N * steps` — probing at
         `multiple * steps` alone would drift out of band the moment the
         hand-owned BASE_POSITION leaf moved (UD7).
+
+        The live ADP block is `SCALING: "LINEAR"` (D10.3), so an interior probe
+        takes the BETTER-side bracketing anchor's label (TD3 clause 3) and an
+        out-of-window probe clamps to the nearest outer anchor (TD3 clause 2);
+        NEUTRAL is unreachable for a valued ADP input.
         """
         # Arrange
         thresholds = live_config.adp_scoring["THRESHOLDS"]
         base, steps = thresholds["BASE_POSITION"], thresholds["STEPS"]
         expected = [
             (0.5, "EXCELLENT"),
-            (1.5, "GOOD"),
-            (2.5, "NEUTRAL"),
+            (1.5, "EXCELLENT"),
+            (2.5, "GOOD"),
             (3.5, "POOR"),
             (4.5, "VERY_POOR"),
         ]
