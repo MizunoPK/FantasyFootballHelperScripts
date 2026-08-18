@@ -414,6 +414,8 @@ class SimulatedLeague:
             else:
                 self.logger.warning(f"Missing {position_file} in {week_folder}")
 
+        self._apply_draft_time_ratings(player_data_dir)
+
         shutil.copy(self.config_path, shared_dir / "league_config.json")
 
         if (self.data_folder / "season_schedule.csv").exists():
@@ -429,6 +431,76 @@ class SimulatedLeague:
             self.logger.warning(f"team_data folder not found: {team_data_source}")
 
         return shared_dir
+
+    def _apply_draft_time_ratings(self, player_data_dir: Path) -> None:
+        """Replace player_rating in the shared snapshot with the WEEK 1 value.
+
+        THIS REMOVES LOOKAHEAD FROM THE DRAFT, and it is the reason the shared
+        snapshot is not simply week_18 verbatim.
+
+        json_exporter._calculate_player_ratings computes week N's rating by ranking
+        players on CUMULATIVE ACTUAL POINTS THROUGH WEEK N-1; only week 1 uses the
+        pre-season fetched rating. For the week_18 construction snapshot that ranking
+        spans weeks 1-17 -- the entire season. Because set_player_data refreshes only
+        projected_points/actual_points, that value would then stay frozen on every
+        FantasyPlayer for the whole simulated season, and the draft scorer reads it
+        (AddToRosterModeManager scores with player_rating=True, and
+        PLAYER_RATING_SCORING carries the highest WEIGHT of any factor).
+
+        Measured before this substitution, week_18 rating vs season actual production
+        ranked within position: Spearman 0.921 / 0.924 / 0.913 / 0.928 / 0.946 for
+        2021-2025. The week_01 rating -- an honest pre-season forecast -- scores
+        0.688 / 0.720 / 0.754 for the seasons that carry one. 99% of players differ
+        between the two snapshots, and the swings are outcome-shaped: a kicker who
+        never played fell 99.7 -> 3.7, a defense that broke out rose 3.0 -> 87.2.
+
+        Week 18 is still the right source for everything ELSE (it is the only folder
+        carrying complete actual_points), so this substitutes exactly one field rather
+        than moving the whole snapshot.
+
+        Args:
+            player_data_dir: The shared snapshot's player_data/ directory, already
+                populated from the week_18 folder.
+
+        Raises:
+            FileNotFoundError: If the week_01 folder is absent. Failing loudly is
+                deliberate -- silently falling back to the week_18 rating would
+                reinstate the lookahead this method exists to remove.
+        """
+        week_one = self.data_folder / "weeks" / "week_01"
+        if not week_one.is_dir():
+            raise FileNotFoundError(
+                f"Draft-time ratings unavailable: {week_one} not found. week_01 supplies "
+                f"the pre-season player_rating; without it the draft would read week_18's "
+                f"full-season ranking, which is lookahead."
+            )
+
+        substituted = 0
+        unmatched = 0
+        for json_path in sorted(player_data_dir.glob("*_data.json")):
+            source = week_one / json_path.name
+            if not source.exists():
+                self.logger.warning(f"Draft-time ratings: {source} missing; leaving {json_path.name} as-is")
+                continue
+            src_key = next(iter(json.loads(source.read_text())))
+            draft_time = {
+                rec["id"]: rec.get("player_rating")
+                for rec in json.loads(source.read_text())[src_key]
+            }
+            data = json.loads(json_path.read_text())
+            key = next(iter(data))
+            for rec in data[key]:
+                if rec["id"] in draft_time:
+                    rec["player_rating"] = draft_time[rec["id"]]
+                    substituted += 1
+                else:
+                    unmatched += 1
+            json_path.write_text(json.dumps(data, indent=2))
+
+        self.logger.debug(
+            f"Draft-time ratings applied from week_01: {substituted} substituted, "
+            f"{unmatched} not present in week_01 (left at the construction value)"
+        )
 
     def _generate_schedule(self) -> None:
         """
