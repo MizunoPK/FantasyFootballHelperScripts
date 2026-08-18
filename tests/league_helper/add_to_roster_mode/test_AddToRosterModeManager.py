@@ -641,7 +641,12 @@ class TestGetRecommendations:
             first_call = calls[0].kwargs
             assert first_call.get('adp') == True
             assert first_call.get('player_rating') == True
-            assert first_call.get('team_quality') == True
+            # team_quality is DELIBERATELY off: there is no team-quality data yet to
+            # inform the signal, so enabling it would weight recommendations by a
+            # factor with nothing behind it. Turned off in abab9f6d (2026-08-15);
+            # this assertion was left asserting True and had been red since.
+            # Re-enable here only when a real team-quality data source lands.
+            assert first_call.get('team_quality') == False
             assert first_call.get('performance') == False
             assert first_call.get('matchup') == False
             assert first_call.get('schedule') == False
