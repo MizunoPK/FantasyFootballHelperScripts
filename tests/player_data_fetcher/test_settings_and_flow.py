@@ -304,6 +304,59 @@ class TestE2EGracefulSkip:
         mock_collector.collect_all_projections.assert_awaited_once()
 
     @pytest.mark.asyncio
+    async def test_e2e_skip_records_loaded_but_empty_not_never_loaded(self, tmp_path, monkeypatch):
+        """D17.7 review BLOCKING-2: pin the e2e arm's `{}` assignment.
+
+        The sibling e2e test hands main() a MagicMock exporter, so it cannot see
+        what the skip arm leaves on the real object -- dropping the assignment
+        failed NOTHING across the whole repo (28/613/116 all green) while being
+        load-bearing: with `None`, export raises PlayerDataValidationError per
+        position and writes 0/6 files; with `{}`, 6/6.
+
+        This test therefore uses a REAL DataExporter. Dropping the
+        `_espn_attribution = {}` from the e2e arm turns it red.
+        """
+        monkeypatch.delenv("ESPN_FIXTURE_DIR", raising=False)
+        # Credentials must be PRESENT: with them absent the DEGRADE arm also
+        # assigns `{}`, so the assertion below would pass either way and the pin
+        # would be vacuous -- which is exactly how the original mutation escaped.
+        # Present credentials close the degrade arm, leaving the e2e arm as the
+        # only writer of `{}` on this path.
+        monkeypatch.setenv("espn_s2", "present-for-this-test")
+        monkeypatch.setenv("SWID", "{present-for-this-test}")
+        from player_data_fetcher.player_data_exporter import DataExporter
+
+        # The e2e arm on this base still carries the `not use_csv_ownership`
+        # conjunct (D17.6 removes it), and _make_settings_dict defaults that flag
+        # to True -- so without this the arm never fires and the run falls through
+        # to a real league read.
+        settings_dict = _make_settings_dict(tmp_path, e2e_test=True, use_csv_ownership=False)
+        real_exporter = DataExporter(
+            output_dir=str(tmp_path),
+            espn_settings=create_settings_from_dict(settings_dict),
+        )
+
+        with patch('player_data_fetcher.espn_client.ESPNClient._make_request') as never_called:
+            with patch('player_data_fetcher.player_data_fetcher_main.NFLProjectionsCollector') as mock_cls:
+                mock_collector = MagicMock()
+                mock_collector.collect_all_projections = AsyncMock(return_value={
+                    'season': ProjectionData(season=2025, scoring_format='ppr', total_players=200, players=[])
+                })
+                mock_collector.export_data = AsyncMock(return_value=[])
+                mock_collector.exporter = real_exporter          # real, not a mock
+                mock_cls.return_value = mock_collector
+                with patch('player_data_fetcher.player_data_fetcher_main.setup_logger'):
+                    with patch('player_data_fetcher.player_data_fetcher_main.validate_output_files'):
+                        await main(settings_dict)
+        # belt-and-braces: the e2e arm must short-circuit before any request
+        never_called.assert_not_called()
+
+        assert real_exporter._espn_attribution == {}
+        assert real_exporter._espn_attribution is not None, (
+            "the e2e skip must record loaded-but-empty, not the never-loaded sentinel"
+        )
+
+    @pytest.mark.asyncio
     async def test_absent_credentials_degrade_to_empty_attribution_with_one_warning(
         self, tmp_path, monkeypatch, caplog
     ):
