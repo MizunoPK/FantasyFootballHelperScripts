@@ -495,7 +495,8 @@ class PlayerScoringCalculator:
         Returns:
             Tuple[float, str]: (adjusted_score, reason_string)
                 - If insufficient data or DST: returns (score, "")
-                - Otherwise: returns (score * multiplier, "Performance: RATING")
+                - Otherwise: returns (score * multiplier, e.g.
+                  "Performance: GOOD (+15.3%, 1.2000x)")
         """
         deviation = self.calculate_performance_deviation(p)
 

@@ -68,7 +68,6 @@ class ScoredPlayer:
 
         Example (without projection):
             [RB] [SF] Christian McCaffrey - 145.67 pts (Bye=9)
-                    - Base Projected Points: 22.5
                     - ADP: EXCELLENT (1.2000x)
         """
         if self.projected_points > 0:

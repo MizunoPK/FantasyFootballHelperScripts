@@ -712,6 +712,30 @@ class TestTeamQualityMultiplier:
 
 
 
+class TestPerformanceMultiplier:
+    """Test Step 5b: Performance multiplier application (rendered reason string)"""
+
+    def test_performance_reason_renders_four_decimal_multiplier(self, player_manager, test_player):
+        """_apply_performance_multiplier emits the composite deviation + .4f multiplier reason.
+
+        Measured under the module's own fixture config (see mock_data_folder):
+        CURRENT_NFL_WEEK = 6 with PERFORMANCE_SCORING.WEIGHT = 1.0 and no week-file
+        overlay, so the GOOD multiplier is the unweighted configured 1.20. This is
+        deliberately named because PERFORMANCE_SCORING.WEIGHT differs between the live
+        week 1-13 files (0.03) and the week 14-17 files (0.89), and ConfigManager merges
+        the active week file over the base - the rendered value is only meaningful
+        alongside the config it was measured under.
+        """
+        calculator = player_manager.scoring_calculator
+        base_score = 100.0
+
+        with patch.object(type(calculator), "calculate_performance_deviation", return_value=0.153):
+            result, reason = calculator._apply_performance_multiplier(test_player, base_score)
+
+        assert result == 100.0 * 1.20
+        assert reason == "Performance: GOOD (+15.3%, 1.2000x)"
+
+
 class TestMatchupMultiplier:
     """Test Step 6: Matchup multiplier application"""
 
