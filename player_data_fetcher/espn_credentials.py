@@ -14,7 +14,7 @@ Author: Kai Mizuno
 
 import logging
 import os
-from typing import Tuple, Union
+from typing import List, Tuple, Union
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -30,6 +30,7 @@ from utils.credential_redaction import (
 __all__ = [
     "load_espn_env",
     "get_espn_credentials",
+    "missing_espn_credentials",
     "redact",
     "REDACTION_MARKER",
     "CredentialRedactionFilter",
@@ -95,11 +96,7 @@ def get_espn_credentials() -> Tuple[str, str]:
     espn_s2 = os.environ.get('espn_s2', '').strip()
     swid = os.environ.get('SWID', '').strip()
 
-    missing = []
-    if not espn_s2:
-        missing.append('espn_s2')
-    if not swid:
-        missing.append('SWID')
+    missing = missing_espn_credentials()
 
     if missing:
         raise ConfigurationError(
@@ -108,6 +105,39 @@ def get_espn_credentials() -> Tuple[str, str]:
         )
 
     return espn_s2, swid
+
+
+def missing_espn_credentials() -> List[str]:
+    """
+    Report which ESPN credentials are absent or blank, WITHOUT raising.
+
+    The non-raising half of this module's single-owner validation:
+    `get_espn_credentials()` calls it and turns a non-empty result into its
+    ConfigurationError, so the presence/blank rule lives in exactly one
+    place. It exists for callers that must PRE-FLIGHT the credential state
+    rather than consume it -- notably Draft Mode, which has to decide
+    whether the live cockpit can be entered at all and must render a setup
+    notice instead of letting a ConfigurationError escape mid-session
+    (D18.5 polish, user test plan scenario 7).
+
+    Reads the same `os.environ` keys, with the same `.strip()` blank rule,
+    as `get_espn_credentials()`, so a pre-flight can never disagree with
+    the read that follows it.
+
+    Args:
+        None.
+
+    Returns:
+        List[str]: The names of the missing/blank credentials, in the fixed
+            order ('espn_s2', 'SWID'). Empty when both are usable. NAMES
+            ONLY -- no credential VALUE is returned, logged or printed,
+            here or by any caller.
+    """
+    return [
+        name
+        for name in ('espn_s2', 'SWID')
+        if not os.environ.get(name, '').strip()
+    ]
 
 
 # `redact`, `CredentialRedactionFilter` and the shared filter singleton

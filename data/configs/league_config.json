@@ -134,6 +134,21 @@
     "NFL_TEAM_PENALTY": ["NYJ", "LV", "MIN", "TEN"],
     "NFL_TEAM_PENALTY_WEIGHT": 0.95,
     "ESPN_LEAGUE_ID": "138260302",
-    "ESPN_TEAM_ID": 1
+    "ESPN_TEAM_ID": 1,
+    "SURVIVAL_SCORING": {
+      "THRESHOLDS": {
+        "EXCELLENT": -10,
+        "GOOD": -3,
+        "POOR": 3,
+        "VERY_POOR": 10
+      },
+      "MULTIPLIERS": {
+        "EXCELLENT": 1.05,
+        "GOOD": 1.025,
+        "POOR": 0.975,
+        "VERY_POOR": 0.95
+      },
+      "WEIGHT": 1.0
+    }
   }
 }

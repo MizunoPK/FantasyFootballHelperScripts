@@ -460,13 +460,23 @@ class TestScorePlayerEightProductionCallSitesUnaffected:
        OWN kwargs (see _PRODUCTION_CALL_SITES for the one documented substitution) --
        so the parameter is load-bearing and the eight cases are genuinely eight
        different executions, not eight repeats of one.
-    2. `test_no_production_call_site_passes_picks_until_next_turn` is the STRONGER
-       argument and does not depend on kwarg transcription being exhaustive or
-       current: no production file mentions `picks_until_next_turn` at all, so the
-       `if picks_until_next_turn is not None:` gate is structurally unreachable from
-       production regardless of what any site passes. It fails the moment a caller is
-       wired up -- which is D18.5's job, and is the point at which this test should be
-       revisited rather than deleted."""
+    2. `test_only_sanctioned_production_call_sites_pass_picks_until_next_turn` is the
+       STRONGER argument and does not depend on kwarg transcription being exhaustive
+       or current: it AST-scans production for every site that supplies the keyword and
+       asserts the set is EXACTLY the sanctioned one.
+
+       D18.3 wrote this as an inertness guard asserting the set was EMPTY, and said in
+       this docstring that it would fail the moment a caller was wired up -- "which is
+       D18.5's job, and is the point at which this test should be revisited rather than
+       deleted." D18.5 wired that caller (the draft cockpit), so the guard was re-scoped
+       here rather than deleted, and re-scoping made it stronger in BOTH directions: it
+       still fails on an UNEXPECTED new caller, and it now also fails if the sanctioned
+       cockpit caller DISAPPEARS -- i.e. if the survival signal is ever silently
+       un-wired, which the empty-set form could never have caught.
+
+       The eight-call-site parametrization above therefore still means exactly what it
+       says: none of those eight passes the keyword, so Step 15 remains unreachable from
+       every one of them."""
 
     @pytest.mark.parametrize(
         "site,kwargs", _PRODUCTION_CALL_SITES, ids=[s for s, _ in _PRODUCTION_CALL_SITES]
@@ -479,14 +489,27 @@ class TestScorePlayerEightProductionCallSitesUnaffected:
 
         assert "Survival:" not in "".join(scored.reason), site
 
-    def test_no_production_call_site_passes_picks_until_next_turn(self):
+    def test_only_sanctioned_production_call_sites_pass_picks_until_next_turn(self):
         # AST, not a text search: only an actual keyword ARGUMENT counts, so the
         # parameter's own declarations, docstrings and comments cannot trip it and no
         # caller can hide from it behind formatting.
+        #
+        # The two sanctioned targets, and why each is sanctioned:
+        #   self.scoring_calculator.score_player -- PlayerManager.score_player's own
+        #       pass-through to the calculator. The parameter's declared forwarding
+        #       path, not a caller electing to supply a value.
+        #   self.player_manager.score_player     -- DraftModeManager.get_recommendations,
+        #       the draft cockpit. THE caller the signal exists for: it supplies the live
+        #       geometry.picks_until_our_next_turn read from the ESPN board.
+        sanctioned = {
+            "self.scoring_calculator.score_player",
+            "self.player_manager.score_player",
+        }
         repo_root = Path(__file__).resolve().parents[3]
         production_dirs = ["league_helper", "simulation", "utils", "player_data_fetcher"]
 
         scanned = 0
+        found = set()
         offenders = []
         for directory in production_dirs:
             for path in sorted((repo_root / directory).rglob("*.py")):
@@ -497,20 +520,26 @@ class TestScorePlayerEightProductionCallSitesUnaffected:
                         continue
                     if not any(kw.arg == "picks_until_next_turn" for kw in node.keywords):
                         continue
-                    # The single sanctioned site: PlayerManager.score_player's own
-                    # pass-through to the calculator. It is the parameter's declared
-                    # forwarding path, not a caller electing to supply a value.
                     target = ast.unparse(node.func)
-                    if target == "self.scoring_calculator.score_player":
+                    if target in sanctioned:
+                        found.add(target)
                         continue
                     offenders.append(f"{path.relative_to(repo_root)}:{node.lineno} -> {target}")
 
         # Coverage assertion: proves the walk actually visited the production tree, so
-        # an empty `offenders` cannot pass vacuously on a mis-resolved repo root.
+        # neither an empty `offenders` nor a full `found` can pass vacuously on a
+        # mis-resolved repo root.
         assert scanned > 50, f"only {scanned} production files scanned from {repo_root}"
 
         assert offenders == [], (
-            "A production caller now supplies picks_until_next_turn, so Step 15 is no "
-            "longer unreachable from production and this unit's provision-inertness "
-            "argument no longer holds as written:\n" + "\n".join(offenders)
+            "An UNSANCTIONED production caller now supplies picks_until_next_turn. This "
+            "is a draft-time signal wired deliberately at ONE place; add a site to "
+            "`sanctioned` only with a recorded reason:\n" + "\n".join(offenders)
+        )
+
+        assert found == sanctioned, (
+            "A SANCTIONED production caller of picks_until_next_turn has disappeared: "
+            f"missing {sorted(sanctioned - found)}. If the draft cockpit no longer "
+            "passes the live picks-until-our-next-turn, the survival estimate is "
+            "silently inert again and ticket D18's Success Criteria are no longer met."
         )

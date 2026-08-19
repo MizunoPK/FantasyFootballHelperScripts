@@ -80,6 +80,45 @@ class TestReloadPlayerDataMtimeOptimization:
 
         manager.load_players_from_json.assert_not_called()
 
+    def test_force_bypasses_the_short_circuit_when_files_are_unchanged(self):
+        """force=True re-reads even though every mtime matches.
+
+        THE WHOLE REASON THE PARAMETER EXISTS. The mtime optimization assumes disk is
+        the only writer of in-memory state, which Draft Mode's live cockpit breaks: it
+        writes drafted_by across the shared pool from an ESPN snapshot and persists
+        nothing, so the files it would have to have touched to invalidate this check are
+        untouched. Without force, the cockpit's ESPN-derived ownership survived into the
+        main menu and the next Modify Player Data write flushed it over the user's
+        locally-recorded picks.
+
+        Mutation: reverting the guard to `if self._last_mtimes:` fails this test --
+        load_players_from_json is not called. It is the exact pair of
+        test_skip_reload_when_files_unchanged, which pins the default direction.
+        """
+        fixed_mtime = 1700000000.0
+        mtime_map = {pf: fixed_mtime for pf in POSITION_FILES}
+        fp_mocks, last_mtimes = _make_fp_mocks(mtime_map)
+        manager = _make_manager(fp_mocks, last_mtimes)
+
+        manager.reload_player_data(force=True)
+
+        manager.load_players_from_json.assert_called_once()
+        manager.load_team.assert_called_once()
+
+    def test_force_defaults_to_false_so_existing_callers_keep_the_optimization(self):
+        """The default is False, asserted on the SIGNATURE rather than inferred.
+
+        The menu loop (LeagueHelperManager.py:118) and the Trade Simulator
+        (TradeSimulatorModeManager.py:147) both call reload_player_data() with no
+        arguments and must keep short-circuiting. Mutation: `force: bool = True` fails
+        here and would silently make every menu display re-read six files.
+        """
+        import inspect
+
+        signature = inspect.signature(PlayerManager.reload_player_data)
+
+        assert signature.parameters["force"].default is False
+
     def test_reload_triggered_when_file_changes(self):
         """R5: reload_player_data() calls load_players_from_json() when any file has a newer mtime."""
         old_mtime = 1700000000.0

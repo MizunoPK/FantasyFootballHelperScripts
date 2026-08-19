@@ -18,15 +18,16 @@ import aiofiles
 
 from player_data_fetcher.config import data_root
 from player_data_fetcher.player_data_models import ProjectionData, ESPNPlayerData, PlayerDataValidationError
-from player_data_fetcher.espn_attribution import reconcile_espn_attribution
+from player_data_fetcher.espn_attribution import (
+    normalize_our_team_attribution,
+    reconcile_espn_attribution_or_raise,
+)
 from player_data_fetcher.espn_league_snapshot_models import LeagueSnapshot
 
 from utils.FantasyPlayer import FantasyPlayer
 from utils.TeamData import save_team_weekly_data
 from utils.data_file_manager import DataFileManager
 from utils.LoggingManager import get_logger
-
-from league_helper.constants import FANTASY_TEAM_NAME
 
 
 def zero_bye_week_points(
@@ -144,32 +145,8 @@ class DataExporter:
         finally:
             await espn_client.close()
 
-        attribution = reconcile_espn_attribution(snapshot, players)
-
-        if attribution is None:
-            local_ids = {player.id for player in players}
-            team_ids = {team.id for team in snapshot.teams if team.name is not None}
-            missing_ids = sorted(
-                pick.playerId
-                for pick in snapshot.draftDetail.picks
-                if pick.playerId != -1 and str(pick.playerId) not in local_ids
-            )
-            unresolved_team_ids = sorted(set(
-                pick.teamId
-                for pick in snapshot.draftDetail.picks
-                if pick.playerId != -1
-                and str(pick.playerId) in local_ids
-                and pick.teamId not in team_ids
-            ))
-            raise PlayerDataValidationError(
-                f"ESPN attribution reconciliation failed: completed playerId(s) "
-                f"{missing_ids} have no local player match, and teamId(s) "
-                f"{unresolved_team_ids} have no resolvable team name; "
-                f"ownership state unchanged."
-            )
-
-        self._espn_attribution = self._normalize_our_team_attribution(
-            snapshot, attribution, our_team_id
+        self._espn_attribution = reconcile_espn_attribution_or_raise(
+            snapshot, players, our_team_id, self.logger
         )
 
     def _normalize_our_team_attribution(
@@ -206,55 +183,9 @@ class DataExporter:
                 caller stores anything, so no `drafted_by` is ever mutated.
                 Messages name team ids only -- never a credential value.
         """
-        team_ids = {team.id for team in snapshot.teams}
-        if our_team_id not in team_ids:
-            raise PlayerDataValidationError(
-                f"ESPN attribution normalization failed: configured ESPN_TEAM_ID "
-                f"{our_team_id} is absent from the snapshot's teams[] "
-                f"(team ids present: {sorted(team_ids)}); "
-                f"ownership state unchanged."
-            )
-
-        our_token = FANTASY_TEAM_NAME.strip().casefold()
-        colliding_team_ids = sorted(
-            team.id
-            for team in snapshot.teams
-            if team.id != our_team_id
-            and team.name is not None
-            and team.name.strip().casefold() == our_token
+        return normalize_our_team_attribution(
+            snapshot, attribution, our_team_id, self.logger
         )
-        if colliding_team_ids:
-            raise PlayerDataValidationError(
-                f"ESPN attribution normalization failed: team id(s) "
-                f"{colliding_team_ids} carry a name equal to FANTASY_TEAM_NAME "
-                f"while the configured team is id {our_team_id}; normalizing "
-                f"would make an opponent's players indistinguishable from ours. "
-                f"Rename the colliding ESPN team; ownership state unchanged."
-            )
-
-        our_local_ids = {
-            str(pick.playerId)
-            for pick in snapshot.draftDetail.picks
-            if pick.playerId != -1 and pick.teamId == our_team_id
-        }
-        normalized = {
-            local_id: (FANTASY_TEAM_NAME if local_id in our_local_ids else team_name)
-            for local_id, team_name in attribution.items()
-        }
-
-        completed_picks = sum(
-            1 for pick in snapshot.draftDetail.picks if pick.playerId != -1
-        )
-        our_matches = sum(1 for name in normalized.values() if name == FANTASY_TEAM_NAME)
-        if completed_picks and our_matches == 0:
-            self.logger.warning(
-                f"ESPN_TEAM_ID {our_team_id} matched zero of {completed_picks} "
-                f"completed picks in the ESPN draft snapshot. Check that "
-                f"ESPN_TEAM_ID in data/configs/league_config.json is your own "
-                f"team's id."
-            )
-
-        return normalized
 
     def set_team_rankings(self, team_rankings: dict):
         """Set team rankings data from ESPN client for team exports"""

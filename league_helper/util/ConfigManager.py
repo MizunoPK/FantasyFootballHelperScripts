@@ -493,10 +493,23 @@ class ConfigManager:
         consumer -- so it is the first consumed _get_multiplier ladder sitting outside the
         reachability guard, and a malformed block IS reachable at runtime
         (test_ConfigManager_survival_scoring.py::TestSurvivalScoringMalformedConfig::
-        test_missing_weight_raises_keyerror_on_first_use pins exactly that). This is
-        tolerable only while the key is absent from every config on disk, which it is
-        today; registering it in _multiplier_factors() is the mitigation, routed to a later
-        ticket by implementation_plan.md's Notes.
+        test_missing_weight_raises_keyerror_on_first_use pins exactly that).
+
+        D18.5 CHANGED THE PREMISE THIS POSTURE RESTED ON. D18.3 called the posture
+        tolerable "only while the key is absent from every config on disk"; the
+        draft-mode cutover authors SURVIVAL_SCORING into data/configs/league_config.json,
+        so the key IS on disk now and a malformed block IS reachable at runtime. The
+        exposure was re-assessed rather than inherited, and is bounded on three sides:
+        (1) no automated path can mangle the block -- D18.5 added the key to
+        BASE_CONFIG_PARAMS and to AccuracyResultsManager.PRESERVE_KEYS, so a promote
+        round-trips it verbatim, leaving a manual hand-edit as the only trigger; (2) the
+        failure is a loud KeyError naming the missing key, never a silently wrong score;
+        (3) it fires on the FIRST survival-gated score_player() call, which in the only
+        consumer -- the draft cockpit's first poll -- is seconds after the mode is
+        entered, not deep into a draft. Registering in _multiplier_factors() remains the
+        real mitigation and remains routed to a follow-up ticket (D18.5
+        implementation_plan.md Notes, F1): it inverts this method's own two
+        malformed-config tests, which does not belong inside a cutover.
         """
         return self._get_multiplier(self.survival_scoring, margin, rising_thresholds=False)
 
@@ -1084,6 +1097,12 @@ class ConfigManager:
         # numerically irrelevant to THIS default's score.
         # Deliberately NOT registered in _multiplier_factors() / MULTIPLIER_INPUT_DOMAINS (see
         # get_survival_multiplier below) -- an approved D18.3 scope decision, not an omission.
+        # CONSEQUENCE FOR ANYONE AUTHORING THIS KEY ON DISK (D18.5 did): the unregistered
+        # path skips BOTH _resolve_calculated_thresholds AND _cache_linear_anchors, so an
+        # authored block MUST carry four LITERAL thresholds and MUST NOT carry
+        # "SCALING": "LINEAR" -- a calculated ladder reaches _get_multiplier unmaterialized
+        # and raises KeyError, and a LINEAR one has no anchor table. The live config's
+        # block honours both constraints.
         self.survival_scoring = self.parameters.get(self.keys.SURVIVAL_SCORING, {
             "THRESHOLDS": {"EXCELLENT": -100, "GOOD": -25, "POOR": 25, "VERY_POOR": 100},
             "MULTIPLIERS": {"EXCELLENT": 1.0, "GOOD": 1.0, "POOR": 1.0, "VERY_POOR": 1.0},
