@@ -12,7 +12,7 @@ Two fixtures exercise the two independent no-op axes and the real-config path:
   BUCKETED logic exactly, the same logic ADP_SCORING already exercises in
   test_ConfigManager_adp_ladder.py.
 
-Author: Claude Code
+Author: Kai Mizuno
 """
 
 import json

@@ -4,10 +4,12 @@ D18.3): _apply_survival_estimate() in isolation, and score_player()'s Step 15
 gate exercised through the full pipeline -- the no-op default, the no-ADP
 case, and the non-stacking/independent-toggle proof TD4 requires.
 
-Author: Claude Code
+Author: Kai Mizuno
 """
 
+import ast
 import json
+from pathlib import Path
 
 import pytest
 from unittest.mock import Mock
@@ -178,6 +180,31 @@ def _calculator(config):
     )
 
 
+def _calculator_with_neutral_data(config):
+    """Same real ConfigManager as _calculator(), but with the mocked data managers
+    pinned to EMPTY rather than left as bare Mocks.
+
+    _calculator()'s bare Mocks are fine for the tests that disable the data-dependent
+    steps, but the production call sites replayed below enable schedule/performance, and a
+    bare Mock is not iterable. Empty returns make those steps degrade to their own
+    documented no-data no-ops, which is what lets the real kwarg shapes actually run.
+    game_data_manager is left unset (None), so temperature/wind/location no-op via their
+    own `if not self.game_data_manager` guards.
+    """
+    season_schedule_manager = Mock()
+    season_schedule_manager.get_future_opponents.return_value = []
+    player_manager = Mock()
+    player_manager.get_projected_points.return_value = None
+    return PlayerScoringCalculator(
+        config=config,
+        player_manager=player_manager,
+        max_projection=250.0,
+        team_data_manager=Mock(),
+        season_schedule_manager=season_schedule_manager,
+        current_nfl_week=1,
+    )
+
+
 def _normalized_player(adp):
     """A player whose Step 1 normalization yields exactly 100.0, mirroring
     test_PlayerManager_scoring.py's test_score_player_only_normalization setup
@@ -317,30 +344,121 @@ class TestScorePlayerSurvivalNonStacking:
         assert "Survival:" in reasons
 
 
-class TestScorePlayerEightProductionCallSitesUnaffected:
-    """Replicates the exact adp=False / draft_round-omitted kwarg shape of each
-    of the 8 production call sites derived_facts.md Entry 2 records (re-verified
-    at HEAD 4541a686ab32fce2b0bcb65ef1c5f50ff34f1e18 by this dispatch), never
-    passing picks_until_next_turn -- exactly what none of the 8 real callers do."""
-
-    @pytest.mark.parametrize("site", [
+# Each entry is (site label, the site's REAL kwargs). Transcribed one-for-one from the
+# 8 production call sites derived_facts.md Entry 2 records; every scoring-flag value is
+# the site's own. The single deliberate substitution is `roster`: three sites pass a live
+# roster object (`self.team` / `post_trade_roster`) that has no meaning outside its own
+# manager, so `[]` stands in for it -- `roster` feeds the bye-week step and cannot reach
+# the Step 15 gate, which keys solely on `picks_until_next_turn`. What matters is that
+# NONE of the 8 passes `picks_until_next_turn`, exactly as none of the real sites does.
+_PRODUCTION_CALL_SITES = [
+    (
         "StarterHelperModeManager.py:346",
-        "trade_analyzer.py:345",
-        "TradeSimTeam.py:86",
-        "TradeSimTeam.py:98",
-        "TradeSimTeam.py:104",
-        "PlayerManager.py:330 (load_team)",
-        "PlayerManager.py:647 (display_scored_roster)",
+        dict(use_weekly_projection=True, adp=False, player_rating=False, team_quality=True,
+             performance=True, matchup=True, schedule=False, bye=False, injury=False,
+             temperature=True, wind=True, location=True),
+    ),
+    (
         "ParallelAccuracyRunner.py:141",
-    ])
-    def test_site_shape_produces_no_survival_adjustment(self, config_with_survival, site):
-        calc = _calculator(config_with_survival)
+        dict(use_weekly_projection=True, adp=False, player_rating=False, team_quality=True,
+             performance=True, matchup=True, schedule=False, bye=False, injury=False,
+             temperature=True, wind=True, location=True),
+    ),
+    (
+        "TradeSimTeam.py:86",
+        dict(use_weekly_projection=True, adp=False, player_rating=False, team_quality=True,
+             performance=True, matchup=True, schedule=False, bye=False, injury=False,
+             roster=[]),
+    ),
+    (
+        "TradeSimTeam.py:98",
+        dict(adp=False, player_rating=True, team_quality=True, performance=True,
+             matchup=False, schedule=True, bye=False, injury=False, roster=[]),
+    ),
+    (
+        "TradeSimTeam.py:104",
+        dict(adp=False, player_rating=True, team_quality=True, performance=True,
+             matchup=False, schedule=True, bye=True, injury=False, roster=[]),
+    ),
+    (
+        "PlayerManager.py:330 (load_team)",
+        dict(adp=False, player_rating=True, team_quality=True, performance=True,
+             matchup=False, schedule=True, bye=True, injury=True),
+    ),
+    (
+        "PlayerManager.py:647 (display_scored_roster)",
+        dict(adp=False, player_rating=True, team_quality=True, performance=True,
+             matchup=False, schedule=True, bye=True, injury=True),
+    ),
+    (
+        "trade_analyzer.py:345",
+        dict(adp=False, player_rating=True, team_quality=True, performance=True,
+             matchup=False, schedule=True, roster=[]),
+    ),
+]
+
+
+class TestScorePlayerEightProductionCallSitesUnaffected:
+    """Step 15 is unreachable from every existing production call site.
+
+    Two independent arguments, because the weaker one alone reads as more coverage
+    than it delivers:
+
+    1. `test_site_shape_produces_no_survival_adjustment` replays each of the 8 sites'
+       OWN kwargs (see _PRODUCTION_CALL_SITES for the one documented substitution) --
+       so the parameter is load-bearing and the eight cases are genuinely eight
+       different executions, not eight repeats of one.
+    2. `test_no_production_call_site_passes_picks_until_next_turn` is the STRONGER
+       argument and does not depend on kwarg transcription being exhaustive or
+       current: no production file mentions `picks_until_next_turn` at all, so the
+       `if picks_until_next_turn is not None:` gate is structurally unreachable from
+       production regardless of what any site passes. It fails the moment a caller is
+       wired up -- which is D18.5's job, and is the point at which this test should be
+       revisited rather than deleted."""
+
+    @pytest.mark.parametrize(
+        "site,kwargs", _PRODUCTION_CALL_SITES, ids=[s for s, _ in _PRODUCTION_CALL_SITES]
+    )
+    def test_site_shape_produces_no_survival_adjustment(self, config_with_survival, site, kwargs):
+        calc = _calculator_with_neutral_data(config_with_survival)
         player = _normalized_player(adp=15.0)
 
-        scored = calc.score_player(
-            player, [], adp=False, player_rating=True, team_quality=True,
-            performance=False, matchup=False, schedule=False, draft_round=-1,
-            bye=True, injury=True,
-        )
+        scored = calc.score_player(player, [], **kwargs)
 
         assert "Survival:" not in "".join(scored.reason), site
+
+    def test_no_production_call_site_passes_picks_until_next_turn(self):
+        # AST, not a text search: only an actual keyword ARGUMENT counts, so the
+        # parameter's own declarations, docstrings and comments cannot trip it and no
+        # caller can hide from it behind formatting.
+        repo_root = Path(__file__).resolve().parents[3]
+        production_dirs = ["league_helper", "simulation", "utils", "player_data_fetcher"]
+
+        scanned = 0
+        offenders = []
+        for directory in production_dirs:
+            for path in sorted((repo_root / directory).rglob("*.py")):
+                scanned += 1
+                tree = ast.parse(path.read_text(encoding="utf-8"))
+                for node in ast.walk(tree):
+                    if not isinstance(node, ast.Call):
+                        continue
+                    if not any(kw.arg == "picks_until_next_turn" for kw in node.keywords):
+                        continue
+                    # The single sanctioned site: PlayerManager.score_player's own
+                    # pass-through to the calculator. It is the parameter's declared
+                    # forwarding path, not a caller electing to supply a value.
+                    target = ast.unparse(node.func)
+                    if target == "self.scoring_calculator.score_player":
+                        continue
+                    offenders.append(f"{path.relative_to(repo_root)}:{node.lineno} -> {target}")
+
+        # Coverage assertion: proves the walk actually visited the production tree, so
+        # an empty `offenders` cannot pass vacuously on a mis-resolved repo root.
+        assert scanned > 50, f"only {scanned} production files scanned from {repo_root}"
+
+        assert offenders == [], (
+            "A production caller now supplies picks_until_next_turn, so Step 15 is no "
+            "longer unreachable from production and this unit's provision-inertness "
+            "argument no longer holds as written:\n" + "\n".join(offenders)
+        )

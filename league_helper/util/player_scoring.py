@@ -1,11 +1,11 @@
 """
 Player Scoring Calculator
 
-Helper class for calculating player scores using the 10-step scoring algorithm.
+Helper class for calculating player scores using the 15-step scoring algorithm.
 Handles all scoring-related calculations including normalization, multipliers,
 bonuses, and penalties.
 
-The 10-step scoring algorithm:
+The 15-step scoring algorithm:
 1. Normalization (based on fantasy_points projection)
 2. ADP Multiplier (market wisdom adjustment)
 3. Player Rating Multiplier (expert consensus)
@@ -16,6 +16,12 @@ The 10-step scoring algorithm:
 8. Draft Order Bonus (positional value by round)
 9. Bye Week Penalty (same-position and different-position roster conflicts)
 10. Injury Penalty (risk assessment)
+11. Temperature Scoring (game-time temperature)
+12. Wind Scoring (game-time wind, QB/WR/K only)
+13. Location Modifier (home/away/international)
+14. NFL Team Penalty (team-level adjustment)
+15. Survival Estimate (ADP vs. picks-until-next-turn; skipped when
+    picks_until_next_turn is None)
 
 Author: Kai Mizuno
 """
@@ -39,7 +45,7 @@ from utils.LoggingManager import get_logger
 
 class PlayerScoringCalculator:
     """
-    Calculator for player scoring using the 10-step algorithm.
+    Calculator for player scoring using the 15-step algorithm.
 
     Handles all scoring calculations including normalization, multipliers,
     bonuses, and penalties. Separated from PlayerManager to improve
@@ -790,6 +796,13 @@ class PlayerScoringCalculator:
         This keeps the provision-stage rollout a verifiable no-op on BOTH axes -- reasons is
         user-visible output, so an unconditional reason string would be an observable change
         even when the score itself does not move.
+
+        `picks_until_next_turn` is annotated `int`, not `Optional[int]`, even though both
+        public signatures that feed it declare `Optional[int] = None`: the sole caller
+        guards with `if picks_until_next_turn is not None:` before invoking this method, so
+        `None` provably never reaches the parameter. Widening the hint would invite a
+        None-handling branch the guard makes dead. The two annotations are each right for
+        their own contract -- do not "fix" the asymmetry.
         """
         margin = None if p.adp is None else p.adp - picks_until_next_turn
         multiplier, rating = self.config.get_survival_multiplier(margin)

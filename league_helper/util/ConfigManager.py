@@ -483,7 +483,20 @@ class ConfigManager:
         tier-reachability load-time guard those factors get, so a malformed SURVIVAL_SCORING
         block (a THRESHOLDS/MULTIPLIERS tier or WEIGHT missing) raises a bare KeyError lazily,
         on the first survival-gated score_player() call, rather than failing fast at config
-        load -- the same unvalidated posture CONSISTENCY_SCORING already has today.
+        load.
+
+        That posture is NOT the same as CONSISTENCY_SCORING's, despite the surface
+        similarity, and the difference is the one that matters: CONSISTENCY_SCORING is
+        loaded but has no accessor and no _get_multiplier consumer anywhere, so a malformed
+        CONSISTENCY_SCORING block is unreachable and its lack of load-time validation costs
+        nothing. SURVIVAL_SCORING is unvalidated AND consumed -- this accessor is the
+        consumer -- so it is the first consumed _get_multiplier ladder sitting outside the
+        reachability guard, and a malformed block IS reachable at runtime
+        (test_ConfigManager_survival_scoring.py::TestSurvivalScoringMalformedConfig::
+        test_missing_weight_raises_keyerror_on_first_use pins exactly that). This is
+        tolerable only while the key is absent from every config on disk, which it is
+        today; registering it in _multiplier_factors() is the mitigation, routed to a later
+        ticket by implementation_plan.md's Notes.
         """
         return self._get_multiplier(self.survival_scoring, margin, rising_thresholds=False)
 
@@ -1064,10 +1077,11 @@ class ConfigManager:
         # fallback is a SELF-CONTAINED literal (not a reused dict) whose WEIGHT is 0.0 -- the
         # single load-bearing property, since _get_multiplier's `multiplier ** WEIGHT` collapses
         # to 1.0 for ANY tier when WEIGHT is 0.0. MULTIPLIERS are pinned to 1.0 too, as defense
-        # in depth (mirrors SCHEDULE_SCORING's in-code default idiom just above). THRESHOLDS are
-        # ordered EXCELLENT < GOOD < POOR < VERY_POOR (ascending), matching ADP_SCORING's own
-        # rising_thresholds=False convention, for label correctness once a real config is
-        # supplied -- WEIGHT: 0.0 makes the label numerically irrelevant to THIS default's score.
+        # in depth (mirrors self.schedule_scoring's in-code default idiom, defined just
+        # below). THRESHOLDS are ordered EXCELLENT < GOOD < POOR < VERY_POOR (ascending),
+        # matching ADP_SCORING's own rising_thresholds=False convention, for label
+        # correctness once a real config is supplied -- WEIGHT: 0.0 makes the label
+        # numerically irrelevant to THIS default's score.
         # Deliberately NOT registered in _multiplier_factors() / MULTIPLIER_INPUT_DOMAINS (see
         # get_survival_multiplier below) -- an approved D18.3 scope decision, not an omission.
         self.survival_scoring = self.parameters.get(self.keys.SURVIVAL_SCORING, {
@@ -1571,15 +1585,23 @@ class ConfigManager:
 
     def _multiplier_factors(self) -> List[Tuple[str, Dict[str, Any],
                                                 Callable[[float], Tuple[float, str]]]]:
-        """Return the eight `_get_multiplier` consumers as (key, ladder, accessor) triples.
+        """Return the eight REGISTERED `_get_multiplier` consumers as (key, ladder,
+        accessor) triples.
 
         The single enumeration both the materialization pass and the reachability guard
         iterate, so the two cannot drift apart. Each triple pairs a scoring-type key with
         its RESOLVED ladder attribute (never `self.parameters`, so the three in-code
         defaults are covered) and the public accessor that reads it.
 
+        NOT every `_get_multiplier` consumer: there are NINE, and SURVIVAL_SCORING /
+        get_survival_multiplier is the deliberately-unregistered ninth (a D18.3
+        provision-stage scope decision). So "the two passes cannot drift apart" is a claim
+        about these two passes relative to each other -- it is NOT a claim that every
+        ladder in the codebase is reachability-checked. See get_survival_multiplier's own
+        docstring for why it is excluded and what that costs.
+
         Returns:
-            The eight (scoring_key, scoring_dict, accessor) triples.
+            The eight registered (scoring_key, scoring_dict, accessor) triples.
         """
         return [
             (self.keys.ADP_SCORING, self.adp_scoring,
