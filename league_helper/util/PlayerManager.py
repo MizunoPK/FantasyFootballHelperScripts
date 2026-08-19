@@ -449,7 +449,7 @@ class PlayerManager:
         return success_msg
     
 
-    def reload_player_data(self) -> None:
+    def reload_player_data(self, force: bool = False) -> None:
         """
         Reload player data from JSON files and refresh team roster.
 
@@ -457,6 +457,21 @@ class PlayerManager:
         the full reload when all position file mtimes are unchanged since the last
         call (optimization: first call always reloads; any mtime change triggers
         reload).
+
+        THE MTIME OPTIMIZATION ASSUMES DISK IS THE ONLY WRITER of in-memory
+        ownership -- true of every caller that only ever reads it back. Draft Mode's
+        live cockpit breaks that assumption: it writes drafted_by across the shared
+        pool from an ESPN snapshot and deliberately persists nothing, so the files it
+        would have to have touched to invalidate this check are untouched and a
+        default reload silently keeps the dirty in-memory state. `force=True` is how
+        such a caller hands the pool back to disk. It bypasses the mtime check ONLY;
+        everything after it -- the re-read, the mtime re-record, load_team() and the
+        roster-size report -- is the unchanged normal path.
+
+        Args:
+            force (bool): When True, re-read the position files even if every mtime
+                is unchanged. Defaults to False so the ordinary read-only callers
+                (the main menu loop, the Trade Simulator) keep the optimization.
 
         Note:
             Warnings for corrupted or unreadable position files (emitted by
@@ -471,7 +486,7 @@ class PlayerManager:
             player_data_dir = self.data_folder / 'player_data'
             position_files = ['qb_data.json', 'rb_data.json', 'wr_data.json', 'te_data.json', 'k_data.json', 'dst_data.json']
 
-            if self._last_mtimes:
+            if self._last_mtimes and not force:
                 all_unchanged = True
                 for position_file in position_files:
                     filepath = player_data_dir / position_file

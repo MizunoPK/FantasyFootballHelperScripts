@@ -34,6 +34,7 @@ from league_helper.util.FantasyTeam import FantasyTeam
 from player_data_fetcher.espn_client import ESPNAPIError
 from player_data_fetcher.espn_league_snapshot_models import LeagueSnapshot
 from utils.FantasyPlayer import FantasyPlayer
+from pydantic import ValidationError as PydanticValidationError
 from utils.error_handler import ConfigurationError
 import league_helper.constants as Constants
 
@@ -205,6 +206,29 @@ def manager(config, player_manager):
     return DraftModeManager(config, player_manager, Mock(spec=TeamDataManager))
 
 
+@pytest.fixture(autouse=True)
+def unpatched_seam_is_fatal():
+    """Make the module docstring's no-network claim STRUCTURALLY true, not aspirational.
+
+    test_no_test_constructs_an_espn_client is a static scan of THIS file's own source,
+    so it is blind to the actual risk shape: a future test calling
+    `manager._cockpit_poll(...)` or `_run_cockpit_session()` without wrapping it in
+    `patch.object(cockpit_module, "get_league_snapshot_sync", ...)`. That test would
+    issue a real ESPN request. This autouse fixture replaces the seam for every test in
+    the module with one that raises instead, so reaching it unpatched is a loud test
+    failure rather than a live network call. A test that patches the seam itself simply
+    patches over this one.
+    """
+    def _fatal(*args, **kwargs):
+        raise AssertionError(
+            "unpatched seam reached: a cockpit test tried to call "
+            "get_league_snapshot_sync for real"
+        )
+
+    with patch.object(cockpit_module, "get_league_snapshot_sync", side_effect=_fatal):
+        yield
+
+
 @pytest.fixture
 def frozen_clock():
     """Freeze the cockpit's wall clock at 12:34:56 for exact-string assertions."""
@@ -279,9 +303,68 @@ class TestPollClassification:
         assert {p.id: p.drafted_by for p in manager.player_manager.players} == after_advance
         assert manager._rendered_pick_ids == frozenset(range(1, 8))
 
+    def test_a_divergent_poll_that_loses_a_rendered_pick_is_ignored(self, manager, capsys):
+        # THE SHAPE A PROPER-SUBSET GUARD MISSES. Rendered {1,2,3}; this poll carries
+        # {1,2,4} -- a pick we have already shown is GONE and a new one has appeared, so
+        # it is neither a subset nor equal. Under `pick_ids < self._rendered_pick_ids` it
+        # fell through to the TOTAL reconciliation, which reset pick 3's player to free
+        # agent, and the reduced set was then latched as the new baseline so the board
+        # could never self-correct. Ownership walking backwards is precisely what the
+        # idempotence acceptance criterion forbids.
+        #
+        # Mutation: restoring `pick_ids < self._rendered_pick_ids` fails this test on
+        # BOTH the ownership assertion and the latched-baseline assertion.
+        self._poll(manager, _snapshot(3))
+        after_advance = {p.id: p.drafted_by for p in manager.player_manager.players}
+        assert after_advance[1003] == "Team 3"
+        capsys.readouterr()
+
+        rows = [_pick(1, 1001, 1, 1), _pick(2, 1002, 2, 1),
+                _pick(3, -1, 3, 1), _pick(4, 1004, 4, 1)]
+        rows += [_pick(n, -1, n, 1) for n in range(5, TEAM_COUNT + 1)]
+        rows += [_pick(TEAM_COUNT + i + 1, -1, team, 2)
+                 for i, team in enumerate(reversed(range(1, TEAM_COUNT + 1)))]
+        divergent = LeagueSnapshot.model_validate({
+            "draftDetail": {"drafted": True, "inProgress": True, "picks": rows},
+            "teams": [{"id": i, "name": f"Team {i}"} for i in range(1, TEAM_COUNT + 1)],
+            "settings": {"draftSettings": {"pickOrder": list(range(1, TEAM_COUNT + 1))}},
+        })
+
+        terminated = self._poll(manager, divergent)
+
+        out = capsys.readouterr().out
+        assert terminated is False
+        assert "stale poll ignored" in out
+        assert {p.id: p.drafted_by for p in manager.player_manager.players} == after_advance
+        assert manager._rendered_pick_ids == frozenset({1, 2, 3})
+
+    def test_a_duplicated_pick_leaves_cockpit_state_byte_identical(self, manager):
+        # IDEMPOTENCE SATISFIER (b), asserted AT THE COCKPIT rather than against
+        # LeagueSnapshot's validator. The validator is a D18.4 subject and asserting
+        # "it raises" says nothing about what the cockpit does with the raise. In
+        # production the validation failure surfaces as an ESPNAPIError from the seam,
+        # so this drives exactly that and asserts the cockpit's state -- ownership AND
+        # the rendered pick set -- is byte-identical to the prior poll.
+        self._poll(manager, _snapshot(7))
+        before_owners = {p.id: p.drafted_by for p in manager.player_manager.players}
+        before_ids = manager._rendered_pick_ids
+        assert len([owner for owner in before_owners.values() if owner]) == 7
+
+        with patch.object(cockpit_module, "get_league_snapshot_sync",
+                          side_effect=ESPNAPIError(
+                              "Duplicate completed playerId(s) in draftDetail.picks[]: [1001]")):
+            terminated = manager._cockpit_poll(138260302, 2026, OUR_TEAM_ID)
+
+        assert terminated is True
+        assert {p.id: p.drafted_by for p in manager.player_manager.players} == before_owners
+        assert manager._rendered_pick_ids == before_ids
+
     def test_duplicate_completed_player_id_is_rejected_before_the_cockpit_sees_it(self):
         picks = [_pick(1, 1001, 1, 1), _pick(2, 1001, 2, 1)]
-        with pytest.raises(Exception) as excinfo:
+        # NARROWED from pytest.raises(Exception): pydantic raises ValidationError, and
+        # the broad form would have been satisfied by any failure at all -- a typo in the
+        # fixture included. Only the message assertion was doing any work.
+        with pytest.raises(PydanticValidationError) as excinfo:
             LeagueSnapshot.model_validate({
                 "draftDetail": {"drafted": True, "inProgress": True, "picks": picks},
                 "teams": [{"id": 1, "name": "Team 1"}, {"id": 2, "name": "Team 2"}],
@@ -334,17 +417,42 @@ class TestPollClassification:
             if isinstance(node, ast.If) and "our_team_id" in ast.unparse(node.test)
         ]
 
+        # POSITIVE CONTROL, matching the three sibling AST scans in this file. Without
+        # it, `comparisons == [] and conditionals == []` is satisfied by ANY body with no
+        # Compare/If node -- including `pass` -- so the test would stay green if the
+        # method were gutted. These two assert the scan ran over the real body AND that
+        # our_team_id is genuinely present in it, which is what makes the two empties
+        # mean "present but never branched on".
+        assert "our_team_id" in source
+        assert sum(1 for _ in ast.walk(tree)) > 30
+
         assert comparisons == [], f"reconciliation branches on our own team: {comparisons}"
         assert conditionals == [], f"reconciliation branches on our own team: {conditionals}"
 
     def test_advanced_poll_reassigns_every_player_totally(self, manager):
+        # THE ONE PLACE TOTAL ASSIGNMENT AND A MERGE DIFFER is a player ABSENT from the
+        # attribution map, and this test is the only thing pinning it. players[0] (id
+        # 1001) IS in the map, so seeding a stale owner there discriminates nothing -- a
+        # merge overwrites it identically. players[10] (id 1011) is NOT in _snapshot(7)'s
+        # map (it covers 1001..1007), so only a TOTAL assignment resets it to "".
+        # Mutation-verified: replacing the loop in
+        # _reconcile_ownership_from_snapshot with
+        # `if key in attribution: player.drafted_by = attribution[key]` fails THIS test.
+        # Before the seed on players[10], that same mutant left all 60 tests in this file
+        # green -- the load-bearing line of the unit's idempotence argument was unpinned.
         manager.player_manager.players[0].drafted_by = "Stale Team"
+        manager.player_manager.players[10].drafted_by = "Ghost Team"
+        assert manager.player_manager.players[10].id == 1011
 
         self._poll(manager, _snapshot(7))
 
         drafted = [p for p in manager.player_manager.players if p.drafted_by]
         assert len(drafted) == 7
         assert manager.player_manager.players[0].drafted_by == Constants.FANTASY_TEAM_NAME
+        assert manager.player_manager.players[10].drafted_by == "", (
+            "a player absent from the attribution map kept a stale owner: the "
+            "reconciliation merged rather than assigned totally"
+        )
         assert all(p.drafted_by == "" for p in manager.player_manager.players[7:])
 
 
@@ -621,21 +729,34 @@ class TestFailureArms:
     """Every terminal arm renders loudly, names an action, and stops the session."""
 
     def _poll_raising(self, manager, error):
-        with patch.object(cockpit_module, "get_league_snapshot_sync", side_effect=error):
-            return manager._cockpit_poll(138260302, 2026, OUR_TEAM_ID)
+        """Drive one poll whose fetch raises; returns (terminated, fetch_mock).
+
+        The fetch mock is RETURNED rather than discarded so a caller can assert the
+        call COUNT. Without it, `side_effect=error` makes an implementation that
+        retried three times before rendering indistinguishable from one that did not
+        retry at all -- both render once and both return True.
+        """
+        with patch.object(cockpit_module, "get_league_snapshot_sync",
+                          side_effect=error) as fetch:
+            return manager._cockpit_poll(138260302, 2026, OUR_TEAM_ID), fetch
 
     def _poll_with(self, manager, snapshot, our_team_id=OUR_TEAM_ID):
         with patch.object(cockpit_module, "get_league_snapshot_sync", return_value=snapshot):
             return manager._cockpit_poll(138260302, 2026, our_team_id)
 
     def test_espn_api_error_terminates_loudly_and_is_not_retried(self, manager, capsys):
-        terminated = self._poll_raising(manager, ESPNAPIError("auth cookie expired"))
+        terminated, fetch = self._poll_raising(manager, ESPNAPIError("auth cookie expired"))
 
         out = capsys.readouterr().out
         assert terminated is True
         assert "DRAFT MODE STOPPED: " + cockpit_module.ESPN_FAILURE_HEADLINE in out
         assert "ESPNAPIError: auth cookie expired" in out
         assert "espn_s2" in out
+        # THE "NOT RETRIED" HALF, which the name promises and nothing else asserted.
+        # The transport already exhausted tenacity's attempts before the seam raised, so
+        # a second attempt here would silently retry an exhausted failure. Fails on the
+        # mutant that wraps the fetch in `for _ in range(3): ...`.
+        assert fetch.call_count == 1
 
     def test_our_team_absent_from_pick_order_terminates(self, manager, capsys):
         terminated = self._poll_with(manager, _snapshot(3), our_team_id=99)
@@ -653,6 +774,11 @@ class TestFailureArms:
         out = capsys.readouterr().out
         assert terminated is True
         assert "duplicate team ids" in out
+        # HEADLINE, not just the message body: _render_cockpit_failure prints the
+        # exception text under ANY headline, so the substring alone does not separate
+        # the geometry arm from the broad `except Exception`. This assertion is what
+        # fails on the mutant that moves the broad arm to the front of the fetch try.
+        assert cockpit_module.GEOMETRY_FAILURE_HEADLINE in out
 
     def test_parity_corruption_terminates_and_names_the_traded_pick_case_first(self, manager, capsys):
         # A traded pick makes a team select outside its slot. Simulated by swapping two
@@ -689,6 +815,9 @@ class TestFailureArms:
         out = capsys.readouterr().out
         assert terminated is True
         assert "empty picks[] list" in out
+        # Same reason as test_duplicate_pick_order_entry_terminates: without the
+        # headline this passes under the broad arm too.
+        assert cockpit_module.GEOMETRY_FAILURE_HEADLINE in out
 
     def test_unresolvable_player_id_fails_closed_without_mutating_ownership(self, manager, capsys):
         manager.player_manager.players = _pool(2)
@@ -719,11 +848,36 @@ class TestFailureArms:
         assert cockpit_module.UNEXPECTED_FAILURE_HEADLINE in out
         assert "KeyError" in out
 
-    def test_every_failure_render_names_an_action(self, manager, capsys):
-        self._poll_raising(manager, ESPNAPIError("boom"))
+    @pytest.mark.parametrize("headline,action", [
+        ("ESPN_FAILURE_HEADLINE", "ESPN_FAILURE_ACTION"),
+        ("GEOMETRY_FAILURE_HEADLINE", "GEOMETRY_FAILURE_ACTION"),
+        ("OWNERSHIP_FAILURE_HEADLINE", "OWNERSHIP_FAILURE_ACTION"),
+        ("UNEXPECTED_FAILURE_HEADLINE", "UNEXPECTED_FAILURE_ACTION"),
+    ])
+    def test_every_failure_render_names_an_action(self, manager, capsys, headline, action):
+        # The name promises ALL FOUR arms. Driving only the ESPN one made this a strict
+        # subset of test_espn_api_error_terminates_loudly_and_is_not_retried, which
+        # already asserts a fragment of the same action string -- so it added nothing.
+        # Parametrized over the real pairing instead: each case fails if its arm is
+        # rendered with the wrong action line or with none.
+        self._render_failure(manager, headline)
 
         out = capsys.readouterr().out
-        assert cockpit_module.ESPN_FAILURE_ACTION.split(".")[0] in out
+        assert getattr(cockpit_module, headline) in out
+        assert getattr(cockpit_module, action) in out
+
+    def _render_failure(self, manager, headline):
+        """Drive the poll down the arm that renders `headline`."""
+        if headline == "ESPN_FAILURE_HEADLINE":
+            self._poll_raising(manager, ESPNAPIError("boom"))
+        elif headline == "GEOMETRY_FAILURE_HEADLINE":
+            self._poll_with(manager, _snapshot(3), our_team_id=99)
+        elif headline == "OWNERSHIP_FAILURE_HEADLINE":
+            manager.player_manager.players = _pool(2)
+            self._poll_with(manager, _snapshot(7))
+        else:
+            manager.player_manager.load_team = Mock(side_effect=KeyError("WEIGHT"))
+            self._poll_with(manager, _snapshot(7))
 
     def test_an_unexpected_fetch_error_is_rendered_rather_than_crashing_the_cli(self, manager, capsys):
         # D18.5 polish, the STRUCTURAL half. Before the fix the fetch try caught only
@@ -742,7 +896,7 @@ class TestFailureArms:
         # the real exception type rather than a tailored-but-wrong headline.
         error = ConfigurationError("Missing required ESPN credential(s): espn_s2, SWID.")
 
-        terminated = self._poll_raising(manager, error)
+        terminated, _ = self._poll_raising(manager, error)
 
         out = capsys.readouterr().out
         assert terminated is True
@@ -924,6 +1078,23 @@ class TestESPNConfigurationPreflight:
         """
         monkeypatch.setenv("espn_s2", "OFFLINE-PLACEHOLDER-S2")
         monkeypatch.setenv("SWID", "{OFFLINE-PLACEHOLDER-SWID}")
+
+    @pytest.fixture(autouse=True)
+    def no_dotenv(self):
+        """Neutralize the real .env load, so these tests state what THEY control.
+
+        start_interactive_mode calls load_espn_env() before the pre-flight, which reads
+        the repository-root .env -- a file that exists on a developer machine, is absent
+        in CI, and is not tracked. Left live, every `monkeypatch.delenv` above would be
+        silently undone on a machine whose .env defines espn_s2/SWID, and this class's
+        verdicts would depend on the developer's untracked files.
+
+        The load itself is NOT untested by this patch: TestESPNEnvIsLoadedBeforeThe
+        Preflight below drives the real call site with the loader patched to a
+        controlled side effect, so the wiring is pinned there rather than here.
+        """
+        with patch.object(cockpit_module, "load_espn_env") as loader:
+            yield loader
 
     def _enter(self, manager):
         """Enter Draft Mode with the session loop stubbed; returns the stub."""
@@ -1110,16 +1281,28 @@ class TestESPNConfigurationPreflight:
         # Same contract the identity half already keeps: a SETUP gap must not read like
         # the DRAFT MODE STOPPED failure block, and must not crash the CLI. This is the
         # positive statement of what scenario 7 observed the absence of.
+        #
+        # NON-VACUITY. The three negatives below are all satisfied when the notice is
+        # never rendered at all -- _run_cockpit_session is stubbed, so none of those
+        # strings can appear on this path under any implementation -- and the bare
+        # `"DRAFT MODE" in out` was ALSO satisfied by the cockpit banner
+        # "DRAFT MODE - LIVE COCKPIT". So this test survived deleting the credential half
+        # of the pre-flight outright (mutation-verified: 7 of its 8 siblings failed and
+        # this one did not). The three assertions added below are what make it fail on
+        # that mutant, exactly as its identity-side twin already did.
         monkeypatch.delenv("espn_s2", raising=False)
         monkeypatch.delenv("SWID", raising=False)
 
-        self._enter(manager)
+        session = self._enter(manager)
 
         out = capsys.readouterr().out
         assert "DRAFT MODE STOPPED" not in out
         assert "!" * 50 not in out
         assert "ConfigurationError" not in out
         assert "DRAFT MODE" in out
+        assert cockpit_module.ESPN_CREDENTIAL_HEADLINE in out
+        assert "DRAFT MODE - LIVE COCKPIT" not in out
+        session.assert_not_called()
 
     def test_the_preflight_is_silent_once_the_credentials_are_restored(
             self, manager, monkeypatch):
@@ -1137,3 +1320,294 @@ class TestESPNConfigurationPreflight:
         monkeypatch.setenv("SWID", "{OFFLINE-PLACEHOLDER-SWID}")
 
         assert manager._espn_configuration_error() is None
+
+
+class TestSharedPlayerStateIsRestoredOnExit:
+    """The cockpit hands the SHARED player pool back to disk state on every exit.
+
+    THE DEFECT THIS CLASS EXISTS FOR was silent data loss, not a cosmetic leak.
+    PlayerManager is a single instance shared by every mode, and
+    _reconcile_ownership_from_snapshot writes drafted_by across ALL of it from the ESPN
+    snapshot. The menu loop's reload_player_data() (LeagueHelperManager.py:118) used to
+    undo that, because the pre-cutover mode wrote the position files and so changed
+    their mtimes -- but this mode deliberately writes nothing, so the mtime check
+    short-circuits (PlayerManager.py:489-491) and the ESPN-derived state SURVIVED into
+    the menu. The next Modify Player Data write then flushed it to disk, erasing every
+    locally-recorded pick ESPN did not show. Entering the cockpit before the ESPN draft
+    started was the worst case: an empty attribution map blanked the whole pool.
+    """
+
+    @pytest.fixture(autouse=True)
+    def espn_setup_present(self, monkeypatch):
+        """A usable ESPN setup, so the pre-flight never short-circuits the entry."""
+        monkeypatch.setenv("espn_s2", "OFFLINE-PLACEHOLDER-S2")
+        monkeypatch.setenv("SWID", "{OFFLINE-PLACEHOLDER-SWID}")
+
+    @pytest.fixture(autouse=True)
+    def no_dotenv(self):
+        """See TestESPNConfigurationPreflight.no_dotenv -- same hermeticity reason."""
+        with patch.object(cockpit_module, "load_espn_env"):
+            yield
+
+    def _enter(self, manager, session_effect=None):
+        with patch.object(manager, "_run_cockpit_session", side_effect=session_effect):
+            manager.start_interactive_mode(manager.player_manager,
+                                           Mock(spec=TeamDataManager))
+
+    def test_a_completed_session_forces_a_reload_of_the_shared_pool(self, manager):
+        # Mutation: deleting the `finally: self._restore_shared_player_state()` leaves
+        # reload_player_data uncalled and fails here. Dropping `force=True` from the
+        # call fails the assert_called_once_with -- and force is the ENTIRE point, since
+        # an unforced reload short-circuits on the unchanged mtimes this mode guarantees.
+        self._enter(manager)
+
+        manager.player_manager.reload_player_data.assert_called_once_with(force=True)
+
+    def test_a_terminated_session_still_forces_the_reload(self, manager):
+        # A failure arm returns normally from _run_cockpit_session, so it exits through
+        # the same path -- but it is the arm most likely to be forgotten, and it dirties
+        # state exactly as much as a completed draft does.
+        self._enter(manager, session_effect=None)
+
+        manager.player_manager.reload_player_data.assert_called_once_with(force=True)
+
+    def test_an_exception_unwinding_out_of_the_session_still_forces_the_reload(self, manager):
+        # WHY IT IS A `finally` AND NOT A TRAILING CALL. EOFError propagates through
+        # start_interactive_mode by contract (main() owns the notice and the exit
+        # status), and a trailing call would be skipped on exactly that path.
+        with pytest.raises(EOFError):
+            self._enter(manager, session_effect=EOFError())
+
+        manager.player_manager.reload_player_data.assert_called_once_with(force=True)
+
+    def test_the_preflight_early_return_pays_for_no_reload(self, manager, monkeypatch):
+        # THE SCOPE CLAIM, asserted rather than asserted-in-a-comment: the restore is
+        # deliberately inside the session's try/finally and not above the pre-flight,
+        # because the pre-flight cannot dirty the pool -- it reads config and the
+        # environment and prints. A reload there would cost a full re-read of six
+        # position files on every mis-configured entry for nothing.
+        monkeypatch.delenv("espn_s2", raising=False)
+        monkeypatch.delenv("SWID", raising=False)
+
+        self._enter(manager)
+
+        manager.player_manager.reload_player_data.assert_not_called()
+
+
+class TestOverCapacityESPNRoster:
+    """An ESPN roster the LOCAL slot ladder cannot lay out must not kill the cockpit.
+
+    load_team() builds a FantasyTeam from every player attributed to us and
+    FantasyTeam._assign_player_to_slot raises ValueError past the local MAX_POSITIONS.
+    The pre-cutover path could not reach that state -- it drafted through can_draft(),
+    which returns False rather than raising. Reconciling from ESPN bypasses that gate by
+    design, because ESPN already decided what we own; a real draft is constrained by
+    ESPN's roster settings, not by data/configs/league_config.json. Uncaught, the
+    ValueError reached the render broad arm and TERMINATED the cockpit mid-draft under
+    "either a bug or an environment problem" -- none of which is true.
+    """
+
+    OVERFLOW = ("Cannot assign Drake Maye (QB) to any available slot. "
+                "Slots full: QB=2/2, FLEX=0/1")
+
+    def _poll(self, manager, snapshot):
+        with patch.object(cockpit_module, "get_league_snapshot_sync", return_value=snapshot):
+            return manager._cockpit_poll(138260302, 2026, OUR_TEAM_ID)
+
+    def test_an_over_capacity_roster_does_not_terminate_the_cockpit(self, manager, capsys):
+        # Mutation: removing the `except ValueError` around load_team() sends this
+        # straight to the render broad arm -- `terminated` becomes True and
+        # UNEXPECTED_FAILURE_HEADLINE appears. Both assertions fail.
+        manager.player_manager.load_team = Mock(side_effect=ValueError(self.OVERFLOW))
+
+        terminated = self._poll(manager, _snapshot(7))
+
+        out = capsys.readouterr().out
+        assert terminated is False
+        assert cockpit_module.UNEXPECTED_FAILURE_HEADLINE not in out
+        assert "DRAFT MODE STOPPED" not in out
+        assert cockpit_module.ROSTER_OVERFLOW_HEADLINE in out
+        assert self.OVERFLOW in out
+
+    def test_ownership_and_the_board_survive_the_degraded_slot_view(self, manager, capsys):
+        # The point of continuing: what the operator actually needs -- who owns what,
+        # the recent picks, the recommendations -- is all still correct. Only the local
+        # roster-by-round LAYOUT is degraded.
+        manager.player_manager.load_team = Mock(side_effect=ValueError(self.OVERFLOW))
+
+        self._poll(manager, _snapshot(7))
+
+        out = capsys.readouterr().out
+        by_id = {p.id: p.drafted_by for p in manager.player_manager.players}
+        assert by_id[1001] == Constants.FANTASY_TEAM_NAME
+        assert by_id[1002] == "Team 2"
+        assert len([owner for owner in by_id.values() if owner]) == 7
+        assert "Recent picks" in out
+        assert "Top draft recommendations" in out
+
+    def test_the_notice_is_printed_once_per_session_not_once_per_poll(self, manager, capsys):
+        # Reconciliation runs on EVERY non-stale poll, so an unlatched notice would
+        # print every 15 seconds and destroy the fixed line height the board's column
+        # alignment depends on. Mutation: deleting the `if self._roster_overflow_
+        # reported: return` guard makes the count 3.
+        manager.player_manager.load_team = Mock(side_effect=ValueError(self.OVERFLOW))
+
+        self._poll(manager, _snapshot(7))
+        self._poll(manager, _snapshot(7))
+        self._poll(manager, _snapshot(8))
+
+        out = capsys.readouterr().out
+        assert out.count(cockpit_module.ROSTER_OVERFLOW_HEADLINE) == 1
+
+    def test_a_re_entered_session_reports_the_overflow_again(self, manager, capsys):
+        # The latch's OTHER half. Mutation: deleting the reset in _run_cockpit_session
+        # makes the second session silent about a condition that is still true.
+        manager.player_manager.load_team = Mock(side_effect=ValueError(self.OVERFLOW))
+        self._poll(manager, _snapshot(7))
+        capsys.readouterr()
+
+        snapshots = [_snapshot(7), _snapshot(20, in_progress=False)]
+        with patch.object(cockpit_module, "get_league_snapshot_sync", side_effect=snapshots), \
+             patch.object(cockpit_module.time, "sleep"):
+            manager._run_cockpit_session()
+
+        out = capsys.readouterr().out
+        assert cockpit_module.ROSTER_OVERFLOW_HEADLINE in out
+
+    def test_a_non_value_error_from_load_team_still_reaches_the_broad_arm(self, manager, capsys):
+        # NON-VACUITY CONTROL for the whole class: the catch is ValueError ONLY, so a
+        # genuinely unexpected type is still loud and still terminal. A blanket
+        # `except Exception` around load_team() would fail this.
+        manager.player_manager.load_team = Mock(side_effect=KeyError("WEIGHT"))
+
+        terminated = self._poll(manager, _snapshot(7))
+
+        out = capsys.readouterr().out
+        assert terminated is True
+        assert cockpit_module.UNEXPECTED_FAILURE_HEADLINE in out
+        assert cockpit_module.ROSTER_OVERFLOW_HEADLINE not in out
+
+
+class TestESPNEnvIsLoadedBeforeThePreflight:
+    """Credentials supplied the way this project documents them must actually work.
+
+    load_espn_env() -- the repository's only load_dotenv call site -- had exactly one
+    production caller, generate_espn_draft_corpus.py. Nothing on the
+    run_league_helper.py -> LeagueHelperManager -> Draft Mode path called it, so the
+    pre-flight and get_espn_credentials() both saw the process environment alone. An
+    operator whose espn_s2/SWID lived in the repository-root .env -- where
+    ESPN_CREDENTIAL_ACTION tells them to put it -- got
+    "DRAFT MODE UNAVAILABLE: ESPN credentials are not configured" followed by an action
+    line instructing them to do what they had already done.
+    """
+
+    def _enter(self, manager):
+        with patch.object(manager, "_run_cockpit_session") as session:
+            manager.start_interactive_mode(manager.player_manager,
+                                           Mock(spec=TeamDataManager))
+        return session
+
+    def test_credentials_reaching_the_environment_only_via_dotenv_pass_the_preflight(
+            self, manager, monkeypatch, capsys):
+        # THE BLOCKING CASE, hermetically. The process environment starts EMPTY of both
+        # credentials, and the only thing that supplies them is the loader at its real
+        # production call site -- standing in for python-dotenv reading a .env, with a
+        # controlled side effect so the test does not depend on an untracked file.
+        #
+        # Mutation, both directions: deleting the `load_espn_env()` call, OR moving it
+        # BELOW `self._espn_configuration_error()`, leaves the pre-flight reading an
+        # empty environment -- the credential notice is rendered, the cockpit is never
+        # entered, and every assertion below fails.
+        monkeypatch.delenv("espn_s2", raising=False)
+        monkeypatch.delenv("SWID", raising=False)
+
+        def _load_dotenv_stand_in(*args, **kwargs):
+            monkeypatch.setenv("espn_s2", "FROM-DOTENV-S2")
+            monkeypatch.setenv("SWID", "{FROM-DOTENV-SWID}")
+
+        with patch.object(cockpit_module, "load_espn_env",
+                          side_effect=_load_dotenv_stand_in) as loader:
+            session = self._enter(manager)
+
+        out = capsys.readouterr().out
+        loader.assert_called_once_with()
+        assert cockpit_module.ESPN_CREDENTIAL_HEADLINE not in out
+        assert "DRAFT MODE - LIVE COCKPIT" in out
+        session.assert_called_once_with()
+
+    def test_the_loader_is_called_with_no_override_so_the_process_environment_wins(
+            self, manager, monkeypatch):
+        # load_espn_env's `override` defaults to False, so a credential exported into
+        # the process environment still beats .env. Passing override=True would silently
+        # invert that precedence, so the call must stay argument-free. Mutation:
+        # `load_espn_env(override=True)` fails this.
+        monkeypatch.setenv("espn_s2", "OFFLINE-PLACEHOLDER-S2")
+        monkeypatch.setenv("SWID", "{OFFLINE-PLACEHOLDER-SWID}")
+
+        with patch.object(cockpit_module, "load_espn_env") as loader:
+            self._enter(manager)
+
+        loader.assert_called_once_with()
+
+    def test_both_credential_helpers_are_the_seam_re_exports(self):
+        # TD1 BINDING #1, pinned as a test rather than left to the plan's W2 grep. The
+        # ticket writes it as a bright line: "A unit that imports ESPNClient, httpx, or
+        # espn_credentials from inside league_helper/ has violated TD1, not made an
+        # implementation choice." A previous polish pass imported
+        # missing_espn_credentials straight from espn_credentials and broke it; nothing
+        # in the suite noticed. Mutation: restoring that direct import fails
+        # test_no_league_helper_module_imports_below_the_seam below.
+        from player_data_fetcher import espn_league_snapshot_seam as seam
+
+        assert cockpit_module.load_espn_env is seam.load_espn_env
+        assert cockpit_module.missing_espn_credentials is seam.missing_espn_credentials
+        assert "load_espn_env" in seam.__all__
+        assert "missing_espn_credentials" in seam.__all__
+
+    def test_the_seam_re_exports_rather_than_reimplements(self):
+        # SINGLE OWNER. A re-export keeps espn_credentials the one place the .env load,
+        # the os.environ read and the blank rule live, so the seam cannot disagree with
+        # the read it fronts. A reimplementation in the seam would fail this.
+        from player_data_fetcher import espn_credentials, espn_league_snapshot_seam
+
+        assert espn_league_snapshot_seam.load_espn_env is espn_credentials.load_espn_env
+        assert (espn_league_snapshot_seam.missing_espn_credentials
+                is espn_credentials.missing_espn_credentials)
+
+    def test_no_league_helper_module_imports_below_the_seam(self):
+        # The plan's W2 gate, executable. An AST scan over every module under
+        # league_helper/ for an import of espn_client, espn_credentials or httpx --
+        # the three names TD1 names. Fails on the exact regression a previous polish
+        # pass shipped.
+        import ast
+        from pathlib import Path
+
+        forbidden = {"espn_client", "espn_credentials", "httpx"}
+        root = Path(cockpit_module.__file__).resolve().parent.parent
+        assert root.name == "league_helper", root
+
+        modules_scanned = 0
+        offenders = []
+        for path in sorted(root.rglob("*.py")):
+            modules_scanned += 1
+            tree = ast.parse(path.read_text())
+            for node in ast.walk(tree):
+                if isinstance(node, ast.ImportFrom) and node.module:
+                    named = node.module.split(".")[-1]
+                elif isinstance(node, ast.Import):
+                    named = None
+                    for alias in node.names:
+                        if alias.name.split(".")[-1] in forbidden:
+                            named = alias.name.split(".")[-1]
+                            break
+                else:
+                    continue
+                if named in forbidden:
+                    offenders.append(f"{path.relative_to(root)}:{node.lineno}: {named}")
+
+        # Coverage assertion: an empty `offenders` cannot pass vacuously on an empty walk.
+        assert modules_scanned > 10, f"only {modules_scanned} modules scanned"
+        assert offenders == [], (
+            "league_helper/ names the ESPN transport directly (TD1 binding #1): "
+            + "; ".join(offenders)
+        )

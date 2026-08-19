@@ -25,7 +25,24 @@ has no player-choice prompt, calls neither PlayerManager.draft_player() nor
 update_players_file(), and offers no per-pick return to the main menu. Our own picks
 are made in the ESPN app exactly like every opponent's and arrive back through the
 same poll. Ownership reaches the local pool only through the reconciliation in
-player_data_fetcher/espn_attribution.py, in memory, and is never written to disk.
+player_data_fetcher/espn_attribution.py, in memory, and THIS MODE never writes it to
+disk.
+
+That last sentence is scoped to this mode ON PURPOSE, because the unscoped version of
+it -- "ESPN-derived ownership is never written to disk" -- is a claim about the whole
+PROCESS and it is false without the restore below. PlayerManager is a single instance
+shared by every mode, so the reconciliation writes drafted_by across the pool that
+Modify Player Data, Trade Simulator and Starter Helper also hold, and Modify Player
+Data's update_players_file() persists whatever that pool says. The mode that dirties
+the shared state is therefore the mode that restores it: every exit from the cockpit
+runs a FORCED PlayerManager.reload_player_data(force=True), because the ordinary
+menu-loop reload short-circuits on unchanged file mtimes and this mode deliberately
+changes none. See _restore_shared_player_state.
+
+CREDENTIALS: this mode calls load_espn_env() on entry, before its own pre-flight reads
+the environment. Nothing else on the League Helper path does, so without it the
+repository-root .env -- the place this mode's own setup copy sends the operator -- was
+never read and Draft Mode was unreachable on the project's documented credential route.
 
 Author: Kai Mizuno
 """
@@ -41,11 +58,16 @@ from league_helper.util.TeamDataManager import TeamDataManager
 from league_helper.util.ScoredPlayer import ScoredPlayer
 from league_helper.util.draft_geometry import DraftGeometry, read_geometry
 from player_data_fetcher.espn_attribution import reconcile_espn_attribution_or_raise
-from player_data_fetcher.espn_credentials import missing_espn_credentials
 from player_data_fetcher.espn_league_snapshot_models import LeagueSnapshot
+# TD1 binding #1: league_helper/ names the D18.4 seam and NOTHING below it. The two
+# credential helpers are imported from the seam's re-export rather than from
+# espn_credentials directly for exactly the reason ESPNAPIError already is -- naming
+# espn_credentials here is a TD1 breach, not an implementation choice.
 from player_data_fetcher.espn_league_snapshot_seam import (
     ESPNAPIError,
     get_league_snapshot_sync,
+    load_espn_env,
+    missing_espn_credentials,
 )
 from player_data_fetcher.player_data_models import PlayerDataValidationError
 from utils.LoggingManager import get_logger
@@ -76,6 +98,26 @@ GEOMETRY_FAILURE_ACTION = (
     "fires on a legitimate state. Otherwise check ESPN_TEAM_ID / ESPN_LEAGUE_ID in "
     "data/configs/league_config.json. Either way the cockpit cannot track the board -- "
     "use the ESPN app's own draft board for the rest of this draft."
+)
+
+# NOT a failure block, and deliberately not worded as one. ESPN is the source of truth
+# for WHAT WAS DRAFTED; MAX_POSITIONS in data/configs/league_config.json is a LOCAL
+# lineup model, and a real ESPN draft is constrained by ESPN's roster settings, not by
+# that file. So an ESPN roster the local slot ladder cannot lay out (a third QB, a
+# 5RB/5WR shape) is a legitimate board state the local model does not describe -- never
+# a reason to stop tracking a live draft. The cockpit keeps polling: ownership, recent
+# picks, board context and recommendations are all still correct, and only the local
+# slot VIEW is degraded.
+ROSTER_OVERFLOW_HEADLINE = (
+    "Note: your ESPN roster does not fit the local lineup slots"
+)
+ROSTER_OVERFLOW_ACTION = (
+    "The cockpit is STILL RUNNING and the board above is accurate -- only the local "
+    "'Current Roster by Draft Round' view is degraded, and it now shows the last "
+    "layout that fit. ESPN's roster settings, not this app, decide what you may draft; "
+    "MAX_POSITIONS in data/configs/league_config.json is only the local lineup model. "
+    "Widen MAX_POSITIONS there if you want the local view to follow your real roster. "
+    "This notice is printed once per session, not once per poll."
 )
 
 OWNERSHIP_FAILURE_HEADLINE = "ESPN ownership reconciliation failed"
@@ -202,6 +244,13 @@ class DraftModeManager:
         # session's last render.
         self._rendered_pick_ids: Optional[frozenset] = None
 
+        # Latch for the once-per-session roster-overflow notice, declared here for the
+        # same reason _rendered_pick_ids is: _report_roster_overflow is reachable from a
+        # directly-driven poll, so it must never AttributeError on a freshly built
+        # manager. _run_cockpit_session keeps its own reset, which is what makes a
+        # RE-entered session report the condition again.
+        self._roster_overflow_reported: bool = False
+
 
     def set_managers(self, player_manager : PlayerManager, team_data_manager : TeamDataManager):
         """
@@ -250,12 +299,36 @@ class DraftModeManager:
         self.set_managers(player_manager, team_data_manager)
         self.logger.info("Entering Draft Mode")
 
+        # .ENV BEFORE THE PRE-FLIGHT, and that ORDER is the whole point. Nothing else on
+        # the run_league_helper.py -> LeagueHelperManager -> Draft Mode path calls
+        # load_espn_env(): its only other production caller is the corpus generator, so
+        # before this line the League Helper process NEVER saw a .env file. Both the
+        # pre-flight below and get_espn_credentials() deep under the fetch seam read
+        # os.environ and nothing else, so an operator whose espn_s2/SWID live in the
+        # repository-root .env -- the place this mode's own ESPN_CREDENTIAL_ACTION tells
+        # them to put it -- was told to do the thing they had already done, and Draft
+        # Mode was unreachable on the project's documented credential route.
+        #
+        # override=False (the loader's default) is deliberate and load-bearing: a
+        # credential exported into the process environment still wins over .env, so this
+        # call can only ADD names that were absent, never replace an operator's explicit
+        # override. It reads names and values into os.environ and returns nothing; no
+        # credential value is read, printed or logged here.
+        load_espn_env()
+
         # PRE-FLIGHT, before the cockpit banner and before _run_cockpit_session: an
         # unconfigured ESPN identity OR credential is a setup gap, not a draft failure,
         # and must return to the menu rather than crash the CLI.
         config_problem = self._espn_configuration_error()
         if config_problem is not None:
             self._render_espn_configuration_notice(config_problem)
+            # NO state restore on this path, and that is a claim about reachability
+            # rather than an omission: the pre-flight only reads config and the
+            # environment, and the notice only prints. No poll ran, so
+            # _reconcile_ownership_from_snapshot never touched the shared pool and there
+            # is nothing to restore. The restore below is scoped to the session for
+            # exactly that reason -- it costs a full re-read of six position files, so
+            # it runs where state can actually have been dirtied.
             return
 
         print("\n" + "="*50)
@@ -267,7 +340,49 @@ class DraftModeManager:
         self.logger.debug(f"Displaying roster for user ({self.player_manager.get_roster_len()}/{self.config.max_players} players)")
         self._display_roster_by_draft_rounds()
 
-        self._run_cockpit_session()
+        try:
+            self._run_cockpit_session()
+        finally:
+            # EVERY exit path, which is why this is a finally and not a trailing call:
+            # a completed draft, any of the four terminal failure arms, and an exception
+            # unwinding through here (EOFError, KeyboardInterrupt) all leave the shared
+            # pool holding ESPN-derived ownership. See _restore_shared_player_state.
+            self._restore_shared_player_state()
+
+    def _restore_shared_player_state(self) -> None:
+        """Hand the shared player pool back to disk state on the way out of the cockpit.
+
+        THE MODE THAT DIRTIED THE SHARED STATE IS THE MODE THAT RESTORES IT.
+        `self.player_manager` is a single instance shared by every mode
+        (LeagueHelperManager.py:87,90,93), and
+        `_reconcile_ownership_from_snapshot` writes `drafted_by` on EVERY player in it.
+        Before the cutover the menu loop's own `reload_player_data()`
+        (LeagueHelperManager.py:118) undid that on the way back, because the old mode
+        wrote the position files and so changed their mtimes. This mode deliberately
+        writes nothing, the mtimes therefore do not change, and that reload
+        SHORT-CIRCUITS (PlayerManager.py:489-491) -- so ESPN-derived ownership survived
+        in memory until the next `update_players_file()` (Modify Player Data) flushed it
+        over the user's locally-recorded picks. That is silent data loss of exactly the
+        state the app exists to track, and it is why this call passes `force=True`.
+
+        `force=True` bypasses ONLY the mtime optimization, and only for this caller: the
+        parameter defaults to False, so the menu loop and the Trade Simulator keep the
+        optimization untouched.
+
+        `reload_player_data` handles its own exceptions and returns None, so this cannot
+        raise out of the `finally` that calls it and mask the session's own outcome.
+
+        Args:
+            None.
+
+        Returns:
+            None.
+        """
+        self.logger.debug(
+            "Cockpit exiting - forcing a reload so ESPN-derived in-memory ownership "
+            "cannot outlive the mode that wrote it"
+        )
+        self.player_manager.reload_player_data(force=True)
 
     def _espn_configuration_error(self) -> Optional[ESPNSetupProblem]:
         """Return why the ESPN setup is unusable, or None when the cockpit can be entered.
@@ -276,10 +391,13 @@ class DraftModeManager:
         pick can be rendered and either one missing crashes the mode without this gate:
 
         - IDENTITY (ESPN_LEAGUE_ID / ESPN_TEAM_ID), read from the league config file.
-        - CREDENTIALS (espn_s2 / SWID), read from the process environment or a local
-          .env file by `missing_espn_credentials()` -- the same read, with the same
-          blank rule, that `get_espn_credentials()` performs deep inside the fetch, so
-          this pre-flight cannot disagree with it. Without this half a credential-less
+        - CREDENTIALS (espn_s2 / SWID), read from the process environment by
+          `missing_espn_credentials()` -- the same read, with the same blank rule, that
+          `get_espn_credentials()` performs deep inside the fetch, so this pre-flight
+          cannot disagree with it. A repository-root .env reaches that environment
+          because `start_interactive_mode` calls `load_espn_env()` FIRST; this method
+          does not load it itself, so a caller driving the pre-flight directly sees the
+          process environment alone. Without this half a credential-less
           run raised ConfigurationError from espn_credentials.py INSIDE the poll and
           killed the CLI at exit 1 (D18.5 user test plan scenario 7) -- precisely the
           failure mode this notice exists to eliminate, reached through the adjacent
@@ -373,6 +491,7 @@ class DraftModeManager:
         our_team_id = self.config.espn_team_id
 
         self._rendered_pick_ids: Optional[frozenset] = None
+        self._roster_overflow_reported: bool = False
 
         while True:
             if self._cockpit_poll(league_id, season, our_team_id):
@@ -487,10 +606,25 @@ class DraftModeManager:
             self._render_heartbeat(None, None, "waiting for ESPN to serve the current pick")
             return False
 
-        if self._rendered_pick_ids is not None and pick_ids < self._rendered_pick_ids:
-            # Out-of-order arrival: a PROPER subset of what was already rendered. Skipped
+        if self._rendered_pick_ids is not None and not pick_ids >= self._rendered_pick_ids:
+            # Out-of-order arrival: NOT A SUPERSET of what was already rendered -- i.e.
+            # this poll has LOST at least one pick we have already shown. Skipped
             # entirely, because reconciling it would walk ownership backwards -- exactly
             # what the idempotence criterion forbids.
+            #
+            # NON-SUPERSET, not proper-subset, and the difference is a real hole rather
+            # than a stylistic one. A proper-subset test ({1,2} < {1,2,3}) misses the
+            # DIVERGENT arrival -- rendered {1,2,3} against an incoming {1,2,4}, which is
+            # neither a subset nor equal. That fell through to the TOTAL reconciliation
+            # below, which reset pick 3's player to free agent, and line 525 then latched
+            # the reduced set as the new baseline so the board could not self-correct.
+            # Nothing in this repository documents any monotonicity property of
+            # draftDetail.picks -- the codebase's whole posture toward this feed is that
+            # it is untrusted (hence the geometry reader's parity guard, hence
+            # complete-state reconciliation over delta bookkeeping) -- so the guard is
+            # written to the criterion's unconditional wording rather than to an
+            # undocumented ordering assumption. `not (a >= b)` subsumes the proper-subset
+            # case exactly and adds the divergent one.
             self._render_heartbeat(geometry.overall_pick_number,
                                    geometry.picks_until_our_next_turn,
                                    "stale poll ignored")
@@ -556,7 +690,58 @@ class DraftModeManager:
         for player in players:
             player.drafted_by = attribution.get(str(player.id), "")
 
-        self.player_manager.load_team()
+        try:
+            self.player_manager.load_team()
+        except ValueError as error:
+            # THE LOCAL SLOT LADDER LOST, AND THE DRAFT DID NOT. load_team() builds a
+            # FantasyTeam from every player attributed to us, and
+            # FantasyTeam._assign_player_to_slot (FantasyTeam.py:634) raises ValueError
+            # when a position exceeds the local MAX_POSITIONS. The pre-cutover path
+            # could not reach that state -- it drafted through
+            # PlayerManager.draft_player() -> FantasyTeam.draft_player(), gated by
+            # can_draft(), which RETURNS FALSE rather than raising. Reconciling from
+            # ESPN bypasses that gate by design, because ESPN already decided what we
+            # own. Uncaught, this ValueError reached _cockpit_poll's render broad arm
+            # and TERMINATED the cockpit mid-draft under "either a bug or an environment
+            # problem" -- none of which is true of a legitimate roster shape, and at the
+            # exact moment the board is most valuable. Caught here instead: ownership is
+            # already applied above and stands, and self.player_manager.team keeps its
+            # last successful layout because the failing `self.team = FantasyTeam(...)`
+            # never rebound it. ValueError ONLY -- anything else from load_team() is
+            # still genuinely unexpected and still reaches the broad arm.
+            self._report_roster_overflow(error)
+
+    def _report_roster_overflow(self, error: ValueError) -> None:
+        """Tell the operator the local slot view degraded, ONCE, and keep polling.
+
+        Latched rather than per-poll: reconciliation runs on every non-stale poll, so an
+        unlatched notice would print every POLL_INTERVAL_SECONDS and destroy the fixed
+        line height the board's column alignment depends on -- the same reason
+        RECENT_PICK_WINDOW is a constant. The latch is declared in __init__ AND reset in
+        _run_cockpit_session, mirroring _rendered_pick_ids' own two-site ownership: a
+        directly-driven poll must not AttributeError, and a re-entered session must
+        report the condition again rather than inherit the previous session's silence.
+
+        Args:
+            error: The ValueError raised by load_team(), reproduced verbatim so the
+                operator sees which position overflowed and by how much.
+
+        Returns:
+            None.
+        """
+        if self._roster_overflow_reported:
+            return
+        self._roster_overflow_reported = True
+
+        print("\n" + "-" * 50)
+        print(ROSTER_OVERFLOW_HEADLINE)
+        print(f"  {error}")
+        print(f"  {ROSTER_OVERFLOW_ACTION}")
+        print("-" * 50)
+        self.logger.warning(
+            f"ESPN roster exceeds local MAX_POSITIONS - local slot view degraded, "
+            f"cockpit continuing: {error}"
+        )
 
     @staticmethod
     def _clock() -> str:
@@ -674,7 +859,11 @@ class DraftModeManager:
         for pick in recent:
             name = player_names.get(str(pick.playerId), f"player {pick.playerId}")
             team = team_names.get(pick.teamId, f"team {pick.teamId}")
-            print(f"Pick {pick.overallPickNumber:3d}: {name:24s} -> {team}")
+            # TRUNCATE as well as pad. `:24s` alone is a MINIMUM width, so a name longer
+            # than 24 characters pushes the `->` column right and breaks the alignment
+            # this fixed-height window exists to preserve. Slicing first makes the field
+            # exactly 24 wide for every name.
+            print(f"Pick {pick.overallPickNumber:3d}: {name[:24]:24s} -> {team}")
 
         if geometry is None:
             return

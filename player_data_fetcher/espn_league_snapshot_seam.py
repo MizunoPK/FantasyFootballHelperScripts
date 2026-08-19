@@ -12,20 +12,43 @@ D18.5 wired this seam into the League Helper's draft cockpit
 (league_helper/draft_mode/DraftModeManager.py), which is now its sole production
 caller. It is no longer callerless.
 
-`ESPNAPIError` is re-exported here deliberately, not incidentally: it is the ONE
-exception a caller must handle, and TD1 forbids `league_helper/` from importing
-`espn_client` at all. Re-exporting makes this module the single surface the League
-Helper names, for both the call and its failure mode. It is listed in `__all__` so it
-is not mistaken for -- or linted as -- an unused import; do not remove it.
+THREE NAMES ARE RE-EXPORTED HERE DELIBERATELY, not incidentally. TD1 forbids
+`league_helper/` from importing `espn_client` or `espn_credentials` at all, so
+anything the League Helper legitimately needs from either module must reach it
+through this one surface -- for the call, its failure mode, AND the setup
+preconditions the call cannot succeed without:
+
+- `ESPNAPIError` -- the ONE exception a caller must handle.
+- `missing_espn_credentials` -- the non-raising presence check a caller runs as a
+  PRE-FLIGHT, before the cockpit is entered, so a credential gap is a setup notice
+  rather than a `ConfigurationError` traceback from inside the fetch.
+- `load_espn_env` -- the explicit, non-import-time `.env` loader a caller invokes
+  before that pre-flight reads the environment. Without it the pre-flight (and the
+  credential read below the seam) sees only the process environment, so credentials
+  supplied the way this repository documents them are invisible.
+
+All three are RE-EXPORTS, never reimplementations: `espn_credentials` remains the
+single owner of the `.env` load, the `os.environ` read and the blank rule, so this
+seam cannot disagree with the read it fronts. All three are listed in `__all__` so
+they are not mistaken for -- or linted as -- unused imports; do not remove them.
 
 Author: Kai Mizuno
 """
 
-__all__ = ["ESPNAPIError", "get_league_snapshot_sync"]
+__all__ = [
+    "ESPNAPIError",
+    "get_league_snapshot_sync",
+    "load_espn_env",
+    "missing_espn_credentials",
+]
 
 import asyncio
 
 from player_data_fetcher.espn_client import ESPNAPIError, ESPNClient
+from player_data_fetcher.espn_credentials import (
+    load_espn_env,
+    missing_espn_credentials,
+)
 from player_data_fetcher.espn_league_snapshot_models import LeagueSnapshot
 from player_data_fetcher.player_data_fetcher_main import Settings
 
