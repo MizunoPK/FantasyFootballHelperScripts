@@ -31,7 +31,7 @@ from utils.FantasyPlayer import FantasyPlayer
 
 class DraftModeManager:
     """
-    Manages the Draft Mode (draft assistant) mode.
+    Manages Draft Mode (the draft assistant).
 
     This mode helps users build their fantasy roster by providing intelligent
     player recommendations that consider:
@@ -97,7 +97,7 @@ class DraftModeManager:
             team_data_manager (TeamDataManager): Updated team data manager instance
         """
         self.set_managers(player_manager, team_data_manager)
-        self.logger.info("Entering Draft Mode interactive mode")
+        self.logger.info("Entering Draft Mode")
 
         print("\n" + "="*50)
         print("DRAFT MODE")
