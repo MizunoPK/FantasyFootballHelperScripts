@@ -15,14 +15,13 @@ Author: Kai Mizuno
 """
 
 import asyncio
-from typing import Optional
 
 from player_data_fetcher.espn_client import ESPNClient
 from player_data_fetcher.espn_league_snapshot_models import LeagueSnapshot
 from player_data_fetcher.player_data_fetcher_main import Settings
 
 
-def get_league_snapshot_sync(league_id: int, season: Optional[int] = None) -> LeagueSnapshot:
+def get_league_snapshot_sync(league_id: int, season: int) -> LeagueSnapshot:
     """Get the authenticated private-league snapshot synchronously (TD1, TD2).
 
     The League Helper's sole synchronous entry point into the ESPN league read.
@@ -34,8 +33,10 @@ def get_league_snapshot_sync(league_id: int, season: Optional[int] = None) -> Le
 
     Args:
         league_id: ESPN league ID.
-        season: Optional season year (defaults to the delegated client's own
-            season default when not provided).
+        season: Season year to read (required). There is deliberately no default:
+            omitting it would fall through to `Settings.season`, a hard-coded
+            literal (`player_data_fetcher_main.py:57`), and silently read the
+            wrong year.
 
     Returns:
         A validated `player_data_fetcher.espn_league_snapshot_models.LeagueSnapshot`.
@@ -73,7 +74,7 @@ def get_league_snapshot_sync(league_id: int, season: Optional[int] = None) -> Le
     return asyncio.run(_fetch_league_snapshot(league_id, season))
 
 
-async def _fetch_league_snapshot(league_id: int, season: Optional[int]) -> LeagueSnapshot:
+async def _fetch_league_snapshot(league_id: int, season: int) -> LeagueSnapshot:
     """Construct a throwaway `ESPNClient`, fetch the snapshot, and close it.
 
     Mirrors the throwaway-client lifecycle `generate_espn_draft_corpus.py`'s
@@ -83,7 +84,7 @@ async def _fetch_league_snapshot(league_id: int, season: Optional[int]) -> Leagu
 
     Args:
         league_id: ESPN league ID.
-        season: Optional season year, passed through unmodified.
+        season: Season year, passed through unmodified.
 
     Returns:
         The delegated call's validated `LeagueSnapshot`.

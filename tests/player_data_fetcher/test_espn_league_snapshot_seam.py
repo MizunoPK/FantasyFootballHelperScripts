@@ -10,6 +10,7 @@ resolution (AC), unmodified `ESPNAPIError` propagation (KD2), and the
 Author: Kai Mizuno
 """
 
+import json
 from pathlib import Path
 from unittest.mock import AsyncMock
 
@@ -79,3 +80,36 @@ class TestGetLeagueSnapshotSyncReentranceGuard:
         # seam succeeds and the guard's `else` branch fires.
         with pytest.raises(RuntimeError, match="synchronous, non-async context"):
             get_league_snapshot_sync(league_id=123, season=2026)
+
+
+class TestGetLeagueSnapshotSyncArgumentPassThrough:
+    """CONCERN-2 guard: the seam delegates the caller's own `league_id` and
+    `season` through unmodified. Without this assertion, dropping `season`,
+    dropping `league_id`, or swapping the two would pass every other test in
+    this file -- the offline-corpus test's fixture router keys on the URL shape
+    and ESPN_DRAFT_FIXTURE_STEP, discarding the season's value, and the KD2 test
+    asserts only on the raised exception. This is the test that makes
+    `season`'s required-ness
+    (spec_addendum1-required-season.md) load-bearing rather than decorative.
+    """
+
+    def test_delegates_league_id_and_season_unmodified(self, monkeypatch):
+        # Arrange -- a real corpus payload so the call reaches a genuine
+        # LeagueSnapshot instead of terminating on a validation error. The mock
+        # sits one layer below the delegated ESPNClient.get_league_snapshot(),
+        # so the assertion covers the whole
+        # seam -> get_league_snapshot -> _get_raw_league_snapshot chain -- which
+        # is exactly the chain whose tail resolves the stale Settings.season
+        # fallback when `season` fails to arrive.
+        raw_payload = json.loads(
+            (FIXTURES_DIR / "espn_api" / "league_draft" / "step_000.json").read_text()
+        )
+        mock_raw = AsyncMock(return_value=raw_payload)
+        monkeypatch.setattr(ESPNClient, "_get_raw_league_snapshot", mock_raw)
+
+        # Act
+        result = get_league_snapshot_sync(league_id=123, season=2026)
+
+        # Assert -- both arguments arrive, in order, unmodified.
+        mock_raw.assert_awaited_once_with(123, 2026)
+        assert isinstance(result, LeagueSnapshot)
