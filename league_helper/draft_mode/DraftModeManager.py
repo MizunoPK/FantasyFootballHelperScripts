@@ -58,7 +58,7 @@ class DraftModeManager:
 
     def __init__(self, config: ConfigManager, player_manager : PlayerManager, team_data_manager : TeamDataManager):
         """
-        Initialize Add to Roster Mode Manager.
+        Initialize Draft Mode Manager.
 
         Args:
             config (ConfigManager): Configuration with draft order strategy
@@ -178,7 +178,7 @@ class DraftModeManager:
             except Exception as e:
                 print(f"Error: {e}")
                 print("Returning to Main Menu...")
-                self.logger.error(f"Error in add to roster mode: {e}")
+                self.logger.error(f"Error in draft mode: {e}")
                 break
 
     def get_recommendations(self) -> List[ScoredPlayer]:

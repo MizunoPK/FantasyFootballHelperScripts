@@ -206,7 +206,7 @@ class TestLeagueHelperIntegrationBasic:
 class TestAddToRosterIntegration:
     """Integration tests for Draft Mode"""
 
-    def test_add_to_roster_mode_can_be_entered(self, temp_data_folder):
+    def test_draft_mode_can_be_entered(self, temp_data_folder):
         """Test that Draft Mode can be entered and exited"""
         manager = LeagueHelperManager(temp_data_folder)
 
@@ -601,7 +601,7 @@ class TestCSVDeprecation:
         This test verifies the complete CSV → JSON migration:
         - PlayerManager loads from player_data/*.json files
         - No players.csv file present (deprecated)
-        - All 4 modes (Add to Roster, Starter Helper, Trade Simulator, Modify Player Data) work correctly
+        - All 4 modes (Draft Mode, Starter Helper, Trade Simulator, Modify Player Data) work correctly
 
         Spec: sub_feature_08_csv_deprecation_cleanup_spec.md lines 92-97
         """

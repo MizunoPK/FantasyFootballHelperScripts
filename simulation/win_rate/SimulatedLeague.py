@@ -444,7 +444,7 @@ class SimulatedLeague:
         spans weeks 1-17 -- the entire season. Because set_player_data refreshes only
         projected_points/actual_points, that value would then stay frozen on every
         FantasyPlayer for the whole simulated season, and the draft scorer reads it
-        (AddToRosterModeManager scores with player_rating=True, and
+        (DraftModeManager scores with player_rating=True, and
         PLAYER_RATING_SCORING carries the highest WEIGHT of any factor).
 
         Measured before this substitution, week_18 rating vs season actual production

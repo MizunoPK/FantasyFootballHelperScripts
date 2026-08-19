@@ -55,7 +55,7 @@ class TestLeagueHelperManagerInit:
                 'team_data': mock_team_data,
                 'season_schedule': mock_season_schedule,
                 'player': mock_player,
-                'add_roster': mock_add_roster,
+                'add_roster': mock_draft,
                 'starter': mock_starter,
                 'trade': mock_trade,
                 'modify': mock_modify,
