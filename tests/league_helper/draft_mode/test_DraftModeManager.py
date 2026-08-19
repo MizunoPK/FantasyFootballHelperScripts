@@ -1,7 +1,7 @@
 """
-Comprehensive Unit Tests for AddToRosterModeManager.py
+Comprehensive Unit Tests for DraftModeManager.py
 
-Tests the AddToRosterModeManager class which manages the draft assistant mode:
+Tests the DraftModeManager class which manages the draft assistant mode:
 - Intelligent player recommendations based on draft position
 - Interactive player selection workflow
 - Roster display by draft rounds
@@ -17,7 +17,7 @@ import pytest
 from unittest.mock import Mock, MagicMock, patch, call
 from typing import List
 
-from league_helper.add_to_roster_mode.AddToRosterModeManager import AddToRosterModeManager
+from league_helper.draft_mode.DraftModeManager import DraftModeManager
 from league_helper.util.ConfigManager import ConfigManager
 from league_helper.util.PlayerManager import PlayerManager
 from league_helper.util.TeamDataManager import TeamDataManager
@@ -44,7 +44,7 @@ def mock_data_folder(tmp_path):
 
     config_content = """{
   "config_name": "Test Config",
-  "description": "Test configuration for AddToRosterMode tests",
+  "description": "Test configuration for DraftMode tests",
   "parameters": {
     "CURRENT_NFL_WEEK": 6,
     "NFL_SEASON": 2025,
@@ -230,18 +230,18 @@ def mock_team_data_manager():
 
 @pytest.fixture
 def add_to_roster_manager(config, mock_player_manager, mock_team_data_manager):
-    """Create AddToRosterModeManager instance for tests"""
-    manager = AddToRosterModeManager(config, mock_player_manager, mock_team_data_manager)
+    """Create DraftModeManager instance for tests"""
+    manager = DraftModeManager(config, mock_player_manager, mock_team_data_manager)
     return manager
 
 
 
 class TestInitialization:
-    """Test AddToRosterModeManager initialization"""
+    """Test DraftModeManager initialization"""
 
     def test_init_sets_config(self, config, mock_player_manager, mock_team_data_manager):
         """Test initialization sets config properly"""
-        manager = AddToRosterModeManager(config, mock_player_manager, mock_team_data_manager)
+        manager = DraftModeManager(config, mock_player_manager, mock_team_data_manager)
 
         assert manager.config == config
         assert manager.player_manager == mock_player_manager
@@ -249,13 +249,13 @@ class TestInitialization:
 
     def test_init_calls_set_managers(self, config, mock_player_manager, mock_team_data_manager):
         """Test initialization calls set_managers"""
-        with patch.object(AddToRosterModeManager, 'set_managers') as mock_set:
-            manager = AddToRosterModeManager(config, mock_player_manager, mock_team_data_manager)
+        with patch.object(DraftModeManager, 'set_managers') as mock_set:
+            manager = DraftModeManager(config, mock_player_manager, mock_team_data_manager)
             mock_set.assert_called_once_with(mock_player_manager, mock_team_data_manager)
 
     def test_init_creates_logger(self, config, mock_player_manager, mock_team_data_manager):
         """Test initialization creates logger"""
-        manager = AddToRosterModeManager(config, mock_player_manager, mock_team_data_manager)
+        manager = DraftModeManager(config, mock_player_manager, mock_team_data_manager)
 
         assert manager.logger is not None
 

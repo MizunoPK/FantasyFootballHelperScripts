@@ -97,7 +97,7 @@ This fetches the NFL season schedule (including bye weeks) from the ESPN API and
 python run_league_helper.py
 ```
 
-Follow the prompts to select a mode (e.g. Add to Roster, Starter Helper, Trade Simulator, Modify Player Data), get recommendations during your draft, optimize your weekly lineup, or evaluate trades.
+Follow the prompts to select a mode (e.g. Draft Mode, Starter Helper, Trade Simulator, Modify Player Data), get recommendations during your draft, optimize your weekly lineup, or evaluate trades.
 
 ### 4. (Optional) Tune Scoring Parameters
 
@@ -117,7 +117,7 @@ See [Main Applications](#main-applications) for the full flag set.
 
 Interactive, menu-driven application. Its modes are implemented as the `league_helper/*_mode/` subpackages:
 
-#### Add to Roster Mode (Draft Helper)
+#### Draft Mode (Draft Helper)
 - Real-time player recommendations during a draft
 - Considers roster needs, bye weeks, injury risk, and opponent strength
 - Displays top-N recommendations with a detailed scoring breakdown
@@ -288,7 +288,7 @@ FantasyFootballHelperScripts/
 ```
 
 **Key directories:**
-- `league_helper/` — the interactive tool. `LeagueHelperManager.py` is the menu controller; `util/` holds the core domain logic (`ConfigManager`, `PlayerManager`, scoring); the `*_mode/` subpackages implement each menu mode (`add_to_roster_mode`, `starter_helper_mode`, `trade_simulator_mode`, `modify_player_data_mode`, `save_calculated_points_mode`).
+- `league_helper/` — the interactive tool. `LeagueHelperManager.py` is the menu controller; `util/` holds the core domain logic (`ConfigManager`, `PlayerManager`, scoring); the `*_mode/` subpackages implement each menu mode (`draft_mode`, `starter_helper_mode`, `trade_simulator_mode`, `modify_player_data_mode`, `save_calculated_points_mode`).
 - `simulation/win_rate/` and `simulation/accuracy/` — the two optimization engines. `simulation/sim_data/{YEAR}/` — committed per-season snapshots the engines replay. `simulation/simulation_configs/` — sim output (intermediate/optimal config folders).
 - `player_data_fetcher/`, `schedule_data_fetcher/`, `historical_data_compiler/` — the live-data acquisition layer (the only code that touches the network).
 - `utils/` — shared helpers imported everywhere (`LoggingManager`, `error_handler`, `csv_utils`, and the data models).

@@ -204,21 +204,21 @@ class TestLeagueHelperIntegrationBasic:
 
 
 class TestAddToRosterIntegration:
-    """Integration tests for Add to Roster mode"""
+    """Integration tests for Draft Mode"""
 
-    def test_add_to_roster_mode_can_be_entered(self, temp_data_folder):
-        """Test that Add to Roster mode can be entered and exited"""
+    def test_draft_mode_can_be_entered(self, temp_data_folder):
+        """Test that Draft Mode can be entered and exited"""
         manager = LeagueHelperManager(temp_data_folder)
 
-        with patch.object(manager.add_to_roster_mode_manager, 'start_interactive_mode', return_value=None) as mock_start:
-            manager._run_add_to_roster_mode()
+        with patch.object(manager.draft_mode_manager, 'start_interactive_mode', return_value=None) as mock_start:
+            manager._run_draft_mode()
             assert mock_start.called
 
     def test_add_to_roster_workflow_adds_player(self, temp_data_folder):
         """Test complete workflow of adding a player to roster"""
         manager = LeagueHelperManager(temp_data_folder)
 
-        with patch.object(manager.add_to_roster_mode_manager, 'start_interactive_mode', return_value=None):
+        with patch.object(manager.draft_mode_manager, 'start_interactive_mode', return_value=None):
             assert manager.team_data_manager is not None
 
 
@@ -268,13 +268,13 @@ class TestModeTransitions:
     """Integration tests for transitions between modes"""
 
     def test_transition_from_add_to_roster_to_starter_helper(self, temp_data_folder):
-        """Test transition from Add to Roster to Starter Helper"""
+        """Test transition from Draft Mode to Starter Helper"""
         manager = LeagueHelperManager(temp_data_folder)
 
-        with patch.object(manager.add_to_roster_mode_manager, 'start_interactive_mode', return_value=None) as mock_add, \
+        with patch.object(manager.draft_mode_manager, 'start_interactive_mode', return_value=None) as mock_add, \
              patch.object(manager.starter_helper_mode_manager, 'show_recommended_starters', return_value=None) as mock_starter:
 
-            manager._run_add_to_roster_mode()
+            manager._run_draft_mode()
 
             manager._run_starter_helper_mode()
 
@@ -282,13 +282,13 @@ class TestModeTransitions:
             assert mock_starter.called
 
     def test_transition_from_add_to_roster_to_trade_simulator(self, temp_data_folder):
-        """Test transition from Add to Roster to Trade Simulator"""
+        """Test transition from Draft Mode to Trade Simulator"""
         manager = LeagueHelperManager(temp_data_folder)
 
-        with patch.object(manager.add_to_roster_mode_manager, 'start_interactive_mode', return_value=None) as mock_add, \
+        with patch.object(manager.draft_mode_manager, 'start_interactive_mode', return_value=None) as mock_add, \
              patch.object(manager.trade_simulator_mode_manager, 'run_interactive_mode', return_value=None) as mock_trade:
 
-            manager._run_add_to_roster_mode()
+            manager._run_draft_mode()
 
             manager._run_trade_simulator_mode()
 
@@ -601,7 +601,7 @@ class TestCSVDeprecation:
         This test verifies the complete CSV → JSON migration:
         - PlayerManager loads from player_data/*.json files
         - No players.csv file present (deprecated)
-        - All 4 modes (Add to Roster, Starter Helper, Trade Simulator, Modify Player Data) work correctly
+        - All 4 modes (Draft Mode, Starter Helper, Trade Simulator, Modify Player Data) work correctly
 
         Spec: sub_feature_08_csv_deprecation_cleanup_spec.md lines 92-97
         """
@@ -624,14 +624,14 @@ class TestCSVDeprecation:
         assert manager.player_manager is not None
         assert len(manager.player_manager.players) > 0, "Players should be loaded from JSON files"
 
-        assert manager.add_to_roster_mode_manager is not None
+        assert manager.draft_mode_manager is not None
         assert manager.starter_helper_mode_manager is not None
         assert manager.trade_simulator_mode_manager is not None
         assert manager.modify_player_data_mode_manager is not None
 
-        with patch.object(manager.add_to_roster_mode_manager, 'start_interactive_mode', return_value=None) as mock_add:
-            manager._run_add_to_roster_mode()
-            assert mock_add.called, "Add to Roster mode should be callable with JSON loading"
+        with patch.object(manager.draft_mode_manager, 'start_interactive_mode', return_value=None) as mock_add:
+            manager._run_draft_mode()
+            assert mock_add.called, "Draft Mode should be callable with JSON loading"
 
         with patch.object(manager.starter_helper_mode_manager, 'show_recommended_starters', return_value=None) as mock_starter:
             manager._run_starter_helper_mode()

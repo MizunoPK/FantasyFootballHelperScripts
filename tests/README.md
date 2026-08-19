@@ -282,7 +282,7 @@ If tests aren't being discovered:
 As the project grows, add a mirrored `test_<module>.py` under the matching `tests/` path for
 each new source module (see **Adding New Tests** above) — covering the happy path, edge cases,
 and error handling — and keep the suite at a 100% pass rate. The modules once listed here as
-pending (`ConfigManager`, `TeamDataManager`, `FantasyTeam`, `AddToRosterModeManager`, and the
+pending (`ConfigManager`, `TeamDataManager`, `FantasyTeam`, `DraftModeManager`, and the
 other mode managers) are now covered.
 
 ---
