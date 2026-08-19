@@ -15,6 +15,7 @@ Author: Kai Mizuno
 """
 
 import json
+import os
 from unittest.mock import Mock, patch
 
 import pytest
@@ -945,6 +946,55 @@ class TestSessionLifecycle:
         assert "DRAFT COMPLETE" in out
         assert "Recent picks" in out
 
+    def test_the_completing_poll_reconciles_before_it_renders_the_summary(
+            self, manager, capsys):
+        """THE TERMINAL SCREEN MUST NOT CONTRADICT ITSELF.
+
+        The all-sentinel branch returns before the reconciliation the normal path runs,
+        so without an explicit reconcile in that branch the pick that COMPLETES the
+        draft never reaches drafted_by: _render_draft_complete then names it under
+        "Recent picks" (rendered from this snapshot) while the roster printed directly
+        below it still shows the previous poll's layout.
+
+        Mutation: deleting the `_reconcile_ownership_from_snapshot` call from the
+        `not snapshot.draftDetail.inProgress` arm leaves 1020 -- pick 20, which is OURS
+        on this snake board -- a free agent and fails here. The sibling test above,
+        which asserts only on the rendered strings, passes under that mutation, which is
+        exactly how the defect survived the first review.
+        """
+        # Poll 1: 19 of 20 picks complete, draft still running. Establishes the
+        # "previous poll's layout" the summary would otherwise be rendered against.
+        with patch.object(cockpit_module, "get_league_snapshot_sync",
+                          return_value=_snapshot(19)):
+            manager._cockpit_poll(138260302, 2026, OUR_TEAM_ID)
+
+        by_id = {p.id: p.drafted_by for p in manager.player_manager.players}
+        assert by_id[1020] == "", (
+            "fixture precondition: pick 20 must still be unowned going into the "
+            "completing poll, or this test proves nothing"
+        )
+        manager.player_manager.load_team.reset_mock()
+        capsys.readouterr()
+
+        # Poll 2: the completing poll.
+        with patch.object(cockpit_module, "get_league_snapshot_sync",
+                          return_value=_snapshot(20, in_progress=False)):
+            terminated = manager._cockpit_poll(138260302, 2026, OUR_TEAM_ID)
+
+        out = capsys.readouterr().out
+        assert terminated is True
+        assert "DRAFT COMPLETE" in out
+
+        # The board-context half names pick 20...
+        assert "Pick  20" in out
+        # ...and the ownership half now agrees with it. 1020 is our own pick (round 2 of
+        # a snake board reverses the order, so overall 20 comes back to team 1).
+        assert manager.player_manager.players[19].id == 1020
+        assert manager.player_manager.players[19].drafted_by == Constants.FANTASY_TEAM_NAME
+        # The roster half is re-derived rather than left at the previous poll's layout:
+        # load_team() is what rebuilds player_manager.team from the new attribution.
+        manager.player_manager.load_team.assert_called()
+
     def test_all_sentinel_with_draft_in_progress_keeps_polling(self, manager, capsys):
         snapshot = _snapshot(20, in_progress=True)
 
@@ -1335,6 +1385,15 @@ class TestSharedPlayerStateIsRestoredOnExit:
     the menu. The next Modify Player Data write then flushed it to disk, erasing every
     locally-recorded pick ESPN did not show. Entering the cockpit before the ESPN draft
     started was the worst case: an empty attribution map blanked the whole pool.
+
+    COVERAGE, stated exactly because it was previously overstated: three distinct exit
+    MECHANISMS -- a normal return from the session, an exception unwinding through it,
+    and the pre-flight early return that must NOT pay for a reload -- plus one
+    end-to-end proof that a terminal failure arm really arrives at the first of them,
+    and one pin on the framing that keeps the restore's own output from reading as data
+    loss. The terminal-failure test is deliberately NOT a fourth stubbed-session test:
+    at the `finally` a terminal arm and a completed draft are the same return, so a
+    stubbed one would be a byte-equivalent duplicate that no mutation can separate.
     """
 
     @pytest.fixture(autouse=True)
@@ -1363,12 +1422,79 @@ class TestSharedPlayerStateIsRestoredOnExit:
 
         manager.player_manager.reload_player_data.assert_called_once_with(force=True)
 
-    def test_a_terminated_session_still_forces_the_reload(self, manager):
-        # A failure arm returns normally from _run_cockpit_session, so it exits through
-        # the same path -- but it is the arm most likely to be forgotten, and it dirties
-        # state exactly as much as a completed draft does.
-        self._enter(manager, session_effect=None)
+    def test_a_terminal_failure_arm_reaches_the_restore_end_to_end(self, manager, capsys):
+        """The ESPNAPIError terminal arm, DRIVEN rather than stubbed.
 
+        This test deliberately does NOT use `_enter`. Every other test in this class
+        patches `_run_cockpit_session` out, which means they all observe the same single
+        fact -- that a normal return from that method reaches the `finally`. A fourth
+        test that also stubbed the session would be a byte-equivalent duplicate of the
+        completion test above and could not fail under any mutation the completion test
+        survives; that is precisely what the previous version of this test was.
+
+        MUTATIONS THIS KILLS THAT ITS THREE SIBLINGS CANNOT:
+
+        1. `return True` -> `return False` in `_cockpit_poll`'s `except ESPNAPIError`
+           arm. The terminal arm would stop terminating: the session would loop and
+           sleep instead of unwinding to the restore. `time.sleep` is patched to raise,
+           so that mutation fails here loudly instead of hanging. Every sibling stubs
+           the session out and cannot see the arm at all.
+        2. Deleting the `except ESPNAPIError` clause entirely. The error would fall
+           through to the broad `except Exception` net, which also returns True -- so
+           the reload assertion alone would still pass -- but the operator would get
+           UNEXPECTED_FAILURE_HEADLINE ("either a bug or an environment problem")
+           instead of the tailored ESPN feed/auth guidance. The headline assertion
+           below is what makes that visible.
+
+        The class therefore covers three distinct exit MECHANISMS (a normal return, an
+        exception unwinding, and the pre-flight early return that must NOT reload) plus
+        this end-to-end proof that the terminal-failure arm really arrives at one of
+        them.
+        """
+        never_sleep = AssertionError(
+            "the terminal failure arm did not end the session: _cockpit_poll returned "
+            "False and the poll loop slept instead of unwinding to the restore"
+        )
+        with patch.object(cockpit_module, "get_league_snapshot_sync",
+                          side_effect=ESPNAPIError("simulated feed failure")), \
+             patch.object(cockpit_module.time, "sleep", side_effect=never_sleep):
+            manager.start_interactive_mode(manager.player_manager,
+                                           Mock(spec=TeamDataManager))
+
+        out = capsys.readouterr().out
+        assert cockpit_module.ESPN_FAILURE_HEADLINE in out
+        manager.player_manager.reload_player_data.assert_called_once_with(force=True)
+
+    def test_the_exit_frames_the_reload_so_it_cannot_be_read_as_data_loss(
+            self, manager, capsys):
+        """The restore must not announce itself in the language of the thing it prevents.
+
+        reload_player_data prints "Player data reloaded. Roster updated: {old} -> {new}
+        players" on any size change (PlayerManager.py:526). This mode never writes
+        locally, so on exit `new` is whatever disk still says -- typically 0 against an
+        in-memory roster the cockpit spent the whole draft filling. Reproduced verbatim
+        as "Roster updated: 3 -> 0 players" printed immediately beneath the "!!!!"
+        terminal-failure block, which is the exact moment an operator is most likely to
+        read it as a wiped roster.
+
+        Mutation: deleting the framing print from `_restore_shared_player_state` fails
+        here. Moving it AFTER the reload also fails, because the assertion below pins
+        the ordering -- the explanation is worthless once the alarming number has landed.
+        """
+        # Stand in for the real reload's own output, which the PlayerManager double
+        # cannot emit, so the ORDERING of the two lines is assertable rather than assumed.
+        alarming_line = "Player data reloaded. Roster updated: 3 -> 0 players"
+        manager.player_manager.reload_player_data.side_effect = (
+            lambda **kwargs: print(alarming_line)
+        )
+
+        self._enter(manager)
+
+        out = capsys.readouterr().out
+        assert "Leaving Draft Mode." in out
+        assert "recorded in ESPN" in out
+        assert "not a lost roster" in out
+        assert out.index("Leaving Draft Mode.") < out.index(alarming_line)
         manager.player_manager.reload_player_data.assert_called_once_with(force=True)
 
     def test_an_exception_unwinding_out_of_the_session_still_forces_the_reload(self, manager):
@@ -1535,19 +1661,44 @@ class TestESPNEnvIsLoadedBeforeThePreflight:
         assert "DRAFT MODE - LIVE COCKPIT" in out
         session.assert_called_once_with()
 
-    def test_the_loader_is_called_with_no_override_so_the_process_environment_wins(
-            self, manager, monkeypatch):
-        # load_espn_env's `override` defaults to False, so a credential exported into
-        # the process environment still beats .env. Passing override=True would silently
-        # invert that precedence, so the call must stay argument-free. Mutation:
-        # `load_espn_env(override=True)` fails this.
-        monkeypatch.setenv("espn_s2", "OFFLINE-PLACEHOLDER-S2")
-        monkeypatch.setenv("SWID", "{OFFLINE-PLACEHOLDER-SWID}")
+    def test_a_process_environment_credential_survives_the_dotenv_load(
+            self, manager, monkeypatch, tmp_path):
+        """The PRECEDENCE PROPERTY itself, not the shape of the call that implies it.
 
-        with patch.object(cockpit_module, "load_espn_env") as loader:
+        This test used to assert only `loader.assert_called_once_with()` -- which the
+        test above already asserts, so it added no mutation coverage -- and, because it
+        patched load_espn_env out entirely, it never observed the precedence its name
+        claims. Here the loader is REAL and reads a real temporary .env whose values
+        differ from the process environment's, so the property is measured:
+        `override=False` means an operator's exported credential wins.
+
+        Mutation: `load_espn_env(override=True)` at the call site, or flipping
+        `override`'s default in espn_credentials.py, replaces the sentinels with the
+        .env values and fails here. Neither is visible to an argument-shape assertion
+        on a mocked loader.
+        """
+        monkeypatch.setenv("espn_s2", "FROM-PROCESS-ENV-S2")
+        monkeypatch.setenv("SWID", "{FROM-PROCESS-ENV-SWID}")
+
+        dotenv = tmp_path / ".env"
+        dotenv.write_text("espn_s2=FROM-DOTENV-S2\nSWID={FROM-DOTENV-SWID}\n")
+
+        real_loader = cockpit_module.load_espn_env
+        with patch.object(cockpit_module, "load_espn_env",
+                          side_effect=lambda: real_loader(dotenv_path=dotenv)):
             self._enter(manager)
 
-        loader.assert_called_once_with()
+        assert os.environ["espn_s2"] == "FROM-PROCESS-ENV-S2"
+        assert os.environ["SWID"] == "{FROM-PROCESS-ENV-SWID}"
+
+        # NON-VACUITY CONTROL: the same .env DOES supply the keys when the process
+        # environment does not hold them, so the assertions above measure precedence
+        # rather than an inert file.
+        monkeypatch.delenv("espn_s2", raising=False)
+        monkeypatch.delenv("SWID", raising=False)
+        real_loader(dotenv_path=dotenv)
+        assert os.environ["espn_s2"] == "FROM-DOTENV-S2"
+        assert os.environ["SWID"] == "{FROM-DOTENV-SWID}"
 
     def test_both_credential_helpers_are_the_seam_re_exports(self):
         # TD1 BINDING #1, pinned as a test rather than left to the plan's W2 grep. The

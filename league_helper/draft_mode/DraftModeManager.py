@@ -48,8 +48,9 @@ Author: Kai Mizuno
 """
 
 import time
+from dataclasses import dataclass
 from datetime import datetime
-from typing import Dict, List, NamedTuple, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 
 import league_helper.constants as Constants
 from league_helper.util.ConfigManager import ConfigManager
@@ -171,8 +172,17 @@ ESPN_IDENTITY_AND_CREDENTIAL_HEADLINE = (
 )
 
 
-class ESPNSetupProblem(NamedTuple):
+@dataclass(frozen=True)
+class ESPNSetupProblem:
     """One pre-flight verdict: what is unconfigured, and where to configure it.
+
+    A FROZEN DATACLASS because that is this repository's dominant shape for a small
+    immutable value carrier -- 10 production `@dataclass` declarations across 10 modules
+    against zero other `NamedTuple`s, and the most recent of them is this very ticket's
+    `draft_geometry.DraftGeometry`, the module this file already imports from. It was
+    written as a NamedTuple first; nothing here depends on tuple behaviour (it is only
+    ever constructed by keyword and read by attribute), so the divergence bought nothing
+    and is not kept.
 
     The action lines are a TUPLE rather than one string because identity and
     credentials have different homes (see the setup copy above): a run missing both
@@ -314,6 +324,20 @@ class DraftModeManager:
         # call can only ADD names that were absent, never replace an operator's explicit
         # override. It reads names and values into os.environ and returns nothing; no
         # credential value is read, printed or logged here.
+        #
+        # BLAST RADIUS, stated because the function's name does not state it:
+        # load_espn_env() is a thin load_dotenv() wrapper with NO key filter
+        # (espn_credentials.py:41), so this line loads the operator's ENTIRE .env into
+        # the process, not just espn_s2/SWID. That is a real widening -- before it, no
+        # League Helper path read a .env at all -- and CredentialRedactionFilter is
+        # scoped to espn_s2/SWID only (utils/credential_redaction.py:65), so a
+        # third-party key the file happens to carry is outside its reach. It is latent
+        # rather than live: a repo-wide search for the one other key this machine's .env
+        # holds (ACCU_WEATHER_API_KEY) finds zero Python consumers, so nothing reads,
+        # prints or logs it on any path. A filtered load (dotenv_values + a two-key
+        # setdefault) was considered and NOT taken: it would fork a second, subtly
+        # different credential-loading shape from the fetcher's own single owner to
+        # solve a problem with no consumer. Revisit if a .env key ever gains one.
         load_espn_env()
 
         # PRE-FLIGHT, before the cockpit banner and before _run_cockpit_session: an
@@ -382,6 +406,31 @@ class DraftModeManager:
             "Cockpit exiting - forcing a reload so ESPN-derived in-memory ownership "
             "cannot outlive the mode that wrote it"
         )
+        # FRAME THE RELOAD BEFORE IT SPEAKS. reload_player_data prints
+        # "Player data reloaded. Roster updated: {old} -> {new} players" whenever the
+        # size changes (PlayerManager.py:526), and on this call path it almost always
+        # does: this mode never writes locally, so the disk copy of our drafted_by stays
+        # as the operator left it while the in-memory, ESPN-derived roster grows all
+        # draft long. The line an operator then reads at the end of a four-hour draft is
+        # "Roster updated: 8 -> 0 players" -- true of in-memory state, and a description
+        # of exactly the data loss this restore exists to PREVENT. Reproduced verbatim
+        # ("Roster updated: 3 -> 0 players", printed immediately beneath the "!!!!"
+        # terminal-failure block) before this framing was added.
+        #
+        # Printed BEFORE the reload rather than after it, because the operator reads top
+        # to bottom and the explanation is worthless once the alarm has already landed.
+        # Worded to hold whether or not the reload's own line follows, since it is
+        # emitted only on a size change.
+        #
+        # reload_player_data itself is deliberately UNTOUCHED. Its message is correct and
+        # useful for its ordinary menu-loop and Trade Simulator callers, where a roster
+        # size change really is news; a `quiet` flag would widen a shared owner's API for
+        # one caller's presentation concern. The framing belongs to the caller that makes
+        # the message misleading.
+        print("\nLeaving Draft Mode. Your picks are recorded in ESPN and were never "
+              "written to local files, so local player data is now being reloaded from "
+              "disk -- any roster-count line below reports that reload, not a lost "
+              "roster.")
         self.player_manager.reload_player_data(force=True)
 
     def _espn_configuration_error(self) -> Optional[ESPNSetupProblem]:
@@ -601,6 +650,38 @@ class DraftModeManager:
             # separates them; it is never used as a per-pick completeness predicate,
             # which is the only use the snapshot model's docstring bars.
             if not snapshot.draftDetail.inProgress:
+                # RECONCILE BEFORE RENDERING, and this is the one poll where forgetting
+                # to costs a self-contradicting screen. This branch returns without
+                # reaching the reconciliation below, so before this line the completing
+                # pick -- every pick that landed between the previous poll and this one
+                # -- never reached drafted_by. _render_draft_complete then renders the
+                # board context from THIS snapshot (so "Recent picks" names that pick)
+                # and the roster from player_manager.team, which is still the PREVIOUS
+                # poll's layout: one screen naming a player as just drafted and omitting
+                # them from the roster printed directly below it. Reproduced before this
+                # fix on a real PlayerManager over an isolated data/ copy -- "Pick 20:
+                # C.J. Stroud -> Team 1" above a roster that did not contain him.
+                #
+                # Sourcing the summary differently was the alternative and was rejected:
+                # the roster half is _display_roster_by_draft_rounds, the same shared
+                # renderer every other poll uses, and giving the terminal screen its own
+                # snapshot-derived roster view would fork that renderer to make one
+                # screen agree with itself. Reconciling first makes BOTH halves read the
+                # same reconciled state, which is what every other render already does.
+                #
+                # Unconditional, and deliberately NOT gated by the non-superset guard
+                # below: inProgress False is ESPN declaring the draft over, so this pick
+                # list is its final state rather than a mid-flight arrival that may be
+                # partial or out of order, and the guard exists to stop a bad arrival
+                # LATCHING as the new baseline -- there is no latch and no next poll
+                # here, because this branch returns True. A PlayerDataValidationError
+                # raised out of the reconciliation stays fail-closed: _cockpit_poll's
+                # OWNERSHIP_FAILURE arm renders it and ends the session, which is the
+                # correct outcome at draft end too -- a summary that cannot be built
+                # from resolvable ids must not be printed as if it could.
+                #
+                # The ALL-SENTINEL / inProgress termination path itself is unchanged.
+                self._reconcile_ownership_from_snapshot(snapshot, our_team_id)
                 self._render_draft_complete(snapshot, completed_picks)
                 return True
             self._render_heartbeat(None, None, "waiting for ESPN to serve the current pick")
@@ -911,8 +992,15 @@ class DraftModeManager:
         yet caught up on. Uses the same board-context surface as every other render, in
         its final state, plus the roster.
 
+        BOTH HALVES ARE RENDERED FROM THE SAME RECONCILED STATE, which is a property of
+        the caller and not of this method: the ALL-SENTINEL branch reconciles ownership
+        from this snapshot immediately before calling here, so the roster below the
+        board context reflects the completing pick rather than the previous poll's
+        layout. Calling this method without reconciling first is what made the terminal
+        screen able to name a pick in "Recent picks" and omit it from the roster.
+
         Args:
-            snapshot: The final snapshot.
+            snapshot: The final snapshot, ALREADY reconciled into the shared pool.
             completed_picks: Its completed pick rows.
         """
         print("\n" + "=" * 50)
