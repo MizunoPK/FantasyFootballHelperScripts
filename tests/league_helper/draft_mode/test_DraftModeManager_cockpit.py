@@ -34,6 +34,7 @@ from league_helper.util.FantasyTeam import FantasyTeam
 from player_data_fetcher.espn_client import ESPNAPIError
 from player_data_fetcher.espn_league_snapshot_models import LeagueSnapshot
 from utils.FantasyPlayer import FantasyPlayer
+from utils.error_handler import ConfigurationError
 import league_helper.constants as Constants
 
 
@@ -724,6 +725,57 @@ class TestFailureArms:
         out = capsys.readouterr().out
         assert cockpit_module.ESPN_FAILURE_ACTION.split(".")[0] in out
 
+    def test_an_unexpected_fetch_error_is_rendered_rather_than_crashing_the_cli(self, manager, capsys):
+        # D18.5 polish, the STRUCTURAL half. Before the fix the fetch try caught only
+        # ESPNAPIError and ValueError, so ANY other type from the seam -- which is the
+        # half of the poll that touches the network, the filesystem and the credential
+        # store -- escaped _cockpit_poll, unwound through main() and killed the CLI
+        # mid-draft with a traceback at exit 1. ConfigurationError is the exact type the
+        # user-simulator walked into (user test plan scenario 7, espn_credentials.py:105)
+        # and is neither an ESPNAPIError nor a ValueError, so it reaches the new broad
+        # arm and nothing else.
+        #
+        # NOT VACUOUS: with the broad arm removed this exception PROPAGATES out of
+        # _poll_raising and the test ERRORS before a single assertion runs -- it cannot
+        # pass by its subject being skipped. The three assertions then pin the three
+        # things the arm must do: terminate the loop, render the failure block, and name
+        # the real exception type rather than a tailored-but-wrong headline.
+        error = ConfigurationError("Missing required ESPN credential(s): espn_s2, SWID.")
+
+        terminated = self._poll_raising(manager, error)
+
+        out = capsys.readouterr().out
+        assert terminated is True
+        assert "DRAFT MODE STOPPED: " + cockpit_module.UNEXPECTED_FAILURE_HEADLINE in out
+        assert "ConfigurationError: Missing required ESPN credential(s)" in out
+        assert cockpit_module.UNEXPECTED_FAILURE_ACTION in out
+
+    def test_the_specific_fetch_arms_keep_their_headlines_beside_the_broad_one(self, manager, capsys):
+        # DISCRIMINATING CONTROL for the test above: the broad arm is placed LAST, so a
+        # fetch failure that IS classifiable must still get its tailored headline. A
+        # broad arm accidentally placed first would make the test above pass and this
+        # one fail, which is what makes the pair meaningful rather than duplicative.
+        self._poll_raising(manager, ESPNAPIError("auth cookie expired"))
+
+        out = capsys.readouterr().out
+        assert cockpit_module.ESPN_FAILURE_HEADLINE in out
+        assert cockpit_module.UNEXPECTED_FAILURE_HEADLINE not in out
+
+    def test_an_unexpected_fetch_error_ends_the_session_instead_of_looping(self, manager, capsys):
+        # The same arm one level up: `return True` must actually END the session. An arm
+        # that rendered but returned False would scroll the same block every 15s forever.
+        # side_effect is a SINGLE-element list deliberately: a second poll would raise
+        # StopIteration and fail this test, so "the loop stopped" is proved by the run
+        # completing, not merely asserted.
+        with patch.object(cockpit_module, "get_league_snapshot_sync",
+                          side_effect=[ConfigurationError("no credentials")]), \
+             patch.object(cockpit_module.time, "sleep") as sleep:
+            manager._run_cockpit_session()
+
+        out = capsys.readouterr().out
+        assert cockpit_module.UNEXPECTED_FAILURE_HEADLINE in out
+        sleep.assert_not_called()
+
 
 class TestSessionLifecycle:
     """Termination, the two sentinel states, cadence, and interrupt ownership."""
@@ -786,11 +838,13 @@ class TestSessionLifecycle:
 
     def test_session_does_not_swallow_eof_error(self, manager, capsys):
         # There is no stdin read in the cockpit, so an EOFError cannot ORIGINATE here.
-        # This pins the CONTRACT (spec D8): the mode has no local EOFError clause, so one
-        # arriving from below PROPAGATES to LeagueHelperManager.main(), which owns the
-        # notice and the exit status. It is never masked as a geometry failure and never
-        # swallowed by the broad arm, which guards only the render/score path BELOW the
-        # fetch call.
+        # This pins the CONTRACT (spec D8): the mode has no local EOFError HANDLER, so
+        # one arriving from below PROPAGATES to LeagueHelperManager.main(), which owns
+        # the notice and the exit status. It is never masked as a geometry failure and
+        # never swallowed by either broad arm. D18.5 polish made this test load-bearing
+        # rather than incidental: the fetch try now carries a broad `except Exception`
+        # too, and EOFError is an Exception subclass, so the ONLY thing keeping this
+        # green is the re-raising `except EOFError` clause deliberately placed above it.
         with patch.object(cockpit_module, "get_league_snapshot_sync", side_effect=EOFError), \
              patch.object(cockpit_module.time, "sleep"):
             with pytest.raises(EOFError):
@@ -851,7 +905,25 @@ class TestOfflineGuards:
 
 
 class TestESPNConfigurationPreflight:
-    """Draft Mode is entered WITHOUT an ESPN identity: a setup notice, not a traceback."""
+    """Draft Mode is entered WITHOUT an ESPN setup: a setup notice, not a traceback.
+
+    TWO setup classes are gated here, and they have DIFFERENT homes: the identity keys
+    live in data/configs/league_config.json, the credentials in the process environment
+    or a local .env file. The tests below hold each half to its own home, because
+    sending an operator to the wrong file is the failure this notice exists to prevent.
+    """
+
+    @pytest.fixture(autouse=True)
+    def espn_credentials_present(self, monkeypatch):
+        """Both credentials set, so an IDENTITY test isolates the identity dimension.
+
+        Placeholders, never a real credential: the pre-flight only ever tests presence,
+        so any non-blank value exercises the same path, and no test in this file makes a
+        network call. Without this fixture every identity test below would silently
+        depend on whatever the developer's own environment happens to carry.
+        """
+        monkeypatch.setenv("espn_s2", "OFFLINE-PLACEHOLDER-S2")
+        monkeypatch.setenv("SWID", "{OFFLINE-PLACEHOLDER-SWID}")
 
     def _enter(self, manager):
         """Enter Draft Mode with the session loop stubbed; returns the stub."""
@@ -932,3 +1004,136 @@ class TestESPNConfigurationPreflight:
         assert cockpit_module.ESPN_CONFIG_HEADLINE not in out
         assert "DRAFT MODE - LIVE COCKPIT" in out
         session.assert_called_once_with()
+
+    # D18.5 polish -- the CREDENTIAL half of the pre-flight. Identity was gated from the
+    # start; credentials were not, so a user with a configured league and no espn_s2/SWID
+    # walked past this notice and died on an unhandled ConfigurationError at exit 1
+    # (user test plan scenario 7). These tests gate the adjacent door.
+
+    def test_missing_credentials_are_reported_and_the_session_is_never_entered(
+            self, manager, monkeypatch, capsys):
+        # NOT VACUOUS: the identity keys are LEFT VALID here, so nothing but the
+        # credential check can produce this notice -- and the sibling control
+        # test_the_preflight_is_silent_once_the_credentials_are_restored proves the same
+        # manager passes the pre-flight the moment the credentials come back. If the
+        # credential check were deleted the cockpit would be entered and every assertion
+        # below would fail.
+        monkeypatch.delenv("espn_s2", raising=False)
+        monkeypatch.delenv("SWID", raising=False)
+
+        session = self._enter(manager)
+
+        out = capsys.readouterr().out
+        assert cockpit_module.ESPN_CREDENTIAL_HEADLINE in out
+        assert "espn_s2 is not set" in out
+        assert "SWID is not set" in out
+        session.assert_not_called()
+        assert "DRAFT MODE - LIVE COCKPIT" not in out
+        assert "Traceback" not in out
+
+    def test_the_credential_notice_names_the_environment_not_the_league_config_file(
+            self, manager, monkeypatch, capsys):
+        # THE POINT OF THE WHOLE HALF. Credentials are read from os.environ / .env and
+        # are never written to data/configs/league_config.json, so re-using the identity
+        # action line verbatim would send the operator to a file that must not hold them.
+        monkeypatch.delenv("espn_s2", raising=False)
+        monkeypatch.delenv("SWID", raising=False)
+
+        self._enter(manager)
+
+        out = capsys.readouterr().out
+        assert cockpit_module.ESPN_CREDENTIAL_ACTION in out
+        assert ".env" in out
+        assert "PROCESS ENVIRONMENT" in out
+        # The identity action line -- the one that points at the config file as the place
+        # to ADD the missing key -- must not appear for a credential-only gap.
+        assert cockpit_module.ESPN_CONFIG_ACTION not in out
+        assert cockpit_module.ESPN_CONFIG_HEADLINE not in out
+
+    def test_a_single_missing_credential_is_named_alone(self, manager, monkeypatch, capsys):
+        # Discriminating: an implementation that reported "credentials are missing"
+        # wholesale, without naming WHICH, would fail the second assertion.
+        monkeypatch.delenv("SWID", raising=False)
+
+        self._enter(manager)
+
+        out = capsys.readouterr().out
+        assert "SWID is not set" in out
+        assert "espn_s2 is not set" not in out
+
+    def test_a_blank_credential_counts_as_missing_like_the_credential_reader(
+            self, manager, monkeypatch, capsys):
+        # The pre-flight must share get_espn_credentials' blank rule, or it would wave a
+        # whitespace-only cookie through and the fetch would raise anyway.
+        monkeypatch.setenv("espn_s2", "   ")
+
+        self._enter(manager)
+
+        out = capsys.readouterr().out
+        assert "espn_s2 is not set" in out
+
+    def test_no_credential_value_is_ever_printed(self, manager, monkeypatch, capsys):
+        # Only ONE credential is missing, so the OTHER one's value is in the environment
+        # and available to leak. It must not appear in the notice or anywhere on stdout.
+        monkeypatch.setenv("espn_s2", "SENTINEL_S2_MUST_NOT_LEAK")
+        monkeypatch.delenv("SWID", raising=False)
+
+        self._enter(manager)
+
+        out = capsys.readouterr().out
+        assert "SWID is not set" in out
+        assert "SENTINEL_S2_MUST_NOT_LEAK" not in out
+
+    def test_missing_identity_and_credentials_are_named_in_one_notice_with_both_homes(
+            self, manager, monkeypatch, capsys):
+        # A brand-new user has NEITHER. One notice, one pass, both homes named -- the
+        # same "not sent round the loop twice" rule the identity half already kept.
+        manager.config.espn_league_id = ""
+        manager.config.espn_team_id = 0
+        monkeypatch.delenv("espn_s2", raising=False)
+        monkeypatch.delenv("SWID", raising=False)
+
+        session = self._enter(manager)
+
+        out = capsys.readouterr().out
+        assert cockpit_module.ESPN_IDENTITY_AND_CREDENTIAL_HEADLINE in out
+        assert out.count(cockpit_module.ESPN_IDENTITY_AND_CREDENTIAL_HEADLINE) == 1
+        for named in ("ESPN_LEAGUE_ID is not set", "ESPN_TEAM_ID is not a team id: 0",
+                      "espn_s2 is not set", "SWID is not set"):
+            assert named in out
+        assert cockpit_module.ESPN_CONFIG_ACTION in out
+        assert cockpit_module.ESPN_CREDENTIAL_ACTION in out
+        session.assert_not_called()
+
+    def test_the_credential_notice_is_distinguishable_from_a_cockpit_failure(
+            self, manager, monkeypatch, capsys):
+        # Same contract the identity half already keeps: a SETUP gap must not read like
+        # the DRAFT MODE STOPPED failure block, and must not crash the CLI. This is the
+        # positive statement of what scenario 7 observed the absence of.
+        monkeypatch.delenv("espn_s2", raising=False)
+        monkeypatch.delenv("SWID", raising=False)
+
+        self._enter(manager)
+
+        out = capsys.readouterr().out
+        assert "DRAFT MODE STOPPED" not in out
+        assert "!" * 50 not in out
+        assert "ConfigurationError" not in out
+        assert "DRAFT MODE" in out
+
+    def test_the_preflight_is_silent_once_the_credentials_are_restored(
+            self, manager, monkeypatch):
+        # NON-VACUITY CONTROL for the credential tests above, stated as a PAIR on one
+        # manager: absent -> a problem naming the credential; present -> None. A check
+        # that always fired, or one that never fired, breaks one half of this.
+        monkeypatch.delenv("espn_s2", raising=False)
+        monkeypatch.delenv("SWID", raising=False)
+        problem = manager._espn_configuration_error()
+        assert problem is not None
+        assert problem.headline == cockpit_module.ESPN_CREDENTIAL_HEADLINE
+        assert problem.detail == "espn_s2 is not set; SWID is not set"
+
+        monkeypatch.setenv("espn_s2", "OFFLINE-PLACEHOLDER-S2")
+        monkeypatch.setenv("SWID", "{OFFLINE-PLACEHOLDER-SWID}")
+
+        assert manager._espn_configuration_error() is None

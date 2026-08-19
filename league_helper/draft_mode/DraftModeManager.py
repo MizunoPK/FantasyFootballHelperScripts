@@ -32,7 +32,7 @@ Author: Kai Mizuno
 
 import time
 from datetime import datetime
-from typing import Dict, List, Optional
+from typing import Dict, List, NamedTuple, Optional, Tuple
 
 import league_helper.constants as Constants
 from league_helper.util.ConfigManager import ConfigManager
@@ -41,6 +41,7 @@ from league_helper.util.TeamDataManager import TeamDataManager
 from league_helper.util.ScoredPlayer import ScoredPlayer
 from league_helper.util.draft_geometry import DraftGeometry, read_geometry
 from player_data_fetcher.espn_attribution import reconcile_espn_attribution_or_raise
+from player_data_fetcher.espn_credentials import missing_espn_credentials
 from player_data_fetcher.espn_league_snapshot_models import LeagueSnapshot
 from player_data_fetcher.espn_league_snapshot_seam import (
     ESPNAPIError,
@@ -86,22 +87,65 @@ OWNERSHIP_FAILURE_ACTION = (
 
 UNEXPECTED_FAILURE_HEADLINE = "Unexpected error in the draft cockpit"
 UNEXPECTED_FAILURE_ACTION = (
-    "This is a bug, not a recoverable draft state. Keep drafting in the ESPN app and "
-    "report the error above."
+    "The cockpit could not classify this, so it cannot know that polling again would "
+    "help -- it is either a bug or an environment problem (credentials, network or "
+    "configuration) below the fetch seam. Keep drafting in the ESPN app and report the "
+    "error above."
 )
 
 # SETUP copy, deliberately worded and rendered apart from the four failure blocks above.
 # A user who has never configured ESPN has nothing broken -- no feed failure, no corrupt
 # board, no bug -- so the copy must not read like any of those.
+#
+# TWO SETUP CLASSES, TWO HOMES, AND THAT IS THE WHOLE REASON THEY ARE SEPARATE CONSTANTS.
+# The IDENTITY keys live in the "parameters" block of data/configs/league_config.json;
+# the CREDENTIALS live in the process environment or a local .env file and are NEVER
+# written to that config file. Re-using the identity copy for a missing credential would
+# send the operator to a file that must not contain it, so each class carries its own
+# headline and its own action line, and a run missing both prints both action lines.
 ESPN_CONFIG_HEADLINE = "DRAFT MODE UNAVAILABLE: ESPN league identity is not configured"
 ESPN_CONFIG_ACTION = (
     "This is a SETUP step, not a draft failure -- nothing is wrong with your league, "
-    "your player data or the ESPN service. Add the key(s) named above to the "
+    "your player data or the ESPN service. Add the identity key(s) named above to the "
     "\"parameters\" block of data/configs/league_config.json, then choose Draft Mode "
     "again. ESPN_LEAGUE_ID is the leagueId from your league's URL, as a STRING (e.g. "
     "\"138260302\"); ESPN_TEAM_ID is your own team's id in that league, as a positive "
     "INTEGER (the teamId in your team's URL). Every other mode works without them."
 )
+
+ESPN_CREDENTIAL_HEADLINE = "DRAFT MODE UNAVAILABLE: ESPN credentials are not configured"
+ESPN_CREDENTIAL_ACTION = (
+    "This is a SETUP step, not a draft failure -- nothing is wrong with your league, "
+    "your player data or the ESPN service. Set the credential(s) named above in your "
+    "PROCESS ENVIRONMENT or in a local .env file at the repository root, then choose "
+    "Draft Mode again. They do NOT belong in data/configs/league_config.json -- that "
+    "file never holds a credential. espn_s2 and SWID are the two cookies from a browser "
+    "session signed in to ESPN (SWID includes its surrounding braces). Every other mode "
+    "works without them."
+)
+
+ESPN_IDENTITY_AND_CREDENTIAL_HEADLINE = (
+    "DRAFT MODE UNAVAILABLE: ESPN league identity and credentials are not configured"
+)
+
+
+class ESPNSetupProblem(NamedTuple):
+    """One pre-flight verdict: what is unconfigured, and where to configure it.
+
+    The action lines are a TUPLE rather than one string because identity and
+    credentials have different homes (see the setup copy above): a run missing both
+    must be told about both files in one pass, not sent round the loop twice.
+
+    Attributes:
+        detail: Every offending key, one line, names only -- never a value.
+        headline: The headline matching WHICH classes are unconfigured.
+        actions: One action line per unconfigured class, in identity-then-credential
+            order to match `detail`.
+    """
+
+    detail: str
+    headline: str
+    actions: Tuple[str, ...]
 
 
 class DraftModeManager:
@@ -207,8 +251,8 @@ class DraftModeManager:
         self.logger.info("Entering Draft Mode")
 
         # PRE-FLIGHT, before the cockpit banner and before _run_cockpit_session: an
-        # unconfigured ESPN identity is a setup gap, not a draft failure, and must return
-        # to the menu rather than crash the CLI.
+        # unconfigured ESPN identity OR credential is a setup gap, not a draft failure,
+        # and must return to the menu rather than crash the CLI.
         config_problem = self._espn_configuration_error()
         if config_problem is not None:
             self._render_espn_configuration_notice(config_problem)
@@ -225,46 +269,86 @@ class DraftModeManager:
 
         self._run_cockpit_session()
 
-    def _espn_configuration_error(self) -> Optional[str]:
-        """Return why the ESPN identity config is unusable, or None when it is usable.
+    def _espn_configuration_error(self) -> Optional[ESPNSetupProblem]:
+        """Return why the ESPN setup is unusable, or None when the cockpit can be entered.
+
+        Checks BOTH classes the cockpit needs, because both are read before a single
+        pick can be rendered and either one missing crashes the mode without this gate:
+
+        - IDENTITY (ESPN_LEAGUE_ID / ESPN_TEAM_ID), read from the league config file.
+        - CREDENTIALS (espn_s2 / SWID), read from the process environment or a local
+          .env file by `missing_espn_credentials()` -- the same read, with the same
+          blank rule, that `get_espn_credentials()` performs deep inside the fetch, so
+          this pre-flight cannot disagree with it. Without this half a credential-less
+          run raised ConfigurationError from espn_credentials.py INSIDE the poll and
+          killed the CLI at exit 1 (D18.5 user test plan scenario 7) -- precisely the
+          failure mode this notice exists to eliminate, reached through the adjacent
+          door.
+
+        Credential VALUES are never read here, only their presence, so no value can
+        reach the notice, the log or a stack frame.
 
         Args:
             None.
 
         Returns:
-            None when both keys are usable; otherwise a one-line detail naming EVERY
-            offending key, so a user with neither set is not sent round the loop twice.
+            None when the whole setup is usable; otherwise an ESPNSetupProblem naming
+            EVERY offending key across both classes, so a user with neither configured
+            is not sent round the loop twice.
         """
-        problems: List[str] = []
+        identity_problems: List[str] = []
 
         league_id = self.config.espn_league_id.strip()
         if not league_id:
-            problems.append("ESPN_LEAGUE_ID is not set")
+            identity_problems.append("ESPN_LEAGUE_ID is not set")
         elif not league_id.isdigit():
-            problems.append(
+            identity_problems.append(
                 f"ESPN_LEAGUE_ID is not a league number: {self.config.espn_league_id!r}"
             )
 
         if self.config.espn_team_id <= 0:
-            problems.append(
+            identity_problems.append(
                 f"ESPN_TEAM_ID is not a team id: {self.config.espn_team_id!r}"
             )
 
-        return "; ".join(problems) if problems else None
+        credential_problems: List[str] = [
+            f"{name} is not set" for name in missing_espn_credentials()
+        ]
 
-    def _render_espn_configuration_notice(self, detail: str) -> None:
+        if not identity_problems and not credential_problems:
+            return None
+
+        if identity_problems and credential_problems:
+            headline = ESPN_IDENTITY_AND_CREDENTIAL_HEADLINE
+            actions = (ESPN_CONFIG_ACTION, ESPN_CREDENTIAL_ACTION)
+        elif identity_problems:
+            headline = ESPN_CONFIG_HEADLINE
+            actions = (ESPN_CONFIG_ACTION,)
+        else:
+            headline = ESPN_CREDENTIAL_HEADLINE
+            actions = (ESPN_CREDENTIAL_ACTION,)
+
+        return ESPNSetupProblem(
+            detail="; ".join(identity_problems + credential_problems),
+            headline=headline,
+            actions=actions,
+        )
+
+    def _render_espn_configuration_notice(self, problem: ESPNSetupProblem) -> None:
         """Tell the operator this is a SETUP gap, distinguishably from a cockpit failure.
 
         Args:
-            detail: The offending key(s), exactly as _espn_configuration_error phrased them.
+            problem: The pre-flight verdict from _espn_configuration_error -- its detail,
+                its matching headline, and one action line per unconfigured class.
         """
         print("\n" + "-" * 50)
-        print(ESPN_CONFIG_HEADLINE)
-        print(f"  {detail}")
-        print(f"  {ESPN_CONFIG_ACTION}")
+        print(problem.headline)
+        print(f"  {problem.detail}")
+        for action in problem.actions:
+            print(f"  {action}")
         print("-" * 50)
         self.logger.warning(
-            f"Draft Mode not entered - ESPN configuration incomplete: {detail}"
+            f"Draft Mode not entered - ESPN configuration incomplete: {problem.detail}"
         )
 
     def _run_cockpit_session(self) -> None:
@@ -327,6 +411,33 @@ class DraftModeManager:
             # is why GEOMETRY_FAILURE_ACTION names that case first.
             self._render_cockpit_failure(GEOMETRY_FAILURE_HEADLINE, error, GEOMETRY_FAILURE_ACTION)
             return True
+        except EOFError:
+            # ABOVE the broad arm below, and that ORDER is the whole point: EOFError is
+            # an Exception subclass, so a broad arm placed first would swallow it and
+            # silently take ownership of a contract this mode deliberately does not own.
+            # Nothing on this path reads stdin, so an EOFError here can only have
+            # ARRIVED from below; LeagueHelperManager.main() remains the sole owner of
+            # the notice and the exit status (LeagueHelperManager.py:240), so it
+            # propagates untouched.
+            raise
+        except Exception as error:
+            # THE FETCH PATH'S SAFETY NET, and it is not decorative. This half of the
+            # poll talks to the network, the filesystem and the credential store, which
+            # is the widest exposure to unexpected exception types in the whole mode --
+            # yet before D18.5's polish it was the only half guarded by specific types
+            # alone, while the narrower render half already had a broad net. A missing
+            # credential proved it: ConfigurationError, raised by get_espn_credentials()
+            # under the seam, escaped every arm and killed the CLI mid-draft at exit 1
+            # (user test plan scenario 7). A DNS failure or an asyncio error would have
+            # done the same. The pre-flight now catches the credential case with a much
+            # better message, so what reaches here is genuinely unexpected -- rendered
+            # loudly and TERMINAL rather than looped, on the same reasoning as the
+            # render arm: an unclassifiable fetch error repeats every poll.
+            # LAST, after the specific arms, so ESPNAPIError and ValueError keep their
+            # tailored headlines. KeyboardInterrupt is not an Exception subclass and is
+            # deliberately NOT caught.
+            self._render_cockpit_failure(UNEXPECTED_FAILURE_HEADLINE, error, UNEXPECTED_FAILURE_ACTION)
+            return True
 
         try:
             return self._render_cockpit_poll(snapshot, geometry, our_team_id)
@@ -338,7 +449,9 @@ class DraftModeManager:
             # the render/score path repeats every poll, so continuing would scroll the
             # same traceback forever. KeyboardInterrupt is not an Exception subclass and
             # is deliberately NOT caught here. No EOFError clause is needed above this
-            # one either: nothing on this path reads stdin.
+            # one either: nothing BELOW this line reads stdin, and every call that could
+            # relay one from further down -- the fetch -- is in the try above, whose own
+            # EOFError arm re-raises.
             self._render_cockpit_failure(UNEXPECTED_FAILURE_HEADLINE, error, UNEXPECTED_FAILURE_ACTION)
             return True
 
