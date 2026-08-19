@@ -1,11 +1,11 @@
 """
 Player Scoring Calculator
 
-Helper class for calculating player scores using the 10-step scoring algorithm.
+Helper class for calculating player scores using the 15-step scoring algorithm.
 Handles all scoring-related calculations including normalization, multipliers,
 bonuses, and penalties.
 
-The 10-step scoring algorithm:
+The 15-step scoring algorithm:
 1. Normalization (based on fantasy_points projection)
 2. ADP Multiplier (market wisdom adjustment)
 3. Player Rating Multiplier (expert consensus)
@@ -16,6 +16,12 @@ The 10-step scoring algorithm:
 8. Draft Order Bonus (positional value by round)
 9. Bye Week Penalty (same-position and different-position roster conflicts)
 10. Injury Penalty (risk assessment)
+11. Temperature Scoring (game-time temperature)
+12. Wind Scoring (game-time wind, QB/WR/K only)
+13. Location Modifier (home/away/international)
+14. NFL Team Penalty (team-level adjustment)
+15. Survival Estimate (ADP vs. picks-until-next-turn; skipped when
+    picks_until_next_turn is None)
 
 Author: Kai Mizuno
 """
@@ -39,7 +45,7 @@ from utils.LoggingManager import get_logger
 
 class PlayerScoringCalculator:
     """
-    Calculator for player scoring using the 10-step algorithm.
+    Calculator for player scoring using the 15-step algorithm.
 
     Handles all scoring calculations including normalization, multipliers,
     bonuses, and penalties. Separated from PlayerManager to improve
@@ -301,9 +307,9 @@ class PlayerScoringCalculator:
 
         return avg_rank
 
-    def score_player(self, p: FantasyPlayer, team_roster: List[FantasyPlayer], use_weekly_projection=False, adp=False, player_rating=True, team_quality=True, performance=True, matchup=False, schedule=True, draft_round=-1, bye=True, injury=True, roster: Optional[List[FantasyPlayer]] = None, temperature=False, wind=False, location=False, use_draft_normalization: bool = False, nfl_team_penalty=False) -> ScoredPlayer:
+    def score_player(self, p: FantasyPlayer, team_roster: List[FantasyPlayer], use_weekly_projection=False, adp=False, player_rating=True, team_quality=True, performance=True, matchup=False, schedule=True, draft_round=-1, bye=True, injury=True, roster: Optional[List[FantasyPlayer]] = None, temperature=False, wind=False, location=False, use_draft_normalization: bool = False, nfl_team_penalty=False, picks_until_next_turn: Optional[int] = None) -> ScoredPlayer:
         """
-        Calculate score for a player (14-step calculation).
+        Calculate score for a player (15-step calculation).
 
         Scoring System:
         1. Get normalized seasonal fantasy points (0-N scale)
@@ -320,6 +326,8 @@ class PlayerScoringCalculator:
         12. Apply Wind bonus/penalty (game conditions, QB/WR/K only)
         13. Apply Location bonus/penalty (home/away/international)
         14. Apply NFL Team Penalty (multiply score by penalty weight for specified teams)
+        15. Apply Survival Estimate (ADP vs. picks-until-next-turn; skipped when
+            picks_until_next_turn is None)
 
         Args:
             p: FantasyPlayer to score
@@ -342,6 +350,13 @@ class PlayerScoringCalculator:
                 Set to True for Draft Mode. Default False.
             nfl_team_penalty: Apply NFL team penalty multiplier (Draft Mode only).
                 Default False.
+            picks_until_next_turn: Optional count of picks remaining before our next draft
+                turn. When provided (not None), applies a config-driven survival-likelihood
+                adjustment measuring p.adp against it (Step 15), independent of the `adp`
+                flag's Step 2 multiplier. Default None (step skipped, no adjustment) -- this
+                default, and an absent SURVIVAL_SCORING config key, each independently leave
+                score_player()'s output -- both the returned score AND the reasons list --
+                unchanged versus today.
 
         Returns:
             ScoredPlayer: Scored player object with final score and reasons
@@ -421,6 +436,11 @@ class PlayerScoringCalculator:
             player_score, reason = self._apply_nfl_team_penalty(p, player_score)
             add_to_reasons(reason)
             self.logger.debug(f"Step 14 - After NFL team penalty for {p.name}: {player_score:.2f}")
+
+        if picks_until_next_turn is not None:
+            player_score, reason = self._apply_survival_estimate(p, picks_until_next_turn, player_score)
+            add_to_reasons(reason)
+            self.logger.debug(f"Step 15 - After survival estimate for {p.name}: {player_score:.2f}")
 
         self.logger.debug(
             f"Scoring for {p.name}: final_score={player_score:.1f}"
@@ -759,5 +779,60 @@ class PlayerScoringCalculator:
             reason = f"Location: {location_type} ({modifier:.1f} pts)"
 
         return player_score + modifier, reason
+
+    def _apply_survival_estimate(self, p: FantasyPlayer, picks_until_next_turn: int, player_score: float) -> Tuple[float, str]:
+        """Calculate ADP-vs-picks-until-next-turn survival estimate adjustment (Step 15).
+
+        A third, positional ADP-derived signal, distinct from the standalone ADP quality
+        multiplier (Step 2, TD4/context.md): margin = p.adp - picks_until_next_turn. Gated
+        independently of the `adp` flag (the caller supplying picks_until_next_turn is the
+        sole gate), so the two ADP-derived signals combine explicitly and are independently
+        toggleable rather than silently stacking under one flag.
+
+        SUPPRESSION KEYS ON THE MULTIPLICATIVE IDENTITY, NOT ON "no data". The gate is
+        `if multiplier == 1.0`, and it is written that way deliberately: a 1.0 multiplier
+        cannot move the score whatever produced it, so a reason line for it is noise. It
+        mirrors _apply_location_modifier's own `if modifier == 0: return player_score, ""`
+        identity-check shape immediately above.
+
+        That predicate covers THREE distinct states, not one, and all three are suppressed
+        identically:
+          1. SURVIVAL_SCORING absent from config -- the in-code default's WEIGHT: 0.0 makes
+             `multiplier ** WEIGHT` exactly 1.0 on every branch. No data, no config.
+          2. p.adp is None, which forces margin to None -- _get_multiplier's `val is None`
+             arm returns (1.0, NEUTRAL). No data.
+          3. SURVIVAL_SCORING CONFIGURED and p.adp PRESENT, but the margin lands in the
+             BUCKETED NEUTRAL band (strictly between the GOOD and POOR thresholds), or on
+             any configured tier whose weighted multiplier happens to equal 1.0, or on a
+             LINEAR interpolation crossing it. Here the signal DID evaluate, on real data,
+             and returned the identity -- and it is silenced exactly as (1) and (2) are.
+
+        ACCEPTED CONSEQUENCE -- a deliberate asymmetry, not an oversight. Step 15 stays
+        silent for a neutral-band player while its sibling ADP-derived step, Step 2's
+        _apply_adp_multiplier, emits "ADP: NEUTRAL (1.0000x)" for one. This was raised at
+        review and the divergence was accepted as built: a 1.0x factor changes nothing, so
+        suppressing its reason line is the wanted behaviour here. Do NOT "fix" the
+        asymmetry by keying the gate on the inert conditions themselves, and do not make
+        Step 15 emit a NEUTRAL reason to match Step 2. State 3 is pinned by
+        tests/league_helper/util/test_player_scoring_survival_estimate.py::
+        TestScorePlayerConfiguredNeutralBand.
+
+        Suppression also keeps the provision-stage rollout a verifiable no-op on BOTH axes
+        -- reasons is user-visible output, so an unconditional reason string would be an
+        observable change even when the score itself does not move.
+
+        `picks_until_next_turn` is annotated `int`, not `Optional[int]`, even though both
+        public signatures that feed it declare `Optional[int] = None`: the sole caller
+        guards with `if picks_until_next_turn is not None:` before invoking this method, so
+        `None` provably never reaches the parameter. Widening the hint would invite a
+        None-handling branch the guard makes dead. The two annotations are each right for
+        their own contract -- do not "fix" the asymmetry.
+        """
+        margin = None if p.adp is None else p.adp - picks_until_next_turn
+        multiplier, rating = self.config.get_survival_multiplier(margin)
+        if multiplier == 1.0:
+            return player_score, ""
+        reason = f"Survival: {rating} ({multiplier:.4f}x)"
+        return player_score * multiplier, reason
 
 

@@ -57,6 +57,7 @@ class ConfigKeys:
     PLAYER_RATING_SCORING = "PLAYER_RATING_SCORING"
     TEAM_QUALITY_SCORING = "TEAM_QUALITY_SCORING"
     CONSISTENCY_SCORING = "CONSISTENCY_SCORING"
+    SURVIVAL_SCORING = "SURVIVAL_SCORING"
     PERFORMANCE_SCORING = "PERFORMANCE_SCORING"
     MATCHUP_SCORING = "MATCHUP_SCORING"
     SCHEDULE_SCORING = "SCHEDULE_SCORING"
@@ -468,6 +469,36 @@ class ConfigManager:
 
     def get_adp_multiplier(self, adp_val) -> Tuple[float, str]:
         return self._get_multiplier(self.adp_scoring, adp_val, rising_thresholds=False)
+
+    def get_survival_multiplier(self, margin) -> Tuple[float, str]:
+        """Get the survival-estimate multiplier for an ADP-vs-picks-until-next-turn margin.
+
+        margin = p.adp - picks_until_next_turn, computed by the caller (player_scoring.py's
+        _apply_survival_estimate, Step 15). A `None` margin (no ADP data) returns
+        (1.0, NEUTRAL) via _get_multiplier's own `val is None` arm -- the same convention
+        get_adp_multiplier already relies on for a no-ADP player.
+
+        Deliberately NOT registered in _multiplier_factors() (D18.3 provision-stage scope
+        decision): this key skips the calculated-threshold materialization pass and the
+        tier-reachability load-time guard those factors get, so a malformed SURVIVAL_SCORING
+        block (a THRESHOLDS/MULTIPLIERS tier or WEIGHT missing) raises a bare KeyError lazily,
+        on the first survival-gated score_player() call, rather than failing fast at config
+        load.
+
+        That posture is NOT the same as CONSISTENCY_SCORING's, despite the surface
+        similarity, and the difference is the one that matters: CONSISTENCY_SCORING is
+        loaded but has no accessor and no _get_multiplier consumer anywhere, so a malformed
+        CONSISTENCY_SCORING block is unreachable and its lack of load-time validation costs
+        nothing. SURVIVAL_SCORING is unvalidated AND consumed -- this accessor is the
+        consumer -- so it is the first consumed _get_multiplier ladder sitting outside the
+        reachability guard, and a malformed block IS reachable at runtime
+        (test_ConfigManager_survival_scoring.py::TestSurvivalScoringMalformedConfig::
+        test_missing_weight_raises_keyerror_on_first_use pins exactly that). This is
+        tolerable only while the key is absent from every config on disk, which it is
+        today; registering it in _multiplier_factors() is the mitigation, routed to a later
+        ticket by implementation_plan.md's Notes.
+        """
+        return self._get_multiplier(self.survival_scoring, margin, rising_thresholds=False)
 
     def get_player_rating_multiplier(self, rating) -> Tuple[float, str]:
         return self._get_multiplier(self.player_rating_scoring, rating)
@@ -1041,6 +1072,23 @@ class ConfigManager:
         self.team_quality_scoring = self.parameters[self.keys.TEAM_QUALITY_SCORING]
         self.performance_scoring = self.parameters[self.keys.PERFORMANCE_SCORING]
         self.consistency_scoring = self.parameters.get(self.keys.CONSISTENCY_SCORING, self.performance_scoring)
+        # D18.3 (provision stage): optional key, CONSISTENCY_SCORING-shaped `.get()` fallback.
+        # Absent SURVIVAL_SCORING must be a verifiable no-op on every existing score, so the
+        # fallback is a SELF-CONTAINED literal (not a reused dict) whose WEIGHT is 0.0 -- the
+        # single load-bearing property, since _get_multiplier's `multiplier ** WEIGHT` collapses
+        # to 1.0 for ANY tier when WEIGHT is 0.0. MULTIPLIERS are pinned to 1.0 too, as defense
+        # in depth (mirrors self.schedule_scoring's in-code default idiom, defined just
+        # below). THRESHOLDS are ordered EXCELLENT < GOOD < POOR < VERY_POOR (ascending),
+        # matching ADP_SCORING's own rising_thresholds=False convention, for label
+        # correctness once a real config is supplied -- WEIGHT: 0.0 makes the label
+        # numerically irrelevant to THIS default's score.
+        # Deliberately NOT registered in _multiplier_factors() / MULTIPLIER_INPUT_DOMAINS (see
+        # get_survival_multiplier below) -- an approved D18.3 scope decision, not an omission.
+        self.survival_scoring = self.parameters.get(self.keys.SURVIVAL_SCORING, {
+            "THRESHOLDS": {"EXCELLENT": -100, "GOOD": -25, "POOR": 25, "VERY_POOR": 100},
+            "MULTIPLIERS": {"EXCELLENT": 1.0, "GOOD": 1.0, "POOR": 1.0, "VERY_POOR": 1.0},
+            "WEIGHT": 0.0
+        })
         self.matchup_scoring = self.parameters[self.keys.MATCHUP_SCORING]
 
         self.schedule_scoring = self.parameters.get(self.keys.SCHEDULE_SCORING, {
@@ -1537,15 +1585,23 @@ class ConfigManager:
 
     def _multiplier_factors(self) -> List[Tuple[str, Dict[str, Any],
                                                 Callable[[float], Tuple[float, str]]]]:
-        """Return the eight `_get_multiplier` consumers as (key, ladder, accessor) triples.
+        """Return the eight REGISTERED `_get_multiplier` consumers as (key, ladder,
+        accessor) triples.
 
         The single enumeration both the materialization pass and the reachability guard
         iterate, so the two cannot drift apart. Each triple pairs a scoring-type key with
         its RESOLVED ladder attribute (never `self.parameters`, so the three in-code
         defaults are covered) and the public accessor that reads it.
 
+        NOT every `_get_multiplier` consumer: there are NINE, and SURVIVAL_SCORING /
+        get_survival_multiplier is the deliberately-unregistered ninth (a D18.3
+        provision-stage scope decision). So "the two passes cannot drift apart" is a claim
+        about these two passes relative to each other -- it is NOT a claim that every
+        ladder in the codebase is reachability-checked. See get_survival_multiplier's own
+        docstring for why it is excluded and what that costs.
+
         Returns:
-            The eight (scoring_key, scoring_dict, accessor) triples.
+            The eight registered (scoring_key, scoring_dict, accessor) triples.
         """
         return [
             (self.keys.ADP_SCORING, self.adp_scoring,

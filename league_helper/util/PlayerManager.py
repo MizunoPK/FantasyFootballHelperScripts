@@ -3,17 +3,17 @@ Player Manager
 
 Manages all player data, scoring calculations, and roster operations.
 This is the core module responsible for loading player data from the
-position-specific JSON files, calculating player scores using the 14-step
+position-specific JSON files, calculating player scores using the 15-step
 scoring algorithm, and managing draft operations.
 
 Key responsibilities:
 - Loading and parsing player data from data/player_data/*.json
-- Computing the 14-step scoring algorithm for player evaluation
+- Computing the 15-step scoring algorithm for player evaluation
 - Managing the team roster through FantasyTeam
 - Updating the position JSON files with roster changes
 - Displaying roster information
 
-The 14-step scoring algorithm:
+The 15-step scoring algorithm:
 1. Normalization (based on fantasy_points projection)
 2. ADP Multiplier (market wisdom adjustment)
 3. Player Rating Multiplier (expert consensus)
@@ -30,6 +30,8 @@ The 14-step scoring algorithm:
 12. Wind Scoring (game-time wind)
 13. Location Modifier (home/away/neutral site)
 14. NFL Team Penalty (team-level adjustment)
+15. Survival Estimate (ADP vs. picks-until-next-turn; skipped when
+    picks_until_next_turn is None)
 
 Author: Kai Mizuno
 """
@@ -57,7 +59,7 @@ class PlayerManager:
 
     This class is responsible for all player-related functionality including
     loading player data from the position-specific JSON files, calculating scores
-    using the 14-step algorithm, managing the team roster, and persisting changes
+    using the 15-step algorithm, managing the team roster, and persisting changes
     back to those JSON files.
 
     Attributes:
@@ -811,9 +813,9 @@ class PlayerManager:
 
         return self.get_projected_points_array(player, 1, current_week - 1)
 
-    def score_player(self, p: FantasyPlayer, use_weekly_projection=False, adp=False, player_rating=True, team_quality=True, performance=False, matchup=False, schedule=False, draft_round=-1, bye=True, injury=True, roster: Optional[List[FantasyPlayer]] = None, temperature=False, wind=False, location=False, *, use_draft_normalization: bool = False, nfl_team_penalty=False) -> ScoredPlayer:
+    def score_player(self, p: FantasyPlayer, use_weekly_projection=False, adp=False, player_rating=True, team_quality=True, performance=False, matchup=False, schedule=False, draft_round=-1, bye=True, injury=True, roster: Optional[List[FantasyPlayer]] = None, temperature=False, wind=False, location=False, *, use_draft_normalization: bool = False, nfl_team_penalty=False, picks_until_next_turn: Optional[int] = None) -> ScoredPlayer:
         """
-        Calculate score for a player (14-step calculation).
+        Calculate score for a player (15-step calculation).
 
         Delegates to PlayerScoringCalculator for all scoring logic.
 
@@ -832,6 +834,8 @@ class PlayerManager:
         12. Apply Wind bonus/penalty (game conditions, QB/WR/K only)
         13. Apply Location bonus/penalty (home/away/international)
         14. Apply NFL Team Penalty (multiply score by penalty weight for specified teams)
+        15. Apply Survival Estimate (ADP vs. picks-until-next-turn; skipped when
+            picks_until_next_turn is None)
 
         Args:
             p: FantasyPlayer to score
@@ -853,6 +857,9 @@ class PlayerManager:
                 Set to True for Draft Mode (draft decisions). Default False.
             nfl_team_penalty: Apply NFL team penalty multiplier (Draft Mode only).
                 Default False.
+            picks_until_next_turn: Optional count of picks remaining before our next draft
+                turn. When provided (not None), applies a config-driven survival-likelihood
+                adjustment (Step 15). Default None (no adjustment).
 
         Returns:
             ScoredPlayer: Scored player object with final score and reasons
@@ -861,7 +868,8 @@ class PlayerManager:
         return self.scoring_calculator.score_player(
             p, team_roster, use_weekly_projection, adp, player_rating,
             team_quality, performance, matchup, schedule, draft_round, bye, injury, roster,
-            temperature, wind, location, use_draft_normalization, nfl_team_penalty
+            temperature, wind, location, use_draft_normalization, nfl_team_penalty,
+            picks_until_next_turn=picks_until_next_turn
         )
 
     def set_player_data(self, player_data: Dict[int, Dict[str, Any]]) -> None:
