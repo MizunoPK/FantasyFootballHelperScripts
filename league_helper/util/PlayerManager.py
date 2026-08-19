@@ -811,9 +811,9 @@ class PlayerManager:
 
         return self.get_projected_points_array(player, 1, current_week - 1)
 
-    def score_player(self, p: FantasyPlayer, use_weekly_projection=False, adp=False, player_rating=True, team_quality=True, performance=False, matchup=False, schedule=False, draft_round=-1, bye=True, injury=True, roster: Optional[List[FantasyPlayer]] = None, temperature=False, wind=False, location=False, *, is_draft_mode: bool = False, nfl_team_penalty=False) -> ScoredPlayer:
+    def score_player(self, p: FantasyPlayer, use_weekly_projection=False, adp=False, player_rating=True, team_quality=True, performance=False, matchup=False, schedule=False, draft_round=-1, bye=True, injury=True, roster: Optional[List[FantasyPlayer]] = None, temperature=False, wind=False, location=False, *, is_draft_mode: bool = False, nfl_team_penalty=False, picks_until_next_turn: Optional[int] = None) -> ScoredPlayer:
         """
-        Calculate score for a player (14-step calculation).
+        Calculate score for a player (15-step calculation).
 
         Delegates to PlayerScoringCalculator for all scoring logic.
 
@@ -832,6 +832,8 @@ class PlayerManager:
         12. Apply Wind bonus/penalty (game conditions, QB/WR/K only)
         13. Apply Location bonus/penalty (home/away/international)
         14. Apply NFL Team Penalty (multiply score by penalty weight for specified teams)
+        15. Apply Survival Estimate (ADP vs. picks-until-next-turn; skipped when
+            picks_until_next_turn is None)
 
         Args:
             p: FantasyPlayer to score
@@ -853,6 +855,9 @@ class PlayerManager:
                 Set to True for Add to Roster Mode (draft decisions). Default False.
             nfl_team_penalty: Apply NFL team penalty multiplier (Add to Roster mode only).
                 Default False.
+            picks_until_next_turn: Optional count of picks remaining before our next draft
+                turn. When provided (not None), applies a config-driven survival-likelihood
+                adjustment (Step 15). Default None (no adjustment).
 
         Returns:
             ScoredPlayer: Scored player object with final score and reasons
@@ -861,7 +866,8 @@ class PlayerManager:
         return self.scoring_calculator.score_player(
             p, team_roster, use_weekly_projection, adp, player_rating,
             team_quality, performance, matchup, schedule, draft_round, bye, injury, roster,
-            temperature, wind, location, is_draft_mode, nfl_team_penalty
+            temperature, wind, location, is_draft_mode, nfl_team_penalty,
+            picks_until_next_turn=picks_until_next_turn
         )
 
     def set_player_data(self, player_data: Dict[int, Dict[str, Any]]) -> None:

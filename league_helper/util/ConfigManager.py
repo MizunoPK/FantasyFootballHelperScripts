@@ -57,6 +57,7 @@ class ConfigKeys:
     PLAYER_RATING_SCORING = "PLAYER_RATING_SCORING"
     TEAM_QUALITY_SCORING = "TEAM_QUALITY_SCORING"
     CONSISTENCY_SCORING = "CONSISTENCY_SCORING"
+    SURVIVAL_SCORING = "SURVIVAL_SCORING"
     PERFORMANCE_SCORING = "PERFORMANCE_SCORING"
     MATCHUP_SCORING = "MATCHUP_SCORING"
     SCHEDULE_SCORING = "SCHEDULE_SCORING"
@@ -468,6 +469,23 @@ class ConfigManager:
 
     def get_adp_multiplier(self, adp_val) -> Tuple[float, str]:
         return self._get_multiplier(self.adp_scoring, adp_val, rising_thresholds=False)
+
+    def get_survival_multiplier(self, margin) -> Tuple[float, str]:
+        """Get the survival-estimate multiplier for an ADP-vs-picks-until-next-turn margin.
+
+        margin = p.adp - picks_until_next_turn, computed by the caller (player_scoring.py's
+        _apply_survival_estimate, Step 15). A `None` margin (no ADP data) returns
+        (1.0, NEUTRAL) via _get_multiplier's own `val is None` arm -- the same convention
+        get_adp_multiplier already relies on for a no-ADP player.
+
+        Deliberately NOT registered in _multiplier_factors() (D18.3 provision-stage scope
+        decision): this key skips the calculated-threshold materialization pass and the
+        tier-reachability load-time guard those factors get, so a malformed SURVIVAL_SCORING
+        block (a THRESHOLDS/MULTIPLIERS tier or WEIGHT missing) raises a bare KeyError lazily,
+        on the first survival-gated score_player() call, rather than failing fast at config
+        load -- the same unvalidated posture CONSISTENCY_SCORING already has today.
+        """
+        return self._get_multiplier(self.survival_scoring, margin, rising_thresholds=False)
 
     def get_player_rating_multiplier(self, rating) -> Tuple[float, str]:
         return self._get_multiplier(self.player_rating_scoring, rating)
@@ -1041,6 +1059,22 @@ class ConfigManager:
         self.team_quality_scoring = self.parameters[self.keys.TEAM_QUALITY_SCORING]
         self.performance_scoring = self.parameters[self.keys.PERFORMANCE_SCORING]
         self.consistency_scoring = self.parameters.get(self.keys.CONSISTENCY_SCORING, self.performance_scoring)
+        # D18.3 (provision stage): optional key, CONSISTENCY_SCORING-shaped `.get()` fallback.
+        # Absent SURVIVAL_SCORING must be a verifiable no-op on every existing score, so the
+        # fallback is a SELF-CONTAINED literal (not a reused dict) whose WEIGHT is 0.0 -- the
+        # single load-bearing property, since _get_multiplier's `multiplier ** WEIGHT` collapses
+        # to 1.0 for ANY tier when WEIGHT is 0.0. MULTIPLIERS are pinned to 1.0 too, as defense
+        # in depth (mirrors SCHEDULE_SCORING's in-code default idiom just above). THRESHOLDS are
+        # ordered EXCELLENT < GOOD < POOR < VERY_POOR (ascending), matching ADP_SCORING's own
+        # rising_thresholds=False convention, for label correctness once a real config is
+        # supplied -- WEIGHT: 0.0 makes the label numerically irrelevant to THIS default's score.
+        # Deliberately NOT registered in _multiplier_factors() / MULTIPLIER_INPUT_DOMAINS (see
+        # get_survival_multiplier below) -- an approved D18.3 scope decision, not an omission.
+        self.survival_scoring = self.parameters.get(self.keys.SURVIVAL_SCORING, {
+            "THRESHOLDS": {"EXCELLENT": -100, "GOOD": -25, "POOR": 25, "VERY_POOR": 100},
+            "MULTIPLIERS": {"EXCELLENT": 1.0, "GOOD": 1.0, "POOR": 1.0, "VERY_POOR": 1.0},
+            "WEIGHT": 0.0
+        })
         self.matchup_scoring = self.parameters[self.keys.MATCHUP_SCORING]
 
         self.schedule_scoring = self.parameters.get(self.keys.SCHEDULE_SCORING, {

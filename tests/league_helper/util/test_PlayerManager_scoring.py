@@ -1129,6 +1129,40 @@ class TestFullScoringIntegration:
 
         assert abs(result.score - 100.0) < 0.01, "Only normalization should return 100.0"
 
+    def test_score_player_survival_estimate_absent_key_no_op_through_wrapper(self, player_manager, test_player, mock_fantasy_team):
+        """D18.3: an absent SURVIVAL_SCORING config key is a no-op even when the caller
+        supplies picks_until_next_turn through the real PlayerManager wrapper -- proves
+        the new parameter is actually threaded (Step 4) and that config-key absence, not
+        parameter absence, is what the no-op guarantee rests on. mock_data_folder's fixture
+        config has no SURVIVAL_SCORING key by construction (this file's own config_content,
+        unedited by D18.3). Compares a with/without-picks_until_next_turn pair to EACH
+        OTHER (not to a hardcoded 100.0): 12 * (250.0/12) is not bit-exact 250.0 in
+        IEEE-754, so the true normalized baseline is not bit-exact 100.0 either -- an
+        exact pairwise comparison is both the AC-required check and immune to that."""
+        for i in range(5, 17):
+            test_player.projected_points[i] = 250.0 / 12
+            test_player.actual_points[i] = 250.0 / 12
+        mock_fantasy_team.roster = []
+
+        kwargs = dict(
+            adp=False,
+            player_rating=False,
+            team_quality=False,
+            matchup=False,
+            draft_round=-1,
+            bye=False,
+            injury=False,
+        )
+        baseline = player_manager.score_player(test_player, **kwargs)
+        result = player_manager.score_player(test_player, picks_until_next_turn=3, **kwargs)
+
+        assert result.score == baseline.score, (
+            f"Expected byte-identical score with SURVIVAL_SCORING absent from config "
+            f"whether or not picks_until_next_turn=3 was supplied; "
+            f"baseline={baseline.score!r}, with_param={result.score!r}"
+        )
+        assert "Survival:" not in "".join(result.reason)
+
     def test_score_player_negative_score_allowed(self, player_manager, test_player, mock_fantasy_team):
         """Verify negative scores are allowed (no bounds checking)"""
         test_player.weighted_projection = 10.0
