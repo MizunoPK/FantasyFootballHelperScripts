@@ -8,15 +8,24 @@ already-validated `ESPNClient.get_league_snapshot()` (D17.3), following the
 throwaway-client lifecycle `generate_espn_draft_corpus.py`'s
 `_capture_raw_payload()` already establishes for a one-shot `ESPNClient` caller.
 
-This module is added additively and callerless (D18.4) -- D18.5 wires it into the
-League Helper's draft cockpit.
+D18.5 wired this seam into the League Helper's draft cockpit
+(league_helper/draft_mode/DraftModeManager.py), which is now its sole production
+caller. It is no longer callerless.
+
+`ESPNAPIError` is re-exported here deliberately, not incidentally: it is the ONE
+exception a caller must handle, and TD1 forbids `league_helper/` from importing
+`espn_client` at all. Re-exporting makes this module the single surface the League
+Helper names, for both the call and its failure mode. It is listed in `__all__` so it
+is not mistaken for -- or linted as -- an unused import; do not remove it.
 
 Author: Kai Mizuno
 """
 
+__all__ = ["ESPNAPIError", "get_league_snapshot_sync"]
+
 import asyncio
 
-from player_data_fetcher.espn_client import ESPNClient
+from player_data_fetcher.espn_client import ESPNAPIError, ESPNClient
 from player_data_fetcher.espn_league_snapshot_models import LeagueSnapshot
 from player_data_fetcher.player_data_fetcher_main import Settings
 

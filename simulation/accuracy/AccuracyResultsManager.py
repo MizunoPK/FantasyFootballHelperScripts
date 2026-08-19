@@ -1252,6 +1252,12 @@ def propagate_to_configs(
         # no source folder carries. Found by this unit's own review gap-hunt.
         'NFL_TEAM_PENALTY',
         'NFL_TEAM_PENALTY_WEIGHT',
+        # D18.5: the fourth instance of the same shape. The draft-cockpit cutover adds
+        # SURVIVAL_SCORING to data/configs/league_config.json; no source folder carries
+        # it, so without this entry a promote deletes the user's hand-tuned survival
+        # ladder and ConfigManager silently falls back to the inert WEIGHT: 0.0 default
+        # -- i.e. the live draft board quietly loses the signal, with no error anywhere.
+        'SURVIVAL_SCORING',
     ]
     # D4.1: nested counterpart of PRESERVE_KEYS. Each entry is a
     # (section, subkey) path under 'parameters' whose LIVE value survives a
