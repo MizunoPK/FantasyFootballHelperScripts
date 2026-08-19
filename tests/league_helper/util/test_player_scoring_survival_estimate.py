@@ -284,6 +284,58 @@ class TestScorePlayerNoADP:
         assert "Survival:" not in "".join(scored.reason)
 
 
+class TestScorePlayerConfiguredNeutralBand:
+    """The THIRD state _apply_survival_estimate's `if multiplier == 1.0` gate covers,
+    and the only one that was previously unpinned at score_player level:
+    SURVIVAL_SCORING CONFIGURED with a real (non-WEIGHT-0.0) block, the player HAS an
+    ADP, and the margin lands inside the BUCKETED NEUTRAL band -- so the signal
+    genuinely evaluated on real data and returned the multiplicative identity.
+
+    It is suppressed identically to the two no-data states (TestScorePlayerSurvivalAbsentKeyNoOp,
+    TestScorePlayerNoADP). That is the accepted, deliberate behaviour recorded in
+    _apply_survival_estimate's own docstring: Step 15 stays silent for a neutral-band
+    player while sibling Step 2 emits "ADP: NEUTRAL (1.0000x)" for one. Do not "fix"
+    that asymmetry -- this test is what pins it."""
+
+    def test_configured_neutral_band_is_silent_and_leaves_score_unchanged(self, config_with_survival):
+        keys = config_with_survival.keys
+        thresholds = config_with_survival.survival_scoring[keys.THRESHOLDS]
+
+        # Derive the band rather than assume it: get_survival_multiplier passes
+        # rising_thresholds=False, whose BUCKETED neutral arm is GOOD < val < POOR
+        # (strictly), and the fixture declares no SCALING key so BUCKETED applies.
+        adp, picks = 15.0, 15
+        margin = adp - picks
+        assert thresholds[keys.GOOD] < margin < thresholds[keys.POOR], (
+            f"margin {margin!r} must land STRICTLY inside the NEUTRAL band "
+            f"({thresholds[keys.GOOD]!r}, {thresholds[keys.POOR]!r}) or this test "
+            f"exercises a tiered state instead of state 3"
+        )
+        # Second, independent confirmation straight from the accessor, so a future
+        # threshold/SCALING/WEIGHT edit cannot leave this test silently green while
+        # exercising a tier rather than the identity.
+        assert config_with_survival.get_survival_multiplier(margin) == (1.0, keys.NEUTRAL)
+        # And confirm the block really is configured and non-inert -- a WEIGHT of 0.0
+        # would collapse this back into state 1.
+        assert config_with_survival.survival_scoring[keys.WEIGHT] == 1.0
+
+        calc = _calculator(config_with_survival)
+        player = _normalized_player(adp=adp)
+        baseline_kwargs = dict(
+            adp=False, player_rating=False, team_quality=False, performance=False,
+            matchup=False, schedule=False, draft_round=-1, bye=False, injury=False,
+        )
+
+        baseline = calc.score_player(player, [], **baseline_kwargs)
+        scored = calc.score_player(player, [], picks_until_next_turn=picks, **baseline_kwargs)
+
+        assert scored.score == baseline.score, (
+            f"a configured-but-NEUTRAL (1.0x) survival adjustment must not move the "
+            f"score: baseline={baseline.score!r}, with_param={scored.score!r}"
+        )
+        assert "Survival:" not in "".join(scored.reason)
+
+
 class TestScorePlayerSurvivalNonStacking:
     """TD4: the ADP quality multiplier (Step 2) and the survival estimate
     (Step 15) are independently toggleable and their combination, when both

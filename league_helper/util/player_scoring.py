@@ -789,13 +789,37 @@ class PlayerScoringCalculator:
         sole gate), so the two ADP-derived signals combine explicitly and are independently
         toggleable rather than silently stacking under one flag.
 
-        A multiplier of exactly 1.0 (SURVIVAL_SCORING absent from config -- the WEIGHT: 0.0
-        default -- or p.adp is None, which forces margin to None) is treated as a true no-op:
-        no score change AND no reason appended, mirroring _apply_location_modifier's own
-        `if modifier == 0: return player_score, ""` identity-check shape immediately above.
-        This keeps the provision-stage rollout a verifiable no-op on BOTH axes -- reasons is
-        user-visible output, so an unconditional reason string would be an observable change
-        even when the score itself does not move.
+        SUPPRESSION KEYS ON THE MULTIPLICATIVE IDENTITY, NOT ON "no data". The gate is
+        `if multiplier == 1.0`, and it is written that way deliberately: a 1.0 multiplier
+        cannot move the score whatever produced it, so a reason line for it is noise. It
+        mirrors _apply_location_modifier's own `if modifier == 0: return player_score, ""`
+        identity-check shape immediately above.
+
+        That predicate covers THREE distinct states, not one, and all three are suppressed
+        identically:
+          1. SURVIVAL_SCORING absent from config -- the in-code default's WEIGHT: 0.0 makes
+             `multiplier ** WEIGHT` exactly 1.0 on every branch. No data, no config.
+          2. p.adp is None, which forces margin to None -- _get_multiplier's `val is None`
+             arm returns (1.0, NEUTRAL). No data.
+          3. SURVIVAL_SCORING CONFIGURED and p.adp PRESENT, but the margin lands in the
+             BUCKETED NEUTRAL band (strictly between the GOOD and POOR thresholds), or on
+             any configured tier whose weighted multiplier happens to equal 1.0, or on a
+             LINEAR interpolation crossing it. Here the signal DID evaluate, on real data,
+             and returned the identity -- and it is silenced exactly as (1) and (2) are.
+
+        ACCEPTED CONSEQUENCE -- a deliberate asymmetry, not an oversight. Step 15 stays
+        silent for a neutral-band player while its sibling ADP-derived step, Step 2's
+        _apply_adp_multiplier, emits "ADP: NEUTRAL (1.0000x)" for one. This was raised at
+        review and the divergence was accepted as built: a 1.0x factor changes nothing, so
+        suppressing its reason line is the wanted behaviour here. Do NOT "fix" the
+        asymmetry by keying the gate on the inert conditions themselves, and do not make
+        Step 15 emit a NEUTRAL reason to match Step 2. State 3 is pinned by
+        tests/league_helper/util/test_player_scoring_survival_estimate.py::
+        TestScorePlayerConfiguredNeutralBand.
+
+        Suppression also keeps the provision-stage rollout a verifiable no-op on BOTH axes
+        -- reasons is user-visible output, so an unconditional reason string would be an
+        observable change even when the score itself does not move.
 
         `picks_until_next_turn` is annotated `int`, not `Optional[int]`, even though both
         public signatures that feed it declare `Optional[int] = None`: the sole caller
