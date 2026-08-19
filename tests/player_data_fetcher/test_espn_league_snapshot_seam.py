@@ -49,7 +49,7 @@ class TestGetLeagueSnapshotSyncFailurePropagation:
     """KD2: a fixture-induced failure propagates as ESPNAPIError, unmodified,
     through the seam -- not caught, re-wrapped, or replaced. Mirrors the
     existing get_league_snapshot validation-failure test at
-    tests/player_data_fetcher/test_espn_client.py:905
+    tests/player_data_fetcher/test_espn_client.py
     (TestAuthenticatedLeagueSnapshot.test_get_league_snapshot_raises_on_invalid_payload).
     """
 

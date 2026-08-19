@@ -5,7 +5,7 @@ ESPN League Snapshot Seam
 The League Helper's single, `player_data_fetcher`-owned route to the ESPN league
 read (ticket D18 `TD1`, Option B). Wraps the async->sync bridge (`TD2`) around the
 already-validated `ESPNClient.get_league_snapshot()` (D17.3), following the
-throwaway-client lifecycle `generate_espn_draft_corpus.py:361-377`'s
+throwaway-client lifecycle `generate_espn_draft_corpus.py`'s
 `_capture_raw_payload()` already establishes for a one-shot `ESPNClient` caller.
 
 This module is added additively and callerless (D18.4) -- D18.5 wires it into the
@@ -34,9 +34,9 @@ def get_league_snapshot_sync(league_id: int, season: int) -> LeagueSnapshot:
     Args:
         league_id: ESPN league ID.
         season: Season year to read (required). There is deliberately no default:
-            omitting it would fall through to `Settings.season`, a hard-coded
-            literal (`player_data_fetcher_main.py:57`), and silently read the
-            wrong year.
+            omitting it would fall through to `Settings.season` in
+            `player_data_fetcher_main.py`, a hard-coded literal, and silently
+            read the wrong year.
 
     Returns:
         A validated `player_data_fetcher.espn_league_snapshot_models.LeagueSnapshot`.
@@ -78,7 +78,7 @@ async def _fetch_league_snapshot(league_id: int, season: int) -> LeagueSnapshot:
     """Construct a throwaway `ESPNClient`, fetch the snapshot, and close it.
 
     Mirrors the throwaway-client lifecycle `generate_espn_draft_corpus.py`'s
-    `_capture_raw_payload()` (`:361-377`) already establishes (KD3): construct
+    `_capture_raw_payload()` already establishes (KD3): construct
     `Settings`/`ESPNClient`, enter `client.session()`, call the target method,
     `client.close()` in a `finally` -- no client is cached or reused across calls.
 
