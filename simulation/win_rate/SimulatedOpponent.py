@@ -142,8 +142,8 @@ class SimulatedOpponent:
             Under point-in-time (e.g. week-1) projections, the positive-value candidate
             pool can be exhausted before every team's roster need is met (T42) — real
             early-season projections are sparser than season-end ones. When that happens,
-            this mirrors DraftHelperTeam/AddToRosterModeManager's graceful degradation
-            (see AddToRosterModeManager.get_recommendations): it falls back to roster-legal
+            this mirrors DraftHelperTeam/DraftModeManager's graceful degradation
+            (see DraftModeManager.get_recommendations): it falls back to roster-legal
             (free-agent) candidates with zero/negative projections rather than raising, so
             the draft can still complete this opponent's roster.
         """

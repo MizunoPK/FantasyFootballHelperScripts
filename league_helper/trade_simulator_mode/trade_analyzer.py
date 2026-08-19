@@ -308,7 +308,7 @@ class TradeAnalyzer:
         """
         Get top N waiver wire recommendations to fill roster spots.
 
-        Uses same logic as Add to Roster mode to score and rank available players,
+        Uses same logic as Draft Mode to score and rank available players,
         but filters by position limits to ensure recommendations don't violate MAX_POSITIONS.
 
         Args:

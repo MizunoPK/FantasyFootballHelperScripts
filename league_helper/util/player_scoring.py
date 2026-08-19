@@ -58,7 +58,7 @@ class PlayerScoringCalculator:
         team_data_manager (TeamDataManager): Manager for team rankings and matchups
         season_schedule_manager (SeasonScheduleManager): Manager for season schedule data
         current_nfl_week (int): Current NFL week number
-        is_draft_mode (bool): Draft mode flag for normalization scale selection
+        use_draft_normalization (bool): Draft mode flag for normalization scale selection
         logger: Logger instance
     """
 
@@ -93,7 +93,7 @@ class PlayerScoringCalculator:
         self.season_schedule_manager = season_schedule_manager
         self.current_nfl_week = current_nfl_week
         self.game_data_manager = game_data_manager
-        self.is_draft_mode: bool = False
+        self.use_draft_normalization: bool = False
         self.logger = get_logger()
 
     def get_weekly_projection(self, player: FantasyPlayer, week=0) -> Tuple[float, float]:
@@ -158,7 +158,7 @@ class PlayerScoringCalculator:
             )
             return 0.0
 
-        scale = self.config.draft_normalization_max_scale if self.is_draft_mode else self.config.normalization_max_scale
+        scale = self.config.draft_normalization_max_scale if self.use_draft_normalization else self.config.normalization_max_scale
         normalized_score = (pts / chosen_max) * scale
 
         self.logger.debug(
@@ -307,7 +307,7 @@ class PlayerScoringCalculator:
 
         return avg_rank
 
-    def score_player(self, p: FantasyPlayer, team_roster: List[FantasyPlayer], use_weekly_projection=False, adp=False, player_rating=True, team_quality=True, performance=True, matchup=False, schedule=True, draft_round=-1, bye=True, injury=True, roster: Optional[List[FantasyPlayer]] = None, temperature=False, wind=False, location=False, is_draft_mode: bool = False, nfl_team_penalty=False, picks_until_next_turn: Optional[int] = None) -> ScoredPlayer:
+    def score_player(self, p: FantasyPlayer, team_roster: List[FantasyPlayer], use_weekly_projection=False, adp=False, player_rating=True, team_quality=True, performance=True, matchup=False, schedule=True, draft_round=-1, bye=True, injury=True, roster: Optional[List[FantasyPlayer]] = None, temperature=False, wind=False, location=False, use_draft_normalization: bool = False, nfl_team_penalty=False, picks_until_next_turn: Optional[int] = None) -> ScoredPlayer:
         """
         Calculate score for a player (15-step calculation).
 
@@ -346,9 +346,9 @@ class PlayerScoringCalculator:
             temperature: Apply temperature bonus/penalty (game conditions)
             wind: Apply wind bonus/penalty (game conditions, QB/WR/K only)
             location: Apply location bonus/penalty (home/away/international)
-            is_draft_mode: Use draft normalization scale (163) instead of weekly scale.
-                Set to True for Add to Roster Mode. Default False.
-            nfl_team_penalty: Apply NFL team penalty multiplier (Add to Roster mode only).
+            use_draft_normalization: Use draft normalization scale (163) instead of weekly scale.
+                Set to True for Draft Mode. Default False.
+            nfl_team_penalty: Apply NFL team penalty multiplier (Draft Mode only).
                 Default False.
             picks_until_next_turn: Optional count of picks remaining before our next draft
                 turn. When provided (not None), applies a config-driven survival-likelihood
@@ -361,7 +361,7 @@ class PlayerScoringCalculator:
         Returns:
             ScoredPlayer: Scored player object with final score and reasons
         """
-        self.is_draft_mode = is_draft_mode
+        self.use_draft_normalization = use_draft_normalization
 
         reasons = []
         def add_to_reasons(r: str) -> None:
@@ -448,7 +448,7 @@ class PlayerScoringCalculator:
 
         p.score = player_score
 
-        normalization_scale = self.config.draft_normalization_max_scale if self.is_draft_mode else self.config.normalization_max_scale
+        normalization_scale = self.config.draft_normalization_max_scale if self.use_draft_normalization else self.config.normalization_max_scale
         chosen_max = self.max_weekly_projection if use_weekly_projection else self.max_projection
 
         if normalization_scale > 0 and chosen_max > 0:

@@ -99,7 +99,7 @@ class TestDraftHelperTeamInitialization:
         assert team.config == mock_config
         assert team.team_data_mgr == mock_team_data_mgr
         assert team.roster == []
-        assert team.add_to_roster_mgr is None
+        assert team.draft_mgr is None
         assert team.starter_helper_mgr is None
 
     def test_init_creates_empty_roster(self, draft_helper_team):
@@ -241,52 +241,52 @@ class TestDraftPlayer:
         assert draft_helper_team.get_roster_size() == 1
 
 
-@patch('simulation.win_rate.DraftHelperTeam.AddToRosterModeManager')
+@patch('simulation.win_rate.DraftHelperTeam.DraftModeManager')
 class TestGetDraftRecommendation:
     """Test get_draft_recommendation method"""
 
-    def test_get_draft_recommendation_returns_top_pick(self, mock_add_to_roster_class, draft_helper_team, mock_player):
+    def test_get_draft_recommendation_returns_top_pick(self, mock_draft_class, draft_helper_team, mock_player):
         """Test get_draft_recommendation returns top recommendation"""
         mock_rec = Mock()
         mock_rec.player = mock_player
         mock_rec.score = 95.5
 
-        mock_add_to_roster_mgr = Mock()
-        mock_add_to_roster_mgr.get_recommendations.return_value = [mock_rec]
-        mock_add_to_roster_class.return_value = mock_add_to_roster_mgr
+        mock_draft_mgr = Mock()
+        mock_draft_mgr.get_recommendations.return_value = [mock_rec]
+        mock_draft_class.return_value = mock_draft_mgr
 
         result = draft_helper_team.get_draft_recommendation()
 
         assert result == mock_player
 
-    def test_get_draft_recommendation_creates_fresh_manager(self, mock_add_to_roster_class, draft_helper_team, mock_player, mock_config, mock_projected_pm, mock_team_data_mgr):
-        """Test get_draft_recommendation creates fresh AddToRosterModeManager"""
+    def test_get_draft_recommendation_creates_fresh_manager(self, mock_draft_class, draft_helper_team, mock_player, mock_config, mock_projected_pm, mock_team_data_mgr):
+        """Test get_draft_recommendation creates fresh DraftModeManager"""
         mock_rec = Mock()
         mock_rec.player = mock_player
         mock_rec.score = 95.5
 
-        mock_add_to_roster_mgr = Mock()
-        mock_add_to_roster_mgr.get_recommendations.return_value = [mock_rec]
-        mock_add_to_roster_class.return_value = mock_add_to_roster_mgr
+        mock_draft_mgr = Mock()
+        mock_draft_mgr.get_recommendations.return_value = [mock_rec]
+        mock_draft_class.return_value = mock_draft_mgr
 
         draft_helper_team.get_draft_recommendation()
 
-        mock_add_to_roster_class.assert_called_once_with(
+        mock_draft_class.assert_called_once_with(
             mock_config,
             mock_projected_pm,
             mock_team_data_mgr
         )
 
-    def test_get_draft_recommendation_raises_when_no_recommendations(self, mock_add_to_roster_class, draft_helper_team):
+    def test_get_draft_recommendation_raises_when_no_recommendations(self, mock_draft_class, draft_helper_team):
         """Test get_draft_recommendation raises ValueError when no recommendations"""
-        mock_add_to_roster_mgr = Mock()
-        mock_add_to_roster_mgr.get_recommendations.return_value = []
-        mock_add_to_roster_class.return_value = mock_add_to_roster_mgr
+        mock_draft_mgr = Mock()
+        mock_draft_mgr.get_recommendations.return_value = []
+        mock_draft_class.return_value = mock_draft_mgr
 
         with pytest.raises(ValueError, match="No draft recommendations available"):
             draft_helper_team.get_draft_recommendation()
 
-    def test_get_draft_recommendation_picks_first_not_second(self, mock_add_to_roster_class, draft_helper_team, mock_player, mock_player2):
+    def test_get_draft_recommendation_picks_first_not_second(self, mock_draft_class, draft_helper_team, mock_player, mock_player2):
         """Test get_draft_recommendation always picks first recommendation"""
         mock_rec1 = Mock()
         mock_rec1.player = mock_player
@@ -296,28 +296,28 @@ class TestGetDraftRecommendation:
         mock_rec2.player = mock_player2
         mock_rec2.score = 94.0
 
-        mock_add_to_roster_mgr = Mock()
-        mock_add_to_roster_mgr.get_recommendations.return_value = [mock_rec1, mock_rec2]
-        mock_add_to_roster_class.return_value = mock_add_to_roster_mgr
+        mock_draft_mgr = Mock()
+        mock_draft_mgr.get_recommendations.return_value = [mock_rec1, mock_rec2]
+        mock_draft_class.return_value = mock_draft_mgr
 
         result = draft_helper_team.get_draft_recommendation()
 
         assert result == mock_player
         assert result != mock_player2
 
-    def test_get_draft_recommendation_stores_manager(self, mock_add_to_roster_class, draft_helper_team, mock_player):
-        """Test get_draft_recommendation stores manager in self.add_to_roster_mgr"""
+    def test_get_draft_recommendation_stores_manager(self, mock_draft_class, draft_helper_team, mock_player):
+        """Test get_draft_recommendation stores manager in self.draft_mgr"""
         mock_rec = Mock()
         mock_rec.player = mock_player
         mock_rec.score = 95.5
 
-        mock_add_to_roster_mgr = Mock()
-        mock_add_to_roster_mgr.get_recommendations.return_value = [mock_rec]
-        mock_add_to_roster_class.return_value = mock_add_to_roster_mgr
+        mock_draft_mgr = Mock()
+        mock_draft_mgr.get_recommendations.return_value = [mock_rec]
+        mock_draft_class.return_value = mock_draft_mgr
 
         draft_helper_team.get_draft_recommendation()
 
-        assert draft_helper_team.add_to_roster_mgr == mock_add_to_roster_mgr
+        assert draft_helper_team.draft_mgr == mock_draft_mgr
 
 
 @patch('simulation.win_rate.DraftHelperTeam.StarterHelperModeManager')
@@ -708,17 +708,17 @@ class TestGetRosterPlayers:
 class TestDraftHelperTeamIntegration:
     """Test realistic integration scenarios"""
 
-    @patch('simulation.win_rate.DraftHelperTeam.AddToRosterModeManager')
+    @patch('simulation.win_rate.DraftHelperTeam.DraftModeManager')
     @patch('simulation.win_rate.DraftHelperTeam.StarterHelperModeManager')
-    def test_full_draft_and_week_cycle(self, mock_starter_helper_class, mock_add_to_roster_class, draft_helper_team, mock_player, mock_projected_pm, mock_actual_pm):
+    def test_full_draft_and_week_cycle(self, mock_starter_helper_class, mock_draft_class, draft_helper_team, mock_player, mock_projected_pm, mock_actual_pm):
         """Test complete draft and weekly lineup cycle"""
         mock_rec = Mock()
         mock_rec.player = mock_player
         mock_rec.score = 95.5
 
-        mock_add_to_roster_mgr = Mock()
-        mock_add_to_roster_mgr.get_recommendations.return_value = [mock_rec]
-        mock_add_to_roster_class.return_value = mock_add_to_roster_mgr
+        mock_draft_mgr = Mock()
+        mock_draft_mgr.get_recommendations.return_value = [mock_rec]
+        mock_draft_class.return_value = mock_draft_mgr
 
         proj_player = Mock(spec=FantasyPlayer)
         proj_player.id = mock_player.id

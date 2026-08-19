@@ -31,7 +31,7 @@ class TestLeagueHelperManagerInit:
              patch('league_helper.LeagueHelperManager.TeamDataManager') as mock_team_data, \
              patch('league_helper.LeagueHelperManager.SeasonScheduleManager') as mock_season_schedule, \
              patch('league_helper.LeagueHelperManager.PlayerManager') as mock_player, \
-             patch('league_helper.LeagueHelperManager.AddToRosterModeManager') as mock_add_roster, \
+             patch('league_helper.LeagueHelperManager.DraftModeManager') as mock_draft, \
              patch('league_helper.LeagueHelperManager.StarterHelperModeManager') as mock_starter, \
              patch('league_helper.LeagueHelperManager.TradeSimulatorModeManager') as mock_trade, \
              patch('league_helper.LeagueHelperManager.ModifyPlayerDataModeManager') as mock_modify, \
@@ -55,7 +55,7 @@ class TestLeagueHelperManagerInit:
                 'team_data': mock_team_data,
                 'season_schedule': mock_season_schedule,
                 'player': mock_player,
-                'add_roster': mock_add_roster,
+                'add_roster': mock_draft,
                 'starter': mock_starter,
                 'trade': mock_trade,
                 'modify': mock_modify,
@@ -151,7 +151,7 @@ class TestStartInteractiveMode:
         with patch('league_helper.LeagueHelperManager.ConfigManager'), \
              patch('league_helper.LeagueHelperManager.TeamDataManager'), \
              patch('league_helper.LeagueHelperManager.PlayerManager') as mock_player, \
-             patch('league_helper.LeagueHelperManager.AddToRosterModeManager'), \
+             patch('league_helper.LeagueHelperManager.DraftModeManager'), \
              patch('league_helper.LeagueHelperManager.StarterHelperModeManager'), \
              patch('league_helper.LeagueHelperManager.TradeSimulatorModeManager'), \
              patch('league_helper.LeagueHelperManager.ModifyPlayerDataModeManager'), \
@@ -194,7 +194,7 @@ class TestStartInteractiveMode:
         """Test that player data is reloaded before each menu display."""
         mock_show_list.side_effect = [1, 6]
 
-        mock_manager._run_add_to_roster_mode = Mock()
+        mock_manager._run_draft_mode = Mock()
 
         mock_manager.start_interactive_mode()
 
@@ -202,13 +202,13 @@ class TestStartInteractiveMode:
 
     @patch('league_helper.LeagueHelperManager.show_list_selection')
     def test_start_interactive_mode_routes_to_add_roster(self, mock_show_list, mock_manager):
-        """Test that choice 1 routes to Add to Roster mode."""
+        """Test that choice 1 routes to Draft Mode."""
         mock_show_list.side_effect = [1, 6]
-        mock_manager._run_add_to_roster_mode = Mock()
+        mock_manager._run_draft_mode = Mock()
 
         mock_manager.start_interactive_mode()
 
-        mock_manager._run_add_to_roster_mode.assert_called_once()
+        mock_manager._run_draft_mode.assert_called_once()
 
     @patch('league_helper.LeagueHelperManager.show_list_selection')
     def test_start_interactive_mode_routes_to_starter_helper(self, mock_show_list, mock_manager):
@@ -285,7 +285,7 @@ class TestModeDelegation:
         with patch('league_helper.LeagueHelperManager.ConfigManager'), \
              patch('league_helper.LeagueHelperManager.TeamDataManager'), \
              patch('league_helper.LeagueHelperManager.PlayerManager'), \
-             patch('league_helper.LeagueHelperManager.AddToRosterModeManager') as mock_add, \
+             patch('league_helper.LeagueHelperManager.DraftModeManager') as mock_draft, \
              patch('league_helper.LeagueHelperManager.StarterHelperModeManager') as mock_starter, \
              patch('league_helper.LeagueHelperManager.TradeSimulatorModeManager') as mock_trade, \
              patch('league_helper.LeagueHelperManager.ModifyPlayerDataModeManager') as mock_modify, \
@@ -294,18 +294,18 @@ class TestModeDelegation:
 
             manager = LeagueHelperManager(tmp_path / "data")
 
-            manager.add_to_roster_mode_manager.start_interactive_mode = Mock()
+            manager.draft_mode_manager.start_interactive_mode = Mock()
             manager.starter_helper_mode_manager.show_recommended_starters = Mock()
             manager.trade_simulator_mode_manager.run_interactive_mode = Mock()
             manager.modify_player_data_mode_manager.start_interactive_mode = Mock()
 
             yield manager
 
-    def test_run_add_to_roster_mode_delegates_correctly(self, mock_manager):
-        """Test that _run_add_to_roster_mode passes player manager to mode manager."""
-        mock_manager._run_add_to_roster_mode()
+    def test_run_draft_mode_delegates_correctly(self, mock_manager):
+        """Test that _run_draft_mode passes player manager to mode manager."""
+        mock_manager._run_draft_mode()
 
-        mock_manager.add_to_roster_mode_manager.start_interactive_mode.assert_called_once_with(
+        mock_manager.draft_mode_manager.start_interactive_mode.assert_called_once_with(
             mock_manager.player_manager,
             mock_manager.team_data_manager
         )
@@ -359,7 +359,7 @@ class TestEdgeCases:
         with patch('league_helper.LeagueHelperManager.ConfigManager'), \
              patch('league_helper.LeagueHelperManager.TeamDataManager'), \
              patch('league_helper.LeagueHelperManager.PlayerManager') as mock_player, \
-             patch('league_helper.LeagueHelperManager.AddToRosterModeManager'), \
+             patch('league_helper.LeagueHelperManager.DraftModeManager'), \
              patch('league_helper.LeagueHelperManager.StarterHelperModeManager'), \
              patch('league_helper.LeagueHelperManager.TradeSimulatorModeManager'), \
              patch('league_helper.LeagueHelperManager.ModifyPlayerDataModeManager'), \
@@ -375,7 +375,7 @@ class TestEdgeCases:
 
             manager = LeagueHelperManager(Path("/some/path"))
 
-            manager._run_add_to_roster_mode = Mock()
+            manager._run_draft_mode = Mock()
             manager._run_starter_helper_mode = Mock()
             manager._run_trade_simulator_mode = Mock()
             manager.run_modify_player_data_mode = Mock()
@@ -386,7 +386,7 @@ class TestEdgeCases:
 
             manager.start_interactive_mode()
 
-            manager._run_add_to_roster_mode.assert_called_once()
+            manager._run_draft_mode.assert_called_once()
             manager._run_starter_helper_mode.assert_called_once()
             manager._run_trade_simulator_mode.assert_called_once()
             manager.run_modify_player_data_mode.assert_called_once()
