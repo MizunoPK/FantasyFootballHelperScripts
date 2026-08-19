@@ -48,8 +48,8 @@ class DraftGeometry:
         overall_pick_number: The `overallPickNumber` of the current pick, or `None` at the
             ALL-SENTINEL boundary.
         snake_direction: `"forward"` if the current round's served pick order matches
-            `pickOrder`, `"reverse"` if it matches `reversed(pickOrder)`, or `None` at the
-            ALL-SENTINEL boundary. Never derived from `roundId % 2` parity.
+            `pickOrder`'s prefix, `"reverse"` if it matches its reversed prefix, or `None`
+            at the ALL-SENTINEL boundary. Never derived from `roundId % 2` parity.
         picks_until_our_next_turn: The overall-pick-number gap between the current pick and
             our next incomplete pick, or `None` when our team has no remaining incomplete
             pick (field-level sentinel) or at the ALL-SENTINEL boundary.

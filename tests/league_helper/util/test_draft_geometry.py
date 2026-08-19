@@ -4,11 +4,15 @@ Unit tests for draft_geometry module
 Tests the pure draft-geometry reader against D17.3's committed offline replay corpus
 (tests/fixtures/espn_api/league_draft/) and constructed LeagueSnapshot fixtures for states
 the corpus does not exhibit (duplicate pickOrder, k=1 direction decidability, a
-partial-round corruption guard, and a round-boundary reversal).
+partial-round corruption guard, and a round-boundary reversal). The snake-reversal
+coverage runs against the real 10-team corpus grid as well as the constructed 3-team
+fixture, by progressively marking step_160.json's pre-allocated picks complete.
 
 Author: Kai Mizuno
 """
 
+import ast
+import copy
 import json
 from pathlib import Path
 
@@ -52,6 +56,63 @@ def step_002_snapshot() -> LeagueSnapshot:
 def step_160_snapshot() -> LeagueSnapshot:
     """Real corpus step: round 1 fully served (k=10), only 3 picks completed overall."""
     return _load_snapshot("step_160.json")
+
+
+def _corpus_grid_completed_through(overall: int) -> LeagueSnapshot:
+    """Real corpus grid (step_160.json), advanced to a chosen point in the draft.
+
+    step_160.json pre-allocates all 160 picks of the real 10-team / 16-round grid with the
+    live pickOrder [1, 4, 9, 6, 2, 3, 10, 8, 5, 7] and ESPN's own pre-computed snake
+    reversal (round 2's served teamIds are that order reversed). The captured corpus never
+    completes round 1 -- only overall picks 1, 5 and 6 are ever filled across all 161 steps
+    -- so no captured step reaches a round boundary and `snake_direction == "reverse"` is
+    never exercised against real data. This helper marks every row with
+    `overallPickNumber <= overall` complete (and every later row sentinel), which advances
+    the *same* real grid past a turn without inventing any geometry: teamId, roundId and
+    overallPickNumber are the corpus's own values throughout.
+    """
+    payload = copy.deepcopy(json.loads((FIXTURE_DIR / "step_160.json").read_text()))
+    for pick in payload["draftDetail"]["picks"]:
+        if pick["overallPickNumber"] <= overall:
+            # Distinct per row: LeagueSnapshot rejects duplicate completed playerIds.
+            pick["playerId"] = 1_000_000 + pick["overallPickNumber"]
+        else:
+            pick["playerId"] = -1
+    return LeagueSnapshot.model_validate(payload)
+
+
+@pytest.fixture
+def corpus_round_1_complete() -> LeagueSnapshot:
+    """Real corpus grid with round 1 (overall 1-10) complete -- current pick is overall 11,
+    round 2, which ESPN serves in REVERSE order [7, 5, 8, 10, 3, 2, 6, 9, 4, 1]."""
+    return _corpus_grid_completed_through(10)
+
+
+@pytest.fixture
+def corpus_round_2_complete() -> LeagueSnapshot:
+    """Real corpus grid with rounds 1-2 (overall 1-20) complete -- current pick is overall
+    21, round 3, back to FORWARD order. Team 1 sits at slot 0, so it holds both overall 20
+    (last of reverse round 2) and overall 21 (first of forward round 3): the back-to-back
+    turn the snake exists to produce."""
+    return _corpus_grid_completed_through(20)
+
+
+@pytest.fixture
+def stale_but_consistent_snapshot() -> LeagueSnapshot:
+    """Constructed: a SUPERSEDED-but-internally-consistent grid. context.md records the real
+    league's pickOrder changing from [1..10] to [1, 4, 9, 6, 2, 3, 10, 8, 5, 7] -- both are
+    valid snake orders, so a snapshot carrying the OLD order in both pickOrder and its
+    served rows is internally consistent and the parity guard cannot see that it is stale."""
+    payload = {
+        "draftDetail": {
+            "drafted": True,
+            "inProgress": True,
+            "picks": [_pick(1, 111, 1, 1), _pick(2, -1, 2, 1), _pick(3, -1, 3, 1)],
+        },
+        "teams": [_team(1), _team(2), _team(3)],
+        "settings": {"draftSettings": {"pickOrder": [1, 2, 3]}},
+    }
+    return LeagueSnapshot.model_validate(payload)
 
 
 @pytest.fixture
@@ -229,6 +290,58 @@ class TestSnakeReversalBoundary:
             picks_until_our_next_turn=1,
         )
 
+    def test_corpus_round_2_is_reverse_at_slot_0(self, corpus_round_1_complete):
+        # Real 10-team corpus grid, round 1 complete. Round 2 is served in reverse order,
+        # so team 1 (pickOrder slot 0) picks LAST in it, at overall 20 -- the maximum wait.
+        result = read_geometry(corpus_round_1_complete, 1)
+
+        assert result == DraftGeometry(
+            our_slot=0,
+            current_round=2,
+            overall_pick_number=11,
+            snake_direction="reverse",
+            picks_until_our_next_turn=9,
+        )
+
+    def test_corpus_round_2_is_reverse_at_last_slot(self, corpus_round_1_complete):
+        # Team 7 is pickOrder[-1], so the reversal hands it the FIRST pick of round 2 --
+        # overall 11, the pick that is current. Zero wait.
+        result = read_geometry(corpus_round_1_complete, 7)
+
+        assert result == DraftGeometry(
+            our_slot=9,
+            current_round=2,
+            overall_pick_number=11,
+            snake_direction="reverse",
+            picks_until_our_next_turn=0,
+        )
+
+    def test_corpus_round_3_returns_to_forward_at_slot_0(self, corpus_round_2_complete):
+        # Rounds 1-2 complete. Round 3 reverts to forward order, and slot 0's overall-20
+        # pick (last of reverse round 2) is immediately followed by its overall-21 pick --
+        # the back-to-back turn. picks_until_our_next_turn is 0 at both.
+        result = read_geometry(corpus_round_2_complete, 1)
+
+        assert result == DraftGeometry(
+            our_slot=0,
+            current_round=3,
+            overall_pick_number=21,
+            snake_direction="forward",
+            picks_until_our_next_turn=0,
+        )
+
+    def test_corpus_round_3_forward_at_last_slot(self, corpus_round_2_complete):
+        # The slot-9 counterpart: forward round 3 makes team 7 wait the full 9 picks.
+        result = read_geometry(corpus_round_2_complete, 7)
+
+        assert result == DraftGeometry(
+            our_slot=9,
+            current_round=3,
+            overall_pick_number=21,
+            snake_direction="forward",
+            picks_until_our_next_turn=9,
+        )
+
 
 class TestKEqualsOneDecidability:
     def test_direction_decided_from_single_served_pick(self, k1_snapshot):
@@ -258,13 +371,22 @@ class TestErrorArms:
 
 
 class TestParityGuardDoesNotEstablishFreshness:
-    def test_stale_but_internally_consistent_grid_passes_parity(self, step_002_snapshot):
+    def test_stale_but_internally_consistent_grid_passes_parity(
+        self, stale_but_consistent_snapshot
+    ):
         # A stale-but-internally-consistent grid is, by definition, indistinguishable from
-        # a fresh one by this guard alone (spike F13b / ticket.md Success Criteria) — this
-        # test documents that the guard's silence is expected, not a gap: it asserts the
-        # same fixture used elsewhere as "fresh" raises nothing, because staleness is not a
-        # property the served-team-id comparison can observe.
-        read_geometry(step_002_snapshot, 4)  # does not raise
+        # a fresh one by this guard alone (spike F13b / ticket.md Success Criteria). The
+        # fixture carries the league's SUPERSEDED pickOrder [1, 2, 3] in both pickOrder and
+        # its served rows, so the guard stays silent...
+        result = read_geometry(stale_but_consistent_snapshot, 2)
+
+        assert result.snake_direction == "forward"  # guard did not raise
+
+        # ...and the geometry it returns is WRONG for the real draft, whose live pickOrder
+        # is [1, 4, 9, 6, 2, 3, 10, 8, 5, 7] -- there team 2 sits at slot 4, not slot 1.
+        # That divergence is precisely what the parity guard cannot observe: it establishes
+        # internal consistency, never freshness.
+        assert result.our_slot == 1
 
 
 class TestPurity:
@@ -280,10 +402,54 @@ class TestPurity:
 
 
 class TestNoNetworkOrAsyncio:
-    def test_module_imports_no_network_or_asyncio_symbols(self):
+    def test_module_imports_only_stdlib_and_the_snapshot_model(self):
+        # A structurally-anchored WHITELIST, not a denylist of named strings: it parses the
+        # module's imports rather than searching its text, so it cannot be tripped by prose
+        # in a docstring and is not blind to the routes it does not happen to name
+        # (requests, urllib, http.client, socket, aiohttp, ...). Any new dependency at all
+        # fails it, which is the property the unit's "no network call, no client
+        # construction, no asyncio" claim actually needs.
         import league_helper.util.draft_geometry as module
 
-        source = Path(module.__file__).read_text()
-        assert "asyncio" not in source
-        assert "httpx" not in source
-        assert "espn_client" not in source
+        tree = ast.parse(Path(module.__file__).read_text())
+        imported = set()
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Import):
+                imported.update(alias.name for alias in node.names)
+            elif isinstance(node, ast.ImportFrom):
+                imported.add(node.module)
+
+        # Coverage assertion: proves the parse found imports at all, so the equality below
+        # cannot pass vacuously against an empty set.
+        assert imported
+
+        assert imported == {
+            "dataclasses",
+            "typing",
+            "player_data_fetcher.espn_league_snapshot_models",
+        }
+
+    def test_transitive_imports_reach_no_network_module(self):
+        # The whitelist above bounds this module's OWN imports; this bounds what those
+        # imports drag in. Importing draft_geometry in a fresh interpreter must not place
+        # any network or async transport module into sys.modules.
+        import subprocess
+        import sys
+
+        probe = (
+            "import sys; import league_helper.util.draft_geometry; "
+            "forbidden = {'asyncio', 'socket', 'ssl', 'requests', 'urllib.request', "
+            "'http.client', 'httpx', 'aiohttp', 'httpcore'}; "
+            "print(sorted(forbidden & set(sys.modules)))"
+        )
+        result = subprocess.run(
+            [sys.executable, "-c", probe],
+            cwd=Path(__file__).parent.parent.parent.parent,
+            capture_output=True,
+            text=True,
+        )
+
+        assert result.returncode == 0, result.stderr
+        assert result.stdout.strip() == "[]", (
+            f"draft_geometry transitively imports network/async modules: {result.stdout}"
+        )
