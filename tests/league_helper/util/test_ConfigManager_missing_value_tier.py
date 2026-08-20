@@ -39,16 +39,20 @@ class TestConfiguredTier:
     def test_absent_rating_scores_as_very_poor(self, data_root):
         """The shipped setting: an unrated player is scored weak, not neutral."""
         cm = ConfigManager(data_root)
+        # 0.95 ** 7.0 -- the VERY_POOR base raised to the LIVE PLAYER_RATING_SCORING weight,
+        # so this constant tracks that weight and moves whenever the win-rate sweep retunes it
+        # (2026-08-19: 4.0 -> 7.0, hence 0.81450625 -> 0.69833730). Re-pin on a deliberate
+        # retune; a change you did not intend means the exponent step itself regressed.
         assert cm.get_player_rating_multiplier(None) == (
-            pytest.approx(0.8145062499999999), "VERY_POOR"
+            pytest.approx(0.6983372960937497), "VERY_POOR"
         )
 
     def test_absent_matches_a_real_input_in_that_tier_exactly(self, data_root):
         """None must land on the SAME value a real VERY_POOR input scores.
 
         Pins that the shared `** WEIGHT` step still applies to the substituted
-        base multiplier (0.95 ** 4.0), rather than the tier's base leaking out
-        unexponentiated.
+        base multiplier (0.95 ** the live weight), rather than the tier's base
+        leaking out unexponentiated.
         """
         cm = ConfigManager(data_root)
         assert cm.get_player_rating_multiplier(None) == cm.get_player_rating_multiplier(10)

@@ -102,7 +102,7 @@
         "GOOD": 1.025,
         "EXCELLENT": 1.05
       },
-      "WEIGHT": 2.12
+      "WEIGHT": 7.0
     },
     "PLAYER_RATING_SCORING": {
       "MISSING_VALUE_TIER": "VERY_POOR",
@@ -118,7 +118,7 @@
         "EXCELLENT": 1.05
       },
       "SCALING": "LINEAR",
-      "WEIGHT": 4.0
+      "WEIGHT": 7.0
     },
     "OPPONENT_TEAMS": [
       "Fishoutawater",
@@ -131,7 +131,7 @@
       "The Eskimo Brothers",
       "Pidgin"
     ],
-    "NFL_TEAM_PENALTY": ["NYJ", "LV", "MIN", "TEN"],
+    "NFL_TEAM_PENALTY": ["NYJ", "MIN", "TEN"],
     "NFL_TEAM_PENALTY_WEIGHT": 0.95,
     "ESPN_LEAGUE_ID": "138260302",
     "ESPN_TEAM_ID": 1

@@ -104,7 +104,7 @@
         "GOOD": 1.025,
         "EXCELLENT": 1.05
       },
-      "WEIGHT": 2.12
+      "WEIGHT": 7.0
     },
     "PLAYER_RATING_SCORING": {
       "THRESHOLDS": {

@@ -228,6 +228,7 @@ class SweepTournament:
         resume: bool = False,
         carry_over_seeds: Optional[Dict[str, Dict[str, float]]] = None,
         progress_callback: Optional[Callable[[str], None]] = None,
+        evaluation_callback: Optional[Callable[[dict], None]] = None,
     ) -> Dict[str, Dict]:
         """
         Run an independent convergent coordinate-ascent tournament for every draft-order
@@ -261,6 +262,31 @@ class SweepTournament:
                 owns the per-config *progress* output (the TTY bar / non-TTY progress lines); the
                 tournament itself does no console (stdout) I/O, though it still emits its own
                 status lines (e.g. "Config ... converged") through the logger.
+            evaluation_callback: Optional callback invoked once after EVERY evaluate() call —
+                the anchor evaluation that opens a config (baseline or carry-over seed) and
+                every trial evaluation of the coordinate ascent — with a single dict payload.
+                This is the fine-grained progress signal: a config's terminal
+                progress_callback fires once per config, which on a single-config sweep is one
+                update for the whole run, whereas an evaluation is the real unit of wall-clock
+                cost (~6 x (num_values - 1) of them per ascent pass). Payload keys:
+
+                    strategy_id (str)    the config being tuned
+                    kind (str)           "baseline" | "carry_over" | "trial"
+                    ascent_pass (int)    1-based coordinate-ascent pass; 0 for the anchor
+                    param (Optional[str])  the param being moved; None for the anchor
+                    value (Optional[float])  the candidate value; None for the anchor
+                    param_index (int)    1-based index of param within DRAFT_SWEEP_PARAMS; 0 anchor
+                    param_total (int)    len(DRAFT_SWEEP_PARAMS)
+                    eval_in_pass (int)   1-based evaluation counter within this pass; 0 anchor
+                    evals_in_pass (int)  PLANNED evaluations this pass (an estimate — a
+                                         mid-pass adoption can shift the skip-the-incumbent
+                                         count, so the actual total may exceed it slightly)
+                    wins (int), games (int), win_rate (float)  the evaluation's own result
+                    adopted (bool)       whether this trial cleared the adoption gate (always
+                                         False for an anchor, which is not gated)
+
+                Like progress_callback, the callee owns all console output; the tournament
+                itself writes none. None (the default) leaves behavior unchanged.
 
         Returns:
             Dict[str, Dict]: {strategy_id: {"param_values": <6-param dict>, "win_rate": float}}.
@@ -283,6 +309,29 @@ class SweepTournament:
 
         candidates = generate_candidate_values(baseline_params, self._num_values)  # KDD-3: fixed grid
         results: Dict[str, Dict] = {}
+
+        def emit_evaluation(**payload) -> None:
+            """Fire evaluation_callback with one evaluation's payload (no-op when unwired).
+
+            Kept as a closure rather than a method so the caller-facing contract stays the
+            single `run()` kwarg — the tournament exposes no per-evaluation hook of its own.
+            """
+            if evaluation_callback is not None:
+                evaluation_callback(payload)
+
+        def planned_evals(current_values: Dict[str, float]) -> int:
+            """Planned evaluations for one full ascent pass from `current_values`.
+
+            Mirrors the ascent loop's `value == current[param]` skip: every param contributes
+            its whole candidate list minus its own incumbent. An adoption mid-pass moves that
+            incumbent, so the ACTUAL count can drift above this by up to one per param — the
+            payload documents it as an estimate and the display clamps rather than pretending
+            otherwise.
+            """
+            return sum(
+                len(candidates[p]) - (1 if current_values[p] in candidates[p] else 0)
+                for p in DRAFT_SWEEP_PARAMS
+            )
 
         # T61/D3: the run-level starvation verdict, computed ONCE from the caller-supplied
         # games-per-evaluation against THIS tournament's own gate floor. Strict `<` mirrors
@@ -341,6 +390,12 @@ class SweepTournament:
                 # coordinate-ascent below — it is NOT skipped and the grid is unchanged.
                 current = dict(carry_over_seeds[strategy_id])
                 wins, games, win_rate = self._evaluator.evaluate(draft_order, current)
+                emit_evaluation(
+                    strategy_id=strategy_id, kind="carry_over", ascent_pass=0,
+                    param=None, value=None, param_index=0, param_total=len(DRAFT_SWEEP_PARAMS),
+                    eval_in_pass=0, evals_in_pass=planned_evals(current),
+                    wins=wins, games=games, win_rate=win_rate, adopted=False,
+                )
                 if games < self._min_games:      # T71/D1: observed shortfall (drop-induced)
                     config_observed_starved = True
                 # T68/D1: carry-over anchor is symmetric self-play -> the self_play bucket.
@@ -351,6 +406,12 @@ class SweepTournament:
                 # best_rate (T31/F7) is the baseline combo's ACCUMULATED rate from the store.
                 current = dict(baseline_params)
                 wins, games, win_rate = self._evaluator.evaluate(draft_order, current)
+                emit_evaluation(
+                    strategy_id=strategy_id, kind="baseline", ascent_pass=0,
+                    param=None, value=None, param_index=0, param_total=len(DRAFT_SWEEP_PARAMS),
+                    eval_in_pass=0, evals_in_pass=planned_evals(current),
+                    wins=wins, games=games, win_rate=win_rate, adopted=False,
+                )
                 if games < self._min_games:      # T71/D1: observed shortfall (drop-induced)
                     config_observed_starved = True
                 # T68/D1: baseline anchor is symmetric self-play -> the self_play bucket.
@@ -363,14 +424,22 @@ class SweepTournament:
             # Loop full coordinate-ascent passes until a pass moves no parameter (convergence
             # is the sole stopping rule — no wall-time, no pass cap).
             moved = True
+            ascent_pass = 0
             while moved:
                 moved = False
-                for param in DRAFT_SWEEP_PARAMS:           # all 6 swept every pass
+                ascent_pass += 1
+                # Planned count is fixed at PASS START (from the incumbent set the pass opens
+                # with), so the denominator a progress display shows stays stable for the whole
+                # pass instead of drifting under it as parameters adopt.
+                evals_in_pass = planned_evals(current)
+                eval_in_pass = 0
+                for param_index, param in enumerate(DRAFT_SWEEP_PARAMS, start=1):  # all 6 swept every pass
                     for value in candidates[param]:
                         if value == current[param]:
                             continue                       # current best already recorded
                         trial = dict(current)
                         trial[param] = value
+                        eval_in_pass += 1
                         wins, games, win_rate = self._evaluator.evaluate(draft_order, trial, incumbent_param_values=current)
                         if games < self._min_games:      # T71/D1: observed shortfall (drop-induced)
                             config_observed_starved = True
@@ -385,10 +454,11 @@ class SweepTournament:
                         # passes against a different incumbent. The fresh pair is same-reference
                         # by construction, so the old None-entry hold-guard has no failure mode
                         # left to defend (the PR #18 resume path can no longer reach the gate).
-                        if _adopt_by_significance(
+                        adopted = _adopt_by_significance(
                             wins, games,
                             self._confidence, self._min_effect_size, self._min_games,
-                        ):
+                        )
+                        if adopted:
                             current[param] = value
                             # After adoption current == trial, so the new running-best's rate is
                             # THIS trial's fresh head-to-head win_rate (T58/R4) — not a
@@ -401,6 +471,15 @@ class SweepTournament:
                             self._store.mark_config_progress(
                                 strategy_id, "in_progress", current, best_rate
                             )
+                        # Emitted AFTER the gate so the payload can carry the verdict — the one
+                        # fact that tells a watcher whether a multi-hour pass is still moving.
+                        emit_evaluation(
+                            strategy_id=strategy_id, kind="trial", ascent_pass=ascent_pass,
+                            param=param, value=value,
+                            param_index=param_index, param_total=len(DRAFT_SWEEP_PARAMS),
+                            eval_in_pass=eval_in_pass, evals_in_pass=evals_in_pass,
+                            wins=wins, games=games, win_rate=win_rate, adopted=adopted,
+                        )
 
             # T61/D4: a starved run reaches a DISTINCT terminal disposition. "starved" is not
             # "converged", so is_all_converged stays False and a later resume re-tunes this

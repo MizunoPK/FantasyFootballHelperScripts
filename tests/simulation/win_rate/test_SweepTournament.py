@@ -37,7 +37,7 @@ def _baseline():
         "PRIMARY_BONUS": 67,
         "SECONDARY_BONUS": 69,
         "ADP_SCORING_WEIGHT": 4.76,
-        "PLAYER_RATING_SCORING_WEIGHT": 3.52,
+        "PLAYER_RATING_SCORING_WEIGHT": 5.52,
     }
 
 
@@ -1004,3 +1004,105 @@ class TestSweepTerminatesUnderTheOneSampleGate:
         t = SweepTournament(_wg_evaluator(lambda do, pv: (300, 1000)), _store(tmp_path))
         result = t.run([("s1", [{"s": "1"}])], baseline)
         assert result["s1"]["param_values"] == baseline
+
+
+class TestEvaluationCallback:
+    """The per-evaluation progress signal (one payload per evaluate() call)."""
+
+    def _run_collecting(self, tmp_path, ev, **run_kwargs):
+        seen = []
+        t = SweepTournament(ev, _store(tmp_path))
+        t.run(
+            [("a.json", [{"s": "1"}])], _baseline(),
+            evaluation_callback=seen.append, **run_kwargs
+        )
+        return seen
+
+    def test_fires_once_per_evaluation(self, tmp_path):
+        # One payload per evaluate() call — no more, no fewer.
+        ev = _evaluator(lambda do, pv: 0.5)
+        seen = self._run_collecting(tmp_path, ev)
+        assert len(seen) == ev.evaluate.call_count
+
+    def test_anchor_payload_is_the_first_and_carries_no_param(self, tmp_path):
+        # The baseline anchor opens the config: pass 0, no param, not gated.
+        ev = _evaluator(lambda do, pv: 0.5)
+        first = self._run_collecting(tmp_path, ev)[0]
+        assert first["kind"] == "baseline"
+        assert first["ascent_pass"] == 0
+        assert first["eval_in_pass"] == 0
+        assert first["param"] is None and first["value"] is None
+        assert first["adopted"] is False
+
+    def test_carry_over_anchor_is_labelled_distinctly(self, tmp_path):
+        # A seeded pass opens on a carry_over anchor, not a baseline one.
+        ev = _evaluator(lambda do, pv: 0.5)
+        seen = self._run_collecting(
+            tmp_path, ev, carry_over_seeds={"a.json": _baseline()}
+        )
+        assert seen[0]["kind"] == "carry_over"
+
+    def test_trial_payloads_number_within_the_pass(self, tmp_path):
+        # eval_in_pass is 1-based and contiguous across a converging (single) pass, and the
+        # planned denominator matches the grid minus each param's own incumbent.
+        ev = _evaluator(lambda do, pv: 0.5)          # nothing adopts -> exactly one pass
+        trials = [p for p in self._run_collecting(tmp_path, ev) if p["kind"] == "trial"]
+        candidates = generate_candidate_values(_baseline(), 5)
+        expected = sum(len(candidates[p]) - 1 for p in DRAFT_SWEEP_PARAMS)
+        assert [p["eval_in_pass"] for p in trials] == list(range(1, expected + 1))
+        assert all(p["evals_in_pass"] == expected for p in trials)
+        assert all(p["ascent_pass"] == 1 for p in trials)
+
+    def test_param_index_tracks_the_swept_parameter(self, tmp_path):
+        # param_index is the 1-based position of param within DRAFT_SWEEP_PARAMS.
+        ev = _evaluator(lambda do, pv: 0.5)
+        trials = [p for p in self._run_collecting(tmp_path, ev) if p["kind"] == "trial"]
+        for payload in trials:
+            assert payload["param_total"] == len(DRAFT_SWEEP_PARAMS)
+            assert DRAFT_SWEEP_PARAMS[payload["param_index"] - 1] == payload["param"]
+
+    def _single_winner_evaluator(self):
+        """One exact winning combination; every other combo sits at the 0.50 null.
+
+        The full-dict `pv == winner` match is the file's established anti-hang idiom (see
+        test_converges_on_flat_landscape): a predicate on ONE param would keep re-adopting
+        every other param's trials pass after pass and run() would never converge.
+        """
+        winner = dict(_baseline())
+        winner["PRIMARY_BONUS"] = _max_pb(_baseline())
+        ev = _wg_evaluator(lambda do, pv: (700, 1000) if pv == winner else (500, 1000))
+        return ev, winner
+
+    def test_adopted_flag_matches_the_gate(self, tmp_path):
+        # adopted is True exactly for the trials that cleared the significance gate — the
+        # signal that tells a watcher a long pass is still moving.
+        ev, winner = self._single_winner_evaluator()
+        seen = self._run_collecting(tmp_path, ev)
+        adopted = [p for p in seen if p["adopted"]]
+        assert len(adopted) == 1, "only the one winning candidate clears the gate"
+        assert adopted[0]["param"] == "PRIMARY_BONUS"
+        assert adopted[0]["value"] == winner["PRIMARY_BONUS"]
+        assert adopted[0]["kind"] == "trial"
+
+    def test_multiple_passes_increment_ascent_pass(self, tmp_path):
+        # An adoption forces a second confirming pass, and its payloads say so.
+        ev, _ = self._single_winner_evaluator()
+        seen = self._run_collecting(tmp_path, ev)
+        assert max(p["ascent_pass"] for p in seen) >= 2
+
+    def test_results_are_carried_verbatim(self, tmp_path):
+        # wins/games/win_rate in the payload are the evaluation's own returned numbers.
+        ev = _wg_evaluator(lambda do, pv: (7, 20))
+        for payload in self._run_collecting(tmp_path, ev):
+            assert (payload["wins"], payload["games"]) == (7, 20)
+            assert payload["win_rate"] == pytest.approx(0.35)
+
+    def test_absent_callback_leaves_behavior_unchanged(self, tmp_path):
+        # The default (None) path must not fire anything or alter the tuned result.
+        ev = _evaluator(lambda do, pv: 0.5)
+        t = SweepTournament(ev, _store(tmp_path))
+        without = t.run([("a.json", [{"s": "1"}])], _baseline())
+        ev2 = _evaluator(lambda do, pv: 0.5)
+        t2 = SweepTournament(ev2, _store(tmp_path, name="other.json"))
+        with_cb = t2.run([("a.json", [{"s": "1"}])], _baseline(), evaluation_callback=lambda i: None)
+        assert without == with_cb

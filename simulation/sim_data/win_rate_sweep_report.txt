@@ -1,0 +1,7 @@
+Sweep Config Candidates (ranked by margin-over-reference lower bound)
+Rate = the selected combo's non-self-play pooled win rate — NOT an estimate of its rate.
+──────────────────────────────────────────────────────────────
+Rank      LCB     Rate  Games  Strategy / Params
+────  ───────  ───────  ─────  ─────────────────
+   1    0.034    0.556   1360  52_live_config.json | SAME_POS_BYE_WEIGHT=2.0, DIFF_POS_BYE_WEIGHT=0.0, PRIMARY_BONUS=50, SECONDARY_BONUS=25, ADP_SCORING_WEIGHT=7.0, PLAYER_RATING_SCORING_WEIGHT=7.0
+──────────────────────────────────────────────────────────────

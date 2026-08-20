@@ -210,6 +210,13 @@ class AddToRosterModeManager:
             happens and a roster slot is still open, this method falls back to roster-legal
             candidates with zero/negative projections rather than returning no
             recommendations, so the draft can still complete the roster.
+
+            A second fallback then drops get_player_list's default non-negative score floor,
+            which is applied ahead of both filters above and can otherwise empty the pool on
+            a nearly-full roster when penalties (chiefly the bye-week penalty) drive every
+            remaining candidate's score below zero. Between them the two fallbacks mean an
+            empty return implies a genuinely full roster or an exhausted player pool, never
+            merely an unfavourable scoring configuration.
         """
         current_round = self._get_current_round()
 
@@ -234,6 +241,29 @@ class AddToRosterModeManager:
                 self.logger.warning(
                     f"No positive-value draftable players available for round {current_round} - "
                     f"falling back to {len(available_players)} zero/negative-value roster-legal candidates"
+                )
+
+        if not available_players:
+            # Score-floor fallback. get_player_list applies `p.score >= min_scores[position]`
+            # BEFORE the can_draft/require_positive_points filters, and min_scores defaults to
+            # 0.0 for every position, so a player whose last scoring pass came out negative is
+            # dropped from the pool outright - which the T42 fallback above cannot undo, since
+            # it only relaxes the fantasy_points requirement. Sufficiently large penalties
+            # (notably the bye-week penalty, whose different-position term sums every rostered
+            # player sharing the bye week) can push every remaining candidate negative on a
+            # nearly-full roster, emptying the pool while the roster still has an open slot.
+            # A roster-legal player is a legal and necessary pick there even at a negative
+            # score, so drop the floor rather than fail the draft.
+            available_players = self.player_manager.get_player_list(
+                drafted_vals=[0],
+                can_draft=True,
+                require_positive_points=False,
+                min_scores={pos: float("-inf") for pos in Constants.ALL_POSITIONS},
+            )
+            if available_players:
+                self.logger.warning(
+                    f"No non-negative-scoring draftable players available for round {current_round} - "
+                    f"falling back to {len(available_players)} negative-scoring roster-legal candidates"
                 )
 
         self.logger.debug(f"Found {len(available_players)} draftable players for recommendations")

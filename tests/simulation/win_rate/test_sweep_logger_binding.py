@@ -22,7 +22,7 @@ def _baseline():
         "PRIMARY_BONUS": 67,
         "SECONDARY_BONUS": 69,
         "ADP_SCORING_WEIGHT": 4.76,
-        "PLAYER_RATING_SCORING_WEIGHT": 3.52,
+        "PLAYER_RATING_SCORING_WEIGHT": 5.52,
     }
 
 

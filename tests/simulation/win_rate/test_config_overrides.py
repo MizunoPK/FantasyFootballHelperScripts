@@ -45,7 +45,7 @@ def base_config():
             "PLAYER_RATING_SCORING": {
                 "THRESHOLDS": {"BASE_POSITION": 0, "DIRECTION": "INCREASING", "STEPS": 20},
                 "MULTIPLIERS": {"VERY_POOR": 0.95, "GOOD": 1.025},
-                "WEIGHT": 3.52,
+                "WEIGHT": 5.52,
             },
             "DRAFT_NORMALIZATION_MAX_SCALE": 150,
         },
@@ -61,7 +61,7 @@ def valid_param_values():
         "PRIMARY_BONUS": 80,
         "SECONDARY_BONUS": 60,
         "ADP_SCORING_WEIGHT": 5.0,
-        "PLAYER_RATING_SCORING_WEIGHT": 3.0,
+        "PLAYER_RATING_SCORING_WEIGHT": 6.0,
     }
 
 
@@ -82,7 +82,7 @@ class TestApplyDraftOverrides:
         assert params["DRAFT_ORDER_BONUSES"]["PRIMARY"] == 80
         assert params["DRAFT_ORDER_BONUSES"]["SECONDARY"] == 60
         assert params["ADP_SCORING"]["WEIGHT"] == 5.0
-        assert params["PLAYER_RATING_SCORING"]["WEIGHT"] == 3.0
+        assert params["PLAYER_RATING_SCORING"]["WEIGHT"] == 6.0
 
     def test_precision_rounding_applied(self, base_config, valid_param_values, new_draft_order):
         param_values = dict(valid_param_values)
@@ -126,8 +126,8 @@ class TestApplyDraftOverrides:
     @pytest.mark.parametrize(
         "param, bad_value",
         [
-            ("ADP_SCORING_WEIGHT", 9.9),   # above max 7.0
-            ("PRIMARY_BONUS", 10),         # below min 25
+            ("ADP_SCORING_WEIGHT", 20.0),  # above max 14.0
+            ("PRIMARY_BONUS", -5),         # below min 0
         ],
     )
     def test_out_of_range_raises(self, base_config, valid_param_values, new_draft_order, param, bad_value):
@@ -188,7 +188,7 @@ class TestExtractDraftParamValues:
         assert values["PRIMARY_BONUS"] == 67
         assert values["SECONDARY_BONUS"] == 69
         assert values["ADP_SCORING_WEIGHT"] == 4.76
-        assert values["PLAYER_RATING_SCORING_WEIGHT"] == 3.52
+        assert values["PLAYER_RATING_SCORING_WEIGHT"] == 5.52
 
     def test_extract_then_apply_is_noop_for_params(self, base_config, new_draft_order):
         # Applying the extracted current values back changes only DRAFT_ORDER.

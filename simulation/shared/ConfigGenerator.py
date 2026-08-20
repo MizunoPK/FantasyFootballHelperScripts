@@ -11,16 +11,16 @@ Parameters Varied (with ranges):
 
 Base Config Parameters:
   1. NORMALIZATION_MAX_SCALE: [50, 200] - Point spread scaling
-  2. SAME_POS_BYE_WEIGHT: [0.0, 1.0] - Same position bye penalty
-  3. DIFF_POS_BYE_WEIGHT: [0.0, 0.5] - Different position bye penalty
-  4. PRIMARY_BONUS: [25, 150] - Primary draft order bonus
-  5. SECONDARY_BONUS: [25, 150] - Secondary draft order bonus
+  2. SAME_POS_BYE_WEIGHT: [0.0, 2.0] - Same position bye penalty
+  3. DIFF_POS_BYE_WEIGHT: [0.0, 0.75] - Different position bye penalty
+  4. PRIMARY_BONUS: [0, 300] - Primary draft order bonus
+  5. SECONDARY_BONUS: [0, 300] - Secondary draft order bonus
   6. DRAFT_ORDER_FILE: [1, 100] - Draft strategy file (discrete)
-  7. ADP_SCORING_WEIGHT: [0.5, 7.0] - ADP influence weight
+  7. ADP_SCORING_WEIGHT: [4.0, 14.0] - ADP influence weight
   8. ADP_SCORING_STEPS: [5, 50] - ADP picks per tier
 
 Week-Specific Parameters:
-  9. PLAYER_RATING_SCORING_WEIGHT: [0.5, 7.0] - Expert ranking weight
+  9. PLAYER_RATING_SCORING_WEIGHT: [4.0, 14.0] - Expert ranking weight
   10. TEAM_QUALITY_SCORING_WEIGHT: [0.0, 4.0] - Team strength weight
   11. TEAM_QUALITY_MIN_WEEKS: [1, 12] - Min weeks of team data
   12. PERFORMANCE_SCORING_WEIGHT: [0.0, 8.0] - Performance deviation weight
@@ -82,18 +82,24 @@ class ConfigGenerator:
         # NORMALIZATION_MAX_SCALE.
         'DRAFT_NORMALIZATION_MAX_SCALE': (100, 200, 0),
 
-        'SAME_POS_BYE_WEIGHT': (0.0, 1.0, 2),
-        'DIFF_POS_BYE_WEIGHT': (0.0, 0.5, 2),
+        'SAME_POS_BYE_WEIGHT': (0.0, 2.0, 2),
+        # Ceiling is deliberately well below SAME_POS's: the diff-position bye penalty
+        # sums EVERY rostered player sharing the bye week regardless of position, so it
+        # compounds several times faster. Above ~1.05 the penalty drives late-round
+        # candidate scores negative, and PlayerManager.get_player_list's score >= 0.0
+        # floor then filters the pool to empty -> "No draft recommendations available"
+        # and the league is dropped. Measured clean 0/12 leagues through 1.0.
+        'DIFF_POS_BYE_WEIGHT': (0.0, 0.75, 2),
 
-        'PRIMARY_BONUS': (25, 150, 0),
-        'SECONDARY_BONUS': (25, 150, 0),
+        'PRIMARY_BONUS': (0, 300, 0),
+        'SECONDARY_BONUS': (0, 300, 0),
 
         'DRAFT_ORDER_FILE': (1, 100, 0),
 
-        'ADP_SCORING_WEIGHT': (0.50, 7.00, 2),
+        'ADP_SCORING_WEIGHT': (4.00, 14.00, 2),
         'ADP_SCORING_STEPS': (5, 50, 0),
 
-        'PLAYER_RATING_SCORING_WEIGHT': (0.50, 7.00, 2),
+        'PLAYER_RATING_SCORING_WEIGHT': (4.00, 14.00, 2),
 
         'TEAM_QUALITY_SCORING_WEIGHT': (0.00, 4.00, 2),
         'TEAM_QUALITY_MIN_WEEKS': (1, 12, 0),

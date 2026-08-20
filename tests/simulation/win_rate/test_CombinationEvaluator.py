@@ -36,7 +36,7 @@ def _fake_params():
         "DRAFT_ORDER": [{"QB": "P"}],
         "MAX_POSITIONS": {"QB": 2},
         "ADP_SCORING": {"THRESHOLDS": {"STEPS": 25}, "WEIGHT": 4.76},
-        "PLAYER_RATING_SCORING": {"THRESHOLDS": {"STEPS": 20}, "WEIGHT": 3.52},
+        "PLAYER_RATING_SCORING": {"THRESHOLDS": {"STEPS": 20}, "WEIGHT": 5.52},
         "DRAFT_NORMALIZATION_MAX_SCALE": 150,
     }
 
@@ -48,7 +48,7 @@ def _valid_param_values():
         "PRIMARY_BONUS": 80,
         "SECONDARY_BONUS": 60,
         "ADP_SCORING_WEIGHT": 5.0,
-        "PLAYER_RATING_SCORING_WEIGHT": 3.0,
+        "PLAYER_RATING_SCORING_WEIGHT": 6.0,
     }
 
 
@@ -125,7 +125,7 @@ class TestCombinationEvaluator:
         assert params["DRAFT_ORDER"] == draft_order
         assert params["DRAFT_ORDER_BONUSES"]["PRIMARY"] == 80
         assert params["ADP_SCORING"]["WEIGHT"] == 5.0
-        assert params["PLAYER_RATING_SCORING"]["WEIGHT"] == 3.0
+        assert params["PLAYER_RATING_SCORING"]["WEIGHT"] == 6.0
 
     def test_evaluate_runs_all_seasons(self, tmp_path):
         ev, mock_runner = _make_evaluator(tmp_path, [(1, 1, 0.0)], num_seasons=3)

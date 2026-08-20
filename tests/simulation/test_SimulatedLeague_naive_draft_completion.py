@@ -27,12 +27,14 @@ covered even if the committed historical data is later recompiled.
 Author: Kai Mizuno
 """
 
+import copy
 import random
 from pathlib import Path
 from unittest.mock import Mock
 
 import pytest
 
+import league_helper.constants as Constants
 from league_helper.add_to_roster_mode.AddToRosterModeManager import AddToRosterModeManager
 from league_helper.util.ConfigManager import ConfigManager
 from league_helper.util.PlayerManager import PlayerManager
@@ -213,6 +215,122 @@ class TestPositiveValuePoolExhaustionFallback:
             recommendations = manager.get_recommendations()
 
         assert recommendations == []
+
+
+class TestNegativeScoreFloorFallback:
+    """
+    Deterministic coverage of the score-floor fallback, the second of
+    get_recommendations()'s two degradation steps.
+
+    get_player_list applies `p.score >= min_scores[position]` — defaulting to 0.0 for
+    every position — BEFORE its can_draft/require_positive_points filters, so a player
+    whose last scoring pass came out negative is dropped from the pool outright and the
+    T42 fallback above cannot reach them. Sufficiently large penalties can push every
+    remaining candidate negative on a nearly-full roster, emptying the pool while a
+    roster slot is still open.
+
+    Observed for real: a sweep run with DIFF_POS_BYE_WEIGHT widened to 2.0 dropped 100%
+    of its leagues. _apply_bye_week_penalty's different-position term sums EVERY rostered
+    player sharing the bye week regardless of position, so at a high weight it exceeds the
+    base score by round ~14; the draft then died at 14/15 with "No draft recommendations
+    available - roster may be full" against 629 undrafted players, 139 of them negative.
+    """
+
+    def test_get_player_list_default_excludes_negative_score_players(self):
+        """Default min_scores (0.0 per position) drops negative-scoring players entirely,
+        even with require_positive_points already relaxed."""
+        negative_player = _make_player(1, fantasy_points=100.0)
+        negative_player.score = -5.0
+        pm = _make_bare_pm([negative_player])
+
+        result = pm.get_player_list(
+            drafted_vals=[0], can_draft=True, require_positive_points=False
+        )
+
+        assert result == []
+
+    def test_get_player_list_negative_floor_includes_negative_score_players(self):
+        """An explicit -inf floor surfaces the roster-legal negative-scoring player."""
+        negative_player = _make_player(1, fantasy_points=100.0)
+        negative_player.score = -5.0
+        pm = _make_bare_pm([negative_player])
+
+        result = pm.get_player_list(
+            drafted_vals=[0],
+            can_draft=True,
+            require_positive_points=False,
+            min_scores={pos: float("-inf") for pos in Constants.ALL_POSITIONS},
+        )
+
+        assert result == [negative_player]
+
+    def test_get_recommendations_falls_back_when_every_candidate_scores_negative(self):
+        """
+        When both the positive-value pool AND the non-negative-score pool are empty but
+        roster-legal negative-scoring candidates exist, get_recommendations() must return
+        them rather than [] — which DraftHelperTeam turns into a hard ValueError that
+        drops the whole league.
+        """
+        negative_qb = _make_player(1, position="QB", fantasy_points=10.0)
+        negative_qb.score = -27.6
+
+        player_manager = Mock(spec=PlayerManager)
+        player_manager.team = Mock()
+        player_manager.team.roster = []
+        call_log = []
+
+        def get_player_list_side_effect(
+            drafted_vals=None, can_draft=False, require_positive_points=True, min_scores=None
+        ):
+            call_log.append((require_positive_points, min_scores))
+            if min_scores is None:
+                return []  # both the positive-value and non-negative-score pools are empty
+            return [negative_qb]
+
+        player_manager.get_player_list = Mock(side_effect=get_player_list_side_effect)
+        player_manager.score_player = Mock(
+            return_value=Mock(score=-27.6, player=negative_qb)
+        )
+
+        team_data_manager = Mock(spec=TeamDataManager)
+        config = Mock()
+        config.max_players = 15
+
+        manager = AddToRosterModeManager(config, player_manager, team_data_manager)
+        with pytest.MonkeyPatch.context() as mp:
+            mp.setattr(manager, "_get_current_round", lambda: 15)
+            recommendations = manager.get_recommendations()
+
+        assert len(recommendations) == 1
+        assert recommendations[0].player is negative_qb
+        # Three escalating calls: default -> positive-points relaxed -> score floor dropped.
+        assert [rpp for rpp, _ in call_log] == [True, False, False]
+        assert call_log[0][1] is None
+        assert call_log[1][1] is None
+        assert call_log[2][1] == {pos: float("-inf") for pos in Constants.ALL_POSITIONS}
+
+
+class TestNegativeScoreFloorDraftCompletion:
+    """
+    End-to-end guard on the incident itself: a draft whose bye-week penalty is large
+    enough to drive late-round candidate scores negative must still complete every
+    roster. DIFF_POS_BYE_WEIGHT=2.0 is above the ~1.05 point where this was measured
+    to fail pre-fix, and above the 0.75 sweep ceiling, so it exercises the fallback
+    rather than merely staying inside the safe range.
+    """
+
+    def test_draft_completes_with_score_negating_bye_penalty(self, base_config_dict):
+        config_dict = copy.deepcopy(base_config_dict)
+        config_dict["parameters"]["DIFF_POS_BYE_WEIGHT"] = 2.0
+
+        league = SimulatedLeague(config_dict, Path("simulation/sim_data/2024"), seed=1)
+        try:
+            league.run_draft()
+
+            for team in league.teams:
+                assert len(team.roster) == 15
+        finally:
+            league.cleanup()
 
 
 class TestSimulatedOpponentPositiveValuePoolExhaustionFallback:

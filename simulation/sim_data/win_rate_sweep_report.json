@@ -1,0 +1,23 @@
+{
+  "generated": "2026-08-20",
+  "rate_semantics": "Candidates are ordered by 'lcb', a Wilson lower confidence bound on each config's MARGIN over its reference (rate - 0.50) pooled across its non-self-play buckets (T68), used ONLY as a shortlist filter. 'win_rate' is the selected combo's non-self-play pooled rate, not an estimate of its true rate. The promoted headline comes from a fresh re-measurement (--promote), not from here.",
+  "pooling_caveat": "Per-reference bucketing (T68-winrate-heterogeneous-reference-pooling) segregates each combo's evaluations by the incumbent they were measured against and excludes the ~0.50 self-play baseline/carry-over bucket, so 'lcb' and 'win_rate' pool only same-objective head-to-head games. The margin still pools a combo's DIFFERENT older incumbents, so treat 'lcb' as a promising-ness filter, never as a confidence statement about any config.",
+  "configs": [
+    {
+      "rank": 1,
+      "strategy_id": "52_live_config.json",
+      "lcb": 0.033631681265597235,
+      "win_rate": 0.5558823529411765,
+      "games": 1360,
+      "wins": 756,
+      "param_values": {
+        "SAME_POS_BYE_WEIGHT": 2.0,
+        "DIFF_POS_BYE_WEIGHT": 0.0,
+        "PRIMARY_BONUS": 50,
+        "SECONDARY_BONUS": 25,
+        "ADP_SCORING_WEIGHT": 7.0,
+        "PLAYER_RATING_SCORING_WEIGHT": 7.0
+      }
+    }
+  ]
+}

@@ -63,7 +63,7 @@ _LIVE_PARAMS = {
     "PRIMARY_BONUS": 67,
     "SECONDARY_BONUS": 69,
     "ADP_SCORING_WEIGHT": 4.76,
-    "PLAYER_RATING_SCORING_WEIGHT": 3.52,
+    "PLAYER_RATING_SCORING_WEIGHT": 5.52,
 }
 
 # Winner values — all in-bounds (per ConfigGenerator.PARAM_DEFINITIONS) and
@@ -73,8 +73,8 @@ _WINNER_PARAMS = {
     "DIFF_POS_BYE_WEIGHT": 0.05,
     "PRIMARY_BONUS": 90,
     "SECONDARY_BONUS": 100,
-    "ADP_SCORING_WEIGHT": 3.00,
-    "PLAYER_RATING_SCORING_WEIGHT": 2.00,
+    "ADP_SCORING_WEIGHT": 5.00,
+    "PLAYER_RATING_SCORING_WEIGHT": 6.00,
 }
 
 _WINNER_ORDER = [{"round": 1, "position": "RB"}, {"round": 2, "position": "WR"}]

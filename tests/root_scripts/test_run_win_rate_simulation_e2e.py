@@ -150,7 +150,13 @@ class TestWinRateSimulationE2E:
         # coincidence is a consequence of the snapshot, not evidence the value was carried over —
         # and the two will diverge the moment the live store moves, which is the point of D4.3.
         # Re-pin, never re-range, if a future change moves it again.
-        assert abs(entry["best_win_rate"] - 8 / 17) < 1e-9
+        #
+        # 2026-08-19 moved it again, BY DESIGN and via exactly the D4.3 channel above: raising the
+        # ADP_SCORING_WEIGHT sweep floor to 4.00 put this tree's own 2.12 anchor out of bounds
+        # (generate_candidate_values rejects an anchor outside [min, max]), so the fixture's ADP
+        # weight was edited 2.12 -> 7.0. That is a deliberate edit to the frozen tree, which
+        # re-ordered drafting and moved the rate 8/17 -> 7/17. Re-pinned, not re-ranged.
+        assert abs(entry["best_win_rate"] - 7 / 17) < 1e-9
         assert "total_wins" in entry
         assert "total_games" in entry
         assert entry["total_games"] >= entry["total_wins"]

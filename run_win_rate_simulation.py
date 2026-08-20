@@ -516,19 +516,94 @@ def _run_sweep_mode(args: argparse.Namespace, data_folder: Path, logger) -> None
             total = len(strategies)
             tracker = ProgressTracker(total=total, description="Configs") if is_tty else None
             logged = 0  # off-TTY per-config counter (the bar owns the count on a TTY)
+            # Evaluation-level progress state. A config's own signal fires ONCE per config, so a
+            # single-config sweep showed one update across its whole (multi-hour) run; an
+            # evaluation is the real unit of cost, and there are ~6 x (num_values - 1) per ascent
+            # pass. eval_tracker is rebuilt whenever the (config, ascent pass) pair changes,
+            # because the planned evaluation count is per-pass.
+            configs_done = 0        # 1-based config position for the evaluation line's label
+            eval_tracker = None     # ProgressTracker for the current (config, pass); TTY only
+            eval_key = None         # the (strategy_id, ascent_pass) the tracker belongs to
+            eval_line_open = False  # a redrawing bar line is mid-flight and needs closing
+
+            def close_eval_line() -> None:
+                """Terminate an in-flight redrawing evaluation line so the next print owns a row."""
+                nonlocal eval_line_open
+                if eval_line_open:
+                    print()
+                    eval_line_open = False
+
+            def eval_cb(info: dict) -> None:
+                """Per-evaluation progress signal: redraw the bar (TTY) or log a line (non-TTY)."""
+                nonlocal eval_tracker, eval_key, eval_line_open
+                sid = info["strategy_id"]
+                label = f"Config {configs_done + 1}/{total} {sid}"
+                if info["param"] is None:
+                    moving = f"{info['kind']} anchor"
+                else:
+                    moving = f"{info['param']}={info['value']}"
+                outcome = f"rate={info['win_rate']:.3f} n={info['games']}"
+
+                if not is_tty:
+                    if info["eval_in_pass"] == 0:
+                        logger.info(f"{label} | {moving} | {outcome}")
+                    else:
+                        verdict = "ADOPTED" if info["adopted"] else "held"
+                        logger.info(
+                            f"{label} | pass {info['ascent_pass']} | "
+                            f"eval {info['eval_in_pass']}/{info['evals_in_pass']} | "
+                            f"{moving} | {outcome} | {verdict}"
+                        )
+                    return
+
+                if info["eval_in_pass"] == 0:
+                    # The anchor precedes any pass, so it gets a plain scrolling line rather than
+                    # a bar — there is no pass denominator to render it against yet.
+                    close_eval_line()
+                    eval_tracker, eval_key = None, None
+                    print(f"{label} | {moving} | {outcome}")
+                    return
+
+                key = (sid, info["ascent_pass"])
+                if key != eval_key:
+                    close_eval_line()
+                    eval_key = key
+                    eval_tracker = ProgressTracker(
+                        total=info["evals_in_pass"], description=label
+                    )
+                # evals_in_pass is fixed at pass start, so a mid-pass adoption can push the
+                # actual count past it (the incumbent moves, un-skipping a value). Grow the
+                # denominator rather than clamping — a stuck 24/24 would read as finished.
+                if info["eval_in_pass"] > eval_tracker.total:
+                    eval_tracker.total = info["eval_in_pass"]
+                eval_tracker.description = f"{label} · pass {info['ascent_pass']} · {moving}"
+                eval_tracker.set_completed(info["eval_in_pass"])
+                eval_line_open = info["eval_in_pass"] < eval_tracker.total
+                if info["adopted"]:
+                    # An adoption is the one event worth keeping in scrollback: it is what
+                    # distinguishes a pass that is still improving from one about to converge.
+                    close_eval_line()
+                    print(f"  -> ADOPTED {moving} ({outcome})")
 
             def progress_cb(strategy_id: str) -> None:
                 """Per-config progress signal: advance the bar (TTY) or log a line (non-TTY)."""
-                nonlocal logged
+                nonlocal logged, configs_done, eval_tracker, eval_key
+                configs_done += 1
                 if is_tty:
+                    close_eval_line()   # let the Configs bar own its own row
+                    eval_tracker, eval_key = None, None
                     tracker.update()
+                    if configs_done < total:
+                        # ProgressTracker only newlines on its FINAL update, so close the row
+                        # by hand — otherwise the next config's evaluation bar overwrites it.
+                        print()
                 else:
                     logged += 1
                     logger.info(f"config {logged}/{total} ({strategy_id})")
 
             tournament.run(
                 strategies, baseline_params, resume=resume, carry_over_seeds=carry_over,
-                progress_callback=progress_cb,
+                progress_callback=progress_cb, evaluation_callback=eval_cb,
             )
             if is_tty:
                 tracker.finish()
