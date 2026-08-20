@@ -7,7 +7,6 @@ BASE_CONFIG_PARAMS = [
     'DIFF_POS_BYE_WEIGHT',
     'INJURY_PENALTIES',
     'DRAFT_ORDER_BONUSES',
-    'DRAFT_ORDER_FILE',
     'DRAFT_ORDER',
     'MAX_POSITIONS',
     'FLEX_ELIGIBLE_POSITIONS',
@@ -30,7 +29,14 @@ BASE_CONFIG_PARAMS = [
     # as cosmetic drift: that `unexpected=` list is not test noise, it is an
     # INVENTORY of keys the promote will drop.
     'NFL_TEAM_PENALTY',
-    'NFL_TEAM_PENALTY_WEIGHT'
+    'NFL_TEAM_PENALTY_WEIGHT',
+    # D18.5: the same live-only, user-maintained shape as the precedents above.
+    # SURVIVAL_SCORING is added to data/configs/league_config.json by the draft-cockpit
+    # cutover and exists in no source folder, so without membership here
+    # extract_base_params drops it from every promoted payload -- and without the twin
+    # entry in AccuracyResultsManager.PRESERVE_KEYS an accuracy --promote deletes the
+    # user's survival ladder outright. Both lists are required.
+    'SURVIVAL_SCORING'
 ]
 
 WEEK_SPECIFIC_PARAMS = [

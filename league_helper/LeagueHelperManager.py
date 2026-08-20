@@ -26,7 +26,7 @@ from league_helper.util.PlayerManager import PlayerManager
 from league_helper.util.TeamDataManager import TeamDataManager
 from league_helper.util.SeasonScheduleManager import SeasonScheduleManager
 from league_helper.util.user_input import show_list_selection
-from league_helper.add_to_roster_mode.AddToRosterModeManager import AddToRosterModeManager
+from league_helper.draft_mode.DraftModeManager import DraftModeManager
 from league_helper.starter_helper_mode.StarterHelperModeManager import StarterHelperModeManager
 from league_helper.trade_simulator_mode.TradeSimulatorModeManager import TradeSimulatorModeManager
 from league_helper.modify_player_data_mode.ModifyPlayerDataModeManager import ModifyPlayerDataModeManager
@@ -47,7 +47,7 @@ class LeagueHelperManager:
         config (ConfigManager): Manages league configuration from JSON
         team_data_manager (TeamDataManager): Handles team rankings and matchups
         player_manager (PlayerManager): Manages player data, scoring, and roster
-        add_to_roster_mode_manager (AddToRosterModeManager): Draft mode handler
+        draft_mode_manager (DraftModeManager): Draft mode handler
         starter_helper_mode_manager (StarterHelperModeManager): Weekly lineup handler
         trade_simulator_mode_manager (TradeSimulatorModeManager): Trade simulation handler
         modify_player_data_mode_manager (ModifyPlayerDataModeManager): Player data modification handler
@@ -87,7 +87,7 @@ class LeagueHelperManager:
         self.player_manager = PlayerManager(data_folder, self.config, self.team_data_manager, self.season_schedule_manager)
         self.logger.info(f"Player data loaded: {len(self.player_manager.players)} total players")
 
-        self.add_to_roster_mode_manager = AddToRosterModeManager(self.config, self.player_manager, self.team_data_manager)
+        self.draft_mode_manager = DraftModeManager(self.config, self.player_manager, self.team_data_manager)
         self.starter_helper_mode_manager = StarterHelperModeManager(self.config, self.player_manager, self.team_data_manager)
         self.trade_simulator_mode_manager = TradeSimulatorModeManager(data_folder, self.player_manager, self.config)
         self.modify_player_data_mode_manager = ModifyPlayerDataModeManager(self.player_manager, data_folder)
@@ -118,12 +118,12 @@ class LeagueHelperManager:
             self.player_manager.reload_player_data()
             self.logger.debug(f"Reloading player data: {len(self.player_manager.players)} players refreshed")
 
-            choice = show_list_selection("MAIN MENU", ["Add to Roster", "Starter Helper", "Trade Simulator", "Modify Player Data", "Save Calculated Projected Points"], "Quit")
+            choice = show_list_selection("MAIN MENU", ["Draft Mode", "Starter Helper", "Trade Simulator", "Modify Player Data", "Save Calculated Projected Points"], "Quit")
             self.logger.debug(f"User selected menu option: {choice}")
 
             if choice == 1:
-                self.logger.info("Starting Add to Roster mode")
-                self._run_add_to_roster_mode()
+                self.logger.info("Starting Draft Mode")
+                self._run_draft_mode()
             elif choice == 2:
                 self.logger.info("Starting Starter Helper mode")
                 self._run_starter_helper_mode()
@@ -146,14 +146,14 @@ class LeagueHelperManager:
 
 
 
-    def _run_add_to_roster_mode(self):
+    def _run_draft_mode(self):
         """
-        Delegate to Add to Roster mode manager.
+        Delegate to Draft Mode manager.
 
         Passes player_manager and team_data_manager instances to the mode manager
-        to ensure it has the latest data. Draft scoring uses is_draft_mode flag.
+        to ensure it has the latest data. Draft scoring uses use_draft_normalization flag.
         """
-        self.add_to_roster_mode_manager.start_interactive_mode(self.player_manager, self.team_data_manager)
+        self.draft_mode_manager.start_interactive_mode(self.player_manager, self.team_data_manager)
 
     def _run_starter_helper_mode(self):
         """

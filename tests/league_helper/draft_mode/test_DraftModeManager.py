@@ -1,7 +1,7 @@
 """
-Comprehensive Unit Tests for AddToRosterModeManager.py
+Comprehensive Unit Tests for DraftModeManager.py
 
-Tests the AddToRosterModeManager class which manages the draft assistant mode:
+Tests the DraftModeManager class which manages the draft assistant mode:
 - Intelligent player recommendations based on draft position
 - Interactive player selection workflow
 - Roster display by draft rounds
@@ -17,7 +17,7 @@ import pytest
 from unittest.mock import Mock, MagicMock, patch, call
 from typing import List
 
-from league_helper.add_to_roster_mode.AddToRosterModeManager import AddToRosterModeManager
+from league_helper.draft_mode.DraftModeManager import DraftModeManager
 from league_helper.util.ConfigManager import ConfigManager
 from league_helper.util.PlayerManager import PlayerManager
 from league_helper.util.TeamDataManager import TeamDataManager
@@ -44,7 +44,7 @@ def mock_data_folder(tmp_path):
 
     config_content = """{
   "config_name": "Test Config",
-  "description": "Test configuration for AddToRosterMode tests",
+  "description": "Test configuration for DraftMode tests",
   "parameters": {
     "CURRENT_NFL_WEEK": 6,
     "NFL_SEASON": 2025,
@@ -230,18 +230,18 @@ def mock_team_data_manager():
 
 @pytest.fixture
 def add_to_roster_manager(config, mock_player_manager, mock_team_data_manager):
-    """Create AddToRosterModeManager instance for tests"""
-    manager = AddToRosterModeManager(config, mock_player_manager, mock_team_data_manager)
+    """Create DraftModeManager instance for tests"""
+    manager = DraftModeManager(config, mock_player_manager, mock_team_data_manager)
     return manager
 
 
 
 class TestInitialization:
-    """Test AddToRosterModeManager initialization"""
+    """Test DraftModeManager initialization"""
 
     def test_init_sets_config(self, config, mock_player_manager, mock_team_data_manager):
         """Test initialization sets config properly"""
-        manager = AddToRosterModeManager(config, mock_player_manager, mock_team_data_manager)
+        manager = DraftModeManager(config, mock_player_manager, mock_team_data_manager)
 
         assert manager.config == config
         assert manager.player_manager == mock_player_manager
@@ -249,13 +249,13 @@ class TestInitialization:
 
     def test_init_calls_set_managers(self, config, mock_player_manager, mock_team_data_manager):
         """Test initialization calls set_managers"""
-        with patch.object(AddToRosterModeManager, 'set_managers') as mock_set:
-            manager = AddToRosterModeManager(config, mock_player_manager, mock_team_data_manager)
+        with patch.object(DraftModeManager, 'set_managers') as mock_set:
+            manager = DraftModeManager(config, mock_player_manager, mock_team_data_manager)
             mock_set.assert_called_once_with(mock_player_manager, mock_team_data_manager)
 
     def test_init_creates_logger(self, config, mock_player_manager, mock_team_data_manager):
         """Test initialization creates logger"""
-        manager = AddToRosterModeManager(config, mock_player_manager, mock_team_data_manager)
+        manager = DraftModeManager(config, mock_player_manager, mock_team_data_manager)
 
         assert manager.logger is not None
 
@@ -641,7 +641,12 @@ class TestGetRecommendations:
             first_call = calls[0].kwargs
             assert first_call.get('adp') == True
             assert first_call.get('player_rating') == True
-            assert first_call.get('team_quality') == True
+            # team_quality is DELIBERATELY off: there is no team-quality data yet to
+            # inform the signal, so enabling it would weight recommendations by a
+            # factor with nothing behind it. Turned off in abab9f6d (2026-08-15);
+            # this assertion was left asserting True and had been red since.
+            # Re-enable here only when a real team-quality data source lands.
+            assert first_call.get('team_quality') == False
             assert first_call.get('performance') == False
             assert first_call.get('matchup') == False
             assert first_call.get('schedule') == False
@@ -731,155 +736,11 @@ class TestDisplayRosterByDraftRounds:
 
 
 
-class TestInteractiveMode:
-    """Test start_interactive_mode() method"""
-
-    @patch('builtins.input', side_effect=[str(Constants.RECOMMENDATION_COUNT + 1)])
-    def test_interactive_mode_back_to_menu(self, mock_input, add_to_roster_manager, mock_player_manager, mock_team_data_manager, capsys):
-        """Test choosing to go back to main menu"""
-        mock_player_manager.get_roster_len.return_value = 0
-
-        with patch.object(add_to_roster_manager, '_display_roster_by_draft_rounds'):
-            with patch.object(add_to_roster_manager, '_get_current_round', return_value=1):
-                with patch.object(add_to_roster_manager, 'get_recommendations',
-                                 return_value=[Mock(spec=ScoredPlayer) for _ in range(10)]):
-                    add_to_roster_manager.start_interactive_mode(mock_player_manager, mock_team_data_manager)
-
-        captured = capsys.readouterr()
-        assert "Returning to Main Menu..." in captured.out
-
-    @patch('builtins.input', side_effect=['1'])
-    def test_interactive_mode_draft_player_success(self, mock_input, add_to_roster_manager,
-                                                   mock_player_manager, mock_team_data_manager, sample_players, capsys):
-        """Test successfully drafting a player"""
-        mock_player_manager.get_roster_len.return_value = 0
-        mock_player_manager.draft_player.return_value = True
-
-        recommendations = [ScoredPlayer(sample_players[i], 100.0 - i, []) for i in range(10)]
-
-        with patch.object(add_to_roster_manager, '_display_roster_by_draft_rounds'):
-            with patch.object(add_to_roster_manager, '_get_current_round', return_value=1):
-                with patch.object(add_to_roster_manager, 'get_recommendations',
-                                 return_value=recommendations):
-                    add_to_roster_manager.start_interactive_mode(mock_player_manager, mock_team_data_manager)
-
-        captured = capsys.readouterr()
-        assert "Successfully added" in captured.out
-        mock_player_manager.draft_player.assert_called_once()
-        mock_player_manager.update_players_file.assert_called_once()
-
-    @patch('builtins.input', side_effect=['1'])
-    def test_interactive_mode_draft_player_failure(self, mock_input, add_to_roster_manager,
-                                                   mock_player_manager, mock_team_data_manager, sample_players, capsys):
-        """Test failed player draft"""
-        mock_player_manager.get_roster_len.return_value = 0
-        mock_player_manager.draft_player.return_value = False
-
-        recommendations = [ScoredPlayer(sample_players[i], 100.0 - i, []) for i in range(10)]
-
-        with patch.object(add_to_roster_manager, '_display_roster_by_draft_rounds'):
-            with patch.object(add_to_roster_manager, '_get_current_round', return_value=1):
-                with patch.object(add_to_roster_manager, 'get_recommendations',
-                                 return_value=recommendations):
-                    add_to_roster_manager.start_interactive_mode(mock_player_manager, mock_team_data_manager)
-
-        captured = capsys.readouterr()
-        assert "Failed to add" in captured.out
-        assert "Check roster limits" in captured.out
-        mock_player_manager.update_players_file.assert_not_called()
-
-    @patch('builtins.input', side_effect=['abc', '11'])
-    def test_interactive_mode_invalid_input(self, mock_input, add_to_roster_manager,
-                                           mock_player_manager, mock_team_data_manager, capsys):
-        """Test handling of invalid input"""
-        mock_player_manager.get_roster_len.return_value = 0
-        recommendations = [Mock(spec=ScoredPlayer) for _ in range(10)]
-
-        with patch.object(add_to_roster_manager, '_display_roster_by_draft_rounds'):
-            with patch.object(add_to_roster_manager, '_get_current_round', return_value=1):
-                with patch.object(add_to_roster_manager, 'get_recommendations',
-                                 return_value=recommendations):
-                    add_to_roster_manager.start_interactive_mode(mock_player_manager, mock_team_data_manager)
-
-        captured = capsys.readouterr()
-        assert "Invalid input" in captured.out
-
-    @patch('builtins.input', side_effect=['0', '11'])
-    def test_interactive_mode_out_of_range_selection(self, mock_input, add_to_roster_manager,
-                                                     mock_player_manager, mock_team_data_manager, capsys):
-        """Test handling out of range selection"""
-        mock_player_manager.get_roster_len.return_value = 0
-        recommendations = [Mock(spec=ScoredPlayer) for _ in range(10)]
-
-        with patch.object(add_to_roster_manager, '_display_roster_by_draft_rounds'):
-            with patch.object(add_to_roster_manager, '_get_current_round', return_value=1):
-                with patch.object(add_to_roster_manager, 'get_recommendations',
-                                 return_value=recommendations):
-                    add_to_roster_manager.start_interactive_mode(mock_player_manager, mock_team_data_manager)
-
-        captured = capsys.readouterr()
-        assert "Invalid selection" in captured.out
-
-    def test_interactive_mode_no_recommendations(self, add_to_roster_manager,
-                                                mock_player_manager, mock_team_data_manager, capsys):
-        """Test when no recommendations available (roster full or no available players)"""
-        mock_player_manager.get_roster_len.return_value = 15
-
-        with patch.object(add_to_roster_manager, '_display_roster_by_draft_rounds'):
-            with patch.object(add_to_roster_manager, '_get_current_round', return_value=None):
-                with patch.object(add_to_roster_manager, 'get_recommendations',
-                                 return_value=[]):
-                    add_to_roster_manager.start_interactive_mode(mock_player_manager, mock_team_data_manager)
-
-        captured = capsys.readouterr()
-        assert "No recommendations available" in captured.out
-        assert "Returning to Main Menu..." in captured.out
-
-    @patch('builtins.input', side_effect=['1'])
-    def test_interactive_mode_updates_managers(self, mock_input, add_to_roster_manager,
-                                              mock_player_manager, sample_players):
-        """Test that interactive mode updates managers via set_managers"""
-        new_player_manager = Mock(spec=PlayerManager)
-        new_player_manager.get_roster_len.return_value = 0
-        new_player_manager.draft_player.return_value = True
-        new_player_manager.update_players_file = Mock()
-        new_player_manager.team = Mock()
-        new_player_manager.team.roster = []
-
-        new_team_manager = Mock(spec=TeamDataManager)
-
-        recommendations = [ScoredPlayer(sample_players[0], 100.0, [])]
-
-        with patch.object(add_to_roster_manager, '_display_roster_by_draft_rounds'):
-            with patch.object(add_to_roster_manager, '_get_current_round', return_value=1):
-                with patch.object(add_to_roster_manager, 'get_recommendations',
-                                 return_value=recommendations):
-                    add_to_roster_manager.start_interactive_mode(new_player_manager, new_team_manager)
-
-        assert add_to_roster_manager.player_manager == new_player_manager
-        assert add_to_roster_manager.team_data_manager == new_team_manager
-
-    @patch('builtins.input', side_effect=['1'])
-    @patch('builtins.print')
-    def test_interactive_mode_shows_updated_roster_after_draft(self, mock_print, mock_input,
-                                                               add_to_roster_manager,
-                                                               mock_player_manager, mock_team_data_manager, sample_players):
-        """Test that updated roster is displayed after successful draft"""
-        mock_player_manager.get_roster_len.return_value = 0
-        mock_player_manager.draft_player.return_value = True
-
-        recommendations = [ScoredPlayer(sample_players[0], 100.0, [])]
-
-        with patch.object(add_to_roster_manager, '_display_roster_by_draft_rounds') as mock_display:
-            with patch.object(add_to_roster_manager, '_get_current_round', return_value=1):
-                with patch.object(add_to_roster_manager, 'get_recommendations',
-                                 return_value=recommendations):
-                    add_to_roster_manager.start_interactive_mode(mock_player_manager, mock_team_data_manager)
-
-        assert mock_display.call_count == 2
-
-
-
+# D18.5 retired the interactive draft transaction: the tests that once sat above this
+# line asserted the player-choice prompt, the local draft_player() / update_players_file()
+# write, the per-pick main-menu entry, or the per-mode EOFError clause -- all removed by
+# the cockpit cutover. The cockpit's own coverage lives in
+# tests/league_helper/draft_mode/test_DraftModeManager_cockpit.py.
 class TestEdgeCases:
     """Test edge cases and error conditions"""
 
@@ -890,76 +751,6 @@ class TestEdgeCases:
         with patch.object(add_to_roster_manager, '_get_current_round', return_value=1):
             with pytest.raises(Exception):
                 add_to_roster_manager.get_recommendations()
-
-    @patch('builtins.input', side_effect=KeyboardInterrupt())
-    def test_interactive_mode_handles_keyboard_interrupt(self, mock_input, add_to_roster_manager,
-                                                        mock_player_manager, mock_team_data_manager):
-        """Test handling of KeyboardInterrupt (Ctrl+C)"""
-        mock_player_manager.get_roster_len.return_value = 0
-
-        with patch.object(add_to_roster_manager, '_display_roster_by_draft_rounds'):
-            with patch.object(add_to_roster_manager, '_get_current_round', return_value=1):
-                with patch.object(add_to_roster_manager, 'get_recommendations',
-                                 return_value=[Mock(spec=ScoredPlayer)]):
-                    with pytest.raises(KeyboardInterrupt):
-                        add_to_roster_manager.start_interactive_mode(mock_player_manager, mock_team_data_manager)
-
-    @patch('builtins.print')
-    @patch('builtins.input')
-    def test_interactive_mode_reraises_eof_instead_of_masking_it_as_a_cancel(
-            self, mock_input, mock_print, add_to_roster_manager,
-            mock_player_manager, mock_team_data_manager):
-        """Test EOF escapes past the broad handler rather than posing as a user cancel (T83 R2/R4).
-
-        Before T83 the broad `except Exception` caught EOFError and printed
-        "Error: EOF when reading a line" + "Returning to Main Menu..." -- a dead
-        stdin reported as a deliberate return, after which the Main Menu immediately
-        re-prompted the same dead stream. The guard clause routes EOF past that
-        handler so LeagueHelperManager.main() can own the notice and the exit status.
-
-        side_effect is an unbounded callable, never a finite list: a finite list ends
-        on StopIteration and would stay green against a broken guard.
-        """
-        def _always_eof(*args, **kwargs):
-            raise EOFError("EOF when reading a line")
-
-        mock_input.side_effect = _always_eof
-        mock_player_manager.get_roster_len.return_value = 0
-
-        with patch.object(add_to_roster_manager, '_display_roster_by_draft_rounds'):
-            with patch.object(add_to_roster_manager, '_get_current_round', return_value=1):
-                with patch.object(add_to_roster_manager, 'get_recommendations',
-                                 return_value=[Mock(spec=ScoredPlayer)]):
-                    with pytest.raises(EOFError):
-                        add_to_roster_manager.start_interactive_mode(mock_player_manager, mock_team_data_manager)
-
-        printed = " ".join(str(c) for c in mock_print.call_args_list)
-        assert "Error: EOF when reading a line" not in printed
-        assert "Returning to Main Menu..." not in printed
-
-    @patch('builtins.print')
-    @patch('builtins.input', side_effect=RuntimeError("boom"))
-    def test_interactive_mode_still_reports_genuine_errors(
-            self, mock_input, mock_print, add_to_roster_manager,
-            mock_player_manager, mock_team_data_manager):
-        """Test the broad handler is NARROWED by T83's guard, not removed (R2).
-
-        A RuntimeError is not an EOFError, so it must still reach the broad
-        `except Exception`, still print both user-facing lines, and still return
-        normally. Without this case a guard edit that deleted the handler's prints
-        would ship green -- the broad handler has no other coverage in this file.
-        """
-        mock_player_manager.get_roster_len.return_value = 0
-
-        with patch.object(add_to_roster_manager, '_display_roster_by_draft_rounds'):
-            with patch.object(add_to_roster_manager, '_get_current_round', return_value=1):
-                with patch.object(add_to_roster_manager, 'get_recommendations',
-                                 return_value=[Mock(spec=ScoredPlayer)]):
-                    add_to_roster_manager.start_interactive_mode(mock_player_manager, mock_team_data_manager)
-
-        printed = " ".join(str(c) for c in mock_print.call_args_list)
-        assert "Error: boom" in printed
-        assert "Returning to Main Menu..." in printed
 
     def test_match_players_to_rounds_with_duplicate_positions(self, add_to_roster_manager,
                                                               mock_player_manager, sample_players):

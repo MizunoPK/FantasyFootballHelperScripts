@@ -11,7 +11,7 @@ true zero season-long projection before the season starts), and SimulatedOpponen
 so it can hoard more than its fair share of the scarce positive-value players at a
 position. Combined, this could exhaust the positive-value pool for a position before
 every team's roster need for that position was met, leaving
-AddToRosterModeManager.get_recommendations() with zero candidates for a still-open
+DraftModeManager.get_recommendations() with zero candidates for a still-open
 roster slot -> DraftHelperTeam.get_draft_recommendation() raised ValueError ->
 SimulatedLeague.run_draft() crashed, dropping the whole league to a 0.000 win rate.
 
@@ -21,7 +21,7 @@ roster may be full" before this fix; simulation/sim_data/2021 and .../2025 did n
 (both seasons happened to retain enough week-1 positive-value QBs). This file guards
 both the exact reproduction (real committed season data) and the underlying fallback
 mechanism (PlayerManager.get_player_list(require_positive_points=False) /
-AddToRosterModeManager.get_recommendations()) directly, so the mechanism stays
+DraftModeManager.get_recommendations()) directly, so the mechanism stays
 covered even if the committed historical data is later recompiled.
 
 Author: Kai Mizuno
@@ -35,7 +35,7 @@ from unittest.mock import Mock
 import pytest
 
 import league_helper.constants as Constants
-from league_helper.add_to_roster_mode.AddToRosterModeManager import AddToRosterModeManager
+from league_helper.draft_mode.DraftModeManager import DraftModeManager
 from league_helper.util.ConfigManager import ConfigManager
 from league_helper.util.PlayerManager import PlayerManager
 from league_helper.util.TeamDataManager import TeamDataManager
@@ -120,7 +120,7 @@ class TestPositiveValuePoolExhaustionFallback:
     """
     Deterministic, data-independent coverage of the fallback mechanism itself:
     PlayerManager.get_player_list(..., require_positive_points=False) and
-    AddToRosterModeManager.get_recommendations() falling back to zero-value
+    DraftModeManager.get_recommendations() falling back to zero-value
     roster-legal candidates when the positive-value pool is exhausted.
     """
 
@@ -158,7 +158,7 @@ class TestPositiveValuePoolExhaustionFallback:
 
     def test_get_recommendations_falls_back_when_positive_pool_empty(self):
         """
-        AddToRosterModeManager.get_recommendations() must not return [] (which
+        DraftModeManager.get_recommendations() must not return [] (which
         DraftHelperTeam.get_draft_recommendation() turns into a hard ValueError) when
         the positive-value pool is empty but roster-legal zero-value candidates exist.
         """
@@ -184,7 +184,7 @@ class TestPositiveValuePoolExhaustionFallback:
         config = Mock()
         config.max_players = 15
 
-        manager = AddToRosterModeManager(config, player_manager, team_data_manager)
+        manager = DraftModeManager(config, player_manager, team_data_manager)
         # Roster not full (1 of 15 slots filled) so _get_current_round() returns a round.
         with pytest.MonkeyPatch.context() as mp:
             mp.setattr(manager, "_get_current_round", lambda: 2)
@@ -209,7 +209,7 @@ class TestPositiveValuePoolExhaustionFallback:
         config = Mock()
         config.max_players = 15
 
-        manager = AddToRosterModeManager(config, player_manager, team_data_manager)
+        manager = DraftModeManager(config, player_manager, team_data_manager)
         with pytest.MonkeyPatch.context() as mp:
             mp.setattr(manager, "_get_current_round", lambda: 2)
             recommendations = manager.get_recommendations()
@@ -296,7 +296,7 @@ class TestNegativeScoreFloorFallback:
         config = Mock()
         config.max_players = 15
 
-        manager = AddToRosterModeManager(config, player_manager, team_data_manager)
+        manager = DraftModeManager(config, player_manager, team_data_manager)
         with pytest.MonkeyPatch.context() as mp:
             mp.setattr(manager, "_get_current_round", lambda: 15)
             recommendations = manager.get_recommendations()
@@ -336,7 +336,7 @@ class TestNegativeScoreFloorDraftCompletion:
 class TestSimulatedOpponentPositiveValuePoolExhaustionFallback:
     """
     Deterministic, data-independent coverage of SimulatedOpponent.get_draft_recommendation()'s
-    T42 Polish (CONCERN-1) fallback: mirrors DraftHelperTeam/AddToRosterModeManager's graceful
+    T42 Polish (CONCERN-1) fallback: mirrors DraftHelperTeam/DraftModeManager's graceful
     degradation so a naive opponent facing an exhausted point-in-time positive-value pool falls
     back to roster-legal (free-agent) zero/negative-value candidates instead of raising
     ValueError and crashing the whole league to a 0.000 win rate.

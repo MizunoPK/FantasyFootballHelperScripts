@@ -3,8 +3,8 @@ E2E integration test for the league helper application.
 
 Invokes run_league_helper.py via subprocess with scripted stdin and a temp
 fixture data directory assembled at runtime. Asserts exit code 0, no Python
-traceback in stderr, startup banner in stdout, and evidence of add-to-roster
-mode navigation.
+traceback in stderr, startup banner in stdout, and evidence of draft mode
+navigation.
 """
 import os
 import shutil
@@ -48,12 +48,12 @@ class TestLeagueHelperE2E:
 
     Assembles a temp fixture data directory at test runtime from pre-built fixture
     files, then invokes run_league_helper.py with scripted stdin to drive a
-    non-trivial mode path (add-to-roster → back to menu → quit).
+    non-trivial mode path (draft mode → back to menu → quit).
     """
 
     def test_league_helper_runs_e2e(self, tmp_path: Path) -> None:
         """
-        Verify the league helper starts, navigates add-to-roster mode, and exits cleanly.
+        Verify the league helper starts, navigates draft mode, and exits cleanly.
 
         Args:
             tmp_path (Path): Pytest-provided temporary directory, cleaned up after test.
@@ -74,7 +74,7 @@ class TestLeagueHelperE2E:
         assert result.returncode == 0, f"Expected exit code 0, got {result.returncode}. stderr: {stderr}"
         assert "Traceback (most recent call last):" not in stderr, f"Python traceback found in stderr: {stderr}"
         assert "Config:" in stdout, f"Expected startup banner 'Config:' in stdout. stdout: {stdout}"
-        assert "ADD TO ROSTER" in stdout, f"Expected 'ADD TO ROSTER' mode header in stdout. stdout: {stdout}"
+        assert "DRAFT MODE" in stdout, f"Expected 'DRAFT MODE' mode header in stdout. stdout: {stdout}"
 
     def test_eof_at_main_menu_exits_cleanly_without_a_traceback(self, tmp_path: Path) -> None:
         """

@@ -78,7 +78,7 @@ class ConfigGenerator:
         # scales draft scores, not the week-to-week projection accuracy the tournament
         # measures, so --params rejects it by design. No sweep tunes it (the win-rate
         # sweep excludes it as inert); the range stays because it is live in
-        # league_helper/util/player_scoring.py as the is_draft_mode counterpart of
+        # league_helper/util/player_scoring.py as the use_draft_normalization counterpart of
         # NORMALIZATION_MAX_SCALE.
         'DRAFT_NORMALIZATION_MAX_SCALE': (100, 200, 0),
 

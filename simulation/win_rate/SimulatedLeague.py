@@ -189,7 +189,7 @@ class SimulatedLeague:
                 DraftHelperTeam (the one reported by get_draft_helper_results) is built with
                 THIS config while every other team — including any additional self-play
                 DraftHelperTeam opponents — uses config_dict. Because draft scoring runs through
-                each team's own PlayerManager (AddToRosterModeManager -> player_manager.score_player),
+                each team's own PlayerManager (DraftModeManager -> player_manager.score_player),
                 the measured team's PlayerManagers are built with this config too, so its draft-side
                 params differ from the opponents'. Default None preserves the legacy single-config
                 behavior (the last draft_helper team is the measured one and shares config_dict).
@@ -444,7 +444,7 @@ class SimulatedLeague:
         spans weeks 1-17 -- the entire season. Because set_player_data refreshes only
         projected_points/actual_points, that value would then stay frozen on every
         FantasyPlayer for the whole simulated season, and the draft scorer reads it
-        (AddToRosterModeManager scores with player_rating=True, and
+        (DraftModeManager scores with player_rating=True, and
         PLAYER_RATING_SCORING carries the highest WEIGHT of any factor).
 
         Measured before this substitution, week_18 rating vs season actual production

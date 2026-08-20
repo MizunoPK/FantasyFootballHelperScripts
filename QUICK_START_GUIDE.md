@@ -70,7 +70,7 @@ Both engines replay the committed historical seasons under `simulation/sim_data/
 python run_league_helper.py
 ```
 
-1. Select **"Add to Roster"** mode
+1. Select **"Draft Mode"**
 2. The system shows top player recommendations based on:
    - Projected points and ADP
    - Your current roster needs

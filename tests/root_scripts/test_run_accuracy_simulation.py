@@ -933,6 +933,42 @@ class TestParallelRunnerEvaluationLogLine:
 
 
 
+_SIM_CONFIGS = Path(__file__).resolve().parents[2] / "simulation" / "simulation_configs"
+
+
+def _has_baseline_config() -> bool:
+    """True when a generated baseline folder the runner can discover is present.
+
+    `find_baseline_config()` requires `simulation/simulation_configs/` to hold an
+    `accuracy_optimal_*` or `optimal_*` subfolder carrying `league_config.json` plus
+    all four `week*.json` files. That folder is a GENERATED artifact -- `.gitignore`
+    excludes `accuracy_optimal_*` -- produced only by running the win-rate simulation
+    first. It is absent from a fresh clone, so these two end-to-end tests cannot pass
+    without that prerequisite step.
+    """
+    if not _SIM_CONFIGS.is_dir():
+        return False
+    required = {"league_config.json", "week1-5.json", "week6-9.json",
+                "week10-13.json", "week14-17.json"}
+    for child in _SIM_CONFIGS.iterdir():
+        if not child.is_dir():
+            continue
+        if not (child.name.startswith("accuracy_optimal_") or child.name.startswith("optimal_")):
+            continue
+        if required <= {f.name for f in child.iterdir() if f.is_file()}:
+            return True
+    return False
+
+
+@pytest.mark.skipif(
+    not _has_baseline_config(),
+    reason=(
+        "needs a generated baseline in simulation/simulation_configs/ "
+        "(accuracy_optimal_*/ with league_config.json + week1-5/6-9/10-13/14-17.json). "
+        "That folder is gitignored and produced by the win-rate simulation, so it is "
+        "absent on a fresh clone -- run the win-rate simulation first, or pass --baseline."
+    ),
+)
 class TestT69TerminatingRunner:
     """T69/AC1 + AC13: the runner terminates and has a meaningful exit code.
 
