@@ -43,36 +43,36 @@
       },
       {
         "FLEX": "P",
-        "QB": "S"
-      },
-      {
-        "FLEX": "P",
         "TE": "S"
       },
       {
-        "QB": "P",
-        "FLEX": "S"
+        "FLEX": "P",
+        "QB": "S"
       },
       {
         "TE": "P",
         "FLEX": "S"
       },
       {
-        "FLEX": "P"
+        "QB": "P",
+        "FLEX": "S"
       },
       {
         "FLEX": "P"
       },
       {
-        "K": "P",
+        "FLEX": "P"
+      },
+      {
+        "DST": "P",
         "FLEX": "S"
       },
       {
         "FLEX": "P",
-        "DST": "S"
+        "K": "S"
       },
       {
-        "DST": "P"
+        "K": "P"
       }
     ],
     "DRAFT_NORMALIZATION_MAX_SCALE": 100,

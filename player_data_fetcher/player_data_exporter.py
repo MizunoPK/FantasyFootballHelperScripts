@@ -586,15 +586,30 @@ class DataExporter:
 
     def _extract_stat_value(self, raw_stats: List[Dict], week: int, stat_id: str) -> float:
         """
-        Extract a single stat value from raw_stats array for a specific week.
+        Extract a single stat value from raw_stats array for a specific week,
+        scoped to the requested SEASON.
 
         Pattern from compile_historical_data.py:
         - Find stat entry with scoringPeriodId == week AND statSourceId == 0
-        - Extract from appliedStats dict using stat_id as string key
+        - Extract from the entry's stats dict using stat_id as a string key
         - Return 0.0 if not found
 
         IMPORTANT: Only extracts stats for weeks <= current_nfl_week to avoid
         showing "actual" stats for games that haven't been played yet.
+
+        IMPORTANT: ESPN returns entries for MULTIPLE seasons under the same
+        `scoringPeriodId`, so matching on (`scoringPeriodId`, `statSourceId`)
+        alone reads whichever season happens to sort first. That made a 2026
+        preseason pull emit PRIOR-season box scores -- receptions, rushing
+        yards, sacks, field goals -- for games that had not been played, while
+        the season-scoped `actual_points` array beside them was correctly all
+        zeroes. This is the same `seasonId` guard `_select_week_stat` already
+        applies, extended to the detail-stat path it was missed on; see that
+        method's docstring for the measured evidence.
+
+        Scanning continues past a zero or a missing key so a non-zero sibling
+        entry for the same season wins, mirroring `_select_week_stat`'s
+        "first positive among valid entries" selection.
 
         Args:
             raw_stats: List of stat dictionaries from ESPN API
@@ -607,11 +622,31 @@ class DataExporter:
         if week >= self.current_nfl_week:
             return 0.0
 
+        season = self._espn_season()
         for stat in raw_stats:
-            if stat.get('scoringPeriodId') == week and stat.get('statSourceId') == 0:
-                stats_dict = stat.get('stats', {})
-                value = stats_dict.get(stat_id, 0.0)
-                return float(value) if value else 0.0
+            if not isinstance(stat, dict):
+                continue
+            if stat.get('scoringPeriodId') != week:
+                continue
+            if stat.get('statSourceId') != 0:
+                continue
+            if season is not None and stat.get('seasonId') != season:
+                continue
+
+            stats_dict = stat.get('stats')
+            if not isinstance(stats_dict, dict):
+                continue
+            value = stats_dict.get(stat_id)
+            if value is None:
+                continue
+            try:
+                value = float(value)
+            except (TypeError, ValueError):
+                continue
+            if value != value:  # NaN
+                continue
+            if value:
+                return value
         return 0.0
 
     def _extract_combined_stat(self, raw_stats: List[Dict], week: int, stat_ids: List[str]) -> float:

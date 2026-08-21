@@ -141,3 +141,114 @@ class TestMalformedEntriesAreSkipped:
             season=CURRENT_SEASON,
         )
         assert selected == pytest.approx(8.4)
+
+
+class TestDetailStatsAreSeasonScoped:
+    """The detail-stat path (`_extract_stat_value`), missed by the original fix.
+
+    Symptom: a 2026 preseason pull emitted populated receptions / rushing /
+    kicking / defense arrays for games that had not been played, sitting beside
+    an all-zero `actual_points` array that the season guard had already fixed.
+    """
+
+    def _boxscore(self, season, week, stats):
+        entry = _stat(season, week, 0, 0.0)
+        entry["stats"] = stats
+        return entry
+
+    def test_prior_season_boxscore_is_not_read_as_current_season(self, tmp_path):
+        player = _player([self._boxscore(PRIOR_SEASON, 3, {"53": 7.0, "42": 96.0})])
+        exporter = _exporter(tmp_path, current_nfl_week=17)
+        receiving = exporter._extract_receiving_stats(player)
+        assert receiving["receptions"][2] == 0.0
+        assert receiving["receiving_yds"][2] == 0.0
+
+    def test_current_season_boxscore_is_read(self, tmp_path):
+        player = _player([self._boxscore(CURRENT_SEASON, 3, {"53": 7.0, "42": 96.0})])
+        exporter = _exporter(tmp_path, current_nfl_week=17)
+        receiving = exporter._extract_receiving_stats(player)
+        assert receiving["receptions"][2] == pytest.approx(7.0)
+        assert receiving["receiving_yds"][2] == pytest.approx(96.0)
+
+    def test_prior_season_entry_does_not_shadow_current_season(self, tmp_path):
+        """Prior-season entry sorts first; the current-season value must win."""
+        player = _player([
+            self._boxscore(PRIOR_SEASON, 4, {"53": 11.0}),
+            self._boxscore(CURRENT_SEASON, 4, {"53": 3.0}),
+        ])
+        exporter = _exporter(tmp_path, current_nfl_week=17)
+        assert exporter._extract_receiving_stats(player)["receptions"][3] == pytest.approx(3.0)
+
+    def test_order_independence(self, tmp_path):
+        forward = _player([
+            self._boxscore(PRIOR_SEASON, 4, {"53": 11.0}),
+            self._boxscore(CURRENT_SEASON, 4, {"53": 3.0}),
+        ])
+        reverse = _player([
+            self._boxscore(CURRENT_SEASON, 4, {"53": 3.0}),
+            self._boxscore(PRIOR_SEASON, 4, {"53": 11.0}),
+        ])
+        exporter = _exporter(tmp_path, current_nfl_week=17)
+        assert exporter._extract_receiving_stats(forward)["receptions"][3] == pytest.approx(3.0)
+        assert exporter._extract_receiving_stats(reverse)["receptions"][3] == pytest.approx(3.0)
+
+    def test_projection_entries_are_never_read_as_actuals(self, tmp_path):
+        """statSourceId=1 carries current-season projections; not a box score."""
+        entry = _stat(CURRENT_SEASON, 5, 1, 14.0)
+        entry["stats"] = {"53": 6.0}
+        player = _player([entry])
+        exporter = _exporter(tmp_path, current_nfl_week=17)
+        assert exporter._extract_receiving_stats(player)["receptions"][4] == 0.0
+
+    def test_every_stat_family_is_scoped(self, tmp_path):
+        """Passing, rushing, receiving, misc, kicking and defense share the path."""
+        prior = self._boxscore(PRIOR_SEASON, 2, {
+            "3": 310.0, "24": 88.0, "53": 7.0, "68": 1.0, "83": 3.0, "99": 4.0,
+        })
+        player = _player([prior])
+        exporter = _exporter(tmp_path, current_nfl_week=17)
+        assert exporter._extract_passing_stats(player)["pass_yds"][1] == 0.0
+        assert exporter._extract_rushing_stats(player)["rush_yds"][1] == 0.0
+        assert exporter._extract_receiving_stats(player)["receptions"][1] == 0.0
+        assert exporter._extract_misc_stats(player)["fumbles"][1] == 0.0
+
+    def test_combined_stat_is_scoped_too(self, tmp_path):
+        """`_extract_combined_stat` (DST return yards) delegates to the same helper."""
+        player = _player([self._boxscore(PRIOR_SEASON, 6, {"114": 40.0, "115": 25.0})])
+        exporter = _exporter(tmp_path, current_nfl_week=17)
+        assert exporter._extract_combined_stat(player.raw_stats, 6, ["114", "115"]) == 0.0
+
+    def test_unknown_season_preserves_prior_behaviour(self, tmp_path):
+        """historical_data_compiler passes no espn_settings; keep it unfiltered."""
+        player = _player([self._boxscore(PRIOR_SEASON, 3, {"53": 7.0})])
+        exporter = _exporter(tmp_path, season=None, current_nfl_week=17)
+        assert exporter._extract_receiving_stats(player)["receptions"][2] == pytest.approx(7.0)
+
+    def test_future_week_gate_still_applies(self, tmp_path):
+        """A current-season week at or beyond current_nfl_week stays zero."""
+        player = _player([self._boxscore(CURRENT_SEASON, 9, {"53": 7.0})])
+        exporter = _exporter(tmp_path, current_nfl_week=9)
+        assert exporter._extract_receiving_stats(player)["receptions"][8] == 0.0
+
+    @pytest.mark.parametrize("bad", [None, "not-a-number", float("nan")])
+    def test_malformed_value_does_not_raise(self, tmp_path, bad):
+        player = _player([self._boxscore(CURRENT_SEASON, 3, {"53": bad})])
+        exporter = _exporter(tmp_path, current_nfl_week=17)
+        assert exporter._extract_receiving_stats(player)["receptions"][2] == 0.0
+
+    def test_malformed_entry_does_not_hide_a_good_sibling(self, tmp_path):
+        player = _player([
+            self._boxscore(CURRENT_SEASON, 3, {"53": float("nan")}),
+            self._boxscore(CURRENT_SEASON, 3, {"53": 5.0}),
+        ])
+        exporter = _exporter(tmp_path, current_nfl_week=17)
+        assert exporter._extract_receiving_stats(player)["receptions"][2] == pytest.approx(5.0)
+
+    def test_missing_stats_dict_is_skipped(self, tmp_path):
+        """An appliedTotal-only entry carries no `stats` dict at all."""
+        player = _player([
+            _stat(CURRENT_SEASON, 3, 0, 12.0),
+            self._boxscore(CURRENT_SEASON, 3, {"53": 5.0}),
+        ])
+        exporter = _exporter(tmp_path, current_nfl_week=17)
+        assert exporter._extract_receiving_stats(player)["receptions"][2] == pytest.approx(5.0)
