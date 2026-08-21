@@ -68,11 +68,11 @@
         "FLEX": "S"
       },
       {
-        "DST": "P",
-        "FLEX": "S"
+        "FLEX": "P",
+        "DST": "S"
       },
       {
-        "FLEX": "P"
+        "DST": "P"
       }
     ],
     "DRAFT_NORMALIZATION_MAX_SCALE": 100,

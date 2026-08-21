@@ -56,8 +56,8 @@ def parse_args(argv=None):
     parser.add_argument(
         '--season',
         type=int,
-        default=2025,
-        help='NFL season year (default: 2025)'
+        default=2026,
+        help='NFL season year (default: 2026)'
     )
 
     parser.add_argument(
