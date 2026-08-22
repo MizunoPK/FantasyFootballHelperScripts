@@ -42,20 +42,16 @@
         "FLEX": "S"
       },
       {
-        "FLEX": "P",
-        "TE": "S"
+        "FLEX": "P"
       },
       {
-        "FLEX": "P",
-        "QB": "S"
+        "FLEX": "P"
       },
       {
-        "TE": "P",
-        "FLEX": "S"
+        "FLEX": "P"
       },
       {
-        "QB": "P",
-        "FLEX": "S"
+        "FLEX": "P"
       },
       {
         "FLEX": "P"
@@ -77,11 +73,11 @@
     ],
     "DRAFT_NORMALIZATION_MAX_SCALE": 100,
     "MAX_POSITIONS": {
-      "QB": 2,
-      "RB": 4,
-      "WR": 4,
+      "QB": 1,
+      "RB": 5,
+      "WR": 5,
       "FLEX": 1,
-      "TE": 2,
+      "TE": 1,
       "K": 1,
       "DST": 1
     },
