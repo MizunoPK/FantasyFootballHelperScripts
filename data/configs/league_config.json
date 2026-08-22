@@ -62,11 +62,11 @@
         "FLEX": "S"
       },
       {
-        "FLEX": "P",
-        "K": "S"
+        "K": "P",
+        "FLEX": "S"
       },
       {
-        "K": "P"
+        "FLEX": "P"
       }
     ],
     "DRAFT_NORMALIZATION_MAX_SCALE": 100,
