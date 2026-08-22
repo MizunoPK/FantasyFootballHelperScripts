@@ -18,20 +18,18 @@
     },
     "DRAFT_ORDER": [
       {
-        "RB": "P",
-        "WR": "S"
+        "FLEX": "P"
       },
       {
-        "RB": "P",
-        "WR": "S"
+        "FLEX": "P"
       },
       {
-        "WR": "P",
-        "TE": "S"
-      },
-      {
-        "WR": "P",
+        "FLEX": "P",
         "QB": "S"
+      },
+      {
+        "FLEX": "P",
+        "TE": "S"
       },
       {
         "QB": "P",
